@@ -2934,6 +2934,947 @@ ACCEPTANCE CRITERIA:
 - [ ] Color contrast ratios meet standards
 ```
 
+### 16.4 Technology Stack Decision Framework
+
+```
+REQUIREMENT: TECH-004
+PRIORITY: Critical
+CATEGORY: Technical Architecture
+
+The system SHALL be built on a technology stack that supports zero-knowledge
+architecture, offline-first functionality, and long-term maintainability while
+enabling rapid development and deployment.
+```
+
+#### 16.4.1 Frontend Stack (DECIDED)
+
+```
+STACK DECISIONS - IMPLEMENTED:
+
+The following frontend technologies have been selected and are documented in package.json:
+
+CORE FRAMEWORK:
+- React 18.3+ - Component-based UI framework
+  * Rationale: Mature ecosystem, excellent TypeScript support, strong community
+  * Supports: Virtual DOM for performance, hooks for state management
+  * Trade-offs: Bundle size larger than alternatives, but offset by code splitting
+
+LANGUAGE:
+- TypeScript 5.3+ - Typed JavaScript superset
+  * Rationale: Type safety critical for encryption/key management code
+  * Supports: Early error detection, better IDE support, self-documenting code
+  * Trade-offs: Compilation step, learning curve
+
+BUILD TOOL:
+- Vite 5.1+ - Fast build tool and dev server
+  * Rationale: Near-instant HMR, optimized production builds, native ESM
+  * Supports: Fast development iteration, excellent TypeScript integration
+  * Trade-offs: Newer than Webpack, but well-supported ecosystem
+
+CLIENT DATABASE:
+- Dexie.js 4.0+ - IndexedDB wrapper
+  * Rationale: Promise-based API, CRUD operations, full-text search, encryption hooks
+  * Supports: Offline-first architecture, large dataset storage
+  * Trade-offs: IndexedDB browser limits (~50% available storage), but acceptable
+
+ENCRYPTION:
+- argon2-browser - Client-side Argon2id implementation
+  * Rationale: Memory-hard password hashing, WASM performance, no server dependency
+  * Supports: Key derivation from passphrase, brute-force resistance
+  * Trade-offs: Initial WASM load time (~200ms), acceptable for security benefit
+
+- Web Crypto API - Browser-native AES-256-GCM
+  * Rationale: Native performance, no dependencies, standardized
+  * Supports: Field-level encryption, authenticated encryption (AEAD)
+  * Trade-offs: Browser compatibility (requires HTTPS in production)
+
+TESTING:
+- Vitest - Unit testing framework
+  * Rationale: Vite-native, fast execution, Jest-compatible API
+  * Supports: Component testing, coverage reports, snapshot testing
+
+- @testing-library/react - Component testing utilities
+  * Rationale: User-centric testing, accessibility-focused
+  * Supports: Integration testing, behavior-driven tests
+
+- Playwright - End-to-end testing
+  * Rationale: Multi-browser support, reliable selectors, video recording
+  * Supports: Critical user journey testing, visual regression testing
+
+ACCEPTANCE CRITERIA:
+- [x] Frontend stack documented in package.json
+- [x] TypeScript strict mode enabled
+- [x] Vite configuration optimized for production
+- [x] Dexie.js schema designed (see Section 2.2)
+- [x] Encryption libraries integrated
+- [ ] Test coverage >80% for business logic
+- [ ] Test coverage 100% for cryptographic code
+```
+
+#### 16.4.2 Backend / Sync Service Stack [DECISION POINT]
+
+```
+DECISION REQUIRED: Backend runtime and framework selection
+
+CONTEXT:
+The sync relay service needs to:
+1. Store encrypted payloads (server cannot decrypt)
+2. Route sync messages between devices
+3. Handle authentication (hash verification only)
+4. Scale to 100,000+ concurrent users
+5. Minimize operational costs
+
+EVALUATION CRITERIA:
+- Performance: Throughput, latency, resource efficiency
+- Deployment Simplicity: Container support, managed service availability
+- Team Velocity: Learning curve, hiring pool, debugging tools
+- Cost: Infrastructure costs at scale
+- Long-term Viability: Community support, security updates
+
+OPTION A: Node.js + Fastify [RECOMMENDED]
+Strengths:
++ Same language as frontend (JavaScript/TypeScript)
++ Mature ecosystem for auth, WebSocket, database clients
++ Excellent async I/O performance
++ Low learning curve for frontend developers
++ Strong managed service support (AWS Lambda, Vercel, Fly.io)
+
+Trade-offs:
+- Higher memory usage than Go/Rust
+- Single-threaded (mitigated by clustering)
+- GC pauses (typically <10ms, acceptable for use case)
+
+Estimated Performance:
+- 10,000 req/s per instance (with WebSocket keep-alive)
+- ~100MB RAM per instance baseline
+- Cold start: ~200ms (serverless)
+
+OPTION B: Go + Fiber
+Strengths:
++ Lower memory footprint (~30MB baseline)
++ Native concurrency (goroutines)
++ Fast compilation, single binary deployment
++ No garbage collection pauses in critical path
+
+Trade-offs:
+- Different language from frontend (team split)
+- Less mature crypto ecosystem (WASM integration more complex)
+- Smaller managed service support
+
+Estimated Performance:
+- 20,000 req/s per instance
+- ~30MB RAM per instance baseline
+- Cold start: ~50ms (serverless)
+
+OPTION C: Deno + Fresh
+Strengths:
++ TypeScript-native (same as frontend)
++ Modern security model (permissions-based)
++ Built-in WebSocket, HTTP/2
++ Single executable deployment
+
+Trade-offs:
+- Newest ecosystem (fewer libraries, less community support)
+- Less proven at scale (fewer case studies)
+- Managed service support still emerging
+
+Estimated Performance:
+- 8,000 req/s per instance
+- ~50MB RAM per instance baseline
+- Cold start: ~100ms (serverless)
+
+DECISION MATRIX:
+
+┌─────────────────────┬──────────┬──────┬───────┐
+│ Criterion           │ Node.js  │  Go  │ Deno  │
+├─────────────────────┼──────────┼──────┼───────┤
+│ Performance         │    B+    │  A   │   B   │
+│ Deployment Ease     │    A     │  B+  │   B   │
+│ Team Velocity       │    A     │  B   │   A-  │
+│ Operational Cost    │    B     │  A   │   B+  │
+│ Ecosystem Maturity  │    A     │  B+  │   C+  │
+│ Learning Curve      │    A     │  B   │   A   │
+└─────────────────────┴──────────┴──────┴───────┘
+
+RECOMMENDATION: Node.js + Fastify
+Rationale: Team velocity and deployment ecosystem outweigh raw performance
+advantages of Go. The sync relay is I/O-bound (database, network), not CPU-bound,
+so Node.js async I/O is well-suited. Shared language reduces cognitive load.
+
+[TBD: Final backend stack selection]
+- Decision Required By: Tech Lead + DevOps Lead
+- Deadline: Before backend development begins
+- Testing Requirement: Load test prototype with realistic dataset (10K users, 100K transactions)
+```
+
+#### 16.4.3 Encryption Libraries (DECIDED)
+
+```
+CRYPTOGRAPHIC STACK - IMPLEMENTED:
+
+The following encryption approach has been selected:
+
+KEY DERIVATION:
+- Argon2id (via argon2-browser)
+  * Parameters: m=65536 (64MB), t=3 iterations, p=4 parallelism
+  * Output: 256-bit master key
+  * Rationale: OWASP-recommended, memory-hard, GPU-resistant
+
+- HKDF-SHA256 (via Web Crypto API)
+  * Derives Company Key from Master Key
+  * Derives Encryption Key (K_enc) and Auth Key (K_auth) from Master Key
+  * Rationale: Standardized key derivation (RFC 5869)
+
+SYMMETRIC ENCRYPTION:
+- AES-256-GCM (via Web Crypto API)
+  * Field-level encryption for sensitive data
+  * Authenticated encryption (integrity + confidentiality)
+  * 96-bit random IV per encryption operation
+  * Rationale: NIST-approved, hardware acceleration, authenticated
+
+HASHING:
+- BLAKE3 (via @noble/hashes)
+  * For authentication token generation (hash of K_auth)
+  * For integrity verification
+  * Rationale: Faster than SHA-256, cryptographically secure
+
+RANDOM NUMBER GENERATION:
+- Web Crypto API crypto.getRandomValues()
+  * For IV generation, salt generation
+  * Rationale: Cryptographically secure PRNG (CSPRNG)
+
+RECOVERY KEY (OPTIONAL):
+- BIP39 (24-word mnemonic)
+  * Encodes master key as human-readable words
+  * Standardized word list (2048 words)
+  * Rationale: User-friendly backup, proven in cryptocurrency space
+
+ACCEPTANCE CRITERIA:
+- [x] Argon2id parameters set to OWASP recommendations
+- [x] All encryption uses CSPRNG for IVs/salts
+- [x] AES-GCM used for all symmetric encryption
+- [x] BLAKE3 used for non-password hashing
+- [ ] Security audit of cryptographic implementation (before beta)
+- [ ] Penetration test of authentication system (before beta)
+```
+
+#### 16.4.4 CRDT Library Selection [DECISION POINT]
+
+```
+DECISION REQUIRED: Conflict-free Replicated Data Type library for sync
+
+CONTEXT:
+The offline-first sync system requires a CRDT implementation to handle:
+1. Concurrent edits from multiple devices
+2. Offline operation with eventual consistency
+3. Automatic conflict resolution (no user intervention)
+4. Integration with encrypted data (CRDT operations on ciphertext metadata)
+
+EVALUATION CRITERIA:
+- Correctness: Proven conflict resolution, no data loss
+- Performance: Overhead on operation, storage size
+- Integration: Compatibility with IndexedDB, encryption
+- Flexibility: Support for accounting data structures (ledger, immutability)
+- Maturity: Production usage, active development
+
+OPTION A: Automerge 2.0+ [RECOMMENDED]
+Strengths:
++ JSON-like API (easy to integrate with existing data structures)
++ Immutable history (excellent for audit trail requirement)
++ Mature (used in production by Ink & Switch, others)
++ TypeScript support
++ Compression (reduces sync payload size)
+
+Trade-offs:
+- Larger bundle size (~200KB gzipped)
+- Learning curve for advanced features
+- Performance overhead on large documents (>10K operations)
+
+Estimated Performance:
+- 1,000 operations/sec (apply changes)
+- ~2x storage overhead for CRDT metadata
+- Sync payload: ~50KB for 100 transaction changes (compressed)
+
+OPTION B: Yjs
+Strengths:
++ Excellent performance (benchmarked faster than Automerge)
++ Smaller bundle size (~50KB gzipped)
++ Rich text support (if needed for notes/memos)
++ WebRTC peer-to-peer option (could reduce server load)
+
+Trade-offs:
+- Less intuitive API for structured data
+- Mutation-based (requires careful integration with immutable patterns)
+- History truncation (may conflict with audit trail requirement)
+
+Estimated Performance:
+- 5,000 operations/sec (apply changes)
+- ~1.5x storage overhead for CRDT metadata
+- Sync payload: ~30KB for 100 transaction changes
+
+OPTION C: Custom Implementation (Operational Transformation)
+Strengths:
++ Tailored exactly to accounting semantics
++ Minimal overhead (no library bloat)
++ Full control over conflict resolution rules
+
+Trade-offs:
+- High development cost (3-6 months to build and test)
+- Risk of subtle bugs (CRDT correctness is difficult)
+- Ongoing maintenance burden
+- No community support
+
+DECISION MATRIX:
+
+┌──────────────────────┬────────────┬──────┬────────┐
+│ Criterion            │ Automerge  │ Yjs  │ Custom │
+├──────────────────────┼────────────┼──────┼────────┤
+│ Correctness          │     A      │  A-  │   ?    │
+│ Performance          │     B+     │  A   │   A    │
+│ Integration Ease     │     A      │  B+  │   B    │
+│ Audit Trail Support  │     A      │  C   │   A    │
+│ Development Cost     │     A      │  A   │   D    │
+│ Long-term Risk       │     B+     │  B+  │   C    │
+└──────────────────────┴────────────┴──────┴────────┘
+
+RECOMMENDATION: Automerge 2.0+
+Rationale: Immutable history aligns perfectly with audit trail requirement.
+Proven correctness reduces risk. JSON-like API minimizes integration complexity.
+Performance is acceptable for accounting workload (not collaborative text editing).
+
+TESTING REQUIREMENT BEFORE FINAL DECISION:
+- [ ] Build prototype sync system with Automerge
+- [ ] Test with realistic dataset (100 transactions, 5 devices, 10 concurrent edits)
+- [ ] Measure sync payload size, conflict resolution correctness
+- [ ] Validate integration with encryption (encrypt CRDT patches)
+- [ ] Performance benchmark: <5 second sync for typical changes
+
+[TBD: Final CRDT library selection]
+- Decision Required By: Architect (after prototype testing)
+- Deadline: Before sync implementation begins
+- Fallback: If Automerge performance unacceptable, evaluate Yjs with custom history layer
+```
+
+#### 16.4.5 Testing Frameworks (DECIDED)
+
+```
+TESTING STACK - IMPLEMENTED:
+
+The following testing approach has been selected:
+
+UNIT TESTING:
+- Vitest - Fast unit test runner
+  * Vite-native (same config as build tool)
+  * Jest-compatible API (easy migration, familiar syntax)
+  * Coverage reporting via c8
+  * Watch mode for rapid iteration
+
+COMPONENT TESTING:
+- @testing-library/react - React component testing
+  * User-centric queries (byRole, byLabelText)
+  * Accessibility-focused (encourages ARIA attributes)
+  * Avoids implementation details (tests behavior, not internals)
+
+- @testing-library/jest-dom - Custom matchers
+  * Readable assertions (toBeVisible, toHaveTextContent)
+
+INTEGRATION TESTING:
+- Vitest with Dexie.js in-memory mode
+  * Test database operations without real IndexedDB
+  * Test encryption/decryption workflows
+  * Test sync conflict resolution
+
+END-TO-END TESTING:
+- Playwright - Browser automation
+  * Multi-browser support (Chromium, Firefox, WebKit)
+  * Reliable selectors (auto-wait, retry logic)
+  * Screenshot/video capture for debugging
+  * Network mocking for offline testing
+  * Parallel test execution
+
+VISUAL REGRESSION TESTING:
+- Playwright screenshot comparison
+  * Capture screenshots of key screens
+  * Detect unintended UI changes
+  * Integration with CI/CD pipeline
+
+COVERAGE TARGETS:
+- Business Logic: >80% line coverage
+- Cryptographic Code: 100% line coverage (REQUIRED)
+- Database Operations: >90% line coverage
+- UI Components: >70% line coverage
+- Overall: >85% line coverage
+
+ACCEPTANCE CRITERIA:
+- [x] Testing frameworks documented in package.json
+- [x] Test structure matches src/ directory structure
+- [ ] All cryptographic functions have 100% coverage
+- [ ] All database operations have integration tests
+- [ ] Critical user journeys have E2E tests
+- [ ] CI/CD runs full test suite on every PR
+- [ ] Test execution time <5 minutes (unit + integration)
+- [ ] E2E test execution time <15 minutes
+```
+
+#### 16.4.6 API Design [DECISION POINT]
+
+```
+DECISION REQUIRED: API protocol for client-server communication
+
+CONTEXT:
+The sync relay needs an API protocol that supports:
+1. Encrypted payload upload/download (opaque to server)
+2. Real-time notifications (when other device syncs)
+3. Authentication (token-based, stateless)
+4. Efficient bandwidth usage (mobile users, offline sync)
+5. Simple client implementation
+
+EVALUATION CRITERIA:
+- Real-time Support: Low-latency notifications
+- Bandwidth Efficiency: Payload size, compression
+- Simplicity: Client library maturity, debugging tools
+- Scalability: Connection overhead, server resource usage
+- Compatibility: Browser support, firewall/proxy friendliness
+
+OPTION A: REST + WebSocket [RECOMMENDED]
+Architecture:
+- REST API (HTTPS) for CRUD operations
+  * POST /v1/auth/login
+  * POST /v1/sync/push (upload encrypted changes)
+  * GET /v1/sync/pull (download changes since last sync)
+  * POST /v1/sync/acknowledge (mark changes as received)
+
+- WebSocket for real-time notifications
+  * WS /v1/sync/live (bidirectional, notify on changes)
+  * Fallback to polling if WebSocket unavailable
+
+Strengths:
++ Simple mental model (REST for data, WebSocket for notifications)
++ Excellent browser support (native Fetch API, WebSocket API)
++ Easy debugging (curl for REST, browser DevTools for WebSocket)
++ Mature ecosystem (nginx, load balancers, CDNs all support WebSocket)
++ Bandwidth efficient (WebSocket keeps connection alive, no HTTP overhead per message)
+
+Trade-offs:
+- Two protocols to implement (REST + WebSocket)
+- WebSocket connection management (reconnection logic)
+- Stateful WebSocket connections (load balancer considerations)
+
+Estimated Bandwidth (per sync):
+- Initial sync: ~50KB (100 transactions, gzipped)
+- Incremental sync: ~5KB (10 transaction changes)
+- WebSocket notification: ~200 bytes
+- Overhead: ~1KB per REST request (HTTP headers)
+
+OPTION B: GraphQL Subscriptions
+Architecture:
+- GraphQL API for queries and mutations
+  * mutation pushSync(encryptedPayload)
+  * query pullSync(since: timestamp)
+
+- GraphQL subscriptions for real-time (over WebSocket)
+  * subscription onSyncAvailable
+
+Strengths:
++ Single protocol, consistent API
++ Strongly typed schema (self-documenting)
++ Flexible queries (client specifies exactly what data it needs)
++ Built-in batching, caching
+
+Trade-offs:
+- Overkill for simple encrypted blob storage (no complex queries needed)
+- Larger client bundle (~40KB for Apollo Client)
+- Steeper learning curve
+- More complex server implementation
+
+Estimated Bandwidth (per sync):
+- Initial sync: ~55KB (GraphQL query overhead + payload)
+- Incremental sync: ~6KB
+- Subscription notification: ~300 bytes
+- Overhead: ~2KB per request (GraphQL query parsing)
+
+OPTION C: gRPC + Server Streaming
+Architecture:
+- gRPC for bidirectional streaming
+  * rpc PushSync(EncryptedPayload) returns (Ack)
+  * rpc SyncStream(stream EncryptedPayload) returns (stream EncryptedPayload)
+
+Strengths:
++ Excellent performance (binary protocol, HTTP/2)
++ Built-in streaming (server push)
++ Strong typing (protobuf schema)
++ Efficient bandwidth (binary serialization)
+
+Trade-offs:
+- Limited browser support (requires grpc-web proxy)
+- More complex deployment (need proxy layer)
+- Harder debugging (binary protocol, specialized tools)
+- Less familiar to web developers
+
+Estimated Bandwidth (per sync):
+- Initial sync: ~45KB (protobuf + gzip)
+- Incremental sync: ~4KB
+- Stream message: ~150 bytes
+- Overhead: ~500 bytes per request (HTTP/2 headers)
+
+DECISION MATRIX:
+
+┌──────────────────────┬──────────────┬──────────┬────────┐
+│ Criterion            │ REST + WS    │ GraphQL  │ gRPC   │
+├──────────────────────┼──────────────┼──────────┼────────┤
+│ Real-time Support    │      A       │    A     │   A    │
+│ Bandwidth Efficiency │      A-      │    B+    │   A+   │
+│ Simplicity           │      A       │    B     │   C    │
+│ Browser Support      │      A+      │    A     │   B    │
+│ Debugging Tools      │      A+      │    A-    │   C+   │
+│ Scalability          │      A       │    B+    │   A    │
+│ Team Familiarity     │      A+      │    B     │   C    │
+└──────────────────────┴──────────────┴──────────┴────────┘
+
+RECOMMENDATION: REST + WebSocket
+Rationale: Simplicity and debugging ease outweigh bandwidth efficiency gains.
+The sync payloads are already compressed and encrypted (not human-readable),
+so GraphQL's flexible querying provides no benefit. gRPC's performance advantage
+is minimal for this use case (not streaming video, just occasional sync).
+
+API DESIGN PRINCIPLES:
+1. Stateless REST endpoints (except WebSocket for notifications)
+2. Token-based authentication (JWT in Authorization header)
+3. Versioned API URLs (/v1/, /v2/ - allow breaking changes)
+4. Standard HTTP status codes (200, 401, 429, 500)
+5. Rate limiting (per-user, per-endpoint)
+6. CORS support (for web clients)
+7. Compression (gzip response encoding)
+
+[TBD: Final API protocol selection]
+- Decision Required By: Tech Lead
+- Deadline: Before backend development begins
+- Recommendation Strength: STRONG (REST + WebSocket is the pragmatic choice)
+```
+
+#### 16.4.7 API Specification (REST + WebSocket)
+
+```
+REQUIREMENT: TECH-005
+PRIORITY: Critical
+CATEGORY: Technical Architecture
+
+Assuming REST + WebSocket is selected (per recommendation above), the API
+SHALL implement the following endpoints and behaviors.
+```
+
+**16.4.7.1 Authentication Endpoints**
+
+```
+ENDPOINT: POST /v1/auth/register
+PURPOSE: Create new user account (zero-knowledge)
+
+REQUEST:
+{
+  "email": "user@example.com",
+  "authToken": "blake3_hash_of_K_auth_base64",
+  "encryptedMasterKey": "optional_encrypted_copy_for_recovery",
+  "deviceName": "User's Laptop",
+  "deviceId": "uuid_v4"
+}
+
+RESPONSE (200 OK):
+{
+  "userId": "uuid_v4",
+  "accessToken": "jwt_token",
+  "refreshToken": "jwt_refresh_token",
+  "expiresIn": 86400
+}
+
+ERROR RESPONSES:
+- 400 Bad Request: Missing required fields, invalid email format
+- 409 Conflict: Email already registered
+- 429 Too Many Requests: Rate limit exceeded (5 registrations per IP per hour)
+- 500 Internal Server Error: Server error
+
+NOTES:
+- Server never receives passphrase or K_enc
+- authToken is BLAKE3(K_auth), used for subsequent authentication
+- encryptedMasterKey is optional (for recovery feature, encrypted with recovery key)
+```
+
+```
+ENDPOINT: POST /v1/auth/login
+PURPOSE: Authenticate existing user
+
+REQUEST:
+{
+  "email": "user@example.com",
+  "authToken": "blake3_hash_of_K_auth_base64",
+  "deviceName": "User's Laptop",
+  "deviceId": "uuid_v4"
+}
+
+RESPONSE (200 OK):
+{
+  "userId": "uuid_v4",
+  "accessToken": "jwt_token",
+  "refreshToken": "jwt_refresh_token",
+  "expiresIn": 86400,
+  "devices": [
+    {"deviceId": "uuid1", "deviceName": "Laptop", "lastSeen": "2024-01-15T10:30:00Z"},
+    {"deviceId": "uuid2", "deviceName": "Desktop", "lastSeen": "2024-01-14T18:00:00Z"}
+  ]
+}
+
+ERROR RESPONSES:
+- 400 Bad Request: Missing required fields
+- 401 Unauthorized: Invalid credentials (incorrect authToken)
+- 403 Forbidden: Account locked (too many failed attempts)
+- 429 Too Many Requests: Rate limit exceeded (10 login attempts per email per hour)
+- 500 Internal Server Error: Server error
+
+NOTES:
+- After 5 failed attempts, account locked for 15 minutes
+- Returns list of registered devices for user awareness
+```
+
+```
+ENDPOINT: POST /v1/auth/refresh
+PURPOSE: Refresh expired access token
+
+REQUEST:
+{
+  "refreshToken": "jwt_refresh_token"
+}
+
+RESPONSE (200 OK):
+{
+  "accessToken": "new_jwt_token",
+  "expiresIn": 86400
+}
+
+ERROR RESPONSES:
+- 400 Bad Request: Missing refresh token
+- 401 Unauthorized: Invalid or expired refresh token
+- 500 Internal Server Error: Server error
+
+NOTES:
+- Access tokens expire in 24 hours
+- Refresh tokens expire in 30 days
+- Refresh token rotation (new refresh token issued on each refresh)
+```
+
+```
+ENDPOINT: DELETE /v1/auth/device/{deviceId}
+PURPOSE: Revoke device access
+
+REQUEST:
+Authorization: Bearer {accessToken}
+
+RESPONSE (204 No Content):
+(empty body)
+
+ERROR RESPONSES:
+- 401 Unauthorized: Invalid or expired token
+- 404 Not Found: Device not found or doesn't belong to user
+- 500 Internal Server Error: Server error
+
+NOTES:
+- If revoking current device, user is logged out immediately
+- All sync data for device remains on server (can re-authenticate)
+```
+
+**16.4.7.2 Sync Endpoints**
+
+```
+ENDPOINT: POST /v1/sync/push
+PURPOSE: Upload encrypted changes from client
+
+REQUEST:
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+
+{
+  "companyId": "uuid_v4",
+  "deviceId": "uuid_v4",
+  "changes": [
+    {
+      "changeId": "uuid_v4",
+      "timestamp": "2024-01-15T10:30:00Z",
+      "encryptedPayload": "base64_encoded_encrypted_crdt_patch",
+      "payloadHash": "blake3_hash_for_integrity"
+    }
+  ]
+}
+
+RESPONSE (200 OK):
+{
+  "acknowledged": ["changeId1", "changeId2"],
+  "conflicts": [],
+  "serverTimestamp": "2024-01-15T10:30:01Z"
+}
+
+ERROR RESPONSES:
+- 400 Bad Request: Invalid payload format, missing required fields
+- 401 Unauthorized: Invalid or expired token
+- 413 Payload Too Large: Payload exceeds 10MB limit
+- 429 Too Many Requests: Rate limit exceeded (100 pushes per user per minute)
+- 500 Internal Server Error: Server error
+
+NOTES:
+- Server stores encrypted payload without decrypting
+- payloadHash verified for transmission integrity (not cryptographic security)
+- Changes are opaque to server (CRDT patches)
+```
+
+```
+ENDPOINT: GET /v1/sync/pull?companyId={uuid}&since={timestamp}
+PURPOSE: Download changes from other devices
+
+REQUEST:
+Authorization: Bearer {accessToken}
+Query Parameters:
+  - companyId: UUID of company
+  - since: ISO 8601 timestamp (optional, defaults to beginning of time)
+
+RESPONSE (200 OK):
+{
+  "changes": [
+    {
+      "changeId": "uuid_v4",
+      "timestamp": "2024-01-15T09:00:00Z",
+      "sourceDeviceId": "uuid_v4",
+      "encryptedPayload": "base64_encoded_encrypted_crdt_patch",
+      "payloadHash": "blake3_hash_for_integrity"
+    }
+  ],
+  "serverTimestamp": "2024-01-15T10:30:01Z",
+  "hasMore": false
+}
+
+ERROR RESPONSES:
+- 400 Bad Request: Invalid companyId or timestamp format
+- 401 Unauthorized: Invalid or expired token
+- 403 Forbidden: User not authorized for this company
+- 429 Too Many Requests: Rate limit exceeded (200 pulls per user per minute)
+- 500 Internal Server Error: Server error
+
+NOTES:
+- Returns changes from all devices except requesting device
+- Pagination via hasMore flag and cursor (not shown for simplicity)
+- Client decrypts payloads locally
+```
+
+```
+ENDPOINT: POST /v1/sync/acknowledge
+PURPOSE: Mark changes as received (allows server to clean up)
+
+REQUEST:
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+
+{
+  "companyId": "uuid_v4",
+  "deviceId": "uuid_v4",
+  "changeIds": ["uuid1", "uuid2", "uuid3"]
+}
+
+RESPONSE (204 No Content):
+(empty body)
+
+ERROR RESPONSES:
+- 400 Bad Request: Invalid payload format
+- 401 Unauthorized: Invalid or expired token
+- 500 Internal Server Error: Server error
+
+NOTES:
+- Server can delete acknowledged changes after retention period (90 days)
+- Acknowledgment is per-device (other devices may still need the change)
+```
+
+**16.4.7.3 WebSocket Real-Time Sync**
+
+```
+ENDPOINT: WS /v1/sync/live
+PURPOSE: Real-time notification of new changes
+
+CONNECTION:
+Authorization: Bearer {accessToken}
+
+MESSAGES (Server → Client):
+{
+  "type": "sync_available",
+  "companyId": "uuid_v4",
+  "changeCount": 5,
+  "latestTimestamp": "2024-01-15T10:30:00Z"
+}
+
+MESSAGES (Client → Server):
+{
+  "type": "ping"
+}
+
+RESPONSE (Server → Client):
+{
+  "type": "pong",
+  "serverTimestamp": "2024-01-15T10:30:01Z"
+}
+
+ERROR MESSAGES:
+{
+  "type": "error",
+  "code": "unauthorized",
+  "message": "Token expired, please reconnect"
+}
+
+NOTES:
+- WebSocket connection authenticated via JWT in initial handshake
+- Server sends sync_available notification when changes pushed by other devices
+- Client should then call GET /v1/sync/pull to retrieve changes
+- Heartbeat ping/pong every 30 seconds to keep connection alive
+- Automatic reconnection with exponential backoff (1s, 2s, 4s, 8s, max 30s)
+- Fallback to polling if WebSocket unavailable (poll every 30 seconds)
+```
+
+**16.4.7.4 Rate Limiting**
+
+```
+RATE LIMITS (per user, per endpoint):
+
+┌───────────────────────┬─────────────┬──────────────┐
+│ Endpoint              │ Limit       │ Window       │
+├───────────────────────┼─────────────┼──────────────┤
+│ POST /v1/auth/register│ 5 requests  │ per hour     │
+│ POST /v1/auth/login   │ 10 requests │ per hour     │
+│ POST /v1/auth/refresh │ 100 requests│ per hour     │
+│ POST /v1/sync/push    │ 100 requests│ per minute   │
+│ GET /v1/sync/pull     │ 200 requests│ per minute   │
+│ POST /v1/sync/ack     │ 100 requests│ per minute   │
+│ WS /v1/sync/live      │ 10 conn/s   │ per minute   │
+└───────────────────────┴─────────────┴──────────────┘
+
+RATE LIMIT RESPONSE (429 Too Many Requests):
+{
+  "error": "rate_limit_exceeded",
+  "message": "Too many requests. Please try again later.",
+  "retryAfter": 60,
+  "limit": 100,
+  "remaining": 0,
+  "resetAt": "2024-01-15T10:31:00Z"
+}
+
+HEADERS:
+- X-RateLimit-Limit: 100
+- X-RateLimit-Remaining: 42
+- X-RateLimit-Reset: 1642243860 (Unix timestamp)
+- Retry-After: 60 (seconds)
+
+[TBD: Final rate limit values]
+- Decision Required By: DevOps Lead + Product Manager
+- Testing Requirement: Load test to determine realistic limits
+```
+
+**16.4.7.5 Error Response Format**
+
+```
+STANDARD ERROR RESPONSE:
+
+{
+  "error": "error_code_snake_case",
+  "message": "Human-readable error message",
+  "details": {
+    "field": "email",
+    "reason": "Invalid email format"
+  },
+  "requestId": "uuid_v4_for_support_debugging"
+}
+
+COMMON ERROR CODES:
+- invalid_request: Malformed request (400)
+- unauthorized: Invalid or missing authentication (401)
+- forbidden: Valid auth but insufficient permissions (403)
+- not_found: Resource doesn't exist (404)
+- conflict: Resource already exists (409)
+- payload_too_large: Request exceeds size limit (413)
+- rate_limit_exceeded: Too many requests (429)
+- internal_error: Server error (500)
+- service_unavailable: Temporary outage (503)
+
+VALIDATION ERROR RESPONSE:
+{
+  "error": "validation_error",
+  "message": "Request validation failed",
+  "validationErrors": [
+    {"field": "email", "message": "Invalid email format"},
+    {"field": "authToken", "message": "Must be base64 encoded"}
+  ],
+  "requestId": "uuid_v4"
+}
+```
+
+**16.4.7.6 API Versioning**
+
+```
+VERSIONING STRATEGY:
+- URL-based versioning: /v1/, /v2/, etc.
+- Breaking changes require new version
+- Non-breaking changes (new fields, new endpoints) added to existing version
+
+VERSION LIFECYCLE:
+1. New version released: /v2/ introduced
+2. Deprecation notice: /v1/ marked deprecated (6-month notice minimum)
+3. Support period: Both versions supported concurrently
+4. Sunset: /v1/ returns 410 Gone with migration instructions
+
+DEPRECATION HEADERS:
+- Deprecation: true
+- Sunset: 2024-07-15T00:00:00Z (RFC 7234)
+- Link: </docs/migration/v1-to-v2>; rel="deprecation"
+
+RESPONSE (410 Gone - after sunset):
+{
+  "error": "version_sunset",
+  "message": "API version v1 is no longer supported. Please upgrade to v2.",
+  "migrationGuide": "https://docs.example.com/migration/v1-to-v2",
+  "sunsetDate": "2024-07-15T00:00:00Z"
+}
+
+[TBD: API versioning policy details]
+- Decision Required By: Tech Lead + Product Manager
+- Minimum support period: 6 months (recommended), 3 months (minimum)
+```
+
+**16.4.7.7 CORS Configuration**
+
+```
+CORS HEADERS:
+- Access-Control-Allow-Origin: https://app.gracefulbooks.com (production)
+- Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS
+- Access-Control-Allow-Headers: Authorization, Content-Type
+- Access-Control-Max-Age: 86400 (24 hours)
+- Access-Control-Allow-Credentials: true (for cookies if used)
+
+PREFLIGHT REQUEST (OPTIONS):
+Request:
+  Origin: https://app.gracefulbooks.com
+  Access-Control-Request-Method: POST
+  Access-Control-Request-Headers: Authorization, Content-Type
+
+Response:
+  Access-Control-Allow-Origin: https://app.gracefulbooks.com
+  Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS
+  Access-Control-Allow-Headers: Authorization, Content-Type
+  Access-Control-Max-Age: 86400
+```
+
+**ACCEPTANCE CRITERIA:**
+- [ ] All endpoints documented with request/response examples
+- [ ] Rate limiting implemented per specification
+- [ ] Error responses follow standard format
+- [ ] API versioning strategy implemented
+- [ ] CORS configured for web client access
+- [ ] WebSocket reconnection logic tested
+- [ ] All endpoints have integration tests
+- [ ] API documentation published (OpenAPI 3.0 spec)
+- [ ] Monitoring and alerting for rate limit violations
+- [ ] Request ID tracking for debugging
+
 ---
 
 ## 17. Success Metrics
