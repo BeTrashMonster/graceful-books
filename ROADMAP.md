@@ -304,7 +304,47 @@ This roadmap is designed for **agent-based development systems** and human devel
 
 ---
 
-### B7. Error Handling & Empty States [MVP]
+### B7. Charity Selection [MVP]
+**What:** Allow users to select their charitable cause during signup/onboarding.
+
+**Dependencies:** {A1, A4}
+
+**Joy Opportunity:** "Part of your subscription helps others. Choose a cause close to your heart."
+
+**Delight Detail:** After selection: "You've chosen to support [Charity Name]. Every month, $5 of your subscription goes directly to them."
+
+**Includes:**
+- Charity list display during onboarding
+- Selection storage in user profile
+- Change selection capability (monthly)
+- Confirmation of choice
+- Link to learn more about each charity
+
+**Spec Reference:** CHARITY-001
+
+---
+
+### B8. Audit Log - Core [MVP]
+**What:** Immutable record of all financial changes from day one.
+
+**Dependencies:** {A1, A3}
+
+**Joy Opportunity:** "Every change is recorded. This isn't about mistrust - it's about having a complete history."
+
+**Includes:**
+- Log all transaction creates/edits/deletes
+- Timestamp and user tracking
+- Before/after values for changes
+- Cannot be modified or deleted
+- Basic search capability
+
+**Note:** This foundational audit infrastructure ensures GAAP compliance from the first transaction. Extended search/filter capabilities added in E7.
+
+**Spec Reference:** ACCT-011
+
+---
+
+### B9. Error Handling & Empty States [MVP]
 **What:** Graceful error messages and friendly empty states throughout.
 
 **Dependencies:** {A5, B5}
