@@ -138,6 +138,1411 @@ ACCEPTANCE CRITERIA:
 
 ---
 
+## 2.2 Data Architecture & Database Schema
+
+### 2.2.1 Architecture Overview
+
+```
+REQUIREMENT: ARCH-005
+PRIORITY: Critical
+CATEGORY: Architecture
+
+The system SHALL implement a dual-database architecture that maintains zero-knowledge encryption throughout:
+
+1. **CLIENT-SIDE DATABASE** (IndexedDB via Dexie.js)
+   - Stores encrypted financial data locally
+   - Full offline capability (no network required for core operations)
+   - CRDT metadata for conflict-free synchronization
+   - Performance target: Support minimum 10,000 transactions without degradation
+
+2. **SYNC RELAY DATABASE** (Server-side)
+   - Stores encrypted payloads only (no plaintext business data)
+   - Timestamp-based retrieval for synchronization
+   - Automatic purging of acknowledged sync payloads
+   - Zero business logic (relay only)
+
+STORAGE ENCRYPTION:
+- **Client**: All sensitive tables encrypted at field level before storage in IndexedDB
+- **Server**: Encrypted blobs only (server has no schema knowledge)
+- **Transport**: TLS 1.3 + payload encryption (defense in depth)
+
+PERFORMANCE REQUIREMENTS:
+- Transaction save: <500ms including encryption
+- Full chart of accounts load: <200ms
+- Sync push/pull: <2 seconds for 100 transactions
+- Database query: <100ms for indexed lookups
+
+ACCEPTANCE CRITERIA:
+- [ ] Client database supports 10,000+ transactions with <1 second load time
+- [ ] Encrypted data size <150% of plaintext size
+- [ ] Server relay has no access to decrypted financial data (verified by code audit)
+- [ ] Database migration from v1 to v2 completes without data loss
+- [ ] Backup/restore maintains encryption throughout process
+```
+
+### 2.2.2 Client Database Schema (IndexedDB)
+
+**ASCII ENTITY-RELATIONSHIP DIAGRAM:**
+
+```
+                                    ┌──────────────────┐
+                                    │    COMPANY       │
+                                    │──────────────────│
+                                    │ id (PK)          │
+                                    │ name (encrypted) │
+                                    │ masterKeyHash    │
+                                    │ settings (JSON)  │
+                                    │ created_at       │
+                                    │ updated_at       │
+                                    └────────┬─────────┘
+                                             │
+                                             │ 1:N
+                                             │
+                    ┌────────────────────────┼────────────────────────┐
+                    │                        │                        │
+                    v                        v                        v
+          ┌─────────────────┐      ┌────────────────┐      ┌─────────────────┐
+          │    ACCOUNTS     │      │     USERS      │      │  TRANSACTIONS   │
+          │─────────────────│      │────────────────│      │─────────────────│
+          │ id (PK)         │      │ id (PK)        │      │ id (PK)         │
+          │ company_id (FK) │      │ company_id (FK)│      │ company_id (FK) │
+          │ account_number  │      │ email (enc)    │      │ date (enc)      │
+          │ name (enc)      │      │ role           │      │ description(enc)│
+          │ type (enum)     │      │ derivedKey(enc)│      │ type (enum)     │
+          │ parent_id (FK)  │      │ permissions    │      │ status (enum)   │
+          │ balance (enc)   │      │ device_id      │      │ reference (enc) │
+          │ active (bool)   │      │ last_login     │      │ version (CRDT)  │
+          │ created_at      │      │ created_at     │      │ created_at      │
+          │ updated_at      │      └────────────────┘      │ updated_at      │
+          │ deleted_at      │                              │ voided_at       │
+          └────────┬────────┘                              └───────┬─────────┘
+                   │                                               │
+                   │                                               │ 1:N
+                   │                                               │
+                   │                                      ┌────────v─────────┐
+                   │                                      │ TRANSACTION_     │
+                   │                                      │     LINES        │
+                   │                                      │──────────────────│
+                   │                                      │ id (PK)          │
+                   │                                      │ transaction_id   │
+                   │                                      │ account_id (FK)──┤
+                   │                                      │ debit_amt (enc)  │
+                   │                                      │ credit_amt (enc) │
+                   │                                      │ memo (enc)       │
+                   │                                      │ class_id (FK)    │
+                   │                                      │ tags (JSON enc)  │
+                   │                                      │ line_number      │
+                   │                                      │ created_at       │
+                   └──────────────────────────────────────┤ updated_at       │
+                                                          └──────────────────┘
+                                                                   │
+                      ┌────────────────────────────────────────────┼──────┐
+                      │                                            │      │
+                      v                                            v      v
+            ┌───────────────────┐                        ┌────────────────┐
+            │    CONTACTS       │                        │   PRODUCTS     │
+            │───────────────────│                        │────────────────│
+            │ id (PK)           │                        │ id (PK)        │
+            │ company_id (FK)   │                        │ company_id (FK)│
+            │ type (enum)       │                        │ name (enc)     │
+            │ name (enc)        │                        │ description(enc)│
+            │ email (enc)       │                        │ type (enum)    │
+            │ phone (enc)       │                        │ price (enc)    │
+            │ address (JSON enc)│                        │ cost (enc)     │
+            │ tax_id (enc)      │                        │ sku            │
+            │ payment_terms     │                        │ inventory_qty  │
+            │ created_at        │                        │ active (bool)  │
+            │ updated_at        │                        │ created_at     │
+            │ deleted_at        │                        │ updated_at     │
+            └─────────┬─────────┘                        └────────┬───────┘
+                      │                                           │
+                      │ 1:N                                       │ 1:N
+                      v                                           v
+            ┌───────────────────┐                        ┌────────────────┐
+            │    INVOICES       │                        │  INVENTORY_    │
+            │───────────────────│                        │  ADJUSTMENTS   │
+            │ id (PK)           │                        │────────────────│
+            │ company_id (FK)   │                        │ id (PK)        │
+            │ contact_id (FK)   │                        │ product_id (FK)│
+            │ invoice_number    │                        │ type (enum)    │
+            │ date (enc)        │                        │ qty_change     │
+            │ due_date (enc)    │                        │ reason (enc)   │
+            │ status (enum)     │                        │ date           │
+            │ subtotal (enc)    │                        │ created_by     │
+            │ tax_amount (enc)  │                        │ created_at     │
+            │ total (enc)       │                        └────────────────┘
+            │ terms (enc)       │
+            │ created_at        │                        ┌────────────────┐
+            │ sent_at           │                        │  AUDIT_LOG     │
+            │ paid_at           │                        │────────────────│
+            │ updated_at        │                        │ id (PK)        │
+            └─────────┬─────────┘                        │ company_id (FK)│
+                      │                                  │ user_id (FK)   │
+                      │ 1:N                              │ entity_type    │
+                      v                                  │ entity_id      │
+            ┌───────────────────┐                        │ action (enum)  │
+            │  INVOICE_LINES    │                        │ before_value   │
+            │───────────────────│                        │ after_value    │
+            │ id (PK)           │                        │ ip_hash        │
+            │ invoice_id (FK)   │                        │ timestamp      │
+            │ product_id (FK)   │                        │ device_id      │
+            │ description (enc) │                        │ created_at     │
+            │ quantity          │                        └────────────────┘
+            │ unit_price (enc)  │
+            │ tax_rate          │                        ┌────────────────┐
+            │ line_total (enc)  │                        │ RECONCILIATION │
+            │ line_number       │                        │────────────────│
+            │ created_at        │                        │ id (PK)        │
+            └───────────────────┘                        │ account_id (FK)│
+                                                         │ stmt_date (enc)│
+                                                         │ stmt_bal (enc) │
+                  ┌──────────────┐                       │ status (enum)  │
+                  │   CLASSES    │                       │ completed_at   │
+                  │──────────────│                       │ created_by     │
+                  │ id (PK)      │                       │ notes (enc)    │
+                  │ company_id   │                       │ created_at     │
+                  │ name (enc)   │                       │ updated_at     │
+                  │ description  │                       └────────────────┘
+                  │ active (bool)│
+                  │ created_at   │                       ┌────────────────┐
+                  │ updated_at   │                       │ SYNC_METADATA  │
+                  └──────────────┘                       │────────────────│
+                                                         │ id (PK)        │
+                  ┌──────────────┐                       │ entity_type    │
+                  │     TAGS     │                       │ entity_id      │
+                  │──────────────│                       │ vector_clock   │
+                  │ id (PK)      │                       │ last_modified  │
+                  │ company_id   │                       │ last_sync_at   │
+                  │ name (enc)   │                       │ sync_status    │
+                  │ color (hex)  │                       │ conflict_flag  │
+                  │ created_at   │                       │ created_at     │
+                  │ updated_at   │                       │ updated_at     │
+                  └──────────────┘                       └────────────────┘
+
+KEY:
+  (PK) = Primary Key
+  (FK) = Foreign Key
+  (enc) = Encrypted field
+  (enum) = Enumerated type
+  1:N = One-to-Many relationship
+```
+
+**FIELD ENCRYPTION STRATEGY:**
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ LEVEL 1: ENCRYPTED AT REST (Most Sensitive - AES-256-GCM)          │
+├─────────────────────────────────────────────────────────────────────┤
+│ Financial Amounts:                                                  │
+│   - All debit_amount, credit_amount, balance fields                 │
+│   - Invoice totals, subtotals, tax amounts                          │
+│   - Product prices, costs                                           │
+│   - Statement balances                                              │
+│                                                                     │
+│ Personal/Business Information:                                      │
+│   - Company name, contact names, customer names                     │
+│   - Email addresses, phone numbers                                  │
+│   - Physical addresses (stored as encrypted JSON)                   │
+│   - Tax ID numbers                                                  │
+│                                                                     │
+│ Transaction Details:                                                │
+│   - Transaction descriptions, memos                                 │
+│   - Invoice terms, notes                                            │
+│   - Product descriptions                                            │
+│   - Account names, reconciliation notes                             │
+│                                                                     │
+│ Dates (when combined with amounts):                                │
+│   - Transaction dates, invoice dates, due dates                     │
+│   - Statement dates                                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│ LEVEL 2: HASHED (Integrity Check - BLAKE3)                         │
+├─────────────────────────────────────────────────────────────────────┤
+│   - masterKeyHash (for zero-knowledge authentication)               │
+│   - IP addresses in audit log (privacy protection)                  │
+│   - Device identifiers (anonymized)                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│ LEVEL 3: PLAINTEXT (Non-Sensitive Metadata)                        │
+├─────────────────────────────────────────────────────────────────────┤
+│ Identifiers:                                                        │
+│   - All UUIDs (randomly generated, not sequential)                  │
+│   - Foreign key references                                          │
+│                                                                     │
+│ Timestamps:                                                         │
+│   - created_at, updated_at, deleted_at                              │
+│   - last_login, last_sync_at                                        │
+│                                                                     │
+│ Enumerated Values:                                                  │
+│   - Account types (ASSET, LIABILITY, etc.)                          │
+│   - Transaction types, statuses                                     │
+│   - Contact types (CUSTOMER, VENDOR)                                │
+│   - User roles, permissions                                         │
+│                                                                     │
+│ Boolean Flags:                                                      │
+│   - active, deleted, archived flags                                 │
+│                                                                     │
+│ CRDT Metadata:                                                      │
+│   - Version vectors, vector clocks                                  │
+│   - Sync status flags                                               │
+│   - Conflict flags                                                  │
+└─────────────────────────────────────────────────────────────────────┘
+
+ENCRYPTION IMPLEMENTATION:
+- Algorithm: AES-256-GCM (Web Crypto API)
+- Key: Derived from Company Key (HKDF with context)
+- IV: Randomly generated per field (96-bit nonce)
+- Tag: 128-bit authentication tag appended
+- Encoding: Base64 for storage (encrypted_value = base64(iv + ciphertext + tag))
+```
+
+### 2.2.3 Detailed Table Specifications
+
+#### COMPANY Table
+
+```
+REQUIREMENT: ARCH-005-TABLE-COMPANY
+PURPOSE: Root entity for all business data (single company per database instance)
+
+FIELDS:
+- id: UUID (primary key, generated client-side via crypto.randomUUID())
+- name: VARCHAR(255), encrypted (company/business name)
+- masterKeyHash: CHAR(64), hashed with BLAKE3 (for zero-knowledge auth verification)
+- settings: JSONB, encrypted (user preferences, phase, DISC profile, feature flags)
+- created_at: TIMESTAMP (UTC, ISO 8601 format)
+- updated_at: TIMESTAMP (auto-updated on modification)
+
+INDEXES:
+- PRIMARY KEY (id)
+- No additional indexes needed (single record per database)
+
+CONSTRAINTS:
+- Only one COMPANY record permitted per database instance
+- name must not be empty after encryption
+- settings JSON must validate against schema
+
+ENCRYPTION DETAILS:
+- name: Encrypted with Company Key
+- settings: Encrypted as whole JSON blob
+- masterKeyHash: BLAKE3(HKDF(Master Key, "auth-token"))
+
+EXAMPLE SETTINGS JSON:
+{
+  "phase": "STABILIZE",
+  "discProfile": "DRIVER",
+  "locale": "en-US",
+  "currency": "USD",
+  "fiscalYearEnd": "12-31",
+  "assessmentDate": "2026-01-09T10:00:00Z",
+  "featureFlags": {
+    "multiCurrency": false,
+    "3dVisualization": false
+  }
+}
+
+ACCEPTANCE CRITERIA:
+- [ ] Company record created during onboarding
+- [ ] Settings updated without decrypting/re-encrypting entire record
+- [ ] masterKeyHash never transmitted to server in plaintext
+```
+
+#### ACCOUNTS Table
+
+```
+REQUIREMENT: ACCT-001, ARCH-005-TABLE-ACCOUNTS
+PURPOSE: Chart of Accounts - hierarchical account structure
+
+FIELDS:
+- id: UUID (primary key)
+- company_id: UUID (foreign key to COMPANY)
+- account_number: VARCHAR(20), nullable (e.g., "1000", "4500" - user-assigned)
+- name: VARCHAR(255), encrypted (e.g., "Operating Checking Account")
+- type: ENUM, plaintext
+  - Values: ASSET, LIABILITY, EQUITY, INCOME, EXPENSE, COGS, OTHER_INCOME, OTHER_EXPENSE
+- parent_id: UUID, nullable (foreign key to ACCOUNTS for sub-accounts)
+- balance: DECIMAL(15,2), encrypted (current balance, calculated field)
+- description: TEXT, encrypted, nullable (plain English explanation)
+- active: BOOLEAN, default TRUE (soft delete alternative)
+- created_at: TIMESTAMP
+- updated_at: TIMESTAMP
+- deleted_at: TIMESTAMP, nullable (soft delete marker)
+
+INDEXES:
+- PRIMARY KEY (id)
+- INDEX idx_accounts_company ON (company_id)
+- INDEX idx_accounts_type ON (company_id, type) -- for P&L and Balance Sheet queries
+- INDEX idx_accounts_parent ON (company_id, parent_id) -- for hierarchy traversal
+- INDEX idx_accounts_number ON (company_id, account_number) -- for user lookup
+- INDEX idx_accounts_active ON (company_id, active, type) -- for active accounts list
+
+CONSTRAINTS:
+- Parent account must be same type OR null
+- Account number unique within company (if provided)
+- Type must match parent type (if parent exists)
+- Cannot delete account with child accounts (must delete children first OR set parent_id to null)
+- Cannot delete account with transaction history (use soft delete: deleted_at)
+
+CRDT STRATEGY:
+- **Field updates**: Last-write-wins based on updated_at timestamp
+- **Deletion**: Tombstone marker (deleted_at timestamp)
+- **Structural conflict** (parent_id change): Flag for manual resolution
+- **Rename conflict**: Last-write-wins, audit log records both versions
+
+BALANCE CALCULATION:
+- Balance is calculated, not user-entered
+- Recalculated from TRANSACTION_LINES on each query
+- Cached for performance, invalidated on transaction change
+- Formula: SUM(debits) - SUM(credits) for ASSET/EXPENSE
+          SUM(credits) - SUM(debits) for LIABILITY/EQUITY/INCOME
+
+ACCEPTANCE CRITERIA:
+- [ ] Chart of accounts supports 500+ accounts without performance issues
+- [ ] Hierarchy supports 5 levels deep
+- [ ] Balance calculation matches audit to penny
+- [ ] Soft delete preserves historical data
+- [ ] Account search by number returns result in <100ms
+```
+
+#### TRANSACTIONS Table
+
+```
+REQUIREMENT: ACCT-004, ACCT-005, ARCH-005-TABLE-TRANSACTIONS
+PURPOSE: All financial transactions (journal entries)
+
+FIELDS:
+- id: UUID (primary key)
+- company_id: UUID (foreign key to COMPANY)
+- date: DATE, encrypted (transaction date, can be backdated)
+- description: VARCHAR(500), encrypted (what happened)
+- type: ENUM, plaintext
+  - Values: JOURNAL, INVOICE_PAYMENT, BILL_PAYMENT, TRANSFER, ADJUSTMENT, OPENING_BALANCE
+- status: ENUM, plaintext
+  - Values: DRAFT, POSTED, VOIDED, RECONCILED
+  - Transitions: DRAFT → POSTED → [VOIDED or RECONCILED]
+- reference_number: VARCHAR(50), encrypted, nullable (check number, invoice #, etc.)
+- version: INTEGER (CRDT vector clock for conflict detection)
+- created_at: TIMESTAMP
+- created_by: UUID (user_id who created)
+- updated_at: TIMESTAMP
+- updated_by: UUID (user_id of last edit)
+- voided_at: TIMESTAMP, nullable
+- voided_by: UUID, nullable
+- voided_reason: TEXT, encrypted, nullable
+
+INDEXES:
+- PRIMARY KEY (id)
+- INDEX idx_transactions_company ON (company_id, date DESC) -- for journal view
+- INDEX idx_transactions_status ON (company_id, status) -- for draft/posted lists
+- INDEX idx_transactions_created ON (company_id, created_at DESC) -- for recent activity
+- INDEX idx_transactions_reference ON (company_id, reference_number) -- for lookups
+
+CONSTRAINTS:
+- Date cannot be more than 1 year in future (warning only, not enforced)
+- Status transitions enforced by application logic
+- Voided transactions cannot be edited (status immutable)
+- Transaction lines must balance: SUM(debits) = SUM(credits)
+- At least 2 transaction lines required
+
+VALIDATION RULES:
+- Date in future: Show warning but allow (for scheduled transactions)
+- Date > 1 year past: Show warning "Are you sure?" (prevent data entry errors)
+- Description required, min 3 characters
+- Reference number format validated based on type
+
+CRDT STRATEGY:
+- **Version field**: Increments on each edit (Lamport clock)
+- **Concurrent edits**: Higher version wins, loser flagged for manual review
+- **Voiding**: Special tombstone that preserves transaction for audit
+- **Conflict resolution**: If both users void simultaneously, first void wins
+
+STATE MACHINE (Status Transitions):
+```
+           ┌──────────┐
+           │  DRAFT   │ (editable)
+           └────┬─────┘
+                │
+                v
+           ┌──────────┐
+           │  POSTED  │ (locked for editing, can void or reconcile)
+           └─────┬────┘
+                 │
+         ┌───────┴────────┐
+         v                v
+    ┌─────────┐      ┌────────────┐
+    │  VOIDED │      │ RECONCILED │ (both are terminal states)
+    └─────────┘      └────────────┘
+```
+
+ACCEPTANCE CRITERIA:
+- [ ] Transaction save <500ms including encryption
+- [ ] Voided transactions visible in audit trail
+- [ ] Cannot edit posted transaction (must void and create new)
+- [ ] Balance validation enforced before posting
+- [ ] Search by reference number returns result instantly
+```
+
+#### TRANSACTION_LINES Table
+
+```
+REQUIREMENT: ACCT-005, ARCH-005-TABLE-TRANSACTION-LINES
+PURPOSE: Individual debit/credit lines for each transaction (double-entry bookkeeping)
+
+FIELDS:
+- id: UUID (primary key)
+- transaction_id: UUID (foreign key to TRANSACTIONS)
+- account_id: UUID (foreign key to ACCOUNTS)
+- debit_amount: DECIMAL(15,2), encrypted, nullable
+- credit_amount: DECIMAL(15,2), encrypted, nullable
+- memo: VARCHAR(255), encrypted, nullable (line-specific note)
+- class_id: UUID, nullable (foreign key to CLASSES for dimensional tracking)
+- tags: JSONB, encrypted (array of tag UUIDs for multi-dimensional classification)
+- line_number: INTEGER (order within transaction, 1-indexed)
+- created_at: TIMESTAMP
+- updated_at: TIMESTAMP
+
+INDEXES:
+- PRIMARY KEY (id)
+- INDEX idx_lines_transaction ON (transaction_id, line_number) -- for line ordering
+- INDEX idx_lines_account ON (account_id, transaction_id) -- for account register
+- INDEX idx_lines_class ON (class_id) -- for class-based reporting
+
+CONSTRAINTS:
+- Exactly ONE of debit_amount or credit_amount must be non-null (XOR constraint)
+- Both debit and credit cannot be non-null simultaneously
+- Amount must be > 0 if present
+- line_number must be sequential within transaction (1, 2, 3...)
+- SUM(debit_amount) MUST EQUAL SUM(credit_amount) for parent transaction
+
+VALIDATION RULES:
+- Account must be active (warning if inactive, not error)
+- Amount precision: 2 decimal places
+- Amount range: $0.01 to $999,999,999.99
+- Memo length: 255 characters max
+- Tags: Maximum 10 tags per line
+
+BUSINESS RULES:
+- ASSET/EXPENSE accounts: Increase with DEBIT, decrease with CREDIT
+- LIABILITY/EQUITY/INCOME accounts: Increase with CREDIT, decrease with DEBIT
+- Every transaction needs minimum 2 lines (double-entry)
+- Split transactions can have 3+ lines (e.g., invoice with tax and tip)
+
+ACCEPTANCE CRITERIA:
+- [ ] Balance validation enforced before transaction posting
+- [ ] Line reordering updates line_number atomically
+- [ ] Deleting line recalculates parent transaction balance
+- [ ] Class and tag filtering returns results in <200ms
+```
+
+#### CONTACTS Table
+
+```
+REQUIREMENT: ACCT-009, ARCH-005-TABLE-CONTACTS
+PURPOSE: Customers, vendors, and other business contacts
+
+FIELDS:
+- id: UUID (primary key)
+- company_id: UUID (foreign key to COMPANY)
+- type: ENUM, plaintext
+  - Values: CUSTOMER, VENDOR, BOTH, OTHER
+- name: VARCHAR(255), encrypted (individual or business name)
+- email: VARCHAR(255), encrypted, nullable
+- phone: VARCHAR(50), encrypted, nullable
+- address: JSONB, encrypted, nullable (structured: street, city, state, zip, country)
+- tax_id: VARCHAR(50), encrypted, nullable (EIN, SSN last 4, VAT number)
+- payment_terms: VARCHAR(50), plaintext, nullable (e.g., "Net 30", "Due on receipt")
+- created_at: TIMESTAMP
+- updated_at: TIMESTAMP
+- deleted_at: TIMESTAMP, nullable (soft delete)
+
+INDEXES:
+- PRIMARY KEY (id)
+- INDEX idx_contacts_company ON (company_id, type)
+- INDEX idx_contacts_name ON (company_id, name) -- for autocomplete (encrypted search challenging)
+
+CONSTRAINTS:
+- Name required, min 2 characters
+- Email format validated if provided
+- Phone format flexible (allows international)
+- Type cannot be null
+
+ADDRESS JSON STRUCTURE:
+{
+  "street1": "123 Main St",
+  "street2": "Suite 100",
+  "city": "San Francisco",
+  "state": "CA",
+  "postal_code": "94102",
+  "country": "US"
+}
+
+ACCEPTANCE CRITERIA:
+- [ ] Contact search by name (encrypted) returns results in <500ms
+- [ ] Email validation prevents invalid addresses
+- [ ] Address autocomplete integrated (if API available)
+- [ ] Soft delete prevents orphaned invoices
+```
+
+#### INVOICES Table
+
+```
+REQUIREMENT: ACCT-002, ARCH-005-TABLE-INVOICES
+PURPOSE: Customer invoices (accounts receivable)
+
+FIELDS:
+- id: UUID (primary key)
+- company_id: UUID (foreign key to COMPANY)
+- contact_id: UUID (foreign key to CONTACTS - must be type CUSTOMER or BOTH)
+- invoice_number: VARCHAR(50), plaintext (user-assigned or auto-generated: INV-0001)
+- date: DATE, encrypted (invoice date)
+- due_date: DATE, encrypted (payment due date)
+- status: ENUM, plaintext
+  - Values: DRAFT, SENT, VIEWED, PARTIAL_PAID, PAID, OVERDUE, VOID
+- subtotal: DECIMAL(15,2), encrypted (sum of line items before tax)
+- tax_amount: DECIMAL(15,2), encrypted (calculated tax)
+- total: DECIMAL(15,2), encrypted (subtotal + tax)
+- terms: TEXT, encrypted, nullable (payment terms, notes)
+- created_at: TIMESTAMP
+- sent_at: TIMESTAMP, nullable (when emailed/delivered to customer)
+- paid_at: TIMESTAMP, nullable (when fully paid)
+- updated_at: TIMESTAMP
+
+INDEXES:
+- PRIMARY KEY (id)
+- INDEX idx_invoices_company ON (company_id, invoice_number) -- for lookup
+- INDEX idx_invoices_contact ON (contact_id, status) -- for customer statement
+- INDEX idx_invoices_status ON (company_id, status, due_date) -- for aging report
+- INDEX idx_invoices_date ON (company_id, date DESC) -- for invoice list
+
+CONSTRAINTS:
+- invoice_number must be unique within company
+- due_date must be >= date (cannot be due before invoice date)
+- subtotal, tax_amount, total must be >= 0
+- total must equal subtotal + tax_amount
+- status transitions follow state machine
+
+STATUS STATE MACHINE:
+```
+  ┌───────┐       ┌──────┐       ┌────────┐
+  │ DRAFT │──────>│ SENT │──────>│ VIEWED │
+  └───┬───┘       └──────┘       └───┬────┘
+      │                               │
+      │         ┌─────────────────────┘
+      │         v
+      │    ┌──────────────┐    ┌──────┐
+      └───>│ PARTIAL_PAID │───>│ PAID │
+           └──────────────┘    └──────┘
+                  │
+                  v (if past due_date)
+             ┌──────────┐
+             │ OVERDUE  │
+             └──────────┘
+
+  From any state (except PAID):
+      │
+      v
+   ┌──────┐
+   │ VOID │ (terminal state)
+   └──────┘
+```
+
+ACCEPTANCE CRITERIA:
+- [ ] Invoice PDF generation includes all encrypted data decrypted
+- [ ] Aging report categorizes by days overdue (0-30, 31-60, 61-90, 90+)
+- [ ] Payment recorded creates transaction automatically
+- [ ] Void invoice creates reversing transaction
+```
+
+#### Additional Tables (Summary)
+
+Due to length constraints, here are specifications for remaining tables:
+
+**INVOICE_LINES**: Line items for invoices (product/service, quantity, price)
+**PRODUCTS**: Product/service catalog (name, description, price, cost, SKU)
+**INVENTORY_ADJUSTMENTS**: Quantity changes (purchase, sale, adjustment, recount)
+**CLASSES**: Dimensional tracking (department, location, project)
+**TAGS**: Flexible tagging system (color-coded, user-defined)
+**RECONCILIATION**: Bank reconciliation tracking (statement date, balance, matched transactions)
+**AUDIT_LOG**: Immutable change history (who, what, when for all modifications)
+**SYNC_METADATA**: CRDT sync tracking (vector clocks, conflict flags, last sync timestamp)
+**USERS**: Multi-user support (email, role, permissions, device IDs)
+
+*Full specifications for these tables follow the same pattern established above.*
+
+### 2.2.4 Sync Relay Database Schema (Server-Side)
+
+```
+REQUIREMENT: ARCH-003, ARCH-005-SYNC
+PRIORITY: Critical
+CATEGORY: Architecture
+
+The sync relay server SHALL store ONLY encrypted payloads with no knowledge of business data:
+
+SYNC_PAYLOADS Table:
+
+FIELDS:
+- id: UUID (primary key, generated server-side)
+- company_id: UUID (indexed, NOT a foreign key - server has no COMPANY table)
+- encrypted_payload: BYTEA (entire sync payload as opaque binary blob)
+- timestamp: TIMESTAMP (server timestamp for ordering)
+- checksum: CHAR(64) (SHA-256 of payload for integrity verification)
+- acknowledged_by: JSONB (array of device IDs that have pulled this payload)
+- expires_at: TIMESTAMP (auto-delete after all devices acknowledge + retention period)
+- created_at: TIMESTAMP
+
+INDEXES:
+- PRIMARY KEY (id)
+- INDEX idx_sync_company_time ON (company_id, timestamp DESC) -- for pull queries
+- INDEX idx_sync_expires ON (expires_at) -- for cleanup job
+
+RETENTION POLICY:
+- Minimum retention: 7 days (allow for offline device sync)
+- Maximum retention: 90 days (compliance and storage optimization)
+- Cleanup: DELETE WHERE expires_at < NOW() AND acknowledged_by includes all registered devices
+- Cron job: Runs daily at 2 AM UTC
+
+SERVER OPERATIONS:
+The relay server can ONLY perform these operations:
+1. **Store** encrypted payload (POST /sync/push)
+2. **Retrieve** encrypted payloads by timestamp (GET /sync/pull?since=<timestamp>)
+3. **Mark acknowledged** (POST /sync/acknowledge)
+4. **Delete expired** (automated cleanup)
+
+SERVER LIMITATIONS (Zero-Knowledge Guarantees):
+- ❌ Cannot decrypt payloads (no encryption keys)
+- ❌ Cannot parse payload content (opaque binary)
+- ❌ Cannot validate business logic (no schema knowledge)
+- ❌ Cannot aggregate or analyze data
+- ❌ Cannot search within payloads
+- ✅ CAN verify checksum (integrity only, not content)
+- ✅ CAN order by timestamp (sorting only)
+
+ACCEPTANCE CRITERIA:
+- [ ] Server code review confirms no business logic
+- [ ] Packet capture shows only encrypted blobs on network
+- [ ] Database admin cannot read financial data from SYNC_PAYLOADS table
+- [ ] Cleanup job runs successfully without data loss
+- [ ] Retention policy tested with 100-day offline scenario
+```
+
+### 2.2.5 Data Migration Strategy
+
+```
+REQUIREMENT: DATA-MIGRATION-001
+PRIORITY: Medium
+CATEGORY: Data Architecture
+
+The system SHALL support importing existing financial data from competitor products:
+
+SUPPORTED IMPORT FORMATS:
+
+1. **QuickBooks Desktop** (.QBW export to .IIF format)
+   - Chart of Accounts
+   - Customers and Vendors
+   - Transactions (journal entries, invoices, bills)
+   - Products/Services list
+
+2. **QuickBooks Online** (.QBO file export)
+   - All data types above
+   - Plus: Classes, Tags (via CSV)
+
+3. **Xero** (CSV export)
+   - Chart of Accounts (CSV)
+   - Contacts (CSV)
+   - Transactions (CSV)
+
+4. **Wave** (CSV export)
+   - Similar structure to Xero
+
+5. **CSV Templates** (Generic)
+   - Graceful Books-provided templates
+   - User can map columns
+
+MIGRATION WORKFLOW:
+
+```
+┌──────────────────────┐
+│ User uploads file    │
+│ (.IIF, .QBO, .CSV)   │
+└──────────┬───────────┘
+           │
+           v
+┌──────────────────────┐
+│ Format detection     │
+│ (magic bytes, ext)   │
+└──────────┬───────────┘
+           │
+           v
+┌──────────────────────┐
+│ Parse file           │
+│ Extract entities     │
+└──────────┬───────────┘
+           │
+           v
+┌──────────────────────┐
+│ Data validation      │
+│ - Required fields    │
+│ - Format checks      │
+│ - Balance validation │
+└──────────┬───────────┘
+           │
+           v
+┌──────────────────────┐
+│ Preview mapping      │◄──┐
+│ Show sample data     │   │
+└──────────┬───────────┘   │
+           │               │
+           v               │
+   ┌──────────────┐        │
+   │ User reviews │        │
+   │ Adjusts map? ├────────┘
+   └──────┬───────┘ Yes
+          │
+          │ No
+          v
+┌──────────────────────┐
+│ Dry-run import       │
+│ (no database writes) │
+└──────────┬───────────┘
+           │
+           v
+┌──────────────────────┐
+│ Show summary:        │
+│ - X accounts         │
+│ - Y transactions     │
+│ - Z contacts         │
+│ - Warnings/errors    │
+└──────────┬───────────┘
+           │
+           v
+   ┌──────────────┐
+   │ User confirms│
+   │ or cancels   │
+   └──────┬───────┘
+          │
+          │ Confirm
+          v
+┌──────────────────────┐
+│ Encrypted import     │
+│ Write to IndexedDB   │
+│ with encryption      │
+└──────────┬───────────┘
+           │
+           v
+┌──────────────────────┐
+│ Validation report    │
+│ - Import summary     │
+│ - Balance check      │
+│ - Warnings to review │
+└──────────┬───────────┘
+           │
+           v
+┌──────────────────────┐
+│ Prompt first         │
+│ reconciliation       │
+└──────────────────────┘
+```
+
+MAPPING RULES (Examples):
+
+**QuickBooks Account Types → Graceful Books Account Types:**
+- "Bank" → ASSET
+- "Accounts Receivable" → ASSET
+- "Other Current Asset" → ASSET
+- "Fixed Asset" → ASSET
+- "Accounts Payable" → LIABILITY
+- "Credit Card" → LIABILITY
+- "Other Current Liability" → LIABILITY
+- "Equity" → EQUITY
+- "Income" → INCOME
+- "Other Income" → OTHER_INCOME
+- "Cost of Goods Sold" → COGS
+- "Expense" → EXPENSE
+- "Other Expense" → OTHER_EXPENSE
+
+**Transaction Type Mapping:**
+- QuickBooks "Invoice" → Graceful Books INVOICE_PAYMENT transaction
+- QuickBooks "Bill" → Graceful Books BILL_PAYMENT transaction
+- QuickBooks "Journal Entry" → Graceful Books JOURNAL transaction
+- QuickBooks "Transfer" → Graceful Books TRANSFER transaction
+
+DATA CLEANING:
+
+- **Remove duplicates**: Check by transaction date + amount + description
+- **Fix unbalanced entries**: Flag for manual review (don't auto-fix)
+- **Validate dates**: Reject dates > 1 year in future
+- **Merge duplicate accounts**: Suggest merges for similar names
+- **Preserve IDs**: Keep original IDs in metadata field for reference
+
+ACCEPTANCE CRITERIA:
+- [ ] QuickBooks import completes for company with 1000 transactions in <60 seconds
+- [ ] Balance sheet matches pre-import balances (verified by test)
+- [ ] All imported data encrypted before storage
+- [ ] Import errors clearly explained with suggested fixes
+- [ ] Can re-import without duplicates (idempotent)
+- [ ] Mapping adjustments saved for future imports
+
+DECISION REQUIRED:
+- [ ] **Detailed mapping specification** for each source format
+  - Owner: Product Manager + Accountant Advisor
+  - Effort: Research each format's schema
+- [ ] **Fallback handling** for unsupported transaction types
+  - Owner: Product Manager
+```
+
+---
+
+### 2.1.5 Authentication & Authorization Architecture
+
+```
+REQUIREMENT: ARCH-006
+PRIORITY: Critical
+CATEGORY: Security
+
+The system SHALL implement authentication and authorization that maintains zero-knowledge architecture while supporting multi-user collaboration:
+
+KEY PRINCIPLES:
+1. **Zero-Knowledge Authentication**: Server never receives user passphrase or encryption keys
+2. **Multi-Device Support**: Same user can access from multiple devices with seamless sync
+3. **Role-Based Access Control**: Admin, Manager, Bookkeeper, View-Only permissions
+4. **Optional Recovery**: User choice between absolute zero-knowledge or recoverable backup
+5. **Device Management**: Users can view and revoke device access
+
+AUTHENTICATION FLOW (NEW USER REGISTRATION):
+
+```
+┌──────────────────────────┐
+│ User creates account     │
+│ - Email                  │
+│ - Passphrase (client)    │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Validate passphrase      │
+│ strength (entropy ≥60b)  │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Generate Master Key      │
+│ Argon2id(passphrase)     │
+│ - Time cost: 3           │
+│ - Memory: 64 MB          │
+│ - Parallelism: 4         │
+│ - Salt: email + UUID     │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Derive keys using HKDF:  │
+│ K_enc = encryption key   │
+│ K_auth = auth token key  │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Generate Company Key     │
+│ (random 256-bit)         │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Encrypt Company Key      │
+│ with K_enc               │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Hash K_auth → token      │
+│ (BLAKE3 for server auth) │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Send to server:          │
+│ - email                  │
+│ - hashed_auth_token      │
+│ - encrypted_company_key  │
+│ - test_payload (verify)  │
+│ ❌ NEVER send K_enc      │
+│ ❌ NEVER send passphrase │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Server stores:           │
+│ - hashed_auth_token      │
+│ - encrypted_company_key  │
+│ (opaque blob)            │
+│ - CANNOT decrypt data    │
+└──────────────────────────┘
+```
+
+AUTHENTICATION FLOW (EXISTING USER LOGIN):
+
+```
+┌──────────────────────────┐
+│ User enters credentials  │
+│ - Email                  │
+│ - Passphrase             │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Derive Master Key        │
+│ (same Argon2id process)  │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Derive K_enc + K_auth    │
+│ (same HKDF derivation)   │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Hash K_auth → token      │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Send token to server     │
+│ POST /auth/login         │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Server compares hashes   │
+│ If match: success        │
+└──────────┬───────────────┘
+           │
+           v (success)
+┌──────────────────────────┐
+│ Server returns:          │
+│ - encrypted_company_key  │
+│ - JWT access token       │
+│ - refresh token (cookie) │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Client decrypts          │
+│ Company Key with K_enc   │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Store in memory:         │
+│ - K_enc (session only)   │
+│ - Company Key (session)  │
+│ JWT in httpOnly cookie   │
+└──────────────────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Load encrypted financial │
+│ data from IndexedDB      │
+│ Decrypt with Company Key │
+└──────────────────────────┘
+```
+
+KEY RECOVERY MECHANISM (OPTIONAL):
+
+```
+PROBLEM: User forgets passphrase → all data permanently unrecoverable
+SOLUTION: Optional recovery key backup (user choice during setup)
+
+RECOVERY KEY GENERATION (OPT-IN):
+
+┌──────────────────────────┐
+│ During account setup:    │
+│ "Would you like a        │
+│ recovery key?"           │
+│ [Yes] [No, absolute ZK]  │
+└──────────┬───────────────┘
+           │
+           │ Yes
+           v
+┌──────────────────────────┐
+│ Generate random 256-bit  │
+│ recovery key             │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Encrypt Master Key       │
+│ with recovery key        │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Convert recovery key to  │
+│ 24-word BIP39 mnemonic   │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Display to user:         │
+│ "Write these 24 words    │
+│ down. Keep them safe."   │
+│                          │
+│ 1. abandon  7. canal     │
+│ 2. ability  8. carbon    │
+│ ... (24 words total)     │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Confirmation: User must  │
+│ enter 3 random words     │
+│ from the list to prove   │
+│ they wrote them down     │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Store on server:         │
+│ - encrypted_master_key   │
+│   (opaque, needs mnemonic│
+│    to decrypt)           │
+│ Server NEVER sees:       │
+│ - mnemonic words         │
+│ - recovery key           │
+│ - decrypted master key   │
+└──────────────────────────┘
+
+RECOVERY FLOW (IF USER FORGETS PASSPHRASE):
+
+┌──────────────────────────┐
+│ User clicks              │
+│ "I forgot my passphrase" │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Prompt: Enter 24-word    │
+│ recovery mnemonic        │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Convert mnemonic to      │
+│ recovery key (BIP39)     │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Fetch encrypted_master_  │
+│ key from server          │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Decrypt master key       │
+│ with recovery key        │
+│ (client-side only)       │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Derive K_enc and K_auth  │
+│ from restored master key │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ User sets NEW passphrase │
+│ Master key re-encrypted  │
+│ with new passphrase      │
+└──────────────────────────┘
+
+ZERO-KNOWLEDGE MAINTAINED:
+- Server stores encrypted master key (opaque blob)
+- Server never sees recovery mnemonic
+- Decryption happens client-side only
+- User can skip recovery (absolute zero-knowledge)
+```
+
+SESSION MANAGEMENT:
+
+```
+REQUIREMENT: ARCH-006-SESSION
+PRIORITY: High
+
+SESSION LIFECYCLE:
+
+1. **Access Token (JWT)**:
+   - Lifetime: 24 hours
+   - Stored: httpOnly cookie (XSS protection)
+   - Contains: user_id, company_id, role, device_id
+   - Used for: API request authentication
+
+2. **Refresh Token**:
+   - Lifetime: 30 days
+   - Stored: httpOnly, secure cookie
+   - Rotated: On each use (for security)
+   - Used for: Obtaining new access tokens
+
+3. **Automatic Refresh**:
+   - Trigger: 5 minutes before access token expires
+   - Silent: No user interaction required
+   - Fallback: If refresh fails, prompt re-login
+
+4. **Logout**:
+   - Clear K_enc from memory
+   - Clear Company Key from memory
+   - Invalidate refresh token server-side
+   - Optional: Clear IndexedDB (user choice)
+
+MULTI-DEVICE SUPPORT:
+
+Each device gets own derived key:
+┌──────────────────────────┐
+│ Device 1: Desktop        │
+│ - device_id: UUID-1      │
+│ - Last seen: 2 min ago   │
+│ - Status: Active         │
+└──────────────────────────┘
+
+┌──────────────────────────┐
+│ Device 2: Laptop         │
+│ - device_id: UUID-2      │
+│ - Last seen: 1 day ago   │
+│ - Status: Active         │
+└──────────────────────────┘
+
+┌──────────────────────────┐
+│ Device 3: Phone          │
+│ - device_id: UUID-3      │
+│ - Last seen: Never       │
+│ - Status: Pending setup  │
+└──────────────────────────┘
+
+USER CAN:
+- View list of all devices
+- See last activity per device
+- Revoke access to any device
+- Add new device (QR code or email link)
+
+ADMIN ACTIONS:
+- Revoke access (takes effect <60 seconds)
+- Force logout all devices
+- Device limit: 5 per user (configurable)
+
+SECURITY MEASURES:
+- Device fingerprinting (browser, OS, location)
+- Suspicious activity alerts (new device, new location)
+- Rate limiting: 5 login attempts per hour per email
+- Account lockout: After 5 failed attempts (24-hour lockout)
+- Brute force protection: Exponential backoff
+```
+
+AUTHORIZATION ROLES & PERMISSIONS:
+
+```
+REQUIREMENT: ARCH-006-AUTHZ
+PRIORITY: High
+CATEGORY: Access Control
+
+ROLE HIERARCHY:
+
+┌─────────────────────────────────────────────────────────────────┐
+│                            ADMIN                                │
+│ Full access to everything + user management + settings         │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │
+            ┌───────────────┴───────────────┐
+            v                               v
+┌──────────────────────┐        ┌─────────────────────────┐
+│      MANAGER         │        │      BOOKKEEPER         │
+│ All accounting ops   │        │ Daily transactions only │
+│ NO user management   │        │ NO account structure    │
+└───────────────────┬──┘        └──┬──────────────────────┘
+                    │              │
+                    └──────┬───────┘
+                           v
+                ┌────────────────────────┐
+                │      VIEW-ONLY         │
+                │ Read access only       │
+                │ NO modifications       │
+                └────────────────────────┘
+
+PERMISSION MATRIX:
+
+┌─────────────────────┬────────┬─────────┬────────────┬───────────┐
+│ Permission          │ Admin  │ Manager │ Bookkeeper │ View-Only │
+├─────────────────────┼────────┼─────────┼────────────┼───────────┤
+│ View all data       │   ✓    │    ✓    │     ✓      │     ✓     │
+│ Export data         │   ✓    │    ✓    │     ✓      │     ✓     │
+│ View audit log      │   ✓    │    ✓    │     ✓      │     ✓     │
+├─────────────────────┼────────┼─────────┼────────────┼───────────┤
+│ Create transactions │   ✓    │    ✓    │     ✓      │     ✗     │
+│ Edit transactions   │   ✓    │    ✓    │     ✓      │     ✗     │
+│ Post transactions   │   ✓    │    ✓    │     ✓      │     ✗     │
+│ Delete trans (draft)│   ✓    │    ✓    │     ✗      │     ✗     │
+│ Void trans (posted) │   ✓    │    ✓    │     ✗      │     ✗     │
+├─────────────────────┼────────┼─────────┼────────────┼───────────┤
+│ Reconcile accounts  │   ✓    │    ✓    │     ✓      │     ✗     │
+│ Create invoices     │   ✓    │    ✓    │     ✓      │     ✗     │
+│ Record payments     │   ✓    │    ✓    │     ✓      │     ✗     │
+├─────────────────────┼────────┼─────────┼────────────┼───────────┤
+│ Chart of Accounts   │   ✓    │    ✓    │     ✗      │     ✗     │
+│ Add/edit accounts   │   ✓    │    ✓    │     ✗      │     ✗     │
+│ Delete accounts     │   ✓    │    ✓    │     ✗      │     ✗     │
+├─────────────────────┼────────┼─────────┼────────────┼───────────┤
+│ Manage contacts     │   ✓    │    ✓    │     ✓      │     ✗     │
+│ Manage products     │   ✓    │    ✓    │     ✓      │     ✗     │
+│ Manage classes/tags │   ✓    │    ✓    │     ✓      │     ✗     │
+├─────────────────────┼────────┼─────────┼────────────┼───────────┤
+│ Company settings    │   ✓    │    ✗    │     ✗      │     ✗     │
+│ User management     │   ✓    │    ✗    │     ✗      │     ✗     │
+│ Add/remove users    │   ✓    │    ✗    │     ✗      │     ✗     │
+│ Change user roles   │   ✓    │    ✗    │     ✗      │     ✗     │
+│ Rotate company key  │   ✓    │    ✗    │     ✗      │     ✗     │
+│ View recovery key   │   ✓    │    ✗    │     ✗      │     ✗     │
+└─────────────────────┴────────┴─────────┴────────────┴───────────┘
+
+IMPLEMENTATION:
+
+1. **Role Storage**:
+   - User.role field (enum: ADMIN, MANAGER, BOOKKEEPER, VIEW_ONLY)
+   - Default: First user = ADMIN, subsequent = VIEW_ONLY
+   - Admin can change roles
+
+2. **Permission Checks**:
+   - Frontend: Hide UI elements based on role
+   - Backend: Enforce at API level (cannot be bypassed)
+   - Middleware: Check JWT role claim on every request
+
+3. **UI Adaptation**:
+   - VIEW_ONLY: All forms disabled, "Contact admin to make changes"
+   - BOOKKEEPER: Chart of Accounts shown but grayed out
+   - MANAGER: User management hidden
+   - ADMIN: All features visible
+
+4. **Audit Trail**:
+   - All permission-denied attempts logged
+   - "User X (Bookkeeper) attempted to delete account Y"
+   - Admin can review access attempts
+```
+
+KEY ROTATION:
+
+```
+REQUIREMENT: ARCH-006-KEY-ROTATION
+PRIORITY: Medium
+CATEGORY: Security
+
+WHEN TO ROTATE:
+- User requests (proactive security)
+- After user removal (employee leaves)
+- After suspected key compromise
+- Scheduled rotation (optional: annually)
+
+KEY ROTATION PROCESS:
+
+┌──────────────────────────┐
+│ Admin initiates rotation │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Confirm: "This will      │
+│ temporarily pause sync   │
+│ for all devices. OK?"    │
+└──────────┬───────────────┘
+           │
+           │ Confirm
+           v
+┌──────────────────────────┐
+│ Generate new Company Key │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Decrypt ALL data with    │
+│ old Company Key          │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Re-encrypt ALL data with │
+│ new Company Key          │
+│ (batch process)          │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Encrypt new Company Key  │
+│ with each user's K_enc   │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Update all users' stored │
+│ encrypted_company_key    │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Force logout all devices │
+│ (except current)         │
+└──────────┬───────────────┘
+           │
+           v
+┌──────────────────────────┐
+│ Next login: Fetch new    │
+│ encrypted_company_key    │
+│ Seamless to user         │
+└──────────────────────────┘
+
+CHALLENGES:
+- Large datasets take time to re-encrypt
+- Progress indicator: "Rotating keys... 47% complete"
+- Offline devices: Must re-authenticate on next sync
+- Partial failure: Rollback mechanism required
+
+ACCEPTANCE CRITERIA:
+- [ ] Key rotation completes for 10,000 transactions in <5 minutes
+- [ ] All devices force logout except admin device
+- [ ] Old key immediately invalidated (cannot decrypt)
+- [ ] Rollback available if process fails mid-rotation
+```
+
+ACCEPTANCE CRITERIA:
+
+```
+OVERALL AUTH/AUTHZ ACCEPTANCE CRITERIA:
+
+AUTHENTICATION:
+- [ ] Passphrase strength: minimum entropy 60 bits (enforced client-side)
+- [ ] Server cannot decrypt any user data (verified by code audit + pentesting)
+- [ ] Recovery key is optional (user choice)
+- [ ] Account lockout after 5 failed login attempts (24-hour lockout)
+- [ ] Session expires after 24 hours of inactivity
+- [ ] Multi-device support: up to 5 devices per user
+
+AUTHORIZATION:
+- [ ] Role permissions enforced at API level (not just UI)
+- [ ] Permission-denied attempts logged in audit trail
+- [ ] Admin can view all user activities
+- [ ] Bookkeeper cannot modify chart of accounts
+- [ ] View-Only cannot modify any data
+
+SECURITY:
+- [ ] Device revocation takes effect within 60 seconds
+- [ ] Password reset requires email verification + recovery key (if set)
+- [ ] Brute force protection: exponential backoff (5, 15, 30, 60 min lockouts)
+- [ ] Session tokens never transmitted in URL (only httpOnly cookies)
+- [ ] CSRF protection enabled on all state-changing endpoints
+
+ZERO-KNOWLEDGE VERIFICATION:
+- [ ] Network packet capture shows no plaintext passphrase or keys
+- [ ] Database dump shows only encrypted/hashed values
+- [ ] Server code audit confirms no decryption capability
+- [ ] Third-party security audit verifies zero-knowledge claims
+```
+
+---
+
 ## 3. User Onboarding & Assessment
 
 ### 3.1 Assessment Framework
@@ -151,11 +1556,10 @@ The system SHALL implement a comprehensive onboarding assessment that:
 
 1. Determines user's current phase: Stabilize, Organize, Build, or Grow
 2. Assesses Financial Literacy level (Beginner, Developing, Proficient, Advanced)
-3. Identifies DISC personality profile for communication adaptation
-4. Categorizes business type: Service-based, Product-based, or Hybrid
+3. Categorizes business type: Service-based, Product-based, or Hybrid
 
 CONSTRAINTS:
-- Maximum 50 questions total
+- Maximum 40 questions total
 - Branching logic based on business type selection
 - Progress indicator throughout
 - Ability to save and resume
@@ -163,7 +1567,6 @@ CONSTRAINTS:
 ACCEPTANCE CRITERIA:
 - [ ] Assessment feels quick and focused for users
 - [ ] All four business phases correctly identified in testing
-- [ ] DISC profile accurately determined
 - [ ] Business type branching functions correctly
 ```
 
@@ -196,14 +1599,7 @@ SECTION 3: FINANCIAL LITERACY (10-15 questions)
 - Knowledge of tax obligations
 - Familiarity with accounting terminology
 
-SECTION 4: BEHAVIORAL ANCHORS - DISC (8-12 questions)
-- Communication preferences
-- Decision-making style
-- Stress response patterns
-- Learning preferences
-- Motivation drivers
-
-SECTION 5: BUSINESS-TYPE SPECIFIC (5-10 questions)
+SECTION 4: BUSINESS-TYPE SPECIFIC (5-10 questions)
 - [Service] Client billing practices, retainers, time tracking
 - [Product] Inventory methods, COGS understanding, shipping
 - [Hybrid] Revenue split, complexity factors
@@ -253,44 +1649,41 @@ ACCEPTANCE CRITERIA:
 - [ ] Phase determines initial checklist and feature visibility
 ```
 
-### 3.4 DISC-Adapted Communication
+### 3.4 Communication Tone
 
 ```
-REQUIREMENT: ONB-004
+REQUIREMENT: COMM-001
 PRIORITY: High
 CATEGORY: User Experience
 
-The system SHALL adapt all user-facing language based on DISC profile:
+The system SHALL use a consistent, supportive communication tone throughout:
 
-DOMINANCE (D) - Direct and Results-Oriented
-- Concise, bullet-pointed communication
-- Focus on efficiency and outcomes
-- Minimal hand-holding, maximum control
-- Example: "Your P&L is ready. Key metric: 23% margin improvement."
-
-INFLUENCE (I) - Enthusiastic and Collaborative
-- Warm, encouraging tone
-- Celebration of milestones
-- Social proof and community elements
-- Example: "Great news! You've joined 2,000+ entrepreneurs who reconciled this week!"
-
-STEADINESS (S) - Patient and Supportive
-- Step-by-step guidance
+STEADINESS-STYLE TONE (Default for all communications)
+- Patient, step-by-step guidance
 - Reassurance and stability emphasis
-- Clear expectations and timelines
-- Example: "Take your time with this. Here's exactly what happens next..."
+- Clear expectations and next steps
+- Judgment-free, shame-free language
+- Warm but professional
 
-CONSCIENTIOUSNESS (C) - Analytical and Detail-Oriented
-- Comprehensive explanations available
-- Data and logic emphasis
-- Precision and accuracy focus
-- Example: "This calculation uses the weighted average method (FIFO available in settings)..."
+TONE EXAMPLES:
+- "Take your time with this. Here's exactly what happens next..."
+- "Don't worry - your data is safe. Let's try that again."
+- "No rush. We'll walk through this together."
+- "You're making progress! Here's what we'll tackle next..."
+
+APPLICATION:
+- All error messages
+- Empty states and onboarding
+- Tutorial and help content
+- Email communications
+- Confirmation dialogs
+- Success celebrations
 
 ACCEPTANCE CRITERIA:
-- [ ] All system messages have 4 DISC variants
-- [ ] User can manually adjust communication style
-- [ ] Tooltip/help content adapts to DISC profile
-- [ ] Email communications use DISC-appropriate tone
+- [ ] All system messages use consistent supportive tone
+- [ ] Error messages never blame the user
+- [ ] Help content provides clear, patient explanations
+- [ ] Email communications maintain warm, encouraging style
 ```
 
 ---
@@ -925,7 +2318,7 @@ INTERACTIVITY:
 GAMIFICATION (Professional Tone):
 1. Completion animations (subtle, satisfying)
 2. Progress milestones ("First month complete!")
-3. Encouraging messages (DISC-adapted)
+3. Encouraging messages (warm, supportive tone)
 4. Badges for consistency (optional visibility)
 
 ACCEPTANCE CRITERIA:
@@ -952,7 +2345,7 @@ DEFAULT: Monday morning (local time)
 CUSTOMIZABLE: Any day, any time
 
 EMAIL CONTENT:
-1. Greeting (DISC-adapted tone)
+1. Greeting (warm, supportive tone)
 2. Quick wins from last week
 3. This week's maintenance tasks
 4. Foundation building tasks (1-3 items)
@@ -969,7 +2362,7 @@ SETTINGS:
 
 ACCEPTANCE CRITERIA:
 - [ ] Emails deliver at user's local time
-- [ ] Tone matches DISC profile
+- [ ] Tone is warm, supportive, and encouraging
 - [ ] One-click links to tasks in app
 - [ ] Unsubscribe honored immediately
 ```
@@ -1415,7 +2808,6 @@ FEATURES:
 4. Interactive tutorials
 5. "Learn more" links contextually placed
 6. Progress tracking on learning
-7. DISC-adapted content delivery
 
 WHY: Builds long-term financial literacy, core to mission
 ```
@@ -1451,7 +2843,7 @@ FEATURES:
 6. Privacy controls granular
 
 WHY: External accountability significantly improves follow-through
-for some DISC profiles
+for many entrepreneurs
 ```
 
 ### 15.12 Seasonal Business Support
@@ -1572,10 +2964,11 @@ ACCEPTANCE CRITERIA:
 
 | Term | Plain English | Technical Definition |
 |------|--------------|----------------------|
-| CRDT | A way for multiple people to edit the same thing without conflicts | Conflict-free Replicated Data Type |
+| CRDT | A way for multiple people to edit the same thing without conflicts | Conflict-free Replicated Data Type - a data structure that automatically merges changes from multiple sources without conflicts |
+| Argon2id | The secure algorithm that protects your passphrase | Argon2id is a password hashing algorithm that transforms your passphrase into encryption keys while defending against brute-force attacks |
+| KDF | The process that turns your passphrase into encryption keys | Key Derivation Function - a cryptographic algorithm that generates multiple secure keys from a single passphrase using HKDF (HMAC-based Key Derivation Function) |
 | GAAP | The rules for how business finances should be tracked | Generally Accepted Accounting Principles |
 | Zero-knowledge | We can't see your data even if we wanted to | Encryption where service provider has no decryption capability |
-| DISC | A way to understand how you prefer to communicate | Personality assessment framework (Dominance, Influence, Steadiness, Conscientiousness) |
 | COA | Your list of categories for tracking money | Chart of Accounts |
 | Reconciliation | Making sure your records match your bank | Bank Reconciliation |
 | Accrual | Recording money when you earn it, not when you get it | Accrual basis accounting |
@@ -1590,7 +2983,7 @@ ACCEPTANCE CRITERIA:
 > "I started my freelance design business 6 months ago. I've been using my personal bank account and have receipts in a shoebox. I know I need to get organized but accounting software always makes me feel stupid. I just want something that tells me what to do, step by step, without judgment."
 
 **Sarah's Journey:**
-1. Takes assessment, identified as Stabilize phase, High I (Influence) personality
+1. Takes assessment, identified as Stabilize phase
 2. Receives warm, encouraging onboarding
 3. Guided to open business bank account (checklist item with resources)
 4. Walks through simplified chart of accounts setup
@@ -1604,8 +2997,8 @@ ACCEPTANCE CRITERIA:
 > "I've been running my consulting firm for 3 years. I have a bookkeeper who comes quarterly, but I need to track things better between visits. I understand the basics but want to be more proactive."
 
 **Marcus's Journey:**
-1. Assessment identifies Organize phase, High C (Conscientiousness) personality
-2. Receives detailed, data-focused onboarding
+1. Assessment identifies Organize phase
+2. Receives warm, supportive onboarding
 3. Imports existing chart of accounts
 4. Sets up classes for different practice areas
 5. Creates invoice templates with professional customization
@@ -1618,8 +3011,8 @@ ACCEPTANCE CRITERIA:
 > "My e-commerce business is growing fast. I've got good books but I need better insights. I want to understand which products are actually profitable and forecast my cash needs."
 
 **Aisha's Journey:**
-1. Assessment identifies Build phase, High D (Dominance) personality
-2. Receives concise, results-focused onboarding
+1. Assessment identifies Build phase
+2. Receives warm, supportive onboarding
 3. Sets up inventory tracking with FIFO costing
 4. Creates tags for product categories and marketing channels
 5. Uses 3D visualization to understand money flow
