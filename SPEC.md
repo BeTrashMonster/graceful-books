@@ -6020,6 +6020,1303 @@ ACCEPTANCE CRITERIA:
 
 ---
 
+## 21. Legal & Compliance
+
+```
+REQUIREMENT: LEGAL-001
+PRIORITY: Critical
+CATEGORY: Legal & Compliance
+
+The system SHALL comply with all applicable data protection and privacy
+regulations, including GDPR, CCPA, and financial record-keeping requirements.
+```
+
+### 21.1 GDPR Compliance (General Data Protection Regulation)
+
+```
+REQUIREMENT: LEGAL-002
+PRIORITY: Critical
+CATEGORY: Legal & Compliance
+
+If operating in the EU or serving EU residents, the system SHALL comply
+with GDPR requirements for data protection and user privacy.
+
+APPLICABILITY:
+- Applies if: Offering services to EU residents OR processing EU resident data
+- Penalties: Up to €20 million or 4% of global annual revenue (whichever higher)
+- Reference: Regulation (EU) 2016/679
+
+GDPR PRINCIPLES IMPLEMENTATION:
+
+1. LAWFULNESS, FAIRNESS, TRANSPARENCY:
+   - Obtain explicit consent for data processing
+   - Clear privacy policy explaining data usage
+   - Cookie consent banner (if cookies used beyond essential)
+
+2. PURPOSE LIMITATION:
+   - Collect data only for specified purposes (accounting, sync)
+   - No secondary use without consent
+   - Document purposes in privacy policy
+
+3. DATA MINIMIZATION:
+   - Collect only necessary data (email, encrypted financial data)
+   - Do NOT collect: physical address, phone (unless user provides for invoicing)
+   - Zero-knowledge architecture inherently minimizes server-side data
+
+4. ACCURACY:
+   - Allow users to update their email
+   - Financial data accuracy is user's responsibility (they control encryption)
+
+5. STORAGE LIMITATION:
+   - Delete user data upon request
+   - Automatic deletion of inactive accounts [TBD: after X years]
+   - Sync metadata retention: [TBD: 90 days] after acknowledgment
+
+6. INTEGRITY & CONFIDENTIALITY:
+   - Encryption at rest (AES-256-GCM)
+   - Encryption in transit (HTTPS, TLS 1.3)
+   - Access controls (authentication, authorization)
+   - Regular security audits
+
+7. ACCOUNTABILITY:
+   - Document data processing activities (DPA register)
+   - Privacy by design (zero-knowledge architecture)
+   - Data Protection Impact Assessment (DPIA) completed
+
+USER RIGHTS IMPLEMENTATION:
+
+1. RIGHT TO ACCESS (Article 15):
+   - Feature: "Export My Data" button in settings
+   - Format: Encrypted JSON export (user decrypts locally)
+   - Timeline: [TBD: Immediate download OR within 30 days]
+   - Includes: All user data, audit logs, account metadata
+
+2. RIGHT TO RECTIFICATION (Article 16):
+   - Feature: Users can edit all their data directly in app
+   - Email change: Verification required
+   - Financial data: User controls (client-side encryption)
+
+3. RIGHT TO ERASURE / "Right to be Forgotten" (Article 17):
+   - Feature: "Delete My Account" in settings
+   - Process:
+     * User confirms deletion (cannot be undone)
+     * Delete user account, encrypted data, sync metadata
+     * Retain audit logs for [TBD: 7 years] (legal obligation)
+     * Anonymize audit logs (replace user ID with hash)
+   - Timeline: [TBD: Complete within 30 days]
+   - Exception: Financial records retention (legal obligation - tax/audit)
+
+4. RIGHT TO DATA PORTABILITY (Article 20):
+   - Feature: "Export to QuickBooks/Xero/CSV" in settings
+   - Format: Industry-standard formats (QBO, CSV, JSON)
+   - Timeline: Immediate download
+   - Scope: All transactions, invoices, contacts, accounts
+
+5. RIGHT TO OBJECT (Article 21):
+   - Marketing: Unsubscribe link in all marketing emails
+   - Analytics: Opt-out in settings (disable tracking)
+   - Profiling: Not applicable (no automated decision-making)
+
+6. RIGHT TO RESTRICTION OF PROCESSING (Article 18):
+   - Feature: "Pause Sync" option (stops data transmission to server)
+   - Local-only mode (all data stays on device)
+   - User can resume sync anytime
+
+7. RIGHTS RELATED TO AUTOMATED DECISION-MAKING (Article 22):
+   - Not applicable: No automated decisions affecting users
+   - AI features (FUTURE-001, AI-001) will include human review
+
+DATA PROCESSING AGREEMENT (DPA):
+- Required for: Enterprise customers (if they're data controllers)
+- Template: Standard DPA with GDPR clauses
+- Key terms:
+  * We process data on customer's behalf (data processor)
+  * Customer owns the data (data controller)
+  * Sub-processors listed (cloud provider, analytics, error tracking)
+  * Data breach notification (within 72 hours)
+
+DATA BREACH NOTIFICATION (Article 33-34):
+- Internal process:
+  * Detect breach → Contain → Investigate → Notify
+  * Document: What, when, how many affected, risk level
+- Notification to supervisory authority:
+  * Timeline: Within 72 hours of becoming aware
+  * Authority: [TBD: Based on primary establishment location]
+- Notification to users:
+  * Required if: High risk to user rights/freedoms
+  * Timeline: Without undue delay
+  * Content: Nature of breach, likely consequences, mitigation measures
+
+ACCEPTANCE CRITERIA:
+- [ ] Privacy policy published and GDPR-compliant
+- [ ] Cookie consent banner implemented (if applicable)
+- [ ] Data export feature functional (Articles 15, 20)
+- [ ] Account deletion feature functional (Article 17)
+- [ ] Data breach response plan documented
+- [ ] DPA template prepared for enterprise customers
+- [ ] DPIA completed and documented
+
+[TBD: GDPR compliance details]
+- Decision Required By: Legal Counsel
+- Data retention periods (balance legal obligations vs user rights)
+- Primary establishment location (determines supervisory authority)
+- Sub-processor list and DPA terms
+```
+
+### 21.2 CCPA Compliance (California Consumer Privacy Act)
+
+```
+REQUIREMENT: LEGAL-003
+PRIORITY: High
+CATEGORY: Legal & Compliance
+
+If operating in California or serving California residents with annual revenue
+>$25M OR processing data of 100,000+ CA residents, the system SHALL comply
+with CCPA requirements.
+
+APPLICABILITY:
+- Threshold 1: Annual gross revenue >$25 million, OR
+- Threshold 2: Buy/sell/share personal info of 100,000+ CA residents, OR
+- Threshold 3: Derive 50%+ revenue from selling personal info
+- Penalties: Up to $7,500 per intentional violation
+- Reference: California Civil Code §1798.100 et seq.
+
+CCPA DEFINITIONS:
+- Personal Information: Info that identifies/relates to a CA resident
+  * Includes: Email, IP address, financial data, device IDs
+  * Our collection: Email (identifiable), encrypted financial data (not readable by us)
+- Sale: Sharing PI for monetary/other valuable consideration
+  * Our practice: We do NOT sell user data
+
+CONSUMER RIGHTS IMPLEMENTATION:
+
+1. RIGHT TO KNOW (§1798.100):
+   - Disclosure: What PI we collect, sources, purposes, third parties
+   - Feature: "Privacy Dashboard" showing data collection summary
+   - Timeline: [TBD: Within 45 days of request]
+
+2. RIGHT TO DELETE (§1798.105):
+   - Feature: Same as GDPR "Delete My Account"
+   - Exceptions: Legal obligations (tax records retention)
+   - Timeline: [TBD: Within 45 days of request]
+
+3. RIGHT TO OPT-OUT OF SALE (§1798.120):
+   - Not applicable: We do not sell personal information
+   - Statement: "Do Not Sell My Personal Information" link (states: N/A)
+
+4. RIGHT TO NON-DISCRIMINATION (§1798.125):
+   - Guarantee: No different pricing for exercising rights
+   - No financial incentive programs (no discounts for data sharing)
+
+5. RIGHT TO CORRECT INACCURATE INFORMATION (Added 2023):
+   - Feature: Users can edit all their data in-app
+   - Process: User updates directly, no approval needed
+
+NOTICE REQUIREMENTS:
+
+1. AT COLLECTION:
+   - Privacy notice at registration (before data collection)
+   - Content: Categories of PI, purposes, retention, rights
+
+2. PRIVACY POLICY:
+   - Location: Website footer, app settings
+   - Content:
+     * Categories of PI collected: Email, device ID, encrypted financial data
+     * Sources: Directly from user
+     * Business purposes: Account management, sync, support
+     * Third parties: Cloud provider (encrypted storage), error tracking (Sentry)
+     * Sale: We do not sell PI
+     * Consumer rights and how to exercise them
+
+VERIFICATION OF CONSUMER REQUESTS:
+- Method: Email verification (link sent to registered email)
+- For sensitive requests (deletion): Additional passphrase verification
+- Timeline: Respond within [TBD: 10 days], fulfill within [TBD: 45 days]
+
+AUTHORIZED AGENT:
+- Allow: Users can authorize representative to make requests
+- Verification: Written authorization + verify user identity
+
+ACCEPTANCE CRITERIA:
+- [ ] CCPA applicability assessed
+- [ ] Privacy policy includes CCPA-required disclosures
+- [ ] "Do Not Sell" link added (states N/A)
+- [ ] Consumer rights request process documented
+- [ ] Verification method implemented
+- [ ] No discrimination for exercising rights (verified)
+
+[TBD: CCPA compliance details]
+- Decision Required By: Legal Counsel
+- Applicability determination (based on revenue, user count)
+- Request fulfillment timelines
+```
+
+### 21.3 Financial Record-Keeping Requirements
+
+```
+REQUIREMENT: LEGAL-004
+PRIORITY: Critical
+CATEGORY: Legal & Compliance
+
+The system SHALL support users in complying with financial record retention
+requirements imposed by tax authorities and accounting standards.
+
+RECORD RETENTION PERIODS (Varies by Jurisdiction):
+
+UNITED STATES (IRS):
+- Tax returns: 3-7 years (depending on situation)
+- Supporting documents: 7 years recommended
+- Employment tax records: 4 years
+- Asset records: Until asset disposed + 3 years
+- Reference: IRS Publication 583
+
+CANADA (CRA):
+- Business records: 6 years from end of tax year
+- Reference: Canada Revenue Agency guidelines
+
+EUROPEAN UNION (VAT):
+- VAT records: Minimum 5 years (varies by member state)
+- Germany: 10 years
+- UK: 6 years
+
+AUSTRALIA (ATO):
+- Business records: 5 years from when prepared/obtained/transaction completed
+- Reference: Australian Taxation Office
+
+USER RESPONSIBILITIES:
+- The system DOES NOT automatically delete financial records
+- Users responsible for:
+  * Understanding their jurisdiction's requirements
+  * Exporting records before account deletion (if within retention period)
+  * Consulting tax professional or accountant
+
+SYSTEM FEATURES TO SUPPORT COMPLIANCE:
+
+1. EXPORT FUNCTIONALITY:
+   - Export to PDF (for archival)
+   - Export to CSV (for spreadsheet analysis)
+   - Export to QBO/Xero format (for migration)
+   - Export includes: Transactions, invoices, contacts, reports
+
+2. AUDIT TRAIL (AUDIT_LOG table):
+   - Records all changes to financial data
+   - Fields: action, user, timestamp, before/after values
+   - Immutable: Cannot be edited or deleted by users
+   - Encrypted: Same encryption as financial data
+   - Retention: Separate from account deletion (retained per legal requirements)
+
+3. ACCOUNT DELETION WARNING:
+   - Modal dialog: "Warning: Deleting your account will delete all financial data.
+     Tax authorities may require you to retain financial records for X years.
+     Please export your data before proceeding."
+   - Checkbox: "I have exported my data and understand this cannot be undone"
+   - Retention option: [TBD: Offer to keep audit logs for 7 years even after deletion?]
+
+DISCLAIMER:
+"Graceful Books provides tools to manage your financial records but does not
+provide tax or legal advice. You are responsible for understanding and complying
+with record retention requirements in your jurisdiction. Please consult a tax
+professional or accountant."
+
+ACCEPTANCE CRITERIA:
+- [ ] Export functionality comprehensive (PDF, CSV, QBO)
+- [ ] Audit trail immutable and encrypted
+- [ ] Account deletion warning clear and prominent
+- [ ] Disclaimer displayed in privacy policy and help docs
+- [ ] Audit logs retained per legal requirements (even after account deletion)
+
+[TBD: Audit log retention after account deletion]
+- Decision Required By: Legal Counsel + Product Manager
+- Option A: Delete all data including audit logs (user responsibility to export)
+- Option B: Retain anonymized audit logs for 7 years (safer for compliance)
+- Recommendation: Option B (anonymize user ID, retain encrypted financial data hashes)
+```
+
+### 21.4 Privacy Policy Template
+
+```
+REQUIREMENT: LEGAL-005
+PRIORITY: Critical
+CATEGORY: Legal & Compliance
+
+The system SHALL display a comprehensive, user-friendly privacy policy
+that meets GDPR, CCPA, and other regulatory requirements.
+
+PRIVACY POLICY STRUCTURE (Template):
+
+---
+
+# Privacy Policy
+
+**Last Updated: [DATE]**
+**Effective Date: [DATE]**
+
+## 1. Introduction
+
+Graceful Books ("we," "our," or "us") is committed to protecting your privacy.
+This Privacy Policy explains how we collect, use, disclose, and safeguard your
+information when you use our accounting application.
+
+**Zero-Knowledge Architecture:** We use client-side encryption, meaning we
+cannot access your financial data. Your passphrase is never sent to our servers,
+and we cannot decrypt your information.
+
+## 2. Information We Collect
+
+### 2.1 Information You Provide
+- **Email Address:** Required for account creation and communication
+- **Encrypted Financial Data:** Transactions, invoices, contacts (encrypted on your device)
+- **Device Information:** Device ID, browser type, operating system (for sync)
+
+### 2.2 Automatically Collected Information
+- **Usage Data:** Feature usage, error logs (anonymized)
+- **Log Data:** IP address (hashed), timestamps, API endpoints accessed
+
+### 2.3 Information We Do NOT Collect
+- ❌ Your passphrase (never transmitted to our servers)
+- ❌ Decrypted financial data (we cannot decrypt)
+- ❌ Physical address, phone number (unless you add to invoices)
+- ❌ Social Security Number, government ID
+
+## 3. How We Use Your Information
+
+We use your information for:
+- **Account Management:** Authentication, multi-device sync
+- **Service Delivery:** Storing encrypted data, syncing across devices
+- **Support:** Responding to inquiries, troubleshooting
+- **Improvement:** Analytics (anonymized), error tracking
+- **Legal Compliance:** Tax records, fraud prevention
+
+**We do NOT:**
+- ❌ Sell your personal information
+- ❌ Use your financial data for marketing
+- ❌ Share with advertisers
+
+## 4. How We Share Your Information
+
+We share information only in these limited circumstances:
+
+### 4.1 Service Providers (Sub-Processors)
+- **Cloud Hosting:** [TBD: AWS/Azure/GCP] (encrypted data storage)
+- **Error Tracking:** [TBD: Sentry] (error logs, no PII)
+- **Email Service:** [TBD: SendGrid] (transactional emails only)
+
+All service providers are bound by data processing agreements.
+
+### 4.2 Legal Requirements
+- Court orders, subpoenas (we provide only what we have: email, encrypted data)
+- Note: We cannot decrypt your financial data even if compelled
+
+### 4.3 Business Transfers
+- In event of merger/acquisition, your data transferred to successor (same privacy protections)
+
+## 5. Your Rights
+
+### 5.1 GDPR Rights (EU Residents)
+- **Access:** Export your data anytime (Settings > Export)
+- **Rectification:** Edit your data directly in the app
+- **Erasure:** Delete your account (Settings > Delete Account)
+- **Portability:** Export to CSV, QuickBooks, Xero
+- **Object:** Opt out of analytics (Settings > Privacy)
+- **Restriction:** Pause sync (Settings > Pause Sync)
+
+To exercise rights: [TBD: privacy@gracefulbooks.com]
+
+### 5.2 CCPA Rights (California Residents)
+- **Right to Know:** Request disclosure of data collection
+- **Right to Delete:** Delete your account
+- **Right to Opt-Out:** We do not sell personal information
+- **Non-Discrimination:** No penalty for exercising rights
+
+To exercise rights: [TBD: privacy@gracefulbooks.com]
+
+## 6. Data Security
+
+We protect your data using:
+- **Encryption at Rest:** AES-256-GCM (financial data)
+- **Encryption in Transit:** TLS 1.3 (HTTPS)
+- **Zero-Knowledge Architecture:** Server cannot decrypt your data
+- **Access Controls:** Authentication, authorization, rate limiting
+- **Regular Audits:** Annual security assessments
+
+Despite our measures, no system is 100% secure. Use a strong, unique passphrase.
+
+## 7. Data Retention
+
+- **Account Data:** Retained while account active
+- **After Deletion:** Deleted within [TBD: 30 days]
+- **Audit Logs:** [TBD: 7 years for compliance]
+- **Sync Metadata:** [TBD: 90 days after acknowledgment]
+
+## 8. International Data Transfers
+
+Your data may be transferred to/stored in [TBD: US/EU/other].
+We use Standard Contractual Clauses (SCCs) for GDPR compliance.
+
+## 9. Children's Privacy
+
+Our service is not directed to individuals under 18.
+We do not knowingly collect information from children.
+
+## 10. Changes to This Policy
+
+We may update this policy. We'll notify you via:
+- Email (for material changes)
+- In-app notification
+- Updated "Last Modified" date
+
+Continued use after changes constitutes acceptance.
+
+## 11. Contact Us
+
+Questions about this Privacy Policy:
+- Email: [TBD: privacy@gracefulbooks.com]
+- Address: [TBD: Physical address]
+- Data Protection Officer: [TBD: If required]
+
+For EU residents, supervisory authority: [TBD: Based on establishment]
+
+---
+
+ACCEPTANCE CRITERIA:
+- [ ] Privacy policy written in plain English (Flesch Reading Ease >60)
+- [ ] All GDPR-required disclosures included
+- [ ] All CCPA-required disclosures included
+- [ ] Contact information provided
+- [ ] Policy reviewed by legal counsel
+- [ ] Version number and effective date included
+- [ ] Policy linked in footer, registration page, app settings
+
+[TBD: Privacy policy details]
+- Decision Required By: Legal Counsel
+- Contact email, physical address
+- Data Protection Officer (if required - EU establishments >250 employees)
+- Sub-processor list (finalize cloud provider, error tracking, email service)
+- Data retention periods
+```
+
+### 21.5 Terms of Service Template
+
+```
+REQUIREMENT: LEGAL-006
+PRIORITY: Critical
+CATEGORY: Legal & Compliance
+
+The system SHALL display comprehensive Terms of Service that govern
+the use of the application.
+
+TERMS OF SERVICE STRUCTURE (Template):
+
+---
+
+# Terms of Service
+
+**Last Updated: [DATE]**
+**Effective Date: [DATE]**
+
+## 1. Acceptance of Terms
+
+By accessing or using Graceful Books ("Service"), you agree to be bound by
+these Terms of Service ("Terms"). If you disagree, do not use the Service.
+
+## 2. Description of Service
+
+Graceful Books is a zero-knowledge accounting application that:
+- Stores your financial data encrypted on your device and our servers
+- Syncs encrypted data across your devices
+- Provides accounting tools, reports, and insights
+
+**Zero-Knowledge:** We cannot access your financial data. If you lose your
+passphrase, we cannot recover your data.
+
+## 3. Account Registration
+
+### 3.1 Eligibility
+- You must be at least 18 years old
+- You must provide accurate information (email address)
+- One person or entity per account
+
+### 3.2 Account Security
+- You are responsible for:
+  * Choosing a strong passphrase
+  * Keeping your passphrase confidential
+  * All activity under your account
+- **Passphrase Loss:** We cannot recover your data. Back up your recovery key.
+
+### 3.3 Account Termination
+- You may delete your account anytime
+- We may suspend/terminate for:
+  * Terms violation
+  * Fraudulent activity
+  * Extended inactivity ([TBD: 2 years])
+- We'll provide [TBD: 30 days] notice for inactivity termination
+
+## 4. User Responsibilities
+
+You agree NOT to:
+- ❌ Use the Service for illegal activities
+- ❌ Share your account with others
+- ❌ Reverse engineer, hack, or exploit the Service
+- ❌ Upload malware, viruses, or harmful code
+- ❌ Violate others' intellectual property rights
+- ❌ Attempt to bypass security measures
+- ❌ Use the Service to store illegal content
+
+You ARE responsible for:
+- ✅ Accuracy of financial data you enter
+- ✅ Compliance with tax laws in your jurisdiction
+- ✅ Backing up your data (export regularly)
+- ✅ Understanding our zero-knowledge architecture
+
+## 5. Intellectual Property
+
+### 5.1 Our IP
+- The Service, including software, design, and content, is owned by us
+- You receive a limited, non-exclusive license to use
+- You may not copy, modify, distribute, sell, or lease the Service
+
+### 5.2 Your Data
+- **You own your financial data**
+- You grant us a license to:
+  * Store encrypted data on our servers
+  * Sync data across your devices
+  * Process data as necessary to provide the Service
+- We do not claim ownership of your data
+
+## 6. Payment Terms
+
+### 6.1 Pricing
+- Current pricing: [TBD: Pricing page link]
+- Subscription: Monthly or annual
+- Free tier: [TBD: Available with limitations]
+
+### 6.2 Billing
+- Automatic renewal unless canceled
+- Charges on renewal date
+- Payment method: Credit card, [TBD: PayPal, Stripe]
+
+### 6.3 Refunds
+- [TBD: 30-day money-back guarantee OR No refunds]
+- Cancellation: Effective at end of current billing period
+- No partial refunds for unused time
+
+### 6.4 Price Changes
+- We may change prices with [TBD: 30 days] notice
+- Existing subscriptions: Grandfathered for [TBD: X months]
+
+## 7. Disclaimer of Warranties
+
+THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND.
+
+WE DISCLAIM ALL WARRANTIES, INCLUDING:
+- ❌ MERCHANTABILITY
+- ❌ FITNESS FOR PARTICULAR PURPOSE
+- ❌ NON-INFRINGEMENT
+- ❌ ACCURACY, RELIABILITY, OR AVAILABILITY
+
+**Not Financial Advice:** We do not provide tax, legal, or financial advice.
+Consult professionals for advice specific to your situation.
+
+**Data Loss:** While we take precautions, we are not responsible for data loss.
+Back up your data regularly.
+
+## 8. Limitation of Liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW:
+
+WE ARE NOT LIABLE FOR:
+- Indirect, incidental, consequential, or punitive damages
+- Lost profits, data, or business opportunities
+- Damages exceeding amount paid in last 12 months (or $100 if free tier)
+
+SOME JURISDICTIONS DO NOT ALLOW LIMITATION OF LIABILITY.
+IN THOSE JURISDICTIONS, OUR LIABILITY IS LIMITED TO THE FULLEST EXTENT PERMITTED.
+
+## 9. Indemnification
+
+You agree to indemnify and hold us harmless from claims arising from:
+- Your use of the Service
+- Your violation of these Terms
+- Your violation of others' rights
+- Inaccuracy of your submitted information
+
+## 10. Third-Party Services
+
+The Service may integrate with third-party services (bank imports, export tools).
+- We are not responsible for third-party services
+- Third-party terms apply to those services
+- We may discontinue integrations anytime
+
+## 11. Changes to Terms
+
+We may modify these Terms with [TBD: 30 days] notice via:
+- Email
+- In-app notification
+- Updated "Last Modified" date
+
+Continued use after changes constitutes acceptance.
+
+## 12. Termination
+
+### 12.1 By You
+- Cancel anytime in settings
+- Data deleted per our Privacy Policy
+
+### 12.2 By Us
+- We may terminate for Terms violation
+- We'll provide notice except for:
+  * Fraud, illegal activity
+  * Security threat
+  * Court order
+
+## 13. Dispute Resolution
+
+### 13.1 Governing Law
+- These Terms governed by laws of [TBD: State/Country]
+- Exclusive jurisdiction: [TBD: Courts of State/Country]
+
+### 13.2 Arbitration
+- [TBD: Mandatory arbitration clause OR court jurisdiction]
+- If arbitration: [TBD: AAA rules, location]
+
+### 13.3 Class Action Waiver
+- [TBD: Include OR omit based on legal advice]
+
+## 14. Miscellaneous
+
+### 14.1 Entire Agreement
+These Terms constitute the entire agreement between you and us.
+
+### 14.2 Severability
+If any provision is unenforceable, the rest remains in effect.
+
+### 14.3 No Waiver
+Our failure to enforce a right doesn't waive that right.
+
+### 14.4 Assignment
+You may not assign these Terms. We may assign to a successor.
+
+## 15. Contact
+
+Questions about these Terms:
+- Email: [TBD: legal@gracefulbooks.com]
+- Address: [TBD: Physical address]
+
+---
+
+ACCEPTANCE CRITERIA:
+- [ ] Terms of Service reviewed by legal counsel
+- [ ] All [TBD] items filled in (pricing, refunds, dispute resolution)
+- [ ] Terms linked at registration, footer, settings
+- [ ] Users must accept Terms at registration (checkbox + link)
+- [ ] Version number and effective date included
+- [ ] Plain English where possible (legalese where necessary)
+
+[TBD: Terms of Service details]
+- Decision Required By: Legal Counsel
+- Refund policy (30-day guarantee vs no refunds)
+- Dispute resolution (arbitration vs courts)
+- Class action waiver (include vs omit)
+- Governing law and jurisdiction
+- Price change notice period
+```
+
+### 21.6 Cookie Policy & Consent
+
+```
+REQUIREMENT: LEGAL-007
+PRIORITY: Medium
+CATEGORY: Legal & Compliance
+
+If the system uses cookies beyond strictly necessary ones, it SHALL display
+a cookie consent banner and maintain a cookie policy.
+
+COOKIE CLASSIFICATION:
+
+1. STRICTLY NECESSARY (No Consent Required):
+   - Session cookies (authentication)
+   - Security cookies (CSRF protection)
+   - Load balancing cookies
+
+2. FUNCTIONAL (Consent Required):
+   - User preferences (theme, language)
+   - Device recognition (multi-device sync)
+
+3. ANALYTICS (Consent Required):
+   - Usage analytics (Google Analytics, Mixpanel, Heap)
+   - Error tracking (Sentry)
+
+4. MARKETING (Consent Required):
+   - We do NOT use marketing cookies
+
+CONSENT BANNER:
+
+```html
+<!-- Example cookie consent banner -->
+<div class="cookie-banner">
+  <p>
+    We use cookies to improve your experience. Strictly necessary cookies
+    are always enabled. You can manage optional cookies below.
+  </p>
+  <button>Accept All</button>
+  <button>Reject Optional</button>
+  <a href="/cookie-policy">Learn More</a>
+</div>
+```
+
+COOKIE POLICY (Summary):
+- List all cookies used (name, purpose, duration, type)
+- Explain how to disable cookies (browser settings)
+- Link to privacy policy
+
+ACCEPTANCE CRITERIA:
+- [ ] Cookie audit completed (list all cookies used)
+- [ ] Cookie consent banner implemented (if needed)
+- [ ] Cookie policy published
+- [ ] User preferences persisted (accept/reject)
+- [ ] Analytics disabled if user rejects
+
+[TBD: Cookie usage]
+- Decision Required By: Product Manager + Legal Counsel
+- Determine if analytics cookies will be used
+- Select analytics tool (Google Analytics, Plausible, Fathom Analytics)
+- Recommendation: Consider privacy-focused analytics (Plausible, Fathom) to avoid GDPR consent complexity
+```
+
+**ACCEPTANCE CRITERIA (Overall Legal & Compliance):**
+- [ ] GDPR compliance assessment completed
+- [ ] CCPA applicability determined
+- [ ] Privacy Policy finalized and published
+- [ ] Terms of Service finalized and published
+- [ ] Cookie Policy published (if applicable)
+- [ ] Data retention policy documented
+- [ ] Data breach response plan prepared
+- [ ] DPA template prepared for enterprise
+- [ ] Legal counsel review completed
+- [ ] Compliance documentation maintained (audit trail)
+
+---
+
+## 22. Maintenance & Support
+
+```
+REQUIREMENT: SUPPORT-001
+PRIORITY: Critical
+CATEGORY: Operations
+
+The system SHALL provide comprehensive user support and ongoing maintenance
+to ensure reliability, security, and user satisfaction.
+```
+
+### 22.1 Support Channels
+
+```
+REQUIREMENT: SUPPORT-002
+PRIORITY: High
+CATEGORY: Operations
+
+The system SHALL offer multiple support channels appropriate for different
+user needs and issue severities.
+
+SUPPORT CHANNELS:
+
+1. SELF-SERVICE (24/7):
+   - **Knowledge Base / Help Center:**
+     * Location: help.gracefulbooks.com
+     * Content: How-to guides, FAQs, video tutorials
+     * Search: Full-text search with auto-complete
+     * Topics: Getting started, transactions, invoicing, reports, troubleshooting
+
+   - **In-App Help:**
+     * Contextual help (? icon next to features)
+     * Tooltips on hover
+     * Interactive tutorials (first-time user guidance)
+
+   - **Community Forum:**
+     * Location: community.gracefulbooks.com
+     * Purpose: User-to-user support, feature requests, tips
+     * Moderation: Team monitors, answers complex questions
+     * Categories: General, How-To, Feature Requests, Bug Reports
+
+2. EMAIL SUPPORT:
+   - **Email Address:** [TBD: support@gracefulbooks.com]
+   - **Response Time:** See SLA below
+   - **Availability:** Business hours (M-F, 9am-5pm PT)
+   - **Process:**
+     1. User submits ticket via email or in-app form
+     2. Auto-reply with ticket number
+     3. Triage within 4 business hours
+     4. Response per SLA (based on priority)
+
+   - **Ticketing System:** [TBD: Zendesk, Freshdesk, Help Scout]
+
+3. IN-APP SUPPORT WIDGET:
+   - **Feature:** Chat widget (bottom-right corner)
+   - **Mode:** Asynchronous messaging (like Intercom)
+   - **Availability:** Messages queued if offline, response per SLA
+   - **History:** Conversation history preserved
+   - **Attachments:** Screenshots, error logs (automatically included)
+
+4. LIVE CHAT (Premium Plans Only):
+   - **Availability:** Business hours (M-F, 9am-5pm PT)
+   - **Response Time:** <2 minutes
+   - **Queue:** Max wait time 5 minutes
+   - **Escalation:** Complex issues transferred to email
+
+5. PHONE SUPPORT (Enterprise Plans Only):
+   - **Availability:** Business hours + on-call for critical issues
+   - **Phone:** [TBD: 1-800-XXX-XXXX]
+   - **Dedicated:** Account manager for large accounts
+   - **Callback:** Option to request callback
+
+CHANNEL SELECTION GUIDANCE:
+- Simple questions: Knowledge Base, Community Forum
+- Account issues, billing: Email
+- Urgent technical issues: In-app chat (premium) or phone (enterprise)
+- Critical bugs (data loss): Escalate immediately to on-call
+
+ACCEPTANCE CRITERIA:
+- [ ] Knowledge Base published with 50+ articles before launch
+- [ ] In-app help tooltips on all major features
+- [ ] Email support configured with ticketing system
+- [ ] In-app support widget integrated
+- [ ] Community forum launched (if applicable)
+- [ ] Live chat operational for premium plans
+- [ ] Phone support line established for enterprise
+
+[TBD: Support channel details]
+- Decision Required By: Product Manager
+- Support tool (Zendesk, Freshdesk, Help Scout, Intercom)
+- Live chat availability (premium only vs all users)
+- Community forum (launch at beta vs later)
+```
+
+### 22.2 Service Level Agreements (SLAs)
+
+```
+REQUIREMENT: SUPPORT-003
+PRIORITY: High
+CATEGORY: Operations
+
+The system SHALL define and meet service level agreements for support
+response and resolution times based on issue priority.
+
+SLA TIERS BY PLAN:
+
+┌──────────────────┬──────────┬──────────┬────────────┐
+│ Plan Type        │ Free     │ Premium  │ Enterprise │
+├──────────────────┼──────────┼──────────┼────────────┤
+│ Email Support    │ Yes      │ Yes      │ Yes        │
+│ Live Chat        │ No       │ Yes      │ Yes        │
+│ Phone Support    │ No       │ No       │ Yes        │
+│ Dedicated Support│ No       │ No       │ Yes        │
+│ On-Call Support  │ No       │ No       │ Yes (24/7) │
+└──────────────────┴──────────┴──────────┴────────────┘
+
+PRIORITY LEVELS:
+
+P1 - CRITICAL (System Down, Data Loss Risk):
+- **Free Plan:**
+  * Response Time: [TBD: 4 business hours]
+  * Resolution Time: [TBD: 24 hours]
+  * Availability: Business hours
+  * Escalation: After 8 hours
+
+- **Premium Plan:**
+  * Response Time: [TBD: 2 hours]
+  * Resolution Time: [TBD: 8 hours]
+  * Availability: Business hours + on-call
+  * Escalation: After 4 hours
+
+- **Enterprise Plan:**
+  * Response Time: [TBD: 30 minutes]
+  * Resolution Time: [TBD: 4 hours]
+  * Availability: 24/7/365
+  * Escalation: Immediate to on-call engineer
+
+P2 - HIGH (Major Feature Broken, Blocking Work):
+- **Free Plan:**
+  * Response Time: [TBD: 1 business day]
+  * Resolution Time: [TBD: 5 business days]
+  * Availability: Business hours
+
+- **Premium Plan:**
+  * Response Time: [TBD: 4 hours]
+  * Resolution Time: [TBD: 24 hours]
+  * Availability: Business hours + on-call
+  * Escalation: After 12 hours
+
+- **Enterprise Plan:**
+  * Response Time: [TBD: 1 hour]
+  * Resolution Time: [TBD: 8 hours]
+  * Availability: Business hours + on-call
+  * Escalation: After 4 hours
+
+P3 - MEDIUM (Minor Issue, Workaround Available):
+- **Free Plan:**
+  * Response Time: [TBD: 3 business days]
+  * Resolution Time: [TBD: 10 business days]
+  * Availability: Business hours
+
+- **Premium Plan:**
+  * Response Time: [TBD: 1 business day]
+  * Resolution Time: [TBD: 5 business days]
+  * Availability: Business hours
+
+- **Enterprise Plan:**
+  * Response Time: [TBD: 4 hours]
+  * Resolution Time: [TBD: 3 business days]
+  * Availability: Business hours
+
+P4 - LOW (Question, Feature Request, Enhancement):
+- **All Plans:**
+  * Response Time: [TBD: 5 business days]
+  * Resolution Time: Best effort
+  * Availability: Business hours
+
+UPTIME SLA:
+
+┌──────────────────┬──────────┬──────────┬────────────┐
+│ Plan Type        │ Free     │ Premium  │ Enterprise │
+├──────────────────┼──────────┼──────────┼────────────┤
+│ Uptime Target    │ 99.0%    │ 99.5%    │ 99.9%      │
+│ Downtime/Year    │ 87.6 hrs │ 43.8 hrs │ 8.76 hrs   │
+│ Downtime/Month   │ 7.3 hrs  │ 3.6 hrs  │ 43.2 min   │
+│ SLA Credit       │ N/A      │ 5% credit│ 10% credit │
+└──────────────────┴──────────┴──────────┴────────────┘
+
+SLA CREDITS (Premium & Enterprise):
+- If uptime < target: Pro-rated credit for next billing cycle
+- Calculation: (Downtime minutes / Total minutes in month) × Monthly fee
+- Exclusions: Scheduled maintenance (with 7-day notice), force majeure, user error
+
+MEASURING SLA COMPLIANCE:
+- Response Time: From ticket creation to first response
+- Resolution Time: From ticket creation to issue resolved
+- Uptime: Measured by external monitoring (Pingdom, UptimeRobot)
+- Reporting: Monthly SLA report sent to enterprise customers
+
+ACCEPTANCE CRITERIA:
+- [ ] SLA tiers defined and documented
+- [ ] Priority classification guide published (internal + external)
+- [ ] Uptime monitoring configured
+- [ ] SLA credit calculation automated (if applicable)
+- [ ] Monthly SLA reports generated for enterprise
+- [ ] Support team trained on SLA commitments
+
+[TBD: SLA details]
+- Decision Required By: Product Manager + Support Lead
+- Response/resolution times per priority
+- Uptime target (99.0%, 99.5%, 99.9%)
+- SLA credit policy (offer credits vs no credits)
+```
+
+### 22.3 Support Procedures & Escalation
+
+```
+REQUIREMENT: SUPPORT-004
+PRIORITY: High
+CATEGORY: Operations
+
+The system SHALL implement standardized support procedures and escalation
+paths to ensure consistent, high-quality support.
+
+TICKET TRIAGE PROCESS:
+
+1. TICKET CREATION:
+   - Auto-assign ticket number (e.g., GRACE-12345)
+   - Auto-tag based on keywords (billing, sync, login, etc.)
+   - Auto-detect: Browser, OS, app version, error code (from in-app submissions)
+   - Auto-reply: "Thank you, ticket #12345 created, response within X hours"
+
+2. INITIAL TRIAGE (Within 4 business hours):
+   - Support agent reviews ticket
+   - Assigns priority (P1, P2, P3, P4) based on criteria:
+     * P1: Service down, data loss, security breach, cannot access account
+     * P2: Major feature broken, sync failing, cannot create transactions
+     * P3: Minor bug, UI issue, performance problem with workaround
+     * P4: Question, how-to, feature request
+
+   - Assigns to appropriate queue:
+     * Billing: Finance team
+     * Technical: Engineering support
+     * Account: Customer success
+     * General: Tier 1 support
+
+3. FIRST RESPONSE:
+   - Acknowledge issue
+   - Ask clarifying questions (if needed)
+   - Provide workaround (if available)
+   - Set expectations (resolution timeline per SLA)
+
+4. INVESTIGATION:
+   - Reproduce issue (if bug)
+   - Check logs, error tracking (Sentry)
+   - Consult documentation, knowledge base
+   - Test in staging environment
+
+5. RESOLUTION:
+   - Provide solution (fix, workaround, explanation)
+   - Verify with user
+   - Update knowledge base (if common issue)
+   - Close ticket
+
+6. FOLLOW-UP:
+   - Send satisfaction survey (1-5 stars + comment)
+   - Track NPS: "How likely are you to recommend Graceful Books?"
+   - Review feedback weekly
+
+ESCALATION PATHS:
+
+LEVEL 1 (Tier 1 Support):
+- Handle: Common questions, password resets, billing inquiries
+- Escalate to Level 2 if: Technical issue, bug, cannot resolve in 30 minutes
+
+LEVEL 2 (Technical Support / Engineering):
+- Handle: Complex technical issues, bugs, sync problems
+- Escalate to Level 3 if: Requires code change, critical bug, security issue
+
+LEVEL 3 (On-Call Engineer):
+- Handle: Critical issues (P1), data loss, security breaches
+- Escalate to Leadership if: Major outage, legal issue, executive escalation
+
+EXECUTIVE ESCALATION:
+- Customer requests to speak to manager
+- High-value account (enterprise)
+- Issue unresolved after 7 days
+- Social media complaint (Twitter, LinkedIn)
+- Legal threat
+
+ON-CALL ROTATION:
+
+SCHEDULE:
+- Primary on-call: Week-long rotation (Monday 9am to Monday 9am)
+- Secondary on-call: Backup if primary unavailable
+- Rotation: All senior engineers participate
+
+RESPONSIBILITIES:
+- Respond to P1 escalations within SLA (15-30 minutes)
+- Troubleshoot and resolve critical issues
+- Coordinate with DevOps for infrastructure issues
+- Document incident in post-mortem
+
+ON-CALL COMPENSATION:
+- [TBD: Additional pay, comp time, or bonus]
+
+SUPPORT MACROS / CANNED RESPONSES:
+
+Common scenarios with pre-written responses:
+- Password reset instructions
+- Export data instructions
+- Sync troubleshooting steps
+- Browser compatibility issues
+- Billing cycle explanation
+- Feature request acknowledgment
+
+ACCEPTANCE CRITERIA:
+- [ ] Triage process documented in support playbook
+- [ ] Priority classification criteria clear
+- [ ] Escalation paths defined
+- [ ] On-call rotation schedule established
+- [ ] Support macros created (20+ common scenarios)
+- [ ] Knowledge base linked from common responses
+- [ ] Satisfaction surveys configured
+- [ ] Support team trained on procedures
+
+[TBD: Support procedure details]
+- Decision Required By: Support Lead
+- On-call compensation structure
+- Executive escalation criteria
+```
+
+### 22.4 Maintenance Schedule
+
+```
+REQUIREMENT: SUPPORT-005
+PRIORITY: High
+CATEGORY: Operations
+
+The system SHALL implement regular maintenance procedures to ensure
+reliability, security, and performance.
+
+MAINTENANCE TYPES:
+
+1. PATCH RELEASES (Bi-weekly or as needed):
+   - **Scope:** Bug fixes, security patches, minor improvements
+   - **Frequency:** Every 2 weeks (or emergency as needed)
+   - **Downtime:** Zero downtime (rolling deployment)
+   - **Testing:** Smoke tests in staging, automated tests
+   - **Communication:** Changelog updated, no user notification (unless security fix)
+
+2. MINOR RELEASES (Monthly):
+   - **Scope:** New features, improvements, non-breaking changes
+   - **Frequency:** First Tuesday of each month
+   - **Downtime:** <5 minutes (during deployment)
+   - **Testing:** Full regression suite, UAT in staging
+   - **Communication:** Email to active users, in-app what's new
+
+3. MAJOR RELEASES (Quarterly):
+   - **Scope:** Significant features, breaking changes, architecture updates
+   - **Frequency:** Every 3 months (Jan, Apr, Jul, Oct)
+   - **Downtime:** <30 minutes (planned maintenance window)
+   - **Testing:** Extended beta period (2-4 weeks), full QA
+   - **Communication:** Email to all users (2 weeks notice), blog post, social media
+
+4. EMERGENCY HOTFIXES (As needed):
+   - **Scope:** Critical bugs, security vulnerabilities
+   - **Frequency:** As needed (hopefully rare)
+   - **Downtime:** Minimize (blue-green deployment if possible)
+   - **Testing:** Targeted testing, manual verification
+   - **Communication:** Post-mortem published within 48 hours
+
+ROUTINE MAINTENANCE TASKS:
+
+DAILY:
+- Automated backups (database, encrypted data)
+- Log aggregation and rotation
+- Error tracking review (new critical errors)
+- Uptime monitoring check
+
+WEEKLY:
+- Dependency vulnerability scan (npm audit, Snyk)
+- Review support tickets (trends, common issues)
+- Database performance check (slow queries)
+- SSL certificate expiration check (30-day warning)
+
+MONTHLY:
+- Database cleanup (old sync metadata, expired sessions)
+- Storage usage review (delete orphaned files)
+- Cost optimization review (cloud spending)
+- Security patch application
+- SLA compliance report (enterprise customers)
+
+QUARTERLY:
+- Security audit (penetration test, code review)
+- Performance benchmarking (compare to targets)
+- Disaster recovery drill (test backup restoration)
+- Access control audit (remove ex-employees, review permissions)
+- Third-party service review (sub-processors, integrations)
+
+ANNUALLY:
+- Full security audit by third-party
+- Infrastructure review (cloud provider, scaling)
+- Compliance certification renewal (SOC 2, if applicable)
+- Terms of Service / Privacy Policy review
+
+PLANNED MAINTENANCE WINDOWS:
+
+SCHEDULE:
+- **Day:** First Tuesday of each month
+- **Time:** 2:00 AM - 4:00 AM PT (off-peak hours)
+- **Duration:** Maximum 2 hours
+- **Notice:** 7 days in advance (email + in-app banner)
+
+STATUS PAGE:
+- URL: status.gracefulbooks.com
+- Shows: Current status (operational, degraded, down), scheduled maintenance, incident history
+- Tool: [TBD: StatusPage.io, Atlassian Statuspage, custom]
+
+ACCEPTANCE CRITERIA:
+- [ ] Maintenance schedule published
+- [ ] Automated backups configured (daily)
+- [ ] Backup restoration tested
+- [ ] Routine tasks documented in runbook
+- [ ] Alerts configured for maintenance tasks
+- [ ] Status page operational
+- [ ] Maintenance window communicated to users
+- [ ] Emergency hotfix procedure documented
+
+[TBD: Maintenance details]
+- Decision Required By: DevOps Lead
+- Backup retention period (30 days? 90 days?)
+- Status page tool selection
+- Maintenance window timing (consider global users)
+```
+
+### 22.5 Monitoring & Alerting (User-Facing)
+
+```
+REQUIREMENT: SUPPORT-006
+PRIORITY: Medium
+CATEGORY: Operations
+
+The system SHALL monitor user-facing metrics and alert the support team
+to proactive issues before users report them.
+
+USER-FACING METRICS:
+
+1. SYNC HEALTH:
+   - Metric: Sync success rate
+   - Alert: If success rate <95% for any user
+   - Action: Proactively reach out to user, offer help
+   - Dashboard: Real-time sync health by user
+
+2. ERROR RATES:
+   - Metric: JavaScript errors per user session
+   - Alert: If user experiences >5 errors in 10 minutes
+   - Action: Auto-create support ticket, notify user
+   - Dashboard: Error spike detection
+
+3. FEATURE ADOPTION:
+   - Metric: % users completing onboarding
+   - Alert: If completion rate drops below 70%
+   - Action: Review onboarding flow, A/B test improvements
+   - Dashboard: Funnel analysis
+
+4. SLOW PERFORMANCE:
+   - Metric: Page load time, transaction save time
+   - Alert: If p95 >2x normal for a user
+   - Action: Investigate device/browser, offer troubleshooting
+   - Dashboard: Performance by user cohort
+
+5. SUPPORT TICKET TRENDS:
+   - Metric: Tickets per category (billing, technical, how-to)
+   - Alert: If category spikes >50% week-over-week
+   - Action: Investigate root cause, create knowledge base article
+   - Dashboard: Weekly support trends
+
+PROACTIVE SUPPORT:
+
+AUTOMATED OUTREACH:
+- User hasn't synced in 7 days → Email: "Having trouble syncing?"
+- User created account but no transactions → Email: "Need help getting started?"
+- User attempted export 3+ times → Chat: "Need help with export?"
+
+HEALTH SCORE:
+- Calculate per user: Sync success rate + feature usage + error rate
+- Categories:
+  * Green (80-100): Healthy, no action
+  * Yellow (50-79): At risk, proactive check-in
+  * Red (0-49): Struggling, priority outreach
+- Review yellow/red users weekly
+
+ACCEPTANCE CRITERIA:
+- [ ] User-facing metrics dashboard created
+- [ ] Alerts configured for sync failures, errors, slow performance
+- [ ] Proactive support workflows automated
+- [ ] Health score calculated and reviewed weekly
+- [ ] Support team trained on proactive outreach
+
+[TBD: Monitoring details]
+- Decision Required By: Product Manager + Support Lead
+- Proactive outreach thresholds
+- Health score calculation formula
+```
+
+**ACCEPTANCE CRITERIA (Overall Maintenance & Support):**
+- [ ] Support channels operational (email, in-app, knowledge base)
+- [ ] SLAs defined and documented
+- [ ] Support procedures documented in playbook
+- [ ] On-call rotation established
+- [ ] Maintenance schedule published
+- [ ] Automated backups configured and tested
+- [ ] Status page operational
+- [ ] Support team hired and trained
+- [ ] Ticketing system configured
+- [ ] User satisfaction tracking (NPS, CSAT)
+
+---
+
 ## Appendix A: Glossary
 
 | Term | Plain English | Technical Definition |
