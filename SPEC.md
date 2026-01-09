@@ -9020,19 +9020,83 @@ This section establishes comprehensive training resources:
 
 ---
 
+## 25. Stakeholder Responsibilities
+
+This section defines the key stakeholders for the Graceful Books project, their roles, responsibilities, and decision authority to ensure clear accountability and efficient execution.
+
+| Role | Responsibilities | Decision Authority | Deliverables | Contact |
+|------|------------------|-------------------|--------------|---------|
+| **Product Owner** | Vision, roadmap, priorities, budget | FINAL (can override others) | Roadmap, release sign-off | [TBD] |
+| **Technical Lead** | Architecture, tech stack, code quality | TECHNICAL | Architecture docs, tech decisions | [TBD] |
+| **Security Architect** | Security design, threat model, audits | SECURITY (can block for P1 vulns) | Threat model, audit reports | [TBD] |
+| **UX/UI Designer** | User flows, mockups, design system | DESIGN | Figma files, accessibility audit | [TBD] |
+| **QA Lead** | Test strategy, validation, sign-off | QUALITY (can block for P1/P2 bugs) | Test plans, release sign-off | [TBD] |
+| **DevOps Lead** | Infrastructure, CI/CD, monitoring | OPERATIONS | Deployment pipeline, dashboards | [TBD] |
+| **Legal Counsel** | Compliance, privacy, contracts | LEGAL (can block for compliance) | Privacy policy, terms approval | [TBD] |
+| **Support Manager** | User support, SLAs, feedback | SUPPORT (escalates to Product) | Support playbook, NPS reports | [TBD] |
+
+**Escalation Path:** Team Member → Lead → Product Owner → Executive Sponsor (if unresolved)
+
+---
+
+## 26. Change Management Process
+
+This section defines how changes to requirements, architecture, and features are proposed, evaluated, and approved.
+
+### 26.1 Change Request Types
+
+| Type | Definition | Examples | Approval Required | Impact Analysis | Timeline |
+|------|-----------|----------|-------------------|-----------------|----------|
+| **Minor** | Clarifications, bug fixes, small tweaks | Fix typo, adjust color, update help text | Tech Lead OR Product Owner | Optional | <24 hours |
+| **Moderate** | Feature enhancements, minor scope additions | Add export format, new chart type | Product + Tech Lead | Required | <1 week |
+| **Major** | New features, architectural changes | Add payroll, change database | Product + Tech + Security + QA | Required (RFC) | <2 weeks |
+| **Critical** | Security fixes, compliance, critical bugs | Zero-day patch, GDPR change | Product Owner (expedited) | Risk assessment | <4 hours |
+
+### 26.2 Change Request Process
+
+1. **SUBMIT** - Anyone can submit via issue tracker (Jira/GitHub)
+2. **TRIAGE** - Tech Lead/Product Owner classifies and estimates (2 days)
+3. **DECISION** - Appropriate approvers review and decide
+4. **IMPLEMENT** - Assign to sprint, update SPEC.md, notify stakeholders
+5. **DOCUMENT** - Update CHANGELOG.md with decision rationale
+
+**Change Control Board** (for Major changes): Product Owner, Tech Lead, Security, QA - meets as needed, majority vote
+
+---
+
 ## Appendix A: Glossary
 
-| Term | Plain English | Technical Definition |
-|------|--------------|----------------------|
-| CRDT | A way for multiple people to edit the same thing without conflicts | Conflict-free Replicated Data Type - a data structure that automatically merges changes from multiple sources without conflicts |
-| Argon2id | The secure algorithm that protects your passphrase | Argon2id is a password hashing algorithm that transforms your passphrase into encryption keys while defending against brute-force attacks |
-| KDF | The process that turns your passphrase into encryption keys | Key Derivation Function - a cryptographic algorithm that generates multiple secure keys from a single passphrase using HKDF (HMAC-based Key Derivation Function) |
-| GAAP | The rules for how business finances should be tracked | Generally Accepted Accounting Principles |
-| Zero-knowledge | We can't see your data even if we wanted to | Encryption where service provider has no decryption capability |
-| COA | Your list of categories for tracking money | Chart of Accounts |
-| Reconciliation | Making sure your records match your bank | Bank Reconciliation |
-| Accrual | Recording money when you earn it, not when you get it | Accrual basis accounting |
-| Cash basis | Recording money when it hits your account | Cash basis accounting |
+This glossary provides plain English and technical definitions for key terms used throughout this specification.
+
+| Term | Plain English | Technical Definition | Example | Related Terms |
+|------|--------------|----------------------|---------|---------------|
+| **API** | How different software programs talk to each other | Application Programming Interface - a set of rules that allows software applications to communicate | REST API, WebSocket API | Sync Relay, Integration |
+| **Accrual** | Recording money when you earn it, not when you get it | Accrual basis accounting - revenue recognized when earned, expenses when incurred | Invoice sent Jan 15 (recorded Jan 15) even if paid Feb 1 | Cash Basis, Revenue Recognition |
+| **Argon2id** | The secure algorithm that protects your passphrase | Argon2id is a password hashing algorithm that transforms your passphrase into encryption keys while defending against brute-force attacks | Used in §2.1.5 for passphrase hashing | KDF, Encryption, Master Key |
+| **A/P** | Money you owe to others | Accounts Payable - outstanding bills and invoices you need to pay | Vendor invoices, utility bills | Liability, Expense |
+| **A/R** | Money others owe to you | Accounts Receivable - outstanding invoices you've sent that haven't been paid yet | Customer invoices pending payment | Asset, Income |
+| **BLAKE3** | A fast, secure way to create a fingerprint of data | BLAKE3 is a cryptographic hash function used for authentication tokens | Used for hashing auth tokens in §2.1.5 | Hash, Authentication |
+| **Cash Basis** | Recording money when it hits your account | Cash basis accounting - revenue recognized when received, expenses when paid | Invoice paid Feb 1 (recorded Feb 1) even if work done Jan 15 | Accrual, Revenue Recognition |
+| **CCPA** | California's privacy law | California Consumer Privacy Act - data protection regulation for California residents | Right to know what data is collected | GDPR, Privacy, Compliance |
+| **COA** | Your list of categories for tracking money | Chart of Accounts - organized list of all accounts used to record transactions | Assets, Liabilities, Income, Expenses | Account, Category |
+| **COGS** | What it cost you to make what you sold | Cost of Goods Sold - direct costs of producing goods sold (materials, labor) | For $25 mug: $8.50 materials + $2 labor = $10.50 COGS | Inventory, Gross Profit |
+| **CRDT** | A way for multiple people to edit the same thing without conflicts | Conflict-free Replicated Data Type - a data structure that automatically merges changes from multiple sources without conflicts | Used for offline sync in §2.1.3 | Sync, Conflict Resolution |
+| **FIFO** | First in, first out - sell oldest inventory first | First In, First Out - inventory costing method where oldest inventory is sold first | Buy 10 mugs @ $8, then 10 @ $9. Sell 15: COGS = (10×$8)+(5×$9) | LIFO, Inventory, COGS |
+| **GAAP** | The rules for how business finances should be tracked | Generally Accepted Accounting Principles - standard accounting framework in the US | Requires double-entry bookkeeping, accrual basis for public companies | Accounting, Compliance |
+| **GDPR** | Europe's privacy law | General Data Protection Regulation - EU data protection and privacy regulation | Right to access, erasure, portability | CCPA, Privacy, Compliance |
+| **HKDF** | A way to create multiple keys from one master key | HMAC-based Key Derivation Function - derives multiple cryptographic keys from a single master key | Derives K_enc and K_auth from Master Key | KDF, Encryption, Key Derivation |
+| **KDF** | The process that turns your passphrase into encryption keys | Key Derivation Function - a cryptographic algorithm that generates multiple secure keys from a single passphrase using HKDF (HMAC-based Key Derivation Function) | Passphrase → Master Key → K_enc + K_auth | Argon2id, HKDF, Encryption |
+| **LIFO** | Last in, first out - sell newest inventory first | Last In, First Out - inventory costing method where newest inventory is sold first | Buy 10 mugs @ $8, then 10 @ $9. Sell 15: COGS = (10×$9)+(5×$8) | FIFO, Inventory, COGS |
+| **OCR** | Technology that reads text from images | Optical Character Recognition - converts images of text into editable text | Scan receipt photo → extract amount, merchant, date | Receipt Scanning, AI |
+| **P&L** | Your profit and loss statement | Profit & Loss Statement (Income Statement) - shows revenue, expenses, and profit for a period | Jan 2026: $10,000 revenue - $6,000 expenses = $4,000 profit | Financial Statement, Report |
+| **Reconciliation** | Making sure your records match your bank | Bank Reconciliation - comparing your transaction records to bank statements to find differences | Your records show $5,000, bank shows $4,950 → find $50 difference | Accuracy, Audit |
+| **REST** | A common way for web applications to exchange data | REpresentational State Transfer - architectural style for web APIs using HTTP | GET /transactions, POST /invoices | API, HTTP, WebSocket |
+| **Retained Earnings** | Profit you've kept in the business instead of taking out | Accumulated profit kept in the business rather than distributed to owners | Business earned $50k total, owner took $20k → $30k retained earnings | Equity, Profit |
+| **SLA** | Your promise for how quickly you'll respond and fix issues | Service Level Agreement - commitment on response times and uptime | P1 bug: respond in 15 min, fix in 4 hours | Support, Uptime, Response Time |
+| **WCAG** | Web accessibility standards | Web Content Accessibility Guidelines - standards for making web content accessible to people with disabilities | Level AA compliance required (§23.6) | Accessibility, Compliance, A11y |
+| **Zero-Knowledge** | We can't see your data even if we wanted to | Encryption where service provider has no decryption capability | Encrypted on your device, server stores blobs it can't read | Encryption, Privacy, Security |
+
+**Note:** This glossary is intended for reference. When these terms appear in the specification, they are explained in context with plain English examples.
 
 ---
 
