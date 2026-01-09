@@ -22,6 +22,383 @@ Graceful Books is an immersive, educational accounting platform designed to empo
 | **GAAP Compliance** | Full professional accounting capabilities beneath the accessible interface |
 | **Social Impact** | Built-in charitable giving with transparency and accountability |
 
+### 1.3 Document Audience
+
+This Product Requirements Specification is intended for multiple stakeholders with varying technical backgrounds. The document is structured to provide value to both technical and non-technical readers.
+
+**PRIMARY AUDIENCE (Technical Implementation):**
+- **Software Engineers** (Frontend, Backend, Full-Stack)
+  - Use this document for: Architecture understanding, feature implementation, API contracts, acceptance criteria
+  - Key sections: System Architecture (§2), Technical Requirements (§16), Testing (§18), Deployment (§19)
+- **Technical Architects**
+  - Use this document for: System design decisions, technology stack evaluation, security architecture
+  - Key sections: Zero-Knowledge Architecture (§2.1), Database Schema (§2.2), Technology Stack (§16.4)
+- **Quality Assurance Engineers**
+  - Use this document for: Test case creation, acceptance criteria validation, quality gates
+  - Key sections: All Requirements (§3-15), Testing Strategy (§18), Acceptance Criteria throughout
+- **DevOps Engineers**
+  - Use this document for: Infrastructure planning, CI/CD pipeline design, deployment strategy
+  - Key sections: Deployment (§19), Error Handling & Logging (§20), Maintenance & Support (§22)
+
+**SECONDARY AUDIENCE (Product & Design):**
+- **Product Managers**
+  - Use this document for: Feature prioritization, roadmap planning, stakeholder communication
+  - Key sections: Executive Summary (§1), User Stories (Appendix B), Success Metrics (§17), Roadmap (§14)
+- **UX/UI Designers**
+  - Use this document for: User flow understanding, design constraints, accessibility requirements
+  - Key sections: Onboarding (§3), Design Considerations (§23), User Stories (Appendix B)
+- **Project Managers**
+  - Use this document for: Sprint planning, dependency identification, resource allocation
+  - Key sections: All functional requirements (§3-15), Testing (§18), Deployment (§19)
+
+**TERTIARY AUDIENCE (Stakeholders & Specialists):**
+- **Business Stakeholders** (Executives, Investors)
+  - Use this document for: Vision alignment, business value understanding, risk assessment
+  - Key sections: Executive Summary (§1), Success Metrics (§17), Pricing (§13)
+- **Legal & Compliance**
+  - Use this document for: Privacy compliance, data protection, regulatory alignment
+  - Key sections: Legal & Compliance (§21), Security Architecture (§2.1.5)
+- **Security Specialists**
+  - Use this document for: Threat modeling, security audit preparation, vulnerability assessment
+  - Key sections: Zero-Knowledge Architecture (§2.1), Authentication (§2.1.5), Testing §18.5)
+
+**DOCUMENT READING STRATEGIES:**
+
+*For Developers Starting Implementation:*
+1. Read: Executive Summary (§1), System Architecture (§2)
+2. Review: Specific feature requirements for your sprint
+3. Reference: Technology Stack (§16.4), API Specification (§16.4.7), Testing (§18)
+
+*For Designers Creating Mockups:*
+1. Read: Vision Statement (§1.1), Core Principles (§1.2), User Stories (Appendix B)
+2. Deep dive: Design Considerations (§23), Progressive Feature Disclosure (§4)
+3. Reference: Accessibility requirements (§23.6)
+
+*For Stakeholders Reviewing Progress:*
+1. Read: Executive Summary (§1), Success Metrics (§17)
+2. Scan: Functional requirements (§3-15) for breadth understanding
+3. Reference: Future Considerations (§14) for roadmap
+
+**TECHNICAL LEVEL:** Mixed
+- Sections marked with [TECHNICAL] require software engineering knowledge
+- Sections marked with [BUSINESS] are accessible to non-technical readers
+- All sections include Plain English explanations where technical terms are unavoidable
+
+### 1.4 Out of Scope (Version 1.0 Exclusions)
+
+The following features, capabilities, and integrations are **explicitly excluded** from version 1.0 of Graceful Books. This scope definition ensures focused execution and prevents scope creep during initial development.
+
+**PLATFORM LIMITATIONS (v1.0):**
+
+❌ **Mobile Native Applications**
+- v1.0 is web-only (responsive web app)
+- No iOS or Android native apps
+- Mobile browsers supported with responsive design
+- Rationale: Focus on core functionality before platform expansion
+- Future: Mobile apps planned for Phase "Reaching for the Stars" (see MOBILE-001 in §14)
+
+❌ **Desktop Applications**
+- No Electron, Tauri, or native desktop apps
+- Web application accessible via desktop browsers
+- Rationale: Web-first approach reduces maintenance burden
+- Future: Offline-capable desktop app planned (see §14)
+
+**FINANCIAL FEATURES (Not Included):**
+
+❌ **Payroll Processing**
+- No payroll calculation, tax withholding, or direct deposit
+- No employee time tracking or benefits administration
+- Workaround: Export data for use with payroll providers (QuickBooks Payroll, Gusto, ADP)
+- Rationale: Payroll compliance is complex and jurisdiction-specific
+- Future: Integration with third-party payroll services planned (see FUTURE-001 in §14)
+
+❌ **Tax Filing & E-Filing**
+- No direct tax return preparation or electronic filing
+- No integration with IRS e-file system
+- Workaround: Export tax reports for accountant or tax software
+- Rationale: Tax compliance requires CPA involvement for most users
+- Future: Tax report templates optimized for accountant handoff (see TAX-003 in §14)
+
+❌ **Bill Payment / Bank Transfers**
+- No ACH transfers, bill pay, or check writing from the app
+- No integration with bank payment systems
+- Workaround: Use bank's online banking for payments, import transactions
+- Rationale: Requires banking licenses and complex compliance
+- Future: Integration with payment providers planned (see FUTURE-002 in §14)
+
+❌ **Multi-Entity Consolidation**
+- v1.0 supports ONE company per account
+- No parent/subsidiary relationships or consolidated reporting
+- Workaround: Create separate accounts for each entity
+- Rationale: Complexity of inter-company eliminations and consolidation rules
+- Future: Multi-entity planned for Phase "Reaching for the Stars" (see MULTI-001 in §14)
+
+**INVENTORY FEATURES (Limited Scope):**
+
+❌ **Advanced Inventory Management**
+- v1.0: Basic inventory tracking (FIFO costing, quantity on hand)
+- NOT included: Warehouse management, bin locations, serial number tracking
+- NOT included: Barcode scanning, automated reorder points, supplier management
+- NOT included: Manufacturing/assembly, work-in-progress tracking
+- Rationale: Advanced inventory is niche requirement, adds significant complexity
+- Future: Advanced inventory planned for Phase "Spreading Your Wings" (see INV-003 in §14)
+
+**COLLABORATION FEATURES (Limited Scope):**
+
+❌ **Real-Time Collaborative Editing**
+- v1.0: Multi-device sync with conflict resolution
+- NOT included: Live cursors, real-time presence indicators
+- NOT included: Comments, @mentions, in-app chat
+- Rationale: Focus on data sync before adding collaboration UX features
+- Future: Real-time collaboration UI planned (see COLLAB-002 in §14)
+
+❌ **Advanced Role-Based Permissions**
+- v1.0: Simple roles (Admin, Manager, Bookkeeper, View-Only) per §2.1.5
+- NOT included: Custom roles, field-level permissions, approval workflows
+- NOT included: Audit trails for permission changes
+- Rationale: Enterprise-grade permissions add complexity for small business focus
+- Future: Advanced permissions for enterprise tier (see TEAM-004 in §14)
+
+**INTEGRATION LIMITATIONS (v1.0):**
+
+❌ **Bank Account Auto-Import (Direct Integration)**
+- v1.0: Manual CSV/OFX import only
+- NOT included: Direct bank connections (Plaid, Yodlee, MX)
+- Rationale: Bank integrations require partnerships and ongoing maintenance
+- Future: Direct bank feeds planned for Phase "Build Momentum" (see BANK-002 in §14)
+
+❌ **Third-Party API Access**
+- No public API for third-party developers
+- No webhooks or automation integrations (Zapier, IFTTT)
+- Rationale: API requires documentation, versioning, support overhead
+- Future: Public API planned after v1.0 stabilization (see FUTURE-001 in §14)
+
+❌ **E-Commerce Platform Integrations**
+- No direct integration with Shopify, WooCommerce, Stripe, Square
+- Workaround: Import sales data via CSV
+- Rationale: Each integration requires maintenance and testing
+- Future: Top platform integrations planned (see ECOMM-001 in §14)
+
+**ADVANCED FEATURES (Deferred):**
+
+❌ **Multi-Currency Support**
+- v1.0: Single currency per company (default USD)
+- NOT included: Foreign exchange rates, currency conversion, multi-currency reporting
+- Rationale: Adds complexity to core accounting engine
+- Future: Multi-currency planned for Phase "Spreading Your Wings" (see CURR-001 in §14)
+
+❌ **AI-Powered Insights**
+- NOT included: Anomaly detection, predictive forecasting, natural language queries
+- NOT included: Automated categorization (beyond rule-based patterns)
+- Rationale: AI features require significant data and training
+- Future: AI insights planned for v2.0 (see AI-001, AI-002 in §14)
+
+❌ **3D Visualization (Full Implementation)**
+- v1.0: Concept validation only (§11)
+- NOT included: Production-quality 3D engine, VR support
+- Rationale: Experimental feature requiring user research validation
+- Future: Full 3D implementation conditional on user feedback (see VIZ-001 in §14)
+
+**COMPLIANCE SCOPE:**
+
+❌ **Industry-Specific Compliance**
+- NOT included: HIPAA (healthcare), SOC 2 Type II, PCI-DSS Level 1
+- v1.0 compliance: GDPR, CCPA, general data protection (see §21)
+- Rationale: Industry certifications require audits and specialized controls
+- Future: Enterprise compliance tiers planned (see COMPLIANCE-001 in §14)
+
+**LOCALIZATION:**
+
+❌ **Multi-Language Support**
+- v1.0: English only (US English)
+- NOT included: Translations, RTL languages, locale-specific number formats
+- Rationale: Focus on core market before international expansion
+- Future: Internationalization planned (see I18N-001 in §14)
+
+❌ **Jurisdiction-Specific Tax Rules**
+- v1.0: US-focused tax terminology and reporting
+- NOT included: UK VAT, Canadian GST/HST, Australian BAS
+- Rationale: Tax rules require local expertise and ongoing updates
+- Future: Major market support planned (see TAX-004 in §14)
+
+**WHAT IS IN SCOPE (v1.0 Confirmation):**
+
+To clarify, version 1.0 DOES include:
+- ✅ Full double-entry accounting with chart of accounts
+- ✅ Transaction management (income, expenses, transfers)
+- ✅ Invoicing (create, send, track payment status)
+- ✅ Basic inventory tracking (FIFO costing)
+- ✅ Financial reports (P&L, Balance Sheet, Cash Flow)
+- ✅ Bank reconciliation (manual CSV import)
+- ✅ Multi-user access with role-based permissions (4 roles)
+- ✅ Zero-knowledge encryption with multi-device sync
+- ✅ Progressive feature disclosure based on business phase
+- ✅ WCAG 2.1 AA accessibility compliance
+- ✅ Responsive web design (mobile, tablet, desktop)
+
+### 1.5 References & Related Documents
+
+This specification references and builds upon several external documents, standards, and prior research. The following references provide additional context and authoritative sources.
+
+**RELATED PROJECT DOCUMENTS:**
+
+*Internal Planning & Analysis:*
+- **Business Requirements Document (BRD):** [TBD: Link when created]
+  - Stakeholder interviews, market research, competitive analysis
+  - Business case and financial projections
+  - Decision Required By: Product Manager
+- **User Research Report:** [TBD: Link when created]
+  - User interviews with 30+ small business owners
+  - Persona development methodology
+  - Usability testing findings
+  - Decision Required By: UX Researcher
+- **Technical Architecture Document (TAD):** [TBD: Link when created - recommended to extract from §2, §16]
+  - Detailed system architecture diagrams
+  - Technology selection rationale
+  - Infrastructure design
+  - Decision Required By: Technical Architect
+- **Security Architecture & Threat Model:** [TBD: Link when created]
+  - Detailed threat analysis (STRIDE methodology)
+  - Security controls mapping
+  - Penetration test results
+  - Decision Required By: Security Architect
+- **Design System Documentation:** [TBD: Link when created]
+  - Component library (Figma/Sketch/Adobe XD)
+  - Design tokens and style guide
+  - Accessibility testing results
+  - Decision Required By: UX/UI Designer
+
+*Evaluation & Status:*
+- **Requirements Rubric:** `.claude/agents/requirements-reviewer.md`
+  - Rubric used to evaluate this SPEC.md document
+  - Scoring criteria for completeness and quality
+- **SPEC Evaluation Report:** `SPEC-EVALUATION-REPORT.md`
+  - Detailed 48-page evaluation of this document against rubric
+  - Current score: 78/100 → Target: 95+/100
+  - Gap analysis and recommendations
+- **SPEC Gaps Summary:** `SPEC-GAPS-SUMMARY.md`
+  - Quick reference of critical gaps and priorities
+  - P1 blockers, P2 high priority, P3 medium priority items
+
+*Project Planning:*
+- **Product Roadmap:** `ROADMAP.md`
+  - Future feature backlog with IDs (FUTURE-001, AI-001, etc.)
+  - Phase-based feature release plan
+  - Integration priorities
+
+**EXTERNAL STANDARDS & SPECIFICATIONS:**
+
+*Accounting & Financial Standards:*
+- **GAAP (Generally Accepted Accounting Principles):**
+  - FASB Accounting Standards Codification (ASC)
+  - Reference: https://fasb.org/standards
+  - Applies to: Chart of accounts structure, financial statement formatting, revenue recognition
+- **Double-Entry Bookkeeping:**
+  - Luca Pacioli, "Summa de Arithmetica" (1494) - foundational principles
+  - Modern interpretation: Debits = Credits, Balance Sheet equation
+  - Applies to: Transaction model, account balancing, reconciliation
+
+*Security & Cryptography Standards:*
+- **NIST Special Publication 800-63B:** Digital Identity Guidelines (Authentication)
+  - Password/passphrase entropy requirements
+  - Reference: https://pages.nist.gov/800-63-3/sp800-63b.html
+  - Applies to: Passphrase strength requirements (§2.1.5)
+- **RFC 5869:** HKDF (HMAC-based Extract-and-Expand Key Derivation Function)
+  - Reference: https://tools.ietf.org/html/rfc5869
+  - Applies to: Key derivation from master passphrase (§2.1.5)
+- **Argon2id Specification:**
+  - Password Hashing Competition winner (2015)
+  - Reference: https://github.com/P-H-C/phc-winner-argon2/blob/master/argon2-specs.pdf
+  - Applies to: Passphrase hashing (§2.1.5, §16.4.3)
+- **Web Crypto API Standard:**
+  - W3C Recommendation
+  - Reference: https://www.w3.org/TR/WebCryptoAPI/
+  - Applies to: Browser-native encryption (§16.4.3)
+
+*Accessibility Standards:*
+- **WCAG 2.1 (Web Content Accessibility Guidelines):**
+  - W3C Recommendation, Level AA compliance required
+  - Reference: https://www.w3.org/TR/WCAG21/
+  - Applies to: All UI design and development (§23.6)
+- **ARIA (Accessible Rich Internet Applications):**
+  - WAI-ARIA 1.2 specification
+  - Reference: https://www.w3.org/TR/wai-aria-1.2/
+  - Applies to: Screen reader compatibility, dynamic content (§23.6)
+- **Section 508 (Rehabilitation Act):**
+  - US Federal accessibility standard
+  - Reference: https://www.section508.gov/
+  - Applies to: Future government contract compliance (aspirational)
+
+*Privacy & Compliance Regulations:*
+- **GDPR (General Data Protection Regulation):**
+  - EU Regulation 2016/679
+  - Reference: https://gdpr.eu/
+  - Applies to: EU user data handling (§21, LEGAL-001)
+- **CCPA (California Consumer Privacy Act):**
+  - California Civil Code §1798.100 et seq.
+  - Reference: https://oag.ca.gov/privacy/ccpa
+  - Applies to: California resident data rights (§21, LEGAL-002)
+
+*Development & Testing Standards:*
+- **Semantic Versioning 2.0.0:**
+  - Reference: https://semver.org/
+  - Applies to: Version numbering (MAJOR.MINOR.PATCH), CHANGELOG format
+- **Keep a Changelog Format:**
+  - Reference: https://keepachangelog.com/
+  - Applies to: CHANGELOG.md structure (to be created in Batch 6)
+- **OWASP Top 10 (Web Application Security Risks):**
+  - Reference: https://owasp.org/www-project-top-ten/
+  - Applies to: Security testing, threat mitigation (§18.5)
+
+**TECHNOLOGY DOCUMENTATION:**
+
+*Chosen Technologies (from package.json):*
+- **React 18.3+ Documentation:** https://react.dev/
+- **TypeScript 5.3+ Handbook:** https://www.typescriptlang.org/docs/
+- **Vite 5.1+ Guide:** https://vitejs.dev/guide/
+- **Dexie.js 4.0+ (IndexedDB wrapper):** https://dexie.org/
+- **Argon2 (argon2-browser):** https://github.com/antelle/argon2-browser
+
+*Decision Point Technologies (see §16.4 for evaluation):*
+- **CRDT Libraries:**
+  - Automerge 2.0: https://automerge.org/
+  - Yjs: https://docs.yjs.dev/
+- **Backend Runtimes:**
+  - Node.js: https://nodejs.org/docs/
+  - Go: https://go.dev/doc/
+  - Deno: https://docs.deno.com/
+- **Testing Frameworks:**
+  - Vitest: https://vitest.dev/
+  - Playwright: https://playwright.dev/
+
+**COMPETITIVE ANALYSIS & INSPIRATION:**
+
+The following products informed our feature set and UX design (without direct copying):
+- **Accounting Software:** QuickBooks Online, Xero, FreshBooks, Wave
+- **Zero-Knowledge Apps:** Standard Notes, Tresorit, ProtonMail
+- **Progressive Onboarding:** Duolingo, Notion, Superhuman
+- **Educational UX:** Khan Academy, Codecademy
+
+**CHANGE LOG:**
+
+| Date | Change | Author |
+|------|--------|--------|
+| 2026-01-09 | Initial draft v1.0.0 | Product Team |
+| 2026-01-09 | Added Batches 1-4 (Database, Auth, Tech Stack, Testing, Legal) | Development Team |
+| 2026-01-09 | Added Batch 5 (Design Considerations, Introduction expansion) | Development Team |
+| [Future] | [Updates to be added as specification evolves] | [TBD] |
+
+**DOCUMENT VERSION CONTROL:**
+
+This document follows Semantic Versioning:
+- **MAJOR** version (x.0.0): Breaking changes to requirements, major scope changes
+- **MINOR** version (1.x.0): New sections added, significant enhancements
+- **PATCH** version (1.0.x): Clarifications, typo fixes, formatting improvements
+
+Current Version: **1.0.0**
+- Indicates initial draft ready for stakeholder review
+- Will increment to 2.0.0 after all Batch 6 additions and stakeholder approval
+
 ---
 
 ## 2. System Architecture
@@ -406,7 +783,7 @@ FIELDS:
 - id: UUID (primary key, generated client-side via crypto.randomUUID())
 - name: VARCHAR(255), encrypted (company/business name)
 - masterKeyHash: CHAR(64), hashed with BLAKE3 (for zero-knowledge auth verification)
-- settings: JSONB, encrypted (user preferences, phase, DISC profile, feature flags)
+- settings: JSONB, encrypted (user preferences, phase, feature flags)
 - created_at: TIMESTAMP (UTC, ISO 8601 format)
 - updated_at: TIMESTAMP (auto-updated on modification)
 
@@ -427,7 +804,6 @@ ENCRYPTION DETAILS:
 EXAMPLE SETTINGS JSON:
 {
   "phase": "STABILIZE",
-  "discProfile": "DRIVER",
   "locale": "en-US",
   "currency": "USD",
   "fiscalYearEnd": "12-31",
@@ -7317,6 +7693,1333 @@ ACCEPTANCE CRITERIA:
 
 ---
 
+## 23. Design Considerations
+
+This section documents the information architecture, user experience flows, interface design principles, and branding guidelines for Graceful Books.
+
+### 23.1 Information Architecture
+
+#### 23.1.1 Site Map & Navigation Structure
+
+```
+REQUIREMENT: DESIGN-001
+PRIORITY: High
+CATEGORY: User Experience / Information Architecture
+
+The application SHALL organize features into a logical, progressive information architecture that:
+
+1. Prioritizes frequently-used features at top navigation levels
+2. Hides advanced features from users not yet ready (progressive disclosure)
+3. Provides consistent navigation patterns across all pages
+4. Maintains clear parent-child relationships in nested sections
+
+PRIMARY NAVIGATION STRUCTURE:
+┌────────────────────────────────────────────────────────────────┐
+│  GRACEFUL BOOKS                        [User Menu] [Settings]  │
+├────────────────────────────────────────────────────────────────┤
+│  Dashboard | Transactions | Invoices | Reports | More ▼       │
+└────────────────────────────────────────────────────────────────┘
+
+NAVIGATION HIERARCHY:
+
+LEVEL 1 (Always Visible):
+├─ Dashboard
+│  └─ Overview, Financial Health, Quick Actions, Checklist
+├─ Transactions
+│  └─ All Transactions, Add Transaction, Import, Reconcile
+├─ Invoices (if phase ≥ Organize)
+│  └─ All Invoices, Create Invoice, Estimates, Templates
+├─ Reports (if phase ≥ Organize)
+│  └─ P&L, Balance Sheet, Cash Flow, Custom Reports
+└─ More (Dropdown)
+   ├─ Contacts (if phase ≥ Organize)
+   ├─ Products/Services (if phase ≥ Organize)
+   ├─ Banking (all phases)
+   ├─ Settings (all phases)
+   └─ Help & Support (all phases)
+
+LEVEL 2 (Contextual):
+Within each section, secondary navigation appears as tabs or sidebar:
+
+TRANSACTIONS PAGE:
+├─ All Transactions (default view)
+├─ Categorize (smart queue for uncategorized)
+├─ Reconcile (bank reconciliation)
+├─ Import (CSV, bank connection)
+└─ Audit Trail (if phase ≥ Build)
+
+REPORTS PAGE:
+├─ Standard Reports
+│  ├─ Profit & Loss
+│  ├─ Balance Sheet
+│  ├─ Cash Flow Statement
+│  └─ Trial Balance (if phase ≥ Build)
+├─ Tax Reports (if phase ≥ Organize)
+│  ├─ Sales Tax Summary
+│  ├─ Expense by Category
+│  └─ 1099 Contractor Report
+├─ Custom Reports (if phase ≥ Build)
+└─ Visualizations (if phase ≥ Build)
+   ├─ Cash Flow Trends
+   ├─ Revenue by Category
+   └─ 3D Money Flow (if phase = Grow)
+
+SETTINGS PAGE:
+├─ Company Profile
+├─ Chart of Accounts
+├─ Classes & Tags (if phase ≥ Organize)
+├─ Invoice Customization (if phase ≥ Organize)
+├─ Team & Permissions (if phase ≥ Grow)
+├─ Integrations (if phase ≥ Build)
+├─ Security & Privacy
+├─ Notifications
+└─ Billing & Plan
+
+ACCEPTANCE CRITERIA:
+- [ ] Navigation tree documented with phase-based visibility rules
+- [ ] Maximum 3 levels of hierarchy (no deeper nesting)
+- [ ] All pages reachable within 3 clicks from Dashboard
+- [ ] Breadcrumb navigation on all pages except Dashboard
+- [ ] Mobile navigation collapses to hamburger menu with same hierarchy
+- [ ] Search functionality finds pages, reports, and data
+```
+
+#### 23.1.2 URL Structure & Routing
+
+```
+APPLICATION URL PATTERNS:
+
+/ → Dashboard (requires auth, redirects to /login if not authenticated)
+/login → Login page
+/register → Registration page
+/forgot-password → Password recovery page
+
+/dashboard → Main dashboard
+/transactions → Transaction list
+/transactions/new → Add new transaction
+/transactions/:id → Transaction detail/edit
+/transactions/import → Import transactions
+/transactions/reconcile → Bank reconciliation
+
+/invoices → Invoice list (phase ≥ Organize)
+/invoices/new → Create invoice
+/invoices/:id → Invoice detail/edit
+/invoices/:id/send → Send invoice workflow
+
+/reports → Reports hub (phase ≥ Organize)
+/reports/profit-loss → P&L report
+/reports/balance-sheet → Balance Sheet
+/reports/cash-flow → Cash Flow Statement
+/reports/custom → Custom report builder (phase ≥ Build)
+/reports/visualizations → Data visualizations (phase ≥ Build)
+
+/contacts → Contact list (phase ≥ Organize)
+/contacts/new → Add contact
+/contacts/:id → Contact detail
+
+/products → Product/service list (phase ≥ Organize)
+/products/new → Add product/service
+/products/:id → Product detail
+
+/settings → Settings hub
+/settings/company → Company profile
+/settings/accounts → Chart of accounts
+/settings/classes → Classes & tags (phase ≥ Organize)
+/settings/invoices → Invoice customization (phase ≥ Organize)
+/settings/team → Team management (phase ≥ Grow)
+/settings/security → Security settings
+/settings/notifications → Notification preferences
+/settings/billing → Billing & subscription
+
+/help → Help center
+/help/articles/:slug → Help article
+/help/contact → Contact support
+
+DEEP LINKING:
+All URLs support deep linking with proper authentication checks.
+Unauthorized access redirects to login with return_url parameter.
+Example: Accessing /reports/profit-loss without auth → /login?return_url=%2Freports%2Fprofit-loss
+```
+
+---
+
+### 23.2 User Flows
+
+#### 23.2.1 Onboarding Flow
+
+```
+ONBOARDING USER FLOW (NEW USER):
+
+[Landing Page]
+      ↓
+[Sign Up Form]
+      ↓
+[Email Verification] (optional)
+      ↓
+[Passphrase Creation]
+      ├─ Strength meter
+      ├─ Security tips
+      └─ Optional recovery key download
+      ↓
+[Welcome Screen]
+      ├─ "Let's get to know your business"
+      └─ [Start Assessment Button]
+      ↓
+[Assessment Section 1: Business Fundamentals]
+      ├─ Business type (Service/Product/Hybrid)
+      ├─ Time in business
+      ├─ Revenue range
+      ├─ Team size
+      └─ Legal structure
+      ↓
+[Assessment Section 2: Financial State]
+      ├─ Current bookkeeping practices
+      ├─ Bank account separation
+      ├─ Existing tools
+      └─ Reconciliation status
+      ↓
+[Assessment Section 3: Financial Literacy]
+      ├─ Accounting concept questions
+      ├─ Financial statement familiarity
+      └─ Tax obligation knowledge
+      ↓
+[Assessment Section 4: Business-Specific] (conditional)
+      ├─ [If Service] Client billing, retainers, time tracking
+      ├─ [If Product] Inventory, COGS, shipping
+      └─ [If Hybrid] Revenue split, complexity
+      ↓
+[Phase Determination Results]
+      ├─ Display assigned phase (Stabilize/Organize/Build/Grow)
+      ├─ Explain what this means
+      └─ Show next steps preview
+      ↓
+[Company Setup]
+      ├─ Company name
+      ├─ Legal entity type
+      ├─ Fiscal year start
+      └─ Currency (default: USD)
+      ↓
+[Chart of Accounts Setup]
+      ├─ [If Stabilize] Use simplified default template
+      ├─ [If Organize+] Choose industry template or customize
+      └─ Review and confirm accounts
+      ↓
+[Quick Win: First Transaction]
+      ├─ Guided walkthrough to add sample transaction
+      ├─ Explanation of fields
+      ├─ Categorization help
+      └─ Success celebration
+      ↓
+[Dashboard Introduction]
+      ├─ Tour of main sections
+      ├─ Highlight checklist
+      └─ Show where to get help
+      ↓
+[Checklist Appears]
+      └─ Phase-appropriate next steps
+
+ALTERNATIVE FLOW (Returning User):
+[Login Page]
+      ↓
+[Enter Email + Passphrase]
+      ↓
+[2FA Verification] (if enabled)
+      ↓
+[Dashboard] (resume where left off)
+
+ALTERNATIVE FLOW (Forgot Password):
+[Forgot Password Link]
+      ↓
+[Recovery Options]
+      ├─ [If recovery key exists] Upload recovery key → Reset passphrase
+      └─ [If no recovery key] Account recovery impossible (zero-knowledge limitation)
+              └─ Explain situation, offer account deletion + fresh start
+```
+
+#### 23.2.2 Invoice Creation Flow
+
+```
+INVOICE CREATION FLOW:
+
+[Dashboard or Invoices Page]
+      ↓
+[Click "Create Invoice" Button]
+      ↓
+[Invoice Form]
+      ↓
+[Step 1: Customer Selection]
+      ├─ Search existing customers
+      ├─ Select from recent customers
+      └─ [+ New Customer] → Quick add customer modal
+      │                      ├─ Name (required)
+      │                      ├─ Email (required)
+      │                      ├─ Billing address
+      │                      └─ [Save & Continue]
+      ↓
+[Step 2: Invoice Details]
+      ├─ Invoice number (auto-generated, editable)
+      ├─ Invoice date (default: today)
+      ├─ Due date (default: Net 30)
+      └─ Payment terms dropdown
+      ↓
+[Step 3: Line Items]
+      ├─ [+ Add Line Item]
+      │   ├─ Select from products/services OR enter custom
+      │   ├─ Description (auto-filled or custom)
+      │   ├─ Quantity
+      │   ├─ Rate
+      │   └─ Amount (auto-calculated)
+      ├─ [+ Add Another Line]
+      ├─ Subtotal (auto-calculated)
+      ├─ Sales Tax (if applicable)
+      └─ Total (auto-calculated)
+      ↓
+[Step 4: Optional Details]
+      ├─ Notes to customer (optional)
+      ├─ Terms & conditions (optional, saved template)
+      └─ Attachment (optional, e.g., contract, receipt)
+      ↓
+[Step 5: Review & Actions]
+      ├─ Preview invoice (formatted view)
+      ├─ [Save as Draft] → Save and return to invoice list
+      ├─ [Save & Send] → Continue to send flow
+      └─ [Cancel] → Confirm discard changes
+      ↓
+[If "Save & Send" selected]
+      ↓
+[Send Invoice Modal]
+      ├─ Email address (pre-filled from customer)
+      ├─ Subject line (template with invoice # filled)
+      ├─ Message body (template, editable)
+      ├─ Attach PDF (checkbox, default: checked)
+      ├─ [Send Now] → Send immediately
+      ├─ [Schedule Send] → Pick date/time
+      └─ [Cancel] → Return to invoice (saved as draft)
+      ↓
+[Confirmation]
+      ├─ "Invoice sent successfully!"
+      ├─ Show next actions:
+      │   ├─ View invoice
+      │   ├─ Create another invoice
+      │   └─ Return to invoices list
+      └─ [Done]
+
+ERROR HANDLING FLOWS:
+- Customer email invalid → Highlight field, show error, allow correction
+- No line items → Show warning, prevent save
+- Send fails → Show error, save draft, offer retry
+- Offline → Save draft locally, queue for send when online
+```
+
+#### 23.2.3 Bank Reconciliation Flow
+
+```
+BANK RECONCILIATION FLOW:
+
+[Transactions Page]
+      ↓
+[Click "Reconcile" Tab]
+      ↓
+[Select Account to Reconcile]
+      ├─ Show all bank/credit accounts
+      ├─ Display last reconciliation date for each
+      └─ Highlight accounts needing reconciliation (>30 days)
+      ↓
+[Enter Statement Details]
+      ├─ Statement ending date
+      ├─ Statement ending balance
+      └─ [Start Reconciliation]
+      ↓
+[Reconciliation Workspace]
+      ├─ LEFT PANEL: Bank Statement Transactions
+      │   ├─ Import from CSV/OFX (optional)
+      │   ├─ Or manually check off transactions
+      │   └─ Show statement balance
+      ├─ RIGHT PANEL: Graceful Books Transactions
+      │   ├─ All unreconciled transactions for this account
+      │   ├─ Sorted by date
+      │   └─ Show book balance
+      ├─ MATCHING INTERFACE:
+      │   ├─ Auto-match suggestions (same date + amount)
+      │   ├─ Click to mark transaction as "cleared"
+      │   ├─ Cleared transactions highlighted in green
+      │   └─ Running cleared balance shown
+      └─ DIFFERENCE INDICATOR:
+          ├─ Target: Statement ending balance
+          ├─ Current: Sum of cleared transactions
+          └─ Difference: Target - Current (should reach $0.00)
+      ↓
+[While Difference ≠ $0.00]
+      ├─ Continue marking transactions as cleared
+      ├─ [If can't find match] → Add missing transaction
+      ├─ [If duplicate] → Mark as duplicate, exclude
+      └─ [Need Help?] → Show reconciliation tips
+      ↓
+[When Difference = $0.00]
+      ↓
+[Reconciliation Summary]
+      ├─ Beginning balance
+      ├─ + Cleared deposits
+      ├─ - Cleared withdrawals
+      ├─ = Ending balance ✓ Matches statement
+      ├─ Date range reconciled
+      └─ Number of transactions reconciled
+      ↓
+[Action Options]
+      ├─ [Finish & Save] → Mark all cleared transactions as reconciled
+      ├─ [Print Summary] → PDF reconciliation report
+      └─ [Cancel] → Discard reconciliation (confirm prompt)
+      ↓
+[Confirmation]
+      ├─ "Reconciliation complete! ✓"
+      ├─ Update account's last reconciliation date
+      ├─ Celebrate first reconciliation (if first time)
+      └─ [Return to Transactions]
+
+PROGRESSIVE GUIDANCE (for Stabilize phase users):
+- Show inline help tooltips
+- Explain what reconciliation means
+- Highlight next transaction to match
+- Offer "Match for me" button for exact matches
+- Show encouraging messages as difference decreases
+```
+
+---
+
+### 23.3 UI Design Principles & References
+
+```
+REQUIREMENT: DESIGN-002
+PRIORITY: Medium
+CATEGORY: User Interface Design
+
+The application interface SHALL follow these design principles:
+
+1. PROGRESSIVE DISCLOSURE
+   - Show only what users need at their current phase
+   - Use collapsible sections for advanced options
+   - Reveal complexity gradually as users demonstrate readiness
+
+2. JUDGMENT-FREE LANGUAGE
+   - No terms like "error," "wrong," "invalid" when addressing users
+   - Use "Let's try this," "This needs attention," "We noticed"
+   - Celebrate progress, don't punish mistakes
+
+3. ACCESSIBLE BY DEFAULT
+   - WCAG 2.1 AA compliance (minimum)
+   - Keyboard navigation for all features
+   - Screen reader compatibility
+   - Sufficient color contrast (4.5:1 text, 3:1 UI components)
+   - Focus indicators visible and clear
+
+4. CONSISTENT PATTERNS
+   - Buttons: Primary (solid), Secondary (outline), Tertiary (text only)
+   - Forms: Labels above fields, help text below, errors inline
+   - Tables: Sortable headers, pagination at bottom, bulk actions at top
+   - Modals: Title, content, actions (Cancel left, Primary right)
+
+5. RESPONSIVE DESIGN
+   - Mobile-first approach
+   - Breakpoints: Mobile (<768px), Tablet (768-1024px), Desktop (>1024px)
+   - Touch targets minimum 44x44px
+   - Hamburger menu on mobile, full navigation on desktop
+
+6. PERFORMANCE
+   - Skeleton screens while loading
+   - Optimistic UI updates (assume success, rollback if fails)
+   - Lazy load images and non-critical content
+   - Infinite scroll for long lists (transactions, invoices)
+
+ACCEPTANCE CRITERIA:
+- [ ] Design system documented with component library
+- [ ] Accessibility audit passes WCAG 2.1 AA
+- [ ] Interface tested on mobile, tablet, desktop
+- [ ] User testing validates judgment-free language
+- [ ] Performance budget: First Contentful Paint < 1.5s
+```
+
+#### 23.3.1 Wireframe & Mockup References
+
+```
+VISUAL DESIGN ARTIFACTS:
+
+NOTE: Detailed visual mockups and wireframes will be created during the design phase.
+This section documents the requirements for those artifacts.
+
+REQUIRED WIREFRAMES (to be created):
+├─ Dashboard (Stabilize phase)
+├─ Dashboard (Organize phase)
+├─ Dashboard (Build phase)
+├─ Dashboard (Grow phase)
+├─ Transaction list page
+├─ Transaction detail/edit modal
+├─ Invoice creation form
+├─ Invoice preview (customer view)
+├─ Bank reconciliation workspace
+├─ Chart of Accounts management
+├─ P&L Report
+├─ Settings pages (Company, Security, Billing)
+├─ Mobile navigation
+└─ Onboarding assessment screens
+
+REQUIRED MOCKUPS (to be created):
+├─ High-fidelity designs for all wireframes above
+├─ Component library (buttons, forms, tables, cards, modals)
+├─ Color palette with accessibility testing
+├─ Typography scale and font pairings
+├─ Icon set (functional icons + illustrations)
+├─ Empty states (no transactions, no invoices, no reports)
+├─ Error states (offline, sync failed, form validation)
+├─ Success states (invoice sent, reconciliation complete, payment received)
+└─ Loading states (skeleton screens, spinners, progress indicators)
+
+DESIGN TOOLS:
+[TBD: Figma vs Sketch vs Adobe XD]
+- Decision Required By: UX/UI Designer
+- Collaborative tool with developer handoff features
+- Component library and design system support
+
+DESIGN FILE ORGANIZATION:
+[TBD: File structure and naming conventions]
+- Decision Required By: UX/UI Designer
+- Version control for design files
+- Handoff process from design to development
+```
+
+---
+
+### 23.4 Branding & Style Guidelines
+
+```
+REQUIREMENT: DESIGN-003
+PRIORITY: Medium
+CATEGORY: Branding / Visual Identity
+
+The application SHALL maintain consistent branding that reflects the core values:
+- Warmth and approachability (not corporate or cold)
+- Competence and professionalism (not playful or trivial)
+- Empowerment and growth (not condescending or patronizing)
+- Trust and security (not flashy or unstable)
+
+BRAND PERSONALITY:
+Think of Graceful Books as: A patient, knowledgeable mentor who celebrates your wins,
+supports you through challenges, and never makes you feel inadequate.
+
+TONE OF VOICE:
+├─ Warm, not cold
+├─ Professional, not stuffy
+├─ Educational, not preachy
+├─ Encouraging, not patronizing
+├─ Clear, not jargon-heavy
+└─ Human, not robotic
+
+ACCEPTANCE CRITERIA:
+- [ ] Brand guidelines documented
+- [ ] Tone of voice guide with examples
+- [ ] Visual identity (logo, colors, typography) defined
+- [ ] Copywriting reviewed by editorial team
+```
+
+#### 23.4.1 Color Palette
+
+```
+COLOR PALETTE:
+
+[TBD: Final color values to be determined by designer]
+- Decision Required By: UX/UI Designer + Brand Designer
+- All colors must meet WCAG 2.1 AA contrast requirements
+- Palette should work in light mode (v1.0) with dark mode consideration (future)
+
+PRELIMINARY COLOR CATEGORIES:
+
+PRIMARY COLORS (Brand Identity):
+├─ Primary: [TBD] - Main brand color, call-to-action buttons
+├─ Primary Dark: [TBD] - Hover states, headings
+└─ Primary Light: [TBD] - Backgrounds, subtle highlights
+
+SECONDARY COLORS (Supporting):
+├─ Secondary: [TBD] - Accents, secondary actions
+├─ Secondary Dark: [TBD]
+└─ Secondary Light: [TBD]
+
+NEUTRAL COLORS (UI Foundation):
+├─ Gray 900: [TBD] - Headings, primary text
+├─ Gray 700: [TBD] - Body text
+├─ Gray 500: [TBD] - Supporting text, icons
+├─ Gray 300: [TBD] - Borders, dividers
+├─ Gray 100: [TBD] - Backgrounds, hover states
+└─ White: #FFFFFF - Page backgrounds, cards
+
+SEMANTIC COLORS (Feedback):
+├─ Success: [TBD] - Reconciled, saved, completed actions
+├─ Warning: [TBD] - Needs attention, upcoming due dates
+├─ Error: [TBD] - Validation issues, failed actions (used sparingly)
+└─ Info: [TBD] - Informational messages, tips
+
+FINANCIAL COLORS (Data Visualization):
+├─ Income/Revenue: [TBD] - Green tones (positive cash flow)
+├─ Expense: [TBD] - Red/orange tones (outgoing cash)
+├─ Asset: [TBD] - Blue tones
+├─ Liability: [TBD] - Purple tones
+└─ Equity: [TBD] - Teal tones
+
+ACCESSIBILITY REQUIREMENTS:
+- Text on white: Minimum contrast 4.5:1 (WCAG AA)
+- Large text (18pt+): Minimum contrast 3:1
+- UI components: Minimum contrast 3:1
+- Success/Error colors distinguishable for colorblind users
+```
+
+#### 23.4.2 Typography
+
+```
+TYPOGRAPHY SYSTEM:
+
+[TBD: Final font selections to be determined]
+- Decision Required By: UX/UI Designer
+- Fonts must support: Latin, numerals, currency symbols, extended punctuation
+- License must allow web embedding and commercial use
+- Performance: Prefer variable fonts or limited weights to reduce load time
+
+PRELIMINARY FONT CATEGORIES:
+
+DISPLAY FONT (Headings, Hero Text):
+├─ Font Family: [TBD - Consider: Inter, Sora, Outfit, Manrope]
+├─ Weights: Bold (700), SemiBold (600)
+├─ Use: Page titles, section headings, dashboard metrics
+└─ Characteristics: Modern, geometric, friendly, professional
+
+BODY FONT (Paragraphs, UI Text):
+├─ Font Family: [TBD - Consider: Inter, Open Sans, Lato, System UI]
+├─ Weights: Regular (400), Medium (500), SemiBold (600)
+├─ Use: Body copy, buttons, form labels, table data
+└─ Characteristics: High legibility, neutral, wide language support
+
+MONOSPACE FONT (Data, Code):
+├─ Font Family: [TBD - Consider: Roboto Mono, JetBrains Mono, Fira Code]
+├─ Weights: Regular (400)
+├─ Use: Transaction IDs, account numbers, technical data
+└─ Characteristics: Tabular figures, clear distinction (0 vs O, 1 vs l)
+
+TYPE SCALE:
+├─ Heading 1: [TBD] - Page titles
+├─ Heading 2: [TBD] - Section headings
+├─ Heading 3: [TBD] - Subsection headings
+├─ Heading 4: [TBD] - Card titles
+├─ Body Large: [TBD] - Intro paragraphs, important messages
+├─ Body: [TBD] - Default body text
+├─ Body Small: [TBD] - Help text, captions
+├─ Label: [TBD] - Form labels, table headers (uppercase, letter-spacing)
+└─ Monospace: [TBD] - Data display
+
+LINE HEIGHT:
+├─ Headings: 1.2-1.3
+├─ Body text: 1.5-1.6
+└─ UI elements: 1.4
+
+ACCESSIBILITY:
+- Minimum font size: 14px (body text)
+- Maximum line length: 80 characters for readability
+- Sufficient contrast with background
+```
+
+#### 23.4.3 Iconography
+
+```
+ICON SYSTEM:
+
+[TBD: Icon library selection]
+- Decision Required By: UX/UI Designer
+- Options: Heroicons, Lucide, Phosphor, Tabler Icons, custom set
+- Consistent stroke width across all icons
+- Available in both outline and solid variants
+
+ICON CATEGORIES NEEDED:
+
+NAVIGATION ICONS:
+├─ Dashboard
+├─ Transactions
+├─ Invoices
+├─ Reports
+├─ Contacts
+├─ Products
+├─ Banking
+├─ Settings
+└─ Help
+
+ACTION ICONS:
+├─ Add/Create (+)
+├─ Edit (pencil)
+├─ Delete (trash)
+├─ Send (paper plane)
+├─ Download (arrow down)
+├─ Upload (arrow up)
+├─ Search (magnifying glass)
+├─ Filter (funnel)
+├─ Sort (arrows up/down)
+└─ More actions (three dots)
+
+STATUS ICONS:
+├─ Success (checkmark, green)
+├─ Warning (exclamation, yellow)
+├─ Error (X, red - use sparingly)
+├─ Info (i, blue)
+├─ Pending (clock)
+└─ Synced (cloud with check)
+
+FINANCIAL ICONS:
+├─ Income (arrow up-right, green)
+├─ Expense (arrow down-right, red)
+├─ Invoice (document)
+├─ Receipt (receipt)
+├─ Bank account (building)
+├─ Credit card (card)
+└─ Cash (bills)
+
+ILLUSTRATION STYLE:
+[TBD: Custom illustrations vs library]
+- Decision Required By: UX/UI Designer + Brand Designer
+- Use: Empty states, onboarding, celebration moments
+- Style: Warm, approachable, not cartoonish
+- Color palette: Consistent with brand colors
+```
+
+#### 23.4.4 Copywriting Guidelines
+
+```
+COPYWRITING PRINCIPLES:
+
+1. JUDGMENT-FREE LANGUAGE
+   ❌ Don't say: "Error: Invalid input"
+   ✅ Do say: "Let's check this field - it needs to be a number"
+
+   ❌ Don't say: "You failed to categorize transactions"
+   ✅ Do say: "We found 12 transactions that need categories"
+
+2. PROGRESSIVE EDUCATION
+   ❌ Don't say: "Debit assets, credit liabilities"
+   ✅ Do say: "Money coming in increases your bank account"
+   ✅ Then later: "This is called a debit to your asset account"
+
+3. CELEBRATE PROGRESS
+   ✅ "You've categorized 50 transactions this week - you're building great habits!"
+   ✅ "First reconciliation complete! This is a huge step in understanding your finances."
+   ✅ "You sent your first invoice - that's income on its way!"
+
+4. PLAIN ENGLISH FIRST
+   ❌ Don't say: "Reconcile GL accounts with bank statements"
+   ✅ Do say: "Make sure your records match your bank"
+   ✅ Tooltip: "This is called reconciliation - it catches mistakes and fraud"
+
+5. ACTION-ORIENTED
+   ❌ Don't say: "No transactions found"
+   ✅ Do say: "Ready to add your first transaction?"
+
+   ❌ Don't say: "Account setup incomplete"
+   ✅ Do say: "Let's finish setting up your chart of accounts (2 min)"
+
+ACCEPTANCE CRITERIA:
+- [ ] All user-facing copy reviewed for judgment-free language
+- [ ] Technical terms have plain English equivalents
+- [ ] Success messages celebrate user progress
+- [ ] Error messages provide helpful next steps
+- [ ] Empty states include encouraging calls-to-action
+```
+
+---
+
+### 23.5 Responsive Design & Device Support
+
+```
+REQUIREMENT: DESIGN-004
+PRIORITY: High
+CATEGORY: User Interface / Responsive Design
+
+The application SHALL be fully functional and usable across devices:
+
+DEVICE SUPPORT:
+├─ Desktop (>1024px): Full-featured experience, primary target
+├─ Tablet (768-1024px): Adapted layout, all features accessible
+├─ Mobile (320-767px): Optimized for touch, core features prioritized
+└─ Large Desktop (>1440px): Utilize extra space, avoid excessive whitespace
+
+BREAKPOINT STRATEGY:
+- Mobile First: Design for smallest screen, enhance for larger
+- Fluid typography: Scale font sizes between breakpoints
+- Flexible images: Use srcset for responsive images
+- Touch targets: Minimum 44x44px on mobile (WCAG guideline)
+
+RESPONSIVE PATTERNS:
+
+NAVIGATION:
+├─ Mobile: Hamburger menu, collapsible sections
+├─ Tablet: Hybrid (icon-only sidebar OR top navigation)
+└─ Desktop: Full navigation bar with dropdowns
+
+DATA TABLES:
+├─ Mobile: Card view (each row as a card) OR horizontal scroll with sticky first column
+├─ Tablet: Condensed table with essential columns
+└─ Desktop: Full table with all columns, sorting, filtering
+
+FORMS:
+├─ Mobile: Single column, full-width inputs, large tap targets
+├─ Tablet: Single or two-column depending on field groups
+└─ Desktop: Multi-column for efficiency, logical field grouping
+
+MODALS:
+├─ Mobile: Full-screen takeover with close button
+├─ Tablet: Centered modal, 80% screen width
+└─ Desktop: Centered modal, fixed max-width (600-800px)
+
+CHARTS & VISUALIZATIONS:
+├─ Mobile: Simplified charts, focus on key metrics, vertical orientation
+├─ Tablet: Balanced detail, responsive SVG scaling
+└─ Desktop: Full detail, interactive tooltips, legends
+
+ACCEPTANCE CRITERIA:
+- [ ] Application tested on real devices (iPhone, Android, iPad, desktop browsers)
+- [ ] All features accessible on mobile (no "desktop only" features in v1.0)
+- [ ] Touch interactions work smoothly (swipe, tap, pinch-zoom where applicable)
+- [ ] Performance acceptable on mobile (3G network simulation)
+- [ ] Text readable without zooming on all devices
+```
+
+---
+
+### 23.6 Accessibility Requirements
+
+```
+REQUIREMENT: DESIGN-005
+PRIORITY: Critical
+CATEGORY: Accessibility / Compliance
+
+The application SHALL meet WCAG 2.1 Level AA accessibility standards (minimum).
+
+COMPLIANCE TARGETS:
+├─ WCAG 2.1 AA: Required for v1.0 launch
+├─ WCAG 2.1 AAA: Aspirational (where feasible)
+└─ Section 508: Required if targeting government contracts (future consideration)
+
+KEY ACCESSIBILITY FEATURES:
+
+1. KEYBOARD NAVIGATION
+   - All interactive elements accessible via keyboard (Tab, Shift+Tab, Enter, Esc)
+   - Focus indicators visible and clear (outline, background change)
+   - Skip links to bypass navigation ("Skip to main content")
+   - Logical tab order follows visual flow
+   - Keyboard shortcuts documented (Help > Keyboard Shortcuts)
+
+2. SCREEN READER SUPPORT
+   - Semantic HTML (headings, landmarks, lists, tables)
+   - ARIA labels for icon buttons and complex widgets
+   - ARIA live regions for dynamic content (notifications, loading states)
+   - Alternative text for images (meaningful, not decorative)
+   - Form labels properly associated with inputs
+
+3. COLOR & CONTRAST
+   - Text contrast ratio ≥ 4.5:1 (normal text), ≥ 3:1 (large text 18pt+)
+   - UI component contrast ratio ≥ 3:1 (buttons, borders, focus indicators)
+   - Color not sole indicator of meaning (use icons, text, patterns)
+   - Test with colorblind simulators (protanopia, deuteranopia, tritanopia)
+
+4. TEXT & READABILITY
+   - Text resizable up to 200% without loss of functionality
+   - Line length ≤ 80 characters for comfortable reading
+   - Line height ≥ 1.5 for body text
+   - Paragraph spacing ≥ 1.5x line height
+   - No text in images (except logos)
+
+5. MOTION & ANIMATION
+   - Respect prefers-reduced-motion setting
+   - No auto-playing videos or carousels
+   - Animations can be paused or disabled
+   - No flashing content (epilepsy risk)
+
+6. FORMS & INPUT
+   - Clear labels for all form fields
+   - Error messages associated with fields (ARIA)
+   - Inline validation with helpful suggestions
+   - Required fields indicated clearly (not just by color)
+   - Autocomplete attributes for common fields (name, email, address)
+
+7. RESPONSIVE & MOBILE
+   - Zoom to 200% supported without horizontal scroll
+   - Touch targets ≥ 44x44px (WCAG 2.1 AA) or ≥ 48x48px (best practice)
+   - No pinch-zoom disabled
+   - Orientation agnostic (portrait and landscape)
+
+TESTING & VALIDATION:
+[TBD: Accessibility testing tools and process]
+- Automated testing: axe DevTools, Lighthouse, WAVE
+- Manual testing: Keyboard navigation, screen reader (NVDA, JAWS, VoiceOver)
+- User testing: Include users with disabilities in UAT
+- Decision Required By: QA Lead + Accessibility Specialist
+
+ACCEPTANCE CRITERIA:
+- [ ] WCAG 2.1 AA audit passes (no critical violations)
+- [ ] Keyboard navigation tested for all user flows
+- [ ] Screen reader testing completed (Windows + Mac)
+- [ ] Color contrast verified for all UI elements
+- [ ] Forms tested with assistive technology
+- [ ] Accessibility statement published (website + in-app)
+- [ ] VPAT (Voluntary Product Accessibility Template) created (if targeting enterprise)
+```
+
+---
+
+**DESIGN CONSIDERATIONS SUMMARY:**
+
+This section establishes the foundation for user experience design, including:
+- ✅ Information architecture with progressive disclosure by phase
+- ✅ Detailed user flows for onboarding, invoicing, and reconciliation
+- ✅ UI design principles emphasizing accessibility and judgment-free language
+- ✅ Branding guidelines (with [TBD] markers for designer decisions)
+- ✅ Responsive design requirements for mobile, tablet, desktop
+- ✅ WCAG 2.1 AA accessibility compliance (critical requirement)
+
+**Next Steps for Design Phase:**
+1. [TBD] Select design tools (Figma, Sketch, Adobe XD) - UX/UI Designer
+2. [TBD] Create wireframes for all key screens - UX/UI Designer
+3. [TBD] Define color palette with accessibility testing - Brand Designer
+4. [TBD] Select typography system and icon library - UX/UI Designer
+5. [TBD] Create high-fidelity mockups and component library - UX/UI Designer
+6. [TBD] Conduct accessibility audit and user testing - QA + Accessibility Specialist
+
+---
+
+## 24. Training & Documentation
+
+This section defines the training materials, documentation, and educational resources required to support users at all phases of their journey with Graceful Books.
+
+### 24.1 User Training Strategy
+
+```
+REQUIREMENT: TRAIN-001
+PRIORITY: High
+CATEGORY: Training / User Onboarding
+
+The system SHALL provide comprehensive, phase-appropriate training resources that empower users to build financial literacy while using the software.
+
+TRAINING PHILOSOPHY:
+- Learning by Doing: Users learn through guided practice, not passive reading
+- Progressive Complexity: Training reveals advanced concepts as users demonstrate readiness
+- Judgment-Free Language: All educational content supportive and encouraging
+- Multi-Modal: Text, video, interactive, and in-app guidance options
+- Just-In-Time: Help appears when users need it, not overwhelming upfront
+
+ACCEPTANCE CRITERIA:
+- [ ] New users complete onboarding tutorial with >80% completion rate
+- [ ] In-app help available within 1 click from any feature
+- [ ] Training content reviewed by accounting educator for accuracy and clarity
+- [ ] All training materials use plain English with technical terms explained
+- [ ] User can replay tutorials and access help docs anytime
+```
+
+#### 24.1.1 In-App Onboarding Tutorial
+
+```
+INTERACTIVE ONBOARDING FLOW:
+
+STEP 1: WELCOME & ASSESSMENT (3-5 minutes)
+- Welcome message explaining zero-knowledge privacy
+- 8-12 question assessment (business type, phase determination)
+- Phase result with personalized next steps
+
+STEP 2: FIRST ACCOUNT SETUP (2 minutes)
+- Guided walkthrough of chart of accounts
+- Explanation: "Accounts are like buckets for organizing your money"
+- User selects simplified template (Stabilize) or customizes (Organize+)
+- Success celebration: "Great! You've set up your foundation."
+
+STEP 3: FIRST TRANSACTION (3 minutes)
+- Interactive demo: "Let's record your first transaction"
+- Field-by-field tooltips:
+  - Date: "When did this happen?"
+  - Description: "What was this for? (e.g., 'Coffee with client')"
+  - Amount: "How much? (Just the number, we'll handle the $)"
+  - Account: "Where did this money come from or go to?"
+- Validation with gentle corrections (not errors)
+- Success animation: "You did it! This is your first entry in the books."
+
+STEP 4: DASHBOARD TOUR (2 minutes)
+- Highlight key sections:
+  - "This is your Dashboard - your financial command center"
+  - "Your Checklist shows what to do next - we'll guide you step by step"
+  - "Financial Health gives you a quick snapshot"
+- Skip option available (can replay later)
+
+STEP 5: NEXT STEPS (1 minute)
+- Point to checklist: "Start here - we've prioritized what matters most"
+- Show help button: "Stuck? Click here anytime"
+- Encourage first real action: "Ready to add your first real transaction?"
+
+TOTAL TIME: <15 minutes for Stabilize users, <10 minutes for advanced users
+
+IMPLEMENTATION:
+- Built with React interactive components
+- Progress saved (can pause and resume)
+- Replay available from Settings → Tutorial
+- Skip option with confirmation: "Are you sure? This tutorial helps you get started quickly."
+
+ACCEPTANCE CRITERIA:
+- [ ] Tutorial completion rate >80% for new users
+- [ ] Average completion time < 15 minutes
+- [ ] Tutorial can be replayed from Settings
+- [ ] All interactive elements keyboard accessible
+- [ ] Tutorial responsive on mobile, tablet, desktop
+```
+
+#### 24.1.2 In-App Help & Tooltips
+
+```
+CONTEXTUAL HELP SYSTEM:
+
+HELP BUTTON (Always Visible):
+- Persistent help icon in navigation
+- Opens help panel (sidebar or modal)
+- Search functionality with autocomplete
+- Browse by topic or feature
+
+INLINE TOOLTIPS:
+- Hover/tap on (i) icon next to field labels
+- Plain English explanation with example
+- "Learn more" link to full documentation
+
+EXAMPLE TOOLTIPS:
+
+Account Type (Asset):
+  "Assets are things you own that have value - like your bank account,
+   equipment, or money owed to you. When you add money to an asset
+   account, it increases. Think of it like filling a bucket."
+   [Learn more →]
+
+Reconciliation:
+  "Reconciling means making sure your records match your bank statement.
+   It catches mistakes and fraud. We'll guide you through it step by step."
+   [Watch tutorial video →]
+
+Accrual vs. Cash Basis:
+  "Cash basis: Record income when you receive payment (simpler).
+   Accrual basis: Record income when you earn it, even if not paid yet (more accurate).
+   Most small businesses start with cash basis."
+   [See examples →]
+
+SMART HELP (Context-Aware):
+- If user stuck on reconciliation (>2 minutes no progress):
+  → Show tip: "Having trouble finding a transaction? Try sorting by amount."
+- If user creates many uncategorized transactions:
+  → Suggest: "Want to set up rules to categorize automatically?"
+- If user hasn't reconciled in 30 days:
+  → Gentle reminder: "It's been a while since you reconciled. This helps catch mistakes early."
+
+ACCEPTANCE CRITERIA:
+- [ ] Help accessible within 1 click from any page
+- [ ] Help search returns relevant results in <500ms
+- [ ] Tooltips use plain English (Flesch-Kincaid Grade Level ≤ 8)
+- [ ] All tooltips have corresponding help doc with more detail
+- [ ] Context-aware help triggers at appropriate times (not annoying)
+```
+
+#### 24.1.3 Video Tutorial Library
+
+```
+VIDEO LIBRARY (Self-Paced Learning):
+
+ESSENTIAL VIDEOS (All Users):
+1. "Getting Started with Graceful Books" (5 min)
+   - Overview of interface, key concepts, where to find help
+2. "Recording Your First Transaction" (3 min)
+   - Step-by-step walkthrough with common examples
+3. "Understanding Your Chart of Accounts" (4 min)
+   - What accounts are, why they matter, how to customize
+4. "Bank Reconciliation Made Easy" (6 min)
+   - Why reconcile, step-by-step process, troubleshooting tips
+
+STABILIZE PHASE VIDEOS:
+5. "Separating Business and Personal Finances" (5 min)
+6. "Categorizing Transactions for Tax Time" (4 min)
+7. "Creating Your First Invoice" (5 min)
+
+ORGANIZE PHASE VIDEOS:
+8. "Reading Your Profit & Loss Statement" (7 min)
+9. "Setting Up Classes for Project Tracking" (5 min)
+10. "Collaborating with Your Bookkeeper" (4 min)
+
+BUILD PHASE VIDEOS:
+11. "Inventory Tracking with FIFO Costing" (8 min)
+12. "Custom Reports for Business Insights" (6 min)
+13. "Cash Flow Forecasting" (7 min)
+
+GROW PHASE VIDEOS:
+14. "Multi-User Permissions and Team Management" (6 min)
+15. "Advanced Reporting and Analytics" (8 min)
+
+VIDEO PRODUCTION REQUIREMENTS:
+- Length: 3-8 minutes each (short attention spans)
+- Voiceover: Warm, conversational, professional (not robotic)
+- Screen recordings with callouts and highlights
+- Closed captions (accessibility + non-native speakers)
+- Playback: Pausable, scrubable, adjustable speed (0.75x, 1x, 1.25x, 1.5x)
+- Hosting: [TBD: YouTube unlisted vs Vimeo vs self-hosted]
+- Quality: 1080p minimum, 4K preferred for future-proofing
+- Updates: Video updated when UI changes significantly
+
+ACCESS:
+- In-app video player (embedded)
+- Help docs link to relevant videos
+- Video library browsable in Settings → Training
+
+ACCEPTANCE CRITERIA:
+- [ ] All Essential Videos (1-4) available at launch
+- [ ] Videos load in <2 seconds on average connection
+- [ ] Closed captions accurate (>95% word accuracy)
+- [ ] Videos embedded in help docs at relevant sections
+- [ ] User can mark videos as "watched" (progress tracking)
+```
+
+#### 24.1.4 Written Documentation (Help Center)
+
+```
+HELP CENTER STRUCTURE:
+
+DOCUMENTATION SITE:
+- URL: [TBD: help.gracefulbooks.com vs in-app /help]
+- Search: Full-text search with autocomplete
+- Navigation: Browse by category, phase, or feature
+- Format: Markdown with screenshots, GIFs, code samples
+
+CONTENT STRUCTURE:
+
+1. GETTING STARTED
+   - Welcome to Graceful Books
+   - Your First 30 Minutes
+   - Understanding Your Phase (Stabilize, Organize, Build, Grow)
+   - Security & Privacy: How Zero-Knowledge Works
+
+2. CORE CONCEPTS
+   - What is Double-Entry Accounting? (Plain English)
+   - Chart of Accounts Explained
+   - Debits and Credits (Without the Confusion)
+   - Accrual vs. Cash Basis
+
+3. FEATURE GUIDES
+   - 3.1 Transactions
+     - Adding a Transaction
+     - Editing & Deleting Transactions
+     - Importing from CSV
+     - Categorization Rules
+   - 3.2 Invoicing
+     - Creating Your First Invoice
+     - Customizing Invoice Templates
+     - Sending and Tracking Invoices
+     - Recording Payments
+   - 3.3 Reports
+     - Profit & Loss Statement
+     - Balance Sheet
+     - Cash Flow Statement
+     - Custom Reports
+   - 3.4 Reconciliation
+     - Why Reconcile?
+     - Step-by-Step Reconciliation
+     - Troubleshooting Discrepancies
+   - 3.5 Team Collaboration
+     - Inviting Team Members
+     - Permission Levels
+     - Audit Trail
+
+4. TROUBLESHOOTING
+   - Common Issues & Solutions
+   - FAQ: Frequently Asked Questions
+   - Error Messages Explained
+   - Contact Support
+
+5. ADVANCED TOPICS
+   - Multi-Currency (when available)
+   - Inventory Management
+   - API Access (when available)
+   - Data Export and Backup
+
+WRITING STYLE GUIDE:
+- Tone: Friendly, supportive, professional (not condescending)
+- Voice: Second person ("You can...", not "Users can...")
+- Length: Articles 300-800 words (scannable, not encyclopedic)
+- Examples: Real-world scenarios, not abstract concepts
+- Screenshots: Annotated with arrows and callouts
+- Updates: Reviewed quarterly, updated when features change
+
+MULTILINGUAL SUPPORT (Future):
+- v1.0: English only
+- Future: Spanish, French, German, Mandarin (per market demand)
+
+ACCEPTANCE CRITERIA:
+- [ ] Help center searchable with relevant results
+- [ ] All major features documented with step-by-step guides
+- [ ] Screenshots updated to match current UI
+- [ ] Help docs link from in-app help button
+- [ ] Articles reviewed by accounting professional for accuracy
+- [ ] Flesch-Kincaid Grade Level ≤ 9 for all articles
+```
+
+---
+
+### 24.2 Administrator Training
+
+```
+REQUIREMENT: TRAIN-002
+PRIORITY: Medium
+CATEGORY: Training / Administrator
+
+For businesses using multi-user features (Grow phase), administrators SHALL have access to training on team management, permissions, and security.
+
+ADMIN-SPECIFIC TRAINING:
+
+1. TEAM MANAGEMENT GUIDE (Written Doc)
+   - Inviting team members
+   - Setting up roles and permissions
+   - Customizing access levels
+   - Monitoring team activity via audit log
+   - Revoking access when team member leaves
+
+2. SECURITY BEST PRACTICES (Written Doc + Video)
+   - Passphrase strength requirements
+   - Device management (viewing and revoking devices)
+   - Audit trail interpretation
+   - Recognizing security threats (phishing, social engineering)
+   - Incident response (what to do if device lost/stolen)
+
+3. ONBOARDING NEW TEAM MEMBERS (Checklist)
+   - How to send invitation
+   - What new user will experience
+   - How to verify they've completed setup
+   - Training resources to share with team
+
+DELIVERY:
+- Admin Console Documentation (Settings → Team)
+- In-app tooltips for admin-only features
+- Video: "Setting Up Your Team" (8 min)
+
+ACCEPTANCE CRITERIA:
+- [ ] Admin guide covers all team management features
+- [ ] Security best practices reviewed by security team
+- [ ] Onboarding checklist available as printable PDF
+```
+
+---
+
+### 24.3 Ongoing Education & Updates
+
+```
+REQUIREMENT: TRAIN-003
+PRIORITY: Medium
+CATEGORY: Training / Maintenance
+
+Training materials SHALL be maintained and updated as the software evolves, and users SHALL be notified of new educational resources.
+
+CONTENT MAINTENANCE PROCESS:
+
+TRIGGERS FOR UPDATES:
+1. UI Change: If feature interface changes significantly
+   - Update screenshots in help docs
+   - Re-record tutorial video if workflow changes
+2. New Feature Launch: When new feature added
+   - Create new help doc within 1 week of launch
+   - Add to feature announcement email
+   - Consider video tutorial for complex features
+3. User Confusion: If support tickets spike for a topic
+   - Analyze common questions
+   - Enhance existing docs or create new content
+   - Add in-app tooltips if repeatedly needed
+
+UPDATE SCHEDULE:
+- Help Docs: Reviewed quarterly, updated as needed
+- Tutorial Videos: Reviewed annually, re-recorded if UI changed
+- In-App Tooltips: Updated with each UI change
+- New Feature Docs: Published within 1 week of feature launch
+
+NOTIFICATION OF NEW RESOURCES:
+- In-app notification: "New tutorial available: [Topic]"
+- Email newsletter: Monthly roundup of new docs and tips
+- Changelog: Link to relevant help docs for new features
+
+FEEDBACK MECHANISM:
+- "Was this helpful?" thumbs up/down on every help doc
+- Inline comment system for requesting clarification
+- Support ticket categorization to identify doc gaps
+
+ACCEPTANCE CRITERIA:
+- [ ] Training content reviewed quarterly
+- [ ] Screenshots match current UI (<6 month lag)
+- [ ] New features documented within 1 week of launch
+- [ ] User satisfaction with help docs >80% (thumbs up)
+```
+
+---
+
+### 24.4 Educational Content (Financial Literacy)
+
+```
+REQUIREMENT: TRAIN-004
+PRIORITY: Low (Nice to Have)
+CATEGORY: Training / Education
+
+Beyond software training, Graceful Books MAY provide educational content to build users' financial literacy and accounting knowledge.
+
+EDUCATIONAL CONTENT IDEAS (Optional):
+
+1. BLOG / LEARNING CENTER:
+   - "Accounting 101 for Small Businesses"
+   - "Tax Deductions You Might Be Missing"
+   - "How to Read a Profit & Loss Statement"
+   - "Cash Flow vs. Profit: What's the Difference?"
+
+2. INTERACTIVE LESSONS:
+   - Guided scenarios (e.g., "Record a client payment")
+   - Quizzes to reinforce learning
+   - Achievement badges for milestones
+
+3. WEBINARS (Live or Recorded):
+   - "Year-End Financial Review"
+   - "Preparing for Tax Season"
+   - "Hiring Your First Employee" (with payroll service partner)
+
+4. EMAIL COURSE:
+   - "30 Days to Financial Clarity" email series
+   - Delivered daily during onboarding month
+   - Progressive lessons aligned with user's phase
+
+CONTENT PARTNERSHIPS:
+- Collaborate with accounting educators
+- Partner with small business associations
+- Affiliate with bookkeeping certification programs
+
+ACCEPTANCE CRITERIA:
+- [ ] Educational content separate from product docs (avoid confusion)
+- [ ] All educational content reviewed by CPA or accounting educator
+- [ ] Content complies with advertising regulations (not financial advice)
+```
+
+---
+
+**TRAINING & DOCUMENTATION SUMMARY:**
+
+This section establishes comprehensive training resources:
+- ✅ In-app onboarding tutorial (<15 min completion time)
+- ✅ Contextual help with inline tooltips and smart suggestions
+- ✅ Video tutorial library (15+ videos, 3-8 min each)
+- ✅ Written help center with feature guides and troubleshooting
+- ✅ Administrator training for multi-user management
+- ✅ Content maintenance process for ongoing updates
+- ✅ Optional educational content for financial literacy
+
+**Next Steps for Training Development:**
+1. [TBD] Write onboarding tutorial scripts - UX Writer
+2. [TBD] Record Essential Videos (1-4) - Video Producer
+3. [TBD] Create help center content structure - Technical Writer
+4. [TBD] Design in-app help panel UI - UX Designer
+5. [TBD] Implement smart help triggers - Product Manager + Engineer
+
+---
+
 ## Appendix A: Glossary
 
 | Term | Plain English | Technical Definition |
@@ -7335,47 +9038,568 @@ ACCEPTANCE CRITERIA:
 
 ## Appendix B: User Stories
 
-### Stabilize Phase User: Sarah
+This appendix provides formal user stories in INVEST format (Independent, Negotiable, Valuable, Estimable, Small, Testable) mapped to specific requirements in this specification. Each story represents a complete user journey through key features.
 
-> "I started my freelance design business 6 months ago. I've been using my personal bank account and have receipts in a shoebox. I know I need to get organized but accounting software always makes me feel stupid. I just want something that tells me what to do, step by step, without judgment."
+### User Story Format
 
-**Sarah's Journey:**
-1. Takes assessment, identified as Stabilize phase
-2. Receives warm, encouraging onboarding
-3. Guided to open business bank account (checklist item with resources)
-4. Walks through simplified chart of accounts setup
-5. Learns to categorize transactions with encouraging feedback
-6. Completes first reconciliation with guided walkthrough
-7. Creates first invoice with customized template
-8. Receives weekly email celebrating small wins
+Each user story follows this structure:
+- **Story ID & Title**
+- **As a [role], I want [feature], so that [benefit]**
+- **User Persona** (background context)
+- **Acceptance Criteria** (testable conditions)
+- **Related Requirements** (cross-references to §sections)
+- **INVEST Validation** (story quality checklist)
 
-### Organize Phase User: Marcus
+---
 
-> "I've been running my consulting firm for 3 years. I have a bookkeeper who comes quarterly, but I need to track things better between visits. I understand the basics but want to be more proactive."
+### US-001: Stabilize Phase - First-Time Onboarding
 
-**Marcus's Journey:**
-1. Assessment identifies Organize phase
-2. Receives warm, supportive onboarding
-3. Imports existing chart of accounts
-4. Sets up classes for different practice areas
-5. Creates invoice templates with professional customization
-6. Learns to run and analyze P&L reports
-7. Uses cash flow visualization to understand patterns
-8. Shares access with bookkeeper through secure collaboration
+**As a** new entrepreneur in the Stabilize phase
+**I want** a guided assessment and onboarding that determines my business maturity
+**So that** the system shows me exactly what I need to do first without overwhelming me
 
-### Build Phase User: Aisha
+**USER PERSONA: Sarah (Stabilize Phase)**
+- **Background:** Freelance designer, 6 months in business
+- **Current state:** Mixed personal/business finances, receipts in shoebox
+- **Pain points:** Feels stupid with traditional accounting software, needs step-by-step guidance
+- **Financial literacy:** Beginner
+- **Quote:** "I just want something that tells me what to do, step by step, without judgment"
 
-> "My e-commerce business is growing fast. I've got good books but I need better insights. I want to understand which products are actually profitable and forecast my cash needs."
+**USER JOURNEY:**
+1. Lands on registration page, creates account with passphrase
+2. Completes 8-12 question assessment (business type, time in business, current practices)
+3. Receives Stabilize phase assignment with warm, encouraging explanation
+4. Walks through simplified company setup (name, fiscal year, currency)
+5. Reviews pre-configured simplified chart of accounts (5-10 core accounts)
+6. Guided to add first transaction with inline help and encouragement
+7. Reaches dashboard with phase-appropriate checklist
+8. First checklist item: "Open a separate business bank account" with resources
 
-**Aisha's Journey:**
-1. Assessment identifies Build phase
-2. Receives warm, supportive onboarding
-3. Sets up inventory tracking with FIFO costing
-4. Creates tags for product categories and marketing channels
-5. Uses 3D visualization to understand money flow
-6. Runs custom reports by product profitability
-7. Uses scenario planner for hiring decision
-8. Reviews financial health score weekly
+**ACCEPTANCE CRITERIA:**
+- [ ] Assessment completes in < 5 minutes
+- [ ] Questions use plain English (no accounting jargon)
+- [ ] Phase determination explained clearly with next steps preview
+- [ ] Chart of accounts has ≤ 10 accounts for Stabilize users
+- [ ] First transaction walkthrough includes field-by-field explanations
+- [ ] Checklist appears with 5-7 prioritized Stabilize tasks
+- [ ] All language is judgment-free and encouraging
+- [ ] User can complete onboarding without external help
+
+**RELATED REQUIREMENTS:**
+- Onboarding Assessment: ONB-001, ONB-002, ONB-003 (§3.1, §3.2, §3.3)
+- Progressive Feature Disclosure: PFD-001, PFD-002 (§4)
+- Checklist System: CHECK-001, CHECK-002 (§7)
+- Chart of Accounts: ACC-001 (§5.1)
+- Notification System: NOTIF-001 (§8)
+
+**INVEST VALIDATION:**
+- ✅ **Independent:** Can be developed and tested standalone
+- ✅ **Negotiable:** Implementation details flexible (assessment questions, checklist items)
+- ✅ **Valuable:** Clear user benefit (prevents overwhelm, provides direction)
+- ✅ **Estimable:** Well-defined scope for estimation
+- ✅ **Small:** Can complete in 2-3 sprints (assessment + onboarding + checklist)
+- ✅ **Testable:** Clear acceptance criteria, can be validated with user testing
+
+---
+
+### US-002: Stabilize Phase - First Bank Reconciliation
+
+**As a** Stabilize phase user who has never reconciled accounts
+**I want** a guided walkthrough of bank reconciliation with plain-English explanations
+**So that** I can catch mistakes and understand where my money is without feeling lost
+
+**USER PERSONA: Sarah (Stabilize Phase)**
+- **Current state:** Has separated business bank account, entering transactions manually
+- **Pain points:** Unsure if records are accurate, afraid of making mistakes
+- **Financial literacy:** Beginner (learning basic concepts)
+- **Motivation:** Checklist item "Reconcile your bank account" marked as important
+
+**USER JOURNEY:**
+1. Clicks "Reconcile" from checklist or Transactions page
+2. Sees friendly explanation: "Reconciliation means making sure your records match your bank statement. It catches mistakes and fraud."
+3. Selects business checking account to reconcile
+4. Enters statement ending date and balance
+5. Imports transactions from bank CSV (optional) OR manually marks transactions
+6. System auto-suggests matches (same date + amount)
+7. Clicks to mark transactions as "cleared" with visual feedback (green checkmark)
+8. Watches difference indicator count down to $0.00
+9. Reviews reconciliation summary (beginning balance + deposits - withdrawals = ending balance)
+10. Clicks "Finish" and sees celebration message: "First reconciliation complete! This is huge."
+11. Receives achievement badge and encouraging email
+
+**ACCEPTANCE CRITERIA:**
+- [ ] Reconciliation intro explains what it is in 1-2 sentences (plain English)
+- [ ] Auto-match suggestions highlight exact matches (date + amount)
+- [ ] Difference indicator updates in real-time as transactions marked
+- [ ] Inline help available for common issues ("Can't find a transaction?")
+- [ ] "Match for me" button auto-matches all exact matches
+- [ ] Success celebration appears on first reconciliation completion
+- [ ] Reconciliation summary exports to PDF for records
+- [ ] User can pause and resume reconciliation (saves progress)
+
+**RELATED REQUIREMENTS:**
+- Reconciliation: ACC-007 (§5.7)
+- Progressive Guidance: PFD-003 (§4)
+- Checklist: CHECK-001 (§7)
+- Notification System: NOTIF-001 (§8)
+- Audit Trail: ARCH-004 (§2.1.4)
+
+**INVEST VALIDATION:**
+- ✅ **Independent:** Reconciliation feature can be developed separately
+- ✅ **Negotiable:** Auto-match algorithm sophistication is flexible
+- ✅ **Valuable:** Critical accounting function, prevents errors
+- ✅ **Estimable:** Clear feature boundaries
+- ✅ **Small:** Core reconciliation in 1-2 sprints, polish in additional sprint
+- ✅ **Testable:** Can test with sample bank statements and transactions
+
+---
+
+### US-003: Organize Phase - Professional Invoicing
+
+**As an** Organize phase user running an established consulting business
+**I want** to create professional, customizable invoices and track their payment status
+**So that** I can get paid faster and look professional to clients
+
+**USER PERSONA: Marcus (Organize Phase)**
+- **Background:** Consulting firm owner, 3 years in business
+- **Current state:** Uses bookkeeper quarterly, needs better tracking between visits
+- **Pain points:** Manual invoice creation in Word, losing track of who owes what
+- **Financial literacy:** Developing (understands basics, wants to be more proactive)
+- **Quote:** "I understand the basics but want to be more proactive"
+
+**USER JOURNEY:**
+1. Navigates to Invoices page (visible because phase ≥ Organize)
+2. Clicks "Create Invoice" button
+3. Selects existing client from dropdown or adds new client (name, email, address)
+4. System pre-fills invoice number (incremental), date (today), terms (Net 30)
+5. Adds line items:
+   - Selects from saved services ("Strategy Consultation - $200/hr")
+   - Enters hours: 10, amount auto-calculates: $2,000
+6. Adds second line item for "Implementation Support"
+7. Reviews subtotal, adds sales tax if applicable, sees total
+8. Adds notes: "Thank you for your business!"
+9. Previews invoice (formatted, professional template)
+10. Clicks "Save & Send" → Email modal appears
+11. Reviews pre-filled email with invoice attached as PDF
+12. Sends invoice, receives confirmation
+13. Invoice list shows status: "Sent, Unpaid, Due Jan 30"
+14. Receives notification when client views invoice (optional)
+15. Marks invoice as paid when payment received
+
+**ACCEPTANCE CRITERIA:**
+- [ ] Invoice creation takes < 2 minutes for repeat clients
+- [ ] Invoice numbers auto-increment (editable if needed)
+- [ ] Line items support products/services OR custom entries
+- [ ] Calculations automatic (quantity × rate, subtotal, tax, total)
+- [ ] Invoice templates customizable (logo, colors, payment terms)
+- [ ] PDF generation matches preview exactly
+- [ ] Email sending with invoice attached as PDF
+- [ ] Invoice status tracking (Draft, Sent, Viewed, Paid, Overdue)
+- [ ] Payment reminders configurable (e.g., 3 days before due date)
+- [ ] Invoice list filterable (Unpaid, Overdue, Paid, All)
+
+**RELATED REQUIREMENTS:**
+- Invoicing: Not explicitly defined in current spec - [RECOMMEND: Add INV-001, INV-002 requirements]
+- Contacts: Not explicitly defined - [RECOMMEND: Add CONTACT-001]
+- Progressive Feature Disclosure: PFD-001 (§4)
+- Notification System: NOTIF-001 (§8)
+- Pricing: PRICING-001 (§13)
+
+**INVEST VALIDATION:**
+- ✅ **Independent:** Invoicing module standalone
+- ✅ **Negotiable:** Template customization depth flexible
+- ✅ **Valuable:** Core business function, direct revenue impact
+- ✅ **Estimable:** Well-understood feature in accounting domain
+- ✅ **Small:** Basic invoicing 2-3 sprints, advanced features iterative
+- ✅ **Testable:** Can test invoice creation, sending, status tracking
+
+---
+
+### US-004: Build Phase - Inventory Profitability Analysis
+
+**As a** Build phase user running a growing e-commerce business
+**I want** to track product inventory with FIFO costing and analyze profitability by product
+**So that** I can identify which products are truly profitable and make informed stocking decisions
+
+**USER PERSONA: Aisha (Build Phase)**
+- **Background:** E-commerce business owner, scaling quickly
+- **Current state:** Good books, needs better insights for decision-making
+- **Pain points:** Unsure which products are actually profitable after all costs
+- **Financial literacy:** Proficient (understands reports, wants strategic insights)
+- **Quote:** "I want to understand which products are actually profitable and forecast my cash needs"
+
+**USER JOURNEY:**
+1. Navigates to Products page (visible because phase ≥ Organize)
+2. Adds new product: "Handmade Ceramic Mug"
+   - Cost: $8.50 (COGS)
+   - Price: $24.99
+   - Initial quantity: 100 units
+3. System calculates gross margin: ($24.99 - $8.50) / $24.99 = 66%
+4. Records sale: 15 mugs sold
+5. System uses FIFO costing to calculate COGS for sale
+6. Adds second batch of mugs at different cost ($9.25)
+7. System tracks inventory layers (100 @ $8.50, 50 @ $9.25)
+8. Runs custom report: "Profitability by Product"
+9. Sees ranked list:
+   - Ceramic Mug: 45 sold, $737 revenue, $396 COGS, $341 profit (46% margin)
+   - Other products with metrics
+10. Filters by date range, product category (tags)
+11. Exports report for purchasing decisions
+12. Uses insights to adjust inventory levels
+
+**ACCEPTANCE CRITERIA:**
+- [ ] Products track: name, cost, price, quantity on hand
+- [ ] FIFO costing correctly calculates COGS from inventory layers
+- [ ] Inventory adjustments supported (shrinkage, returns, corrections)
+- [ ] Product-level P&L available (revenue, COGS, gross profit, margin %)
+- [ ] Reports filterable by date range, product, category (tag)
+- [ ] Low stock alerts configurable per product
+- [ ] Inventory valuation report (total inventory value at cost)
+- [ ] Transaction history per product (purchases, sales, adjustments)
+
+**RELATED REQUIREMENTS:**
+- Inventory: INV-001, INV-002 (§10) - [NOTE: Current spec mentions barter/trade, inventory tracking needs dedicated requirements]
+- Classification & Tagging: CLASS-001, CLASS-002 (§6)
+- Custom Reports: Not explicitly defined - [RECOMMEND: Add REPORT-004]
+- Progressive Feature Disclosure: PFD-001 (§4)
+
+**INVEST VALIDATION:**
+- ✅ **Independent:** Inventory module can be developed separately (depends on transactions)
+- ✅ **Negotiable:** Reporting sophistication flexible
+- ✅ **Valuable:** Critical for product-based businesses
+- ✅ **Estimable:** Well-defined inventory accounting rules (FIFO)
+- ⚠️ **Small:** Inventory is complex - recommend splitting into:
+  - US-004a: Basic inventory tracking (add/adjust/view)
+  - US-004b: FIFO costing implementation
+  - US-004c: Profitability reporting
+- ✅ **Testable:** Can test with sample inventory data, verify FIFO calculations
+
+---
+
+### US-005: Build Phase - Cash Flow Forecasting
+
+**As a** Build phase user making strategic hiring decisions
+**I want** to forecast cash flow based on different scenarios (hiring, new project, etc.)
+**So that** I can make informed decisions without risking running out of cash
+
+**USER PERSONA: Aisha (Build Phase)**
+- **Background:** E-commerce business growing fast, considering hiring
+- **Current state:** Solid financial foundation, ready for strategic planning
+- **Pain points:** Unsure if can afford to hire, needs to model different scenarios
+- **Financial literacy:** Proficient to Advanced
+
+**USER JOURNEY:**
+1. Navigates to Reports → Cash Flow Forecast (visible for Build phase)
+2. Sees baseline forecast based on historical data (3 months of actuals)
+3. Clicks "Add Scenario" → "What if I hire a part-time assistant?"
+4. Enters scenario parameters:
+   - Monthly expense: $2,500 (assistant salary)
+   - Start date: February 1
+   - Revenue assumption: +$5,000/month (assistant handles more orders)
+5. System projects cash flow for next 6 months with and without hire
+6. Visualizes both scenarios:
+   - Baseline: Cash increases $3,000/month
+   - With hire: Cash increases $5,500/month (net +$2,500 after salary)
+   - Breaking point: Hire pays for itself by month 2
+7. Adjusts assumptions, sees forecast update in real-time
+8. Saves scenario "Hire Assistant - Feb 2026"
+9. Compares multiple scenarios side-by-side
+10. Makes decision based on data, proceeds with hire
+11. Reviews actual vs. forecast monthly to validate assumptions
+
+**ACCEPTANCE CRITERIA:**
+- [ ] Baseline forecast uses trailing 3-6 months of historical data
+- [ ] Scenario builder supports adding/removing:
+  - One-time income/expenses (equipment purchase, tax payment)
+  - Recurring income/expenses (hire, new subscription, client retainer)
+- [ ] Forecast horizon configurable (3, 6, 12 months)
+- [ ] Visual comparison of scenarios (line chart with multiple scenarios)
+- [ ] Assumptions editable with real-time forecast updates
+- [ ] Scenario save/load/compare functionality
+- [ ] Actual vs. forecast tracking (shows how accurate forecast was)
+- [ ] Export forecast to PDF/CSV for investor/lender presentations
+
+**RELATED REQUIREMENTS:**
+- Cash Flow Reporting: Not explicitly defined - [RECOMMEND: Add REPORT-003: Cash Flow Forecast]
+- Financial Visualization: VIZ-001, VIZ-002 (§11)
+- Progressive Feature Disclosure: PFD-001 (Build phase feature)
+- Success Metrics: METRIC-002 (financial decision confidence)
+
+**INVEST VALIDATION:**
+- ✅ **Independent:** Can develop independently (depends on transaction history)
+- ✅ **Negotiable:** Forecast algorithm sophistication negotiable (simple linear vs. ML)
+- ✅ **Valuable:** High value for strategic decision-making
+- ⚠️ **Estimable:** Forecast accuracy hard to estimate - recommend starting simple
+- ✅ **Small:** Basic scenario modeling in 2-3 sprints
+- ✅ **Testable:** Can test with historical data, verify math, validate UI
+
+---
+
+### US-006: Grow Phase - Multi-User Collaboration
+
+**As a** Grow phase user with a team
+**I want** to grant different levels of access to my bookkeeper, CFO, and employees
+**So that** we can collaborate securely without everyone having full access
+
+**USER PERSONA: David (Grow Phase - NEW PERSONA)**
+- **Background:** SaaS startup founder, growing team of 15
+- **Current state:** Solid financial systems, scaling operations
+- **Pain points:** Needs delegation but worried about data access, wants audit trail
+- **Financial literacy:** Advanced (works with CFO, understands strategic finance)
+- **Quote:** "I need my CFO to see everything, but my sales team should only enter expenses"
+
+**USER JOURNEY:**
+1. Navigates to Settings → Team & Permissions (visible for Grow phase)
+2. Clicks "Invite Team Member"
+3. Enters email: bookkeeper@example.com
+4. Selects role: "Bookkeeper" (predefined role)
+   - Permissions: View all, edit transactions, reconcile accounts
+   - Restrictions: Cannot delete, cannot access settings, cannot invite users
+5. Customizes specific permissions (optional):
+   - Grant: Can create invoices
+   - Restrict: Cannot view Pricing & Payroll class
+6. Sends invitation email with secure onboarding link
+7. Bookkeeper creates passphrase (separate from owner's)
+8. Bookkeeper accesses shared company data (encrypted, synced)
+9. Owner reviews audit log:
+   - "Bookkeeper Jane reconciled Checking account (Jan 15, 2026 at 2:34 PM)"
+   - "Bookkeeper Jane categorized 42 transactions"
+10. Owner can revoke access instantly if needed
+
+**ACCEPTANCE CRITERIA:**
+- [ ] Four predefined roles: Admin, Manager, Bookkeeper, View-Only (§2.1.5)
+- [ ] Role permissions documented and enforced
+- [ ] Invitation via email with secure link
+- [ ] Each user has separate passphrase (zero-knowledge maintained)
+- [ ] Audit log tracks all actions with user attribution
+- [ ] Access revocation immediate (no lingering permissions)
+- [ ] Multi-device support (each user can sync across devices)
+- [ ] Up to 5 devices per user, unlimited users per company (subject to plan tier)
+
+**RELATED REQUIREMENTS:**
+- Authentication & Authorization: ARCH-006 (§2.1.5)
+- Role-Based Access Control: ARCH-006 (§2.1.5)
+- Audit Trail: ARCH-004 (§2.1.4)
+- Progressive Feature Disclosure: PFD-001 (Grow phase feature)
+- Sync Architecture: ARCH-001, ARCH-002, ARCH-003 (§2.1)
+
+**INVEST VALIDATION:**
+- ✅ **Independent:** Permissions system can be developed separately (depends on auth)
+- ✅ **Negotiable:** Granularity of permissions flexible (start with roles, add custom later)
+- ✅ **Valuable:** Critical for businesses with teams
+- ✅ **Estimable:** Well-understood RBAC patterns
+- ⚠️ **Small:** Multi-user + zero-knowledge complex - recommend phases:
+  - US-006a: Multi-user authentication (separate passphrases)
+  - US-006b: Role-based permissions enforcement
+  - US-006c: Audit trail with user attribution
+- ✅ **Testable:** Can test with multiple accounts, verify permission enforcement
+
+---
+
+### US-007: All Phases - Zero-Knowledge Security
+
+**As any** user of Graceful Books
+**I want** my financial data encrypted on my device before it reaches the server
+**So that** I can trust that my sensitive financial information is truly private
+
+**USER PERSONA: All Users (Cross-Phase Story)**
+- **Background:** Any user, any phase
+- **Current state:** Concerned about data privacy and security
+- **Pain points:** Distrust of cloud accounting software (data breaches, selling data)
+- **Motivation:** Zero-knowledge promise is key differentiator
+- **Quote:** "I need to know that even if you wanted to, you couldn't see my data"
+
+**USER JOURNEY:**
+1. Registration: Creates strong passphrase (min 60 bits entropy)
+2. Passphrase never leaves device in plain text
+3. System derives:
+   - Master Key from passphrase (Argon2id)
+   - Encryption Key (K_enc) and Auth Key (K_auth) from master (HKDF)
+4. Optional: Downloads 24-word recovery key (BIP39 mnemonic)
+5. All financial data encrypted locally before sync:
+   - Company name: encrypted
+   - Transaction amounts: encrypted
+   - Account balances: encrypted
+   - Invoice details: encrypted
+6. Sync relay receives only encrypted blobs (unreadable to server)
+7. User logs in on second device:
+   - Enters same passphrase
+   - Derives same keys
+   - Fetches encrypted data from sync relay
+   - Decrypts locally, sees all data
+8. Security audit confirms: Server operator cannot decrypt user data
+
+**ACCEPTANCE CRITERIA:**
+- [ ] Passphrase minimum entropy 60 bits (enforced with strength meter)
+- [ ] All PII and financial data encrypted with AES-256-GCM
+- [ ] Encryption keys never transmitted to server
+- [ ] Sync relay stores only encrypted payloads (no plaintext)
+- [ ] Multi-device sync works with same passphrase
+- [ ] Optional recovery key downloadable (one-time, user stored)
+- [ ] Forgot password = account unrecoverable (unless recovery key used)
+- [ ] Third-party security audit confirms zero-knowledge architecture
+- [ ] Documentation explains trade-offs (no password reset, user responsibility)
+
+**RELATED REQUIREMENTS:**
+- Zero-Knowledge Architecture: ARCH-001, ARCH-002, ARCH-003 (§2.1)
+- Authentication: ARCH-006 (§2.1.5)
+- Encryption: Detailed in Database Schema (§2.2), Technology Stack (§16.4)
+- Security Testing: TEST-005 (§18.5)
+- Legal: LEGAL-001 (GDPR compliance, data minimization) (§21)
+
+**INVEST VALIDATION:**
+- ✅ **Independent:** Core architecture, must be done first
+- ❌ **Negotiable:** NOT negotiable - zero-knowledge is core value proposition
+- ✅ **Valuable:** Highest value - key differentiator and security foundation
+- ⚠️ **Estimable:** Cryptographic implementation complex, recommend expert review
+- ❌ **Small:** NOT small - this is infrastructure for all features
+  - Recommend: Prototype phase, then phased rollout with expert guidance
+- ✅ **Testable:** Security audit required, penetration testing, key derivation unit tests
+
+**NOTE:** This is a foundational story that underpins all other user stories. It must be completed before any feature that handles sensitive data.
+
+---
+
+### STORY SUMMARY & REQUIREMENTS COVERAGE
+
+| Story ID | Title | Phase | Related Requirements | Status |
+|----------|-------|-------|---------------------|--------|
+| US-001 | First-Time Onboarding | Stabilize | ONB-001, ONB-002, ONB-003, PFD-001, CHECK-001 | Defined |
+| US-002 | First Bank Reconciliation | Stabilize | ACC-007, PFD-003, CHECK-001 | Defined |
+| US-003 | Professional Invoicing | Organize | [TBD: INV-001], NOTIF-001, PFD-001 | Defined ⚠️ Missing reqs |
+| US-004 | Inventory Profitability | Build | INV-001, CLASS-001, [TBD: REPORT-004] | Defined ⚠️ Needs split |
+| US-005 | Cash Flow Forecasting | Build | VIZ-001, [TBD: REPORT-003], METRIC-002 | Defined ⚠️ Missing reqs |
+| US-006 | Multi-User Collaboration | Grow | ARCH-006, ARCH-004, PFD-001 | Defined ⚠️ Needs split |
+| US-007 | Zero-Knowledge Security | All | ARCH-001, ARCH-002, ARCH-003, ARCH-006 | Defined (foundational) |
+
+**RECOMMENDATIONS FOR SPEC IMPROVEMENT:**
+
+Based on user story analysis, the following requirement additions are recommended:
+
+1. **ADD: INV-001 (Invoice Management)**
+   - Location: New section §5.8 or expand existing
+   - Content: Invoice creation, templates, sending, status tracking, payment recording
+   - Justification: Core feature for Organize+ phases, referenced in US-003
+
+2. **ADD: CONTACT-001 (Contact Management)**
+   - Location: New section §5.9
+   - Content: Customer and vendor management, contact details, transaction history
+   - Justification: Prerequisite for invoicing and accounts receivable
+
+3. **ADD: REPORT-003 (Cash Flow Forecast)**
+   - Location: Expand §5 or add to reporting section
+   - Content: Scenario modeling, forecast algorithms, assumptions, variance tracking
+   - Justification: Build phase strategic feature, referenced in US-005
+
+4. **ADD: REPORT-004 (Custom Reports)**
+   - Location: Expand §5 or add to reporting section
+   - Content: Report builder, filters, grouping, export formats
+   - Justification: Build+ phase feature for advanced analysis
+
+**MISSING USER STORY:**
+
+- ⚠️ **No Grow Phase narrative journey** equivalent to Sarah/Marcus/Aisha
+- Recommendation: Add David's (Grow phase) narrative journey to match format of other phases
+
+---
+
+## Appendix C: Architecture Diagrams
+
+This appendix provides detailed ASCII/text diagrams for the major architectural components of Graceful Books. These diagrams are designed to be version-control friendly and can be easily updated as the architecture evolves.
+
+### C.1 System Architecture Overview
+
+```
+GRACEFUL BOOKS - ZERO-KNOWLEDGE LOCAL-FIRST SYNC ARCHITECTURE
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                         USER'S DEVICES                              │
+│                                                                     │
+│  ┌───────────────────┐         ┌───────────────────┐               │
+│  │   Laptop/Desktop  │         │  Mobile Browser   │               │
+│  │  (Chrome/Firefox) │         │  (Safari/Chrome)  │               │
+│  │                   │         │                   │               │
+│  │  ┌─────────────┐  │         │  ┌─────────────┐  │               │
+│  │  │   React     │  │         │  │   React     │  │               │
+│  │  │     App     │  │         │  │     App     │  │               │
+│  │  └──────┬──────┘  │         │  └──────┬──────┘  │               │
+│  │         │         │         │         │         │               │
+│  │  ┌──────▼──────┐  │         │  ┌──────▼──────┐  │               │
+│  │  │  IndexedDB  │  │         │  │  IndexedDB  │  │               │
+│  │  │  (Dexie.js) │  │         │  │  (Dexie.js) │  │               │
+│  │  │             │  │         │  │             │  │               │
+│  │  │  ENCRYPTED  │  │         │  │  ENCRYPTED  │  │               │
+│  │  │     DATA    │  │         │  │     DATA    │  │               │
+│  │  └─────────────┘  │         │  └─────────────┘  │               │
+│  └─────────┬─────────┘         └─────────┬─────────┘               │
+│            │                             │                         │
+└────────────┼─────────────────────────────┼─────────────────────────┘
+             │                             │
+             │  HTTPS + Encrypted Payload  │
+             │  (TLS 1.3 + AES-256-GCM)    │
+             │                             │
+             └──────────┬──────────────────┘
+                        ▼
+             ┌──────────────────────┐
+             │   CLOUD INFRASTRUCTURE   │
+             │                      │
+             │  ┌────────────────┐  │
+             │  │  Load Balancer │  │
+             │  │  (HTTPS/WSS)   │  │
+             │  └────────┬───────┘  │
+             │           │          │
+             │           ▼          │
+             │  ┌────────────────┐  │
+             │  │  Sync Relay    │  │
+             │  │   Server(s)    │  │
+             │  │                │  │
+             │  │  - Node.js/Go  │  │
+             │  │  - Stateless   │  │
+             │  │  - No decrypt  │  │
+             │  └────────┬───────┘  │
+             │           │          │
+             │           ▼          │
+             │  ┌────────────────┐  │
+             │  │   Database     │  │
+             │  │  (PostgreSQL)  │  │
+             │  │                │  │
+             │  │  ENCRYPTED     │  │
+             │  │    BLOBS       │  │
+             │  │  ONLY          │  │
+             │  └────────────────┘  │
+             └──────────────────────┘
+
+KEY PROPERTIES:
+1. Client-Side Encryption: All data encrypted before leaving device
+2. Zero-Knowledge: Server stores encrypted blobs, cannot decrypt
+3. Multi-Device Sync: Same passphrase decrypts data on all devices
+4. Offline-First: IndexedDB works offline, syncs when online
+5. Conflict Resolution: CRDT ensures eventual consistency
+
+DATA FLOW (New Transaction):
+1. User enters transaction on Laptop
+2. React app encrypts transaction locally (K_enc)
+3. Stores in IndexedDB (local database)
+4. Sync manager detects change
+5. Bundles encrypted transaction into sync payload
+6. Sends HTTPS POST to Sync Relay with encrypted blob
+7. Sync Relay stores in database (cannot read contents)
+8. Mobile device polls sync relay (or receives WebSocket notification)
+9. Mobile fetches encrypted payload
+10. Mobile decrypts with K_enc (derived from same passphrase)
+11. Mobile stores in local IndexedDB
+12. User sees transaction on Mobile
+```
+
+NOTE: Due to length constraints, Appendix C includes placeholders for additional diagrams:
+- C.2: Zero-Knowledge Encryption Flow
+- C.3: Key Hierarchy
+- C.4: CRDT Sync & Conflict Resolution
+- C.5: Authentication & Authorization Flow
+- C.6: Deployment Architecture
+
+Full detailed ASCII diagrams for these sections will be created during the technical architecture phase.
+Refer to §2 (System Architecture), §2.1.5 (Authentication), §2.2 (Database Schema), and §19 (Deployment) for detailed specifications that inform these diagrams.
 
 ---
 
