@@ -3901,6 +3901,2125 @@ Response:
 
 ---
 
+## 18. Testing & Quality Assurance
+
+```
+REQUIREMENT: TEST-001
+PRIORITY: Critical
+CATEGORY: Quality Assurance
+
+The system SHALL implement a comprehensive testing strategy that ensures
+correctness, security, and performance before each release. Testing SHALL
+cover all layers: unit, integration, end-to-end, security, and performance.
+```
+
+### 18.1 Testing Approach & Philosophy
+
+```
+TESTING PHILOSOPHY:
+1. Test-Driven Development (TDD) encouraged but not mandated
+2. Continuous testing (tests run automatically on every commit)
+3. Fast feedback (unit + integration tests complete in <5 minutes)
+4. Shift-left security (security testing early in development)
+5. User-centric E2E tests (test critical journeys, not implementation details)
+
+TEST PYRAMID:
+
+                     /\
+                    /  \  E2E Tests
+                   /____\  (Slow, few)
+                  /      \
+                 / Integration \
+                /______________\  (Medium speed, moderate)
+               /                \
+              /   Unit Tests     \
+             /____________________\ (Fast, many)
+
+TARGETS:
+- Unit tests: 1000+ tests, <3 minutes execution
+- Integration tests: 200+ tests, <2 minutes execution
+- E2E tests: 50+ critical journeys, <15 minutes execution
+- Total test suite: <20 minutes (CI/CD pipeline)
+```
+
+### 18.2 Unit Testing
+
+```
+REQUIREMENT: TEST-002
+PRIORITY: Critical
+CATEGORY: Testing
+
+SCOPE:
+- Business logic (calculations, validations, transformations)
+- Cryptographic functions (key derivation, encryption, decryption)
+- Database operations (CRUD, queries, migrations)
+- Utility functions (formatters, parsers, helpers)
+
+FRAMEWORK: Vitest
+- Configuration: vitest.config.ts (see package.json)
+- Test location: src/**/*.test.ts (co-located with source)
+- Coverage tool: c8 (via Vitest)
+- Mocking: vi.mock() for dependencies
+
+COVERAGE TARGETS:
+- General business logic: >80% line coverage
+- Cryptographic code: 100% line coverage (MANDATORY)
+- Database operations: >90% line coverage
+- Utility functions: >85% line coverage
+- Overall application: >85% line coverage
+
+CRITICAL TEST AREAS (100% coverage required):
+1. Key Derivation:
+   - Passphrase → Master Key (Argon2id)
+   - Master Key → Company Key (HKDF)
+   - Master Key → K_enc + K_auth (HKDF)
+
+2. Encryption/Decryption:
+   - Field-level encryption (AES-256-GCM)
+   - IV generation (unique per operation)
+   - Authenticated encryption (tag verification)
+
+3. Authentication:
+   - K_auth → authToken (BLAKE3 hash)
+   - JWT generation and validation
+   - Refresh token rotation
+
+4. CRDT Operations:
+   - Concurrent edit merging
+   - Conflict resolution
+   - History preservation
+
+EXAMPLE TEST STRUCTURE:
+```typescript
+// src/crypto/keyDerivation.test.ts
+import { describe, it, expect } from 'vitest';
+import { deriveKeys } from './keyDerivation';
+
+describe('deriveKeys', () => {
+  it('derives encryption and auth keys from passphrase', async () => {
+    const passphrase = 'correct-horse-battery-staple';
+    const { masterKey, encKey, authKey } = await deriveKeys(passphrase);
+
+    expect(masterKey).toHaveLength(32); // 256 bits
+    expect(encKey).toHaveLength(32);
+    expect(authKey).toHaveLength(32);
+    expect(encKey).not.toEqual(authKey); // Keys must be different
+  });
+
+  it('derives same keys from same passphrase', async () => {
+    const passphrase = 'correct-horse-battery-staple';
+    const keys1 = await deriveKeys(passphrase);
+    const keys2 = await deriveKeys(passphrase);
+
+    expect(keys1.encKey).toEqual(keys2.encKey);
+  });
+
+  it('derives different keys from different passphrases', async () => {
+    const keys1 = await deriveKeys('passphrase-one');
+    const keys2 = await deriveKeys('passphrase-two');
+
+    expect(keys1.encKey).not.toEqual(keys2.encKey);
+  });
+});
+```
+
+ACCEPTANCE CRITERIA:
+- [ ] All cryptographic functions have 100% test coverage
+- [ ] All business logic functions have >80% coverage
+- [ ] Unit tests run in <3 minutes
+- [ ] Coverage report generated on every CI run
+- [ ] Failing tests block merge to main branch
+```
+
+### 18.3 Integration Testing
+
+```
+REQUIREMENT: TEST-003
+PRIORITY: High
+CATEGORY: Testing
+
+SCOPE:
+- API endpoint behavior (auth, sync, error handling)
+- Database integration (IndexedDB operations, encryption layer)
+- Sync workflow (push → relay → pull → decrypt)
+- Third-party integrations (if applicable)
+
+FRAMEWORK: Vitest + Dexie.js in-memory mode
+- Test location: src/**/*.integration.test.ts
+- Database: Fake IndexedDB (via fake-indexeddb package)
+- API mocking: msw (Mock Service Worker)
+
+KEY INTEGRATION TEST SCENARIOS:
+
+1. AUTHENTICATION FLOW:
+```typescript
+// src/auth/auth.integration.test.ts
+describe('Authentication flow', () => {
+  it('registers user and stores encrypted master key', async () => {
+    const email = 'user@example.com';
+    const passphrase = 'secure-passphrase-123';
+
+    // Register
+    const { userId, accessToken } = await auth.register(email, passphrase);
+
+    // Verify user can login with same passphrase
+    const { accessToken: loginToken } = await auth.login(email, passphrase);
+    expect(loginToken).toBeTruthy();
+
+    // Verify wrong passphrase fails
+    await expect(auth.login(email, 'wrong-passphrase'))
+      .rejects.toThrow('Invalid credentials');
+  });
+});
+```
+
+2. SYNC WORKFLOW:
+```typescript
+// src/sync/sync.integration.test.ts
+describe('Sync workflow', () => {
+  it('syncs transaction from device A to device B', async () => {
+    const deviceA = await createDevice('Device A');
+    const deviceB = await createDevice('Device B');
+
+    // Device A creates transaction
+    await deviceA.createTransaction({
+      date: '2024-01-15',
+      amount: 100,
+      description: 'Test transaction'
+    });
+
+    // Device A pushes to server
+    await deviceA.sync.push();
+
+    // Device B pulls from server
+    await deviceB.sync.pull();
+
+    // Verify Device B has the transaction
+    const transactions = await deviceB.db.transactions.toArray();
+    expect(transactions).toHaveLength(1);
+    expect(transactions[0].amount).toBe(100);
+  });
+
+  it('resolves concurrent edits with CRDT', async () => {
+    const deviceA = await createDevice('Device A');
+    const deviceB = await createDevice('Device B');
+
+    // Both devices edit same transaction (offline)
+    const txId = 'shared-transaction-id';
+    await deviceA.updateTransaction(txId, { memo: 'Device A edit' });
+    await deviceB.updateTransaction(txId, { tags: ['important'] });
+
+    // Both devices sync
+    await deviceA.sync.push();
+    await deviceB.sync.push();
+    await deviceA.sync.pull();
+    await deviceB.sync.pull();
+
+    // Verify both edits preserved (CRDT merge)
+    const deviceAResult = await deviceA.getTransaction(txId);
+    const deviceBResult = await deviceB.getTransaction(txId);
+
+    expect(deviceAResult.memo).toBe('Device A edit');
+    expect(deviceAResult.tags).toContain('important');
+    expect(deviceBResult).toEqual(deviceAResult); // Convergence
+  });
+});
+```
+
+3. DATABASE ENCRYPTION:
+```typescript
+// src/db/encryption.integration.test.ts
+describe('Database encryption', () => {
+  it('encrypts sensitive fields before storage', async () => {
+    const db = await openDatabase(masterKey);
+
+    // Store transaction with sensitive data
+    await db.transactions.add({
+      amount: 500,
+      description: 'Client payment',
+      contactName: 'John Doe' // PII
+    });
+
+    // Read raw IndexedDB data (bypassing decryption)
+    const rawData = await getRawIndexedDBData('transactions');
+
+    // Verify sensitive field is encrypted (not plaintext)
+    expect(rawData[0].contactName).not.toContain('John');
+    expect(rawData[0].contactName).toMatch(/^[A-Za-z0-9+/=]+$/); // Base64
+
+    // Verify decryption works
+    const decrypted = await db.transactions.get(rawData[0].id);
+    expect(decrypted.contactName).toBe('John Doe');
+  });
+});
+```
+
+ACCEPTANCE CRITERIA:
+- [ ] All API endpoints have integration tests
+- [ ] All database operations tested with encryption
+- [ ] Sync conflict resolution tested
+- [ ] Integration tests run in <2 minutes
+- [ ] Offline mode tested (database operations without network)
+```
+
+### 18.4 End-to-End (E2E) Testing
+
+```
+REQUIREMENT: TEST-004
+PRIORITY: High
+CATEGORY: Testing
+
+SCOPE:
+- Critical user journeys (registration, onboarding, first transaction)
+- Multi-step workflows (invoice creation, reconciliation)
+- Cross-browser compatibility (Chrome, Firefox, Safari)
+- Offline mode and sync recovery
+
+FRAMEWORK: Playwright
+- Configuration: playwright.config.ts
+- Test location: e2e/**/*.spec.ts
+- Browsers: Chromium, Firefox, WebKit
+- Parallel execution: 4 workers
+- Screenshots on failure: Yes
+- Video recording: On first retry
+
+CRITICAL USER JOURNEYS (Priority 1):
+
+1. NEW USER ONBOARDING:
+```typescript
+// e2e/onboarding.spec.ts
+test('new user completes onboarding', async ({ page }) => {
+  await page.goto('/');
+
+  // Registration
+  await page.click('text=Get Started');
+  await page.fill('[aria-label="Email"]', 'user@example.com');
+  await page.fill('[aria-label="Passphrase"]', 'secure-passphrase-123');
+  await page.click('text=Create Account');
+
+  // Assessment
+  await expect(page).toHaveURL('/assessment');
+  await page.click('text=Service Business');
+  await page.click('text=Less than 1 year');
+  // ... complete assessment questions
+  await page.click('text=See My Results');
+
+  // Phase assignment
+  await expect(page.locator('h1')).toContainText('Stabilize Phase');
+  await expect(page.locator('.checklist')).toBeVisible();
+
+  // First task
+  await page.click('text=Set up business bank account');
+  await expect(page.locator('.task-guidance')).toBeVisible();
+});
+```
+
+2. TRANSACTION RECORDING:
+```typescript
+// e2e/transactions.spec.ts
+test('user creates and categorizes transaction', async ({ page }) => {
+  await loginAs(page, 'existing@user.com');
+
+  // Navigate to transactions
+  await page.click('text=Transactions');
+  await page.click('text=Add Transaction');
+
+  // Fill transaction details
+  await page.fill('[aria-label="Date"]', '2024-01-15');
+  await page.fill('[aria-label="Amount"]', '150.00');
+  await page.fill('[aria-label="Description"]', 'Office supplies');
+  await page.selectOption('[aria-label="Account"]', 'Operating Account');
+  await page.selectOption('[aria-label="Category"]', 'Office Expenses');
+
+  // Save
+  await page.click('text=Save Transaction');
+
+  // Verify in list
+  await expect(page.locator('text=Office supplies')).toBeVisible();
+  await expect(page.locator('text=$150.00')).toBeVisible();
+});
+```
+
+3. OFFLINE MODE:
+```typescript
+// e2e/offline.spec.ts
+test('user works offline and syncs when reconnected', async ({ page, context }) => {
+  await loginAs(page, 'user@example.com');
+
+  // Go offline
+  await context.setOffline(true);
+  await expect(page.locator('.offline-indicator')).toBeVisible();
+
+  // Create transaction while offline
+  await page.click('text=Add Transaction');
+  await page.fill('[aria-label="Amount"]', '75.00');
+  await page.fill('[aria-label="Description"]', 'Offline transaction');
+  await page.click('text=Save');
+
+  // Verify pending sync indicator
+  await expect(page.locator('.pending-sync')).toHaveText('1 change pending');
+
+  // Go back online
+  await context.setOffline(false);
+  await page.waitForSelector('.online-indicator');
+
+  // Verify sync completes
+  await expect(page.locator('.pending-sync')).toHaveText('All changes synced');
+});
+```
+
+4. MULTI-DEVICE SYNC:
+```typescript
+// e2e/multiDevice.spec.ts
+test('changes sync between two devices', async ({ browser }) => {
+  const deviceA = await browser.newPage();
+  const deviceB = await browser.newPage();
+
+  // Device A creates transaction
+  await loginAs(deviceA, 'user@example.com');
+  await createTransaction(deviceA, { amount: 200, description: 'Device A tx' });
+
+  // Device B logs in (triggers sync)
+  await loginAs(deviceB, 'user@example.com');
+  await deviceB.waitForSelector('text=Device A tx');
+
+  // Verify transaction visible on Device B
+  await expect(deviceB.locator('text=$200.00')).toBeVisible();
+});
+```
+
+BROWSER MATRIX:
+- Desktop:
+  * Chrome/Chromium (latest 2 versions)
+  * Firefox (latest 2 versions)
+  * Safari/WebKit (latest version)
+  * Edge (latest version)
+
+- Mobile (future):
+  * iOS Safari
+  * Chrome Mobile
+
+ACCEPTANCE CRITERIA:
+- [ ] All critical user journeys have E2E tests
+- [ ] Tests pass on all supported browsers
+- [ ] Offline mode tested comprehensively
+- [ ] Multi-device sync tested
+- [ ] E2E tests run in <15 minutes
+- [ ] Screenshots captured on failure
+- [ ] Flaky tests identified and fixed (<1% flake rate)
+```
+
+### 18.5 Security Testing
+
+```
+REQUIREMENT: TEST-005
+PRIORITY: Critical
+CATEGORY: Security
+
+SCOPE:
+- Cryptographic implementation verification
+- Authentication and authorization testing
+- Penetration testing (third-party)
+- Dependency vulnerability scanning
+- OWASP Top 10 validation
+
+TESTING LAYERS:
+
+1. STATIC APPLICATION SECURITY TESTING (SAST):
+   - Tool: npm audit + Snyk
+   - Frequency: Every commit (CI/CD)
+   - Action: Block merge if critical vulnerabilities found
+
+2. DEPENDENCY SCANNING:
+   - Tool: Snyk / Dependabot
+   - Frequency: Daily automated scans
+   - Action: Auto-create PR for patch updates
+
+3. CRYPTOGRAPHIC CODE REVIEW:
+   - Scope: All encryption, hashing, key management code
+   - Reviewer: Security Architect (internal or consultant)
+   - Frequency: Before every release
+
+4. PENETRATION TESTING:
+   - Scope: Authentication, zero-knowledge architecture, API security
+   - Vendor: [TBD - Third-party security firm]
+   - Frequency: Before alpha, before beta, before production, then annually
+   - Deliverable: Written report with remediation guidance
+
+SECURITY TEST CASES (Automated):
+
+```typescript
+// src/security/security.test.ts
+describe('Security: Zero-knowledge verification', () => {
+  it('server never receives encryption key', async () => {
+    const passphrase = 'user-passphrase';
+    const { encKey, authKey } = await deriveKeys(passphrase);
+
+    // Simulate registration API call
+    const apiRequest = await auth.buildRegistrationRequest(passphrase);
+
+    // Verify encKey is NOT in the request
+    expect(JSON.stringify(apiRequest)).not.toContain(encKey);
+
+    // Verify authToken is hash of authKey (not authKey itself)
+    const expectedToken = blake3.hash(authKey);
+    expect(apiRequest.authToken).toBe(expectedToken);
+  });
+
+  it('prevents authentication token reuse after logout', async () => {
+    const token = await auth.login('user@example.com', 'passphrase');
+    await auth.logout(token);
+
+    // Attempt to use logged-out token
+    await expect(api.sync.push(token, payload))
+      .rejects.toThrow('Token has been revoked');
+  });
+});
+
+describe('Security: SQL Injection prevention', () => {
+  it('sanitizes user input in database queries', async () => {
+    const maliciousInput = "'; DROP TABLE transactions; --";
+
+    // Attempt injection via description field
+    await db.transactions.add({
+      description: maliciousInput,
+      amount: 100
+    });
+
+    // Verify table still exists
+    const count = await db.transactions.count();
+    expect(count).toBeGreaterThan(0);
+  });
+});
+```
+
+OWASP TOP 10 VALIDATION:
+- [ ] A01: Broken Access Control (role tests, authorization matrix)
+- [ ] A02: Cryptographic Failures (key strength, algorithm validation)
+- [ ] A03: Injection (SQL, XSS, command injection tests)
+- [ ] A04: Insecure Design (threat modeling review)
+- [ ] A05: Security Misconfiguration (HTTPS only, secure headers)
+- [ ] A06: Vulnerable Components (dependency scanning)
+- [ ] A07: Authentication Failures (rate limiting, account lockout)
+- [ ] A08: Software and Data Integrity (CRDT correctness, audit trail)
+- [ ] A09: Security Logging Failures (audit log completeness)
+- [ ] A10: Server-Side Request Forgery (N/A for this architecture)
+
+PENETRATION TEST REQUIREMENTS:
+- [ ] Test zero-knowledge claims (confirm server cannot decrypt)
+- [ ] Attempt brute-force attacks on authentication
+- [ ] Test for timing attacks in crypto operations
+- [ ] Validate CRDT conflict resolution doesn't lose data
+- [ ] Test API rate limiting effectiveness
+- [ ] Attempt session hijacking and token theft
+- [ ] Test CORS configuration for vulnerabilities
+
+[TBD: Penetration testing vendor and schedule]
+- Decision Required By: Security Architect
+- Timing: Before alpha launch (minimum)
+- Budget: Allocate for annual penetration tests
+```
+
+### 18.6 Performance Testing
+
+```
+REQUIREMENT: TEST-006
+PRIORITY: High
+CATEGORY: Performance
+
+SCOPE:
+- Load testing (concurrent users)
+- Stress testing (breaking point)
+- Benchmark validation (vs. performance targets in Section 16.1)
+- Browser performance (memory leaks, FPS)
+
+TOOLS:
+- Load testing: k6 or Artillery [TBD]
+- Browser profiling: Chrome DevTools, Lighthouse
+- Memory leak detection: Chrome DevTools Memory Profiler
+
+PERFORMANCE BENCHMARKS (from TECH-001):
+
+┌───────────────────────┬──────────────┬─────────────────┐
+│ Operation             │ Target       │ Test Method     │
+├───────────────────────┼──────────────┼─────────────────┤
+│ Page load             │ <2 seconds   │ Lighthouse      │
+│ Transaction save      │ <500ms       │ Automated test  │
+│ Report generation     │ <5s standard │ k6 load test    │
+│ Report (complex)      │ <30s         │ k6 load test    │
+│ Search results        │ <1 second    │ Automated test  │
+│ Sync completion       │ <5s typical  │ E2E test        │
+│ Encryption/decryption │ Imperceptible│ Unit benchmark  │
+└───────────────────────┴──────────────┴─────────────────┘
+
+LOAD TEST SCENARIOS:
+
+1. CONCURRENT USERS:
+```javascript
+// k6-load-test.js
+import http from 'k6/http';
+import { check, sleep } from 'k6';
+
+export const options = {
+  stages: [
+    { duration: '2m', target: 100 },  // Ramp up to 100 users
+    { duration: '5m', target: 100 },  // Stay at 100
+    { duration: '2m', target: 500 },  // Ramp to 500
+    { duration: '5m', target: 500 },  // Stay at 500
+    { duration: '2m', target: 0 },    // Ramp down
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)<500'], // 95% of requests under 500ms
+    http_req_failed: ['rate<0.01'],   // <1% error rate
+  },
+};
+
+export default function () {
+  const payload = JSON.stringify({ /* encrypted sync payload */ });
+
+  const res = http.post('https://api.example.com/v1/sync/push', payload, {
+    headers: { 'Authorization': `Bearer ${__ENV.ACCESS_TOKEN}` },
+  });
+
+  check(res, {
+    'status is 200': (r) => r.status === 200,
+    'response time < 500ms': (r) => r.timings.duration < 500,
+  });
+
+  sleep(1);
+}
+```
+
+2. STRESS TESTING (find breaking point):
+```javascript
+export const options = {
+  stages: [
+    { duration: '2m', target: 1000 },
+    { duration: '5m', target: 2000 },
+    { duration: '5m', target: 5000 },  // Push to failure
+    { duration: '10m', target: 5000 }, // Sustain
+  ],
+};
+```
+
+BROWSER PERFORMANCE:
+
+```typescript
+// e2e/performance.spec.ts
+test('page load meets Lighthouse threshold', async ({ page }) => {
+  await page.goto('/dashboard');
+
+  const metrics = await page.evaluate(() => ({
+    FCP: performance.getEntriesByName('first-contentful-paint')[0].startTime,
+    LCP: performance.getEntriesByName('largest-contentful-paint')[0].startTime,
+    FID: performance.getEntriesByName('first-input')[0]?.processingStart,
+  }));
+
+  expect(metrics.FCP).toBeLessThan(1800); // <1.8s
+  expect(metrics.LCP).toBeLessThan(2500); // <2.5s
+});
+
+test('no memory leaks after 100 transactions', async ({ page }) => {
+  await page.goto('/transactions');
+
+  const initialMemory = await page.evaluate(() =>
+    (performance as any).memory?.usedJSHeapSize
+  );
+
+  // Create 100 transactions
+  for (let i = 0; i < 100; i++) {
+    await createTransaction(page, { amount: i, description: `Tx ${i}` });
+  }
+
+  // Force garbage collection (requires --expose-gc flag)
+  await page.evaluate(() => (window as any).gc?.());
+
+  const finalMemory = await page.evaluate(() =>
+    (performance as any).memory?.usedJSHeapSize
+  );
+
+  // Memory should not grow by more than 10MB
+  const growth = (finalMemory - initialMemory) / 1024 / 1024;
+  expect(growth).toBeLessThan(10);
+});
+```
+
+ACCEPTANCE CRITERIA:
+- [ ] Load test passes with 1,000 concurrent users
+- [ ] API response times meet targets (95th percentile)
+- [ ] No memory leaks detected in 1-hour browser session
+- [ ] Lighthouse score >90 for performance
+- [ ] Sync completes in <5 seconds for 100 transaction changes
+```
+
+### 18.7 User Acceptance Testing (UAT)
+
+```
+REQUIREMENT: TEST-007
+PRIORITY: High
+CATEGORY: Quality Assurance
+
+SCOPE:
+- Beta user testing (real users, real workflows)
+- Usability testing (task completion, confusion points)
+- Accessibility testing (screen readers, keyboard navigation)
+- Feedback collection and triage
+
+UAT PHASES:
+
+1. ALPHA TESTING (Internal):
+   - Participants: Team members, friends/family
+   - Duration: 2-4 weeks
+   - Focus: Critical bugs, data integrity, core workflows
+   - Success Criteria: No critical bugs, core workflows functional
+
+2. CLOSED BETA (Invited Users):
+   - Participants: [TBD: 20-50 invited small business owners]
+   - Duration: 4-8 weeks
+   - Focus: Real-world usage, feedback, edge cases
+   - Success Criteria: >70% task completion, >4/5 satisfaction
+
+3. OPEN BETA (Public):
+   - Participants: Anyone (with waiting list if needed)
+   - Duration: Ongoing until production launch
+   - Focus: Scale testing, final polishing, support workflows
+   - Success Criteria: <5% churn, >60% 30-day retention
+
+UAT TEST SCENARIOS (BETA TESTERS):
+1. Complete onboarding and assessment
+2. Set up chart of accounts
+3. Record 10 transactions from bank statement
+4. Create and send an invoice
+5. Reconcile one month of transactions
+6. Generate and interpret P&L report
+7. Tag transactions and run filtered report
+8. Use offline mode and verify sync
+9. Access from second device
+
+FEEDBACK COLLECTION:
+- In-app feedback widget (Canny or similar)
+- Weekly survey (NPS + open-ended questions)
+- User interviews (5-10 users per week during beta)
+- Support ticket analysis
+
+USABILITY METRICS:
+- Task completion rate: >80% (users can complete tasks without help)
+- Time on task: <10 minutes for common tasks (transaction entry, invoice)
+- Error rate: <5% (users make wrong action, need to undo)
+- Satisfaction: >4/5 stars
+
+[TBD: Beta user recruitment strategy]
+- Decision Required By: Product Manager
+- Target: 50 beta users by alpha launch
+- Incentive: Free premium features for 1 year
+```
+
+### 18.8 Regression Testing
+
+```
+REQUIREMENT: TEST-008
+PRIORITY: High
+CATEGORY: Quality Assurance
+
+SCOPE:
+- Automated regression suite (re-run all tests after changes)
+- Smoke tests (quick verification after deployment)
+- Visual regression (screenshot comparison)
+
+REGRESSION STRATEGY:
+1. Full regression: Run after every merge to main branch
+2. Smoke tests: Run after every deployment to staging/production
+3. Visual regression: Run nightly (compare screenshots to baseline)
+
+SMOKE TEST SUITE (Critical paths only):
+- [ ] User can register and login
+- [ ] User can create a transaction
+- [ ] User can view dashboard
+- [ ] Sync pushes and pulls successfully
+- [ ] Offline mode works
+- [ ] Reports load without error
+
+VISUAL REGRESSION:
+- Tool: Playwright screenshot comparison or Percy
+- Baseline: Updated after intentional UI changes
+- Threshold: <0.1% pixel difference (accounts for anti-aliasing)
+
+ACCEPTANCE CRITERIA:
+- [ ] Full regression suite runs automatically on every PR
+- [ ] Smoke tests run automatically on every deployment
+- [ ] Visual regression tested nightly
+- [ ] Regression test execution time <20 minutes
+- [ ] Zero tolerance for regression (failing tests block release)
+```
+
+### 18.9 Quality Gates & Definition of "Done"
+
+```
+REQUIREMENT: TEST-009
+PRIORITY: Critical
+CATEGORY: Quality Assurance
+
+DEFINITION OF "DONE" (Feature Development):
+- [ ] Code written and self-reviewed
+- [ ] Unit tests written (>80% coverage for new code)
+- [ ] Integration tests written (if applicable)
+- [ ] E2E test updated (if user-facing feature)
+- [ ] Code reviewed and approved by 1+ team member
+- [ ] All tests passing (unit + integration + E2E)
+- [ ] No new linter warnings
+- [ ] Documentation updated (if API or architecture change)
+- [ ] Tested manually in development environment
+- [ ] Accessibility validated (keyboard, screen reader if UI)
+
+MERGE CRITERIA (Pull Request):
+- [ ] All tests passing in CI/CD pipeline
+- [ ] Code coverage does not decrease
+- [ ] No critical security vulnerabilities (npm audit)
+- [ ] Code review approved
+- [ ] Conflicts resolved
+- [ ] Branch up to date with main
+
+RELEASE CRITERIA (Production Deployment):
+- [ ] All tests passing (unit + integration + E2E)
+- [ ] Smoke tests passed in staging environment
+- [ ] Performance benchmarks met
+- [ ] Security scan passed (no critical/high vulnerabilities)
+- [ ] Penetration test passed (if before beta/production launch)
+- [ ] UAT feedback reviewed and critical issues resolved
+- [ ] Release notes written
+- [ ] Rollback plan documented
+- [ ] On-call engineer available for 24 hours post-deployment
+
+QUALITY METRICS (Continuous Monitoring):
+- Test coverage: >85% overall, 100% crypto code
+- Test execution time: <20 minutes full suite
+- Test flakiness: <1% (tests pass consistently)
+- Defect escape rate: <5% (bugs found in production vs testing)
+- Mean time to detection (MTTD): <24 hours
+- Mean time to resolution (MTTR): <48 hours for critical bugs
+
+[TBD: Quality gate thresholds]
+- Decision Required By: QA Lead + Tech Lead
+- Review: Adjust thresholds after 3 months of data collection
+```
+
+**ACCEPTANCE CRITERIA (Overall Testing Strategy):**
+- [ ] Test strategy document reviewed and approved
+- [ ] All test frameworks installed and configured
+- [ ] CI/CD pipeline runs all tests automatically
+- [ ] Coverage reporting integrated (visible on every PR)
+- [ ] Security scanning runs daily
+- [ ] Performance benchmarks baselined
+- [ ] Beta testing program launched
+- [ ] Quality gates enforced (tests block merge/deploy)
+- [ ] Testing metrics dashboard created
+- [ ] Team trained on testing practices and tools
+
+---
+
+## 19. Deployment & Release
+
+```
+REQUIREMENT: DEPLOY-001
+PRIORITY: Critical
+CATEGORY: DevOps
+
+The system SHALL implement automated deployment processes that ensure reliable,
+repeatable, and reversible releases with minimal downtime and risk.
+```
+
+### 19.1 Deployment Process & CI/CD Pipeline
+
+```
+DEPLOYMENT STRATEGY: Blue-Green Deployment or Canary Rollout [TBD]
+- Zero-downtime deployments
+- Instant rollback capability
+- Gradual traffic shift (canary) or instant cutover (blue-green)
+
+CI/CD TOOL: GitHub Actions, GitLab CI, or Jenkins [TBD]
+- Decision Required By: DevOps Lead
+- Recommendation: GitHub Actions (integrated with repository)
+
+PIPELINE STAGES:
+
+1. BUILD:
+   - Trigger: Push to main branch or release tag
+   - Steps:
+     * Checkout code
+     * Install dependencies (npm ci)
+     * Run linters (ESLint, TypeScript)
+     * Build frontend (vite build)
+     * Build backend (if applicable)
+     * Generate source maps
+   - Duration target: <5 minutes
+   - Artifacts: Build output, source maps
+
+2. TEST:
+   - Trigger: After successful build
+   - Steps:
+     * Run unit tests (npm run test)
+     * Run integration tests
+     * Generate coverage report
+     * Upload coverage to codecov.io or similar
+   - Duration target: <10 minutes
+   - Pass criteria: >85% coverage, all tests pass
+
+3. SECURITY SCAN:
+   - Trigger: After successful test
+   - Steps:
+     * npm audit (fail on critical/high vulnerabilities)
+     * Snyk scan (dependency vulnerabilities)
+     * SAST scan (static code analysis)
+   - Duration target: <3 minutes
+   - Pass criteria: No critical or high vulnerabilities
+
+4. E2E TESTS (Staging):
+   - Trigger: After deployment to staging
+   - Steps:
+     * Run Playwright E2E suite against staging
+     * Run smoke tests
+     * Run performance tests (Lighthouse)
+   - Duration target: <15 minutes
+   - Pass criteria: All critical journeys pass
+
+5. DEPLOY (Production):
+   - Trigger: Manual approval after staging validation
+   - Steps:
+     * Deploy to production environment
+     * Run smoke tests against production
+     * Monitor error rates for 30 minutes
+     * Auto-rollback if error rate >2%
+   - Duration target: <10 minutes
+   - Monitoring: 24-hour on-call coverage
+
+EXAMPLE CI/CD CONFIGURATION (GitHub Actions):
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: dist/
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: npm ci
+      - run: npm run test:coverage
+      - uses: codecov/codecov-action@v3
+
+  security:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm audit --audit-level=high
+      - uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+  deploy-staging:
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/download-artifact@v3
+      - name: Deploy to Staging
+        run: |
+          # Deploy to staging (cloud provider specific)
+          echo "Deploying to staging..."
+      - name: Run E2E tests
+        run: npm run test:e2e:staging
+
+  deploy-production:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment: production
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/download-artifact@v3
+      - name: Deploy to Production
+        run: |
+          # Deploy to production
+          echo "Deploying to production..."
+      - name: Smoke tests
+        run: npm run test:smoke:production
+```
+
+[TBD: CI/CD tool selection and detailed configuration]
+- Decision Required By: DevOps Lead
+- Options: GitHub Actions (recommended), GitLab CI, Jenkins, CircleCI
+```
+
+### 19.2 Environments
+
+```
+REQUIREMENT: DEPLOY-002
+PRIORITY: High
+CATEGORY: DevOps
+
+ENVIRONMENT STRATEGY:
+1. Development (local) - Developer machines
+2. Staging - Pre-production testing environment
+3. Production - Live environment for end users
+
+CONFIGURATION MANAGEMENT:
+- Environment variables for secrets and config
+- .env files (NOT committed to git)
+- Secret management: [TBD - AWS Secrets Manager, Hashicorp Vault, etc.]
+
+ENVIRONMENT SPECIFICATIONS:
+
+1. DEVELOPMENT (Local):
+   - Purpose: Local development and debugging
+   - Database: Local IndexedDB (browser)
+   - Sync Relay: Local mock server or localhost backend
+   - Auth: Mock authentication or localhost auth server
+   - Encryption: Real encryption (test with real crypto libraries)
+   - Configuration:
+     * API_URL=http://localhost:3000
+     * LOG_LEVEL=debug
+     * ENABLE_DEV_TOOLS=true
+
+2. STAGING:
+   - Purpose: Pre-production testing, UAT, E2E tests
+   - Database: Separate staging database (encrypted like production)
+   - Sync Relay: Staging server (same code as production)
+   - Auth: Real authentication with staging user database
+   - Encryption: Real encryption (production-equivalent)
+   - Domain: staging.gracefulbooks.com
+   - Configuration:
+     * API_URL=https://api-staging.gracefulbooks.com
+     * LOG_LEVEL=info
+     * ENABLE_ERROR_REPORTING=true
+   - Data: Synthetic test data, safe to delete
+   - Access: Team members + beta testers
+
+3. PRODUCTION:
+   - Purpose: Live user environment
+   - Database: Production database (encrypted, backed up)
+   - Sync Relay: Production server (load balanced)
+   - Auth: Production authentication
+   - Encryption: Production-grade keys
+   - Domain: app.gracefulbooks.com
+   - Configuration:
+     * API_URL=https://api.gracefulbooks.com
+     * LOG_LEVEL=warn
+     * ENABLE_ERROR_REPORTING=true
+     * ENABLE_ANALYTICS=true
+   - Data: Real user data (GDPR/CCPA compliant)
+   - Access: All users
+   - Monitoring: 24/7 uptime monitoring, error tracking
+
+INFRASTRUCTURE AS CODE (IaC):
+- Tool: Terraform, Pulumi, or cloud-native (CloudFormation, etc.) [TBD]
+- Repository: Infrastructure config in separate repo or /infrastructure directory
+- Versioning: Infrastructure changes go through code review
+- State management: Remote state (S3, Terraform Cloud, etc.)
+
+[TBD: Cloud provider and infrastructure details]
+- Decision Required By: DevOps Lead
+- Options: AWS, Azure, GCP, Fly.io, Vercel, Railway
+- Factors: Cost, scalability, managed services availability
+```
+
+### 19.3 Release Criteria & Quality Gates
+
+```
+REQUIREMENT: DEPLOY-003
+PRIORITY: Critical
+CATEGORY: Quality Assurance
+
+RELEASE GATES (All Must Pass):
+
+1. AUTOMATED TESTS:
+   - [ ] All unit tests passing (>85% coverage)
+   - [ ] All integration tests passing
+   - [ ] All E2E tests passing on staging
+   - [ ] Performance benchmarks met (see Section 18.6)
+   - [ ] Accessibility tests passing (WCAG 2.1 AA)
+
+2. SECURITY:
+   - [ ] npm audit shows no critical/high vulnerabilities
+   - [ ] Snyk scan passed
+   - [ ] Dependency licenses reviewed (no GPL/AGPL unless intentional)
+   - [ ] Secrets not committed to git (automated scan)
+   - [ ] HTTPS enforced (no mixed content warnings)
+
+3. CODE QUALITY:
+   - [ ] Code review approved by 1+ team members
+   - [ ] No linter errors
+   - [ ] TypeScript strict mode passing
+   - [ ] No console.log statements in production code
+   - [ ] Dead code removed
+
+4. DOCUMENTATION:
+   - [ ] CHANGELOG.md updated with release notes
+   - [ ] API documentation updated (if API changes)
+   - [ ] User-facing documentation updated (if feature changes)
+   - [ ] Migration guide written (if breaking changes)
+
+5. OPERATIONAL READINESS:
+   - [ ] Rollback plan documented
+   - [ ] Database migrations tested (up and down)
+   - [ ] Monitoring and alerting configured
+   - [ ] On-call engineer assigned for 24h post-deployment
+   - [ ] Customer support notified of changes
+
+ADDITIONAL CRITERIA (By Release Type):
+
+ALPHA RELEASE (Internal):
+- [ ] Core workflows functional (onboarding, transaction entry, sync)
+- [ ] No critical bugs (data loss, security breaches)
+- [ ] Penetration test completed and critical issues resolved
+
+BETA RELEASE (Public):
+- [ ] All acceptance criteria met for core features
+- [ ] UAT feedback addressed (critical and high priority)
+- [ ] Data migration plan tested
+- [ ] Support documentation published
+- [ ] Terms of Service and Privacy Policy reviewed by legal
+
+PRODUCTION RELEASE (GA):
+- [ ] Beta feedback incorporated
+- [ ] All P1 and P2 bugs fixed
+- [ ] Compliance certifications obtained (if applicable)
+- [ ] Backup and disaster recovery tested
+- [ ] Marketing materials ready
+- [ ] Customer support trained
+```
+
+### 19.4 Rollback Plan
+
+```
+REQUIREMENT: DEPLOY-004
+PRIORITY: Critical
+CATEGORY: DevOps
+
+ROLLBACK TRIGGERS:
+- Error rate >2% (compared to baseline)
+- Response time p95 >2x baseline
+- Critical bug discovered (data loss, security breach)
+- Sync failures >5%
+- User-reported critical issues >10/hour
+
+ROLLBACK TYPES:
+
+1. INSTANT ROLLBACK (Blue-Green):
+   - Trigger: Critical issue discovered within 1 hour of deployment
+   - Method: Switch load balancer back to previous version
+   - Duration: <5 minutes
+   - Data: No data migration rollback needed (backward compatible)
+   - Steps:
+     1. Alert on-call engineer
+     2. Run rollback script: ./scripts/rollback.sh
+     3. Verify health checks pass
+     4. Monitor for 30 minutes
+     5. Incident post-mortem
+
+2. GRADUAL ROLLBACK (Canary):
+   - Trigger: Elevated error rate or latency during canary rollout
+   - Method: Stop traffic shift, gradually redirect back
+   - Duration: <15 minutes
+   - Steps:
+     1. Stop canary rollout (hold at current %)
+     2. Gradually shift traffic back to stable version (10% every 2 min)
+     3. Monitor error rates
+     4. Complete rollback when traffic 100% on stable
+
+3. DATABASE MIGRATION ROLLBACK:
+   - Trigger: Migration fails or causes data issues
+   - Method: Run down migration script
+   - Duration: <10 minutes for simple migrations
+   - Requirements:
+     * All migrations have tested rollback (down) script
+     * Migrations are backward compatible for 1 release
+     * Database backup taken before migration
+   - Steps:
+     1. Stop application (prevent writes)
+     2. Run down migration: npm run migrate:down
+     3. Verify data integrity
+     4. Restart application on previous version
+     5. Restore from backup if necessary
+
+ROLLBACK TESTING:
+- [ ] Rollback procedures tested in staging monthly
+- [ ] Database migration rollback tested before each release
+- [ ] Rollback runbook documented and accessible
+- [ ] All team members trained on rollback procedure
+
+[TBD: Deployment strategy (blue-green vs canary)]
+- Decision Required By: DevOps Lead + Product Manager
+- Recommendation: Blue-green for simplicity, canary for risk mitigation
+```
+
+### 19.5 Release Communication
+
+```
+REQUIREMENT: DEPLOY-005
+PRIORITY: High
+CATEGORY: Product Management
+
+CHANGELOG FORMAT (Keep a Changelog style):
+
+```markdown
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/),
+and this project adheres to [Semantic Versioning](https://semver.org/).
+
+## [1.2.0] - 2024-01-15
+
+### Added
+- Multi-currency support for 150+ currencies (CURR-001)
+- Invoice templates with custom branding (INVOICE-005)
+- Keyboard shortcuts for transaction entry (UX-012)
+
+### Changed
+- Improved sync performance (50% faster for large datasets)
+- Updated chart of accounts wizard with industry templates
+
+### Fixed
+- Reconciliation page not loading for >1000 transactions (#234)
+- Incorrect tax calculation for Canadian GST/HST (#256)
+- Offline mode sync conflicts not resolving (#289)
+
+### Security
+- Updated dependencies to patch CVE-2024-1234
+- Enhanced rate limiting on authentication endpoints
+
+### Deprecated
+- Legacy import format (CSV v1) - will be removed in 2.0.0
+
+### Removed
+- Experimental 3D visualization (moved to beta flag)
+
+## [1.1.0] - 2023-12-01
+...
+```
+
+USER NOTIFICATIONS:
+
+1. MAJOR RELEASES (1.0.0 → 2.0.0):
+   - In-app announcement banner (dismissible)
+   - Email to all users (with upgrade guide if breaking changes)
+   - Blog post on website
+   - Social media announcement
+   - What's New modal on first login after update
+
+2. MINOR RELEASES (1.0.0 → 1.1.0):
+   - In-app changelog badge (new features highlighted)
+   - Email to active users (within last 30 days)
+   - Brief what's new toast notification
+
+3. PATCH RELEASES (1.0.0 → 1.0.1):
+   - Changelog updated (no proactive notification)
+   - Email only if critical security fix
+
+DOWNTIME COMMUNICATION:
+
+- PLANNED MAINTENANCE:
+  * Notification: 7 days in advance (email + in-app banner)
+  * Status page updated: status.gracefulbooks.com
+  * Maintenance window: Off-peak hours (2-4 AM user's timezone)
+  * Duration: <2 hours maximum
+
+- UNPLANNED OUTAGE:
+  * Status page updated within 5 minutes
+  * Email notification if outage >15 minutes
+  * Post-mortem published within 48 hours
+
+STAKEHOLDER COMMUNICATION:
+
+- TEAM:
+  * Release notes in #engineering Slack channel
+  * Demo of new features in weekly all-hands meeting
+
+- SUPPORT:
+  * Support team briefed 24 hours before release
+  * Known issues document updated
+  * Support macros updated for common questions
+
+- BETA USERS:
+  * Early access to beta releases (1 week before public)
+  * Dedicated beta feedback channel
+  * Thank you in release notes
+
+[TBD: Communication tools and channels]
+- Decision Required By: Product Manager
+- Status page: StatusPage.io, Atlassian Statuspage, or custom
+- Email service: SendGrid, Mailgun, AWS SES
+```
+
+### 19.6 Versioning Strategy
+
+```
+REQUIREMENT: DEPLOY-006
+PRIORITY: Medium
+CATEGORY: Product Management
+
+VERSIONING: Semantic Versioning (SemVer 2.0.0)
+- Format: MAJOR.MINOR.PATCH
+- Example: 1.2.3
+
+VERSION INCREMENTS:
+
+1. MAJOR (1.0.0 → 2.0.0):
+   - Breaking changes (API, data format, authentication)
+   - Removal of deprecated features
+   - Significant architecture changes
+   - Examples:
+     * Change sync protocol (requires all devices to update)
+     * Database schema change (requires migration)
+     * Remove support for old encryption method
+
+2. MINOR (1.0.0 → 1.1.0):
+   - New features (backward compatible)
+   - New API endpoints
+   - Performance improvements
+   - Examples:
+     * Add multi-currency support
+     * Add invoice templates
+     * Add keyboard shortcuts
+
+3. PATCH (1.0.0 → 1.0.1):
+   - Bug fixes (backward compatible)
+   - Security patches
+   - Documentation updates
+   - Examples:
+     * Fix reconciliation bug
+     * Patch dependency vulnerability
+     * Fix typo in UI
+
+PRE-RELEASE VERSIONS:
+- Alpha: 1.0.0-alpha.1, 1.0.0-alpha.2
+- Beta: 1.0.0-beta.1, 1.0.0-beta.2
+- Release Candidate: 1.0.0-rc.1
+
+BUILD METADATA (Optional):
+- 1.0.0+20240115.abc1234 (date + git commit)
+
+GIT TAGGING:
+- Tag format: v1.2.3
+- Tag message: "Release 1.2.3: [brief summary]"
+- Signed tags (GPG) for production releases
+
+DEPRECATION POLICY:
+- Deprecation notice: Minimum 1 major version or 6 months (whichever longer)
+- Deprecated features: Documented in changelog and runtime warnings
+- Example:
+  * v1.5.0: Feature X deprecated, warning shown
+  * v1.6.0, v1.7.0: Feature X still works, warning shown
+  * v2.0.0: Feature X removed
+
+ACCEPTANCE CRITERIA:
+- [ ] Version number updated in package.json
+- [ ] Git tag created for release
+- [ ] CHANGELOG.md updated with version and date
+- [ ] Version number displayed in app footer
+- [ ] API versioning follows same scheme (/v1/, /v2/)
+```
+
+### 19.7 Monitoring & Observability
+
+```
+REQUIREMENT: DEPLOY-007
+PRIORITY: Critical
+CATEGORY: DevOps
+
+MONITORING LAYERS:
+
+1. INFRASTRUCTURE MONITORING:
+   - Metrics:
+     * CPU usage (<70% sustained)
+     * Memory usage (<80%)
+     * Disk usage (<70%)
+     * Network throughput
+   - Tool: [TBD - CloudWatch, Datadog, Grafana, New Relic]
+   - Alerts: Slack + PagerDuty for critical
+
+2. APPLICATION MONITORING:
+   - Metrics:
+     * Error rate (<0.1% baseline, alert if >0.5%)
+     * Response time (p50, p95, p99)
+     * Request throughput (requests/sec)
+     * Active users (concurrent)
+   - Tool: [TBD - Datadog APM, New Relic, Application Insights]
+   - Alerts: Slack for warnings, PagerDuty for critical
+
+3. ERROR TRACKING:
+   - Tool: [TBD - Sentry, Rollbar, Bugsnag]
+   - Capture: JavaScript errors, API errors, unhandled exceptions
+   - Grouping: By error type, user impact
+   - Alerts: Critical errors (data loss, auth failures) → PagerDuty
+
+4. UPTIME MONITORING:
+   - Tool: [TBD - Pingdom, UptimeRobot, StatusCake]
+   - Checks: HTTP health check every 1 minute
+   - Locations: Multiple geographic regions
+   - Alerts: Downtime >2 minutes → PagerDuty
+
+5. REAL USER MONITORING (RUM):
+   - Metrics:
+     * Page load time (Core Web Vitals)
+     * JavaScript errors in production
+     * User journey completion rates
+   - Tool: [TBD - Google Analytics, Heap, Mixpanel]
+   - Dashboard: Product team reviews weekly
+
+6. SECURITY MONITORING:
+   - Metrics:
+     * Failed login attempts (alert if >100/min from single IP)
+     * Rate limit violations
+     * Suspicious API patterns
+   - Tool: Application logs + SIEM [TBD]
+   - Alerts: Security incidents → PagerDuty + Security team
+
+DASHBOARDS:
+
+1. ENGINEERING DASHBOARD:
+   - Error rates by endpoint
+   - Response times (p95, p99)
+   - Deployment history with annotations
+   - Test coverage trend
+
+2. PRODUCT DASHBOARD:
+   - Active users (daily, weekly, monthly)
+   - Feature usage (% users using each feature)
+   - User journey completion rates
+   - NPS trend
+
+3. BUSINESS DASHBOARD:
+   - Sign-ups (daily, weekly, monthly)
+   - Churn rate
+   - MRR (Monthly Recurring Revenue)
+   - Support ticket volume
+
+HEALTH CHECK ENDPOINTS:
+
+```typescript
+// GET /health
+{
+  "status": "healthy",
+  "version": "1.2.3",
+  "uptime": 86400,
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+
+// GET /health/detailed (internal only)
+{
+  "status": "healthy",
+  "version": "1.2.3",
+  "checks": {
+    "database": "healthy",
+    "redis": "healthy",
+    "disk": "healthy"
+  },
+  "metrics": {
+    "cpu": 45,
+    "memory": 62,
+    "activeConnections": 234
+  }
+}
+```
+
+[TBD: Monitoring tool stack]
+- Decision Required By: DevOps Lead
+- Budget consideration: Open source (Grafana, Prometheus) vs SaaS (Datadog)
+```
+
+**ACCEPTANCE CRITERIA (Overall Deployment & Release):**
+- [ ] CI/CD pipeline configured and tested
+- [ ] All environments provisioned (dev, staging, production)
+- [ ] Deployment runbook documented
+- [ ] Rollback procedure tested in staging
+- [ ] Monitoring and alerting configured
+- [ ] On-call rotation established
+- [ ] Release checklist template created
+- [ ] CHANGELOG.md format established
+- [ ] Version numbering convention documented
+- [ ] Status page configured (for user communication)
+- [ ] First successful deployment to production completed
+
+---
+
+## 20. Error Handling & Logging
+
+```
+REQUIREMENT: ERROR-001
+PRIORITY: High
+CATEGORY: Operations
+
+The system SHALL implement comprehensive error handling and logging to ensure
+system reliability, aid debugging, and provide visibility into application health.
+```
+
+### 20.1 Error Classification
+
+```
+ERROR CATEGORIES:
+
+1. USER ERRORS (Expected, Recoverable):
+   - Invalid input (empty required field, wrong format)
+   - Permission denied (user lacks access to resource)
+   - Offline mode (network unavailable)
+   - Rate limit exceeded (too many requests)
+
+   Handling Strategy:
+   - Show friendly, actionable error message
+   - Suggest corrective action
+   - Do NOT log to error tracking (expected behavior)
+   - Log to application logs at INFO level for analytics
+
+2. SYSTEM ERRORS (Unexpected, May Be Recoverable):
+   - Database query failure
+   - Encryption/decryption failure
+   - CRDT merge conflict (unexpected scenario)
+   - Sync server unreachable
+
+   Handling Strategy:
+   - Show user-friendly error message (hide technical details)
+   - Log full error details to error tracking (Sentry/similar)
+   - Attempt automatic retry with exponential backoff
+   - Preserve user data (don't discard unsaved work)
+
+3. CRITICAL ERRORS (Unrecoverable, Immediate Action Required):
+   - Authentication bypass attempt detected
+   - Data integrity violation (corrupted data)
+   - Master key derivation failure
+   - Zero-knowledge architecture violation (encryption key leaked)
+
+   Handling Strategy:
+   - Show critical error message
+   - Log to error tracking with CRITICAL priority
+   - Alert on-call engineer immediately (PagerDuty)
+   - Prevent further data operations (fail-safe mode)
+
+4. INTEGRATION ERRORS (Third-Party Services):
+   - Bank import API failure
+   - Email sending failure
+   - Cloud storage sync failure
+
+   Handling Strategy:
+   - Show friendly error, explain it's a temporary issue
+   - Queue for retry (with backoff)
+   - Log to error tracking
+   - Notify user when retries exhausted
+```
+
+### 20.2 Error Handling Patterns
+
+```
+REQUIREMENT: ERROR-002
+PRIORITY: High
+CATEGORY: Operations
+
+ERROR HANDLING BY LAYER:
+
+1. USER INPUT VALIDATION:
+```typescript
+// Frontend validation (immediate feedback)
+function validateTransaction(data: TransactionInput): ValidationResult {
+  const errors: ValidationError[] = [];
+
+  if (!data.amount || data.amount <= 0) {
+    errors.push({
+      field: 'amount',
+      message: 'Amount must be greater than zero',
+      code: 'AMOUNT_REQUIRED'
+    });
+  }
+
+  if (!data.date || !isValidDate(data.date)) {
+    errors.push({
+      field: 'date',
+      message: 'Please enter a valid date',
+      code: 'INVALID_DATE'
+    });
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+// Display friendly error message
+if (!result.valid) {
+  showFieldErrors(result.errors); // Red border + message under field
+  return;
+}
+```
+
+2. NETWORK ERRORS (Retry Strategy):
+```typescript
+async function syncWithRetry(payload: EncryptedPayload, maxRetries = 3) {
+  let attempt = 0;
+  let delay = 1000; // Start with 1 second
+
+  while (attempt < maxRetries) {
+    try {
+      return await api.sync.push(payload);
+    } catch (error) {
+      attempt++;
+
+      if (error.code === 'NETWORK_ERROR' && attempt < maxRetries) {
+        // Exponential backoff: 1s, 2s, 4s
+        await sleep(delay);
+        delay *= 2;
+        continue;
+      }
+
+      // Non-retryable error or retries exhausted
+      logger.error('Sync failed after retries', { error, attempt });
+      errorTracker.captureException(error, {
+        tags: { operation: 'sync', retries: attempt }
+      });
+
+      throw error; // Propagate to UI layer
+    }
+  }
+}
+```
+
+3. DATABASE ERRORS (Transaction Rollback):
+```typescript
+async function createInvoice(invoice: Invoice): Promise<void> {
+  const transaction = db.transaction('rw', [db.invoices, db.invoice_lines, db.transactions]);
+
+  try {
+    await transaction.invoices.add(invoice);
+    await transaction.invoice_lines.bulkAdd(invoice.lineItems);
+
+    if (invoice.recordPayment) {
+      await transaction.transactions.add(invoice.paymentTransaction);
+    }
+
+    await transaction.commit();
+  } catch (error) {
+    await transaction.abort(); // Rollback all changes
+
+    logger.error('Invoice creation failed', {
+      invoiceId: invoice.id,
+      error: error.message
+    });
+
+    errorTracker.captureException(error, {
+      tags: { operation: 'create_invoice' },
+      extra: { invoiceId: invoice.id }
+    });
+
+    // Show user-friendly message
+    throw new UserFacingError(
+      'Unable to create invoice. Please try again.',
+      { originalError: error }
+    );
+  }
+}
+```
+
+4. ENCRYPTION ERRORS (Critical, No Retry):
+```typescript
+async function encryptField(plaintext: string, key: CryptoKey): Promise<string> {
+  try {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encrypted = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      new TextEncoder().encode(plaintext)
+    );
+
+    return base64Encode(iv, encrypted);
+  } catch (error) {
+    // Encryption failure is CRITICAL - do not retry
+    logger.critical('Encryption failed', { error: error.message });
+    errorTracker.captureException(error, {
+      level: 'critical',
+      tags: { operation: 'encryption', algorithm: 'AES-GCM' }
+    });
+
+    // Alert on-call immediately
+    alertOnCall({
+      severity: 'critical',
+      message: 'Encryption failure detected',
+      error: error.message
+    });
+
+    throw new CriticalError(
+      'Unable to secure your data. Please contact support.',
+      { originalError: error }
+    );
+  }
+}
+```
+
+5. OFFLINE MODE (Graceful Degradation):
+```typescript
+async function saveTransaction(transaction: Transaction): Promise<void> {
+  try {
+    // Always save locally first (works offline)
+    await db.transactions.add(transaction);
+
+    // Attempt sync (may fail if offline)
+    if (navigator.onLine) {
+      await syncTransaction(transaction);
+      showToast('Transaction saved and synced', 'success');
+    } else {
+      showToast('Transaction saved. Will sync when online.', 'info');
+      queueForSync(transaction.id);
+    }
+  } catch (error) {
+    if (error.code === 'DB_QUOTA_EXCEEDED') {
+      showError('Storage full. Please delete old data or clear browser cache.');
+    } else {
+      logger.error('Transaction save failed', { error, transactionId: transaction.id });
+      showError('Unable to save transaction. Please try again.');
+    }
+  }
+}
+```
+
+ACCEPTANCE CRITERIA:
+- [ ] All user input validated before submission
+- [ ] Network errors retry with exponential backoff (max 3 attempts)
+- [ ] Database operations use transactions (atomic commit/rollback)
+- [ ] Encryption errors never retry, immediately alert on-call
+- [ ] Offline mode gracefully queues sync operations
+- [ ] All error messages user-friendly (no stack traces shown to users)
+```
+
+### 20.3 Logging Strategy
+
+```
+REQUIREMENT: ERROR-003
+PRIORITY: High
+CATEGORY: Operations
+
+LOGGING LEVELS (Standard syslog):
+
+- DEBUG: Detailed diagnostic information (local development only)
+- INFO: General informational messages (user actions, system events)
+- WARN: Warning messages (degraded performance, retries, deprecated usage)
+- ERROR: Error events (operations failed but system recoverable)
+- FATAL/CRITICAL: Critical errors (system failure, data integrity issues)
+
+WHAT TO LOG:
+
+1. USER ACTIONS (INFO level):
+```typescript
+logger.info('User logged in', {
+  userId: user.id,
+  deviceId: device.id,
+  timestamp: new Date().toISOString()
+});
+
+logger.info('Transaction created', {
+  userId: user.id,
+  transactionId: transaction.id,
+  amount: transaction.amount,
+  category: transaction.category
+});
+```
+
+2. SYSTEM EVENTS (INFO level):
+```typescript
+logger.info('Sync completed', {
+  userId: user.id,
+  deviceId: device.id,
+  changesUploaded: 5,
+  changesDownloaded: 3,
+  duration: 1234 // milliseconds
+});
+
+logger.info('Database migration completed', {
+  fromVersion: 1,
+  toVersion: 2,
+  duration: 5678
+});
+```
+
+3. ERRORS (ERROR level):
+```typescript
+logger.error('API request failed', {
+  endpoint: '/v1/sync/push',
+  method: 'POST',
+  statusCode: 500,
+  error: error.message,
+  userId: user.id,
+  requestId: 'abc123' // For correlation
+});
+```
+
+4. CRITICAL ISSUES (FATAL level):
+```typescript
+logger.fatal('Zero-knowledge violation detected', {
+  violation: 'Encryption key sent to server',
+  userId: user.id,
+  timestamp: new Date().toISOString(),
+  stackTrace: error.stack
+});
+```
+
+WHAT NOT TO LOG (Security/Privacy):
+- ❌ User passphrases (never, ever)
+- ❌ Encryption keys (K_enc, K_auth, master key)
+- ❌ Decrypted financial data (amounts, descriptions, contact names)
+- ❌ Personal Identifiable Information (PII) unless necessary
+- ✅ DO LOG: Hashed user IDs, encrypted payloads (opaque), error codes
+
+STRUCTURED LOGGING (JSON format):
+```json
+{
+  "level": "ERROR",
+  "timestamp": "2024-01-15T10:30:00.123Z",
+  "message": "Transaction sync failed",
+  "userId": "hash(user-123)",
+  "deviceId": "device-abc",
+  "error": {
+    "code": "SYNC_CONFLICT",
+    "message": "CRDT merge conflict",
+    "stack": "Error: CRDT merge conflict\n  at mergeChanges ..."
+  },
+  "context": {
+    "transactionId": "tx-456",
+    "attemptNumber": 2
+  },
+  "requestId": "req-789"
+}
+```
+
+LOG ROTATION & RETENTION:
+- Local logs (browser console): Session only
+- Application logs (server): 90 days retention, gzip compressed after 7 days
+- Error tracking (Sentry): 30 days for INFO, 90 days for ERROR/FATAL
+- Audit logs (financial transactions): 7 years (compliance requirement)
+
+[TBD: Log retention periods]
+- Decision Required By: DevOps Lead + Legal Counsel
+- Compliance: May vary by jurisdiction (GDPR, SOX, etc.)
+```
+
+### 20.4 Error Tracking & Monitoring
+
+```
+REQUIREMENT: ERROR-004
+PRIORITY: High
+CATEGORY: Operations
+
+ERROR TRACKING TOOL: [TBD - Sentry, Rollbar, Bugsnag]
+- Decision Required By: DevOps Lead
+- Recommendation: Sentry (popular, feature-rich, good free tier)
+
+ERROR TRACKING SETUP:
+```typescript
+// Initialize Sentry (or similar)
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  environment: import.meta.env.MODE, // development, staging, production
+  release: import.meta.env.VITE_APP_VERSION, // e.g., "1.2.3"
+
+  // Sample rate (100% in production, adjust based on volume)
+  sampleRate: 1.0,
+
+  // Only send errors from our domain
+  allowUrls: [
+    /https:\/\/app\.gracefulbooks\.com/,
+    /https:\/\/staging\.gracefulbooks\.com/
+  ],
+
+  // PII scrubbing (remove sensitive data)
+  beforeSend(event) {
+    // Remove query parameters (may contain sensitive data)
+    if (event.request) {
+      event.request.query_string = null;
+    }
+
+    // Remove cookies
+    if (event.request?.headers) {
+      delete event.request.headers.Cookie;
+    }
+
+    return event;
+  },
+
+  // Ignore expected errors (user errors, offline mode)
+  ignoreErrors: [
+    'NetworkError',
+    'OfflineError',
+    'ValidationError',
+    'User canceled operation'
+  ]
+});
+
+// Add user context (hashed user ID only, no PII)
+Sentry.setUser({
+  id: hashUserId(user.id), // Hash to prevent PII leak
+  username: null // Don't send email/name
+});
+
+// Capture error with context
+Sentry.captureException(error, {
+  level: 'error', // debug, info, warning, error, fatal
+  tags: {
+    operation: 'transaction_save',
+    feature: 'accounting'
+  },
+  extra: {
+    transactionId: transaction.id,
+    attemptNumber: 2,
+    offlineMode: !navigator.onLine
+  }
+});
+```
+
+ERROR MONITORING ALERTS:
+
+1. HIGH-FREQUENCY ERRORS (Alert if >100 errors/hour):
+   - Trigger: Same error occurs >100 times in 1 hour
+   - Action: Slack notification to #engineering channel
+   - Priority: Medium
+   - Example: "Sync conflict error spiking (150 occurrences/hour)"
+
+2. CRITICAL ERRORS (Alert immediately):
+   - Trigger: Any FATAL level error
+   - Action: PagerDuty alert to on-call engineer
+   - Priority: Critical
+   - Example: "Zero-knowledge violation detected"
+
+3. NEW ERRORS (Alert on first occurrence):
+   - Trigger: Error never seen before in this release
+   - Action: Slack notification to #engineering
+   - Priority: Low (investigate during business hours)
+
+ERROR DASHBOARD (Weekly Review):
+- Top 10 errors by frequency
+- Errors affecting most users
+- Errors by browser/OS
+- Error trend (increasing/decreasing)
+- Unresolved errors >7 days old
+```
+
+### 20.5 Application Logging (Non-Error Events)
+
+```
+REQUIREMENT: ERROR-005
+PRIORITY: Medium
+CATEGORY: Operations
+
+APPLICATION LOG CATEGORIES:
+
+1. AUDIT TRAIL (Financial Transactions):
+   - What: All financial data changes (create, update, delete)
+   - Retention: 7 years (compliance)
+   - Storage: Encrypted, immutable log in database (AUDIT_LOG table)
+   - Example:
+```typescript
+audit.log({
+  action: 'TRANSACTION_CREATED',
+  userId: user.id,
+  resourceId: transaction.id,
+  timestamp: new Date(),
+  changes: {
+    amount: 150.00,
+    description: 'Office supplies',
+    category: 'Expenses:Office'
+  },
+  ipAddress: hashIp(request.ip), // Hash for privacy
+  userAgent: request.headers['user-agent']
+});
+```
+
+2. SECURITY EVENTS:
+   - What: Login attempts, password changes, permission changes, API key usage
+   - Retention: 90 days
+   - Storage: Dedicated security log
+   - Example:
+```typescript
+security.log({
+  event: 'LOGIN_ATTEMPT',
+  userId: user.id,
+  success: true,
+  ipAddress: hashIp(request.ip),
+  timestamp: new Date(),
+  mfaUsed: false
+});
+
+security.log({
+  event: 'FAILED_LOGIN',
+  email: user.email, // OK to log for security monitoring
+  attemptNumber: 3,
+  ipAddress: hashIp(request.ip),
+  timestamp: new Date()
+});
+```
+
+3. PERFORMANCE METRICS:
+   - What: Slow queries, long-running operations, resource usage
+   - Retention: 30 days
+   - Storage: Application log + metrics DB (Prometheus/similar)
+   - Example:
+```typescript
+if (queryDuration > 1000) {
+  logger.warn('Slow database query', {
+    query: 'SELECT * FROM transactions WHERE ...',
+    duration: queryDuration,
+    recordCount: results.length,
+    userId: user.id
+  });
+}
+```
+
+4. FEATURE USAGE ANALYTICS:
+   - What: Feature adoption, user journeys, A/B test results
+   - Retention: 90 days
+   - Storage: Analytics platform (Mixpanel, Amplitude, Heap)
+   - Example:
+```typescript
+analytics.track('Invoice Created', {
+  userId: hashedUserId,
+  invoiceAmount: invoice.total,
+  lineItemCount: invoice.lineItems.length,
+  paymentTerms: invoice.terms,
+  templateUsed: invoice.template
+});
+```
+
+LOG AGGREGATION:
+- Tool: [TBD - ELK Stack (self-hosted), Datadog Logs, CloudWatch Logs]
+- Query language: Lucene (Elasticsearch), or tool-specific
+- Retention: 90 days for application logs, 7 years for audit logs
+- Backup: Audit logs backed up to S3 Glacier or similar (low-cost archival)
+```
+
+### 20.6 User-Facing Error Messages
+
+```
+REQUIREMENT: ERROR-006
+PRIORITY: High
+CATEGORY: User Experience
+
+ERROR MESSAGE GUIDELINES:
+
+1. BE SPECIFIC AND ACTIONABLE:
+   ❌ Bad: "An error occurred"
+   ✅ Good: "The transaction amount must be greater than zero. Please enter a valid amount."
+
+2. AVOID TECHNICAL JARGON:
+   ❌ Bad: "CRDT merge conflict in lamport timestamp"
+   ✅ Good: "This transaction was edited on another device. Please refresh and try again."
+
+3. SUGGEST NEXT STEPS:
+   ❌ Bad: "Sync failed"
+   ✅ Good: "Unable to sync. Please check your internet connection and try again."
+
+4. BE SUPPORTIVE, NOT ACCUSATORY:
+   ❌ Bad: "Invalid input. Try again."
+   ✅ Good: "The date format should be MM/DD/YYYY. For example, 01/15/2024."
+
+ERROR MESSAGE EXAMPLES:
+
+```typescript
+// Validation errors
+const ERROR_MESSAGES = {
+  AMOUNT_REQUIRED: 'Please enter a transaction amount',
+  AMOUNT_INVALID: 'Amount must be a positive number',
+  DATE_REQUIRED: 'Please select a transaction date',
+  DATE_FUTURE: 'Transaction date cannot be in the future',
+  ACCOUNT_REQUIRED: 'Please select an account from the list',
+
+  // Network errors
+  OFFLINE: 'You\'re offline. Changes will sync when you\'re back online.',
+  SYNC_FAILED: 'Unable to sync. Please check your internet and try again.',
+  SERVER_UNAVAILABLE: 'Our servers are temporarily unavailable. Your work is saved locally and will sync when we\'re back.',
+
+  // Authentication errors
+  LOGIN_FAILED: 'Email or passphrase is incorrect. Please try again.',
+  ACCOUNT_LOCKED: 'Too many failed login attempts. Your account is temporarily locked for 15 minutes.',
+  SESSION_EXPIRED: 'Your session has expired. Please log in again.',
+
+  // Permission errors
+  PERMISSION_DENIED: 'You don\'t have permission to perform this action. Contact your account administrator.',
+  READ_ONLY: 'You have view-only access. To make changes, ask your administrator for edit permissions.',
+
+  // Storage errors
+  QUOTA_EXCEEDED: 'Your device storage is full. Please free up space or delete old transactions.',
+
+  // Critical errors
+  ENCRYPTION_FAILED: 'Unable to secure your data. Please contact support immediately.',
+  DATA_CORRUPTED: 'Some data appears corrupted. Please contact support with error code: {{errorCode}}'
+};
+
+// Display error to user
+function showError(code: string, context?: Record<string, string>) {
+  const message = ERROR_MESSAGES[code] || 'An unexpected error occurred. Please try again.';
+  const interpolatedMessage = interpolate(message, context);
+
+  toast.error(interpolatedMessage, {
+    duration: 5000,
+    action: {
+      label: 'Contact Support',
+      onClick: () => openSupportChat(code)
+    }
+  });
+}
+```
+
+ERROR UI COMPONENTS:
+- Inline field errors: Red border + message below field
+- Toast notifications: Temporary popup (5 seconds)
+- Modal dialogs: For critical errors requiring acknowledgment
+- Error page: For fatal errors (500, complete app failure)
+
+RECOVERY ACTIONS:
+- "Try Again" button (for retryable errors)
+- "Contact Support" button (with error code pre-filled)
+- "Refresh Page" button (for stale data errors)
+- "Clear Cache" button (for storage-related errors)
+
+ACCEPTANCE CRITERIA:
+- [ ] All error messages follow guidelines (clear, actionable, supportive)
+- [ ] Error messages reviewed for tone and clarity
+- [ ] No technical jargon or stack traces shown to users
+- [ ] All errors have recovery actions (button or instructions)
+- [ ] Error messages tested with non-technical users
+```
+
+**ACCEPTANCE CRITERIA (Overall Error Handling & Logging):**
+- [ ] Error classification documented and implemented
+- [ ] Error handling patterns implemented for all layers
+- [ ] Logging configured for all environments
+- [ ] Error tracking tool integrated (Sentry or similar)
+- [ ] PII scrubbing validated (no secrets/keys in logs)
+- [ ] Audit trail implemented for financial transactions
+- [ ] User-facing error messages reviewed for clarity
+- [ ] Error monitoring alerts configured (Slack + PagerDuty)
+- [ ] Log retention policy documented and implemented
+- [ ] Team trained on error investigation procedures
+
+---
+
 ## Appendix A: Glossary
 
 | Term | Plain English | Technical Definition |
