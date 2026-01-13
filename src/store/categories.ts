@@ -274,7 +274,7 @@ export async function updateCategory(
     // Prepare updated entity
     const now = Date.now();
 
-    let updated: Category = {
+    const updated: Category = {
       ...existing,
       ...updates,
       id, // Ensure ID doesn't change

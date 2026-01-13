@@ -317,7 +317,7 @@ export async function updateContact(
     const now = new Date()
     const deviceId = getDeviceId()
 
-    let updated: ContactEntity = {
+    const updated: ContactEntity = {
       ...existing,
       ...updates,
       id, // Ensure ID doesn't change

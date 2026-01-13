@@ -606,7 +606,7 @@ export async function getBills(
       collection = collection.and((bill) => !bill.deleted_at);
     }
 
-    let entities = await collection.toArray();
+    const entities = await collection.toArray();
 
     // Update OVERDUE status for due bills
     const now = Date.now();

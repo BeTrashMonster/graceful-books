@@ -542,7 +542,7 @@ describe('ParentAccountSelector', () => {
     })
 
     it('should handle validation errors gracefully', async () => {
-      ;(HierarchyValidator.validateParentAssignment as any) = vi
+      (HierarchyValidator.validateParentAssignment as any) = vi
         .fn()
         .mockRejectedValue(new Error('Validation failed'))
 
@@ -562,7 +562,7 @@ describe('ParentAccountSelector', () => {
     })
 
     it('should handle service errors gracefully', async () => {
-      ;(HierarchyService.getDescendants as any) = vi
+      (HierarchyService.getDescendants as any) = vi
         .fn()
         .mockRejectedValue(new Error('Service error'))
 

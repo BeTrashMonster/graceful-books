@@ -390,7 +390,7 @@ export async function updateProduct(
     const now = new Date()
     const deviceId = getDeviceId()
 
-    let updated: ProductEntity = {
+    const updated: ProductEntity = {
       ...existing,
       ...updates,
       id, // Ensure ID doesn't change

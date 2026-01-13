@@ -23,7 +23,7 @@ function createMockEmailContent(customizations?: Partial<EmailContent>): EmailCo
       fallback: 'Weekly Summary',
     },
     preheader: 'You have 3 tasks this week',
-    greeting: 'Hi Test User, here's what's on deck this week.',
+    greeting: 'Hi Test User, here\'s what\'s on deck this week.',
     sections: [
       {
         type: 'checklist-summary',
@@ -57,7 +57,7 @@ function createMockEmailContent(customizations?: Partial<EmailContent>): EmailCo
       {
         type: 'quick-tips',
         title: 'Helpful Insight',
-        content: 'Reconciling weekly catches errors when they're easy to fix.',
+        content: 'Reconciling weekly catches errors when they\'re easy to fix.',
         order: 2,
       },
     ],

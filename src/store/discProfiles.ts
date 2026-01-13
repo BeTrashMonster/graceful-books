@@ -303,7 +303,7 @@ export async function updateDISCProfile(
     // Prepare updated entity
     const now = Date.now();
 
-    let updated: DISCProfile = {
+    const updated: DISCProfile = {
       ...existing,
       ...updates,
       id, // Ensure ID doesn't change

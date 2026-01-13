@@ -53,7 +53,7 @@ function saveFailedAttempts(attempts: Map<string, FailedLoginAttempt>): void {
  * Failed login attempt tracking (persisted to localStorage)
  * Prevents bypass via page refresh
  */
-let failedAttempts: Map<string, FailedLoginAttempt> = loadFailedAttempts();
+const failedAttempts: Map<string, FailedLoginAttempt> = loadFailedAttempts();
 
 /**
  * Test value used to validate passphrase

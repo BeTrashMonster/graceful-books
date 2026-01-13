@@ -29,7 +29,7 @@ import type { CategorySuggestion } from '../types/categorization.types'
 describe('Categorization Store', () => {
   const companyId = 'test-company-123'
   const deviceId = 'test-device-123'
-  let categories: Category[] = []
+  const categories: Category[] = []
 
   beforeEach(async () => {
     await deleteDatabase()

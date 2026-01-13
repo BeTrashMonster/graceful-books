@@ -376,7 +376,7 @@ export async function updateUser(
     const now = new Date()
     const deviceId = getDeviceId()
 
-    let updated: UserEntity = {
+    const updated: UserEntity = {
       ...existing,
       ...updates,
       id, // Ensure ID doesn't change

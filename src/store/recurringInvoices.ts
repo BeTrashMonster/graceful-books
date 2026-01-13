@@ -539,7 +539,7 @@ export async function getRecurringInvoices(
       collection = collection.and((inv) => !inv.deleted_at);
     }
 
-    let entities = await collection.toArray();
+    const entities = await collection.toArray();
 
     // Decrypt if service provided
     let results = entities;

@@ -617,7 +617,7 @@ export async function getInvoices(
       collection = collection.and((inv) => !inv.deleted_at);
     }
 
-    let entities = await collection.toArray();
+    const entities = await collection.toArray();
 
     // Update OVERDUE status for sent invoices
     const now = Date.now();

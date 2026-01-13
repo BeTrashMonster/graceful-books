@@ -219,7 +219,7 @@ function calculateNextSendTime(dayOfWeek: string, timeOfDay: string): Date {
   const [hours, minutes] = timeOfDay.split(':').map(Number);
 
   // Find next occurrence of target day
-  let targetDate = new Date(now);
+  const targetDate = new Date(now);
   while (targetDate.getDay() !== targetDay) {
     targetDate.setDate(targetDate.getDate() + 1);
   }

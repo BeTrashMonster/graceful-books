@@ -248,7 +248,7 @@ export async function updateTag(
     // Prepare updated entity
     const now = Date.now();
 
-    let updated: Tag = {
+    const updated: Tag = {
       ...existing,
       ...updates,
       id, // Ensure ID doesn't change

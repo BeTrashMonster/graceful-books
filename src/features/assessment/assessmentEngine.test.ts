@@ -71,7 +71,7 @@ describe('Assessment Engine', () => {
 
   describe('answerQuestion', () => {
     it('should add answer to session', () => {
-      let session = createAssessmentSession('user123');
+      const session = createAssessmentSession('user123');
       const result = answerQuestion(session, 'business_structure', BusinessType.LLC);
 
       expect(result.errors).toEqual([]);
@@ -153,7 +153,7 @@ describe('Assessment Engine', () => {
 
   describe('progress tracking', () => {
     it('should track assessment progress', () => {
-      let session = createAssessmentSession('user123');
+      const session = createAssessmentSession('user123');
       const progress = getAssessmentProgress(session);
 
       expect(progress.totalQuestions).toBeGreaterThan(0);
@@ -175,7 +175,7 @@ describe('Assessment Engine', () => {
     });
 
     it('should track section completion', () => {
-      let session = createAssessmentSession('user123');
+      const session = createAssessmentSession('user123');
       const status = getSectionStatus(AssessmentSection.BUSINESS_INFO, session.answers);
 
       expect(status.section).toBe(AssessmentSection.BUSINESS_INFO);

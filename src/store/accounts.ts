@@ -313,7 +313,7 @@ export async function updateAccount(
     const now = new Date()
     const deviceId = getDeviceId()
 
-    let updated: AccountEntity = {
+    const updated: AccountEntity = {
       ...existing,
       ...updates,
       id, // Ensure ID doesn't change

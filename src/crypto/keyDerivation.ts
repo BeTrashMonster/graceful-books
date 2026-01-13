@@ -369,7 +369,7 @@ export async function benchmarkAndAdjustParams(
   const testSalt = generateSalt();
 
   // Start with minimum parameters
-  let params: Partial<KeyDerivationParams> = {
+  const params: Partial<KeyDerivationParams> = {
     memoryCost: MIN_PARAMS.memoryCost,
     timeCost: MIN_PARAMS.timeCost,
     parallelism: DEFAULT_ARGON2_PARAMS.parallelism,

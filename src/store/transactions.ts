@@ -360,7 +360,7 @@ export async function updateTransaction(
       id: line.id || nanoid(),
     }))
 
-    let updated: TransactionEntity = {
+    const updated: TransactionEntity = {
       ...existing,
       ...updates,
       lines: linesWithIds,

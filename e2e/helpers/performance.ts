@@ -228,7 +228,7 @@ export async function monitorPerformance(
 
       // Monitor long tasks
       const taskObserver = new PerformanceObserver((list) => {
-        ;(window as any).__perfMetrics.longTasks += list.getEntries().length
+        (window as any).__perfMetrics.longTasks += list.getEntries().length
       })
       taskObserver.observe({ entryTypes: ['longtask'] })
 

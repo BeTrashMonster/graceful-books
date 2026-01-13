@@ -398,7 +398,7 @@ export class SyncClient {
   }> {
     const errors: string[] = [];
     let totalPulled = 0;
-    let conflictsResolved = 0;
+    const conflictsResolved = 0;
 
     try {
       const sinceTimestamp = this.state.last_sync_at || 0;

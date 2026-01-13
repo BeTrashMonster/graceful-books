@@ -174,7 +174,7 @@ export class HierarchyService {
     parentId: string,
     options: HierarchyQueryOptions = {}
   ): Promise<Contact[]> {
-    let query = db.contacts.where('parent_id').equals(parentId);
+    const query = db.contacts.where('parent_id').equals(parentId);
 
     const children = await query.toArray();
 

@@ -338,7 +338,7 @@ export async function updateChecklistItem(
 
     const now = Date.now();
 
-    let updated: ChecklistItem = {
+    const updated: ChecklistItem = {
       ...existing,
       ...updates,
       id,
