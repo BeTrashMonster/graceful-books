@@ -9,7 +9,7 @@
  * - Advanced filters (date range, users, entity types, actions)
  * - Export to CSV and PDF
  * - Real-time search results
- * - DISC-adapted messaging
+ * - Steadiness communication style
  * - WCAG 2.1 AA accessible
  */
 

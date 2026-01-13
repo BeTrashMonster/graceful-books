@@ -6,7 +6,7 @@
  *
  * Requirements:
  * - E4: Recurring Invoices - Customer notifications
- * - DISC-adapted messaging
+ * - Steadiness communication style (patient, supportive, clear)
  * - Professional invoice delivery emails
  */
 
@@ -16,7 +16,6 @@ import { getRecurringInvoice } from '../store/recurringInvoices';
 import { getInvoice } from '../store/invoices';
 import type { EncryptionContext } from '../store/types';
 import { logger } from '../utils/logger';
-import type { DISCType } from '../features/messaging/messageLibrary';
 
 const notificationLogger = logger.child('RecurringInvoiceNotification');
 
@@ -34,13 +33,12 @@ export interface InvoiceNotificationEmail {
 }
 
 /**
- * Generate invoice notification email
+ * Generate invoice notification email with Steadiness communication style
  */
 export async function generateInvoiceNotificationEmail(
   invoiceId: string,
   customerEmail: string,
   customerName: string,
-  discType: DISCType = 'S',
   context?: EncryptionContext
 ): Promise<InvoiceNotificationEmail | null> {
   try {
@@ -56,8 +54,8 @@ export async function generateInvoiceNotificationEmail(
 
     const invoice = invoiceResult.data;
 
-    // Generate DISC-adapted message
-    const message = getInvoiceNotificationMessage(invoice, discType);
+    // Generate supportive, clear message
+    const message = getInvoiceNotificationMessage(invoice);
 
     // Build email
     const email: InvoiceNotificationEmail = {
@@ -81,11 +79,11 @@ export async function generateInvoiceNotificationEmail(
 }
 
 /**
- * Get DISC-adapted invoice notification message
+ * Get invoice notification message using Steadiness communication style
+ * (Patient, supportive, clear, and stable)
  */
 function getInvoiceNotificationMessage(
-  invoice: Invoice,
-  discType: DISCType
+  invoice: Invoice
 ): {
   subject: string;
   greeting: string;
@@ -96,44 +94,13 @@ function getInvoiceNotificationMessage(
   const amount = `$${parseFloat(invoice.total).toFixed(2)}`;
   const dueDate = new Date(invoice.due_date).toLocaleDateString();
 
-  switch (discType) {
-    case 'D': // Dominance - Direct and concise
-      return {
-        subject: `Invoice ${invoice.invoice_number} - ${amount} Due ${dueDate}`,
-        greeting: 'Hi,',
-        body: `Invoice ${invoice.invoice_number} is ready. Amount: ${amount}. Due: ${dueDate}.`,
-        closing: 'Thanks.',
-        callToAction: 'View Invoice',
-      };
-
-    case 'I': // Influence - Warm and friendly
-      return {
-        subject: `Your Invoice is Ready - ${invoice.invoice_number}`,
-        greeting: `Hi ${invoice.customer_id}!`,
-        body: `We're sending along your invoice ${invoice.invoice_number} for ${amount}. Your payment is due on ${dueDate}. We really appreciate your business!`,
-        closing: 'Thanks so much!',
-        callToAction: 'View Your Invoice',
-      };
-
-    case 'C': // Conscientiousness - Detailed and precise
-      return {
-        subject: `Invoice ${invoice.invoice_number} - Payment Due ${dueDate}`,
-        greeting: 'Hello,',
-        body: `This email contains your invoice ${invoice.invoice_number} dated ${new Date(invoice.invoice_date).toLocaleDateString()}. The total amount of ${amount} is due on ${dueDate}. Please review the attached invoice for itemized details.`,
-        closing: 'Sincerely,',
-        callToAction: 'View Invoice Details',
-      };
-
-    case 'S': // Steadiness - Supportive and patient (default)
-    default:
-      return {
-        subject: `Invoice ${invoice.invoice_number} - ${amount}`,
-        greeting: 'Hello,',
-        body: `We're sending your invoice ${invoice.invoice_number} for ${amount}. Payment is due on ${dueDate}. If you have any questions about this invoice, please don't hesitate to reach out. We're here to help.`,
-        closing: 'Thank you,',
-        callToAction: 'View Invoice',
-      };
-  }
+  return {
+    subject: `Invoice ${invoice.invoice_number} - ${amount}`,
+    greeting: 'Hello,',
+    body: `We're sending your invoice ${invoice.invoice_number} for ${amount}. Payment is due on ${dueDate}. If you have any questions about this invoice, please don't hesitate to reach out. We're here to help.`,
+    closing: 'Thank you,',
+    callToAction: 'View Invoice',
+  };
 }
 
 /**
@@ -326,7 +293,6 @@ export async function sendInvoiceNotification(
   invoiceId: string,
   customerEmail: string,
   customerName: string,
-  discType: DISCType = 'S',
   context?: EncryptionContext
 ): Promise<{ success: boolean; message: string; messageId?: string }> {
   try {
@@ -335,7 +301,6 @@ export async function sendInvoiceNotification(
       invoiceId,
       customerEmail,
       customerName,
-      discType,
       context
     );
 
@@ -391,7 +356,6 @@ export async function sendInvoiceReminder(
   customerEmail: string,
   customerName: string,
   daysUntilDue: number,
-  discType: DISCType = 'S',
   context?: EncryptionContext
 ): Promise<{ success: boolean; message: string }> {
   try {
@@ -407,8 +371,8 @@ export async function sendInvoiceReminder(
     const invoice = invoiceResult.data;
     const amount = `$${parseFloat(invoice.total).toFixed(2)}`;
 
-    // Generate DISC-adapted reminder message
-    const message = getReminderMessage(invoice, daysUntilDue, discType);
+    // Generate supportive reminder message
+    const message = getReminderMessage(invoice, daysUntilDue);
 
     notificationLogger.info('Sending invoice reminder (MOCKED)', {
       invoiceId,
@@ -438,40 +402,18 @@ export async function sendInvoiceReminder(
 }
 
 /**
- * Get DISC-adapted reminder message
+ * Get reminder message using Steadiness communication style
+ * (Supportive, patient, clear)
  */
 function getReminderMessage(
   invoice: Invoice,
-  daysUntilDue: number,
-  discType: DISCType
+  daysUntilDue: number
 ): { subject: string; body: string } {
   const amount = `$${parseFloat(invoice.total).toFixed(2)}`;
   const dueDate = new Date(invoice.due_date).toLocaleDateString();
 
-  switch (discType) {
-    case 'D': // Dominance - Direct
-      return {
-        subject: `Reminder: Invoice ${invoice.invoice_number} Due in ${daysUntilDue} Days`,
-        body: `Invoice ${invoice.invoice_number} for ${amount} is due on ${dueDate} (${daysUntilDue} days).`,
-      };
-
-    case 'I': // Influence - Friendly
-      return {
-        subject: `Friendly Reminder: Invoice ${invoice.invoice_number}`,
-        body: `Just a friendly heads up! Your invoice ${invoice.invoice_number} for ${amount} is coming due on ${dueDate}. That's in ${daysUntilDue} days. Thanks for staying on top of this!`,
-      };
-
-    case 'C': // Conscientiousness - Detailed
-      return {
-        subject: `Payment Reminder: Invoice ${invoice.invoice_number} Due ${dueDate}`,
-        body: `This is a reminder that invoice ${invoice.invoice_number} in the amount of ${amount} is scheduled for payment on ${dueDate}, which is ${daysUntilDue} days from today. Please ensure timely payment to avoid any late fees.`,
-      };
-
-    case 'S': // Steadiness - Supportive (default)
-    default:
-      return {
-        subject: `Reminder: Invoice ${invoice.invoice_number} Payment Due Soon`,
-        body: `We wanted to remind you that invoice ${invoice.invoice_number} for ${amount} is due on ${dueDate}. That's coming up in ${daysUntilDue} days. If you have any questions or need help, please let us know.`,
-      };
-  }
+  return {
+    subject: `Reminder: Invoice ${invoice.invoice_number} Payment Due Soon`,
+    body: `We wanted to remind you that invoice ${invoice.invoice_number} for ${amount} is due on ${dueDate}. That's coming up in ${daysUntilDue} days. If you have any questions or need help, please let us know.`,
+  };
 }

@@ -17,6 +17,7 @@ import { Label } from '../forms/Label';
 import { Button } from '../core/Button';
 import { Radio } from '../forms/Radio';
 import { getRecurrencePreview, getRecurrenceDescription } from '../../services/recurrence.service';
+import { logger } from '../../utils/logger';
 import type {
   RecurrenceRule,
   RecurrenceFrequency,
@@ -78,6 +79,9 @@ export function RecurringTransactionForm({
   const [preview, setPreview] = useState<RecurrencePreview | null>(null);
   const [description, setDescription] = useState<string>('');
 
+  // Validation error state
+  const [validationError, setValidationError] = useState<string>('');
+
   // Update preview whenever rule changes
   useEffect(() => {
     try {
@@ -87,7 +91,7 @@ export function RecurringTransactionForm({
       setPreview(newPreview);
       setDescription(newDescription);
     } catch (error) {
-      console.error('Error generating preview:', error);
+      logger.error('Error generating recurrence preview', { error });
       setPreview(null);
       setDescription('Invalid recurrence rule');
     }
@@ -120,13 +124,16 @@ export function RecurringTransactionForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Clear any previous validation errors
+    setValidationError('');
+
     if (!name.trim()) {
-      alert('Please enter a name for this recurring transaction');
+      setValidationError("Let's add a name for this recurring transaction. This helps you identify it later when reviewing your recurring transactions.");
       return;
     }
 
     if (!initialTemplate) {
-      alert('Transaction template is required');
+      setValidationError("We need a transaction template to create this recurring transaction. Please go back and set up the transaction details first.");
       return;
     }
 
@@ -150,6 +157,12 @@ export function RecurringTransactionForm({
       {error && (
         <div style={{ padding: '12px', marginBottom: '16px', backgroundColor: '#fee', border: '1px solid #fcc', borderRadius: '4px', color: '#c00' }}>
           {error}
+        </div>
+      )}
+
+      {validationError && (
+        <div style={{ padding: '12px', marginBottom: '16px', backgroundColor: '#fef3cd', border: '1px solid #f6e58d', borderRadius: '4px', color: '#856404' }}>
+          {validationError}
         </div>
       )}
 

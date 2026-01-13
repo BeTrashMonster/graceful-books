@@ -10,7 +10,7 @@
  *
  * Requirements:
  * - E3: Invoice Templates - Customizable (Nice)
- * - DISC-adapted messaging
+ * - Steadiness communication style
  * - WCAG 2.1 AA accessibility
  */
 
@@ -63,11 +63,6 @@ export interface TemplateCustomizationProps {
    * Callback when cancel is requested
    */
   onCancel: () => void;
-
-  /**
-   * User's DISC profile for adapted messaging
-   */
-  discProfile?: 'D' | 'I' | 'S' | 'C';
 
   /**
    * Whether the form is saving
@@ -133,34 +128,17 @@ const LOGO_POSITION_OPTIONS: Array<{ value: LogoPosition; label: string }> = [
 ];
 
 /**
- * Get DISC-adapted message
+ * Get user-friendly messages in Steadiness communication style
+ * (Patient, step-by-step, supportive, stable)
  */
-function getDiscMessage(
-  messageType: 'success' | 'info' | 'warning',
-  discProfile?: 'D' | 'I' | 'S' | 'C'
-): string {
+function getSteadinessMessage(messageType: 'success' | 'info' | 'warning'): string {
   const messages = {
-    success: {
-      D: 'Brand colors applied! Your invoices now match your business personality.',
-      I: 'Amazing! Your invoices are going to look fantastic with your brand colors!',
-      S: "Your brand colors have been carefully applied. Your invoices will now reflect your business's unique style.",
-      C: 'Brand colors successfully applied with validated contrast ratios for optimal readability.',
-    },
-    info: {
-      D: 'Upload your logo to brand your invoices. Max 5MB.',
-      I: "Let's add your logo to make your invoices uniquely yours!",
-      S: 'You can upload your business logo here. We recommend using a PNG or JPEG file under 5MB.',
-      C: 'Logo upload supports PNG, JPEG, GIF, and WebP formats with automatic resizing (max 5MB, 800x400px).',
-    },
-    warning: {
-      D: 'Color contrast below WCAG standards. Adjust for better accessibility.',
-      I: 'Your color choices are creative, but they might be hard to read. How about adjusting them?',
-      S: "We noticed the color contrast might make text difficult to read. Would you like to adjust it for better clarity?",
-      C: 'WCAG 2.1 AA contrast ratio not met. Current ratio below 4.5:1 threshold for normal text.',
-    },
+    success: "Your brand colors have been applied successfully. Your invoices will now reflect your business's unique style.",
+    info: 'You can upload your business logo here. We recommend using a PNG or JPEG file under 5MB. It will automatically resize to fit your invoice template.',
+    warning: "We noticed the color contrast might make text difficult to read. Would you like to adjust it for better clarity? This helps ensure your invoices are easy to read for everyone.",
   };
 
-  return messages[messageType][discProfile || 'S'];
+  return messages[messageType];
 }
 
 /**
@@ -171,7 +149,6 @@ export const TemplateCustomization: React.FC<TemplateCustomizationProps> = ({
   onChange,
   onSave,
   onCancel,
-  discProfile,
   isSaving = false,
 }) => {
   const [activeTab, setActiveTab] = useState<'branding' | 'layout' | 'messages'>('branding');
@@ -221,7 +198,7 @@ export const TemplateCustomization: React.FC<TemplateCustomizationProps> = ({
       {/* Header */}
       <div className="customization-header">
         <h2>Customize Invoice Template</h2>
-        <p className="subtitle">{getDiscMessage('info', discProfile)}</p>
+        <p className="subtitle">{getSteadinessMessage('info')}</p>
       </div>
 
       {/* Tabs */}

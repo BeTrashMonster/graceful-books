@@ -253,8 +253,8 @@ All Group B features (B1-B8) have been successfully completed:
 - ✅ **B1** - Chart of Accounts - Basic CRUD
 - ✅ **B2** - Transaction Entry - Basic
 - ✅ **B3** - Dashboard - Simplified
-- ✅ **B4** - DISC Profile Storage
-- ✅ **B5** - DISC Message Variants System
+- ✅ **B4** - User Preferences Storage
+- ✅ **B5** - Steadiness Communication System
 - ✅ **B6** - Sync Infrastructure - Foundation
 - ✅ **B7** - Categories & Tags Foundation
 - ✅ **B8** - Charitable Giving & Help System
@@ -433,7 +433,7 @@ All Group C features (C1-C10) have been successfully completed:
 **Acceptance Criteria:**
 - [x] Users can select day of week and time for email delivery
 - [x] Email content preferences are configurable
-- [x] Email content is DISC-adapted to user profile
+- [x] Email content uses Steadiness communication style
 - [x] Preview functionality shows actual email before enabling
 - [x] Unsubscribe mechanism is one-click and works reliably
 - [x] Emails are sent reliably at scheduled times (mocked for MVP)

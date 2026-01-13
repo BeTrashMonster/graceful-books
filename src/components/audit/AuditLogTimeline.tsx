@@ -9,7 +9,7 @@
  * - Expandable entries to show details
  * - Action and entity type badges
  * - Responsive and accessible design
- * - DISC-adapted messaging
+ * - Steadiness communication style
  */
 
 import React, { useState, useEffect } from 'react';
