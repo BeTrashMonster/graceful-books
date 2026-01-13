@@ -83,8 +83,8 @@ The `ROADMAP.md` uses a group-based structure optimized for parallel development
 - Database schema, encryption layer, local-first data store
 - Authentication, UI component library, application shell
 - Chart of accounts, basic transactions, dashboard
-- DISC profile system, message variants
-- Assessment engine and checklist generation
+- Business phase assessment and checklist generation
+- User preferences and settings storage
 
 ### Phase 2: First Steps (Groups D-E)
 - Guided onboarding experiences

@@ -10,6 +10,35 @@
 
 import { Page } from '@playwright/test'
 
+// Extended types for browser performance APIs
+interface LargestContentfulPaint extends PerformanceEntry {
+  renderTime: number
+  loadTime: number
+}
+
+interface LayoutShift extends PerformanceEntry {
+  value: number
+  hadRecentInput: boolean
+}
+
+interface MemoryInfo {
+  usedJSHeapSize: number
+  totalJSHeapSize: number
+  jsHeapSizeLimit: number
+}
+
+interface PerformanceWithMemory extends Performance {
+  memory?: MemoryInfo
+}
+
+interface WindowWithPerfMetrics extends Window {
+  __perfMetrics?: {
+    longTasks: number
+    layoutShifts: number
+    maxShiftScore: number
+  }
+}
+
 export interface PerformanceMetrics {
   /**
    * Time to first byte (TTFB)
@@ -73,7 +102,7 @@ export async function measurePageLoad(page: Page): Promise<PerformanceMetrics> {
       let lcpValue = 0
       const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries()
-        const lastEntry = entries[entries.length - 1] as any
+        const lastEntry = entries[entries.length - 1] as LargestContentfulPaint
         lcpValue = lastEntry.renderTime || lastEntry.loadTime
       })
       observer.observe({ entryTypes: ['largest-contentful-paint'] })
@@ -198,7 +227,7 @@ export async function getMemoryUsage(page: Page): Promise<{
   jsHeapSizeLimit: number
 }> {
   return await page.evaluate(() => {
-    const memory = (performance as any).memory
+    const memory = (performance as PerformanceWithMemory).memory
     return {
       usedJSHeapSize: memory?.usedJSHeapSize || 0,
       totalJSHeapSize: memory?.totalJSHeapSize || 0,
@@ -220,7 +249,8 @@ export async function monitorPerformance(
 }> {
   await page.evaluate((dur) => {
     return new Promise<void>((resolve) => {
-      (window as any).__perfMetrics = {
+      const win = window as WindowWithPerfMetrics
+      win.__perfMetrics = {
         longTasks: 0,
         layoutShifts: 0,
         maxShiftScore: 0,
@@ -228,20 +258,24 @@ export async function monitorPerformance(
 
       // Monitor long tasks
       const taskObserver = new PerformanceObserver((list) => {
-        (window as any).__perfMetrics.longTasks += list.getEntries().length
+        if (win.__perfMetrics) {
+          win.__perfMetrics.longTasks += list.getEntries().length
+        }
       })
       taskObserver.observe({ entryTypes: ['longtask'] })
 
       // Monitor layout shifts
       const clsObserver = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
-          const shiftEntry = entry as any
+          const shiftEntry = entry as LayoutShift
           if (shiftEntry.hadRecentInput) continue
-          ;(window as any).__perfMetrics.layoutShifts++
-          ;(window as any).__perfMetrics.maxShiftScore = Math.max(
-            (window as any).__perfMetrics.maxShiftScore,
-            shiftEntry.value
-          )
+          if (win.__perfMetrics) {
+            win.__perfMetrics.layoutShifts++
+            win.__perfMetrics.maxShiftScore = Math.max(
+              win.__perfMetrics.maxShiftScore,
+              shiftEntry.value
+            )
+          }
         }
       })
       clsObserver.observe({ entryTypes: ['layout-shift'] })
@@ -254,7 +288,7 @@ export async function monitorPerformance(
     })
   }, duration)
 
-  return await page.evaluate(() => (window as any).__perfMetrics)
+  return await page.evaluate(() => (window as WindowWithPerfMetrics).__perfMetrics!)
 }
 
 /**

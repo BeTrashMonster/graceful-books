@@ -26,7 +26,7 @@
  * Per D8: Integration tests verify interactions between all Group D features
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { db } from '../../store/database'
 import { nanoid } from 'nanoid'
 
@@ -49,19 +49,14 @@ import { generateEmailContent } from '../../services/email/emailContentGenerator
 import { createAccount, queryAccounts, batchCreateAccounts } from '../../store/accounts'
 import { createTransaction, queryTransactions } from '../../store/transactions'
 import { createContact } from '../../store/contacts'
-import { getChecklistItems, updateChecklistItem } from '../../store/checklistItems'
+import { getChecklistItems } from '../../store/checklistItems'
 import { createAuditLog, queryAuditLogs } from '../../store/auditLogs'
-
-// Hooks
-import { useVendors } from '../../hooks/useVendors'
-import { useTutorial } from '../../hooks/useTutorial'
 
 // Types
 import type { CoaWizardData } from '../../types/wizard.types'
-import type { JournalEntry, Account, AccountType } from '../../types'
+import type { JournalEntry, AccountType } from '../../types'
 import type { EmailGenerationContext } from '../../types/email.types'
 import type { ChecklistItem } from '../../types/checklist.types'
-import type { Vendor } from '../../types/vendor.types'
 
 // Templates
 import { getTemplateById } from '../../data/industryTemplates'

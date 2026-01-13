@@ -15,7 +15,7 @@
 import { test, expect } from '@playwright/test'
 import { setupAuthenticatedSession, clearUserData } from './fixtures/auth'
 import { checkAccessibility, testKeyboardNavigation, formatViolations } from './helpers/accessibility'
-import { measurePageLoad, measureAction, assertPerformance } from './helpers/performance'
+import { measurePageLoad, assertPerformance } from './helpers/performance'
 
 test.describe('D1: Chart of Accounts Setup Wizard', () => {
   test.beforeEach(async ({ page }) => {
