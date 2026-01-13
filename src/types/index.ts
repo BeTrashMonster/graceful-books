@@ -179,6 +179,11 @@ export type InvoiceStatus =
   | 'void'
 
 /**
+ * Bill status lifecycle
+ */
+export type BillStatus = 'draft' | 'due' | 'overdue' | 'paid' | 'void'
+
+/**
  * Consolidation type for invoices
  * - individual: Standard invoice for a single account
  * - consolidated: Combined invoice for parent account with multiple sub-accounts
@@ -246,6 +251,45 @@ export interface InvoiceSubAccountSection {
   subtotal: number
   taxAmount: number
   total: number
+}
+
+/**
+ * Bill (Accounts Payable)
+ */
+export interface Bill {
+  id: string
+  companyId: string
+  vendorId: string
+  billNumber: string
+  date: Date
+  dueDate: Date
+  status: BillStatus
+  lineItems: BillLineItem[]
+  subtotal: number
+  taxAmount: number
+  total: number
+  amountPaid: number
+  amountDue: number
+  notes?: string
+  internalMemo?: string
+  transactionId?: string
+  createdAt: Date
+  updatedAt: Date
+  paidAt?: Date
+  deletedAt?: Date
+}
+
+export interface BillLineItem {
+  id: string
+  description: string
+  quantity: number
+  rate: number
+  amount: number
+  accountId: string
+  taxable: boolean
+  classId?: string
+  categoryId?: string
+  tags?: string[]
 }
 
 // =============================================================================

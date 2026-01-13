@@ -101,7 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added - Batch 2: Technology Decisions
 - **Section 16.4**: Technology Stack Decision Framework
   - Frontend stack (DECIDED: React 18.3+, TypeScript 5.3+, Vite 5.1+, Dexie 4.0+)
-  - Backend stack ([DECISION POINT]: Node.js + Fastify [RECOMMENDED], Go + Fiber, Deno + Fresh)
+  - Backend stack (FINALIZED: Node.js + Hono - edge-native framework for Cloudflare Workers)
   - CRDT library ([DECISION POINT]: Automerge 2.0+ [RECOMMENDED], Yjs, Custom)
   - API design ([DECISION POINT]: REST + WebSocket [RECOMMENDED], GraphQL, gRPC)
   - Testing frameworks (DECIDED: Vitest, @testing-library/react, Playwright)

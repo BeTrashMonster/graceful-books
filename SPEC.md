@@ -153,7 +153,7 @@ The following features, capabilities, and integrations are **explicitly excluded
 - Future: Real-time collaboration UI planned (see COLLAB-002 in §14)
 
 ❌ **Advanced Role-Based Permissions**
-- v1.0: Simple roles (Admin, Manager, Bookkeeper, View-Only) per §2.1.5
+- v1.0: Six user slots (1 Admin, 2 flexible Manager/User, 1 Consultant, 2 Accountants) per §2.1.5
 - NOT included: Custom roles, field-level permissions, approval workflows
 - NOT included: Audit trails for permission changes
 - Rationale: Enterprise-grade permissions add complexity for small business focus
@@ -230,7 +230,7 @@ To clarify, version 1.0 DOES include:
 - ✅ Basic inventory tracking (FIFO costing)
 - ✅ Financial reports (P&L, Balance Sheet, Cash Flow)
 - ✅ Bank reconciliation (manual CSV import)
-- ✅ Multi-user access with role-based permissions (4 roles)
+- ✅ Multi-user access with role-based permissions (6 user slots: 1 Admin, 2 flexible Manager/User, 1 Consultant, 2 Accountants)
 - ✅ Zero-knowledge encryption with multi-device sync
 - ✅ Progressive feature disclosure based on business phase
 - ✅ WCAG 2.1 AA accessibility compliance
@@ -443,7 +443,7 @@ The system SHALL implement hierarchical key management:
 2. USER KEY DERIVATION
    - Each invited user receives a derived key for their permission level
    - Derived key encrypted with user's password before transmission
-   - Permission levels: Admin, Manager, Bookkeeper, View-Only
+   - Permission levels: Admin, Manager, User, Consultant (view-only), Accountant (2 slots)
 
 3. KEY ROTATION
    - Admin can rotate keys instantly to revoke access
@@ -1377,7 +1377,7 @@ The system SHALL implement authentication and authorization that maintains zero-
 KEY PRINCIPLES:
 1. **Zero-Knowledge Authentication**: Server never receives user passphrase or encryption keys
 2. **Multi-Device Support**: Same user can access from multiple devices with seamless sync
-3. **Role-Based Access Control**: Admin, Manager, Bookkeeper, View-Only permissions
+3. **Role-Based Access Control**: Admin, Manager, User, Consultant, Accountant permissions (6 total slots)
 4. **Optional Recovery**: User choice between absolute zero-knowledge or recoverable backup
 5. **Device Management**: Users can view and revoke device access
 
@@ -1743,45 +1743,48 @@ ROLE HIERARCHY:
 
 PERMISSION MATRIX:
 
-┌─────────────────────┬────────┬─────────┬────────────┬───────────┐
-│ Permission          │ Admin  │ Manager │ Bookkeeper │ View-Only │
-├─────────────────────┼────────┼─────────┼────────────┼───────────┤
-│ View all data       │   ✓    │    ✓    │     ✓      │     ✓     │
-│ Export data         │   ✓    │    ✓    │     ✓      │     ✓     │
-│ View audit log      │   ✓    │    ✓    │     ✓      │     ✓     │
-├─────────────────────┼────────┼─────────┼────────────┼───────────┤
-│ Create transactions │   ✓    │    ✓    │     ✓      │     ✗     │
-│ Edit transactions   │   ✓    │    ✓    │     ✓      │     ✗     │
-│ Post transactions   │   ✓    │    ✓    │     ✓      │     ✗     │
-│ Delete trans (draft)│   ✓    │    ✓    │     ✗      │     ✗     │
-│ Void trans (posted) │   ✓    │    ✓    │     ✗      │     ✗     │
-├─────────────────────┼────────┼─────────┼────────────┼───────────┤
-│ Reconcile accounts  │   ✓    │    ✓    │     ✓      │     ✗     │
-│ Create invoices     │   ✓    │    ✓    │     ✓      │     ✗     │
-│ Record payments     │   ✓    │    ✓    │     ✓      │     ✗     │
-├─────────────────────┼────────┼─────────┼────────────┼───────────┤
-│ Chart of Accounts   │   ✓    │    ✓    │     ✗      │     ✗     │
-│ Add/edit accounts   │   ✓    │    ✓    │     ✗      │     ✗     │
-│ Delete accounts     │   ✓    │    ✓    │     ✗      │     ✗     │
-├─────────────────────┼────────┼─────────┼────────────┼───────────┤
-│ Manage contacts     │   ✓    │    ✓    │     ✓      │     ✗     │
-│ Manage products     │   ✓    │    ✓    │     ✓      │     ✗     │
-│ Manage classes/tags │   ✓    │    ✓    │     ✓      │     ✗     │
-├─────────────────────┼────────┼─────────┼────────────┼───────────┤
-│ Company settings    │   ✓    │    ✗    │     ✗      │     ✗     │
-│ User management     │   ✓    │    ✗    │     ✗      │     ✗     │
-│ Add/remove users    │   ✓    │    ✗    │     ✗      │     ✗     │
-│ Change user roles   │   ✓    │    ✗    │     ✗      │     ✗     │
-│ Rotate company key  │   ✓    │    ✗    │     ✗      │     ✗     │
-│ View recovery key   │   ✓    │    ✗    │     ✗      │     ✗     │
-└─────────────────────┴────────┴─────────┴────────────┴───────────┘
+┌─────────────────────┬────────┬─────────┬──────┬────────────┬───────────┐
+│ Permission          │ Admin  │ Manager │ User │ Accountant │Consultant │
+├─────────────────────┼────────┼─────────┼──────┼────────────┼───────────┤
+│ View all data       │   ✓    │    ✓    │  ✓   │     ✓      │  Custom*  │
+│ Export data         │   ✓    │    ✓    │  ✓   │     ✓      │     ✓     │
+│ View audit log      │   ✓    │    ✓    │  ✓   │     ✓      │  Custom*  │
+├─────────────────────┼────────┼─────────┼──────┼────────────┼───────────┤
+│ Create transactions │   ✓    │    ✓    │  ✓   │     ✓      │     ✗     │
+│ Edit transactions   │   ✓    │    ✓    │  ✓   │     ✓      │     ✗     │
+│ Post transactions   │   ✓    │    ✓    │  ✗   │     ✓      │     ✗     │
+│ Delete trans (draft)│   ✓    │    ✓    │  ✗   │     ✓      │     ✗     │
+│ Void trans (posted) │   ✓    │    ✓    │  ✗   │     ✓      │     ✗     │
+├─────────────────────┼────────┼─────────┼──────┼────────────┼───────────┤
+│ Reconcile accounts  │   ✓    │    ✓    │  ✗   │     ✓      │     ✗     │
+│ Create invoices     │   ✓    │    ✓    │  ✓   │     ✓      │     ✗     │
+│ Record payments     │   ✓    │    ✓    │  ✓   │     ✓      │     ✗     │
+├─────────────────────┼────────┼─────────┼──────┼────────────┼───────────┤
+│ Chart of Accounts   │   ✓    │    ✓    │  ✗   │     ✓      │     ✗     │
+│ Add/edit accounts   │   ✓    │    ✓    │  ✗   │     ✓      │     ✗     │
+│ Delete accounts     │   ✓    │    ✓    │  ✗   │     ✓      │     ✗     │
+├─────────────────────┼────────┼─────────┼──────┼────────────┼───────────┤
+│ Manage contacts     │   ✓    │    ✓    │  ✓   │     ✓      │     ✗     │
+│ Manage products     │   ✓    │    ✓    │  ✓   │     ✓      │     ✗     │
+│ Manage classes/tags │   ✓    │    ✓    │  ✓   │     ✓      │     ✗     │
+├─────────────────────┼────────┼─────────┼──────┼────────────┼───────────┤
+│ Company settings    │   ✓    │    ✗    │  ✗   │     ✗      │     ✗     │
+│ User management     │   ✓    │    ✗    │  ✗   │     ✗      │     ✗     │
+│ Add/remove users    │   ✓    │    ✗    │  ✗   │     ✗      │     ✗     │
+│ Change user roles   │   ✓    │    ✗    │  ✗   │     ✗      │     ✗     │
+│ Rotate company key  │   ✓    │    ✗    │  ✗   │     ✗      │     ✗     │
+│ View recovery key   │   ✓    │    ✗    │  ✗   │     ✗      │     ✗     │
+└─────────────────────┴────────┴─────────┴──────┴────────────┴───────────┘
+
+*Consultant permissions are customizable by Admin (choose which data they can view)
 
 IMPLEMENTATION:
 
 1. **Role Storage**:
-   - User.role field (enum: ADMIN, MANAGER, BOOKKEEPER, VIEW_ONLY)
-   - Default: First user = ADMIN, subsequent = VIEW_ONLY
-   - Admin can change roles
+   - User.role field (enum: ADMIN, MANAGER, USER, ACCOUNTANT, CONSULTANT)
+   - User slots: 1 Admin, 2 flexible (Manager/User), 2 Accountant, 1 Consultant
+   - Default: First user = ADMIN, subsequent assigned by Admin
+   - Admin can change roles within available slot allocation
 
 2. **Permission Checks**:
    - Frontend: Hide UI elements based on role
@@ -3407,13 +3410,14 @@ EVALUATION CRITERIA:
 - Cost: Infrastructure costs at scale
 - Long-term Viability: Community support, security updates
 
-OPTION A: Node.js + Fastify [RECOMMENDED]
+OPTION A: Node.js + Hono [RECOMMENDED]
 Strengths:
 + Same language as frontend (JavaScript/TypeScript)
-+ Mature ecosystem for auth, WebSocket, database clients
-+ Excellent async I/O performance
-+ Low learning curve for frontend developers
-+ Strong managed service support (AWS Lambda, Vercel, Fly.io)
++ Designed specifically for edge runtimes (Cloudflare Workers, Deno, Bun)
++ Ultra-lightweight (~12KB) with excellent performance
++ Express-like API (familiar DX, low learning curve)
++ Perfect for Cloudflare Workers (no adapters needed)
++ Excellent TypeScript support
 
 Trade-offs:
 - Higher memory usage than Go/Rust
@@ -3472,15 +3476,16 @@ DECISION MATRIX:
 │ Learning Curve      │    A     │  B   │   A   │
 └─────────────────────┴──────────┴──────┴───────┘
 
-RECOMMENDATION: Node.js + Fastify
-Rationale: Team velocity and deployment ecosystem outweigh raw performance
-advantages of Go. The sync relay is I/O-bound (database, network), not CPU-bound,
-so Node.js async I/O is well-suited. Shared language reduces cognitive load.
+RECOMMENDATION: Node.js + Hono [FINALIZED]
+Rationale: Hono is designed specifically for edge runtimes like Cloudflare Workers,
+providing excellent performance with minimal overhead. Team velocity and deployment
+ecosystem benefits remain strong. The sync relay is I/O-bound (database, network),
+not CPU-bound, so Node.js async I/O is well-suited. Shared language reduces cognitive load.
 
-[TBD: Final backend stack selection]
-- Decision Required By: Tech Lead + DevOps Lead
-- Deadline: Before backend development begins
-- Testing Requirement: Load test prototype with realistic dataset (10K users, 100K transactions)
+[FINALIZED: Node.js + Hono]
+- Decision Finalized: 2026-01-10
+- Backend Stack: Node.js + Hono (edge-native web framework)
+- Perfect compatibility with Cloudflare Workers infrastructure
 ```
 
 #### 16.4.3 Encryption Libraries (DECIDED)
@@ -5112,9 +5117,9 @@ DEPLOYMENT STRATEGY: Blue-Green Deployment or Canary Rollout [TBD]
 - Instant rollback capability
 - Gradual traffic shift (canary) or instant cutover (blue-green)
 
-CI/CD TOOL: GitHub Actions, GitLab CI, or Jenkins [TBD]
-- Decision Required By: DevOps Lead
-- Recommendation: GitHub Actions (integrated with repository)
+CI/CD TOOL: GitHub Actions [FINALIZED]
+- Decision Finalized: 2026-01-10
+- Integrated with repository, native Cloudflare integration
 
 PIPELINE STAGES:
 
@@ -5242,9 +5247,9 @@ jobs:
         run: npm run test:smoke:production
 ```
 
-[TBD: CI/CD tool selection and detailed configuration]
-- Decision Required By: DevOps Lead
-- Options: GitHub Actions (recommended), GitLab CI, Jenkins, CircleCI
+[FINALIZED: CI/CD tool selection]
+- Decision Finalized: 2026-01-10
+- Tool: GitHub Actions (integrated with Cloudflare)
 ```
 
 ### 19.2 Environments
@@ -5543,10 +5548,10 @@ STAKEHOLDER COMMUNICATION:
   * Dedicated beta feedback channel
   * Thank you in release notes
 
-[TBD: Communication tools and channels]
-- Decision Required By: Product Manager
-- Status page: StatusPage.io, Atlassian Statuspage, or custom
-- Email service: SendGrid, Mailgun, AWS SES
+[FINALIZED: Communication tools and channels]
+- Decision Finalized: 2026-01-10
+- Status page: StatusPage.io, Atlassian Statuspage, or custom [TBD]
+- Email service: SendGrid [FINALIZED]
 ```
 
 ### 19.6 Versioning Strategy
@@ -5633,7 +5638,7 @@ MONITORING LAYERS:
      * Memory usage (<80%)
      * Disk usage (<70%)
      * Network throughput
-   - Tool: [TBD - CloudWatch, Datadog, Grafana, New Relic]
+   - Tool: Grafana + Prometheus (metrics and dashboards) [FINALIZED]
    - Alerts: Slack + PagerDuty for critical
 
 2. APPLICATION MONITORING:
@@ -5642,17 +5647,17 @@ MONITORING LAYERS:
      * Response time (p50, p95, p99)
      * Request throughput (requests/sec)
      * Active users (concurrent)
-   - Tool: [TBD - Datadog APM, New Relic, Application Insights]
+   - Tool: Betterstack (logs, uptime monitoring, incident alerts) [FINALIZED]
    - Alerts: Slack for warnings, PagerDuty for critical
 
 3. ERROR TRACKING:
-   - Tool: [TBD - Sentry, Rollbar, Bugsnag]
+   - Tool: Sentry (error tracking and performance monitoring) [FINALIZED]
    - Capture: JavaScript errors, API errors, unhandled exceptions
    - Grouping: By error type, user impact
    - Alerts: Critical errors (data loss, auth failures) → PagerDuty
 
 4. UPTIME MONITORING:
-   - Tool: [TBD - Pingdom, UptimeRobot, StatusCake]
+   - Tool: Betterstack (uptime monitoring) [FINALIZED]
    - Checks: HTTP health check every 1 minute
    - Locations: Multiple geographic regions
    - Alerts: Downtime >2 minutes → PagerDuty
@@ -5662,7 +5667,7 @@ MONITORING LAYERS:
      * Page load time (Core Web Vitals)
      * JavaScript errors in production
      * User journey completion rates
-   - Tool: [TBD - Google Analytics, Heap, Mixpanel]
+   - Tool: PostHog (privacy-focused analytics) [FINALIZED]
    - Dashboard: Product team reviews weekly
 
 6. SECURITY MONITORING:
@@ -6104,9 +6109,9 @@ REQUIREMENT: ERROR-004
 PRIORITY: High
 CATEGORY: Operations
 
-ERROR TRACKING TOOL: [TBD - Sentry, Rollbar, Bugsnag]
-- Decision Required By: DevOps Lead
-- Recommendation: Sentry (popular, feature-rich, good free tier)
+ERROR TRACKING TOOL: Sentry [FINALIZED]
+- Decision Finalized: 2026-01-10
+- Industry standard for error tracking and performance monitoring
 
 ERROR TRACKING SETUP:
 ```typescript
@@ -6270,7 +6275,7 @@ if (queryDuration > 1000) {
 4. FEATURE USAGE ANALYTICS:
    - What: Feature adoption, user journeys, A/B test results
    - Retention: 90 days
-   - Storage: Analytics platform (Mixpanel, Amplitude, Heap)
+   - Storage: Analytics platform (PostHog) [FINALIZED]
    - Example:
 ```typescript
 analytics.track('Invoice Created', {
@@ -6773,9 +6778,9 @@ We use your information for:
 We share information only in these limited circumstances:
 
 ### 4.1 Service Providers (Sub-Processors)
-- **Cloud Hosting:** [TBD: AWS/Azure/GCP] (encrypted data storage)
-- **Error Tracking:** [TBD: Sentry] (error logs, no PII)
-- **Email Service:** [TBD: SendGrid] (transactional emails only)
+- **Cloud Hosting:** Cloudflare (Pages, Workers, R2) + Turso (database) [FINALIZED]
+- **Error Tracking:** Sentry (error logs, no PII) [FINALIZED]
+- **Email Service:** SendGrid (transactional emails only) [FINALIZED]
 
 All service providers are bound by data processing agreements.
 
@@ -9087,7 +9092,7 @@ This glossary provides plain English and technical definitions for key terms use
 | **HKDF** | A way to create multiple keys from one master key | HMAC-based Key Derivation Function - derives multiple cryptographic keys from a single master key | Derives K_enc and K_auth from Master Key | KDF, Encryption, Key Derivation |
 | **KDF** | The process that turns your passphrase into encryption keys | Key Derivation Function - a cryptographic algorithm that generates multiple secure keys from a single passphrase using HKDF (HMAC-based Key Derivation Function) | Passphrase → Master Key → K_enc + K_auth | Argon2id, HKDF, Encryption |
 | **LIFO** | Last in, first out - sell newest inventory first | Last In, First Out - inventory costing method where newest inventory is sold first | Buy 10 mugs @ $8, then 10 @ $9. Sell 15: COGS = (10×$9)+(5×$8) | FIFO, Inventory, COGS |
-| **OCR** | Technology that reads text from images | Optical Character Recognition - converts images of text into editable text | Scan receipt photo → extract amount, merchant, date | Receipt Scanning, AI |
+| **OCR** | Technology that reads text from images | Optical Character Recognition - converts images of text into editable text. Implementation: Tesseract.js (client-side, maintains zero-knowledge) [FINALIZED] | Scan receipt photo → extract amount, merchant, date | Receipt Scanning, AI |
 | **P&L** | Your profit and loss statement | Profit & Loss Statement (Income Statement) - shows revenue, expenses, and profit for a period | Jan 2026: $10,000 revenue - $6,000 expenses = $4,000 profit | Financial Statement, Report |
 | **Reconciliation** | Making sure your records match your bank | Bank Reconciliation - comparing your transaction records to bank statements to find differences | Your records show $5,000, bank shows $4,950 → find $50 difference | Accuracy, Audit |
 | **REST** | A common way for web applications to exchange data | REpresentational State Transfer - architectural style for web APIs using HTTP | GET /transactions, POST /invoices | API, HTTP, WebSocket |
@@ -9431,7 +9436,7 @@ Each user story follows this structure:
 10. Owner can revoke access instantly if needed
 
 **ACCEPTANCE CRITERIA:**
-- [ ] Four predefined roles: Admin, Manager, Bookkeeper, View-Only (§2.1.5)
+- [ ] Six user slots: 1 Admin, 2 flexible (Manager/User), 2 Accountant, 1 Consultant (§2.1.5)
 - [ ] Role permissions documented and enforced
 - [ ] Invitation via email with secure link
 - [ ] Each user has separate passphrase (zero-knowledge maintained)

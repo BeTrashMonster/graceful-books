@@ -11,12 +11,12 @@
  */
 
 import { nanoid } from 'nanoid';
-import type {
-  Reconciliation,
+import {
   ReconciliationStatus,
-  ParsedStatement,
-  StatementTransaction,
-  TransactionMatch,
+  type Reconciliation,
+  type ParsedStatement,
+  type StatementTransaction,
+  type TransactionMatch,
 } from '../types/reconciliation.types';
 import type { JournalEntry } from '../types';
 import type { VersionVector } from '../types/database.types';

@@ -47,6 +47,8 @@ import {
 } from './schema/users.schema';
 import { auditLogsSchema } from './schema/audit.schema';
 import { receiptsSchema } from './schema/receipts.schema';
+import { categoriesSchema } from './schema/categories.schema';
+import type { Category } from './schema/categories.schema';
 import {
   emailPreferencesSchema,
   emailDeliverySchema,
@@ -55,6 +57,30 @@ import type {
   EmailPreferencesEntity,
   EmailDeliveryEntity,
 } from './schema/emailPreferences.schema';
+import { invoicesSchema } from './schema/invoices.schema';
+import type { Invoice } from './schema/invoices.schema';
+import { invoiceTemplateCustomizationsSchema } from './schema/invoiceTemplates.schema';
+import type { InvoiceTemplateCustomization } from './schema/invoiceTemplates.schema';
+import {
+  recurringTransactionsSchema,
+  generatedTransactionsSchema,
+} from './schema/recurring.schema';
+import type {
+  RecurringTransaction,
+  GeneratedTransaction,
+} from '../types/recurring.types';
+import {
+  categorizationModelsSchema,
+  trainingDataSchema,
+  suggestionHistorySchema,
+  categorizationRulesSchema,
+} from './schema/categorization.schema';
+import type {
+  CategorizationModel,
+  TrainingDataPoint,
+  SuggestionHistory,
+  CategorizationRule,
+} from '../types/categorization.types';
 
 /**
  * TreasureChest Database Class
@@ -76,8 +102,17 @@ export class TreasureChestDB extends Dexie {
   sessions!: Table<Session, string>;
   devices!: Table<Device, string>;
   receipts!: Table<Receipt, string>;
+  categories!: Table<Category, string>;
   emailPreferences!: Table<EmailPreferencesEntity, string>;
   emailDelivery!: Table<EmailDeliveryEntity, string>;
+  invoices!: Table<Invoice, string>;
+  invoiceTemplateCustomizations!: Table<InvoiceTemplateCustomization, string>;
+  recurringTransactions!: Table<RecurringTransaction, string>;
+  generatedTransactions!: Table<GeneratedTransaction, string>;
+  categorizationModels!: Table<CategorizationModel, string>;
+  trainingData!: Table<TrainingDataPoint, string>;
+  suggestionHistory!: Table<SuggestionHistory, string>;
+  categorizationRules!: Table<CategorizationRule, string>;
 
   constructor() {
     super('TreasureChest');
@@ -97,6 +132,7 @@ export class TreasureChestDB extends Dexie {
       sessions: sessionsSchema,
       devices: devicesSchema,
       receipts: receiptsSchema,
+      categories: categoriesSchema,
     });
 
     // Version 2: Add email preferences and delivery tables
@@ -113,6 +149,7 @@ export class TreasureChestDB extends Dexie {
       sessions: sessionsSchema,
       devices: devicesSchema,
       receipts: receiptsSchema,
+      categories: categoriesSchema,
       emailPreferences: emailPreferencesSchema,
       emailDelivery: emailDeliverySchema,
     });
@@ -132,6 +169,7 @@ export class TreasureChestDB extends Dexie {
         sessions: sessionsSchema,
         devices: devicesSchema,
         receipts: receiptsSchema,
+        categories: categoriesSchema,
         emailPreferences: emailPreferencesSchema,
         emailDelivery: emailDeliverySchema,
       })
@@ -154,6 +192,77 @@ export class TreasureChestDB extends Dexie {
 
         dbLogger.info('Contact migration complete - all contacts defaulted to standalone');
       });
+
+    // Version 4: Add invoices and invoice template customizations (E3)
+    this.version(4).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+    });
+
+    // Version 5: Add recurring transactions and generated transactions (E2)
+    this.version(5).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+    });
+
+    // Version 6: Add expense categorization tables (E5)
+    this.version(6).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+    });
 
     // Add hooks for automatic audit logging
     this.setupAuditHooks();
@@ -211,6 +320,10 @@ export class TreasureChestDB extends Dexie {
     this.receipts.hook('updating', updateTimestamp);
     this.emailPreferences.hook('updating', updateTimestamp);
     this.emailDelivery.hook('updating', updateTimestamp);
+    this.invoices.hook('updating', updateTimestamp);
+    this.invoiceTemplateCustomizations.hook('updating', updateTimestamp);
+    this.recurringTransactions.hook('updating', updateTimestamp);
+    this.generatedTransactions.hook('updating', updateTimestamp);
   }
 
   /**

@@ -8,12 +8,12 @@
  * Per ACCT-004: Auto-matching algorithm
  */
 
-import type {
-  StatementTransaction,
-  TransactionMatch,
-  MatchConfidence,
-  MatchingOptions,
+import {
   DEFAULT_MATCHING_OPTIONS,
+  type StatementTransaction,
+  type TransactionMatch,
+  type MatchConfidence,
+  type MatchingOptions,
 } from '../types/reconciliation.types';
 import type { JournalEntry } from '../types';
 import { logger } from '../utils/logger';
@@ -282,7 +282,7 @@ function calculateMatchScore(
     // Below minimum confidence
     confidence = 'LOW';
     score = 0;
-    reasons = [];
+    return { score, confidence, reasons: [] };
   }
 
   return { score, confidence, reasons };

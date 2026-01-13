@@ -8,7 +8,7 @@ Graceful Books is a local-first, zero-knowledge accounting platform targeting en
 
 1. **User data sovereignty** via zero-knowledge encryption
 2. **Progressive empowerment** through phase-based feature disclosure
-3. **Judgment-free education** with DISC-adapted communication
+3. **Judgment-free education** with patient, supportive communication
 4. **GAAP compliance** beneath an accessible interface
 5. **Social impact** through built-in charitable giving ($5/month to user-selected charity)
 
@@ -44,14 +44,13 @@ Graceful Books is a local-first, zero-knowledge accounting platform targeting en
 - Phase determined by onboarding assessment
 - Users can access any feature with "early access" confirmation
 
-### DISC-Adapted Communication
-- All user-facing messages have 4 variants (D/I/S/C personality types)
-- **Dominance (D):** Direct, concise, results-oriented
-- **Influence (I):** Warm, encouraging, collaborative
-- **Steadiness (S):** Patient, step-by-step, supportive
-- **Conscientiousness (C):** Analytical, detailed, precise
-- Profile determined during onboarding assessment
-- User can manually adjust communication style
+### Communication Style
+- **Steadiness (S) approach throughout:** Patient, step-by-step, supportive
+- Clear expectations and timelines provided
+- Reassuring tone that emphasizes stability
+- "Take your time with this. Here's exactly what happens next..."
+- No assessment needed - consistent experience for all users
+- Focus on building confidence through clear guidance
 
 ## Architecture Principles
 
@@ -174,13 +173,25 @@ Architecture should support (but not block on):
 - **Implementation roadmap:** See `ROADMAP.md` (45KB, group-based development plan)
 - **Business overview:** See `README.md` (pricing, phases, license)
 
+## Technology Stack
+
+- **Frontend:** React 18+ with TypeScript
+- **Build Tool:** Vite
+- **UI Components:** Custom component library (built from scratch)
+- **Local Database:** Dexie.js (IndexedDB wrapper)
+- **Encryption:** Web Crypto API with crypto-js for legacy support
+- **State Management:** React Context + hooks (expand to Zustand if needed)
+- **Styling:** CSS Modules with CSS custom properties
+- **Testing:** Vitest + React Testing Library
+- **E2E Testing:** Playwright
+
 ## Important Notes for Agents
 
-1. **No code exists yet** - This is a greenfield project in planning phase
+1. **Tech stack chosen** - React + TypeScript + Vite with custom components
 2. **Follow the roadmap groups** - Group A items can be done in parallel, Group B requires Group A, etc.
 3. **Zero-knowledge is sacred** - Never compromise on encryption architecture
 4. **Delight is a feature** - User experience joy is as important as functionality
-5. **DISC adaptation** - All user-facing text needs 4 variants
+5. **Steadiness communication only** - Patient, supportive, step-by-step tone throughout
 6. **Plain English** - Avoid accounting jargon without explanation
 7. **GAAP compliance** - Beneath the friendly UI, accounting must be professional-grade
 8. **Accessibility first** - WCAG 2.1 AA compliance is not optional

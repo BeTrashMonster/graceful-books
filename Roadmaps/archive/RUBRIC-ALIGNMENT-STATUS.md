@@ -216,7 +216,7 @@ This document tracks the alignment of Graceful Books specifications with the req
      - Build tool (e.g., Vite, webpack, Turbopack)
    - **Backend:**
      - Runtime/language (e.g., Node.js 20+, Deno, Bun, Python, Go)
-     - Framework (e.g., Express, Fastify, NestJS, FastAPI, Gin)
+     - Framework (e.g., Hono, Express, Fastify, NestJS, FastAPI, Gin)
      - API style (REST, GraphQL, tRPC)
    - **Database:**
      - Local storage (e.g., IndexedDB via Dexie.js, SQLite via sql.js)

@@ -47,6 +47,10 @@ export * from './schema/contacts.schema';
 export * from './schema/products.schema';
 export * from './schema/users.schema';
 export * from './schema/audit.schema';
+export * from './schema/recurring.schema';
+export * from './schema/categorization.schema';
 
 // Type exports
 export * from '../types/database.types';
+export * from '../types/recurring.types';
+export * from '../types/categorization.types';

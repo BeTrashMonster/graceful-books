@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/graceful-books/graceful-books/blob/master/README.md
+    about: Check the documentation for usage instructions
+  - name: Roadmap Questions
+    url: https://github.com/graceful-books/graceful-books/blob/master/ROADMAP.md
+    about: Review the implementation roadmap
+  - name: Specification
+    url: https://github.com/graceful-books/graceful-books/blob/master/SPEC.md
+    about: Read the complete specification document

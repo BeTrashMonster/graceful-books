@@ -1,0 +1,13 @@
+
+> graceful-books@0.1.0 type-check
+> tsc --noEmit
+
+src/hooks/useAccounts.test.ts(115,32): error TS1005: ',' expected.
+src/hooks/useAccounts.test.ts(125,29): error TS1005: ',' expected.
+src/sync/conflictResolution.ts(20,15): error TS1003: Identifier expected.
+src/sync/conflictResolution.ts(74,24): error TS1005: ',' expected.
+src/sync/conflictResolution.ts(74,31): error TS1005: ':' expected.
+src/sync/conflictResolution.ts(83,24): error TS1005: ',' expected.
+src/sync/conflictResolution.ts(83,31): error TS1005: ':' expected.
+src/sync/conflictResolution.ts(92,24): error TS1005: ',' expected.
+src/sync/conflictResolution.ts(92,31): error TS1005: ':' expected.

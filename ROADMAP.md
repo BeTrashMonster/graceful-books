@@ -57,9 +57,9 @@ This roadmap is designed for **agent-based development systems** and human devel
 - **Group B** items require Group A to be complete, but items within Group B can be done in parallel
 - **Group C** requires Group B, and so on...
 
-**Within each group**, items are ordered from:
-1. Quickest wins / highest value (top)
-2. Most complex / lower immediate value (bottom)
+**Within each group**, items are ordered by:
+1. Priority and dependencies
+2. Foundation-first approach (infrastructure before features)
 
 **Every item includes:**
 - What it is
@@ -1633,7 +1633,7 @@ This roadmap is designed for **agent-based development systems** and human devel
 
 *"These are the surprises that make users smile and tell their friends."*
 
-### Easter Egg Ideas (Implement When Time Allows)
+### Easter Egg Ideas (Optional Enhancements)
 
 1. **The Konami Code** - Entering the Konami code anywhere triggers a brief celebration animation with the message "You found a secret! We appreciate the curious ones."
 

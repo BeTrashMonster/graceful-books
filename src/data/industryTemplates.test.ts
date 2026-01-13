@@ -259,4 +259,7 @@ describe('industryTemplates', () => {
         })
       })
 
-      expect(foundSupportiveLangua
+      expect(foundSupportiveLanguage).toBe(true)
+    })
+  })
+})

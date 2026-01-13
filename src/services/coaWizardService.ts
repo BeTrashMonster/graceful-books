@@ -106,7 +106,7 @@ export async function createAccountsFromWizard(
     return {
       success: batchResult.successful.length > 0,
       accountsCreated: batchResult.successful.length,
-      errors: batchResult.failed.map(f => f.error.message),
+      errors: batchResult.failed.length > 0 ? batchResult.failed.map(f => f.error.message) : undefined,
       createdAccounts: batchResult.successful,
     }
   } catch (error) {

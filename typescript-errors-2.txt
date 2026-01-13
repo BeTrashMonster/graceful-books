@@ -1,0 +1,5 @@
+
+> graceful-books@0.1.0 type-check
+> tsc --noEmit
+
+src/db/schema/discProfile.schema.ts(92,19): error TS1005: ',' expected.

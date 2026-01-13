@@ -24,6 +24,8 @@ import type { DISCProfile } from '../db/schema/discProfile.schema'
 import type { Category } from '../db/schema/categories.schema'
 import type { Tag, EntityTag } from '../db/schema/tags.schema'
 import type { Invoice } from '../db/schema/invoices.schema'
+import type { RecurringInvoice, GeneratedInvoice } from '../db/schema/recurringInvoices.schema'
+import type { Bill } from '../db/schema/bills.schema'
 import type { AssessmentResultEntity, AssessmentSessionEntity } from '../db/schema/assessmentResults.schema'
 import type { ChecklistItem } from '../db/schema/checklistItems.schema'
 import type { TutorialProgress } from '../types/tutorial.types'
@@ -48,6 +50,9 @@ export class GracefulBooksDB extends Dexie {
   tags!: Table<Tag, string>
   entity_tags!: Table<EntityTag, string>
   invoices!: Table<Invoice, string>
+  recurringInvoices!: Table<RecurringInvoice, string>
+  generatedInvoices!: Table<GeneratedInvoice, string>
+  bills!: Table<Bill, string>
   assessmentResults!: Table<AssessmentResultEntity, string>
   assessmentSessions!: Table<AssessmentSessionEntity, string>
   checklistItems!: Table<ChecklistItem, string>
@@ -216,6 +221,46 @@ export class GracefulBooksDB extends Dexie {
         [company_id+customer_id],
         invoice_number,
         invoice_date,
+        due_date,
+        updated_at,
+        deleted_at
+      `,
+
+      // Recurring Invoices table
+      // Indexes for querying by company, customer, status, and next generation date
+      recurringInvoices: `
+        id,
+        company_id,
+        customer_id,
+        status,
+        [company_id+status],
+        [company_id+customer_id],
+        next_generation_date,
+        updated_at,
+        deleted_at
+      `,
+
+      // Generated Invoices table
+      // Indexes for querying by recurring invoice and invoice
+      generatedInvoices: `
+        id,
+        recurring_invoice_id,
+        invoice_id,
+        [recurring_invoice_id+generation_date],
+        generation_date
+      `,
+
+      // Bills table
+      // Indexes for querying by company, vendor, status, and date range
+      bills: `
+        id,
+        company_id,
+        vendor_id,
+        status,
+        [company_id+status],
+        [company_id+vendor_id],
+        bill_number,
+        bill_date,
         due_date,
         updated_at,
         deleted_at

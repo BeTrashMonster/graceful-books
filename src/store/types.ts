@@ -327,7 +327,7 @@ export interface AuditLogFilter {
  * Result of a database operation
  */
 export type DatabaseResult<T> =
-  | { success: true; data: T }
+  | { success: true; data: T; warnings?: string[] }
   | { success: false; error: DatabaseError }
 
 /**

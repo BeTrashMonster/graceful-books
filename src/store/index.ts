@@ -241,6 +241,27 @@ export {
 export type { ReconciliationEntity } from './types'
 
 // =============================================================================
+// Bills
+// =============================================================================
+
+export {
+  createBill,
+  getBill,
+  updateBill,
+  postBill,
+  markBillPaid,
+  voidBill,
+  deleteBill,
+  getBills,
+  getVendorBills,
+  getBillLineItems,
+  getUpcomingBills,
+  getOverdueBills,
+} from './bills'
+
+export type { Bill, BillLineItem, BillStatus } from '../db/schema/bills.schema'
+
+// =============================================================================
 // Utilities
 // =============================================================================
 

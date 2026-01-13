@@ -1,0 +1,61 @@
+# CODEOWNERS file for Graceful Books
+#
+# This file defines code ownership for automatic review requests.
+# When a PR is opened that touches files matching a pattern, the specified
+# owners will automatically be requested for review.
+#
+# Documentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything in the repo
+# This is used when no more specific pattern matches
+* @graceful-books/core-team
+
+# Core Infrastructure & Architecture
+/src/db/** @graceful-books/backend-team
+/src/store/** @graceful-books/backend-team
+/src/services/** @graceful-books/backend-team
+
+# Encryption & Security (requires security team review)
+/src/services/encryption* @graceful-books/security-team
+/src/services/auditLog* @graceful-books/security-team
+**/security/** @graceful-books/security-team
+
+# UI Components & User Experience
+/src/components/** @graceful-books/frontend-team
+/src/styles/** @graceful-books/frontend-team
+
+# Testing Infrastructure
+**/*.test.ts @graceful-books/qa-team
+**/*.test.tsx @graceful-books/qa-team
+/e2e/** @graceful-books/qa-team
+/src/__tests__/** @graceful-books/qa-team
+
+# Documentation (anyone can update, but needs review)
+*.md @graceful-books/docs-team
+/docs/** @graceful-books/docs-team
+
+# Configuration Files (require lead approval)
+/.github/** @graceful-books/leads
+/package.json @graceful-books/leads
+/tsconfig*.json @graceful-books/leads
+/vite.config.ts @graceful-books/leads
+/.eslintrc* @graceful-books/leads
+/playwright.config.ts @graceful-books/leads
+
+# Roadmap & Specifications (require product approval)
+/ROADMAP.md @graceful-books/product-team
+/SPEC.md @graceful-books/product-team
+/REQUIREMENTS.md @graceful-books/product-team
+
+# Security-sensitive files (require security + lead approval)
+/.env* @graceful-books/security-team @graceful-books/leads
+/src/config/security* @graceful-books/security-team @graceful-books/leads
+
+# Build & Deployment
+/vite.config.ts @graceful-books/devops-team
+/package*.json @graceful-books/devops-team
+
+# TEMPORARY: Single Developer Setup
+# If you're currently the only developer, replace the teams above with your GitHub username
+# Example: * @yourusername
+# Once you have a team, update the team references above
