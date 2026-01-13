@@ -1,0 +1,238 @@
+/**
+ * AccountTree Styles
+ */
+
+.accountTree {
+  width: 100%;
+}
+
+.treeRoot {
+  display: flex;
+  flex-direction: column;
+}
+
+.treeNode {
+  display: flex;
+  flex-direction: column;
+}
+
+.nodeContent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  min-height: 44px; /* WCAG touch target */
+  border-radius: 0.25rem;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.nodeContent.clickable {
+  cursor: pointer;
+}
+
+.nodeContent.clickable:hover {
+  background-color: var(--color-surface-hover, #f9fafb);
+}
+
+.nodeContent.clickable:focus {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+.nodeContent.selected {
+  background-color: var(--color-primary-light, #dbeafe);
+  border-left: 3px solid var(--color-primary, #3b82f6);
+  padding-left: calc(0.5rem - 3px);
+}
+
+.nodeContent.inactive {
+  opacity: 0.5;
+}
+
+.expandButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.2s ease-in-out;
+}
+
+.expandButton:hover {
+  background-color: var(--color-surface-hover, #f3f4f6);
+  border-radius: 0.25rem;
+}
+
+.expandButton:focus {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+.expandIcon {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #6b7280);
+  transition: transform 0.2s ease-in-out;
+}
+
+.expandIcon.expanded {
+  transform: rotate(90deg);
+}
+
+.nodeInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 1rem;
+}
+
+.nodeName {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.accountNumber {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #111827);
+  word-break: break-word;
+}
+
+.inactiveBadge {
+  display: inline-block;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  background: var(--color-surface-muted, #f3f4f6);
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.nodeBalance {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.nodeChildren {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Grouped tree */
+.groupedTree {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.typeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.typeGroupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface-muted, #f9fafb);
+  border-radius: 0.5rem;
+  border-left: 4px solid var(--color-primary, #3b82f6);
+}
+
+.typeGroupTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.typeGroupBalance {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Empty state */
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+}
+
+.emptyState p {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .nodeInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .nodeBalance {
+    width: 100%;
+  }
+
+  .typeGroupHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .nodeContent,
+  .expandIcon,
+  .expandButton {
+    transition: none;
+  }
+}
+
+/* High contrast */
+@media (prefers-contrast: high) {
+  .expandButton:focus,
+  .nodeContent.clickable:focus {
+    outline-width: 3px;
+  }
+
+  .nodeContent.selected {
+    border-left-width: 4px;
+  }
+}

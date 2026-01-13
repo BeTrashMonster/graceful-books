@@ -1,0 +1,347 @@
+/**
+ * Balance Sheet Report Styles
+ *
+ * Professional financial report presentation with clear hierarchy.
+ */
+
+.balance-sheet-report {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: var(--font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif);
+}
+
+/* Report Controls */
+.report-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.report-controls .btn-secondary {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  background-color: var(--color-secondary, #f3f4f6);
+  color: var(--color-text, #1f2937);
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.report-controls .btn-secondary:hover {
+  background-color: var(--color-secondary-hover, #e5e7eb);
+}
+
+/* Report Header */
+.report-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--color-border, #e5e7eb);
+}
+
+.report-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text, #111827);
+  margin: 0 0 0.5rem 0;
+}
+
+.report-subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  font-style: italic;
+}
+
+.report-explanation {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--color-info-bg, #eff6ff);
+  border-left: 4px solid var(--color-info, #3b82f6);
+  border-radius: 0.375rem;
+  text-align: left;
+}
+
+.report-explanation p {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text, #374151);
+}
+
+/* Balance Sheet Sections */
+.balance-sheet-section {
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  margin-bottom: 0.75rem;
+}
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.section-description {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0.5rem 0 0 0;
+  line-height: 1.5;
+}
+
+.section-content {
+  background-color: var(--color-bg-secondary, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+/* Account Lines */
+.account-lines {
+  padding: 0.5rem 0;
+}
+
+.account-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.15s;
+}
+
+.account-line:hover {
+  background-color: var(--color-hover, #f9fafb);
+}
+
+.account-line.parent-account {
+  font-weight: 500;
+}
+
+.account-line.sub-account {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary, #4b5563);
+}
+
+.account-name {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.account-number {
+  color: var(--color-text-secondary, #6b7280);
+  font-size: 0.875em;
+  font-weight: 400;
+}
+
+.account-amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  white-space: nowrap;
+  margin-left: 1rem;
+}
+
+.empty-section {
+  padding: 2rem;
+  text-align: center;
+}
+
+.empty-section p {
+  margin: 0;
+  color: var(--color-text-secondary, #9ca3af);
+  font-style: italic;
+}
+
+/* Section Total */
+.section-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-bg-subtle, #f9fafb);
+  border-top: 2px solid var(--color-border, #d1d5db);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.total-label {
+  color: var(--color-text, #111827);
+}
+
+.total-amount {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text, #111827);
+}
+
+/* Grand Total */
+.balance-sheet-grand-total {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 3px double var(--color-border-dark, #9ca3af);
+}
+
+.grand-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--color-bg-emphasis, #f3f4f6);
+  border-radius: 0.375rem;
+}
+
+.grand-total-label {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text, #111827);
+}
+
+.grand-total-amount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text, #111827);
+}
+
+/* Balance Verification */
+.balance-verification {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.balance-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.balance-indicator.balanced {
+  background-color: var(--color-success-bg, #d1fae5);
+  color: var(--color-success-text, #065f46);
+  border: 1px solid var(--color-success, #10b981);
+}
+
+.balance-indicator.unbalanced {
+  background-color: var(--color-error-bg, #fee2e2);
+  color: var(--color-error-text, #991b1b);
+  border: 1px solid var(--color-error, #ef4444);
+}
+
+.balance-icon {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.balance-message {
+  line-height: 1;
+}
+
+/* Balance Equation Explanation */
+.balance-equation-explanation {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: var(--color-bg-subtle, #f9fafb);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+}
+
+.balance-equation-explanation h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+}
+
+.equation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: var(--color-bg, #ffffff);
+  border-radius: 0.375rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.equation-part {
+  color: var(--color-primary, #3b82f6);
+}
+
+.equation-equals,
+.equation-plus {
+  color: var(--color-text-secondary, #6b7280);
+  font-weight: 400;
+}
+
+.equation-description {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary, #4b5563);
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .balance-sheet-report {
+    padding: 1rem 0.5rem;
+  }
+
+  .report-title {
+    font-size: 1.5rem;
+  }
+
+  .account-line {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .account-amount {
+    margin-left: 0;
+    font-size: 0.9375rem;
+  }
+
+  .section-total,
+  .grand-total-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .equation {
+    flex-wrap: wrap;
+    font-size: 1rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .balance-sheet-report {
+    max-width: 100%;
+  }
+
+  .report-controls {
+    display: none;
+  }
+
+  .balance-indicator {
+    border: 1px solid #000;
+  }
+
+  .account-line:hover {
+    background-color: transparent;
+  }
+}

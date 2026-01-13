@@ -1,0 +1,163 @@
+/**
+ * FinancialSummary Styles
+ */
+
+.container {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-md, 8px);
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  padding: var(--spacing-4, 1rem);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-surface-secondary, #f9fafb);
+}
+
+.title {
+  font-size: var(--text-lg, 1.125rem);
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+/* Metrics */
+.metrics {
+  padding: var(--spacing-4, 1rem);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4, 1rem);
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1, 0.25rem);
+}
+
+.label {
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.value {
+  font-size: var(--text-2xl, 1.5rem);
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  line-height: 1.2;
+}
+
+.value.revenue {
+  color: var(--color-text-primary, #111827);
+}
+
+.value.expenses {
+  color: var(--color-text-primary, #111827);
+}
+
+.value.netProfit.positive {
+  color: var(--color-success, #10b981);
+}
+
+.value.netProfit.negative {
+  color: var(--color-danger, #ef4444);
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: var(--color-border, #e5e7eb);
+  margin: var(--spacing-2, 0.5rem) 0;
+}
+
+/* Message */
+.message {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 0.5rem);
+  padding: var(--spacing-3, 0.75rem) var(--spacing-4, 1rem);
+  background: var(--color-success-light, #d1fae5);
+  border-top: 1px solid var(--color-success, #10b981);
+}
+
+.message.warning {
+  background: var(--color-warning-light, #fef3c7);
+  border-top: 1px solid var(--color-warning, #f59e0b);
+}
+
+.messageIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-success, #10b981);
+}
+
+.message.warning .messageIcon {
+  color: var(--color-warning, #f59e0b);
+}
+
+.messageText {
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-primary, #111827);
+  line-height: 1.4;
+}
+
+/* Loading State */
+.skeleton {
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    var(--color-border, #e5e7eb) 25%,
+    var(--color-surface-secondary, #f9fafb) 50%,
+    var(--color-border, #e5e7eb) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm, 4px);
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .header {
+    padding: var(--spacing-3, 0.75rem);
+  }
+
+  .metrics {
+    padding: var(--spacing-3, 0.75rem);
+  }
+
+  .value {
+    font-size: var(--text-xl, 1.25rem);
+  }
+}

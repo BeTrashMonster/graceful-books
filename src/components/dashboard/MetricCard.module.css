@@ -1,0 +1,149 @@
+/**
+ * MetricCard Styles
+ */
+
+.metricCard {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-md, 8px);
+  padding: var(--spacing-4, 1rem);
+  transition: all 0.2s ease;
+}
+
+.metricCard:hover {
+  box-shadow: var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+}
+
+/* Variants */
+.metricCard.success {
+  border-left: 4px solid var(--color-success, #10b981);
+}
+
+.metricCard.warning {
+  border-left: 4px solid var(--color-warning, #f59e0b);
+}
+
+.metricCard.danger {
+  border-left: 4px solid var(--color-danger, #ef4444);
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 0.5rem);
+  margin-bottom: var(--spacing-3, 0.75rem);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.25rem;
+}
+
+.title {
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Content */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2, 0.5rem);
+}
+
+.value {
+  font-size: var(--text-2xl, 1.5rem);
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Trend */
+.trend {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1, 0.25rem);
+  font-size: var(--text-sm, 0.875rem);
+}
+
+.trendIcon {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.trendValue {
+  font-weight: 600;
+}
+
+.trendLabel {
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.trendUp {
+  color: var(--color-success, #10b981);
+}
+
+.trendDown {
+  color: var(--color-danger, #ef4444);
+}
+
+/* Loading State */
+.loading {
+  pointer-events: none;
+}
+
+.skeleton {
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    var(--color-border, #e5e7eb) 25%,
+    var(--color-surface-secondary, #f9fafb) 50%,
+    var(--color-border, #e5e7eb) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm, 4px);
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .metricCard {
+    padding: var(--spacing-3, 0.75rem);
+  }
+
+  .value {
+    font-size: var(--text-xl, 1.25rem);
+  }
+}

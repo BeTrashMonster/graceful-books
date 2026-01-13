@@ -1,0 +1,331 @@
+/**
+ * StreakIndicator Styles
+ *
+ * Features:
+ * - Flame icon animation
+ * - Active streak highlighting
+ * - Milestone badges
+ * - Responsive sizing
+ */
+
+.streakContainer {
+  padding: 1.5rem;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+}
+
+/* Header */
+.streakHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.streakTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.flameIcon {
+  font-size: 2rem;
+  line-height: 1;
+  animation: flameFlicker 2s ease-in-out infinite;
+}
+
+@keyframes flameFlicker {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+    filter: brightness(1.2);
+  }
+  50% {
+    transform: scale(0.95) rotate(5deg);
+    filter: brightness(0.9);
+  }
+  75% {
+    transform: scale(1.05) rotate(-3deg);
+    filter: brightness(1.1);
+  }
+}
+
+/* Content */
+.streakContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Streak Card */
+.streakCard {
+  padding: 1rem;
+  background: var(--color-gray-50, #f9fafb);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.streakCardActive {
+  background: var(--color-success-light, #f0fdf4);
+  border-color: var(--color-success, #10b981);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.streakCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.streakLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.activeBadge {
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--color-success, #10b981);
+  color: white;
+  border-radius: 9999px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Streak Numbers */
+.streakNumbers {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 1rem;
+}
+
+.streakNumber {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.numberValue {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.numberValue.current {
+  color: var(--color-primary, #4f46e5);
+}
+
+.numberValue.longest {
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.streakCardActive .numberValue.current {
+  color: var(--color-success, #10b981);
+}
+
+.numberLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.streakDivider {
+  font-size: 2rem;
+  color: var(--color-border, #e5e7eb);
+  font-weight: 300;
+}
+
+/* Last Completed */
+.lastCompleted {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary, #9ca3af);
+  text-align: center;
+  font-style: italic;
+}
+
+/* Encouragement */
+.encouragement {
+  padding: 1rem;
+  background: var(--color-primary-light, #eef2ff);
+  border-left: 3px solid var(--color-primary, #4f46e5);
+  border-radius: 0.375rem;
+}
+
+.encouragementText {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* Milestone Badge */
+.milestoneBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  animation: milestoneAppear 0.5s ease-out;
+}
+
+@keyframes milestoneAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(-0.5rem) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.milestoneIcon {
+  font-size: 1.5rem;
+  line-height: 1;
+  animation: milestoneRotate 1s ease-in-out;
+}
+
+@keyframes milestoneRotate {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.2);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.milestoneLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+/* Size Variants */
+.streakContainer.sm {
+  padding: 1rem;
+}
+
+.streakContainer.sm .streakTitle {
+  font-size: 1rem;
+}
+
+.streakContainer.sm .flameIcon {
+  font-size: 1.5rem;
+}
+
+.streakContainer.sm .numberValue {
+  font-size: 2rem;
+}
+
+.streakContainer.lg {
+  padding: 2rem;
+}
+
+.streakContainer.lg .streakTitle {
+  font-size: 1.5rem;
+}
+
+.streakContainer.lg .flameIcon {
+  font-size: 2.5rem;
+}
+
+.streakContainer.lg .numberValue {
+  font-size: 3rem;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .flameIcon {
+    animation: none;
+  }
+
+  .activeBadge {
+    animation: none;
+  }
+
+  .milestoneBadge {
+    animation: none;
+  }
+
+  .milestoneIcon {
+    animation: none;
+  }
+
+  .streakCard {
+    transition: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .streakContainer,
+  .streakCard {
+    border-width: 2px;
+  }
+
+  .streakCardActive {
+    border-width: 3px;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .streakContainer {
+    padding: 1rem;
+  }
+
+  .streakTitle {
+    font-size: 1.125rem;
+  }
+
+  .flameIcon {
+    font-size: 1.75rem;
+  }
+
+  .numberValue {
+    font-size: 2rem;
+  }
+
+  .streakNumbers {
+    gap: 0.75rem;
+  }
+
+  .streakContent {
+    gap: 0.75rem;
+  }
+}

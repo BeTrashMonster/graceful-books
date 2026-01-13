@@ -1,0 +1,170 @@
+/**
+ * Chart of Accounts Wizard Styles
+ */
+
+.wizard {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Progress Bar */
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Step Indicators */
+.stepIndicators {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+  gap: 1rem;
+}
+
+.stepIndicator {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.stepIndicator::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  right: -50%;
+  height: 2px;
+  background-color: #e5e7eb;
+  z-index: -1;
+}
+
+.stepIndicator:last-child::after {
+  display: none;
+}
+
+.stepIndicator.completed::after {
+  background-color: #10b981;
+}
+
+.stepNumber {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+  background-color: #e5e7eb;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.stepIndicator.active .stepNumber {
+  background-color: #3b82f6;
+  color: white;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+.stepIndicator.completed .stepNumber {
+  background-color: #10b981;
+  color: white;
+}
+
+.stepLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+.stepIndicator.active .stepLabel {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* Step Content */
+.stepContent {
+  margin-bottom: 2rem;
+}
+
+.stepTitle {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.stepDescription {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+.stepBody {
+  min-height: 400px;
+}
+
+/* Cancel Section */
+.cancelSection {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .wizard {
+    padding: 1rem;
+  }
+
+  .stepIndicators {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .stepIndicator {
+    flex: 0 0 auto;
+    min-width: 80px;
+  }
+
+  .stepIndicator::after {
+    display: none;
+  }
+
+  .stepLabel {
+    font-size: 0.75rem;
+  }
+
+  .stepTitle {
+    font-size: 1.5rem;
+  }
+
+  .stepDescription {
+    font-size: 1rem;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .progressFill,
+  .stepNumber {
+    transition: none;
+  }
+}

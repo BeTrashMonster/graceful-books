@@ -1,0 +1,274 @@
+/**
+ * ParentAccountSelector Styles
+ *
+ * WCAG 2.1 AA compliant styling with progressive disclosure pattern
+ */
+
+/* Advanced section container */
+.advancedSection {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background-color: #f9fafb;
+  transition: background-color 150ms ease-out;
+}
+
+.advancedSection:focus-within {
+  background-color: #ffffff;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+/* Toggle button for progressive disclosure */
+.advancedToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+  text-align: left;
+  border-radius: 0.25rem;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+  min-height: 44px; /* WCAG touch target minimum */
+}
+
+.advancedToggle:hover:not(:disabled) {
+  background-color: #e5e7eb;
+  color: #1f2937;
+}
+
+.advancedToggle:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+  background-color: #ffffff;
+}
+
+.advancedToggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Toggle icon (arrow) */
+.toggleIcon {
+  font-size: 0.75rem;
+  transition: transform 150ms ease-out;
+  display: inline-block;
+  width: 1rem;
+  text-align: center;
+}
+
+/* Toggle label text */
+.toggleLabel {
+  flex: 1;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Toggle hint text */
+.toggleHint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 400;
+  font-style: italic;
+}
+
+/* Selector content (shown when expanded) */
+.selectorContent {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+  animation: slideDown 200ms ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hierarchy legend */
+.hierarchyLegend {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #f3f4f6;
+  border-radius: 0.375rem;
+  font-size: 0.813rem;
+  line-height: 1.5;
+}
+
+.legendTitle {
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+  color: #374151;
+}
+
+.legendList {
+  margin: 0;
+  padding-left: 1.5rem;
+  list-style: none;
+  color: #4b5563;
+}
+
+.legendList li {
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legendList li span[aria-hidden='true'] {
+  width: 1.25rem;
+  text-align: center;
+}
+
+.legendNote {
+  margin: 0.75rem 0 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .toggleIcon,
+  .advancedSection,
+  .advancedToggle {
+    transition: none;
+  }
+
+  .selectorContent {
+    animation: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .advancedSection {
+    border-width: 2px;
+  }
+
+  .advancedToggle:focus {
+    outline-width: 3px;
+  }
+
+  .toggleLabel {
+    font-weight: 700;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .advancedSection {
+    margin-top: 1rem;
+    padding: 0.75rem;
+  }
+
+  .advancedToggle {
+    font-size: 1rem; /* Prevent iOS zoom */
+    min-height: 48px; /* Larger touch target on mobile */
+  }
+
+  .selectorContent {
+    padding: 0.75rem;
+  }
+
+  .hierarchyLegend {
+    font-size: 0.875rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .advancedSection {
+    border: 1px solid #000;
+    background-color: transparent;
+  }
+
+  .advancedToggle {
+    display: none;
+  }
+
+  .selectorContent {
+    animation: none;
+    border: none;
+    padding: 0;
+  }
+
+  .hierarchyLegend {
+    page-break-inside: avoid;
+  }
+}
+
+/* Dark mode support (if implemented) */
+@media (prefers-color-scheme: dark) {
+  .advancedSection {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+
+  .advancedSection:focus-within {
+    background-color: #111827;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+  }
+
+  .advancedToggle {
+    color: #d1d5db;
+  }
+
+  .advancedToggle:hover:not(:disabled) {
+    background-color: #374151;
+    color: #f9fafb;
+  }
+
+  .advancedToggle:focus {
+    outline-color: #60a5fa;
+    background-color: #111827;
+  }
+
+  .toggleLabel {
+    color: #e5e7eb;
+  }
+
+  .toggleHint {
+    color: #9ca3af;
+  }
+
+  .selectorContent {
+    background-color: #111827;
+    border-color: #374151;
+  }
+
+  .hierarchyLegend {
+    background-color: #1f2937;
+  }
+
+  .legendTitle {
+    color: #e5e7eb;
+  }
+
+  .legendList {
+    color: #d1d5db;
+  }
+
+  .legendNote {
+    border-top-color: #374151;
+    color: #9ca3af;
+  }
+}

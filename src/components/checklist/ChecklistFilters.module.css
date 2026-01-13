@@ -1,0 +1,353 @@
+/**
+ * ChecklistFilters Styles
+ *
+ * Features:
+ * - Tab-based view mode selection
+ * - Search bar with icon
+ * - Advanced filter toggles
+ * - Accessible filter controls
+ */
+
+.filtersContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+}
+
+/* View Mode Tabs */
+.viewModeTabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--color-border, #e5e7eb);
+  overflow-x: auto;
+}
+
+.viewModeTab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.viewModeTab:hover {
+  color: var(--color-text-primary, #111827);
+  background: var(--color-gray-50, #f9fafb);
+}
+
+.viewModeTab:focus {
+  outline: 2px solid var(--color-primary, #4f46e5);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+.viewModeTabActive {
+  color: var(--color-primary, #4f46e5);
+  border-bottom-color: var(--color-primary, #4f46e5);
+}
+
+.tabLabel {
+  font-weight: 600;
+}
+
+.tabCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--color-gray-100, #f3f4f6);
+  color: var(--color-text-secondary, #6b7280);
+  border-radius: 9999px;
+}
+
+.viewModeTabActive .tabCount {
+  background: var(--color-primary-light, #eef2ff);
+  color: var(--color-primary, #4f46e5);
+}
+
+/* Search Bar */
+.searchBar {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.searchInput {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--color-text-tertiary, #9ca3af);
+  pointer-events: none;
+}
+
+.searchField {
+  width: 100%;
+  padding: 0.75rem 0.75rem 0.75rem 2.75rem;
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #111827);
+  background: var(--color-surface, #ffffff);
+  transition: all 0.2s ease-in-out;
+}
+
+.searchField:hover {
+  border-color: var(--color-primary, #4f46e5);
+}
+
+.searchField:focus {
+  outline: none;
+  border-color: var(--color-primary, #4f46e5);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.searchField::placeholder {
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* Advanced Toggle */
+.advancedToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface, #ffffff);
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #111827);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.advancedToggle:hover {
+  border-color: var(--color-primary, #4f46e5);
+  background: var(--color-primary-light, #eef2ff);
+}
+
+.advancedToggle:focus {
+  outline: 2px solid var(--color-primary, #4f46e5);
+  outline-offset: 2px;
+}
+
+.advancedToggleActive {
+  background: var(--color-primary, #4f46e5);
+  color: white;
+  border-color: var(--color-primary, #4f46e5);
+}
+
+/* Advanced Filters */
+.advancedFilters {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Filter Group */
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filterLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.filterButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filterButton {
+  padding: 0.5rem 0.875rem;
+  background: var(--color-surface, #ffffff);
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #111827);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.filterButton:hover {
+  border-color: var(--color-primary, #4f46e5);
+  background: var(--color-primary-light, #eef2ff);
+}
+
+.filterButton:focus {
+  outline: 2px solid var(--color-primary, #4f46e5);
+  outline-offset: 2px;
+}
+
+.filterButtonActive {
+  background: var(--color-primary, #4f46e5);
+  color: white;
+  border-color: var(--color-primary, #4f46e5);
+}
+
+/* Priority-specific colors */
+.filterButton.priorityHigh {
+  border-color: var(--color-danger, #ef4444);
+}
+
+.filterButton.priorityHigh:hover {
+  background: var(--color-danger-light, #fee2e2);
+}
+
+.filterButton.priorityHigh.filterButtonActive {
+  background: var(--color-danger, #ef4444);
+  border-color: var(--color-danger, #ef4444);
+}
+
+.filterButton.priorityMedium {
+  border-color: var(--color-warning, #f59e0b);
+}
+
+.filterButton.priorityMedium:hover {
+  background: var(--color-warning-light, #fffbeb);
+}
+
+.filterButton.priorityMedium.filterButtonActive {
+  background: var(--color-warning, #f59e0b);
+  border-color: var(--color-warning, #f59e0b);
+}
+
+.filterButton.priorityLow {
+  border-color: var(--color-info, #3b82f6);
+}
+
+.filterButton.priorityLow:hover {
+  background: var(--color-info-light, #eff6ff);
+}
+
+.filterButton.priorityLow.filterButtonActive {
+  background: var(--color-info, #3b82f6);
+  border-color: var(--color-info, #3b82f6);
+}
+
+/* Clear Filters */
+.clearFilters {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-primary, #4f46e5);
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.2s ease-in-out;
+}
+
+.clearFilters:hover {
+  color: var(--color-primary-dark, #4338ca);
+  text-decoration: underline;
+}
+
+.clearFilters:focus {
+  outline: 2px solid var(--color-primary, #4f46e5);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .advancedFilters {
+    animation: none;
+  }
+
+  .viewModeTab,
+  .searchField,
+  .advancedToggle,
+  .filterButton {
+    transition: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .viewModeTabs {
+    border-bottom-width: 3px;
+  }
+
+  .viewModeTab,
+  .searchField,
+  .advancedToggle,
+  .filterButton {
+    border-width: 3px;
+  }
+
+  .viewModeTab:focus,
+  .searchField:focus,
+  .advancedToggle:focus,
+  .filterButton:focus {
+    outline-width: 3px;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .filtersContainer {
+    padding: 0.875rem;
+  }
+
+  .searchBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .advancedToggle {
+    justify-content: center;
+  }
+
+  .filterButtons {
+    flex-direction: column;
+  }
+
+  .filterButton {
+    width: 100%;
+    justify-content: center;
+  }
+}

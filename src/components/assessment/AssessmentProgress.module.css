@@ -1,0 +1,187 @@
+/* Progress Container */
+.progressContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+}
+
+/* Screen Reader Only */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Progress Header */
+.progressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.questionCounter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.emoji {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.counterText {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.counterText strong {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.percentText {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #4a90e2;
+  min-width: 3.5rem;
+  text-align: right;
+}
+
+/* Progress Bar */
+.progressBar {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progressFill {
+  position: relative;
+  height: 100%;
+  background: linear-gradient(90deg, #4a90e2 0%, #357abd 100%);
+  border-radius: 9999px;
+  transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.progressFill.milestone {
+  animation: milestoneGlow 1.5s ease-out;
+}
+
+/* Progress Glow Effect */
+.progressGlow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4));
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes milestoneGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(74, 144, 226, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px 4px rgba(74, 144, 226, 0.6);
+  }
+}
+
+/* Disable animations for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .progressFill {
+    transition: none;
+  }
+
+  .progressFill.milestone {
+    animation: none;
+  }
+
+  .progressGlow {
+    animation: none;
+    display: none;
+  }
+}
+
+/* Encouraging Message */
+.encouragingMessage {
+  text-align: center;
+  padding-top: 0.5rem;
+}
+
+.messageText {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #4a90e2;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.5;
+}
+
+.sectionText {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .progressContainer {
+    border-width: 2px;
+  }
+
+  .progressBar {
+    border: 2px solid #000000;
+  }
+
+  .progressFill {
+    background: #0000ff;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .progressContainer {
+    padding: 1rem;
+  }
+
+  .questionCounter {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .progressHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .percentText {
+    align-self: flex-end;
+  }
+}

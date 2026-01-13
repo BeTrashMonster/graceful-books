@@ -1,0 +1,315 @@
+.vendorList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.celebration {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid #fbbf24;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.celebrationIcon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.celebrationText {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #78350f;
+  margin: 0;
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.searchBar {
+  width: 100%;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filters > * {
+  flex: 1;
+  min-width: 150px;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.results {
+  padding: 0.5rem 0;
+}
+
+.resultsCount {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+.content {
+  min-height: 200px;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1rem;
+}
+
+/* Hierarchical Tree View Styles (G3) */
+.viewToggle {
+  display: flex;
+  gap: 0.5rem;
+  min-width: auto;
+}
+
+.viewToggle button {
+  flex: 0 0 auto;
+  padding: 0.5rem 1rem;
+}
+
+.treeView {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.vendorItem {
+  display: flex;
+  flex-direction: column;
+  border-left: 3px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.vendorItem:hover {
+  border-left-color: var(--color-primary, #3b82f6);
+}
+
+/* Hierarchy Section */
+.hierarchySection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  padding-left: calc(1rem + var(--hierarchy-level, 0) * 2rem);
+  background-color: var(--color-surface-muted, #f9fafb);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+/* Expand/Collapse Button */
+.expandButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-text-secondary, #6b7280);
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.expandButton:hover {
+  background-color: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #111827);
+}
+
+.expandButton:focus {
+  outline: 2px solid var(--color-focus-ring, #93c5fd);
+  outline-offset: 2px;
+}
+
+.expandButton:active {
+  background-color: var(--color-surface-active, #f3f4f6);
+}
+
+.expandIcon {
+  flex-shrink: 0;
+}
+
+/* Tree Structure Lines */
+.vendorItem[style*="--hierarchy-level: 1"] {
+  position: relative;
+}
+
+.vendorItem[style*="--hierarchy-level: 1"]::before {
+  content: '';
+  position: absolute;
+  left: 2rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--color-border, #e5e7eb);
+}
+
+.vendorItem[style*="--hierarchy-level: 2"] {
+  position: relative;
+}
+
+.vendorItem[style*="--hierarchy-level: 2"]::before {
+  content: '';
+  position: absolute;
+  left: 4rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--color-border, #e5e7eb);
+}
+
+.vendorItem[style*="--hierarchy-level: 3"] {
+  position: relative;
+}
+
+.vendorItem[style*="--hierarchy-level: 3"]::before {
+  content: '';
+  position: absolute;
+  left: 6rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--color-border, #e5e7eb);
+}
+
+/* Tree View Indentation */
+.treeView .vendorItem > div:not(.hierarchySection) {
+  padding-left: calc(1rem + var(--hierarchy-level, 0) * 2rem);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  color: var(--color-text-secondary, #6b7280);
+  background: var(--color-surface-muted, #f9fafb);
+  border-radius: 0.5rem;
+  border: 2px dashed var(--color-border, #e5e7eb);
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.emptyTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 0.5rem 0;
+}
+
+.emptyDescription {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  max-width: 400px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+@media (max-width: 640px) {
+  .celebration {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .toolbar {
+    gap: 0.75rem;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .filters > * {
+    width: 100%;
+  }
+
+  .viewToggle {
+    width: 100%;
+  }
+
+  .viewToggle button {
+    flex: 1;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+
+  .cardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Reduce indentation on mobile */
+  .hierarchySection {
+    padding-left: calc(0.5rem + var(--hierarchy-level, 0) * 1rem);
+  }
+
+  .treeView .vendorItem > div:not(.hierarchySection) {
+    padding-left: calc(0.5rem + var(--hierarchy-level, 0) * 1rem);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .celebration {
+    background: #fef3c7;
+  }
+
+  .expandButton,
+  .vendorItem {
+    transition: none;
+  }
+
+  .expandIcon {
+    transition: none !important;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .vendorItem {
+    border-left-width: 4px;
+  }
+
+  .vendorItem[style*="--hierarchy-level"]::before {
+    width: 3px;
+  }
+
+  .expandButton:focus {
+    outline-width: 3px;
+  }
+}

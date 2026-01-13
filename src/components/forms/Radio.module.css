@@ -1,0 +1,241 @@
+/* Radio wrapper */
+.radioWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.radioContainer {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+/* Input wrapper with custom styling */
+.radioInputWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 20px;
+  min-height: 20px;
+}
+
+/* Hidden native radio for accessibility */
+.radioInput {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  opacity: 0;
+  cursor: pointer;
+  margin: 0;
+  z-index: 1;
+}
+
+.radioInput:disabled {
+  cursor: not-allowed;
+}
+
+/* Custom radio circle */
+.radioCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  background-color: #ffffff;
+  transition: all 150ms ease-out;
+  pointer-events: none;
+}
+
+/* Focus state - WCAG 2.1 AA 3:1 contrast */
+.radioInput:focus-visible + .radioCircle {
+  outline: 3px solid #4a90e2;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+/* Hover state */
+.radioInput:hover:not(:disabled) + .radioCircle {
+  border-color: #4a90e2;
+  background-color: #f0f7ff;
+}
+
+/* Checked state */
+.radioInput:checked + .radioCircle {
+  border-color: #4a90e2;
+}
+
+/* Radio dot (inner circle) */
+.radioDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #4a90e2;
+  opacity: 0;
+  transform: scale(0);
+  transition: all 150ms ease-out;
+}
+
+.radioInput:checked + .radioCircle .radioDot {
+  opacity: 1;
+  transform: scale(1);
+  animation: radioPulse 0.3s ease-out;
+}
+
+/* Pulse animation on selection */
+@keyframes radioPulse {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .radioInput:checked + .radioCircle .radioDot {
+    animation: none;
+  }
+}
+
+/* Error state */
+.hasError .radioCircle {
+  border-color: #dc2626;
+}
+
+.hasError .radioInput:focus-visible + .radioCircle {
+  outline-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+
+/* Disabled state */
+.disabled .radioCircle {
+  background-color: #f3f4f6;
+  border-color: #e5e7eb;
+  cursor: not-allowed;
+}
+
+.disabled .radioInput:checked + .radioCircle .radioDot {
+  background-color: #9ca3af;
+}
+
+/* Label styles */
+.label {
+  display: inline-block;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #374151;
+  cursor: pointer;
+  user-select: none;
+  padding-top: 0.125rem;
+}
+
+.disabled .label {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.required {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* Helper text */
+.helperText {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #6b7280;
+  margin: 0;
+  margin-left: 2rem;
+}
+
+/* Error text */
+.errorText {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #dc2626;
+  margin: 0;
+  margin-left: 2rem;
+}
+
+.errorText::before {
+  content: '⚠';
+  font-size: 1rem;
+}
+
+/* Radio Group styles */
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.groupLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.radioGroupItems {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.radioGroupItems.horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .radioCircle {
+    transition: none;
+  }
+
+  .radioDot {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .radioCircle {
+    border-width: 3px;
+  }
+
+  .label,
+  .groupLabel {
+    font-weight: 600;
+  }
+}
+
+/* Ensure minimum touch target on mobile */
+@media (max-width: 640px) {
+  .radioInputWrapper {
+    min-width: 24px;
+    min-height: 24px;
+  }
+
+  .radioCircle {
+    width: 24px;
+    height: 24px;
+  }
+
+  .radioDot {
+    width: 12px;
+    height: 12px;
+  }
+}

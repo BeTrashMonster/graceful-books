@@ -1,0 +1,364 @@
+/**
+ * ChecklistProgress Styles
+ *
+ * Features:
+ * - Smooth progress bar animations
+ * - Category breakdown visualization
+ * - Accessible progress indicators
+ * - High contrast mode support
+ * - Reduced motion support
+ */
+
+.progressContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Overall Progress */
+.overallProgress {
+  padding: 1.5rem;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.progressTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.progressPercent {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-primary, #4f46e5);
+  line-height: 1;
+}
+
+.progressStats {
+  margin-bottom: 1rem;
+}
+
+.statText {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+/* Progress Bar */
+.progressBar {
+  width: 100%;
+  height: 1.5rem;
+  background: var(--color-gray-100, #f3f4f6);
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.progressBarFill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.progressBarFill.animated {
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Progress colors */
+.progressBarFill.success {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+}
+
+.progressBarFill.primary {
+  background: linear-gradient(90deg, #4f46e5 0%, #4338ca 100%);
+}
+
+.progressBarFill.warning {
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+}
+
+.progressBarFill.info {
+  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+}
+
+/* Shine effect on progress bar */
+.progressBarFill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  animation: shine 2s infinite;
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Encouragement message */
+.encouragement {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  font-style: italic;
+  text-align: center;
+  padding: 0.75rem;
+  background: var(--color-primary-light, #eef2ff);
+  border-radius: 0.375rem;
+}
+
+/* Category Breakdown */
+.categoryBreakdown {
+  padding: 1.5rem;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+}
+
+.breakdownTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 1rem 0;
+}
+
+.categoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Category Progress Bar */
+.categoryProgress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.categoryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.categoryName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #111827);
+}
+
+.categoryStats {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.trendIcon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.trendImproving {
+  color: var(--color-success, #10b981);
+}
+
+.trendStable {
+  color: var(--color-info, #3b82f6);
+}
+
+.trendDeclining {
+  color: var(--color-warning, #f59e0b);
+}
+
+.categoryPercent {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.categoryBar {
+  width: 100%;
+  height: 0.75rem;
+  background: var(--color-gray-100, #f3f4f6);
+  border-radius: 9999px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.categoryBarFill {
+  height: 100%;
+  background: var(--color-primary, #4f46e5);
+  border-radius: 9999px;
+  transition: width 0.3s ease-out;
+}
+
+.categoryBarFill.animated {
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.categoryInfo {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.categoryCount {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* Recent Completions */
+.recentCompletions {
+  padding: 1.5rem;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+}
+
+.recentTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 1rem 0;
+}
+
+.recentList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.recentItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--color-success-light, #f0fdf4);
+  border-radius: 0.375rem;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.recentCheckmark {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-success, #10b981);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.recentItemName {
+  flex: 1;
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #111827);
+  font-weight: 500;
+}
+
+.recentCategory {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .progressBarFill,
+  .categoryBarFill {
+    transition: none;
+  }
+
+  .progressBarFill.animated,
+  .categoryBarFill.animated {
+    transition: none;
+  }
+
+  .progressBarFill::after {
+    animation: none;
+  }
+
+  .recentItem {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .overallProgress,
+  .categoryBreakdown,
+  .recentCompletions {
+    border-width: 2px;
+  }
+
+  .progressBar,
+  .categoryBar {
+    border: 1px solid var(--color-text-primary, #111827);
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .overallProgress,
+  .categoryBreakdown,
+  .recentCompletions {
+    padding: 1rem;
+  }
+
+  .progressPercent {
+    font-size: 1.5rem;
+  }
+
+  .progressTitle {
+    font-size: 1.125rem;
+  }
+
+  .categoryHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .categoryStats {
+    align-self: flex-end;
+  }
+}

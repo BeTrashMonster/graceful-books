@@ -1,0 +1,196 @@
+/* Select wrapper */
+.selectWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.fullWidth {
+  max-width: 100%;
+}
+
+/* Label styles */
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.required {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* Select container with border and states */
+.selectContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 2px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: #ffffff;
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+}
+
+.selectContainer:focus-within {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+  outline: none;
+}
+
+/* Error state */
+.hasError {
+  border-color: #dc2626;
+}
+
+.hasError:focus-within {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* Disabled state */
+.disabled {
+  background-color: #f3f4f6;
+  border-color: #e5e7eb;
+  cursor: not-allowed;
+}
+
+/* Select element - native for better accessibility */
+.select {
+  flex: 1;
+  width: 100%;
+  padding-right: 2.5rem;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #1f2937;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.select:disabled {
+  cursor: not-allowed;
+  color: #6b7280;
+}
+
+/* Size variants - ensuring minimum 44x44px touch targets */
+.sm .select {
+  min-height: 36px;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.md .select {
+  min-height: 44px;
+  padding: 0.625rem 0.875rem;
+}
+
+.lg .select {
+  min-height: 48px;
+  padding: 0.75rem 1rem;
+  font-size: 1.125rem;
+}
+
+/* Chevron icon */
+.chevron {
+  position: absolute;
+  right: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  color: #6b7280;
+  pointer-events: none;
+  transition: transform 150ms ease-out;
+}
+
+.selectContainer:focus-within .chevron {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron {
+    transition: none;
+  }
+
+  .selectContainer:focus-within .chevron {
+    transform: translateY(-50%);
+  }
+}
+
+/* Helper text */
+.helperText {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Error text */
+.errorText {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #dc2626;
+  margin: 0;
+}
+
+.errorText::before {
+  content: '⚠';
+  font-size: 1rem;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .selectContainer {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .selectContainer {
+    border-width: 3px;
+  }
+
+  .label {
+    font-weight: 600;
+  }
+
+  .chevron {
+    font-weight: 700;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .select {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+
+  .md .select {
+    min-height: 48px;
+  }
+}
+
+/* Option styles for better readability */
+.select option {
+  padding: 0.5rem;
+  background-color: #ffffff;
+  color: #1f2937;
+}
+
+.select option:disabled {
+  color: #9ca3af;
+}

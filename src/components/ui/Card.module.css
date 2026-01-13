@@ -1,0 +1,64 @@
+/* Card Component Styles */
+
+.card {
+  background-color: var(--color-bg-base);
+  border-radius: var(--border-radius-lg);
+  transition: all var(--transition-base);
+}
+
+/* Variants */
+.default {
+  background-color: var(--color-bg-base);
+}
+
+.bordered {
+  border: var(--border-width) solid var(--color-border);
+}
+
+.elevated {
+  box-shadow: var(--shadow-md);
+}
+
+/* Padding */
+.padding-none {
+  padding: 0;
+}
+
+.padding-sm {
+  padding: var(--spacing-md);
+}
+
+.padding-md {
+  padding: var(--spacing-lg);
+}
+
+.padding-lg {
+  padding: var(--spacing-xl);
+}
+
+/* Hoverable */
+.hoverable {
+  cursor: pointer;
+}
+
+.hoverable:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Card Sections */
+.header {
+  padding-bottom: var(--spacing-md);
+  border-bottom: var(--border-width) solid var(--color-border-light);
+  margin-bottom: var(--spacing-md);
+}
+
+.body {
+  flex: 1;
+}
+
+.footer {
+  padding-top: var(--spacing-md);
+  border-top: var(--border-width) solid var(--color-border-light);
+  margin-top: var(--spacing-md);
+}

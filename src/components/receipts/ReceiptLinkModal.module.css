@@ -1,0 +1,185 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.receiptInfo {
+  padding: var(--spacing-3);
+  background-color: var(--color-background-secondary);
+  border-radius: var(--border-radius-md);
+}
+
+.receiptTitle {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-1);
+  color: var(--color-text-primary);
+}
+
+.receiptDate {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.searchInput {
+  width: 100%;
+}
+
+.transactionList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  max-height: 400px;
+  overflow-y: auto;
+  padding: var(--spacing-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+}
+
+.transactionItem {
+  width: 100%;
+  padding: var(--spacing-3);
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-background);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-align: left;
+}
+
+.transactionItem:hover {
+  border-color: var(--color-primary-light);
+  background-color: var(--color-background-hover);
+}
+
+.transactionItem:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.transactionItem.selected {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.transactionItem.linked {
+  border-color: var(--color-success);
+  background-color: var(--color-success-light);
+}
+
+.transactionItem:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.transactionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.transactionDate {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.suggestedBadge {
+  display: inline-block;
+  padding: var(--spacing-1) var(--spacing-2);
+  background-color: var(--color-info);
+  color: white;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.linkedBadge {
+  display: inline-block;
+  padding: var(--spacing-1) var(--spacing-2);
+  background-color: var(--color-success);
+  color: white;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.transactionReference {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-1);
+  color: var(--color-text-primary);
+}
+
+.transactionMemo {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-2);
+}
+
+.transactionAmount {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.transactionHint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  margin-top: var(--spacing-1);
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-8);
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-3);
+}
+
+.emptyMessage {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+}
+
+.footer {
+  display: flex;
+  gap: var(--spacing-3);
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.unlinkButton {
+  color: var(--color-error);
+}
+
+.unlinkButton:hover {
+  background-color: var(--color-error-light);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .transactionItem {
+    transition: none;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .transactionList {
+    max-height: 300px;
+  }
+
+  .footer {
+    flex-direction: column;
+  }
+
+  .footer button {
+    width: 100%;
+  }
+}

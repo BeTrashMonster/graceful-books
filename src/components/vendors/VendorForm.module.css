@@ -1,0 +1,117 @@
+/**
+ * VendorForm Styles
+ */
+
+.vendorForm {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.formHeader {
+  text-align: center;
+}
+
+.formTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 0.5rem 0;
+}
+
+.formDescription {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+.duplicateWarning {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 0.5rem;
+  color: #78350f;
+}
+
+.warningIcon {
+  flex-shrink: 0;
+  color: #f59e0b;
+  margin-top: 0.125rem;
+}
+
+.duplicateWarning p {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.formBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.addressSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.addressFields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--color-background-secondary, #f9fafb);
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+.addressRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.formFooter {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.formFooter button {
+  min-width: 120px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .vendorForm {
+    max-width: 100%;
+  }
+
+  .addressRow {
+    grid-template-columns: 1fr;
+  }
+
+  .formFooter {
+    flex-direction: column-reverse;
+  }
+
+  .formFooter button {
+    width: 100%;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .duplicateWarning {
+    background-color: #fef3c7;
+  }
+}

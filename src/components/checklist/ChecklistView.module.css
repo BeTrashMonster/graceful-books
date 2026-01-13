@@ -1,0 +1,276 @@
+/**
+ * ChecklistView Styles
+ *
+ * Features:
+ * - Two-column layout with sidebar
+ * - Collapsible category sections
+ * - Responsive design
+ * - Empty states
+ */
+
+.checklistView {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  padding: 1.5rem;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+}
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Content Grid */
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr 24rem;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.mainContent {
+  min-width: 0;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: sticky;
+  top: 1.5rem;
+}
+
+/* Categories List */
+.categoriesList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Category Section */
+.categorySection {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.categoryHeader {
+  width: 100%;
+  padding: 1.25rem 1.5rem;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.categoryHeader:hover {
+  background: var(--color-gray-50, #f9fafb);
+}
+
+.categoryHeader:focus {
+  outline: 2px solid var(--color-primary, #4f46e5);
+  outline-offset: -2px;
+}
+
+.categoryTitle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.categoryName {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.categoryCount {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  padding: 0.25rem 0.75rem;
+  background: var(--color-gray-100, #f3f4f6);
+  border-radius: 9999px;
+}
+
+.expandIcon {
+  color: var(--color-text-tertiary, #9ca3af);
+  transition: transform 0.2s ease-in-out;
+}
+
+.expandIconOpen {
+  transform: rotate(180deg);
+}
+
+/* Category Content */
+.categoryContent {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.categoryDescription {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Loading State */
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 2rem;
+}
+
+/* Empty States */
+.emptyState,
+.noResults {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+}
+
+.emptyText,
+.noResultsText {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .categoryContent {
+    animation: none;
+  }
+
+  .expandIcon {
+    transition: none;
+  }
+
+  .categoryHeader {
+    transition: none;
+  }
+}
+
+/* Tablet layout */
+@media (max-width: 1024px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+    order: -1;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .header {
+    padding: 1.25rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+  }
+
+  .categoryHeader {
+    padding: 1rem 1.25rem;
+  }
+
+  .categoryName {
+    font-size: 1rem;
+  }
+
+  .categoryContent {
+    padding: 0 1.25rem 1.25rem 1.25rem;
+  }
+
+  .contentGrid {
+    gap: 1rem;
+  }
+
+  .checklistView {
+    gap: 1rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .sidebar {
+    display: none;
+  }
+
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .categoryHeader {
+    background: transparent !important;
+  }
+
+  .expandIcon {
+    display: none;
+  }
+
+  .categoryContent {
+    display: block !important;
+    animation: none;
+  }
+}

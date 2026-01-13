@@ -1,0 +1,414 @@
+/**
+ * ChecklistItem Styles
+ *
+ * Features:
+ * - Satisfying checkbox animations
+ * - Smooth transitions
+ * - High contrast mode support
+ * - Reduced motion support
+ * - Touch-friendly targets (44x44px minimum)
+ */
+
+.checklistItem {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+}
+
+.checklistItem:hover {
+  border-color: var(--color-primary, #4f46e5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.checklistItem:focus-within {
+  outline: 2px solid var(--color-primary, #4f46e5);
+  outline-offset: 2px;
+}
+
+/* Completed state */
+.checklistItem.completed {
+  opacity: 0.7;
+  background: var(--color-success-light, #f0fdf4);
+  border-color: var(--color-success, #10b981);
+}
+
+/* Snoozed state */
+.checklistItem.snoozed {
+  opacity: 0.8;
+  background: var(--color-warning-light, #fffbeb);
+  border-color: var(--color-warning, #f59e0b);
+}
+
+/* Not applicable state */
+.checklistItem.notApplicable {
+  opacity: 0.6;
+  background: var(--color-gray-50, #f9fafb);
+  border-color: var(--color-gray-300, #d1d5db);
+}
+
+/* Animation state */
+.checklistItem.animating {
+  animation: itemComplete 0.6s ease-out;
+}
+
+@keyframes itemComplete {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.02);
+  }
+  50% {
+    transform: scale(0.98);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Main layout */
+.itemMain {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+/* Checkbox */
+.checkbox {
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.checkbox:hover {
+  background: var(--color-gray-100, #f3f4f6);
+}
+
+.checkbox:focus {
+  outline: 2px solid var(--color-primary, #4f46e5);
+  outline-offset: 2px;
+}
+
+.checkboxBox {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--color-gray-400, #9ca3af);
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+  background: var(--color-surface, #ffffff);
+}
+
+.checkbox:hover .checkboxBox {
+  border-color: var(--color-primary, #4f46e5);
+  transform: scale(1.05);
+}
+
+.checkboxCompleted .checkboxBox {
+  background: var(--color-primary, #4f46e5);
+  border-color: var(--color-primary, #4f46e5);
+  animation: checkboxPop 0.3s ease-out;
+}
+
+@keyframes checkboxPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.checkIcon {
+  width: 1rem;
+  height: 1rem;
+  color: white;
+  animation: checkDraw 0.3s ease-out;
+}
+
+@keyframes checkDraw {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Priority indicators */
+.priorityHigh .checkboxBox {
+  border-color: var(--color-danger, #ef4444);
+}
+
+.priorityMedium .checkboxBox {
+  border-color: var(--color-warning, #f59e0b);
+}
+
+.priorityLow .checkboxBox {
+  border-color: var(--color-info, #3b82f6);
+}
+
+/* Content */
+.itemContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.itemTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.completed .itemTitle {
+  text-decoration: line-through;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.itemDescription {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  line-height: 1.5;
+  margin: 0 0 0.5rem 0;
+}
+
+.completed .itemDescription {
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* Badges */
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  background: var(--color-gray-100, #f3f4f6);
+  color: var(--color-text-secondary, #6b7280);
+  white-space: nowrap;
+}
+
+.badgeCustom {
+  background: var(--color-primary-light, #eef2ff);
+  color: var(--color-primary, #4f46e5);
+}
+
+.badgeSnoozed {
+  background: var(--color-warning-light, #fffbeb);
+  color: var(--color-warning-dark, #b45309);
+}
+
+/* Due date */
+.dueDate {
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary, #9ca3af);
+  margin: 0.5rem 0;
+  font-style: italic;
+}
+
+/* Feature link */
+.featureLink {
+  margin-top: 0.5rem;
+}
+
+/* Not applicable reason */
+.notApplicableReason {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  font-style: italic;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  background: var(--color-gray-50, #f9fafb);
+  border-radius: 0.25rem;
+}
+
+/* Actions */
+.itemActions {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.actionsToggle {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-tertiary, #9ca3af);
+  border-radius: 0.375rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.actionsToggle:hover {
+  background: var(--color-gray-100, #f3f4f6);
+  color: var(--color-text-primary, #111827);
+}
+
+.actionsToggle:focus {
+  outline: 2px solid var(--color-primary, #4f46e5);
+  outline-offset: 2px;
+}
+
+.actionsMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.25rem;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  min-width: 10rem;
+  z-index: 10;
+  overflow: hidden;
+  animation: menuSlideIn 0.15s ease-out;
+}
+
+@keyframes menuSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.actionButton {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-primary, #111827);
+  font-size: 0.875rem;
+  transition: background 0.15s ease-in-out;
+}
+
+.actionButton:hover {
+  background: var(--color-gray-50, #f9fafb);
+}
+
+.actionButton:focus {
+  background: var(--color-gray-100, #f3f4f6);
+  outline: none;
+}
+
+.actionButtonDanger {
+  color: var(--color-danger, #ef4444);
+}
+
+.actionButtonDanger:hover {
+  background: var(--color-danger-light, #fee2e2);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .checklistItem,
+  .checkbox,
+  .checkboxBox,
+  .actionButton {
+    animation: none;
+    transition: none;
+  }
+
+  .checklistItem.animating {
+    animation: none;
+  }
+
+  .checkboxCompleted .checkboxBox {
+    animation: none;
+  }
+
+  .checkIcon {
+    animation: none;
+  }
+
+  .actionsMenu {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .checklistItem {
+    border-width: 2px;
+  }
+
+  .checkboxBox {
+    border-width: 3px;
+  }
+
+  .checkbox:focus,
+  .actionsToggle:focus {
+    outline-width: 3px;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .checklistItem {
+    padding: 0.875rem;
+  }
+
+  .itemMain {
+    gap: 0.625rem;
+  }
+
+  .checkbox,
+  .actionsToggle {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .actionsMenu {
+    min-width: 8rem;
+  }
+}

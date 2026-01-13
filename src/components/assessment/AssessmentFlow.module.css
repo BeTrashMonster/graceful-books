@@ -1,0 +1,148 @@
+/* Assessment Flow Container */
+.assessmentFlow {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+@media (min-width: 768px) {
+  .assessmentFlow {
+    padding: 2rem;
+  }
+}
+
+/* Section Header */
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.sectionName {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.sectionDescription {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Question Container */
+.questionContainer {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Error Display */
+.error {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  color: #991b1b;
+}
+
+.errorIcon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.errorMessage {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Navigation Controls */
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.navSpacer {
+  flex: 1;
+}
+
+.navButton {
+  min-width: 120px;
+}
+
+@media (max-width: 640px) {
+  .navigation {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .navButton {
+    width: 100%;
+  }
+
+  .navSpacer {
+    display: none;
+  }
+}
+
+/* Cancel Container */
+.cancelContainer {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.cancelButton {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: color 150ms ease-out, background-color 150ms ease-out;
+}
+
+.cancelButton:hover:not(:disabled) {
+  color: #374151;
+  background-color: #f3f4f6;
+}
+
+.cancelButton:focus-visible {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+}
+
+.cancelButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .cancelButton {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .questionContainer {
+    border: 2px solid #000000;
+  }
+
+  .error {
+    border-width: 2px;
+  }
+}

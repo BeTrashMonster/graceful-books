@@ -1,0 +1,209 @@
+/* Question Container */
+.question {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Question Header */
+.questionHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.questionNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  background-color: #4a90e2;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  flex-shrink: 0;
+}
+
+.questionText {
+  flex: 1;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.5;
+  padding-top: 0.25rem;
+}
+
+/* Question Description */
+.questionDescription {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+  padding-left: 3.5rem;
+}
+
+@media (max-width: 640px) {
+  .questionDescription {
+    padding-left: 0;
+  }
+}
+
+/* Answer Options */
+.answerOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.answerOption {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background-color: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 150ms ease-out;
+  text-align: left;
+  font-size: 1rem;
+  color: #374151;
+  /* Ensure 44x44px minimum touch target */
+  min-height: 44px;
+}
+
+.answerOption:hover:not(:disabled) {
+  border-color: #4a90e2;
+  background-color: #f0f7ff;
+}
+
+.answerOption:focus-visible {
+  outline: 3px solid #4a90e2;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.answerOption.selected {
+  border-color: #4a90e2;
+  background-color: #eff6ff;
+  color: #1e40af;
+}
+
+.answerOption:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Radio Indicator */
+.radioIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.radioOuter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid #9ca3af;
+  border-radius: 50%;
+  transition: border-color 150ms ease-out;
+  background-color: #ffffff;
+}
+
+.answerOption:hover:not(:disabled) .radioOuter {
+  border-color: #4a90e2;
+}
+
+.answerOption.selected .radioOuter {
+  border-color: #4a90e2;
+  border-width: 2px;
+}
+
+.radioInner {
+  width: 0.75rem;
+  height: 0.75rem;
+  background-color: #4a90e2;
+  border-radius: 50%;
+  animation: radioAppear 150ms ease-out;
+}
+
+@keyframes radioAppear {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Disable animation for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .answerOption {
+    transition: none;
+  }
+
+  .radioOuter {
+    transition: none;
+  }
+
+  .radioInner {
+    animation: none;
+  }
+}
+
+/* Option Text */
+.optionText {
+  flex: 1;
+  font-weight: 500;
+}
+
+/* Helper Text */
+.helperText {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+  text-align: center;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .answerOption {
+    border-width: 3px;
+  }
+
+  .answerOption.selected {
+    border-width: 4px;
+  }
+
+  .radioOuter {
+    border-width: 3px;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .questionHeader {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .questionNumber {
+    align-self: flex-start;
+  }
+
+  .answerOption {
+    padding: 0.875rem 1rem;
+  }
+}

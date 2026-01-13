@@ -1,0 +1,136 @@
+/**
+ * Review Step Styles
+ */
+
+.reviewStep {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.intro {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.introText {
+  font-size: 1.125rem;
+  color: #4b5563;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.totalAccounts {
+  font-size: 1.125rem;
+  color: #3b82f6;
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.typeSection {
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  border-left: 4px solid #3b82f6;
+}
+
+.typeHeader {
+  margin-bottom: 1rem;
+}
+
+.typeName {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.typeDescription {
+  font-size: 0.95rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.accountList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.accountItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  background-color: white;
+  border-radius: 6px;
+}
+
+.accountName {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.accountNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.125rem 0.5rem;
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.accountDescription {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.reassurance {
+  padding: 1.5rem;
+  background-color: #fef3c7;
+  border-radius: 8px;
+  border: 1px solid #fbbf24;
+  margin-top: 1rem;
+}
+
+.reassurance p {
+  font-size: 1rem;
+  color: #78350f;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .typeSection {
+    padding: 1rem;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}
