@@ -4,7 +4,7 @@
  * Final reconciliation summary with completion celebration.
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '../../core/Button';
 import { Card } from '../../ui/Card';
 import { Loading } from '../../feedback/Loading';

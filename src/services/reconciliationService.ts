@@ -15,12 +15,9 @@ import {
   ReconciliationStatus,
   type Reconciliation,
   type ParsedStatement,
-  type StatementTransaction,
   type TransactionMatch,
 } from '../types/reconciliation.types';
 import type { JournalEntry } from '../types';
-import type { VersionVector } from '../types/database.types';
-import { logger } from '../utils/logger';
 import { AppError, ErrorCode } from '../utils/errors';
 import { getDeviceId } from '../utils/device';
 import { initVersionVector, incrementVersionVector } from '../utils/versionVector';

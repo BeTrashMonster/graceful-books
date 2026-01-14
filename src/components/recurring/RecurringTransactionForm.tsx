@@ -26,7 +26,6 @@ import type {
   TransactionTemplate,
   RecurrencePreview,
 } from '../../types/recurring.types';
-import type { TransactionType } from '../../types/database.types';
 
 export interface RecurringTransactionFormProps {
   initialName?: string;
