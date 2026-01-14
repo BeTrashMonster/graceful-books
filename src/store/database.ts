@@ -28,7 +28,7 @@ import type { Bill } from '../db/schema/bills.schema'
 import type { AssessmentResultEntity, AssessmentSessionEntity } from '../db/schema/assessmentResults.schema'
 import type { ChecklistItem } from '../db/schema/checklistItems.schema'
 import type { TutorialProgress } from '../types/tutorial.types'
-import type { ReconciliationPattern, ReconciliationStreak } from '../types/reconciliation.types'
+import type { ReconciliationPattern, ReconciliationStreak, ReconciliationRecord } from '../types/reconciliation.types'
 import { reconciliationPatternsSchema } from '../db/schema/reconciliationPatterns.schema'
 import { reconciliationStreaksSchema } from '../db/schema/reconciliationStreaks.schema'
 
@@ -63,6 +63,7 @@ export class GracefulBooksDB extends Dexie {
   reconciliations!: Table<ReconciliationEntity, string>
   reconciliation_patterns!: Table<ReconciliationPattern, string>
   reconciliation_streaks!: Table<ReconciliationStreak, [string, string]>
+  reconciliation_records!: Table<ReconciliationRecord, string>
 
   constructor() {
     super('GracefulBooksDB')
@@ -378,6 +379,25 @@ export class GracefulBooksDB extends Dexie {
         [company_id+type],
         [company_id+active],
         parent_id,
+        updated_at,
+        deleted_at
+      `,
+    })
+
+    // Version 4: Add reconciliation_records table for historical reconciliation records
+    this.version(4).stores({
+      // Reconciliation Records table (historical records for pattern learning)
+      // Indexes for querying by company, account, date range, and status
+      reconciliation_records: `
+        id,
+        company_id,
+        account_id,
+        [company_id+account_id],
+        reconciliation_date,
+        [company_id+reconciliation_date],
+        status,
+        [company_id+status],
+        user_id,
         updated_at,
         deleted_at
       `,

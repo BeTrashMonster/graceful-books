@@ -435,7 +435,7 @@ export async function saveReconciliationRecord(
     }
 
     // Store in database
-    await db.reconciliations?.add(encryptedRecord as any);
+    await db.reconciliation_records?.add(encryptedRecord as any);
 
     // Audit log
     await logCreate(
@@ -479,7 +479,7 @@ export async function getReconciliationRecord(
   context?: EncryptionContext
 ): Promise<DatabaseResult<ReconciliationRecord>> {
   try {
-    const record = await db.reconciliations?.get(recordId);
+    const record = await db.reconciliation_records?.get(recordId);
 
     if (!record) {
       return {
@@ -540,7 +540,7 @@ export async function getAccountReconciliationHistory(
   context?: EncryptionContext
 ): Promise<DatabaseResult<ReconciliationHistorySummary[]>> {
   try {
-    const records = await db.reconciliations
+    const records = await db.reconciliation_records
       ?.where('[company_id+account_id]')
       .equals([companyId, accountId])
       .reverse()
@@ -609,7 +609,7 @@ export async function getRecentReconciliations(
   context?: EncryptionContext
 ): Promise<DatabaseResult<ReconciliationHistorySummary[]>> {
   try {
-    const records = await db.reconciliations
+    const records = await db.reconciliation_records
       ?.where('company_id')
       .equals(companyId)
       .reverse()
@@ -710,7 +710,7 @@ export async function reopenReconciliation(
       } as any;
     }
 
-    await db.reconciliations?.put(encryptedUpdate as any);
+    await db.reconciliation_records?.put(encryptedUpdate as any);
 
     // Audit log
     await logUpdate(
@@ -913,7 +913,7 @@ export async function getReconciliationStreak(
 ): Promise<DatabaseResult<ReconciliationStreak>> {
   try {
     // Get all reconciliations for this account, sorted by date
-    const records = await db.reconciliations
+    const records = await db.reconciliation_records
       ?.where('[company_id+account_id]')
       .equals([companyId, accountId])
       .sortBy('reconciliation_date');
