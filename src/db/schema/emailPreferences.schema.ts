@@ -28,10 +28,6 @@ export interface EmailPreferencesEntity {
   include_sections: EmailContentSection[];
   max_tasks_to_show: number;
 
-  // DISC adaptation
-  disc_profile_id: string | null;
-  use_disc_adaptation: boolean;
-
   // Delivery tracking
   last_sent_at: Date | null;
   next_scheduled_at: Date | null;
@@ -133,10 +129,6 @@ export function createDefaultEmailPreferences(
       'progress-update',
     ],
     max_tasks_to_show: 5,
-
-    // DISC adaptation
-    disc_profile_id: null,
-    use_disc_adaptation: true,
 
     // Delivery tracking
     last_sent_at: null,

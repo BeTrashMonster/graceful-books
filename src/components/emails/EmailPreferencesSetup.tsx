@@ -34,7 +34,6 @@ export const EmailPreferencesSetup: React.FC<EmailPreferencesSetupProps> = ({
     'progress-update',
   ]);
   const [maxTasksToShow, setMaxTasksToShow] = useState(5);
-  const [useDiscAdaptation, setUseDiscAdaptation] = useState(true);
 
   // UI state
   const [loading, setLoading] = useState(false);
@@ -242,22 +241,6 @@ export const EmailPreferencesSetup: React.FC<EmailPreferencesSetupProps> = ({
                 We'll show your top {maxTasksToShow} most important tasks.
               </p>
             </div>
-
-            {/* DISC Adaptation */}
-            <div className="form-group">
-              <label className="toggle-label">
-                <input
-                  type="checkbox"
-                  checked={useDiscAdaptation}
-                  onChange={(e) => setUseDiscAdaptation(e.target.checked)}
-                />
-                <span>
-                  Personalize content to my communication style
-                  <br />
-                  <small>We'll adapt the tone and format based on your DISC profile</small>
-                </span>
-              </label>
-            </div>
           </>
         )}
       </div>
@@ -310,7 +293,6 @@ export const EmailPreferencesSetup: React.FC<EmailPreferencesSetupProps> = ({
             timeOfDay,
             includeSections,
             maxTasksToShow,
-            useDiscAdaptation,
           }}
           onClose={() => setShowPreview(false)}
         />
@@ -332,7 +314,6 @@ interface EmailPreviewModalProps {
     timeOfDay: string;
     includeSections: EmailContentSection[];
     maxTasksToShow: number;
-    useDiscAdaptation: boolean;
   };
   onClose: () => void;
 }

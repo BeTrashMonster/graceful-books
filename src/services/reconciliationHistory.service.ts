@@ -159,8 +159,8 @@ export async function updatePattern(
       userId,
       AuditEntityType.RECONCILIATION_PATTERN,
       patternId,
-      existing,
-      updated,
+      existing as unknown as Record<string, unknown>,
+      updated as unknown as Record<string, unknown>,
       changedFields,
       context
     );
@@ -361,7 +361,7 @@ export async function deletePattern(
     await db.reconciliation_patterns?.delete(patternId);
 
     // Audit log
-    await logDelete(companyId, userId, AuditEntityType.RECONCILIATION_PATTERN, patternId, existing, context);
+    await logDelete(companyId, userId, AuditEntityType.RECONCILIATION_PATTERN, patternId, existing as unknown as Record<string, unknown>, context);
 
     serviceLogger.info('Deleted reconciliation pattern', { patternId });
 
@@ -721,8 +721,8 @@ export async function reopenReconciliation(
       userId,
       AuditEntityType.RECONCILIATION_RECORD,
       recordId,
-      existing,
-      updated,
+      existing as unknown as Record<string, unknown>,
+      updated as unknown as Record<string, unknown>,
       ['status', 'reopened_at', 'reopened_by', 'reopened_reason'],
       context
     );
@@ -763,7 +763,7 @@ function calculateUnreconciledFlag(ageDays: number): UnreconciledFlag {
 export async function getUnreconciledTransactions(
   companyId: string,
   accountId: string,
-  context?: EncryptionContext
+  _context?: EncryptionContext
 ): Promise<DatabaseResult<UnreconciledTransaction[]>> {
   try {
     // Get all transactions for the account that are not reconciled
@@ -839,11 +839,11 @@ export async function getUnreconciledDashboard(
   context?: EncryptionContext
 ): Promise<DatabaseResult<UnreconciledDashboard>> {
   try {
-    // Get all bank accounts
+    // Get all bank accounts (asset type includes cash and bank accounts)
     const accounts = await db.accounts
       .where('companyId')
       .equals(companyId)
-      .and((acc) => acc.type === 'BANK' && acc.isActive && !acc.deletedAt)
+      .and((acc) => acc.type === 'asset' && acc.isActive && !acc.deletedAt)
       .toArray();
 
     const dashboard: UnreconciledDashboard = {
@@ -944,6 +944,21 @@ export async function getReconciliationStreak(
     const milestones: ReconciliationStreak['milestones_achieved'] = [];
 
     const lastRecord = records[records.length - 1];
+    if (!lastRecord) {
+      // This shouldn't happen since we checked records.length > 0, but handle it for type safety
+      const streak: ReconciliationStreak = {
+        company_id: companyId,
+        account_id: accountId,
+        current_streak: 0,
+        best_streak: 0,
+        last_reconciliation_date: 0,
+        next_due_date: Date.now() + 30 * 24 * 60 * 60 * 1000,
+        streak_status: 'broken',
+        milestones_achieved: [],
+      };
+      return { success: true, data: streak };
+    }
+
     const lastDate = lastRecord.reconciliation_date;
     const now = Date.now();
     const daysSinceLastReconciliation = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
@@ -952,6 +967,8 @@ export async function getReconciliationStreak(
     for (let i = 0; i < records.length; i++) {
       const record = records[i];
       const nextRecord = records[i + 1];
+
+      if (!record) continue;
 
       tempStreak++;
 
@@ -1034,11 +1051,11 @@ export async function getReconciliationStreak(
  * Analyze discrepancies and suggest resolutions
  */
 export async function suggestDiscrepancyResolutions(
-  companyId: string,
+  _companyId: string,
   accountId: string,
   unmatchedStatementLines: StatementTransaction[],
   unmatchedBookTransactions: string[],
-  discrepancyAmount: number
+  _discrepancyAmount: number
 ): Promise<DatabaseResult<DiscrepancySuggestion[]>> {
   try {
     const suggestions: DiscrepancySuggestion[] = [];
@@ -1104,7 +1121,7 @@ export async function suggestDiscrepancyResolutions(
           const stmt1 = unmatchedStatementLines[i];
           const stmt2 = unmatchedStatementLines[j];
 
-          if (Math.abs(stmt1.amount) === Math.abs(stmt2.amount)) {
+          if (stmt1 && stmt2 && Math.abs(stmt1.amount) === Math.abs(stmt2.amount)) {
             suggestions.push({
               pattern: DiscrepancyPattern.DUPLICATE,
               description: 'These transactions have the same amount and may be duplicates.',
@@ -1124,7 +1141,7 @@ export async function suggestDiscrepancyResolutions(
     if (unmatchedBookTransactions.length > 0) {
       const bookTransactions = await db.transactions
         .bulkGet(unmatchedBookTransactions)
-        .then((txs) => txs.filter((tx): tx is JournalEntry => tx !== undefined));
+        .then((txs) => txs.filter((tx) => tx !== undefined));
 
       for (const tx of bookTransactions) {
         const txDate = tx.date instanceof Date ? tx.date.getTime() : tx.date;

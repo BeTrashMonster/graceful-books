@@ -12,7 +12,7 @@ import type { EmailContent, EmailSection, EmailSectionItem } from '../../types/e
  * For now, generates inline HTML. In production, would use MJML compiler.
  */
 export function renderEmailToHTML(content: EmailContent): string {
-  const { greeting, sections, footer, discType } = content;
+  const { greeting, sections, footer } = content;
 
   // Build HTML sections
   const sectionsHTML = sections

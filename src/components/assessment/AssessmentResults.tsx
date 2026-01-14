@@ -20,7 +20,6 @@ export interface AssessmentResultsProps {
     phaseDescription: string;
     businessType: string;
     literacyLevel: string;
-    discProfile: string;
     nextSteps: string[];
   };
   /**
@@ -178,9 +177,12 @@ export function AssessmentResults({
             </div>
             <div className={styles.summaryItem}>
               <span className={styles.summaryLabel}>Communication Style</span>
-              <span className={styles.summaryValue}>{results.discProfile}</span>
+              <span className={styles.summaryValue}>Steadiness</span>
             </div>
           </div>
+          <p className={styles.communicationNote}>
+            We use a patient, step-by-step communication style for all users to ensure clarity and support.
+          </p>
         </div>
 
         {/* Next Steps */}

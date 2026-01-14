@@ -388,3 +388,170 @@ Group C is **production ready** with:
 **Documentation:** See [complete/ROADMAP-group-c-completed.md](complete/ROADMAP-group-c-completed.md) for full details.
 
 **Ready for:** Group D (Welcome Home - Guided Setup)
+
+
+###Lint & Type Check
+
+Run npm audit --audit-level=moderate
+# npm audit report
+
+esbuild  <=0.24.2
+Severity: moderate
+esbuild enables any website to send any requests to the development server and read the response - https://github.com/advisories/GHSA-67mh-4wv8-2f99
+fix available via `npm audit fix --force`
+Will install vite@6.4.1, which is a breaking change
+node_modules/esbuild
+  vite  0.11.0 - 6.1.6
+  Depends on vulnerable versions of esbuild
+  node_modules/vite
+    vite-node  <=2.2.0-beta.2
+    Depends on vulnerable versions of vite
+    node_modules/vite-node
+      vitest  0.0.1 - 0.0.12 || 0.0.29 - 0.0.122 || 0.3.3 - 2.2.0-beta.2 || 4.0.0-beta.1 - 4.0.0-beta.14
+      Depends on vulnerable versions of @vitest/ui
+      Depends on vulnerable versions of vite
+      Depends on vulnerable versions of vite-node
+      node_modules/vitest
+        @vitest/ui  <=0.0.122 || 0.31.0 - 2.2.0-beta.2
+        Depends on vulnerable versions of vitest
+        node_modules/@vitest/ui
+
+html-minifier  *
+Severity: high
+kangax html-minifier REDoS vulnerability - https://github.com/advisories/GHSA-pfq8-rq6v-vf5m
+No fix available
+node_modules/html-minifier
+  mjml-cli  <=5.0.0-alpha.0
+  Depends on vulnerable versions of html-minifier
+  Depends on vulnerable versions of mjml-core
+  Depends on vulnerable versions of mjml-migrate
+  node_modules/mjml-cli
+    mjml  <=5.0.0-alpha.0
+    Depends on vulnerable versions of mjml-cli
+    Depends on vulnerable versions of mjml-core
+    Depends on vulnerable versions of mjml-migrate
+    Depends on vulnerable versions of mjml-preset-core
+    node_modules/mjml
+  mjml-core  <=4.18.0
+  Depends on vulnerable versions of html-minifier
+  Depends on vulnerable versions of mjml-migrate
+  node_modules/mjml-core
+    mjml-accordion  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-accordion
+    mjml-body  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-body
+    mjml-button  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-button
+      mjml-preset-core  <=4.18.0
+      Depends on vulnerable versions of mjml-accordion
+      Depends on vulnerable versions of mjml-body
+      Depends on vulnerable versions of mjml-button
+      Depends on vulnerable versions of mjml-carousel
+      Depends on vulnerable versions of mjml-column
+      Depends on vulnerable versions of mjml-divider
+      Depends on vulnerable versions of mjml-group
+      Depends on vulnerable versions of mjml-head
+      Depends on vulnerable versions of mjml-head-attributes
+      Depends on vulnerable versions of mjml-head-breakpoint
+      Depends on vulnerable versions of mjml-head-font
+      Depends on vulnerable versions of mjml-head-html-attributes
+      Depends on vulnerable versions of mjml-head-preview
+      Depends on vulnerable versions of mjml-head-style
+      Depends on vulnerable versions of mjml-head-title
+      Depends on vulnerable versions of mjml-hero
+      Depends on vulnerable versions of mjml-image
+      Depends on vulnerable versions of mjml-navbar
+      Depends on vulnerable versions of mjml-raw
+      Depends on vulnerable versions of mjml-section
+      Depends on vulnerable versions of mjml-social
+      Depends on vulnerable versions of mjml-spacer
+      Depends on vulnerable versions of mjml-table
+      Depends on vulnerable versions of mjml-text
+      Depends on vulnerable versions of mjml-wrapper
+      node_modules/mjml-preset-core
+    mjml-carousel  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-carousel
+    mjml-column  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-column
+    mjml-divider  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-divider
+    mjml-group  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-group
+    mjml-head  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-head
+    mjml-head-attributes  <=2.0.4 || 4.0.0-alpha.1 - 4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-head-attributes
+    mjml-head-breakpoint  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-head-breakpoint
+    mjml-head-font  4.0.0-alpha.1 - 4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-head-font
+    mjml-head-html-attributes  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-head-html-attributes
+    mjml-head-preview  4.0.0-alpha.3 - 4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-head-preview
+    mjml-head-style  4.0.0-alpha.1 - 4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-head-style
+    mjml-head-title  4.0.0-alpha.1 - 4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-head-title
+    mjml-hero  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-hero
+    mjml-image  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-image
+    mjml-migrate  4.0.0-beta.1 - 4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-migrate
+    mjml-navbar  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-navbar
+    mjml-raw  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-raw
+    mjml-section  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-section
+    mjml-social  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-social
+    mjml-spacer  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-spacer
+    mjml-table  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-table
+    mjml-text  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    node_modules/mjml-text
+    mjml-wrapper  <=4.18.0
+    Depends on vulnerable versions of mjml-core
+    Depends on vulnerable versions of mjml-section
+    node_modules/mjml-wrapper
+
+
+36 vulnerabilities (5 moderate, 31 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+Error: Process completed with exit code 1.

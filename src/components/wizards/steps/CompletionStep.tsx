@@ -2,7 +2,7 @@
  * Completion Step Component
  *
  * Final step celebrating successful wizard completion.
- * Uses encouraging, judgment-free language per DISC Steadiness style.
+ * Uses encouraging, judgment-free language with Steadiness communication style.
  */
 
 import { type FC, useEffect } from 'react'

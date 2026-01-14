@@ -5,7 +5,6 @@
  * Defines types for email preferences, scheduling, and content generation.
  */
 
-import type { DISCType } from '../features/messaging/messageLibrary';
 import type { ChecklistItem } from './checklist.types';
 
 // =============================================================================
@@ -52,10 +51,6 @@ export interface EmailPreferences {
   includeSections: EmailContentSection[];
   maxTasksToShow: number; // Default: 5
 
-  // DISC adaptation
-  discProfileId: string | null;
-  useDiscAdaptation: boolean;
-
   // Delivery tracking
   lastSentAt: Date | null;
   nextScheduledAt: Date | null;
@@ -90,7 +85,6 @@ export interface EmailContent {
   greeting: string;
   sections: EmailSection[];
   footer: EmailFooter;
-  discType: DISCType;
 }
 
 /**
@@ -146,7 +140,6 @@ export interface EmailGenerationContext {
   };
   preferences: EmailPreferences;
   checklistItems: ChecklistItem[];
-  discType: DISCType;
   generatedAt: Date;
 }
 
@@ -155,10 +148,9 @@ export interface EmailGenerationContext {
 // =============================================================================
 
 /**
- * DISC-adapted email template
+ * Email template with Steadiness communication style
  */
 export interface EmailTemplate {
-  discType: DISCType;
   subjectLines: string[];
   greetings: string[];
   sectionIntros: Record<EmailContentSection, string>;
@@ -235,7 +227,6 @@ export interface EmailPreview {
   htmlContent: string;
   plainTextContent: string;
   estimatedSendTime: Date;
-  discType: DISCType;
 }
 
 // =============================================================================
@@ -280,7 +271,6 @@ export interface EmailPreferencesInput {
   timezone?: string;
   includeSections?: EmailContentSection[];
   maxTasksToShow?: number;
-  useDiscAdaptation?: boolean;
 }
 
 /**

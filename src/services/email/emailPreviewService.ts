@@ -6,7 +6,6 @@
  */
 
 import type { EmailPreview, EmailGenerationContext } from '../../types/email.types';
-import type { DISCType } from '../../features/messaging/messageLibrary';
 import { generateEmailContent } from './emailContentGenerator';
 import { renderEmailToHTML, renderEmailToPlainText } from './emailRenderer';
 import { addDays, nextMonday, set } from 'date-fns';
@@ -37,31 +36,7 @@ export async function generateEmailPreview(
     htmlContent,
     plainTextContent,
     estimatedSendTime,
-    discType: context.discType,
   };
-}
-
-/**
- * Generate preview for different DISC types
- * Useful for comparing how the email looks across personality types
- */
-export async function generatePreviewsForAllDISCTypes(
-  context: EmailGenerationContext
-): Promise<Record<DISCType, EmailPreview>> {
-  const discTypes: DISCType[] = ['D', 'I', 'S', 'C'];
-
-  const previews: Partial<Record<DISCType, EmailPreview>> = {};
-
-  for (const discType of discTypes) {
-    const contextWithDISC = {
-      ...context,
-      discType,
-    };
-
-    previews[discType] = await generateEmailPreview(contextWithDISC);
-  }
-
-  return previews as Record<DISCType, EmailPreview>;
 }
 
 /**

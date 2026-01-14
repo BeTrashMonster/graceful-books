@@ -2,10 +2,9 @@
  * Email Content Generator
  *
  * Per D3: Weekly Email Summary Setup
- * Generates DISC-adapted email content from checklist data and user preferences.
+ * Generates email content with Steadiness communication style from checklist data and user preferences.
  */
 
-import type { DISCType } from '../../features/messaging/messageLibrary';
 import type {
   EmailContent,
   EmailSection,
@@ -27,26 +26,25 @@ import { format, addDays, startOfWeek } from 'date-fns';
  * Generate complete email content
  */
 export function generateEmailContent(context: EmailGenerationContext): EmailContent {
-  const { user, company, preferences, checklistItems, discType, generatedAt } = context;
+  const { user, company, preferences, checklistItems, generatedAt } = context;
 
   // Generate subject line
   const subject = {
-    primary: getSubjectLine(discType),
+    primary: getSubjectLine(),
     fallback: 'Your Week Ahead: Small Steps, Big Progress',
   };
 
   // Generate preheader (preview text)
-  const preheader = generatePreheader(checklistItems, discType);
+  const preheader = generatePreheader(checklistItems);
 
   // Generate greeting
-  const greeting = getGreeting(discType, user.name);
+  const greeting = getGreeting(user.name);
 
   // Generate sections based on preferences
   const sections = generateSections(
     checklistItems,
     preferences.includeSections,
-    preferences.maxTasksToShow,
-    discType
+    preferences.maxTasksToShow
   );
 
   // Generate footer
@@ -58,25 +56,18 @@ export function generateEmailContent(context: EmailGenerationContext): EmailCont
     greeting,
     sections,
     footer,
-    discType,
   };
 }
 
 /**
  * Generate email preheader (preview text)
  */
-function generatePreheader(items: ChecklistItem[], discType: DISCType): string {
+function generatePreheader(items: ChecklistItem[]): string {
   const activeItems = items.filter((item) => item.status === 'active');
   const completedCount = items.filter((item) => item.status === 'completed').length;
 
-  const preheaders: Record<DISCType, string> = {
-    D: `${activeItems.length} items need attention. ${completedCount} completed.`,
-    I: `You've completed ${completedCount} tasks! ${activeItems.length} more to go - you've got this!`,
-    S: `${activeItems.length} tasks ahead. Take your time - ${completedCount} already done.`,
-    C: `Status: ${activeItems.length} pending, ${completedCount} completed, ${items.length} total.`,
-  };
-
-  return preheaders[discType];
+  // Steadiness style: patient, supportive
+  return `${activeItems.length} tasks ahead. Take your time - ${completedCount} already done.`;
 }
 
 /**
@@ -85,14 +76,13 @@ function generatePreheader(items: ChecklistItem[], discType: DISCType): string {
 function generateSections(
   checklistItems: ChecklistItem[],
   includeSections: EmailContentSection[],
-  maxTasksToShow: number,
-  discType: DISCType
+  maxTasksToShow: number
 ): EmailSection[] {
   const sections: EmailSection[] = [];
   let order = 1;
 
   for (const sectionType of includeSections) {
-    const section = generateSection(sectionType, checklistItems, maxTasksToShow, discType, order);
+    const section = generateSection(sectionType, checklistItems, maxTasksToShow, order);
     if (section) {
       sections.push(section);
       order++;
@@ -109,24 +99,23 @@ function generateSection(
   type: EmailContentSection,
   items: ChecklistItem[],
   maxItems: number,
-  discType: DISCType,
   order: number
 ): EmailSection | null {
-  const intro = getSectionIntro(discType, type);
+  const intro = getSectionIntro(type);
 
   switch (type) {
     case 'checklist-summary':
-      return generateChecklistSummary(items, maxItems, discType, intro, order);
+      return generateChecklistSummary(items, maxItems, intro, order);
     case 'foundation-tasks':
-      return generateFoundationTasks(items, maxItems, discType, intro, order);
+      return generateFoundationTasks(items, maxItems, intro, order);
     case 'upcoming-deadlines':
-      return generateUpcomingDeadlines(items, maxItems, discType, intro, order);
+      return generateUpcomingDeadlines(items, maxItems, intro, order);
     case 'quick-tips':
-      return generateQuickTips(discType, intro, order);
+      return generateQuickTips(intro, order);
     case 'progress-update':
-      return generateProgressUpdate(items, discType, intro, order);
+      return generateProgressUpdate(items, intro, order);
     case 'financial-snapshot':
-      return generateFinancialSnapshot(discType, intro, order);
+      return generateFinancialSnapshot(intro, order);
     default:
       return null;
   }
@@ -138,7 +127,6 @@ function generateSection(
 function generateChecklistSummary(
   items: ChecklistItem[],
   maxItems: number,
-  discType: DISCType,
   intro: string,
   order: number
 ): EmailSection | null {
@@ -166,7 +154,7 @@ function generateChecklistSummary(
     title: item.title,
     description: item.description,
     actionLink: item.featureLink || undefined,
-    actionText: getActionText(discType),
+    actionText: getActionText(),
     metadata: {
       priority: item.priority,
       category: item.categoryId,
@@ -176,7 +164,7 @@ function generateChecklistSummary(
 
   return {
     type: 'checklist-summary',
-    title: getChecklistSummaryTitle(discType),
+    title: getChecklistSummaryTitle(),
     content: intro,
     items: sectionItems,
     order,
@@ -189,7 +177,6 @@ function generateChecklistSummary(
 function generateFoundationTasks(
   items: ChecklistItem[],
   maxItems: number,
-  discType: DISCType,
   intro: string,
   order: number
 ): EmailSection | null {
@@ -206,12 +193,12 @@ function generateFoundationTasks(
     title: item.title,
     description: item.explanationLevel === 'detailed' ? item.description : undefined,
     actionLink: item.featureLink || undefined,
-    actionText: getActionText(discType),
+    actionText: getActionText(),
   }));
 
   return {
     type: 'foundation-tasks',
-    title: getFoundationTasksTitle(discType),
+    title: getFoundationTasksTitle(),
     content: intro,
     items: sectionItems,
     order,
@@ -224,7 +211,6 @@ function generateFoundationTasks(
 function generateUpcomingDeadlines(
   items: ChecklistItem[],
   maxItems: number,
-  discType: DISCType,
   intro: string,
   order: number
 ): EmailSection | null {
@@ -255,12 +241,12 @@ function generateUpcomingDeadlines(
       ? `Due: ${format(new Date(item.nextDueDate), 'EEEE, MMM d')}`
       : undefined,
     actionLink: item.featureLink || undefined,
-    actionText: getActionText(discType),
+    actionText: getActionText(),
   }));
 
   return {
     type: 'upcoming-deadlines',
-    title: getUpcomingDeadlinesTitle(discType),
+    title: getUpcomingDeadlinesTitle(),
     content: intro,
     items: sectionItems,
     order,
@@ -271,16 +257,15 @@ function generateUpcomingDeadlines(
  * Generate quick tips section
  */
 function generateQuickTips(
-  discType: DISCType,
   intro: string,
   order: number
 ): EmailSection {
-  const tips = getQuickTipsForDISC(discType);
+  const tips = getQuickTips();
   const randomTip = tips[Math.floor(Math.random() * tips.length)];
 
   return {
     type: 'quick-tips',
-    title: getQuickTipsTitle(discType),
+    title: getQuickTipsTitle(),
     content: `${intro}\n\n${randomTip}`,
     order,
   };
@@ -291,7 +276,6 @@ function generateQuickTips(
  */
 function generateProgressUpdate(
   items: ChecklistItem[],
-  discType: DISCType,
   intro: string,
   order: number
 ): EmailSection {
@@ -299,11 +283,11 @@ function generateProgressUpdate(
   const completedItems = items.filter((item) => item.status === 'completed').length;
   const percentComplete = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
-  const progressText = getProgressText(completedItems, totalItems, percentComplete, discType);
+  const progressText = getProgressText(completedItems, totalItems, percentComplete);
 
   return {
     type: 'progress-update',
-    title: getProgressUpdateTitle(discType),
+    title: getProgressUpdateTitle(),
     content: `${intro}\n\n${progressText}`,
     order,
   };
@@ -313,13 +297,12 @@ function generateProgressUpdate(
  * Generate financial snapshot section (placeholder)
  */
 function generateFinancialSnapshot(
-  discType: DISCType,
   intro: string,
   order: number
 ): EmailSection {
   return {
     type: 'financial-snapshot',
-    title: getFinancialSnapshotTitle(discType),
+    title: getFinancialSnapshotTitle(),
     content: `${intro}\n\nYour financial reports are up to date. Visit your dashboard for detailed insights.`,
     order,
   };
@@ -341,137 +324,66 @@ function generateFooter(
 }
 
 // ============================================================================
-// Helper Functions - Section Titles
+// Helper Functions - Section Titles (Steadiness Style)
 // ============================================================================
 
-function getChecklistSummaryTitle(discType: DISCType): string {
-  const titles: Record<DISCType, string> = {
-    D: 'Action Items',
-    I: 'What\'s on Deck',
-    S: 'Your Tasks This Week',
-    C: 'Outstanding Items',
-  };
-  return titles[discType];
+function getChecklistSummaryTitle(): string {
+  return 'Your Tasks This Week';
 }
 
-function getFoundationTasksTitle(discType: DISCType): string {
-  const titles: Record<DISCType, string> = {
-    D: 'Foundation Priorities',
-    I: 'Building Your Foundation',
-    S: 'Foundational Tasks',
-    C: 'Core System Tasks',
-  };
-  return titles[discType];
+function getFoundationTasksTitle(): string {
+  return 'Foundational Tasks';
 }
 
-function getUpcomingDeadlinesTitle(discType: DISCType): string {
-  const titles: Record<DISCType, string> = {
-    D: 'Deadlines',
-    I: 'Coming Up Soon',
-    S: 'Upcoming Due Dates',
-    C: 'Scheduled Deadlines',
-  };
-  return titles[discType];
+function getUpcomingDeadlinesTitle(): string {
+  return 'Upcoming Due Dates';
 }
 
-function getQuickTipsTitle(discType: DISCType): string {
-  const titles: Record<DISCType, string> = {
-    D: 'Quick Win',
-    I: 'This Week\'s Tip',
-    S: 'Helpful Insight',
-    C: 'Technical Note',
-  };
-  return titles[discType];
+function getQuickTipsTitle(): string {
+  return 'Helpful Insight';
 }
 
-function getProgressUpdateTitle(discType: DISCType): string {
-  const titles: Record<DISCType, string> = {
-    D: 'Status',
-    I: 'You\'re Doing Great!',
-    S: 'Your Progress',
-    C: 'Completion Metrics',
-  };
-  return titles[discType];
+function getProgressUpdateTitle(): string {
+  return 'Your Progress';
 }
 
-function getFinancialSnapshotTitle(discType: DISCType): string {
-  const titles: Record<DISCType, string> = {
-    D: 'Financial Status',
-    I: 'Your Financial Story',
-    S: 'Financial Overview',
-    C: 'Financial Data Summary',
-  };
-  return titles[discType];
+function getFinancialSnapshotTitle(): string {
+  return 'Financial Overview';
 }
 
 // ============================================================================
-// Helper Functions - Action Text
+// Helper Functions - Action Text (Steadiness Style)
 // ============================================================================
 
-function getActionText(discType: DISCType): string {
-  const actions: Record<DISCType, string> = {
-    D: 'Do it now',
-    I: 'Let\'s go!',
-    S: 'Take a look',
-    C: 'Review details',
-  };
-  return actions[discType];
+function getActionText(): string {
+  return 'Take a look';
 }
 
 // ============================================================================
-// Helper Functions - Progress Text
+// Helper Functions - Progress Text (Steadiness Style)
 // ============================================================================
 
 function getProgressText(
   completed: number,
   total: number,
-  percent: number,
-  discType: DISCType
+  percent: number
 ): string {
-  const templates: Record<DISCType, string> = {
-    D: `${completed}/${total} completed (${percent}%). Keep moving.`,
-    I: `You've completed ${completed} out of ${total} tasks - that's ${percent}%! Way to go!`,
-    S: `You've completed ${completed} of ${total} tasks (${percent}%). Steady progress is what counts.`,
-    C: `Completion rate: ${percent}% (${completed}/${total} items completed).`,
-  };
-  return templates[discType];
+  return `You've completed ${completed} of ${total} tasks (${percent}%). Steady progress is what counts.`;
 }
 
 // ============================================================================
-// Quick Tips Library
+// Quick Tips Library (Steadiness Style)
 // ============================================================================
 
-function getQuickTipsForDISC(discType: DISCType): string[] {
-  const commonTips = [
+function getQuickTips(): string[] {
+  return [
     'Reconciling weekly (not monthly) catches errors when they\'re easy to fix.',
     'A quick photo of your receipt is better than a lost receipt.',
     'Set up recurring transactions for predictable expenses - saves time.',
     'Your P&L tells you if you\'re profitable. Check it monthly at minimum.',
     'Small, consistent actions beat marathon sessions.',
+    'Create a routine and stick to it - consistency is your superpower.',
+    'Block out the same time each week for bookkeeping.',
+    'Remember: done is better than perfect.',
   ];
-
-  const discSpecificTips: Record<DISCType, string[]> = {
-    D: [
-      'Batch similar tasks together for maximum efficiency.',
-      'Focus on the 20% of tasks that drive 80% of results.',
-      'Set hard deadlines for yourself - and stick to them.',
-    ],
-    I: [
-      'Share your progress with someone - accountability makes it fun!',
-      'Celebrate small wins - they add up to big successes.',
-      'Find a friend also running a business and check in weekly.',
-    ],
-    S: [
-      'Create a routine and stick to it - consistency is your superpower.',
-      'Block out the same time each week for bookkeeping.',
-      'Remember: done is better than perfect.',
-    ],
-    C: [
-      'Document your processes as you go - future you will thank you.',
-      'Review your account categories quarterly for accuracy.',
-      'Keep a log of unusual transactions with detailed notes.',
-    ],
-  };
-
-  return [...commonTips, ...discSpecificTips[discType]];
 }

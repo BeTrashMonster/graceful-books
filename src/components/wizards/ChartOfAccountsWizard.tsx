@@ -8,7 +8,7 @@
  * - Plain English explanations
  * - Progress tracking and resume capability
  * - Accessible keyboard navigation
- * - DISC Steadiness communication style
+ * - Steadiness communication style (patient, step-by-step, supportive)
  */
 
 import { type FC, useState, useEffect, useCallback } from 'react'
