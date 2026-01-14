@@ -59,8 +59,7 @@ describe('Group D Offline Integration Tests', () => {
         name: 'Test Cash Account',
         accountNumber: '1000',
         type: 'asset',
-        subtype: 'current-asset',
-        normalBalance: 'debit',
+        subType: 'current-asset',
         isActive: true,
         description: 'Test account for offline persistence',
         createdBy: testUserId,
@@ -75,7 +74,7 @@ describe('Group D Offline Integration Tests', () => {
       if (!queryResult.success) return
 
       expect(queryResult.data.length).toBe(1)
-      expect(queryResult.data[0].name).toBe('Test Cash Account')
+      expect(queryResult.data[0]?.name).toBe('Test Cash Account')
     })
 
     it('should persist transaction data to IndexedDB', async () => {
@@ -85,8 +84,7 @@ describe('Group D Offline Integration Tests', () => {
         name: 'Cash',
         accountNumber: '1000',
         type: 'asset',
-        subtype: 'current-asset',
-        normalBalance: 'debit',
+        subType: 'current-asset',
         isActive: true,
         createdBy: testUserId,
       })
@@ -125,7 +123,7 @@ describe('Group D Offline Integration Tests', () => {
       if (!queryResult.success) return
 
       expect(queryResult.data.length).toBe(1)
-      expect(queryResult.data[0].memo).toBe('Test transaction')
+      expect(queryResult.data[0]?.memo).toBe('Test transaction')
     })
 
     it('should support multiple offline operations', async () => {
@@ -135,8 +133,7 @@ describe('Group D Offline Integration Tests', () => {
         name: 'Account 1',
         accountNumber: '1001',
         type: 'asset',
-        subtype: 'current-asset',
-        normalBalance: 'debit',
+        subType: 'current-asset',
         isActive: true,
         createdBy: testUserId,
       })
@@ -146,8 +143,7 @@ describe('Group D Offline Integration Tests', () => {
         name: 'Account 2',
         accountNumber: '1002',
         type: 'asset',
-        subtype: 'current-asset',
-        normalBalance: 'debit',
+        subType: 'current-asset',
         isActive: true,
         createdBy: testUserId,
       })
@@ -175,8 +171,7 @@ describe('Group D Offline Integration Tests', () => {
         name: 'Company 1 Account',
         accountNumber: '1000',
         type: 'asset',
-        subtype: 'current-asset',
-        normalBalance: 'debit',
+        subType: 'current-asset',
         isActive: true,
         createdBy: testUserId,
       })
@@ -186,8 +181,7 @@ describe('Group D Offline Integration Tests', () => {
         name: 'Company 2 Account',
         accountNumber: '1000',
         type: 'asset',
-        subtype: 'current-asset',
-        normalBalance: 'debit',
+        subType: 'current-asset',
         isActive: true,
         createdBy: testUserId,
       })
@@ -203,8 +197,8 @@ describe('Group D Offline Integration Tests', () => {
 
       expect(company1Result.data.length).toBe(1)
       expect(company2Result.data.length).toBe(1)
-      expect(company1Result.data[0].name).toBe('Company 1 Account')
-      expect(company2Result.data[0].name).toBe('Company 2 Account')
+      expect(company1Result.data[0]?.name).toBe('Company 1 Account')
+      expect(company2Result.data[0]?.name).toBe('Company 2 Account')
     })
   })
 })

@@ -55,6 +55,7 @@ import { createAuditLog, queryAuditLogs } from '../../store/auditLogs'
 import type { CoaWizardData } from '../../types/wizard.types'
 import type { JournalEntry, AccountType, Account } from '../../types'
 import type { EmailGenerationContext } from '../../types/email.types'
+import { ChecklistPhase, ChecklistCategory } from '../../db/schema/checklistItems.schema'
 import { TutorialStatus } from '../../types/tutorial.types'
 import type { AuditLogEntity } from '../../store/types'
 
@@ -676,79 +677,83 @@ describe('Group D Integration Tests', () => {
   describe('D3: Weekly Email Summary with Checklist', () => {
     it('should generate DISC-adapted email content from checklist data', async () => {
       // STEP 1: Create checklist items (using database schema with snake_case)
+      const now = Date.now()
       const checklistItems = [
         {
           id: nanoid(),
-          categoryId: 'cat-1',
+          user_id: testUserId,
+          company_id: testCompanyId,
+          phase: ChecklistPhase.STABILIZE,
+          category: ChecklistCategory.SETUP,
           title: 'Set up your chart of accounts',
           description: 'Create the foundation for your bookkeeping',
-          explanationLevel: 'detailed' as const,
-          status: 'active' as const,
-          completedAt: null,
-          snoozedUntil: null,
-          snoozedReason: null,
-          notApplicableReason: null,
-          featureLink: '/accounts',
-          helpArticle: null,
-          isCustom: false,
-          isReordered: false,
-          customOrder: null,
-          recurrence: 'none' as const,
-          priority: 'high' as const,
-          lastDueDate: null,
-          nextDueDate: new Date('2024-01-20'),
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          order: 1,
+          completed: false,
+          completed_at: null,
+          snoozed_until: null,
+          not_applicable: false,
+          streak_count: 0,
+          last_completed_at: null,
+          linked_feature: '/accounts',
+          template_id: null,
+          business_type: null,
+          literacy_level: null,
+          created_at: now,
+          updated_at: now,
+          deleted_at: null,
+          version_vector: { 'test-device': 1 },
         },
         {
           id: nanoid(),
-          categoryId: 'cat-1',
+          user_id: testUserId,
+          company_id: testCompanyId,
+          phase: ChecklistPhase.STABILIZE,
+          category: ChecklistCategory.SETUP,
           title: 'Record your first transaction',
           description: 'Start tracking your income and expenses',
-          explanationLevel: 'detailed' as const,
-          status: 'completed' as const,
-          completedAt: new Date('2024-01-14'),
-          snoozedUntil: null,
-          snoozedReason: null,
-          notApplicableReason: null,
-          featureLink: '/transactions',
-          helpArticle: null,
-          isCustom: false,
-          isReordered: false,
-          customOrder: null,
-          recurrence: 'none' as const,
-          priority: 'high' as const,
-          lastDueDate: null,
-          nextDueDate: new Date('2024-01-15'),
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          order: 2,
+          completed: true,
+          completed_at: now - 86400000, // 1 day ago
+          snoozed_until: null,
+          not_applicable: false,
+          streak_count: 1,
+          last_completed_at: now - 86400000,
+          linked_feature: '/transactions',
+          template_id: null,
+          business_type: null,
+          literacy_level: null,
+          created_at: now,
+          updated_at: now,
+          deleted_at: null,
+          version_vector: { 'test-device': 1 },
         },
         {
           id: nanoid(),
-          categoryId: 'cat-2',
+          user_id: testUserId,
+          company_id: testCompanyId,
+          phase: ChecklistPhase.STABILIZE,
+          category: ChecklistCategory.WEEKLY,
           title: 'Reconcile your bank account',
           description: 'Make sure your records match your bank',
-          explanationLevel: 'simple' as const,
-          status: 'active' as const,
-          completedAt: null,
-          snoozedUntil: null,
-          snoozedReason: null,
-          notApplicableReason: null,
-          featureLink: '/reconciliation',
-          helpArticle: null,
-          isCustom: false,
-          isReordered: false,
-          customOrder: null,
-          recurrence: 'weekly' as const,
-          priority: 'medium' as const,
-          lastDueDate: null,
-          nextDueDate: new Date('2024-01-25'),
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          order: 3,
+          completed: false,
+          completed_at: null,
+          snoozed_until: null,
+          not_applicable: false,
+          streak_count: 0,
+          last_completed_at: null,
+          linked_feature: '/reconciliation',
+          template_id: null,
+          business_type: null,
+          literacy_level: null,
+          created_at: now,
+          updated_at: now,
+          deleted_at: null,
+          version_vector: { 'test-device': 1 },
         },
       ]
 
-      // Save to database (database expects snake_case schema)
+      // Save to database
       for (const item of checklistItems) {
         await db.checklistItems.add(item)
       }
@@ -785,8 +790,8 @@ describe('Group D Integration Tests', () => {
             'progress-update',
           ],
           maxTasksToShow: 5,
-          discProfileId: null,
-          useDiscAdaptation: true,
+          // discProfileId: null, // REMOVED - DISC system deleted
+          // useDiscAdaptation: true, // REMOVED - DISC system deleted
           lastSentAt: null,
           nextScheduledAt: null,
           unsubscribedAt: null,
@@ -794,12 +799,11 @@ describe('Group D Integration Tests', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
-        checklistItems: savedItems as ChecklistItem[],
-        discType: 'S', // Steadiness type
+        checklistItems: savedItems as any[], // Database schema items (snake_case)
         generatedAt: new Date(),
       }
 
-      // Generate email for Steadiness type
+      // Generate email content (Steadiness style for all users)
       const emailContent = generateEmailContent(context)
       expect(emailContent).toBeDefined()
       expect(emailContent.subject).toBeDefined()
@@ -807,7 +811,6 @@ describe('Group D Integration Tests', () => {
       expect(emailContent.greeting).toBeTruthy()
       expect(emailContent.sections.length).toBeGreaterThan(0)
       expect(emailContent.footer).toBeDefined()
-      expect(emailContent.discType).toBe('S')
 
       // Verify sections contain checklist data
       const checklistSection = emailContent.sections.find(
@@ -825,14 +828,9 @@ describe('Group D Integration Tests', () => {
       expect(progressSection?.content).toContain('1') // 1 completed
       expect(progressSection?.content).toContain('3') // 3 total
 
-      // STEP 3: Generate for different DISC type (D - Dominance)
-      const contextD = { ...context, discType: 'D' as const }
-      const emailContentD = generateEmailContent(contextD)
-
-      expect(emailContentD.discType).toBe('D')
-      expect(emailContentD.subject.primary).not.toBe(emailContent.subject.primary)
-      expect(emailContentD.greeting).not.toBe(emailContent.greeting)
-      // D type should have more direct, action-oriented language
+      // STEP 3: REMOVED - DISC type testing (system deleted)
+      // All users now use Steadiness communication style
+      // Previously tested: Generate for different DISC type (D - Dominance)
     })
   })
 
