@@ -166,11 +166,11 @@ export interface AuditLogEntity {
   /** Device identifier */
   deviceId: string
   /** Entity type affected */
-  entityType: 'account' | 'transaction' | 'contact' | 'product' | 'user'
+  entityType: string
   /** Entity ID */
   entityId: string
   /** Action performed */
-  action: 'create' | 'update' | 'delete' | 'void'
+  action: string
   /** Before values (encrypted) */
   beforeValues?: string
   /** After values (encrypted) */

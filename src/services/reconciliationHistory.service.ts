@@ -27,12 +27,11 @@ import type {
   ReconciliationHistorySummary,
   UnreconciledTransaction,
   UnreconciledDashboard,
-  UnreconciledFlag,
   ReconciliationStreak,
   DiscrepancySuggestion,
-  DiscrepancyPattern,
   StatementTransaction,
 } from '../types/reconciliation.types';
+import { UnreconciledFlag, DiscrepancyPattern } from '../types/reconciliation.types';
 import type { JournalEntry } from '../types';
 import type { EncryptionContext, DatabaseResult } from '../store/types';
 import {
@@ -495,29 +494,31 @@ export async function getReconciliationRecord(
     let decryptedRecord = record;
     if (context?.encryptionService) {
       const { encryptionService } = context;
+      // Note: In database, encrypted fields are stored as strings but typed as their decrypted types
+      const encrypted = record as any;
       decryptedRecord = {
         ...record,
-        beginning_balance: parseFloat(await encryptionService.decrypt(record.beginning_balance)),
-        ending_balance: parseFloat(await encryptionService.decrypt(record.ending_balance)),
-        calculated_balance: parseFloat(await encryptionService.decrypt(record.calculated_balance)),
-        discrepancy: parseFloat(await encryptionService.decrypt(record.discrepancy)),
+        beginning_balance: parseFloat(await encryptionService.decrypt(encrypted.beginning_balance)),
+        ending_balance: parseFloat(await encryptionService.decrypt(encrypted.ending_balance)),
+        calculated_balance: parseFloat(await encryptionService.decrypt(encrypted.calculated_balance)),
+        discrepancy: parseFloat(await encryptionService.decrypt(encrypted.discrepancy)),
         matched_transactions: JSON.parse(
-          await encryptionService.decrypt(record.matched_transactions)
+          await encryptionService.decrypt(encrypted.matched_transactions)
         ),
         unmatched_statement_lines: JSON.parse(
-          await encryptionService.decrypt(record.unmatched_statement_lines)
+          await encryptionService.decrypt(encrypted.unmatched_statement_lines)
         ),
         unmatched_book_transactions: JSON.parse(
-          await encryptionService.decrypt(record.unmatched_book_transactions)
+          await encryptionService.decrypt(encrypted.unmatched_book_transactions)
         ),
-        notes: record.notes ? await encryptionService.decrypt(record.notes) : null,
-        reopened_reason: record.reopened_reason
-          ? await encryptionService.decrypt(record.reopened_reason)
+        notes: encrypted.notes ? await encryptionService.decrypt(encrypted.notes) : null,
+        reopened_reason: encrypted.reopened_reason
+          ? await encryptionService.decrypt(encrypted.reopened_reason)
           : null,
-      } as any;
+      } as ReconciliationRecord;
     }
 
-    return { success: true, data: decryptedRecord as ReconciliationRecord };
+    return { success: true, data: decryptedRecord };
   } catch (error) {
     serviceLogger.error('Failed to get reconciliation record', { error, recordId });
     return {
@@ -560,13 +561,14 @@ export async function getAccountReconciliationHistory(
 
       if (context?.encryptionService) {
         const { encryptionService } = context;
-        discrepancy = parseFloat(await encryptionService.decrypt(record.discrepancy));
-        const matched = JSON.parse(await encryptionService.decrypt(record.matched_transactions));
+        const encrypted = record as any;
+        discrepancy = parseFloat(await encryptionService.decrypt(encrypted.discrepancy));
+        const matched = JSON.parse(await encryptionService.decrypt(encrypted.matched_transactions));
         const unmatchedStmt = JSON.parse(
-          await encryptionService.decrypt(record.unmatched_statement_lines)
+          await encryptionService.decrypt(encrypted.unmatched_statement_lines)
         );
         const unmatchedBook = JSON.parse(
-          await encryptionService.decrypt(record.unmatched_book_transactions)
+          await encryptionService.decrypt(encrypted.unmatched_book_transactions)
         );
         matchedCount = matched.length;
         unmatchedCount = unmatchedStmt.length + unmatchedBook.length;
@@ -631,13 +633,14 @@ export async function getRecentReconciliations(
 
       if (context?.encryptionService) {
         const { encryptionService } = context;
-        discrepancy = parseFloat(await encryptionService.decrypt(record.discrepancy));
-        const matched = JSON.parse(await encryptionService.decrypt(record.matched_transactions));
+        const encrypted = record as any;
+        discrepancy = parseFloat(await encryptionService.decrypt(encrypted.discrepancy));
+        const matched = JSON.parse(await encryptionService.decrypt(encrypted.matched_transactions));
         const unmatchedStmt = JSON.parse(
-          await encryptionService.decrypt(record.unmatched_statement_lines)
+          await encryptionService.decrypt(encrypted.unmatched_statement_lines)
         );
         const unmatchedBook = JSON.parse(
-          await encryptionService.decrypt(record.unmatched_book_transactions)
+          await encryptionService.decrypt(encrypted.unmatched_book_transactions)
         );
         matchedCount = matched.length;
         unmatchedCount = unmatchedStmt.length + unmatchedBook.length;
