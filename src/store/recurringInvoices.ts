@@ -24,7 +24,6 @@ import {
   validateRecurringInvoice,
   validateRecurrenceRule,
   shouldGenerateInvoice,
-  hasReachedEndCondition,
 } from '../db/schema/recurringInvoices.schema';
 import { calculateInvoiceTotals } from '../db/schema/invoices.schema';
 import { getDeviceId } from '../utils/device';
@@ -579,8 +578,6 @@ export async function getRecurringInvoicesDueForGeneration(
   context?: EncryptionContext
 ): Promise<DatabaseResult<RecurringInvoice[]>> {
   try {
-    const now = Date.now();
-
     // Query active recurring invoices with next_generation_date <= now
     const entities = await db.recurringInvoices
       .where('[company_id+status]')

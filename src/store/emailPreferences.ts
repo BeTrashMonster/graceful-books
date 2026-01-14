@@ -163,7 +163,7 @@ export async function enableEmailNotifications(
   userId: string,
   companyId: string
 ): Promise<EmailPreferencesEntity> {
-  const preferences = await getOrCreateEmailPreferences(userId, companyId);
+  await getOrCreateEmailPreferences(userId, companyId);
 
   return updateEmailPreferences(userId, {
     enabled: true,

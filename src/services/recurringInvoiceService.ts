@@ -109,7 +109,7 @@ export function generateRRuleString(rule: RecurrenceRule, startDate: Date): stri
 export function calculateNextGenerationDate(
   rule: RecurrenceRule,
   currentDate: Date,
-  occurrencesGenerated: number
+  _occurrencesGenerated: number
 ): Date | null {
   try {
     const rruleString = generateRRuleString(rule, currentDate);

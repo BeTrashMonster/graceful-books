@@ -19,7 +19,6 @@ import {
 } from '../types/reconciliation.types';
 import type { JournalEntry } from '../types';
 import { AppError, ErrorCode } from '../utils/errors';
-import { getDeviceId } from '../utils/device';
 import { initVersionVector, incrementVersionVector } from '../utils/versionVector';
 
 // =============================================================================

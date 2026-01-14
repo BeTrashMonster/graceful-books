@@ -81,7 +81,6 @@ export async function createRecurringTransaction(
   context?: EncryptionContext
 ): Promise<RecurringTransaction> {
   const now = Date.now();
-  const deviceId = getDeviceId();
 
   // Calculate next occurrence
   const nextOccurrence = recurrenceRule.startDate;
@@ -317,7 +316,6 @@ export async function recordGeneratedTransaction(
   occurrenceNumber: number
 ): Promise<GeneratedTransaction> {
   const now = Date.now();
-  const deviceId = getDeviceId();
 
   const generated: GeneratedTransaction = {
     id: nanoid(),

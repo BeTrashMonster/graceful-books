@@ -366,8 +366,6 @@ export async function sendInvoiceReminder(
       };
     }
 
-    const invoice = invoiceResult.data;
-
     notificationLogger.info('Sending invoice reminder (MOCKED)', {
       invoiceId,
       customerEmail,
@@ -395,19 +393,3 @@ export async function sendInvoiceReminder(
   }
 }
 
-/**
- * Get reminder message using Steadiness communication style
- * (Supportive, patient, clear)
- */
-function getReminderMessage(
-  invoice: Invoice,
-  daysUntilDue: number
-): { subject: string; body: string } {
-  const amount = `$${parseFloat(invoice.total).toFixed(2)}`;
-  const dueDate = new Date(invoice.due_date).toLocaleDateString();
-
-  return {
-    subject: `Reminder: Invoice ${invoice.invoice_number} Payment Due Soon`,
-    body: `We wanted to remind you that invoice ${invoice.invoice_number} for ${amount} is due on ${dueDate}. That's coming up in ${daysUntilDue} days. If you have any questions or need help, please let us know.`,
-  };
-}

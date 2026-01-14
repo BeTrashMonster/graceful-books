@@ -8,7 +8,6 @@
  * - Encryption integration points
  */
 
-import { nanoid } from 'nanoid';
 import { db } from './database';
 import type {
   ReconciliationEntity,
@@ -22,7 +21,7 @@ import type {
   ReconciliationStatus,
 } from '../types/reconciliation.types';
 import { logger } from '../utils/logger';
-import { ErrorCode, AppError } from '../utils/errors';
+import { ErrorCode } from '../utils/errors';
 import { getDeviceId, generateId } from '../utils/device';
 import { incrementVersionVector as incrementVV } from '../utils/versionVector';
 

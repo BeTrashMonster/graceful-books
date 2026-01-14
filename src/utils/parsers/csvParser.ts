@@ -292,7 +292,7 @@ function getColumnValue(row: string[], column: number | string): string {
 /**
  * Parse date string to Date object
  */
-function parseDate(dateStr: string, format?: string): Date | null {
+function parseDate(dateStr: string, _format?: string): Date | null {
   if (!dateStr) return null;
 
   // Try YYYY-MM-DD format first (most common in CSV exports)

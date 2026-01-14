@@ -220,7 +220,7 @@ function checkAmountMatch(
 function checkDateMatch(
   date1: number,
   date2: number,
-  toleranceDays: number
+  _toleranceDays: number
 ): { exactMatch: boolean; daysDiff: number } {
   const diffMs = Math.abs(date1 - date2);
   const daysDiff = Math.floor(diffMs / (1000 * 60 * 60 * 24));

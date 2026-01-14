@@ -15,7 +15,7 @@ import type {
   CSVColumnMapping,
   PDFParseResult,
 } from '../types/reconciliation.types';
-import { toCents, parseMoney } from '../utils/money';
+import { parseMoney } from '../utils/money';
 import { nanoid } from 'nanoid';
 import { logger } from '../utils/logger';
 import { AppError, ErrorCode } from '../utils/errors';
@@ -304,7 +304,7 @@ export async function parseCSVStatement(
 /**
  * Extract text from PDF (simplified - in production would use pdf-parse)
  */
-async function extractPDFText(pdfBuffer: ArrayBuffer): Promise<PDFParseResult> {
+async function extractPDFText(_pdfBuffer: ArrayBuffer): Promise<PDFParseResult> {
   // Note: In a real implementation, we would use pdf-parse here
   // For now, returning a placeholder structure
   try {
