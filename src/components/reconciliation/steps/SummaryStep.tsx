@@ -38,7 +38,7 @@ export function SummaryStep({
   companyId,
   statement,
   matches,
-  confirmedMatches,
+  confirmedMatches: _confirmedMatches,
   manualMatches,
   isFirstReconciliation,
   onComplete,

@@ -10,7 +10,7 @@
  * - Handle edge cases (leap years, month-end dates, etc.)
  */
 
-import { RRule, Frequency, Weekday } from 'rrule';
+import { RRule, Frequency } from 'rrule';
 import { addDays, startOfDay, endOfDay } from 'date-fns';
 import type {
   RecurrenceRule,

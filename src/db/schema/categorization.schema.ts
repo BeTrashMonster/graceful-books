@@ -84,7 +84,7 @@ export const CATEGORIZATION_RULES_TABLE = 'categorization_rules'
  */
 export const createDefaultCategorizationModel = (
   companyId: string,
-  deviceId: string
+  _deviceId: string
 ): Partial<CategorizationModel> => {
   const now = Date.now()
 
@@ -122,7 +122,7 @@ export const createDefaultAccuracyMetrics = (): AccuracyMetrics => {
  * Default values for new TrainingDataPoint
  */
 export const createTrainingDataPoint = (
-  companyId: string,
+  _companyId: string,
   vendorName: string,
   description: string,
   amount: number,

@@ -8,7 +8,7 @@
 import type { EmailPreview, EmailGenerationContext } from '../../types/email.types';
 import { generateEmailContent } from './emailContentGenerator';
 import { renderEmailToHTML, renderEmailToPlainText } from './emailRenderer';
-import { addDays, nextMonday, set } from 'date-fns';
+import { addDays, set } from 'date-fns';
 
 /**
  * Generate email preview
@@ -45,7 +45,7 @@ export async function generateEmailPreview(
 function calculateNextSendTime(
   dayOfWeek: string,
   timeOfDay: string,
-  timezone: string
+  _timezone: string
 ): Date {
   const now = new Date();
 

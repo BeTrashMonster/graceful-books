@@ -105,7 +105,7 @@ export default function ProfitLoss() {
     return `${sign}${value.toFixed(1)}%`
   }
 
-  function renderSection(section: PLSection, isSubtraction: boolean = false) {
+  function renderSection(section: PLSection, _isSubtraction: boolean = false) {
     return (
       <div className="report-section" style={{ marginBottom: '2rem' }}>
         <div

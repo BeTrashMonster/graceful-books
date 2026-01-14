@@ -12,7 +12,6 @@
  */
 
 import type { VersionVector } from '../../types/database.types';
-import type { InvoiceLineItem } from './invoices.schema';
 
 /**
  * Recurring invoice status lifecycle
@@ -329,7 +328,7 @@ export const validateRecurrenceRule = (rule: Partial<RecurrenceRule>): string[] 
  * Helper: Generate rrule string from RecurrenceRule
  * Uses rrule library to create RFC 5545 compliant recurrence rules
  */
-export const generateRRuleString = (rule: RecurrenceRule, startDate: number): string => {
+export const generateRRuleString = (rule: RecurrenceRule, _startDate: number): string => {
   // This will be implemented with rrule library
   // Placeholder for now
   return `FREQ=${rule.frequency};INTERVAL=${rule.interval}`;

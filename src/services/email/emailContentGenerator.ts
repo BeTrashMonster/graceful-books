@@ -18,15 +18,14 @@ import {
   getSubjectLine,
   getGreeting,
   getSectionIntro,
-  getClosing,
 } from './emailTemplates';
-import { format, addDays, startOfWeek } from 'date-fns';
+import { format, addDays } from 'date-fns';
 
 /**
  * Generate complete email content
  */
 export function generateEmailContent(context: EmailGenerationContext): EmailContent {
-  const { user, company, preferences, checklistItems, generatedAt } = context;
+  const { user, company, preferences, checklistItems, generatedAt: _generatedAt } = context;
 
   // Generate subject line
   const subject = {

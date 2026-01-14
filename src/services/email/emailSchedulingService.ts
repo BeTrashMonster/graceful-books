@@ -8,7 +8,6 @@
  * In production, this would integrate with a backend service (AWS SES, SendGrid, etc.)
  */
 
-import type { EmailPreferencesEntity } from '../../db/schema/emailPreferences.schema';
 import type { EmailGenerationContext, EmailPreview } from '../../types/email.types';
 import { generateEmailPreview } from './emailPreviewService';
 import { recordEmailDelivery, updateEmailDeliveryStatus } from '../../store/emailPreferences';

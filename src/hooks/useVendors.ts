@@ -25,7 +25,6 @@ import {
   queryContacts,
   batchCreateContacts,
 } from '../store/contacts'
-import type { Contact } from '../types'
 import type { Vendor, VendorFormData, DuplicateVendorCheck } from '../types/vendor.types'
 import type {
   ContactFilter,

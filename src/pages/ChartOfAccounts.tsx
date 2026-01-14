@@ -132,7 +132,7 @@ export const ChartOfAccounts: FC<ChartOfAccountsProps> = ({ companyId }) => {
     setModalState({ type: 'wizard' })
   }
 
-  const handleWizardComplete = (createdAccounts: Account[]) => {
+  const handleWizardComplete = (_createdAccounts: Account[]) => {
     handleCloseModal()
     // Accounts will automatically appear via the useAccounts hook
   }

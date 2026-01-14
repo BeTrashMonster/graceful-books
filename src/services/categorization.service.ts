@@ -60,8 +60,6 @@ export class CategorizationService {
 
   // Configuration
   private readonly MIN_TRAINING_EXAMPLES = 10
-  private readonly _HIGH_CONFIDENCE_THRESHOLD = 0.8
-  private readonly _MEDIUM_CONFIDENCE_THRESHOLD = 0.5
   private readonly ML_CONFIDENCE_THRESHOLD = 0.3 // Below this, use rules only
 
   constructor(companyId: string) {
