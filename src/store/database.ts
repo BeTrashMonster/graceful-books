@@ -20,7 +20,6 @@ import type {
   ReceiptEntity,
   ReconciliationEntity,
 } from './types'
-import type { DISCProfile } from '../db/schema/discProfile.schema'
 import type { Category } from '../db/schema/categories.schema'
 import type { Tag, EntityTag } from '../db/schema/tags.schema'
 import type { Invoice } from '../db/schema/invoices.schema'
@@ -29,6 +28,9 @@ import type { Bill } from '../db/schema/bills.schema'
 import type { AssessmentResultEntity, AssessmentSessionEntity } from '../db/schema/assessmentResults.schema'
 import type { ChecklistItem } from '../db/schema/checklistItems.schema'
 import type { TutorialProgress } from '../types/tutorial.types'
+import type { ReconciliationPattern, ReconciliationStreak } from '../types/reconciliation.types'
+import { reconciliationPatternsSchema } from '../db/schema/reconciliationPatterns.schema'
+import { reconciliationStreaksSchema } from '../db/schema/reconciliationStreaks.schema'
 
 /**
  * GracefulBooksDB - Main database class extending Dexie
@@ -45,7 +47,7 @@ export class GracefulBooksDB extends Dexie {
   users!: Table<UserEntity, string>
   auditLogs!: Table<AuditLogEntity, string>
   companies!: Table<CompanyEntity, string>
-  discProfiles!: Table<DISCProfile, string>
+  // discProfiles table removed - not needed (Steadiness communication style for all users)
   categories!: Table<Category, string>
   tags!: Table<Tag, string>
   entity_tags!: Table<EntityTag, string>
@@ -59,6 +61,8 @@ export class GracefulBooksDB extends Dexie {
   receipts!: Table<ReceiptEntity, string>
   tutorialProgress!: Table<TutorialProgress, string>
   reconciliations!: Table<ReconciliationEntity, string>
+  reconciliation_patterns!: Table<ReconciliationPattern, string>
+  reconciliation_streaks!: Table<ReconciliationStreak, [string, string]>
 
   constructor() {
     super('GracefulBooksDB')
@@ -142,18 +146,18 @@ export class GracefulBooksDB extends Dexie {
       // Note: Audit logs are immutable and never deleted
       auditLogs: `
         id,
-        companyId,
-        entityType,
-        entityId,
-        userId,
+        company_id,
+        entity_type,
+        entity_id,
+        user_id,
         timestamp,
         action,
-        [companyId+timestamp],
-        [companyId+entityType],
-        [companyId+entityId],
-        [companyId+userId],
-        [companyId+entityType+entityId],
-        [entityType+entityId]
+        [company_id+timestamp],
+        [company_id+entity_type],
+        [company_id+entity_id],
+        [company_id+user_id],
+        [company_id+entity_type+entity_id],
+        [entity_type+entity_id]
       `,
 
       // Companies table
@@ -163,22 +167,14 @@ export class GracefulBooksDB extends Dexie {
         deletedAt
       `,
 
-      // DISC Profiles table
-      // Indexes for querying by user, type, and date
-      discProfiles: `
-        id,
-        user_id,
-        primary_type,
-        assessment_date,
-        updated_at,
-        deleted_at
-      `,
+      // DISC Profiles table removed - not needed (Steadiness communication style for all users)
 
       // Categories table
       // Indexes for querying by company, type, and hierarchical structure
       categories: `
         id,
         company_id,
+        name,
         type,
         [company_id+type],
         [company_id+active],
@@ -343,14 +339,49 @@ export class GracefulBooksDB extends Dexie {
       `,
     })
 
-    // Future schema versions will be added here
-    // Example for version 2:
-    // this.version(2).stores({
-    //   // Add new table or modify indexes
-    //   newTable: 'id, companyId'
-    // }).upgrade(trans => {
-    //   // Migration logic
-    // })
+    // Schema version 2 - Add reconciliation patterns and streaks tables
+    this.version(2).stores({
+      // Reconciliation Patterns table
+      // Indexes for querying by company, vendor name, and last matched date
+      reconciliation_patterns: reconciliationPatternsSchema,
+
+      // Reconciliation Streaks table
+      // Indexes for querying by company+account (compound key), status, and due date
+      reconciliation_streaks: reconciliationStreaksSchema,
+    })
+
+    // Version 3: Fix auditLogs and categories indexes to use snake_case field names
+    this.version(3).stores({
+      // Update auditLogs to use snake_case field names (matching actual data structure)
+      auditLogs: `
+        id,
+        company_id,
+        entity_type,
+        entity_id,
+        user_id,
+        timestamp,
+        action,
+        [company_id+timestamp],
+        [company_id+entity_type],
+        [company_id+entity_id],
+        [company_id+user_id],
+        [company_id+entity_type+entity_id],
+        [entity_type+entity_id]
+      `,
+
+      // Add name index to categories table
+      categories: `
+        id,
+        company_id,
+        name,
+        type,
+        [company_id+type],
+        [company_id+active],
+        parent_id,
+        updated_at,
+        deleted_at
+      `,
+    })
   }
 
   /**
