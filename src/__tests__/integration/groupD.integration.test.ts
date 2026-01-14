@@ -748,9 +748,9 @@ describe('Group D Integration Tests', () => {
         },
       ]
 
-      // Save to database
+      // Save to database (database expects snake_case schema)
       for (const item of checklistItems) {
-        await db.checklistItems.add(item as any)
+        await db.checklistItems.add(item)
       }
 
       // Verify items were saved
@@ -794,7 +794,7 @@ describe('Group D Integration Tests', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
-        checklistItems: savedItems as any,
+        checklistItems: savedItems as ChecklistItem[],
         discType: 'S', // Steadiness type
         generatedAt: new Date(),
       }
