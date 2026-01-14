@@ -367,10 +367,6 @@ export async function sendInvoiceReminder(
     }
 
     const invoice = invoiceResult.data;
-    const _amount = `$${parseFloat(invoice.total).toFixed(2)}`;
-
-    // Generate supportive reminder message
-    const _message = getReminderMessage(invoice, daysUntilDue);
 
     notificationLogger.info('Sending invoice reminder (MOCKED)', {
       invoiceId,

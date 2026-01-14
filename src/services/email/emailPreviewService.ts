@@ -135,7 +135,7 @@ export function validateEmailContent(content: EmailGenerationContext): {
  * Get sample checklist items for preview
  * Used when user wants to preview email but doesn't have real checklist data yet
  */
-export function getSampleChecklistItems(userId: string, companyId: string) {
+export function getSampleChecklistItems(_userId: string, _companyId: string) {
   const now = new Date();
 
   return [

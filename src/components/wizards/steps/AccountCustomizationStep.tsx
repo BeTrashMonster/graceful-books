@@ -88,7 +88,6 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   }, [])
 
   const includedCount = customizations.filter((c) => c.isIncluded).length
-  const _requiredAccounts = template.accounts.filter((a) => a.isRequired)
 
   return (
     <div className={styles.customizationStep}>

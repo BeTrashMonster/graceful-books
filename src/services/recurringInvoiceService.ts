@@ -12,7 +12,7 @@
  * - Revenue metric calculations
  */
 
-import { RRule, RRuleSet, rrulestr } from 'rrule';
+import { RRule, rrulestr } from 'rrule';
 import { addDays, addMonths, addYears, format, setDate, lastDayOfMonth } from 'date-fns';
 import type {
   RecurringInvoice,
@@ -26,7 +26,6 @@ import {
   getRecurringInvoice,
   getRecurringInvoicesDueForGeneration,
   recordGeneratedInvoice,
-  getGeneratedInvoices,
 } from '../store/recurringInvoices';
 import { createInvoice, sendInvoice, getInvoices } from '../store/invoices';
 import type { EncryptionContext } from '../store/types';

@@ -11,7 +11,6 @@
  */
 
 import Decimal from 'decimal.js'
-import { db } from '../../store/database'
 import { queryAccounts } from '../../store/accounts'
 import { queryTransactions } from '../../store/transactions'
 import { educationalContent } from '../../utils/reporting'
@@ -42,7 +41,7 @@ function calculateAccountBalance(
   account: Account,
   transactions: JournalEntry[],
   dateRange: DateRange,
-  accountingMethod: AccountingMethod
+  _accountingMethod: AccountingMethod
 ): Decimal {
   let balance = new Decimal(0)
 

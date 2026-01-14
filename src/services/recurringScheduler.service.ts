@@ -104,7 +104,7 @@ async function createTransactionFromTemplate(
   template: TransactionTemplate,
   transactionDate: number,
   autoCreationMode: 'AUTO' | 'DRAFT',
-  userId: string,
+  _userId: string,
   context?: EncryptionContext
 ): Promise<string> {
   const now = Date.now();

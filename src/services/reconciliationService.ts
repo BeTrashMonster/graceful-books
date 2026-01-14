@@ -38,7 +38,6 @@ export function createReconciliation(params: {
   const { companyId, accountId, statement, isFirstReconciliation } = params;
 
   const now = Date.now();
-  const deviceId = getDeviceId();
 
   const reconciliation: Reconciliation = {
     id: nanoid(),
@@ -223,7 +222,6 @@ export function calculateDiscrepancy(
   systemTransactions: JournalEntry[],
   accountId: string
 ): number {
-  const statement: ParsedStatement = JSON.parse(reconciliation.statement_data);
   const matchedIds: string[] = JSON.parse(reconciliation.matched_transactions);
 
   // If we don't have balances from statement, can't calculate discrepancy

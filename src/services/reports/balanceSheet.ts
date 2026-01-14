@@ -165,7 +165,7 @@ function classifyAccount(account: Account): AccountClassification {
 async function buildAccountTree(
   accounts: Account[],
   balances: Map<string, Decimal>,
-  asOfDate: Date
+  _asOfDate: Date
 ): Promise<BalanceSheetLine[]> {
   const lines: BalanceSheetLine[] = []
 
