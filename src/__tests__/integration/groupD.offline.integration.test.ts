@@ -27,7 +27,6 @@ import { createTransaction, queryTransactions } from '../../store/transactions'
  */
 
 const generateTestCompanyId = () => `test-company-${nanoid(10)}`
-const generateTestUserId = () => `test-user-${nanoid(10)}`
 
 async function clearDatabase() {
   await db.clearAllData()
