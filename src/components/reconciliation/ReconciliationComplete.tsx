@@ -29,7 +29,7 @@ export const ReconciliationComplete: React.FC<ReconciliationCompleteProps> = ({
   matchedCount,
   totalTransactions,
   discrepancy,
-  accountName,
+  accountName: _accountName,
   onClose,
   onViewDetails,
 }) => {

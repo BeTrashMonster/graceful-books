@@ -12,7 +12,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  calculateContrastRatio,
   validateColorContrast,
   type ContrastValidation,
 } from '../../db/schema/invoiceTemplates.schema';

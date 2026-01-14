@@ -14,7 +14,7 @@
  * - WCAG 2.1 AA accessibility
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ColorPicker from './ColorPicker';
 import { uploadLogo, formatFileSize, MAX_FILE_SIZE } from '../../services/logoUpload';
 import type {
@@ -24,7 +24,6 @@ import type {
   FontFamily,
   LogoPosition,
 } from '../../db/schema/invoiceTemplates.schema';
-import { createDefaultBrandColors } from '../../db/schema/invoiceTemplates.schema';
 
 export interface TemplateCustomizationProps {
   /**

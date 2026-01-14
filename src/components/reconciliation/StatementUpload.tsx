@@ -15,7 +15,6 @@ import { Loading } from '../feedback/Loading';
 import { parseStatementFile, validateStatement } from '../../services/statementParser';
 import type { ParsedStatement } from '../../types/reconciliation.types';
 import { logger } from '../../utils/logger';
-import { formatMoney } from '../../utils/money';
 
 interface StatementUploadProps {
   accountName?: string;
