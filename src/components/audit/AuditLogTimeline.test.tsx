@@ -10,6 +10,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { AuditLogTimeline } from './AuditLogTimeline';
 import type { AuditLogTimeline as TimelineData } from '../../services/auditLogExtended';
 import * as auditService from '../../services/auditLogExtended';
+import { AuditAction, AuditEntityType } from '../../types/database.types';
 
 // Mock the audit service
 vi.mock('../../services/auditLogExtended');
@@ -26,22 +27,22 @@ describe('AuditLogTimeline Component', () => {
         date: '2024-01-15',
         count: 10,
         actions: [
-          { action: 'CREATE', count: 5 },
-          { action: 'UPDATE', count: 3 },
-          { action: 'DELETE', count: 2 },
+          { action: AuditAction.CREATE, count: 5 },
+          { action: AuditAction.UPDATE, count: 3 },
+          { action: AuditAction.DELETE, count: 2 },
         ],
         entityTypes: [
-          { type: 'TRANSACTION', count: 6 },
-          { type: 'ACCOUNT', count: 4 },
+          { type: AuditEntityType.TRANSACTION, count: 6 },
+          { type: AuditEntityType.ACCOUNT, count: 4 },
         ],
         logs: [
           {
             id: 'log-1',
             company_id: mockCompanyId,
             user_id: 'user-1',
-            entity_type: 'TRANSACTION',
+            entity_type: AuditEntityType.TRANSACTION,
             entity_id: 'entity-1',
-            action: 'CREATE',
+            action: AuditAction.CREATE,
             before_value: null,
             after_value: '{"amount": 100}',
             changed_fields: ['amount'],
@@ -60,12 +61,12 @@ describe('AuditLogTimeline Component', () => {
         date: '2024-01-14',
         count: 15,
         actions: [
-          { action: 'CREATE', count: 8 },
-          { action: 'UPDATE', count: 7 },
+          { action: AuditAction.CREATE, count: 8 },
+          { action: AuditAction.UPDATE, count: 7 },
         ],
         entityTypes: [
-          { type: 'TRANSACTION', count: 10 },
-          { type: 'CONTACT', count: 5 },
+          { type: AuditEntityType.TRANSACTION, count: 10 },
+          { type: AuditEntityType.CONTACT, count: 5 },
         ],
         logs: [],
       },

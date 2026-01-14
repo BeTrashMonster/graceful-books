@@ -39,12 +39,12 @@ async function clearDatabase() {
 
 describe('Group D Offline Integration Tests', () => {
   let testCompanyId: string
-  let testUserId: string
+  // let testUserId: string // Not used - accounts don't track creator
 
   beforeEach(async () => {
     await clearDatabase()
     testCompanyId = generateTestCompanyId()
-    testUserId = generateTestUserId()
+    // testUserId = generateTestUserId() // Not used
   })
 
   afterEach(async () => {
@@ -62,7 +62,7 @@ describe('Group D Offline Integration Tests', () => {
         subType: 'current-asset',
         isActive: true,
         description: 'Test account for offline persistence',
-        createdBy: testUserId,
+        
       })
 
       expect(accountResult.success).toBe(true)
@@ -86,7 +86,7 @@ describe('Group D Offline Integration Tests', () => {
         type: 'asset',
         subType: 'current-asset',
         isActive: true,
-        createdBy: testUserId,
+        
       })
 
       expect(accountResult.success).toBe(true)
@@ -98,6 +98,7 @@ describe('Group D Offline Integration Tests', () => {
         date: new Date(),
         memo: 'Test transaction',
         status: 'posted',
+        createdBy: 'test-user',
         lines: [
           {
             id: nanoid(),
@@ -112,7 +113,6 @@ describe('Group D Offline Integration Tests', () => {
             credit: 100,
           },
         ],
-        createdBy: testUserId,
       })
 
       expect(transactionResult.success).toBe(true)
@@ -135,7 +135,7 @@ describe('Group D Offline Integration Tests', () => {
         type: 'asset',
         subType: 'current-asset',
         isActive: true,
-        createdBy: testUserId,
+        
       })
 
       const account2 = await createAccount({
@@ -145,7 +145,7 @@ describe('Group D Offline Integration Tests', () => {
         type: 'asset',
         subType: 'current-asset',
         isActive: true,
-        createdBy: testUserId,
+        
       })
 
       expect(account1.success).toBe(true)
@@ -173,7 +173,7 @@ describe('Group D Offline Integration Tests', () => {
         type: 'asset',
         subType: 'current-asset',
         isActive: true,
-        createdBy: testUserId,
+        
       })
 
       await createAccount({
@@ -183,7 +183,7 @@ describe('Group D Offline Integration Tests', () => {
         type: 'asset',
         subType: 'current-asset',
         isActive: true,
-        createdBy: testUserId,
+        
       })
 
       // Query each company's accounts

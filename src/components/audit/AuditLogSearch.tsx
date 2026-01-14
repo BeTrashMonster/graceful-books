@@ -13,7 +13,7 @@
  * - WCAG 2.1 AA accessible
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type {
   AuditLogSearchOptions,
   AuditLogSearchResult,
@@ -24,7 +24,7 @@ import {
   exportAuditLogsToCSV,
   exportAuditLogsToPDF,
 } from '../../services/auditLogExtended';
-import type {
+import {
   AuditLog,
   AuditAction,
   AuditEntityType,
@@ -37,24 +37,24 @@ interface AuditLogSearchProps {
 }
 
 const ACTION_OPTIONS: AuditAction[] = [
-  'CREATE',
-  'UPDATE',
-  'DELETE',
-  'RESTORE',
-  'LOGIN',
-  'LOGOUT',
-  'EXPORT',
-  'IMPORT',
+  AuditAction.CREATE,
+  AuditAction.UPDATE,
+  AuditAction.DELETE,
+  AuditAction.RESTORE,
+  AuditAction.LOGIN,
+  AuditAction.LOGOUT,
+  AuditAction.EXPORT,
+  AuditAction.IMPORT,
 ];
 
 const ENTITY_TYPE_OPTIONS: AuditEntityType[] = [
-  'ACCOUNT',
-  'TRANSACTION',
-  'CONTACT',
-  'PRODUCT',
-  'USER',
-  'COMPANY',
-  'SESSION',
+  AuditEntityType.ACCOUNT,
+  AuditEntityType.TRANSACTION,
+  AuditEntityType.CONTACT,
+  AuditEntityType.PRODUCT,
+  AuditEntityType.USER,
+  AuditEntityType.COMPANY,
+  AuditEntityType.SESSION,
 ];
 
 export function AuditLogSearch({
