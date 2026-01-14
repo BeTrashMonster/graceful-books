@@ -198,6 +198,9 @@ export const getEntityTypeDisplay = (entityType: AuditEntityType): string => {
     USER: 'User',
     COMPANY: 'Company',
     SESSION: 'Session',
+    RECONCILIATION_PATTERN: 'Reconciliation Pattern',
+    RECONCILIATION_RECORD: 'Reconciliation Record',
+    RECONCILIATION_STREAK: 'Reconciliation Streak',
   };
   return displays[entityType];
 };

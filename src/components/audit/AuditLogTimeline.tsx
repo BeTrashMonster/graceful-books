@@ -57,6 +57,9 @@ function getEntityTypeColor(entityType: AuditEntityType): string {
     USER: 'bg-green-100 text-green-800',
     COMPANY: 'bg-yellow-100 text-yellow-800',
     SESSION: 'bg-gray-100 text-gray-800',
+    RECONCILIATION_PATTERN: 'bg-teal-100 text-teal-800',
+    RECONCILIATION_RECORD: 'bg-cyan-100 text-cyan-800',
+    RECONCILIATION_STREAK: 'bg-emerald-100 text-emerald-800',
   };
   return colors[entityType] || 'bg-gray-100 text-gray-800';
 }
@@ -90,6 +93,9 @@ function formatEntityType(entityType: AuditEntityType): string {
     USER: 'User',
     COMPANY: 'Company',
     SESSION: 'Session',
+    RECONCILIATION_PATTERN: 'Reconciliation Pattern',
+    RECONCILIATION_RECORD: 'Reconciliation Record',
+    RECONCILIATION_STREAK: 'Reconciliation Streak',
   };
   return names[entityType] || entityType;
 }
