@@ -14,7 +14,7 @@
 
 import React, { useState, useEffect } from 'react'
 import type { WizardState, CoaWizardData, AccountCustomization } from '../../types/wizard.types'
-import { INDUSTRY_TEMPLATES, ACCOUNT_TYPE_EXPLANATIONS } from '../../data/industryTemplates'
+import { INDUSTRY_TEMPLATES } from '../../data/industryTemplates'
 import {
   initializeWizardState,
   navigateToNextStep,
@@ -417,10 +417,10 @@ interface CustomizeAccountsStepProps {
 
 const CustomizeAccountsStep: React.FC<CustomizeAccountsStepProps> = ({
   templateId,
-  customizations,
-  customAccounts,
-  onUpdateCustomizations,
-  onUpdateCustomAccounts,
+  customizations: _customizations,
+  customAccounts: _customAccounts,
+  onUpdateCustomizations: _onUpdateCustomizations,
+  onUpdateCustomAccounts: _onUpdateCustomAccounts,
 }) => {
   // This is a simplified version - full implementation in separate component
   const template = INDUSTRY_TEMPLATES.find(t => t.id === templateId)
@@ -451,7 +451,7 @@ interface ReviewStepProps {
   onEdit: (stepId: string) => void
 }
 
-const ReviewStep: React.FC<ReviewStepProps> = ({ wizardData, onEdit }) => {
+const ReviewStep: React.FC<ReviewStepProps> = ({ wizardData, onEdit: _onEdit }) => {
   const template = INDUSTRY_TEMPLATES.find(t => t.id === wizardData.selectedTemplateId)
 
   if (!template) return null

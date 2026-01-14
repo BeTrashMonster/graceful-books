@@ -1,5 +1,9 @@
 # Graceful Books
 
+[![codecov](https://codecov.io/gh/YOUR_USERNAME/graceful_books/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/graceful_books)
+![Build Status](https://github.com/YOUR_USERNAME/graceful_books/workflows/CI/badge.svg)
+![License](https://img.shields.io/badge/license-Proprietary-red)
+
 An educational accounting platform for entrepreneurs who are numbers-adverse.
 
 ## Overview
@@ -67,8 +71,46 @@ npm run e2e:ui          # Open Playwright UI
 
 # Build
 npm run build           # Build for production
+npm run build:staging   # Build for staging environment
+npm run build:production # Build for production environment
 npm run preview         # Preview production build
+
+# Deployment
+npm run deploy:staging      # Deploy to staging (requires VERCEL_TOKEN)
+npm run deploy:production   # Deploy to production (requires VERCEL_TOKEN)
 ```
+
+## Deployment
+
+### Staging Environment
+
+Staging deploys automatically on push to `main` branch via GitHub Actions.
+
+**View staging:** Check GitHub Actions logs or Vercel dashboard for staging URL.
+
+**Manual deploy to staging:**
+```bash
+npm run deploy:staging
+```
+
+### Production Environment
+
+Production deploys on release tags or manual workflow dispatch.
+
+**Deploy via release:**
+```bash
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin v1.0.0
+```
+
+**Manual deploy to production:**
+1. Go to GitHub Actions
+2. Select "Deploy to Production" workflow
+3. Run workflow with confirmation
+
+**Documentation:**
+- See [docs/STAGING_SETUP.md](docs/STAGING_SETUP.md) for initial setup
+- See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for full deployment guide
 
 ## Technology Stack
 
@@ -170,6 +212,13 @@ Proprietary
 
 ## Documentation
 
-- See `SPEC.md` for complete product requirements
-- See `ROADMAP.md` for detailed implementation plan
-- See `CLAUDE.md` for development guidance
+### Project Documentation
+- `SPEC.md` - Complete product requirements
+- `ROADMAP.md` - Detailed implementation plan
+- `CLAUDE.md` - Development guidance for AI agents
+
+### Development Guides
+- `docs/STAGING_SETUP.md` - Initial staging environment setup
+- `docs/DEPLOYMENT.md` - Full deployment guide (staging and production)
+- `docs/CODECOV_SETUP.md` - Code coverage tracking setup
+- `.github/workflows/README.md` - CI/CD pipeline documentation

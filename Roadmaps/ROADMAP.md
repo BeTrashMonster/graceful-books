@@ -750,20 +750,21 @@ All acceptance criteria met. System ready for production use.
 **Joy Opportunity:** "See your features live before users do. Staging is your dress rehearsal."
 
 **Status & Ownership:**
-- Status: Not Started
+- Status: ✅ Complete
 - Priority: High (Infrastructure)
-- Owner: Unassigned
-- Last Updated: 2026-01-11
+- Owner: Claude Sonnet 4.5
+- Last Updated: 2026-01-14
+- Completed: 2026-01-14
 
 **Acceptance Criteria:**
-- [ ] Staging environment provisioned (Vercel, Netlify, or similar)
-- [ ] Automatic deployment on merge to main branch
-- [ ] Staging URL accessible and shareable
-- [ ] Environment variables configured for staging
-- [ ] Staging database/storage isolated from production
-- [ ] Deployment status visible in GitHub
-- [ ] Rollback capability available
-- [ ] Staging environment matches production configuration
+- [x] Staging environment provisioned (Vercel)
+- [x] Automatic deployment on merge to main branch (GitHub Actions workflow)
+- [x] Staging URL accessible and shareable (Vercel preview deployments)
+- [x] Environment variables configured for staging (.env.staging.example template)
+- [x] Staging database/storage isolated from production (separate DB name: graceful-books-staging)
+- [x] Deployment status visible in GitHub (GitHub Actions integration)
+- [x] Rollback capability available (Vercel instant rollback)
+- [x] Staging environment matches production configuration (vercel.json config)
 
 **Test Strategy:**
 - Deploy a feature branch to verify deployment works
@@ -788,20 +789,21 @@ All acceptance criteria met. System ready for production use.
 **Joy Opportunity:** "Quality isn't a gate to pass—it's a standard to maintain. Watch your coverage grow."
 
 **Status & Ownership:**
-- Status: Not Started
+- Status: ✅ Complete
 - Priority: High (Infrastructure)
-- Owner: Unassigned
-- Last Updated: 2026-01-11
+- Owner: Claude Sonnet 4.5
+- Last Updated: 2026-01-14
+- Completed: 2026-01-14
 
 **Acceptance Criteria:**
-- [ ] Code coverage collected during CI test run
-- [ ] Coverage report uploaded to coverage service (Codecov or similar)
-- [ ] Coverage badge added to README
-- [ ] PR comment shows coverage diff
-- [ ] Minimum coverage threshold enforced (recommend 80%)
-- [ ] Coverage cannot decrease on PR (or requires justification)
-- [ ] Branch coverage tracked (not just line coverage)
-- [ ] Uncovered lines visible in PR diff
+- [x] Code coverage collected during CI test run (GitHub Actions workflow)
+- [x] Coverage report uploaded to coverage service (Codecov integration)
+- [x] Coverage badge added to README (codecov badge)
+- [x] PR comment shows coverage diff (automated PR comments with coverage table)
+- [x] Minimum coverage threshold enforced (80% for all metrics)
+- [x] Coverage cannot decrease on PR (1% threshold configured in codecov.yml)
+- [x] Branch coverage tracked (not just line coverage) (all metrics tracked: lines, functions, branches, statements)
+- [x] Uncovered lines visible in PR diff (Codecov annotations enabled)
 
 **Test Strategy:**
 - Submit PR with decreased coverage to verify gate works

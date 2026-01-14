@@ -1,0 +1,100 @@
+# Codecov Configuration
+# Documentation: https://docs.codecov.com/docs/codecov-yaml
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 1%
+        if_ci_failed: error
+
+    patch:
+      default:
+        target: 80%
+        threshold: 1%
+        if_ci_failed: error
+
+    changes:
+      default:
+        if_ci_failed: error
+
+comment:
+  layout: "reach,diff,flags,tree,footer"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+  # Show these sections in PR comments
+  branches:
+    - main
+
+  # Comment format
+  after_n_builds: 1
+
+ignore:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/test/**"
+  - "**/tests/**"
+  - "**/__tests__/**"
+  - "**/types/**"
+  - "**/*.d.ts"
+  - "vite.config.ts"
+  - "playwright.config.ts"
+  - "node_modules"
+  - "coverage"
+  - "dist"
+  - ".github"
+
+# Require coverage for these paths
+flag_management:
+  default_rules:
+    carryforward: true
+    statuses:
+      - type: project
+        target: 80%
+      - type: patch
+        target: 80%
+
+# Coverage targets by component
+component_management:
+  individual_components:
+    - component_id: services
+      name: Services
+      paths:
+        - src/services/**
+
+    - component_id: store
+      name: Store
+      paths:
+        - src/store/**
+
+    - component_id: components
+      name: Components
+      paths:
+        - src/components/**
+
+    - component_id: lib
+      name: Libraries
+      paths:
+        - src/lib/**
+
+# GitHub Checks
+github_checks:
+  annotations: true
+
+# Slack/GitHub notifications (optional, configure as needed)
+# notifications:
+#   slack:
+#     default:
+#       url: "secret:slack_webhook_url"
+#       threshold: 1%
+#       only_pulls: true

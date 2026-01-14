@@ -22,11 +22,8 @@ import { db } from '../db/database'
 import {
   createDefaultCategorizationModel,
   createTrainingDataPoint,
-  createSuggestionHistory,
-  createCategorizationRule,
   updateAccuracyMetrics,
   getConfidenceLevel,
-  SYSTEM_CATEGORIZATION_RULES,
 } from '../db/schema/categorization.schema'
 import type {
   CategorySuggestion,
@@ -63,8 +60,8 @@ export class CategorizationService {
 
   // Configuration
   private readonly MIN_TRAINING_EXAMPLES = 10
-  private readonly HIGH_CONFIDENCE_THRESHOLD = 0.8
-  private readonly MEDIUM_CONFIDENCE_THRESHOLD = 0.5
+  private readonly _HIGH_CONFIDENCE_THRESHOLD = 0.8
+  private readonly _MEDIUM_CONFIDENCE_THRESHOLD = 0.5
   private readonly ML_CONFIDENCE_THRESHOLD = 0.3 // Below this, use rules only
 
   constructor(companyId: string) {
@@ -471,7 +468,7 @@ export class CategorizationService {
    * Find similar transactions
    */
   async findSimilarTransactions(
-    criteria: SimilarTransactionCriteria
+    _criteria: SimilarTransactionCriteria
   ): Promise<SimilarTransaction[]> {
     // This would query the transactions table and find similar ones
     // For now, return empty array as placeholder

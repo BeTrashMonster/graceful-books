@@ -10,9 +10,7 @@
  * - Professional invoice delivery emails
  */
 
-import type { RecurringInvoice } from '../db/schema/recurringInvoices.schema';
 import type { Invoice } from '../db/schema/invoices.schema';
-import { getRecurringInvoice } from '../store/recurringInvoices';
 import { getInvoice } from '../store/invoices';
 import type { EncryptionContext } from '../store/types';
 import { logger } from '../utils/logger';
@@ -108,7 +106,7 @@ function getInvoiceNotificationMessage(
  */
 function buildHtmlEmail(
   invoice: Invoice,
-  customerName: string,
+  _customerName: string,
   message: {
     subject: string;
     greeting: string;
@@ -248,7 +246,7 @@ function buildHtmlEmail(
  */
 function buildTextEmail(
   invoice: Invoice,
-  customerName: string,
+  _customerName: string,
   message: {
     subject: string;
     greeting: string;
@@ -354,7 +352,7 @@ export async function sendInvoiceNotification(
 export async function sendInvoiceReminder(
   invoiceId: string,
   customerEmail: string,
-  customerName: string,
+  _customerName: string,
   daysUntilDue: number,
   context?: EncryptionContext
 ): Promise<{ success: boolean; message: string }> {
@@ -369,10 +367,10 @@ export async function sendInvoiceReminder(
     }
 
     const invoice = invoiceResult.data;
-    const amount = `$${parseFloat(invoice.total).toFixed(2)}`;
+    const _amount = `$${parseFloat(invoice.total).toFixed(2)}`;
 
     // Generate supportive reminder message
-    const message = getReminderMessage(invoice, daysUntilDue);
+    const _message = getReminderMessage(invoice, daysUntilDue);
 
     notificationLogger.info('Sending invoice reminder (MOCKED)', {
       invoiceId,
