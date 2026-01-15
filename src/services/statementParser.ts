@@ -159,7 +159,7 @@ export async function parseCSVStatement(
                 "Couldn't read the header row. Please check your file format."
               );
             }
-            mapping = detectColumnMapping(headers);
+            mapping = detectColumnMapping(headers) ?? undefined;
             startRow = 1;
 
             if (!mapping) {
