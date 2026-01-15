@@ -1,0 +1,78 @@
+
+> graceful-books@0.1.0 test
+> vitest src/store/invoiceTemplates.test.ts
+
+
+[7m[1m[34m DEV [39m[22m[27m [34mv1.6.1[39m [90mC:/Users/Admin/graceful_books[39m
+
+ [33m❯[39m src/store/invoiceTemplates.test.ts [2m ([22m[2m24 tests[22m [2m|[22m [31m2 failed[39m[2m)[22m[33m 431[2mms[22m[39m
+[31m   [33m❯[31m src/store/invoiceTemplates.test.ts[2m > [22mInvoice Template Storage[2m > [22mgetDefaultTemplate[2m > [22mshould retrieve default template[39m
+[31m     → expected false to be true // Object.is equality[39m
+[31m   [33m❯[31m src/store/invoiceTemplates.test.ts[2m > [22mInvoice Template Storage[2m > [22mgetDefaultTemplate[2m > [22mshould create default template if none exists[39m
+[31m     → expected false to be true // Object.is equality[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 2 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/store/invoiceTemplates.test.ts[2m > [22mInvoice Template Storage[2m > [22mgetDefaultTemplate[2m > [22mshould retrieve default template
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/store/invoiceTemplates.test.ts:[2m415:30[22m[39m
+    [90m413| [39m      [35mconst[39m result [33m=[39m [35mawait[39m [34mgetDefaultTemplate[39m(companyId)[33m;[39m
+    [90m414| [39m
+    [90m415| [39m      [34mexpect[39m(result[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m416| [39m      [34mexpect[39m(result[33m.[39mdata[33m?.[39mname)[33m.[39m[34mtoBe[39m([32m'Default Template'[39m)[33m;[39m
+    [90m417| [39m      [34mexpect[39m(result[33m.[39mdata[33m?.[39misDefault)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/store/invoiceTemplates.test.ts[2m > [22mInvoice Template Storage[2m > [22mgetDefaultTemplate[2m > [22mshould create default template if none exists
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/store/invoiceTemplates.test.ts:[2m423:30[22m[39m
+    [90m421| [39m      [35mconst[39m result [33m=[39m [35mawait[39m [34mgetDefaultTemplate[39m(companyId)[33m;[39m
+    [90m422| [39m
+    [90m423| [39m      [34mexpect[39m(result[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m424| [39m      [34mexpect[39m(result[33m.[39mdata)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m425| [39m      [34mexpect[39m(result[33m.[39mdata[33m?.[39misDefault)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m22 passed[39m[22m[90m (24)[39m
+[2m   Start at [22m 11:37:36
+[2m   Duration [22m 24.77s[2m (transform 1.41s, setup 6.12s, collect 2.78s, tests 431ms, environment 9.01s, prepare 1.54s)[22m
+
+
+[1m[7m[31m FAIL [39m[27m[22m[31m Tests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/store/invoiceTemplates.ts[22m [34mx1[39m
+
+ [32m✓[39m src/store/invoiceTemplates.test.ts [2m ([22m[2m24 tests[22m[2m)[22m[33m 438[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m24 passed[39m[22m[90m (24)[39m
+[2m   Start at [22m 11:45:30
+[2m   Duration [22m 7.36s
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x1[39m
+[2K[1A[2K[G       [90mrerun x1[39m
+[2K[1A[2K[G       [2m[90mrerun x1[39m[22m
+[2K[1A[2K[G

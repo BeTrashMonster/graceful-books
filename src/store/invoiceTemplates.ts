@@ -613,12 +613,15 @@ export async function getDefaultTemplate(
   context?: EncryptionContext
 ): Promise<DatabaseResult<InvoiceTemplateCustomization>> {
   try {
+    // Query by company_id and filter for isDefault
+    // Note: Using filter instead of compound index due to boolean handling in IndexedDB
     const entity = await db.invoiceTemplateCustomizations
-      .where('[company_id+isDefault]')
-      .equals([companyId, true])
+      .where('company_id')
+      .equals(companyId)
+      .filter((t) => t.isDefault === true && !t.deleted_at)
       .first();
 
-    if (!entity || entity.deleted_at) {
+    if (!entity) {
       // No default template found, create one
       const defaults = createDefaultTemplateCustomization(companyId, getDeviceId());
       return createInvoiceTemplate(
