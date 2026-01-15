@@ -381,15 +381,15 @@ export async function generateAuditLogTimeline(
       const entityTypeCounts = new Map<AuditEntityType, number>();
 
       for (const log of logs) {
-        actionCounts.set(log.action, (actionCounts.get(log.action) || 0) + 1);
+        actionCounts.set(log.action as AuditAction, (actionCounts.get(log.action as AuditAction) || 0) + 1);
         entityTypeCounts.set(
-          log.entity_type,
-          (entityTypeCounts.get(log.entity_type) || 0) + 1
+          log.entityType as AuditEntityType,
+          (entityTypeCounts.get(log.entityType as AuditEntityType) || 0) + 1
         );
       }
 
       entries.push({
-        timestamp: logs[0]!.timestamp,
+        timestamp: new Date(logs[0]!.timestamp).getTime(),
         date,
         count: logs.length,
         actions: Array.from(actionCounts.entries()).map(([action, count]) => ({
@@ -482,7 +482,7 @@ export async function exportAuditLogsToCSV(
         log.action,
         log.entityType,
         log.entityId,
-        `"${log.changedFields.join(', ')}"`,
+        `"${(log.changedFields || []).join(', ')}"`,
         log.ipAddress || '',
         log.deviceId || '',
         log.userAgent ? `"${log.userAgent.replace(/"/g, '""')}"` : '',
