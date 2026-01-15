@@ -99,8 +99,9 @@ describe('Categorization Store', () => {
     })
 
     it('should handle missing category names gracefully', async () => {
-      // Delete one category
-      await db.categories.where('name').equals('Utilities').delete()
+      // Delete one category by ID
+      const utilitiesCategory = categories.find((c) => c.name === 'Utilities')!
+      await db.categories.delete(utilitiesCategory.id)
 
       const result = await initializeSystemRules(companyId)
 
