@@ -58,10 +58,13 @@ export function ReconciliationWizard({
 
     const currentIndex = stepOrder.indexOf(state.currentStep);
     if (currentIndex < stepOrder.length - 1) {
-      setState(prev => ({
-        ...prev,
-        currentStep: stepOrder[currentIndex + 1],
-      }));
+      const nextStep = stepOrder[currentIndex + 1];
+      if (nextStep) {
+        setState(prev => ({
+          ...prev,
+          currentStep: nextStep,
+        }));
+      }
     }
   }, [state.currentStep]);
 
@@ -76,10 +79,13 @@ export function ReconciliationWizard({
 
     const currentIndex = stepOrder.indexOf(state.currentStep);
     if (currentIndex > 0) {
-      setState(prev => ({
-        ...prev,
-        currentStep: stepOrder[currentIndex - 1],
-      }));
+      const prevStep = stepOrder[currentIndex - 1];
+      if (prevStep) {
+        setState(prev => ({
+          ...prev,
+          currentStep: prevStep,
+        }));
+      }
     }
   }, [state.currentStep]);
 
