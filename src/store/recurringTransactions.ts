@@ -146,7 +146,7 @@ export async function getActiveRecurringTransactions(
 ): Promise<RecurringTransactionSummary[]> {
   const entities = await db.recurringTransactions
     .where('[company_id+active]')
-    .equals([companyId, true])
+    .equals([companyId, true] as any)
     .and((rt) => rt.deleted_at === null)
     .toArray();
 
@@ -299,7 +299,7 @@ export async function getDueRecurringTransactions(
 ): Promise<RecurringTransactionSummary[]> {
   const entities = await db.recurringTransactions
     .where('[company_id+active]')
-    .equals([companyId, true])
+    .equals([companyId, true] as any)
     .and((rt) => rt.deleted_at === null && rt.next_occurrence !== null && rt.next_occurrence <= currentTime)
     .toArray();
 

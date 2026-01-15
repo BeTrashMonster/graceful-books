@@ -151,13 +151,13 @@ function evaluateMatch(
   let confidence: MatchConfidence;
 
   if (score >= 90 && dateMatch.exactMatch) {
-    confidence = 'EXACT';
+    confidence = MatchConfidence.EXACT;
   } else if (score >= 75) {
-    confidence = 'HIGH';
+    confidence = MatchConfidence.HIGH;
   } else if (score >= 60) {
-    confidence = 'MEDIUM';
+    confidence = MatchConfidence.MEDIUM;
   } else {
-    confidence = 'LOW';
+    confidence = MatchConfidence.LOW;
   }
 
   return {

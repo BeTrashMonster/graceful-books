@@ -53,21 +53,21 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   const handleToggleAccount = useCallback((index: number) => {
     const updated = [...customizations]
     updated[index] = {
-      ...updated[index],
-      isIncluded: !updated[index].isIncluded,
+      ...updated[index]!,
+      isIncluded: !updated[index]!.isIncluded,
     }
     onUpdate(updated)
   }, [customizations, onUpdate])
 
   const handleUpdateName = useCallback((index: number, name: string) => {
     const updated = [...customizations]
-    updated[index] = { ...updated[index], name }
+    updated[index] = { ...updated[index]!, name }
     onUpdate(updated)
   }, [customizations, onUpdate])
 
   const handleUpdateAccountNumber = useCallback((index: number, accountNumber: string) => {
     const updated = [...customizations]
-    updated[index] = { ...updated[index], accountNumber }
+    updated[index] = { ...updated[index]!, accountNumber }
     onUpdate(updated)
   }, [customizations, onUpdate])
 
