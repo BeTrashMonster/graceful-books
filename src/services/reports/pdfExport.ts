@@ -695,16 +695,16 @@ export async function exportProfitLossToPDF(
 
         // Profitability message
         ...(includeEducationalContent
-          ? [
+          ? ([
               {
                 text: report.netIncome.isProfitable
                   ? 'You made money this period! Great work.'
                   : 'This period showed a loss. Review your expenses and revenue to identify opportunities for improvement.',
                 style: report.netIncome.isProfitable ? 'profitable' : 'loss',
                 margin: [0, 10, 0, 0],
-                alignment: 'center',
+                alignment: 'center' as const,
               },
-            ]
+            ] as Content[])
           : []),
       ],
 
