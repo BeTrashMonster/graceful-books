@@ -205,7 +205,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .color-picker {
           display: flex;
           flex-direction: column;

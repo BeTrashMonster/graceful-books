@@ -555,7 +555,7 @@ export const TemplateCustomization: React.FC<TemplateCustomizationProps> = ({
         </button>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .template-customization {
           display: flex;
           flex-direction: column;

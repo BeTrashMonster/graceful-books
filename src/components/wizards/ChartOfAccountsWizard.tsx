@@ -353,7 +353,7 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
         isOpen
         onClose={handleCancel}
         title="Set up your chart of accounts"
-        size="large"
+        size="lg"
       >
         {content}
       </Modal>

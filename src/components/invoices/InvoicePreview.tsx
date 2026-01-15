@@ -355,7 +355,7 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .invoice-preview-container {
           display: flex;
           flex-direction: column;

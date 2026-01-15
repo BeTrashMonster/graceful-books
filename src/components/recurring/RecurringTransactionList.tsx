@@ -163,14 +163,14 @@ function RecurringTransactionRow({
       <td style={{ padding: '12px', textAlign: 'center' }}>
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
           <Button
-            size="small"
+            size="sm"
             onClick={() => onEdit(recurringTransaction.id)}
             disabled={isLoading}
           >
             Edit
           </Button>
           <Button
-            size="small"
+            size="sm"
             variant="secondary"
             onClick={handleDelete}
             disabled={isLoading}

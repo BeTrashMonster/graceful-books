@@ -47,7 +47,7 @@ export function RecurringTransactionForm({
   initialName = '',
   initialRule,
   initialTemplate,
-  initialAutoCreationMode = 'DRAFT',
+  initialAutoCreationMode = AutoCreationMode.DRAFT,
   onSubmit,
   onCancel,
   isLoading = false,
@@ -56,7 +56,7 @@ export function RecurringTransactionForm({
   // Form state
   const [name, setName] = useState(initialName);
   const [frequency, setFrequency] = useState<RecurrenceFrequency>(
-    initialRule?.frequency || 'MONTHLY'
+    initialRule?.frequency || RecurrenceFrequency.MONTHLY
   );
   const [interval, setInterval] = useState(initialRule?.interval || 1);
   const [startDate, setStartDate] = useState(
@@ -142,11 +142,11 @@ export function RecurringTransactionForm({
   };
 
   const frequencyOptions: Array<{ value: RecurrenceFrequency; label: string }> = [
-    { value: 'WEEKLY', label: 'Weekly' },
-    { value: 'BI_WEEKLY', label: 'Bi-weekly (Every 2 weeks)' },
-    { value: 'MONTHLY', label: 'Monthly' },
-    { value: 'QUARTERLY', label: 'Quarterly (Every 3 months)' },
-    { value: 'ANNUALLY', label: 'Annually' },
+    { value: RecurrenceFrequency.WEEKLY, label: 'Weekly' },
+    { value: RecurrenceFrequency.BI_WEEKLY, label: 'Bi-weekly (Every 2 weeks)' },
+    { value: RecurrenceFrequency.MONTHLY, label: 'Monthly' },
+    { value: RecurrenceFrequency.QUARTERLY, label: 'Quarterly (Every 3 months)' },
+    { value: RecurrenceFrequency.ANNUALLY, label: 'Annually' },
   ];
 
   return (
