@@ -30,7 +30,6 @@ import type {
   CategorizationInput,
   TrainingDataPoint,
   CategorizationModel,
-  SuggestionHistory,
   CategorizationRule,
   AccuracyMetrics,
   LearningFeedback,
@@ -40,7 +39,6 @@ import type {
   BulkCategorizationResult,
   SimilarTransactionCriteria,
   SimilarTransaction,
-  ConfidenceLevel,
 } from '../types/categorization.types'
 import type { Category } from '../db/schema/categories.schema'
 import { logger } from '../utils/logger'

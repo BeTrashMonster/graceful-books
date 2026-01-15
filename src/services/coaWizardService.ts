@@ -11,7 +11,7 @@ import { batchCreateAccounts } from '../store/accounts'
 import { getTemplateById } from '../data/industryTemplates'
 import type { CoaWizardData, AccountCustomization } from '../types/wizard.types'
 import type { Account, AccountType } from '../types'
-import type { EncryptionContext, BatchResult } from '../store/types'
+import type { EncryptionContext } from '../store/types'
 import { logger } from '../utils/logger'
 
 export interface CreateAccountsFromWizardResult {

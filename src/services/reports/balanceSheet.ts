@@ -10,7 +10,7 @@
  */
 
 import Decimal from 'decimal.js'
-import type { Account, JournalEntry, AccountType } from '../../types'
+import type { Account, AccountType } from '../../types'
 import type {
   BalanceSheetData,
   BalanceSheetSectionData,
