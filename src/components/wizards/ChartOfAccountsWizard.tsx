@@ -14,7 +14,7 @@
 import { type FC, useState, useEffect, useCallback } from 'react'
 import { Button } from '../core/Button'
 import { Modal } from '../modals/Modal'
-import type { WizardState, CoaWizardData, AccountCustomization } from '../../types/wizard.types'
+import type { WizardState, CoaWizardData, AccountCustomization, TemplateAccount } from '../../types/wizard.types'
 import type { Account } from '../../types'
 import {
   initializeWizardState,
@@ -146,7 +146,7 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
     if (!template) return
 
     // Initialize customizations with default accounts
-    const customizations: AccountCustomization[] = template.accounts.map((account) => ({
+    const customizations: AccountCustomization[] = template.accounts.map((account: TemplateAccount) => ({
       templateAccountName: account.name,
       name: account.name,
       accountNumber: account.accountNumber,
@@ -185,7 +185,7 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
         .filter((c) => c.isIncluded)
         .forEach((customization) => {
           const templateAccount = template.accounts.find(
-            (a) => a.name === customization.templateAccountName
+            (a: TemplateAccount) => a.name === customization.templateAccountName
           )
           if (!templateAccount) return
 

@@ -9,7 +9,7 @@
 
 import { batchCreateAccounts } from '../store/accounts'
 import { getTemplateById } from '../data/industryTemplates'
-import type { CoaWizardData, AccountCustomization } from '../types/wizard.types'
+import type { CoaWizardData, AccountCustomization, TemplateAccount } from '../types/wizard.types'
 import type { Account, AccountType } from '../types'
 import type { EncryptionContext } from '../store/types'
 import { logger } from '../utils/logger'
@@ -134,7 +134,7 @@ export function initializeCustomizationsFromTemplate(
     return []
   }
 
-  return template.accounts.map(account => ({
+  return template.accounts.map((account: TemplateAccount) => ({
     templateAccountName: account.name,
     name: account.name,
     accountNumber: account.accountNumber,

@@ -284,7 +284,7 @@ export async function parseCSVStatement(
           }
         }
       },
-      error: (error) => {
+      error: (error: Error) => {
         logger.error('Papa Parse error', error);
         reject(
           new AppError(

@@ -10,6 +10,7 @@
  */
 
 import type { IndustryTemplate, AccountType } from '../types'
+import type { TemplateAccount } from '../types/wizard.types'
 
 /**
  * Plain English explanations for account types
@@ -971,7 +972,7 @@ export function getTemplatesByCategory(category: string): IndustryTemplate[] {
 export function getDefaultAccounts(templateId: string): typeof FREELANCER_TEMPLATE.accounts {
   const template = getTemplateById(templateId)
   if (!template) return []
-  return template.accounts.filter(account => account.isDefault)
+  return template.accounts.filter((account: TemplateAccount) => account.isDefault)
 }
 
 /**
@@ -980,5 +981,5 @@ export function getDefaultAccounts(templateId: string): typeof FREELANCER_TEMPLA
 export function getRequiredAccounts(templateId: string): typeof FREELANCER_TEMPLATE.accounts {
   const template = getTemplateById(templateId)
   if (!template) return []
-  return template.accounts.filter(account => account.isRequired)
+  return template.accounts.filter((account: TemplateAccount) => account.isRequired)
 }

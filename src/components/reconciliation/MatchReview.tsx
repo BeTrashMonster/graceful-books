@@ -221,7 +221,7 @@ export const MatchReview: React.FC<MatchReviewProps> = ({
                         Why we matched these
                       </summary>
                       <ul className="mt-2 ml-4 space-y-1 text-gray-600">
-                        {match.reasons.map((reason, i) => (
+                        {match.reasons.map((reason: string, i: number) => (
                           <li key={i} className="flex items-start gap-2">
                             <span className="text-success-500 mt-1">✓</span>
                             <span>{reason}</span>
