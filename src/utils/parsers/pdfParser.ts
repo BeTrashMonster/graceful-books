@@ -5,7 +5,8 @@
  * Uses pdf-parse to extract text and pattern matching to identify transactions.
  */
 
-import * as pdfParse from 'pdf-parse';
+// @ts-expect-error - pdf-parse has mixed ESM/CommonJS exports
+import pdfParse from 'pdf-parse';
 import { nanoid } from 'nanoid';
 import type {
   ParsedStatement,

@@ -20,10 +20,10 @@
  */
 
 import type {
-  AuditLog,
   AuditAction,
   AuditEntityType,
 } from '../types/database.types';
+import type { AuditLogEntity } from '../store/types';
 import { db } from '../store/database';
 import { logger } from '../utils/logger';
 
@@ -65,7 +65,7 @@ export interface AuditLogSearchOptions {
  * Search result with metadata
  */
 export interface AuditLogSearchResult {
-  logs: AuditLog[];
+  logs: AuditLogEntity[];
   total: number;
   hasMore: boolean;
   executionTimeMs: number;
@@ -86,7 +86,7 @@ export interface AuditLogTimelineEntry {
     type: AuditEntityType;
     count: number;
   }[];
-  logs: AuditLog[]; // Actual log entries
+  logs: AuditLogEntity[]; // Actual log entries
 }
 
 /**
@@ -155,17 +155,17 @@ export async function searchAuditLogs(
     // Apply additional filters
     if (options.userIds && options.userIds.length > 0) {
       const userSet = new Set(options.userIds);
-      results = results.filter((log) => userSet.has(log.user_id));
+      results = results.filter((log) => userSet.has(log.userId));
     }
 
     if (options.entityTypes && options.entityTypes.length > 0) {
       const typeSet = new Set(options.entityTypes);
-      results = results.filter((log) => typeSet.has(log.entity_type as AuditEntityType));
+      results = results.filter((log) => typeSet.has(log.entityType as AuditEntityType));
     }
 
     if (options.entityIds && options.entityIds.length > 0) {
       const entitySet = new Set(options.entityIds);
-      results = results.filter((log) => entitySet.has(log.entity_id));
+      results = results.filter((log) => entitySet.has(log.entityId));
     }
 
     if (options.actions && options.actions.length > 0) {
@@ -178,16 +178,16 @@ export async function searchAuditLogs(
       const query = options.searchQuery.toLowerCase().trim();
       results = results.filter((log) => {
         return (
-          log.entity_type.toLowerCase().includes(query) ||
+          log.entityType.toLowerCase().includes(query) ||
           log.action.toLowerCase().includes(query) ||
-          log.entity_id.toLowerCase().includes(query) ||
-          (log.changed_fields?.some((field: string) =>
+          log.entityId.toLowerCase().includes(query) ||
+          (log.changedFields?.some((field: string) =>
             field.toLowerCase().includes(query)
           )) ||
-          (log.before_value && log.before_value.toLowerCase().includes(query)) ||
-          (log.after_value && log.after_value.toLowerCase().includes(query)) ||
-          (log.ip_address && log.ip_address.toLowerCase().includes(query)) ||
-          (log.user_agent && log.user_agent.toLowerCase().includes(query))
+          (log.beforeValues && log.beforeValues.toLowerCase().includes(query)) ||
+          (log.afterValues && log.afterValues.toLowerCase().includes(query)) ||
+          (log.ipAddress && log.ipAddress.toLowerCase().includes(query)) ||
+          (log.userAgent && log.userAgent.toLowerCase().includes(query))
         );
       });
     }
@@ -209,12 +209,12 @@ export async function searchAuditLogs(
           bVal = b.timestamp;
           break;
         case 'user_id':
-          aVal = a.user_id;
-          bVal = b.user_id;
+          aVal = a.userId;
+          bVal = b.userId;
           break;
         case 'entity_type':
-          aVal = a.entity_type;
-          bVal = b.entity_type;
+          aVal = a.entityType;
+          bVal = b.entityType;
           break;
         case 'action':
           aVal = a.action;
