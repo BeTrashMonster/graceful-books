@@ -145,17 +145,17 @@ export function calculateNextGenerationDate(
  * Handles cases where dayOfMonth might not exist in target month (e.g., Feb 31 -> Feb 28/29)
  */
 export function adjustForEndOfMonth(targetDate: Date, dayOfMonth: number): Date {
-  // Use UTC methods to avoid timezone issues
+  // Extract year and month from the target date (using UTC to be consistent with RRule)
   const year = targetDate.getUTCFullYear();
   const month = targetDate.getUTCMonth();
 
-  // Get the last day of the target month using UTC
+  // Get the last day of the target month
   const lastDayOfMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
 
   // Use the smaller of dayOfMonth or lastDayOfMonth
   const actualDay = Math.min(dayOfMonth, lastDayOfMonth);
 
-  // Create and return the adjusted date in UTC
+  // Create and return the adjusted date (UTC midnight)
   return new Date(Date.UTC(year, month, actualDay));
 }
 

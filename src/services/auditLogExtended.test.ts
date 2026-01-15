@@ -585,7 +585,7 @@ describe('Extended Audit Log Service', () => {
       expect(result.total).toBe(10000);
       expect(endTime - startTime).toBeLessThan(1000);
       expect(result.executionTimeMs).toBeLessThan(200);
-    });
+    }, 30000); // 30 second timeout for large dataset seeding
 
     it('should handle complex queries efficiently', async () => {
       await seedTestData(5000);
@@ -608,7 +608,7 @@ describe('Extended Audit Log Service', () => {
 
       expect(endTime - startTime).toBeLessThan(1000);
       expect(result.executionTimeMs).toBeLessThan(200);
-    });
+    }, 30000); // 30 second timeout for large dataset seeding
 
     it('should handle timeline generation with large datasets', async () => {
       await seedTestData(5000);
@@ -628,7 +628,7 @@ describe('Extended Audit Log Service', () => {
 
       expect(endTime - startTime).toBeLessThan(1000);
       expect(result.executionTimeMs).toBeLessThan(200);
-    });
+    }, 30000); // 30 second timeout for large dataset seeding
 
     it('should handle CSV export with large datasets', async () => {
       await seedTestData(5000);
@@ -641,7 +641,7 @@ describe('Extended Audit Log Service', () => {
 
       expect(result.recordCount).toBe(5000);
       expect(endTime - startTime).toBeLessThan(2000);
-    });
+    }, 30000); // 30 second timeout for large dataset seeding
   });
 
   describe('Security and Data Integrity', () => {

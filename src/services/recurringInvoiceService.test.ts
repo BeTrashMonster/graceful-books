@@ -209,8 +209,8 @@ describe('Recurring Invoice Generation Service', () => {
       const febDate = new Date('2026-02-01');
       const adjusted = adjustForEndOfMonth(febDate, 31);
 
-      expect(adjusted.getDate()).toBe(28);
-      expect(adjusted.getMonth()).toBe(1); // February
+      expect(adjusted.getUTCDate()).toBe(28);
+      expect(adjusted.getUTCMonth()).toBe(1); // February
     });
 
     it('should handle January 31st recurring to February (29 days in leap year)', () => {
@@ -218,8 +218,8 @@ describe('Recurring Invoice Generation Service', () => {
       const febDate = new Date('2024-02-01');
       const adjusted = adjustForEndOfMonth(febDate, 31);
 
-      expect(adjusted.getDate()).toBe(29);
-      expect(adjusted.getMonth()).toBe(1); // February
+      expect(adjusted.getUTCDate()).toBe(29);
+      expect(adjusted.getUTCMonth()).toBe(1); // February
     });
 
     it('should handle 31st day recurring to 30-day months', () => {

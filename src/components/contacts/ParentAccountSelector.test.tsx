@@ -447,13 +447,15 @@ describe('ParentAccountSelector', () => {
 
   describe('Visibility Control', () => {
     it('should not render if user has only one contact', async () => {
-      // Mock only one contact (the current one)
-      const mockWhere = {
-        equals: vi.fn().mockReturnThis(),
-        filter: vi.fn().mockReturnThis(),
-        toArray: vi.fn().mockResolvedValue([mockContacts[3]]), // Only current contact
-      }
-      ;(db.contacts.where as any).mockReturnValue(mockWhere)
+      // Mock useLiveQuery to return only one contact (the current one)
+      ;(useLiveQuery as any).mockImplementation((queryFn: any, deps: any, defaultValue: any) => {
+        // First call is for contacts list - return only current contact
+        if (queryFn.toString().includes('db.contacts')) {
+          return [mockContacts[3]]
+        }
+        // Second call is for descendants
+        return []
+      })
 
       const { container } = render(<ParentAccountSelector {...defaultProps} />)
 
@@ -579,18 +581,37 @@ describe('ParentAccountSelector', () => {
     })
 
     it('should handle service errors gracefully', async () => {
-      (HierarchyService.getDescendants as any) = vi
+      const testError = new Error('Service error')
+
+      // Mock useLiveQuery to actually execute the query function
+      ;(useLiveQuery as any).mockImplementation(async (queryFn: any, deps: any, defaultValue: any) => {
+        // First call is for contacts list
+        if (queryFn.toString().includes('db.contacts')) {
+          return mockContacts
+        }
+        // Second call is for descendants - execute the query function to trigger error handling
+        try {
+          return await queryFn()
+        } catch {
+          // If query throws, return default value
+          return defaultValue
+        }
+      })
+
+      // Mock HierarchyService to throw error
+      ;(HierarchyService.getDescendants as any) = vi
         .fn()
-        .mockRejectedValue(new Error('Service error'))
+        .mockRejectedValue(testError)
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       render(<ParentAccountSelector {...defaultProps} defaultExpanded />)
 
+      // Wait for the component to attempt to fetch descendants and handle the error
       await waitFor(() => {
         expect(consoleSpy).toHaveBeenCalledWith(
           'Error fetching descendants:',
-          expect.any(Error)
+          testError
         )
       })
 

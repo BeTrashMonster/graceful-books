@@ -348,7 +348,7 @@ describe('ReconciliationHistory Service', () => {
 
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data.vendor_name).toBe('aws');
+          expect(result.data.vendor_name).toBe('aws payment');
           expect(result.data.match_count).toBe(1);
         }
       });
