@@ -150,22 +150,22 @@ export async function searchAuditLogs(
     }
 
     // Get initial results
-    let results = await query.toArray() as AuditLog[];
+    let results = await query.toArray();
 
     // Apply additional filters
     if (options.userIds && options.userIds.length > 0) {
       const userSet = new Set(options.userIds);
-      results = results.filter((log) => userSet.has(log.userId));
+      results = results.filter((log) => userSet.has(log.user_id));
     }
 
     if (options.entityTypes && options.entityTypes.length > 0) {
       const typeSet = new Set(options.entityTypes);
-      results = results.filter((log) => typeSet.has(log.entityType as AuditEntityType));
+      results = results.filter((log) => typeSet.has(log.entity_type as AuditEntityType));
     }
 
     if (options.entityIds && options.entityIds.length > 0) {
       const entitySet = new Set(options.entityIds);
-      results = results.filter((log) => entitySet.has(log.entityId));
+      results = results.filter((log) => entitySet.has(log.entity_id));
     }
 
     if (options.actions && options.actions.length > 0) {
@@ -178,16 +178,16 @@ export async function searchAuditLogs(
       const query = options.searchQuery.toLowerCase().trim();
       results = results.filter((log) => {
         return (
-          log.entityType.toLowerCase().includes(query) ||
+          log.entity_type.toLowerCase().includes(query) ||
           log.action.toLowerCase().includes(query) ||
-          log.entityId.toLowerCase().includes(query) ||
-          (log.changedFields?.some((field) =>
+          log.entity_id.toLowerCase().includes(query) ||
+          (log.changed_fields?.some((field: string) =>
             field.toLowerCase().includes(query)
           )) ||
-          (log.beforeValues && log.beforeValues.toLowerCase().includes(query)) ||
-          (log.afterValues && log.afterValues.toLowerCase().includes(query)) ||
-          (log.ipAddress && log.ipAddress.toLowerCase().includes(query)) ||
-          (log.userAgent && log.userAgent.toLowerCase().includes(query))
+          (log.before_value && log.before_value.toLowerCase().includes(query)) ||
+          (log.after_value && log.after_value.toLowerCase().includes(query)) ||
+          (log.ip_address && log.ip_address.toLowerCase().includes(query)) ||
+          (log.user_agent && log.user_agent.toLowerCase().includes(query))
         );
       });
     }
@@ -209,12 +209,12 @@ export async function searchAuditLogs(
           bVal = b.timestamp;
           break;
         case 'user_id':
-          aVal = a.userId;
-          bVal = b.userId;
+          aVal = a.user_id;
+          bVal = b.user_id;
           break;
         case 'entity_type':
-          aVal = a.entityType;
-          bVal = b.entityType;
+          aVal = a.entity_type;
+          bVal = b.entity_type;
           break;
         case 'action':
           aVal = a.action;
