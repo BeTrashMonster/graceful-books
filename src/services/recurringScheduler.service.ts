@@ -23,7 +23,8 @@ import type {
   RecurringTransactionSummary,
   TransactionTemplate,
 } from '../types/recurring.types';
-import type { Transaction, TransactionLineItem, TransactionStatus } from '../types/database.types';
+import type { Transaction, TransactionLineItem } from '../types/database.types';
+import { TransactionStatus } from '../types/database.types';
 
 /**
  * Result of processing recurring transactions

@@ -10,9 +10,9 @@
 
 import {
   DEFAULT_MATCHING_OPTIONS,
+  MatchConfidence,
   type StatementTransaction,
   type TransactionMatch,
-  type MatchConfidence,
   type MatchingOptions,
 } from '../types/reconciliation.types';
 import type { JournalEntry } from '../types';

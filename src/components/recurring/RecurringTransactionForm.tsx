@@ -20,12 +20,11 @@ import { getRecurrencePreview, getRecurrenceDescription } from '../../services/r
 import { logger } from '../../utils/logger';
 import type {
   RecurrenceRule,
-  RecurrenceFrequency,
   RecurrenceEndType,
-  AutoCreationMode,
   TransactionTemplate,
   RecurrencePreview,
 } from '../../types/recurring.types';
+import { RecurrenceFrequency, AutoCreationMode } from '../../types/recurring.types';
 
 export interface RecurringTransactionFormProps {
   initialName?: string;

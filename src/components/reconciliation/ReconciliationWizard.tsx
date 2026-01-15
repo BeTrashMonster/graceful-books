@@ -8,10 +8,10 @@
 import { useState, useCallback } from 'react';
 import type {
   ParsedStatement,
-  ReconciliationStep,
   TransactionMatch,
   ReconciliationWizardState,
 } from '../../types/reconciliation.types';
+import { ReconciliationStep } from '../../types/reconciliation.types';
 import { IntroductionStep } from './steps/IntroductionStep';
 import { UploadStatementStep } from './steps/UploadStatementStep';
 import { ReviewMatchesStep } from './steps/ReviewMatchesStep';
