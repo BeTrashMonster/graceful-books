@@ -6,7 +6,12 @@
  * See src/pages/Assessment.tsx for new simplified component.
  */
 
-// This test file is deprecated - all tests commented out
-// The DISC assessment system has been removed
+import { describe, it } from 'vitest';
 
-export {};
+// Placeholder test to prevent "no tests found" error
+describe('AssessmentFlow (Deprecated)', () => {
+  it.skip('needs rewrite for simplified assessment', () => {
+    // DISC assessment system has been removed
+    // See src/pages/Assessment.tsx for new implementation
+  });
+});

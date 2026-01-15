@@ -7,7 +7,12 @@
  * TODO: Rewrite tests for single Steadiness email template
  */
 
-// This test file is deprecated - all tests commented out
-// The DISC email template system has been removed
+import { describe, it } from 'vitest';
 
-export {};
+// Placeholder test to prevent "no tests found" error
+describe('Email Templates (Deprecated)', () => {
+  it.skip('needs rewrite for Steadiness-only system', () => {
+    // DISC email templates have been removed
+    // All email templates now use Steadiness communication style
+  });
+});
