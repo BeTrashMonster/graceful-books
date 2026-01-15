@@ -90,16 +90,16 @@ export async function parseCSVStatement(
     let openingBalance: number | undefined;
     let closingBalance: number | undefined;
 
-    if (transactions.length > 0 && transactions[0].balance !== undefined) {
+    if (transactions.length > 0 && transactions[0]!.balance !== undefined) {
       // Calculate opening balance from first transaction
-      const firstTx = transactions[0];
+      const firstTx = transactions[0]!;
       if (firstTx.balance !== undefined) {
         openingBalance = firstTx.balance - firstTx.amount;
       }
 
       // Closing balance is the last transaction's balance
       const lastTx = transactions[transactions.length - 1];
-      closingBalance = lastTx.balance;
+      closingBalance = lastTx?.balance;
     }
 
     const statement: ParsedStatement = {
@@ -300,7 +300,7 @@ function parseDate(dateStr: string, _format?: string): Date | null {
   if (matchISO) {
     const [, year, month, day] = matchISO;
     // Use local timezone by constructing Date with year, month, day
-    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    const date = new Date(parseInt(year!), parseInt(month!) - 1, parseInt(day!));
     if (!isNaN(date.getTime())) {
       return date;
     }
@@ -310,7 +310,7 @@ function parseDate(dateStr: string, _format?: string): Date | null {
   const matchUS = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (matchUS) {
     const [, month, day, year] = matchUS;
-    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    const date = new Date(parseInt(year!), parseInt(month!) - 1, parseInt(day!));
     if (!isNaN(date.getTime())) {
       return date;
     }
@@ -320,7 +320,7 @@ function parseDate(dateStr: string, _format?: string): Date | null {
   const matchEU = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (matchEU) {
     const [, day, month, year] = matchEU;
-    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    const date = new Date(parseInt(year!), parseInt(month!) - 1, parseInt(day!));
     if (!isNaN(date.getTime())) {
       return date;
     }
@@ -330,7 +330,7 @@ function parseDate(dateStr: string, _format?: string): Date | null {
   const matchDash = dateStr.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
   if (matchDash) {
     const [, day, month, year] = matchDash;
-    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    const date = new Date(parseInt(year!), parseInt(month!) - 1, parseInt(day!));
     if (!isNaN(date.getTime())) {
       return date;
     }

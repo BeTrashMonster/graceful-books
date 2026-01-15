@@ -5,7 +5,7 @@
  * Uses pdf-parse to extract text and pattern matching to identify transactions.
  */
 
-import pdf from 'pdf-parse';
+import pdfParse from 'pdf-parse';
 import { nanoid } from 'nanoid';
 import type {
   ParsedStatement,
@@ -25,7 +25,7 @@ export async function parsePDFStatement(file: File): Promise<ParsedStatement> {
     const buffer = Buffer.from(arrayBuffer);
 
     // Extract text from PDF
-    const pdfData = await pdf(buffer);
+    const pdfData = await pdfParse(buffer);
 
     if (!pdfData.text || pdfData.text.trim().length === 0) {
       throw new AppError(
@@ -115,8 +115,8 @@ function extractStatementPeriod(text: string): { startDate: number; endDate: num
   for (const pattern of patterns) {
     const match = text.match(pattern);
     if (match) {
-      const startDate = parseDate(match[1]);
-      const endDate = parseDate(match[2]);
+      const startDate = parseDate(match[1]!);
+      const endDate = parseDate(match[2]!);
 
       if (startDate && endDate) {
         return {
@@ -162,7 +162,7 @@ function extractBalances(text: string): { openingBalance?: number; closingBalanc
   for (const pattern of openingPatterns) {
     const match = text.match(pattern);
     if (match) {
-      balances.openingBalance = parseAmount(match[1]);
+      balances.openingBalance = parseAmount(match[1]!);
       break;
     }
   }
@@ -171,7 +171,7 @@ function extractBalances(text: string): { openingBalance?: number; closingBalanc
   for (const pattern of closingPatterns) {
     const match = text.match(pattern);
     if (match) {
-      balances.closingBalance = parseAmount(match[1]);
+      balances.closingBalance = parseAmount(match[1]!);
       break;
     }
   }
@@ -205,14 +205,14 @@ function extractTransactions(text: string): StatementTransaction[] {
     let match = line.match(pattern1);
     if (match) {
       const [, dateStr, description, amountStr, balanceStr] = match;
-      const date = parseDate(dateStr);
+      const date = parseDate(dateStr!);
 
-      if (date) {
+      if (date && description) {
         transactions.push({
           id: nanoid(),
           date: date.getTime(),
           description: description.trim(),
-          amount: parseAmount(amountStr),
+          amount: parseAmount(amountStr!),
           balance: balanceStr ? parseAmount(balanceStr) : undefined,
           matched: false,
         });
@@ -226,12 +226,12 @@ function extractTransactions(text: string): StatementTransaction[] {
       const [, dateStr, description, amountStr, balanceStr] = match;
       const date = parseDate(`${dateStr}/${currentYear}`);
 
-      if (date) {
+      if (date && description) {
         transactions.push({
           id: nanoid(),
           date: date.getTime(),
           description: description.trim(),
-          amount: parseAmount(amountStr),
+          amount: parseAmount(amountStr!),
           balance: balanceStr ? parseAmount(balanceStr) : undefined,
           matched: false,
         });
@@ -243,14 +243,14 @@ function extractTransactions(text: string): StatementTransaction[] {
     match = line.match(pattern3);
     if (match) {
       const [, dateStr, description, amountStr, balanceStr] = match;
-      const date = parseDate(dateStr);
+      const date = parseDate(dateStr!);
 
-      if (date) {
+      if (date && description) {
         transactions.push({
           id: nanoid(),
           date: date.getTime(),
           description: description.trim(),
-          amount: parseAmount(amountStr),
+          amount: parseAmount(amountStr!),
           balance: balanceStr ? parseAmount(balanceStr) : undefined,
           matched: false,
         });
@@ -300,7 +300,7 @@ function parseDate(dateStr: string): Date | null {
   const match = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (match) {
     const [, month, day, year] = match;
-    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    const date = new Date(parseInt(year!), parseInt(month!) - 1, parseInt(day!));
     if (!isNaN(date.getTime())) {
       return date;
     }
@@ -310,7 +310,7 @@ function parseDate(dateStr: string): Date | null {
   const matchISO = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
   if (matchISO) {
     const [, year, month, day] = matchISO;
-    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    const date = new Date(parseInt(year!), parseInt(month!) - 1, parseInt(day!));
     if (!isNaN(date.getTime())) {
       return date;
     }
@@ -350,7 +350,7 @@ export async function extractPDFText(file: File): Promise<PDFParseResult> {
   try {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const pdfData = await pdf(buffer);
+    const pdfData = await pdfParse(buffer);
 
     return {
       text: pdfData.text,

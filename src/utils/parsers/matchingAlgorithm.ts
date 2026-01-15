@@ -8,10 +8,9 @@
 import type {
   StatementTransaction,
   TransactionMatch,
-  MatchConfidence,
   MatchingOptions,
 } from '../../types/reconciliation.types';
-import { DEFAULT_MATCHING_OPTIONS } from '../../types/reconciliation.types';
+import { DEFAULT_MATCHING_OPTIONS, MatchConfidence } from '../../types/reconciliation.types';
 import type { JournalEntry } from '../../types';
 import { logger } from '../logger';
 
@@ -45,7 +44,7 @@ export function matchJournalEntrys(
 
     // If we have high-confidence matches, use the best one
     if (potentialMatches.length > 0) {
-      const bestMatch = potentialMatches[0]; // Already sorted by score
+      const bestMatch = potentialMatches[0]!; // Already sorted by score
 
       if (bestMatch.score >= opts.minConfidenceScore) {
         matches.push(bestMatch);
@@ -82,7 +81,7 @@ function findPotentialMatches(
     }
 
     // Skip reconciled transactions
-    if (sysTx.status === 'RECONCILED') {
+    if (sysTx.status === 'reconciled') {
       continue;
     }
 
