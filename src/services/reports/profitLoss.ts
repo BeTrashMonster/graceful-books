@@ -451,7 +451,13 @@ export async function generateProfitLossReport(
     companyName,
     dateRange,
     comparisonPeriod: comparisonPeriod?.enabled && comparisonPeriod.startDate && comparisonPeriod.endDate
-      ? { startDate: comparisonPeriod.startDate, endDate: comparisonPeriod.endDate }
+      ? {
+          enabled: true,
+          type: comparisonPeriod.type,
+          startDate: comparisonPeriod.startDate,
+          endDate: comparisonPeriod.endDate,
+          label: comparisonPeriod.label,
+        }
       : undefined,
     accountingMethod,
     generatedAt: new Date(),

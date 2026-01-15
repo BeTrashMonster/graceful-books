@@ -12,7 +12,7 @@
  * - Revenue metric calculations
  */
 
-import { RRule, rrulestr } from 'rrule';
+import { RRule, rrulestr, type Options as RRuleOptions } from 'rrule';
 import type {
   RecurringInvoice,
   RecurrenceRule,
@@ -39,7 +39,7 @@ const serviceLogger = logger.child('RecurringInvoiceService');
  * Generate rrule string from RecurrenceRule
  */
 export function generateRRuleString(rule: RecurrenceRule, startDate: Date): string {
-  const options: Partial<RRule.Options> = {
+  const options: Partial<RRuleOptions> = {
     dtstart: startDate,
   };
 
@@ -540,9 +540,10 @@ export async function previewRecurringInvoiceDates(
     const rrule = rrulestr(rruleString);
 
     // Get next N occurrences
-    const occurrences = rrule.all((date) => {
+    const allOccurrences = rrule.all((date) => {
       return date >= startDate;
-    }, count);
+    });
+    const occurrences = allOccurrences.slice(0, count);
 
     return occurrences.slice(0, count);
   } catch (error) {
