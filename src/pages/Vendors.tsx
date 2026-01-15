@@ -27,9 +27,9 @@ import type { Vendor } from '../types/vendor.types'
 
 export interface VendorsProps {
   /**
-   * Current company ID
+   * Current company ID (optional - will use demo if not provided)
    */
-  companyId: string
+  companyId?: string
 }
 
 type ModalState =
@@ -41,7 +41,7 @@ type ModalState =
 /**
  * Vendors Page
  */
-const Vendors: FC<VendorsProps> = ({ companyId }) => {
+const Vendors: FC<VendorsProps> = ({ companyId = 'demo-company-id' }) => {
   const {
     vendors,
     isLoading,

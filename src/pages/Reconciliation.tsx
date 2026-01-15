@@ -7,7 +7,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ReconciliationWizard } from '../components/reconciliation';
-import { MainLayout } from '../components/layouts/MainLayout';
 import { Loading } from '../components/feedback/Loading';
 import { ErrorMessage } from '../components/feedback/ErrorMessage';
 import { Button } from '../components/core/Button';
@@ -76,55 +75,49 @@ export default function Reconciliation() {
 
   if (isLoading) {
     return (
-      <MainLayout>
-        <div className="flex items-center justify-center h-64">
-          <Loading />
-        </div>
-      </MainLayout>
+      <div className="flex items-center justify-center h-64">
+        <Loading />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <MainLayout>
-        <div className="max-w-2xl mx-auto p-6">
-          <ErrorMessage>{error}</ErrorMessage>
-          <Button onClick={() => navigate('/transactions')} className="mt-4">
-            Back to Transactions
-          </Button>
-        </div>
-      </MainLayout>
+      <div className="max-w-2xl mx-auto p-6">
+        <ErrorMessage message={error} />
+        <Button onClick={() => navigate('/transactions')} className="mt-4">
+          Back to Transactions
+        </Button>
+      </div>
     );
   }
 
   if (!showWizard) {
     return (
-      <MainLayout>
-        <div className="max-w-3xl mx-auto p-6">
-          <Card className="p-8 text-center">
-            <h1 className="text-3xl font-semibold text-gray-900 mb-4">
-              Reconcile {accountName}
-            </h1>
-            <p className="text-lg text-gray-600 mb-8">
-              Ready to reconcile your account? We'll guide you through the process step by
-              step.
-            </p>
-            <div className="flex justify-center gap-4">
-              <Button variant="outline" onClick={handleCancel}>
-                Cancel
-              </Button>
-              <Button variant="primary" onClick={handleStartReconciliation}>
-                Start Reconciliation
-              </Button>
-            </div>
-          </Card>
-        </div>
-      </MainLayout>
+      <div className="max-w-3xl mx-auto p-6">
+        <Card className="p-8 text-center">
+          <h1 className="text-3xl font-semibold text-gray-900 mb-4">
+            Reconcile {accountName}
+          </h1>
+          <p className="text-lg text-gray-600 mb-8">
+            Ready to reconcile your account? We'll guide you through the process step by
+            step.
+          </p>
+          <div className="flex justify-center gap-4">
+            <Button variant="outline" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleStartReconciliation}>
+              Start Reconciliation
+            </Button>
+          </div>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <MainLayout>
+    <div>
       <ReconciliationWizard
         accountId={accountId!}
         accountName={accountName}
@@ -133,6 +126,6 @@ export default function Reconciliation() {
         onComplete={handleComplete}
         onCancel={handleCancel}
       />
-    </MainLayout>
+    </div>
   );
 }

@@ -26,9 +26,9 @@ import type { Contact } from '../types'
 
 export interface CustomersProps {
   /**
-   * Current company ID
+   * Current company ID (optional - will use demo if not provided)
    */
-  companyId: string
+  companyId?: string
 }
 
 type ModalState =
@@ -40,7 +40,7 @@ type ModalState =
 /**
  * Customers Page
  */
-const Customers: FC<CustomersProps> = ({ companyId }) => {
+const Customers: FC<CustomersProps> = ({ companyId = 'demo-company-id' }) => {
   const {
     customers,
     isLoading,
