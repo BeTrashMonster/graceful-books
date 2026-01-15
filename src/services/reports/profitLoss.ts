@@ -219,7 +219,9 @@ export async function generateProfitLossReport(
     ['income'],
     dateRange,
     accountingMethod,
-    comparisonPeriod?.enabled ? comparisonPeriod : undefined
+    comparisonPeriod?.enabled && comparisonPeriod.startDate && comparisonPeriod.endDate
+      ? { startDate: comparisonPeriod.startDate, endDate: comparisonPeriod.endDate }
+      : undefined
   )
 
   const revenue: PLSection = {
@@ -241,7 +243,9 @@ export async function generateProfitLossReport(
     ['cost-of-goods-sold'],
     dateRange,
     accountingMethod,
-    comparisonPeriod?.enabled ? comparisonPeriod : undefined
+    comparisonPeriod?.enabled && comparisonPeriod.startDate && comparisonPeriod.endDate
+      ? { startDate: comparisonPeriod.startDate, endDate: comparisonPeriod.endDate }
+      : undefined
   )
 
   const costOfGoodsSold: PLSection = {
@@ -294,7 +298,9 @@ export async function generateProfitLossReport(
     ['expense'],
     dateRange,
     accountingMethod,
-    comparisonPeriod?.enabled ? comparisonPeriod : undefined
+    comparisonPeriod?.enabled && comparisonPeriod.startDate && comparisonPeriod.endDate
+      ? { startDate: comparisonPeriod.startDate, endDate: comparisonPeriod.endDate }
+      : undefined
   )
 
   const operatingExpenses: PLSection = {
@@ -351,7 +357,9 @@ export async function generateProfitLossReport(
     ['other-income'],
     dateRange,
     accountingMethod,
-    comparisonPeriod?.enabled ? comparisonPeriod : undefined
+    comparisonPeriod?.enabled && comparisonPeriod.startDate && comparisonPeriod.endDate
+      ? { startDate: comparisonPeriod.startDate, endDate: comparisonPeriod.endDate }
+      : undefined
   )
 
   const otherIncome: PLSection | undefined = otherIncomeData.lineItems.length > 0
@@ -372,7 +380,9 @@ export async function generateProfitLossReport(
     ['other-expense'],
     dateRange,
     accountingMethod,
-    comparisonPeriod?.enabled ? comparisonPeriod : undefined
+    comparisonPeriod?.enabled && comparisonPeriod.startDate && comparisonPeriod.endDate
+      ? { startDate: comparisonPeriod.startDate, endDate: comparisonPeriod.endDate }
+      : undefined
   )
 
   const otherExpenses: PLSection | undefined = otherExpensesData.lineItems.length > 0
@@ -440,7 +450,9 @@ export async function generateProfitLossReport(
     companyId,
     companyName,
     dateRange,
-    comparisonPeriod: comparisonPeriod?.enabled ? comparisonPeriod : undefined,
+    comparisonPeriod: comparisonPeriod?.enabled && comparisonPeriod.startDate && comparisonPeriod.endDate
+      ? { startDate: comparisonPeriod.startDate, endDate: comparisonPeriod.endDate }
+      : undefined,
     accountingMethod,
     generatedAt: new Date(),
     revenue,

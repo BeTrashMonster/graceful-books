@@ -114,7 +114,7 @@ export const extractVendorFromDescription = (description: string): string | null
   // Extract first meaningful word group (up to first number or special sequence)
   const match = cleaned.match(/^([a-z\s]+)/);
   if (match) {
-    return normalizeVendorName(match[1]);
+    return normalizeVendorName(match[1]!);
   }
 
   return normalizeVendorName(cleaned);

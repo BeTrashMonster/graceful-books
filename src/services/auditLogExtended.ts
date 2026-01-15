@@ -160,7 +160,7 @@ export async function searchAuditLogs(
 
     if (options.entityTypes && options.entityTypes.length > 0) {
       const typeSet = new Set(options.entityTypes);
-      results = results.filter((log) => typeSet.has(log.entityType));
+      results = results.filter((log) => typeSet.has(log.entityType as AuditEntityType));
     }
 
     if (options.entityIds && options.entityIds.length > 0) {
@@ -170,7 +170,7 @@ export async function searchAuditLogs(
 
     if (options.actions && options.actions.length > 0) {
       const actionSet = new Set(options.actions);
-      results = results.filter((log) => actionSet.has(log.action));
+      results = results.filter((log) => actionSet.has(log.action as AuditAction));
     }
 
     // Apply full-text search

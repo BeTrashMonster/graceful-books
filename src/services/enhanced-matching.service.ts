@@ -84,8 +84,8 @@ export async function enhancedMatchTransactions(
       opts
     );
 
-    if (candidates.length > 0 && candidates[0].matchScore >= opts.minConfidenceScore) {
-      const bestMatch = candidates[0];
+    if (candidates.length > 0 && candidates[0]!.matchScore >= opts.minConfidenceScore) {
+      const bestMatch = candidates[0]!;
 
       matches.push({
         statementTransactionId: statementTx.id,
@@ -535,7 +535,7 @@ function findSplitDeposit(
   );
 
   if (combinations.length > 0) {
-    const best = combinations[0];
+    const best = combinations[0]!;
     const totalSystem = best.reduce((sum, tx) => sum + calculateTransactionAmount(tx), 0);
 
     return {
@@ -576,7 +576,7 @@ function findPartialPayments(
   );
 
   if (combinations.length > 0) {
-    const best = combinations[0];
+    const best = combinations[0]!;
     const totalStatement = best.reduce((sum, tx) => sum + tx.amount, 0);
 
     return {
@@ -608,10 +608,10 @@ function findCombinationsSummingToAmount(
   for (let i = 0; i < transactions.length; i++) {
     for (let j = i + 1; j < transactions.length; j++) {
       const sum =
-        calculateTransactionAmount(transactions[i]) +
-        calculateTransactionAmount(transactions[j]);
+        calculateTransactionAmount(transactions[i]!) +
+        calculateTransactionAmount(transactions[j]!);
       if (Math.abs(sum - Math.abs(targetAmount)) <= tolerance) {
-        results.push([transactions[i], transactions[j]]);
+        results.push([transactions[i]!, transactions[j]!]);
       }
     }
   }
