@@ -25,33 +25,38 @@ import type {
   LogoPosition,
 } from '../../db/schema/invoiceTemplates.schema';
 
+/**
+ * Invoice template structure
+ */
+export interface InvoiceTemplateData {
+  name: string;
+  logo: LogoConfig | null;
+  logoPosition: LogoPosition;
+  showLogo: boolean;
+  colors: BrandColors;
+  layout: InvoiceTemplateLayout;
+  fontFamily: FontFamily;
+  fontSize: number;
+  showLineItemBorders: boolean;
+  showItemNumbers: boolean;
+  showTaxIdOnInvoice: boolean;
+  showPageNumbers: boolean;
+  headerMessage?: string;
+  footerMessage?: string;
+  paymentTerms?: string;
+  paymentInstructions?: string;
+}
+
 export interface TemplateCustomizationProps {
   /**
    * Current template data
    */
-  template: {
-    name: string;
-    logo: LogoConfig | null;
-    logoPosition: LogoPosition;
-    showLogo: boolean;
-    colors: BrandColors;
-    layout: InvoiceTemplateLayout;
-    fontFamily: FontFamily;
-    fontSize: number;
-    showLineItemBorders: boolean;
-    showItemNumbers: boolean;
-    showTaxIdOnInvoice: boolean;
-    showPageNumbers: boolean;
-    headerMessage?: string;
-    footerMessage?: string;
-    paymentTerms?: string;
-    paymentInstructions?: string;
-  };
+  template: InvoiceTemplateData;
 
   /**
    * Callback when template changes
    */
-  onChange: (template: Partial<typeof template>) => void;
+  onChange: (template: Partial<InvoiceTemplateData>) => void;
 
   /**
    * Callback when save is requested

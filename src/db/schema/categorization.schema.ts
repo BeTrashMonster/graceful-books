@@ -401,7 +401,7 @@ export const validateCategorizationRule = (rule: Partial<CategorizationRule>): s
   }
 
   // Validate regex pattern if type is regex
-  if (rule.pattern_type === 'regex') {
+  if (rule.pattern_type === 'regex' && rule.pattern) {
     try {
       new RegExp(rule.pattern)
     } catch (e) {
