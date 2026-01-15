@@ -327,7 +327,7 @@ describe('ParentAccountSelector', () => {
         />
       )
 
-      const select = await screen.findByLabelText(/parent account/i)
+      const select = await screen.findByRole('combobox', { name: /parent account/i })
 
       await user.selectOptions(select, '')
 
@@ -393,7 +393,7 @@ describe('ParentAccountSelector', () => {
         />
       )
 
-      const select = await screen.findByLabelText(/parent account/i)
+      const select = await screen.findByRole('combobox', { name: /parent account/i })
 
       await user.selectOptions(select, 'contact-1')
 
@@ -416,7 +416,7 @@ describe('ParentAccountSelector', () => {
 
       render(<ParentAccountSelector {...defaultProps} defaultExpanded />)
 
-      const select = await screen.findByLabelText(/parent account/i)
+      const select = await screen.findByRole('combobox', { name: /parent account/i })
 
       await user.selectOptions(select, 'contact-1')
 

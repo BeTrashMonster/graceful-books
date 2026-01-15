@@ -435,4 +435,108 @@
        [34mrerun x6[39m
 [2K[1A[2K[G       [90mrerun x6[39m
 [2K[1A[2K[G       [2m[90mrerun x6[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/reconciliationHistory.service.test.ts[22m [34mx6[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 15:41:06
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x6[39m
+[2K[1A[2K[G       [90mrerun x6[39m
+[2K[1A[2K[G       [2m[90mrerun x6[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/components/contacts/ParentAccountSelector.test.tsx[22m [34mx7[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 15:41:26
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x7[39m
+[2K[1A[2K[G       [90mrerun x7[39m
+[2K[1A[2K[G       [2m[90mrerun x7[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/components/contacts/ParentAccountSelector.test.tsx[22m [34mx8[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 15:41:46
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x8[39m
+[2K[1A[2K[G       [90mrerun x8[39m
+[2K[1A[2K[G       [2m[90mrerun x8[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/reconciliationHistory.service.test.ts[22m [34mx7[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 15:42:15
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x7[39m
+[2K[1A[2K[G       [90mrerun x7[39m
+[2K[1A[2K[G       [2m[90mrerun x7[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/components/contacts/ParentAccountSelector.test.tsx[22m [34mx9[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 15:42:41
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x9[39m
+[2K[1A[2K[G       [90mrerun x9[39m
+[2K[1A[2K[G       [2m[90mrerun x9[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/reconciliationHistory.service.test.ts[22m [34mx8[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 15:43:19
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x8[39m
+[2K[1A[2K[G       [90mrerun x8[39m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/components/contacts/ParentAccountSelector.test.tsx[22m [34mx10[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 15:43:20
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x10[39m
+[2K[1A[2K[G       [90mrerun x10[39m
+[2K[1A[2K[G       [2m[90mrerun x10[39m[22m
 [2K[1A[2K[G

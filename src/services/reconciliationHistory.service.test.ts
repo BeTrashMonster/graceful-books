@@ -1163,7 +1163,7 @@ describe('ReconciliationHistory Service', () => {
         expect(auditLogs.logUpdate).toHaveBeenCalledWith(
           'test-company',
           'test-user',
-          'reconciliation_record',
+          'RECONCILIATION_RECORD',
           saveResult.data.id,
           expect.any(Object),
           expect.any(Object),
