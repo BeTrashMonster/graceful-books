@@ -476,16 +476,26 @@ export async function exportAuditLogsToCSV(
     const csvLines = [headers.join(',')];
 
     for (const log of searchResult.logs) {
+      // Helper function to escape CSV values
+      const escapeCSV = (value: string | null | undefined): string => {
+        if (!value) return '';
+        // If value contains quotes, commas, or newlines, wrap in quotes and escape existing quotes
+        if (value.includes('"') || value.includes(',') || value.includes('\n')) {
+          return `"${value.replace(/"/g, '""')}"`;
+        }
+        return value;
+      };
+
       const row = [
         new Date(log.timestamp).toISOString(),
-        log.userId,
-        log.action,
-        log.entityType,
-        log.entityId,
-        `"${(log.changedFields || []).join(', ')}"`,
-        log.ipAddress || '',
-        log.deviceId || '',
-        log.userAgent ? `"${log.userAgent.replace(/"/g, '""')}"` : '',
+        escapeCSV(log.userId || (log as any).user_id),
+        escapeCSV(log.action || (log as any).action),
+        escapeCSV(log.entityType || (log as any).entity_type),
+        escapeCSV(log.entityId || (log as any).entity_id),
+        `"${(log.changedFields || (log as any).changed_fields || []).join(', ')}"`,
+        escapeCSV(log.ipAddress || (log as any).ip_address),
+        escapeCSV(log.deviceId || (log as any).device_id),
+        escapeCSV(log.userAgent || (log as any).user_agent),
       ];
       csvLines.push(row.join(','));
     }

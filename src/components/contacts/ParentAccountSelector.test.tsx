@@ -535,7 +535,7 @@ describe('ParentAccountSelector', () => {
       const toggle = screen.getByRole('button', {
         name: /advanced: parent account/i,
       })
-      const select = await screen.findByLabelText(/parent account/i)
+      const select = await screen.findByRole('combobox', { name: /parent account/i })
 
       expect(toggle).toBeDisabled()
       expect(select).toBeDisabled()

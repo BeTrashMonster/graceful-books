@@ -145,18 +145,18 @@ export function calculateNextGenerationDate(
  * Handles cases where dayOfMonth might not exist in target month (e.g., Feb 31 -> Feb 28/29)
  */
 export function adjustForEndOfMonth(targetDate: Date, dayOfMonth: number): Date {
-  // Create a new date to avoid mutating the input
-  const year = targetDate.getFullYear();
-  const month = targetDate.getMonth();
+  // Use UTC methods to avoid timezone issues
+  const year = targetDate.getUTCFullYear();
+  const month = targetDate.getUTCMonth();
 
-  // Get the last day of the target month
-  const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+  // Get the last day of the target month using UTC
+  const lastDayOfMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
 
   // Use the smaller of dayOfMonth or lastDayOfMonth
   const actualDay = Math.min(dayOfMonth, lastDayOfMonth);
 
-  // Create and return the adjusted date
-  return new Date(year, month, actualDay);
+  // Create and return the adjusted date in UTC
+  return new Date(Date.UTC(year, month, actualDay));
 }
 
 /**
