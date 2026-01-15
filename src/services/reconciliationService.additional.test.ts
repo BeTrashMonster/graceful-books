@@ -801,10 +801,10 @@ describe('ReconciliationService - Additional Comprehensive Tests', () => {
         isFirstReconciliation: false,
       });
 
-      expect(reconciliation.createdAt).toBeInstanceOf(Date);
-      expect(reconciliation.updatedAt).toBeInstanceOf(Date);
-      expect(reconciliation.createdAt.getTime()).toBeLessThanOrEqual(
-        reconciliation.updatedAt.getTime()
+      expect(typeof reconciliation.created_at).toBe('number');
+      expect(typeof reconciliation.updated_at).toBe('number');
+      expect(reconciliation.created_at).toBeLessThanOrEqual(
+        reconciliation.updated_at
       );
     });
 
@@ -818,12 +818,12 @@ describe('ReconciliationService - Additional Comprehensive Tests', () => {
         isFirstReconciliation: false,
       });
 
-      const originalUpdated = reconciliation.updatedAt.getTime();
+      const originalUpdated = reconciliation.updated_at;
 
       // Wait a tiny bit to ensure timestamp difference
       const withMatch = addManualMatch(reconciliation, 'stmt-1', 'txn-1');
 
-      expect(withMatch.updatedAt.getTime()).toBeGreaterThanOrEqual(originalUpdated);
+      expect(withMatch.updated_at).toBeGreaterThanOrEqual(originalUpdated);
     });
 
     it('should set completed_at on completion', () => {
