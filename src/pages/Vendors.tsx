@@ -100,7 +100,7 @@ const Vendors: FC<VendorsProps> = ({ companyId }) => {
         const dupeCheck = checkDuplicates(data)
         if (dupeCheck.isDuplicate && !duplicateWarning) {
           // Show warning on first attempt
-          const topDuplicate = dupeCheck.potentialDuplicates[0]
+          const topDuplicate = dupeCheck.potentialDuplicates[0]!
           setDuplicateWarning(
             `We found a similar vendor: "${topDuplicate.vendor.name}". Is this the same one? If not, click "Add Vendor" again to proceed.`
           )

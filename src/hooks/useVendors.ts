@@ -112,7 +112,7 @@ function calculateSimilarity(str1: string, str2: string): number {
   }
 
   for (let j = 0; j <= len1; j++) {
-    matrix[0][j] = j
+    matrix[0]![j] = j
   }
 
   for (let i = 1; i <= len2; i++) {
@@ -129,7 +129,7 @@ function calculateSimilarity(str1: string, str2: string): number {
     }
   }
 
-  const distance = matrix[len2][len1]
+  const distance = matrix[len2]![len1]!
   const maxLen = Math.max(len1, len2)
   return 1 - distance / maxLen
 }

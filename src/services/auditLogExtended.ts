@@ -181,9 +181,9 @@ export async function searchAuditLogs(
           log.entityType.toLowerCase().includes(query) ||
           log.action.toLowerCase().includes(query) ||
           log.entityId.toLowerCase().includes(query) ||
-          log.changedFields.some((field) =>
+          (log.changedFields?.some((field) =>
             field.toLowerCase().includes(query)
-          ) ||
+          )) ||
           (log.beforeValues && log.beforeValues.toLowerCase().includes(query)) ||
           (log.afterValues && log.afterValues.toLowerCase().includes(query)) ||
           (log.ipAddress && log.ipAddress.toLowerCase().includes(query)) ||
@@ -389,7 +389,7 @@ export async function generateAuditLogTimeline(
       }
 
       entries.push({
-        timestamp: logs[0].timestamp,
+        timestamp: logs[0]!.timestamp,
         date,
         count: logs.length,
         actions: Array.from(actionCounts.entries()).map(([action, count]) => ({
