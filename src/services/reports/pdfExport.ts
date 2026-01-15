@@ -20,7 +20,7 @@ import { formatDateRange } from '../../utils/reporting'
 import { format } from 'date-fns'
 
 // Initialize pdfMake with fonts
-pdfMake.vfs = pdfFonts.pdfMake.vfs
+pdfMake.vfs = (pdfFonts as any).pdfMake?.vfs ?? pdfFonts
 
 /**
  * Format a date for display

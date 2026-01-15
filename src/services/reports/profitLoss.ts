@@ -262,7 +262,13 @@ export async function generateProfitLossReport(
     ? new Decimal(0)
     : grossProfitAmount.dividedBy(revenueData.subtotal).times(100)
 
-  const grossProfit = {
+  const grossProfit: {
+    amount: number
+    percentage: number
+    comparisonAmount?: number
+    variance?: number
+    variancePercentage?: number
+  } = {
     amount: grossProfitAmount.toNumber(),
     percentage: grossProfitPercentage.toNumber(),
   }
@@ -309,7 +315,13 @@ export async function generateProfitLossReport(
     ? new Decimal(0)
     : operatingIncomeAmount.dividedBy(revenueData.subtotal).times(100)
 
-  const operatingIncome = {
+  const operatingIncome: {
+    amount: number
+    percentage: number
+    comparisonAmount?: number
+    variance?: number
+    variancePercentage?: number
+  } = {
     amount: operatingIncomeAmount.toNumber(),
     percentage: operatingIncomePercentage.toNumber(),
   }
@@ -387,7 +399,14 @@ export async function generateProfitLossReport(
     ? new Decimal(0)
     : netIncomeAmount.dividedBy(revenueData.subtotal).times(100)
 
-  const netIncome = {
+  const netIncome: {
+    amount: number
+    percentage: number
+    isProfitable: boolean
+    comparisonAmount?: number
+    variance?: number
+    variancePercentage?: number
+  } = {
     amount: netIncomeAmount.toNumber(),
     percentage: netIncomePercentage.toNumber(),
     isProfitable: netIncomeAmount.greaterThan(0),
