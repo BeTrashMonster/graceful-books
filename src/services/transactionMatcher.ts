@@ -271,16 +271,16 @@ function calculateMatchScore(
   // Determine confidence level
   let confidence: MatchConfidence;
   if (score >= 90 && dateMatches && amountMatches) {
-    confidence = 'EXACT';
+    confidence = MatchConfidence.EXACT;
   } else if (score >= 75 && dateMatches && amountMatches) {
-    confidence = 'HIGH';
+    confidence = MatchConfidence.HIGH;
   } else if (score >= 60 && amountMatches) {
-    confidence = 'MEDIUM';
+    confidence = MatchConfidence.MEDIUM;
   } else if (score >= options.minConfidenceScore) {
-    confidence = 'LOW';
+    confidence = MatchConfidence.LOW;
   } else {
     // Below minimum confidence
-    confidence = 'LOW';
+    confidence = MatchConfidence.LOW;
     score = 0;
     return { score, confidence, reasons: [] };
   }

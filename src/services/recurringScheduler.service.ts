@@ -118,7 +118,7 @@ async function createTransactionFromTemplate(
   );
 
   // Determine status based on auto-creation mode
-  const status: TransactionStatus = autoCreationMode === 'AUTO' ? 'POSTED' : 'DRAFT';
+  const status: TransactionStatus = autoCreationMode === 'AUTO' ? TransactionStatus.POSTED : TransactionStatus.DRAFT;
 
   // Create transaction
   const transactionId = nanoid();
