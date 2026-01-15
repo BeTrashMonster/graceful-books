@@ -48,6 +48,7 @@ export async function createInvoiceTemplate(
     name: string;
     description?: string;
     isDefault?: boolean;
+    active?: boolean;
     logo?: LogoConfig | null;
     logoPosition?: LogoPosition;
     showLogo?: boolean;
@@ -72,6 +73,7 @@ export async function createInvoiceTemplate(
       name,
       description,
       isDefault = false,
+      active = true,
       logo = null,
       logoPosition = 'top-left',
       showLogo = true,
@@ -106,7 +108,7 @@ export async function createInvoiceTemplate(
       name,
       description: description || null,
       isDefault,
-      active: true,
+      active,
       logo,
       logoPosition,
       showLogo,
@@ -613,7 +615,7 @@ export async function getDefaultTemplate(
   try {
     const entity = await db.invoiceTemplateCustomizations
       .where('[company_id+isDefault]')
-      .equals([companyId, 1])
+      .equals([companyId, true])
       .first();
 
     if (!entity || entity.deleted_at) {
