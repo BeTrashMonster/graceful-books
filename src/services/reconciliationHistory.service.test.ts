@@ -147,7 +147,7 @@ describe('ReconciliationHistory Service', () => {
   beforeEach(async () => {
     // Clear all tables before each test
     await db.reconciliation_patterns?.clear();
-    await db.reconciliations?.clear();
+    await db.reconciliation_records?.clear();
     await db.transactions?.clear();
     await db.accounts?.clear();
 
@@ -650,7 +650,7 @@ describe('ReconciliationHistory Service', () => {
 
         // Check that data in database is encrypted
         if (result.success) {
-          const stored = await db.reconciliations?.get(result.data.id);
+          const stored = await db.reconciliation_records?.get(result.data.id);
           expect(stored).toBeDefined();
           if (stored) {
             expect((stored.beginning_balance as any).toString()).toContain('encrypted:');
@@ -1214,7 +1214,7 @@ describe('ReconciliationHistory Service', () => {
         );
 
         // Check that reason is encrypted in database
-        const stored = await db.reconciliations?.get(saveResult.data.id);
+        const stored = await db.reconciliation_records?.get(saveResult.data.id);
         expect(stored).toBeDefined();
         if (stored && stored.reopened_reason) {
           expect(stored.reopened_reason.toString()).toContain('encrypted:');
@@ -1831,7 +1831,7 @@ describe('ReconciliationHistory Service', () => {
     });
 
     it('should handle database errors gracefully in saveReconciliationRecord', async () => {
-      vi.spyOn(db.reconciliations as any, 'add').mockRejectedValueOnce(
+      vi.spyOn(db.reconciliation_records as any, 'add').mockRejectedValueOnce(
         new Error('Database error')
       );
 

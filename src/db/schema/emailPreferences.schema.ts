@@ -207,6 +207,22 @@ export function validateEmailPreferences(
 ): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
 
+  // Validate frequency
+  if (prefs.frequency !== undefined) {
+    const validFrequencies: EmailFrequency[] = ['weekly', 'bi-weekly', 'monthly', 'disabled'];
+    if (!validFrequencies.includes(prefs.frequency)) {
+      errors.push(`frequency must be one of: ${validFrequencies.join(', ')}`);
+    }
+  }
+
+  // Validate day of week
+  if (prefs.day_of_week !== undefined) {
+    const validDays: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    if (!validDays.includes(prefs.day_of_week)) {
+      errors.push(`day_of_week must be one of: ${validDays.join(', ')}`);
+    }
+  }
+
   // Validate time format (HH:MM)
   if (prefs.time_of_day && !/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/.test(prefs.time_of_day)) {
     errors.push('time_of_day must be in HH:MM format (e.g., 08:00)');

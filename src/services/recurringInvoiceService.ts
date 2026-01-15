@@ -51,14 +51,18 @@ export function generateRRuleString(rule: RecurrenceRule, startDate: Date): stri
     case 'WEEKLY':
       options.freq = RRule.WEEKLY;
       if (rule.dayOfWeek !== undefined) {
-        options.byweekday = [rule.dayOfWeek];
+        // Convert ISO weekday (1=Monday, 7=Sunday) to RRule weekday (0=Monday, 6=Sunday)
+        const rruleDay = rule.dayOfWeek === 7 ? 6 : rule.dayOfWeek - 1;
+        options.byweekday = [rruleDay];
       }
       break;
     case 'BIWEEKLY':
       options.freq = RRule.WEEKLY;
       options.interval = 2;
       if (rule.dayOfWeek !== undefined) {
-        options.byweekday = [rule.dayOfWeek];
+        // Convert ISO weekday (1=Monday, 7=Sunday) to RRule weekday (0=Monday, 6=Sunday)
+        const rruleDay = rule.dayOfWeek === 7 ? 6 : rule.dayOfWeek - 1;
+        options.byweekday = [rruleDay];
       }
       break;
     case 'MONTHLY':

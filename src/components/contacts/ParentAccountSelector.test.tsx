@@ -15,6 +15,7 @@ import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { ParentAccountSelector } from './ParentAccountSelector'
 import { db } from '../../db/database'
+import { useLiveQuery } from 'dexie-react-hooks'
 import { HierarchyValidator } from '../../validators/hierarchyValidator'
 import { HierarchyService } from '../../services/hierarchyService'
 import type { Contact } from '../../types/database.types'
@@ -141,6 +142,17 @@ describe('ParentAccountSelector', () => {
       toArray: vi.fn().mockResolvedValue(mockContacts),
     }
     ;(db.contacts.where as any).mockReturnValue(mockWhere)
+
+    // Mock useLiveQuery to return mock data synchronously
+    // The component calls useLiveQuery twice: once for contacts, once for descendants
+    ;(useLiveQuery as any).mockImplementation((queryFn: any, deps: any, defaultValue: any) => {
+      // First call is for contacts list
+      if (queryFn.toString().includes('db.contacts')) {
+        return mockContacts
+      }
+      // Second call is for descendants
+      return []
+    })
 
     // Mock HierarchyService
     ;(HierarchyService.getDescendants as any) = vi.fn().mockResolvedValue([])

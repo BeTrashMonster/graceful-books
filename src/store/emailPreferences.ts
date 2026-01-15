@@ -104,8 +104,18 @@ export async function updateEmailPreferences(
       );
     }
 
+    // Convert camelCase to snake_case for validation
+    const updatesForValidation: Partial<EmailPreferencesEntity> = {};
+    if (updates.dayOfWeek !== undefined) updatesForValidation.day_of_week = updates.dayOfWeek;
+    if (updates.timeOfDay !== undefined) updatesForValidation.time_of_day = updates.timeOfDay;
+    if (updates.maxTasksToShow !== undefined) updatesForValidation.max_tasks_to_show = updates.maxTasksToShow;
+    if (updates.includeSections !== undefined) updatesForValidation.include_sections = updates.includeSections;
+    if (updates.enabled !== undefined) updatesForValidation.enabled = updates.enabled;
+    if (updates.frequency !== undefined) updatesForValidation.frequency = updates.frequency;
+    if (updates.timezone !== undefined) updatesForValidation.timezone = updates.timezone;
+
     // Validate updates
-    const validation = validateEmailPreferences(updates);
+    const validation = validateEmailPreferences(updatesForValidation);
     if (!validation.valid) {
       throw new AppError(
         ErrorCode.VALIDATION_ERROR,
