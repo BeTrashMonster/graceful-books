@@ -20,11 +20,10 @@ import { getRecurrencePreview, getRecurrenceDescription } from '../../services/r
 import { logger } from '../../utils/logger';
 import type {
   RecurrenceRule,
-  RecurrenceEndType,
   TransactionTemplate,
   RecurrencePreview,
 } from '../../types/recurring.types';
-import { RecurrenceFrequency, AutoCreationMode } from '../../types/recurring.types';
+import { RecurrenceFrequency, AutoCreationMode, RecurrenceEndType } from '../../types/recurring.types';
 
 export interface RecurringTransactionFormProps {
   initialName?: string;
@@ -63,7 +62,7 @@ export function RecurringTransactionForm({
       ? format(new Date(initialRule.startDate), 'yyyy-MM-dd')
       : format(new Date(), 'yyyy-MM-dd')
   );
-  const [endType, setEndType] = useState<RecurrenceEndType>(initialRule?.endType || 'NEVER');
+  const [endType, setEndType] = useState<RecurrenceEndType>(initialRule?.endType || RecurrenceEndType.NEVER);
   const [endDate, setEndDate] = useState(
     initialRule?.endDate ? format(new Date(initialRule.endDate), 'yyyy-MM-dd') : ''
   );
@@ -107,7 +106,7 @@ export function RecurringTransactionForm({
       rule.endDate = new Date(endDate).getTime();
     }
 
-    if (endType === 'AFTER_COUNT') {
+    if (endType === RecurrenceEndType.AFTER_COUNT) {
       rule.occurrenceCount = occurrenceCount;
     }
 
@@ -262,7 +261,7 @@ export function RecurringTransactionForm({
             name="endType"
             value="NEVER"
             checked={endType === 'NEVER'}
-            onChange={() => setEndType('NEVER')}
+            onChange={() => setEndType(RecurrenceEndType.NEVER)}
             label="Never"
             disabled={isLoading}
           />
@@ -270,12 +269,12 @@ export function RecurringTransactionForm({
             id="end-on-date"
             name="endType"
             value="ON_DATE"
-            checked={endType === 'ON_DATE'}
-            onChange={() => setEndType('ON_DATE')}
+            checked={endType === RecurrenceEndType.ON_DATE}
+            onChange={() => setEndType(RecurrenceEndType.ON_DATE)}
             label="On a specific date"
             disabled={isLoading}
           />
-          {endType === 'ON_DATE' && (
+          {endType === RecurrenceEndType.ON_DATE && (
             <div style={{ marginLeft: '28px' }}>
               <Input
                 id="endDate"
@@ -292,12 +291,12 @@ export function RecurringTransactionForm({
             id="end-after-count"
             name="endType"
             value="AFTER_COUNT"
-            checked={endType === 'AFTER_COUNT'}
-            onChange={() => setEndType('AFTER_COUNT')}
+            checked={endType === RecurrenceEndType.AFTER_COUNT}
+            onChange={() => setEndType(RecurrenceEndType.AFTER_COUNT)}
             label="After a number of occurrences"
             disabled={isLoading}
           />
-          {endType === 'AFTER_COUNT' && (
+          {endType === RecurrenceEndType.AFTER_COUNT && (
             <div style={{ marginLeft: '28px' }}>
               <Input
                 id="occurrenceCount"
@@ -323,8 +322,8 @@ export function RecurringTransactionForm({
             id="mode-draft"
             name="autoCreationMode"
             value="DRAFT"
-            checked={autoCreationMode === 'DRAFT'}
-            onChange={() => setAutoCreationMode('DRAFT')}
+            checked={autoCreationMode === AutoCreationMode.DRAFT}
+            onChange={() => setAutoCreationMode(AutoCreationMode.DRAFT)}
             label="Create as drafts for approval"
             disabled={isLoading}
           />
@@ -335,8 +334,8 @@ export function RecurringTransactionForm({
             id="mode-auto"
             name="autoCreationMode"
             value="AUTO"
-            checked={autoCreationMode === 'AUTO'}
-            onChange={() => setAutoCreationMode('AUTO')}
+            checked={autoCreationMode === AutoCreationMode.AUTO}
+            onChange={() => setAutoCreationMode(AutoCreationMode.AUTO)}
             label="Automatically post transactions"
             disabled={isLoading}
           />
