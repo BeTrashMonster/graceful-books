@@ -308,8 +308,8 @@ export function TutorialOverlay({
       <div
         key={i}
         className={clsx(styles.progressDot, {
-          [styles.active]: isActive,
-          [styles.completed]: isCompleted,
+          [styles.active as string]: isActive,
+          [styles.completed as string]: isCompleted,
         })}
         aria-label={`Step ${i + 1} of ${totalSteps}${isActive ? ' (current)' : ''}${isCompleted ? ' (completed)' : ''}`}
       />
@@ -322,7 +322,7 @@ export function TutorialOverlay({
       {spotlightRect && (
         <div
           className={clsx(styles.spotlight, {
-            [styles.allowInteraction]: step.allowInteraction,
+            [styles.allowInteraction as string]: step.allowInteraction,
           })}
           style={{
             top: `${spotlightRect.top}px`,
@@ -338,11 +338,11 @@ export function TutorialOverlay({
       <div
         ref={tooltipRef}
         className={clsx(styles.tooltip, {
-          [styles.top]: tooltipPosition.position === StepPosition.TOP,
-          [styles.bottom]: tooltipPosition.position === StepPosition.BOTTOM,
-          [styles.left]: tooltipPosition.position === StepPosition.LEFT,
-          [styles.right]: tooltipPosition.position === StepPosition.RIGHT,
-          [styles.center]: tooltipPosition.position === StepPosition.CENTER,
+          [styles.top as string]: tooltipPosition.position === StepPosition.TOP,
+          [styles.bottom as string]: tooltipPosition.position === StepPosition.BOTTOM,
+          [styles.left as string]: tooltipPosition.position === StepPosition.LEFT,
+          [styles.right as string]: tooltipPosition.position === StepPosition.RIGHT,
+          [styles.center as string]: tooltipPosition.position === StepPosition.CENTER,
         })}
         style={{
           top: `${tooltipPosition.top}px`,
