@@ -230,7 +230,7 @@ describe('ParentAccountSelector', () => {
     it('should display all valid parent options', async () => {
       render(<ParentAccountSelector {...defaultProps} defaultExpanded />)
 
-      const select = await screen.findByLabelText(/parent account/i)
+      const select = await screen.findByRole('combobox', { name: /parent account/i })
 
       await waitFor(() => {
         const options = within(select).getAllByRole('option')
@@ -242,7 +242,7 @@ describe('ParentAccountSelector', () => {
     it('should exclude current contact from options', async () => {
       render(<ParentAccountSelector {...defaultProps} defaultExpanded />)
 
-      const select = await screen.findByLabelText(/parent account/i)
+      const select = await screen.findByRole('combobox', { name: /parent account/i })
 
       await waitFor(() => {
         const options = within(select).getAllByRole('option')
@@ -261,7 +261,7 @@ describe('ParentAccountSelector', () => {
 
       render(<ParentAccountSelector {...defaultProps} defaultExpanded />)
 
-      const select = await screen.findByLabelText(/parent account/i)
+      const select = await screen.findByRole('combobox', { name: /parent account/i })
 
       await waitFor(() => {
         const options = within(select).getAllByRole('option')

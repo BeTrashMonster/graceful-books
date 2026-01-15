@@ -178,9 +178,9 @@ export async function searchAuditLogs(
       const query = options.searchQuery.toLowerCase().trim();
       results = results.filter((log) => {
         return (
-          log.entityType.toLowerCase().includes(query) ||
-          log.action.toLowerCase().includes(query) ||
-          log.entityId.toLowerCase().includes(query) ||
+          (log.entityType && log.entityType.toLowerCase().includes(query)) ||
+          (log.action && log.action.toLowerCase().includes(query)) ||
+          (log.entityId && log.entityId.toLowerCase().includes(query)) ||
           (log.changedFields?.some((field: string) =>
             field.toLowerCase().includes(query)
           )) ||

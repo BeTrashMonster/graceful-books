@@ -204,7 +204,7 @@ describe('ReconciliationHistory Service', () => {
         expect(auditLogs.logCreate).toHaveBeenCalledWith(
           'test-company',
           'test-user',
-          'reconciliation_pattern',
+          'RECONCILIATION_PATTERN',
           expect.any(String),
           expect.objectContaining({
             vendor_name: expect.any(String),
@@ -239,7 +239,7 @@ describe('ReconciliationHistory Service', () => {
         expect(auditLogs.logCreate).toHaveBeenCalledWith(
           'test-company',
           'test-user',
-          'reconciliation_pattern',
+          'RECONCILIATION_PATTERN',
           expect.any(String),
           expect.any(Object),
           context
@@ -298,7 +298,7 @@ describe('ReconciliationHistory Service', () => {
         expect(auditLogs.logUpdate).toHaveBeenCalledWith(
           'test-company',
           'test-user',
-          'reconciliation_pattern',
+          'RECONCILIATION_PATTERN',
           patternId,
           expect.any(Object),
           expect.any(Object),
