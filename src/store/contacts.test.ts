@@ -78,6 +78,14 @@ const mockEncryptionService = {
       return Promise.resolve(decrypted)
     }
   }),
+  encryptField: vi.fn(<T>(field: T) => {
+    const serialized = JSON.stringify(field)
+    return Promise.resolve(`encrypted_${serialized}`)
+  }),
+  decryptField: vi.fn(<T>(encrypted: string) => {
+    const decrypted = encrypted.replace('encrypted_', '')
+    return Promise.resolve(JSON.parse(decrypted) as T)
+  }),
 }
 
 describe('Contacts Store - Vendor Management', () => {

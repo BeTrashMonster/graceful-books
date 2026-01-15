@@ -1,0 +1,1322 @@
+src/__tests__/integration/groupE.integration.test.ts(20,10): error TS2305: Module '"../../services/recurrence.service"' has no exported member 'createRecurringSchedule'.
+src/__tests__/integration/groupE.integration.test.ts(20,35): error TS2305: Module '"../../services/recurrence.service"' has no exported member 'getUpcomingRecurrences'.
+src/__tests__/integration/groupE.integration.test.ts(21,10): error TS2305: Module '"../../services/recurringInvoiceService"' has no exported member 'createRecurringInvoice'.
+src/__tests__/integration/groupE.integration.test.ts(21,34): error TS2305: Module '"../../services/recurringInvoiceService"' has no exported member 'generateInvoiceFromTemplate'.
+src/__tests__/integration/groupE.integration.test.ts(22,10): error TS2305: Module '"../../services/categorization.service"' has no exported member 'categorizeTransaction'.
+src/__tests__/integration/groupE.integration.test.ts(22,33): error TS2305: Module '"../../services/categorization.service"' has no exported member 'getCategorySuggestions'.
+src/__tests__/integration/groupE.integration.test.ts(106,9): error TS2345: Argument of type 'string' is not assignable to parameter of type 'StatementTransaction'.
+src/__tests__/integration/groupE.integration.test.ts(130,26): error TS2339: Property 'data' does not exist on type 'DatabaseResult<AuditLogEntity[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/__tests__/integration/groupE.integration.test.ts(131,26): error TS2339: Property 'data' does not exist on type 'DatabaseResult<AuditLogEntity[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/__tests__/integration/groupE.integration.test.ts(132,26): error TS2339: Property 'data' does not exist on type 'DatabaseResult<AuditLogEntity[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/__tests__/integration/groupE.integration.test.ts(143,27): error TS2339: Property 'data' does not exist on type 'DatabaseResult<ReconciliationStreak>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/__tests__/integration/groupE.integration.test.ts(149,11): error TS2345: Argument of type 'string' is not assignable to parameter of type 'StatementTransaction'.
+src/__tests__/integration/groupE.integration.test.ts(172,34): error TS2339: Property 'data' does not exist on type 'DatabaseResult<ReconciliationStreak>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/__tests__/integration/groupE.integration.test.ts(181,26): error TS2339: Property 'data' does not exist on type 'DatabaseResult<AuditLogEntity[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/__tests__/integration/groupE.integration.test.ts(196,31): error TS2345: Argument of type '{ id: string; companyId: string; name: string; type: "expense"; created: Date; }' is not assignable to parameter of type 'Category'.
+  Type '{ id: string; companyId: string; name: string; type: "expense"; created: Date; }' is missing the following properties from type 'Category': company_id, parent_id, description, color, and 8 more.
+src/__tests__/integration/groupE.integration.test.ts(230,33): error TS2345: Argument of type '{ id: string; companyId: string; accountId: string; date: Date; description: string; amount: number; type: "debit"; created: Date; }' is not assignable to parameter of type 'TransactionEntity'.
+  Type '{ id: string; companyId: string; accountId: string; date: Date; description: string; amount: number; type: "debit"; created: Date; }' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, status, createdAt, and 6 more.
+src/__tests__/integration/groupE.integration.test.ts(251,43): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/__tests__/integration/groupE.integration.test.ts(267,29): error TS2345: Argument of type '{ id: string; companyId: string; name: string; email: string; type: "customer"; created: Date; }' is not assignable to parameter of type 'ContactEntity'.
+  Type '{ id: string; companyId: string; name: string; email: string; type: "customer"; created: Date; }' is missing the following properties from type 'ContactEntity': _encrypted, isActive, createdAt, updatedAt, and 3 more.
+src/__tests__/integration/groupE.integration.test.ts(287,16): error TS2339: Property 'invoiceTemplates' does not exist on type 'GracefulBooksDB'.
+src/__tests__/integration/groupE.integration.test.ts(321,34): error TS2339: Property 'data' does not exist on type 'DatabaseResult<AuditLogEntity[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/__tests__/integration/groupE.integration.test.ts(329,33): error TS2339: Property 'data' does not exist on type 'DatabaseResult<AuditLogEntity[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/__tests__/integration/groupE.integration.test.ts(330,33): error TS2339: Property 'data' does not exist on type 'DatabaseResult<AuditLogEntity[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/__tests__/integration/groupE.integration.test.ts(346,29): error TS2345: Argument of type '{ id: string; companyId: string; name: string; email: string; type: "vendor"; created: Date; }' is not assignable to parameter of type 'ContactEntity'.
+  Type '{ id: string; companyId: string; name: string; email: string; type: "vendor"; created: Date; }' is missing the following properties from type 'ContactEntity': _encrypted, isActive, createdAt, updatedAt, and 3 more.
+src/__tests__/integration/groupE.integration.test.ts(357,31): error TS2345: Argument of type '{ id: string; companyId: string; name: string; type: "expense"; created: Date; }' is not assignable to parameter of type 'Category'.
+  Type '{ id: string; companyId: string; name: string; type: "expense"; created: Date; }' is missing the following properties from type 'Category': company_id, parent_id, description, color, and 8 more.
+src/__tests__/integration/groupE.integration.test.ts(382,26): error TS2345: Argument of type '{ id: string; companyId: string; vendorId: string; billNumber: string; date: Date; dueDate: Date; lineItems: { description: string; quantity: number; rate: number; amount: number; categoryId: string; }[]; subtotal: number; total: number; status: "unpaid"; created: Date; }' is not assignable to parameter of type 'Bill'.
+  Type '{ id: string; companyId: string; vendorId: string; billNumber: string; date: Date; dueDate: Date; lineItems: { description: string; quantity: number; rate: number; amount: number; categoryId: string; }[]; subtotal: number; total: number; status: "unpaid"; created: Date; }' is missing the following properties from type 'Bill': company_id, vendor_id, bill_number, bill_date, and 11 more.
+src/__tests__/integration/groupE.integration.test.ts(401,30): error TS2339: Property 'data' does not exist on type 'DatabaseResult<AuditLogEntity[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/__tests__/integration/groupE.integration.test.ts(402,30): error TS2339: Property 'data' does not exist on type 'DatabaseResult<AuditLogEntity[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/__tests__/integration/groupE.integration.test.ts(403,30): error TS2339: Property 'data' does not exist on type 'DatabaseResult<AuditLogEntity[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/__tests__/integration/groupE.integration.test.ts(406,40): error TS2820: Type '"paid"' is not assignable to type 'PropModification | BillStatus | undefined'. Did you mean '"PAID"'?
+src/__tests__/integration/groupE.integration.test.ts(416,33): error TS2339: Property 'data' does not exist on type 'DatabaseResult<AuditLogEntity[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/__tests__/integration/groupE.integration.test.ts(416,44): error TS7006: Parameter 'log' implicitly has an 'any' type.
+src/__tests__/integration/groupE.integration.test.ts(431,29): error TS2345: Argument of type '{ id: string; companyId: string; name: string; email: string; type: "customer"; created: Date; }' is not assignable to parameter of type 'ContactEntity'.
+  Type '{ id: string; companyId: string; name: string; email: string; type: "customer"; created: Date; }' is missing the following properties from type 'ContactEntity': _encrypted, isActive, createdAt, updatedAt, and 3 more.
+src/__tests__/integration/groupE.integration.test.ts(442,16): error TS2339: Property 'invoiceTemplates' does not exist on type 'GracefulBooksDB'.
+src/__tests__/integration/groupE.integration.test.ts(464,29): error TS2345: Argument of type '{ id: string; companyId: string; name: string; email: string; type: "vendor"; created: Date; }' is not assignable to parameter of type 'ContactEntity'.
+  Type '{ id: string; companyId: string; name: string; email: string; type: "vendor"; created: Date; }' is missing the following properties from type 'ContactEntity': _encrypted, isActive, createdAt, updatedAt, and 3 more.
+src/__tests__/integration/groupE.integration.test.ts(473,31): error TS2345: Argument of type '{ id: string; companyId: string; name: string; type: "expense"; created: Date; }' is not assignable to parameter of type 'Category'.
+  Type '{ id: string; companyId: string; name: string; type: "expense"; created: Date; }' is missing the following properties from type 'Category': company_id, parent_id, description, color, and 8 more.
+src/__tests__/integration/groupE.integration.test.ts(494,33): error TS2345: Argument of type '{ id: string; companyId: string; accountId: string; date: Date; description: string; amount: number; type: "debit"; created: Date; }' is not assignable to parameter of type 'TransactionEntity'.
+  Type '{ id: string; companyId: string; accountId: string; date: Date; description: string; amount: number; type: "debit"; created: Date; }' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, status, createdAt, and 6 more.
+src/__tests__/integration/groupE.integration.test.ts(506,9): error TS2345: Argument of type 'string' is not assignable to parameter of type 'StatementTransaction'.
+src/__tests__/integration/groupE.integration.test.ts(528,27): error TS2339: Property 'data' does not exist on type 'DatabaseResult<AuditLogEntity[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/__tests__/integration/groupE.integration.test.ts(535,48): error TS2339: Property 'data' does not exist on type 'DatabaseResult<AuditLogEntity[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/__tests__/integration/groupE.integration.test.ts(535,58): error TS7006: Parameter 'log' implicitly has an 'any' type.
+src/components/invoices/ColorPicker.tsx(208,14): error TS2322: Type '{ children: string; jsx: true; }' is not assignable to type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
+  Property 'jsx' does not exist on type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
+src/components/invoices/InvoicePreview.tsx(358,14): error TS2322: Type '{ children: string; jsx: true; }' is not assignable to type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
+  Property 'jsx' does not exist on type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
+src/components/invoices/TemplateCustomization.tsx(54,14): error TS2502: 'template' is referenced directly or indirectly in its own type annotation.
+src/components/invoices/TemplateCustomization.tsx(558,14): error TS2322: Type '{ children: string; jsx: true; }' is not assignable to type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
+  Property 'jsx' does not exist on type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
+src/components/reconciliation/MatchReview.tsx(18,8): error TS2307: Cannot find module '../../../types/reconciliation.types' or its corresponding type declarations.
+src/components/reconciliation/MatchReview.tsx(164,21): error TS18048: 'colors' is possibly 'undefined'.
+src/components/reconciliation/MatchReview.tsx(179,79): error TS18048: 'colors' is possibly 'undefined'.
+src/components/reconciliation/MatchReview.tsx(224,45): error TS7006: Parameter 'reason' implicitly has an 'any' type.
+src/components/reconciliation/MatchReview.tsx(224,53): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/components/reconciliation/ReconciliationWizard.tsx(39,5): error TS2322: Type '"INTRODUCTION"' is not assignable to type 'ReconciliationStep'.
+src/components/reconciliation/ReconciliationWizard.tsx(53,7): error TS2322: Type '"INTRODUCTION"' is not assignable to type 'ReconciliationStep'.
+src/components/reconciliation/ReconciliationWizard.tsx(54,7): error TS2322: Type '"UPLOAD_STATEMENT"' is not assignable to type 'ReconciliationStep'.
+src/components/reconciliation/ReconciliationWizard.tsx(55,7): error TS2322: Type '"REVIEW_MATCHES"' is not assignable to type 'ReconciliationStep'.
+src/components/reconciliation/ReconciliationWizard.tsx(56,7): error TS2322: Type '"SUMMARY"' is not assignable to type 'ReconciliationStep'.
+src/components/reconciliation/ReconciliationWizard.tsx(61,16): error TS2345: Argument of type '(prev: ReconciliationWizardState) => { currentStep: ReconciliationStep | undefined; accountId: string | null; statement: ParsedStatement | null; ... 5 more ...; canProgress: boolean; }' is not assignable to parameter of type 'SetStateAction<ReconciliationWizardState>'.
+  Type '(prev: ReconciliationWizardState) => { currentStep: ReconciliationStep | undefined; accountId: string | null; statement: ParsedStatement | null; ... 5 more ...; canProgress: boolean; }' is not assignable to type '(prevState: ReconciliationWizardState) => ReconciliationWizardState'.
+    Call signature return types '{ currentStep: ReconciliationStep | undefined; accountId: string | null; statement: ParsedStatement | null; matches: TransactionMatch[]; ... 4 more ...; canProgress: boolean; }' and 'ReconciliationWizardState' are incompatible.
+      The types of 'currentStep' are incompatible between these types.
+        Type 'ReconciliationStep | undefined' is not assignable to type 'ReconciliationStep'.
+          Type 'undefined' is not assignable to type 'ReconciliationStep'.
+src/components/reconciliation/ReconciliationWizard.tsx(71,7): error TS2322: Type '"INTRODUCTION"' is not assignable to type 'ReconciliationStep'.
+src/components/reconciliation/ReconciliationWizard.tsx(72,7): error TS2322: Type '"UPLOAD_STATEMENT"' is not assignable to type 'ReconciliationStep'.
+src/components/reconciliation/ReconciliationWizard.tsx(73,7): error TS2322: Type '"REVIEW_MATCHES"' is not assignable to type 'ReconciliationStep'.
+src/components/reconciliation/ReconciliationWizard.tsx(74,7): error TS2322: Type '"SUMMARY"' is not assignable to type 'ReconciliationStep'.
+src/components/reconciliation/ReconciliationWizard.tsx(79,16): error TS2345: Argument of type '(prev: ReconciliationWizardState) => { currentStep: ReconciliationStep | undefined; accountId: string | null; statement: ParsedStatement | null; ... 5 more ...; canProgress: boolean; }' is not assignable to parameter of type 'SetStateAction<ReconciliationWizardState>'.
+  Type '(prev: ReconciliationWizardState) => { currentStep: ReconciliationStep | undefined; accountId: string | null; statement: ParsedStatement | null; ... 5 more ...; canProgress: boolean; }' is not assignable to type '(prevState: ReconciliationWizardState) => ReconciliationWizardState'.
+    Call signature return types '{ currentStep: ReconciliationStep | undefined; accountId: string | null; statement: ParsedStatement | null; matches: TransactionMatch[]; ... 4 more ...; canProgress: boolean; }' and 'ReconciliationWizardState' are incompatible.
+      The types of 'currentStep' are incompatible between these types.
+        Type 'ReconciliationStep | undefined' is not assignable to type 'ReconciliationStep'.
+          Type 'undefined' is not assignable to type 'ReconciliationStep'.
+src/components/reconciliation/steps/SummaryStep.tsx(151,20): error TS2322: Type '{ children: string; className: string; }' is not assignable to type 'IntrinsicAttributes & ErrorMessageProps'.
+  Property 'children' does not exist on type 'IntrinsicAttributes & ErrorMessageProps'.
+src/components/reconciliation/steps/UploadStatementStep.tsx(150,12): error TS2322: Type '{ children: string; className: string; }' is not assignable to type 'IntrinsicAttributes & ErrorMessageProps'.
+  Property 'children' does not exist on type 'IntrinsicAttributes & ErrorMessageProps'.
+src/components/recurring/RecurringTransactionForm.tsx(50,3): error TS2322: Type '"DRAFT"' is not assignable to type 'AutoCreationMode'.
+src/components/recurring/RecurringTransactionForm.tsx(59,5): error TS2345: Argument of type '"MONTHLY" | RecurrenceFrequency' is not assignable to parameter of type 'RecurrenceFrequency | (() => RecurrenceFrequency)'.
+  Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency | (() => RecurrenceFrequency)'.
+src/components/recurring/RecurringTransactionForm.tsx(67,61): error TS2345: Argument of type '"NEVER" | RecurrenceEndType' is not assignable to parameter of type 'RecurrenceEndType | (() => RecurrenceEndType)'.
+  Type '"NEVER"' is not assignable to type 'RecurrenceEndType | (() => RecurrenceEndType)'.
+src/components/recurring/RecurringTransactionForm.tsx(145,7): error TS2322: Type '"WEEKLY"' is not assignable to type 'RecurrenceFrequency'.
+src/components/recurring/RecurringTransactionForm.tsx(146,7): error TS2820: Type '"BI_WEEKLY"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.WEEKLY'?
+src/components/recurring/RecurringTransactionForm.tsx(147,7): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/components/recurring/RecurringTransactionForm.tsx(148,7): error TS2322: Type '"QUARTERLY"' is not assignable to type 'RecurrenceFrequency'.
+src/components/recurring/RecurringTransactionForm.tsx(149,7): error TS2322: Type '"ANNUALLY"' is not assignable to type 'RecurrenceFrequency'.
+src/components/recurring/RecurringTransactionForm.tsx(266,40): error TS2345: Argument of type '"NEVER"' is not assignable to parameter of type 'SetStateAction<RecurrenceEndType>'.
+src/components/recurring/RecurringTransactionForm.tsx(275,40): error TS2345: Argument of type '"ON_DATE"' is not assignable to parameter of type 'SetStateAction<RecurrenceEndType>'.
+src/components/recurring/RecurringTransactionForm.tsx(297,40): error TS2345: Argument of type '"AFTER_COUNT"' is not assignable to parameter of type 'SetStateAction<RecurrenceEndType>'.
+src/components/recurring/RecurringTransactionForm.tsx(328,49): error TS2345: Argument of type '"DRAFT"' is not assignable to parameter of type 'SetStateAction<AutoCreationMode>'.
+src/components/recurring/RecurringTransactionForm.tsx(340,49): error TS2345: Argument of type '"AUTO"' is not assignable to parameter of type 'SetStateAction<AutoCreationMode>'.
+src/components/recurring/RecurringTransactionList.tsx(166,13): error TS2322: Type '"small"' is not assignable to type '"sm" | "md" | "lg" | undefined'.
+src/components/recurring/RecurringTransactionList.tsx(173,13): error TS2322: Type '"small"' is not assignable to type '"sm" | "md" | "lg" | undefined'.
+src/components/tutorials/TutorialOverlay.tsx(311,11): error TS2464: A computed property name must be of type 'string', 'number', 'symbol', or 'any'.
+src/components/tutorials/TutorialOverlay.tsx(312,11): error TS2464: A computed property name must be of type 'string', 'number', 'symbol', or 'any'.
+src/components/tutorials/TutorialOverlay.tsx(325,13): error TS2464: A computed property name must be of type 'string', 'number', 'symbol', or 'any'.
+src/components/tutorials/TutorialOverlay.tsx(341,11): error TS2464: A computed property name must be of type 'string', 'number', 'symbol', or 'any'.
+src/components/tutorials/TutorialOverlay.tsx(342,11): error TS2464: A computed property name must be of type 'string', 'number', 'symbol', or 'any'.
+src/components/tutorials/TutorialOverlay.tsx(343,11): error TS2464: A computed property name must be of type 'string', 'number', 'symbol', or 'any'.
+src/components/tutorials/TutorialOverlay.tsx(344,11): error TS2464: A computed property name must be of type 'string', 'number', 'symbol', or 'any'.
+src/components/tutorials/TutorialOverlay.tsx(345,11): error TS2464: A computed property name must be of type 'string', 'number', 'symbol', or 'any'.
+src/components/vendors/VendorForm.test.tsx(10,26): error TS6133: 'fireEvent' is declared but its value is never read.
+src/components/vendors/VendorForm.test.tsx(40,29): error TS6133: 'value' is declared but its value is never read.
+src/components/vendors/VendorForm.test.tsx(344,15): error TS6133: 'errorMessage' is declared but its value is never read.
+src/components/vendors/VendorList.test.tsx(10,26): error TS6133: 'within' is declared but its value is never read.
+src/components/vendors/VendorList.test.tsx(96,24): error TS2345: Argument of type 'HTMLElement | undefined' is not assignable to parameter of type 'Element'.
+  Type 'undefined' is not assignable to type 'Element'.
+src/components/wizards/ChartOfAccountsWizard.tsx(149,75): error TS7006: Parameter 'account' implicitly has an 'any' type.
+src/components/wizards/ChartOfAccountsWizard.tsx(188,14): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/components/wizards/ChartOfAccountsWizard.tsx(248,13): error TS18048: 'currentStep' is possibly 'undefined'.
+src/components/wizards/ChartOfAccountsWizard.tsx(330,12): error TS18048: 'currentStep' is possibly 'undefined'.
+src/components/wizards/ChartOfAccountsWizard.tsx(332,48): error TS18048: 'currentStep' is possibly 'undefined'.
+src/components/wizards/ChartOfAccountsWizard.tsx(340,8): error TS18048: 'currentStep' is possibly 'undefined'.
+src/components/wizards/ChartOfAccountsWizard.tsx(356,9): error TS2322: Type '"large"' is not assignable to type '"sm" | "md" | "lg" | "xl" | "full" | undefined'.
+src/components/wizards/CoaWizard.tsx(147,13): error TS18048: 'currentStep' is possibly 'undefined'.
+src/components/wizards/CoaWizard.tsx(202,14): error TS18048: 'currentStep' is possibly 'undefined'.
+src/components/wizards/CoaWizard.tsx(204,41): error TS18048: 'currentStep' is possibly 'undefined'.
+src/components/wizards/CoaWizard.tsx(208,10): error TS18048: 'currentStep' is possibly 'undefined'.
+src/components/wizards/CoaWizard.tsx(211,10): error TS18048: 'currentStep' is possibly 'undefined'.
+src/components/wizards/CoaWizard.tsx(217,10): error TS18048: 'currentStep' is possibly 'undefined'.
+src/components/wizards/CoaWizard.tsx(230,10): error TS18048: 'currentStep' is possibly 'undefined'.
+src/components/wizards/steps/AccountCustomizationStep.tsx(55,5): error TS2322: Type '{ isIncluded: boolean; templateAccountName?: string | undefined; name?: string | undefined; accountNumber?: string; description?: string; }' is not assignable to type 'AccountCustomization'.
+  Types of property 'templateAccountName' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/wizards/steps/AccountCustomizationStep.tsx(57,20): error TS2532: Object is possibly 'undefined'.
+src/components/wizards/steps/AccountCustomizationStep.tsx(64,5): error TS2322: Type '{ name: string; templateAccountName?: string | undefined; accountNumber?: string; description?: string; isIncluded?: boolean | undefined; }' is not assignable to type 'AccountCustomization'.
+  Types of property 'templateAccountName' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/wizards/steps/AccountCustomizationStep.tsx(70,5): error TS2322: Type '{ accountNumber: string; templateAccountName?: string | undefined; name?: string | undefined; description?: string; isIncluded?: boolean | undefined; }' is not assignable to type 'AccountCustomization'.
+  Types of property 'templateAccountName' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/wizards/steps/TemplateSelectionStep.test.tsx(63,26): error TS18048: 'templateName' is possibly 'undefined'.
+src/components/wizards/steps/TemplateSelectionStep.test.tsx(84,26): error TS18048: 'templateName' is possibly 'undefined'.
+src/components/wizards/steps/TemplateSelectionStep.test.tsx(91,63): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/components/wizards/steps/TemplateSelectionStep.test.tsx(92,30): error TS7006: Parameter 'account' implicitly has an 'any' type.
+src/components/wizards/steps/TemplateSelectionStep.test.tsx(112,26): error TS18048: 'templateName' is possibly 'undefined'.
+src/components/wizards/steps/TemplateSelectionStep.test.tsx(188,23): error TS18048: 'templateName' is possibly 'undefined'.
+src/components/wizards/steps/TemplateSelectionStep.test.tsx(210,26): error TS18048: 'templateName' is possibly 'undefined'.
+src/data/industryTemplates.test.ts(42,36): error TS7006: Parameter 'account' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(54,60): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(61,12): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(64,12): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(67,12): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(78,59): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(84,36): error TS7006: Parameter 'account' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(105,36): error TS7006: Parameter 'account' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(113,36): error TS7006: Parameter 'account' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(157,32): error TS7006: Parameter 'account' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(174,33): error TS7006: Parameter 'account' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(190,52): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(193,33): error TS7006: Parameter 'name' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(194,33): error TS7006: Parameter 'name' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(195,33): error TS7006: Parameter 'name' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(203,10): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(213,10): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(231,36): error TS7006: Parameter 'account' implicitly has an 'any' type.
+src/data/industryTemplates.test.ts(253,36): error TS7006: Parameter 'account' implicitly has an 'any' type.
+src/data/industryTemplates.ts(12,15): error TS2305: Module '"../types"' has no exported member 'IndustryTemplate'.
+src/data/industryTemplates.ts(974,35): error TS7006: Parameter 'account' implicitly has an 'any' type.
+src/data/industryTemplates.ts(983,35): error TS7006: Parameter 'account' implicitly has an 'any' type.
+src/db/schema/categorization.schema.ts(13,1): error TS6192: All imports in import declaration are unused.
+src/db/schema/categorization.schema.ts(407,18): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(pattern: string | RegExp, flags?: string | undefined): RegExp', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | RegExp'.
+      Type 'undefined' is not assignable to type 'string | RegExp'.
+  Overload 2 of 3, '(pattern: string | RegExp): RegExp', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | RegExp'.
+      Type 'undefined' is not assignable to type 'string | RegExp'.
+  Overload 3 of 3, '(pattern: string, flags?: string | undefined): RegExp', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/db/schema/emailPreferences.schema.ts(9,36): error TS2307: Cannot find module '../../types/crdt.types' or its corresponding type declarations.
+src/db/schema/invoiceTemplates.schema.test.ts(299,14): error TS18048: 'results.headerContrast' is possibly 'undefined'.
+src/db/schema/invoiceTemplates.schema.test.ts(302,14): error TS18048: 'results.bodyContrast' is possibly 'undefined'.
+src/db/schema/invoiceTemplates.schema.test.ts(333,13): error TS6133: 'resultsSmall' is declared but its value is never read.
+src/db/schema/invoiceTemplates.schema.test.ts(337,14): error TS18048: 'resultsLarge.bodyContrast' is possibly 'undefined'.
+src/db/schema/invoiceTemplates.schema.ts(295,19): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/db/schema/invoiceTemplates.schema.ts(295,44): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/db/schema/invoiceTemplates.schema.ts(295,69): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/db/schema/invoiceTemplates.schema.ts(305,21): error TS18048: 'r' is possibly 'undefined'.
+src/db/schema/invoiceTemplates.schema.ts(305,34): error TS18048: 'g' is possibly 'undefined'.
+src/db/schema/invoiceTemplates.schema.ts(305,47): error TS18048: 'b' is possibly 'undefined'.
+src/db/schema/reconciliationPatterns.schema.ts(117,32): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/hooks/useVendors.test.ts(21,39): error TS6133: 'deps' is declared but its value is never read.
+src/hooks/useVendors.test.ts(21,53): error TS6133: 'defaultValue' is declared but its value is never read.
+src/hooks/useVendors.test.ts(101,13): error TS6133: 'inactiveVendor' is declared but its value is never read.
+src/hooks/useVendors.test.ts(109,16): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.test.ts(133,16): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.test.ts(261,14): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.test.ts(274,14): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.test.ts(287,14): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.test.ts(329,14): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.test.ts(411,14): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.test.ts(412,14): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.test.ts(457,14): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.ts(115,5): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.ts(121,9): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.ts(121,9): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+src/hooks/useVendors.ts(121,24): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.ts(123,9): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.ts(124,11): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.ts(124,11): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.ts(125,11): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.ts(125,11): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.ts(126,11): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.ts(126,11): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.ts(132,20): error TS2532: Object is possibly 'undefined'.
+src/hooks/useVendors.ts(134,14): error TS18048: 'distance' is possibly 'undefined'.
+src/pages/Reconciliation.tsx(79,8): error TS2559: Type '{ children: Element; }' has no properties in common with type 'IntrinsicAttributes'.
+src/pages/Reconciliation.tsx(89,8): error TS2559: Type '{ children: Element; }' has no properties in common with type 'IntrinsicAttributes'.
+src/pages/Reconciliation.tsx(91,12): error TS2741: Property 'message' is missing in type '{ children: string; }' but required in type 'ErrorMessageProps'.
+src/pages/Reconciliation.tsx(102,8): error TS2559: Type '{ children: Element; }' has no properties in common with type 'IntrinsicAttributes'.
+src/pages/Reconciliation.tsx(127,6): error TS2559: Type '{ children: Element; }' has no properties in common with type 'IntrinsicAttributes'.
+src/pages/reports/ProfitLoss.tsx(15,1): error TS6192: All imports in import declaration are unused.
+src/pages/Vendors.tsx(105,44): error TS18048: 'topDuplicate' is possibly 'undefined'.
+src/routes/index.tsx(43,46): error TS2741: Property 'companyId' is missing in type '{}' but required in type 'CustomersProps'.
+src/routes/index.tsx(44,44): error TS2741: Property 'companyId' is missing in type '{}' but required in type 'VendorsProps'.
+src/services/auditLogExtended.perf.test.ts(60,5): error TS2322: Type '"CREATE"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.perf.test.ts(61,5): error TS2322: Type '"UPDATE"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.perf.test.ts(62,5): error TS2322: Type '"DELETE"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.perf.test.ts(63,5): error TS2322: Type '"RESTORE"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.perf.test.ts(64,5): error TS2322: Type '"LOGIN"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.perf.test.ts(65,5): error TS2322: Type '"LOGOUT"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.perf.test.ts(66,5): error TS2322: Type '"EXPORT"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.perf.test.ts(67,5): error TS2322: Type '"IMPORT"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.perf.test.ts(70,5): error TS2322: Type '"ACCOUNT"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.perf.test.ts(71,5): error TS2322: Type '"TRANSACTION"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.perf.test.ts(72,5): error TS2322: Type '"CONTACT"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.perf.test.ts(73,5): error TS2322: Type '"PRODUCT"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.perf.test.ts(74,5): error TS2322: Type '"USER"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.perf.test.ts(75,5): error TS2322: Type '"COMPANY"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.perf.test.ts(76,5): error TS2322: Type '"SESSION"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.perf.test.ts(102,32): error TS2345: Argument of type 'AuditLog[]' is not assignable to parameter of type 'readonly AuditLogEntity[]'.
+  Type 'AuditLog' is missing the following properties from type 'AuditLogEntity': companyId, userId, deviceId, entityType, and 2 more.
+src/services/auditLogExtended.perf.test.ts(199,23): error TS2322: Type '"TRANSACTION"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.perf.test.ts(199,38): error TS2322: Type '"ACCOUNT"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.perf.test.ts(200,19): error TS2322: Type '"CREATE"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.perf.test.ts(200,29): error TS2322: Type '"UPDATE"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.perf.test.ts(383,23): error TS2322: Type '"TRANSACTION"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.test.ts(15,55): error TS6133: 'vi' is declared but its value is never read.
+src/services/auditLogExtended.test.ts(65,5): error TS2322: Type '"CREATE"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.test.ts(66,5): error TS2322: Type '"UPDATE"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.test.ts(67,5): error TS2322: Type '"DELETE"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.test.ts(68,5): error TS2322: Type '"RESTORE"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.test.ts(69,5): error TS2322: Type '"LOGIN"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.test.ts(70,5): error TS2322: Type '"LOGOUT"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.test.ts(73,5): error TS2322: Type '"ACCOUNT"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.test.ts(74,5): error TS2322: Type '"TRANSACTION"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.test.ts(75,5): error TS2322: Type '"CONTACT"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.test.ts(76,5): error TS2322: Type '"PRODUCT"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.test.ts(94,30): error TS2345: Argument of type 'AuditLog[]' is not assignable to parameter of type 'readonly AuditLogEntity[]'.
+  Type 'AuditLog' is missing the following properties from type 'AuditLogEntity': companyId, userId, deviceId, entityType, and 2 more.
+src/services/auditLogExtended.test.ts(125,9): error TS2345: Argument of type 'AuditLog' is not assignable to parameter of type 'AuditLogEntity'.
+  Type 'AuditLog' is missing the following properties from type 'AuditLogEntity': companyId, userId, deviceId, entityType, and 2 more.
+src/services/auditLogExtended.test.ts(176,23): error TS2322: Type '"TRANSACTION"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.test.ts(176,38): error TS2322: Type '"ACCOUNT"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.test.ts(192,19): error TS2322: Type '"CREATE"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.test.ts(192,29): error TS2322: Type '"UPDATE"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.test.ts(211,23): error TS2322: Type '"TRANSACTION"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.test.ts(212,19): error TS2322: Type '"CREATE"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.test.ts(261,16): error TS2532: Object is possibly 'undefined'.
+src/services/auditLogExtended.test.ts(262,11): error TS2532: Object is possibly 'undefined'.
+src/services/auditLogExtended.test.ts(268,16): error TS2532: Object is possibly 'undefined'.
+src/services/auditLogExtended.test.ts(269,11): error TS2532: Object is possibly 'undefined'.
+src/services/auditLogExtended.test.ts(311,9): error TS2322: Type '"TRANSACTION"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.test.ts(359,34): error TS2345: Argument of type 'AuditLog[]' is not assignable to parameter of type 'readonly AuditLogEntity[]'.
+  Type 'AuditLog' is missing the following properties from type 'AuditLogEntity': companyId, userId, deviceId, entityType, and 2 more.
+src/services/auditLogExtended.test.ts(392,14): error TS18048: 'entry' is possibly 'undefined'.
+src/services/auditLogExtended.test.ts(393,14): error TS18048: 'entry' is possibly 'undefined'.
+src/services/auditLogExtended.test.ts(396,32): error TS18048: 'entry' is possibly 'undefined'.
+src/services/auditLogExtended.test.ts(400,37): error TS18048: 'entry' is possibly 'undefined'.
+src/services/auditLogExtended.test.ts(437,9): error TS2345: Argument of type 'AuditLog' is not assignable to parameter of type 'AuditLogEntity'.
+  Type 'AuditLog' is missing the following properties from type 'AuditLogEntity': companyId, userId, deviceId, entityType, and 2 more.
+src/services/auditLogExtended.test.ts(527,9): error TS2740: Type 'AuditLog' is missing the following properties from type 'AuditLogEntity': companyId, userId, deviceId, entityType, and 2 more.
+src/services/auditLogExtended.test.ts(528,9): error TS2740: Type 'AuditLog' is missing the following properties from type 'AuditLogEntity': companyId, userId, deviceId, entityType, and 2 more.
+src/services/auditLogExtended.test.ts(604,23): error TS2322: Type '"TRANSACTION"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.test.ts(604,38): error TS2322: Type '"ACCOUNT"' is not assignable to type 'AuditEntityType'.
+src/services/auditLogExtended.test.ts(605,19): error TS2322: Type '"CREATE"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.test.ts(605,29): error TS2322: Type '"UPDATE"' is not assignable to type 'AuditAction'.
+src/services/auditLogExtended.test.ts(650,30): error TS2345: Argument of type 'AuditLog' is not assignable to parameter of type 'AuditLogEntity'.
+  Type 'AuditLog' is missing the following properties from type 'AuditLogEntity': companyId, userId, deviceId, entityType, and 2 more.
+src/services/auditLogExtended.test.ts(657,14): error TS2532: Object is possibly 'undefined'.
+src/services/auditLogExtended.test.ts(658,14): error TS2532: Object is possibly 'undefined'.
+src/services/auditLogExtended.ts(158,57): error TS2551: Property 'user_id' does not exist on type 'AuditLogEntity'. Did you mean 'userId'?
+src/services/auditLogExtended.ts(163,57): error TS2551: Property 'entity_type' does not exist on type 'AuditLogEntity'. Did you mean 'entityType'?
+src/services/auditLogExtended.ts(168,59): error TS2551: Property 'entity_id' does not exist on type 'AuditLogEntity'. Did you mean 'entityId'?
+src/services/auditLogExtended.ts(173,55): error TS2345: Argument of type 'string' is not assignable to parameter of type 'AuditAction'.
+src/services/auditLogExtended.ts(181,15): error TS2551: Property 'entity_type' does not exist on type 'AuditLogEntity'. Did you mean 'entityType'?
+src/services/auditLogExtended.ts(183,15): error TS2551: Property 'entity_id' does not exist on type 'AuditLogEntity'. Did you mean 'entityId'?
+src/services/auditLogExtended.ts(184,15): error TS2551: Property 'changed_fields' does not exist on type 'AuditLogEntity'. Did you mean 'changedFields'?
+src/services/auditLogExtended.ts(184,36): error TS7006: Parameter 'field' implicitly has an 'any' type.
+src/services/auditLogExtended.ts(187,16): error TS2551: Property 'before_value' does not exist on type 'AuditLogEntity'. Did you mean 'beforeValues'?
+src/services/auditLogExtended.ts(187,36): error TS2551: Property 'before_value' does not exist on type 'AuditLogEntity'. Did you mean 'beforeValues'?
+src/services/auditLogExtended.ts(188,16): error TS2551: Property 'after_value' does not exist on type 'AuditLogEntity'. Did you mean 'afterValues'?
+src/services/auditLogExtended.ts(188,35): error TS2551: Property 'after_value' does not exist on type 'AuditLogEntity'. Did you mean 'afterValues'?
+src/services/auditLogExtended.ts(189,16): error TS2551: Property 'ip_address' does not exist on type 'AuditLogEntity'. Did you mean 'ipAddress'?
+src/services/auditLogExtended.ts(189,34): error TS2551: Property 'ip_address' does not exist on type 'AuditLogEntity'. Did you mean 'ipAddress'?
+src/services/auditLogExtended.ts(190,16): error TS2551: Property 'user_agent' does not exist on type 'AuditLogEntity'. Did you mean 'userAgent'?
+src/services/auditLogExtended.ts(190,34): error TS2551: Property 'user_agent' does not exist on type 'AuditLogEntity'. Did you mean 'userAgent'?
+src/services/auditLogExtended.ts(212,20): error TS2551: Property 'user_id' does not exist on type 'AuditLogEntity'. Did you mean 'userId'?
+src/services/auditLogExtended.ts(213,20): error TS2551: Property 'user_id' does not exist on type 'AuditLogEntity'. Did you mean 'userId'?
+src/services/auditLogExtended.ts(216,20): error TS2551: Property 'entity_type' does not exist on type 'AuditLogEntity'. Did you mean 'entityType'?
+src/services/auditLogExtended.ts(217,20): error TS2551: Property 'entity_type' does not exist on type 'AuditLogEntity'. Did you mean 'entityType'?
+src/services/auditLogExtended.ts(247,7): error TS2322: Type 'AuditLogEntity[]' is not assignable to type 'AuditLog[]'.
+  Type 'AuditLogEntity' is missing the following properties from type 'AuditLog': company_id, user_id, entity_type, entity_id, and 9 more.
+src/services/auditLogExtended.ts(366,11): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/auditLogExtended.ts(392,20): error TS2532: Object is possibly 'undefined'.
+src/services/categorization.service.test.ts(12,55): error TS6133: 'vi' is declared but its value is never read.
+src/services/categorization.service.test.ts(210,14): error TS2532: Object is possibly 'undefined'.
+src/services/categorization.service.test.ts(211,14): error TS2532: Object is possibly 'undefined'.
+src/services/categorization.service.test.ts(212,14): error TS2532: Object is possibly 'undefined'.
+src/services/categorization.service.test.ts(377,23): error TS18048: 'example' is possibly 'undefined'.
+src/services/categorization.service.test.ts(378,24): error TS18048: 'example' is possibly 'undefined'.
+src/services/categorization.service.test.ts(380,23): error TS18048: 'example' is possibly 'undefined'.
+src/services/categorization.service.test.ts(381,25): error TS18048: 'example' is possibly 'undefined'.
+src/services/categorization.service.test.ts(450,60): error TS2532: Object is possibly 'undefined'.
+src/services/categorization.service.ts(33,3): error TS6196: 'SuggestionHistory' is declared but never used.
+src/services/categorization.service.ts(43,3): error TS6196: 'ConfidenceLevel' is declared but never used.
+src/services/categorization.service.ts(529,7): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+src/services/categorization.service.ts(530,7): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+src/services/categorization.service.ts(531,7): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+src/services/categorization.service.ts(532,7): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+src/services/categorization.service.ts(533,7): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+src/services/categorization.service.ts(534,7): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+src/services/categorization.service.ts(535,7): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+src/services/categorization.service.ts(536,7): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+src/services/coaWizardService.additional.test.ts(56,9): error TS2353: Object literal may only specify known properties, and 'encryptionKey' does not exist in type 'EncryptionContext'.
+src/services/coaWizardService.additional.test.ts(104,9): error TS2353: Object literal may only specify known properties, and 'encryptionKey' does not exist in type 'EncryptionContext'.
+src/services/coaWizardService.additional.test.ts(171,9): error TS2322: Type '{ item: any; error: { code: "DUPLICATE"; message: string; }; }[]' is not assignable to type '{ item: Account; error: DatabaseError; }[]'.
+  Type '{ item: any; error: { code: "DUPLICATE"; message: string; }; }' is not assignable to type '{ item: Account; error: DatabaseError; }'.
+    The types of 'error.code' are incompatible between these types.
+      Type '"DUPLICATE"' is not assignable to type 'DatabaseErrorCode'.
+src/services/coaWizardService.additional.test.ts(418,32): error TS18048: 'callArgs' is possibly 'undefined'.
+src/services/coaWizardService.additional.test.ts(451,32): error TS18048: 'callArgs' is possibly 'undefined'.
+src/services/coaWizardService.additional.test.ts(577,32): error TS18048: 'callArgs' is possibly 'undefined'.
+src/services/coaWizardService.additional.test.ts(604,32): error TS18048: 'callArgs' is possibly 'undefined'.
+src/services/coaWizardService.additional.test.ts(627,32): error TS18048: 'callArgs' is possibly 'undefined'.
+src/services/coaWizardService.test.ts(396,32): error TS18048: 'callArgs' is possibly 'undefined'.
+src/services/coaWizardService.test.ts(428,32): error TS18048: 'callArgs' is possibly 'undefined'.
+src/services/coaWizardService.test.ts(458,32): error TS18048: 'callArgs' is possibly 'undefined'.
+src/services/coaWizardService.ts(14,34): error TS6196: 'BatchResult' is declared but never used.
+src/services/coaWizardService.ts(137,32): error TS7006: Parameter 'account' implicitly has an 'any' type.
+src/services/coaWizardService.ts(179,7): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type 'Record<AccountType, number>'.
+src/services/email/emailContentGenerator.test.ts(119,7): error TS2353: Object literal may only specify known properties, and 'discProfileId' does not exist in type 'EmailPreferences'.
+src/services/email/emailContentGenerator.test.ts(140,22): error TS2339: Property 'discType' does not exist on type 'EmailContent'.
+src/services/email/emailContentGenerator.test.ts(147,14): error TS2532: Object is possibly 'undefined'.
+src/services/email/emailContentGenerator.test.ts(154,22): error TS2339: Property 'discType' does not exist on type 'EmailContent'.
+src/services/email/emailContentGenerator.test.ts(171,22): error TS2339: Property 'discType' does not exist on type 'EmailContent'.
+src/services/email/emailContentGenerator.test.ts(190,22): error TS2339: Property 'discType' does not exist on type 'EmailContent'.
+src/services/email/emailContentGenerator.test.ts(278,19): error TS6133: 'type' is declared but its value is never read.
+src/services/email/emailContentGenerator.test.ts(380,16): error TS2532: Object is possibly 'undefined'.
+src/services/email/emailPreviewService.test.ts(7,32): error TS6133: 'beforeEach' is declared but its value is never read.
+src/services/email/emailPreviewService.test.ts(10,3): error TS2305: Module '"./emailPreviewService"' has no exported member 'generatePreviewsForAllDISCTypes'.
+src/services/email/emailPreviewService.test.ts(15,1): error TS6133: 'addDays' is declared but its value is never read.
+src/services/email/emailPreviewService.test.ts(45,7): error TS2353: Object literal may only specify known properties, and 'discProfileId' does not exist in type 'EmailPreferences'.
+src/services/email/emailPreviewService.test.ts(72,22): error TS2339: Property 'discType' does not exist on type 'EmailPreview'.
+src/services/email/emailPreviewService.test.ts(168,16): error TS18046: 'preview' is of type 'unknown'.
+src/services/email/emailPreviewService.test.ts(173,16): error TS18046: 'preview' is of type 'unknown'.
+src/services/email/emailPreviewService.test.ts(320,15): error TS2339: Property 'discType' does not exist on type 'EmailGenerationContext'.
+src/services/email/emailRenderer.test.ts(14,43): error TS6196: 'EmailSectionItem' is declared but never used.
+src/services/email/emailRenderer.test.ts(70,5): error TS2353: Object literal may only specify known properties, and 'discType' does not exist in type 'EmailContent'.
+src/services/email/emailSchedulingService.test.ts(53,7): error TS2353: Object literal may only specify known properties, and 'discProfileId' does not exist in type 'EmailPreferences'.
+src/services/email/emailSchedulingService.test.ts(108,9): error TS2353: Object literal may only specify known properties, and 'discType' does not exist in type 'EmailPreview'.
+src/services/email/emailSchedulingService.test.ts(168,9): error TS2353: Object literal may only specify known properties, and 'discType' does not exist in type 'EmailPreview'.
+src/services/email/emailSchedulingService.test.ts(186,59): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(locales?: LocalesArgument, options?: DateTimeFormatOptions | undefined): string', gave the following error.
+    Type '"lowercase"' is not assignable to type '"long" | "short" | "narrow" | undefined'.
+  Overload 2 of 3, '(locales?: string | string[] | undefined, options?: DateTimeFormatOptions | undefined): string', gave the following error.
+    Type '"lowercase"' is not assignable to type '"long" | "short" | "narrow" | undefined'.
+src/services/email/emailSchedulingService.test.ts(220,9): error TS2353: Object literal may only specify known properties, and 'discType' does not exist in type 'EmailPreview'.
+src/services/email/emailSchedulingService.test.ts(376,9): error TS2353: Object literal may only specify known properties, and 'discType' does not exist in type 'EmailPreview'.
+src/services/email/emailSchedulingService.ts(40,19): error TS2551: Property 'day_of_week' does not exist on type 'EmailPreferences'. Did you mean 'dayOfWeek'?
+src/services/email/emailSchedulingService.ts(41,19): error TS2551: Property 'time_of_day' does not exist on type 'EmailPreferences'. Did you mean 'timeOfDay'?
+src/services/email/emailTemplates.ts(57,3): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/email/emailTemplates.ts(70,12): error TS18048: 'greeting' is possibly 'undefined'.
+src/services/email/emailTemplates.ts(73,3): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/email/emailTemplates.ts(89,3): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/email/index.ts(10,3): error TS2724: '"./emailTemplates"' has no exported member named 'DISC_EMAIL_TEMPLATES'. Did you mean 'EMAIL_TEMPLATE'?
+src/services/email/index.ts(16,3): error TS2305: Module '"./emailTemplates"' has no exported member 'getAllDISCTypes'.
+src/services/email/index.ts(32,3): error TS2305: Module '"./emailPreviewService"' has no exported member 'generatePreviewsForAllDISCTypes'.
+src/services/enhanced-matching.service.test.ts(7,32): error TS6133: 'beforeEach' is declared but its value is never read.
+src/services/enhanced-matching.service.test.ts(30,9): error TS2352: Conversion of type '{ id: string; date: number; memo: string; reference: string; status: "POSTED"; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' to type 'JournalEntry' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ id: string; date: number; memo: string; reference: string; status: "POSTED"; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' is missing the following properties from type 'JournalEntry': companyId, createdBy, createdAt, updatedAt
+src/services/enhanced-matching.service.test.ts(49,14): error TS2532: Object is possibly 'undefined'.
+src/services/enhanced-matching.service.test.ts(50,14): error TS2532: Object is possibly 'undefined'.
+src/services/enhanced-matching.service.test.ts(51,14): error TS2532: Object is possibly 'undefined'.
+src/services/enhanced-matching.service.test.ts(67,9): error TS2352: Conversion of type '{ id: string; date: number; memo: string; reference: null; status: "POSTED"; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' to type 'JournalEntry' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ id: string; date: number; memo: string; reference: null; status: "POSTED"; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' is missing the following properties from type 'JournalEntry': companyId, createdBy, createdAt, updatedAt
+src/services/enhanced-matching.service.test.ts(83,14): error TS2532: Object is possibly 'undefined'.
+src/services/enhanced-matching.service.test.ts(83,44): error TS2339: Property 'toBeOneOf' does not exist on type 'Assertion<MatchConfidence>'.
+src/services/enhanced-matching.service.test.ts(101,9): error TS2352: Conversion of type '{ id: string; date: number; memo: string; reference: null; status: "POSTED"; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' to type 'JournalEntry' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ id: string; date: number; memo: string; reference: null; status: "POSTED"; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' is missing the following properties from type 'JournalEntry': companyId, createdBy, createdAt, updatedAt
+src/services/enhanced-matching.service.test.ts(119,14): error TS2532: Object is possibly 'undefined'.
+src/services/enhanced-matching.service.test.ts(119,44): error TS2339: Property 'toBeOneOf' does not exist on type 'Assertion<MatchConfidence>'.
+src/services/enhanced-matching.service.test.ts(137,9): error TS2352: Conversion of type '{ id: string; date: number; memo: string; reference: null; status: "POSTED"; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' to type 'JournalEntry' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ id: string; date: number; memo: string; reference: null; status: "POSTED"; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' is missing the following properties from type 'JournalEntry': companyId, createdBy, createdAt, updatedAt
+src/services/enhanced-matching.service.test.ts(167,9): error TS2352: Conversion of type '{ id: string; date: number; memo: string; reference: null; status: any; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' to type 'JournalEntry' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ id: string; date: number; memo: string; reference: null; status: any; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' is missing the following properties from type 'JournalEntry': companyId, createdBy, createdAt, updatedAt
+src/services/enhanced-matching.service.test.ts(213,9): error TS2352: Conversion of type '{ id: string; date: number; memo: string; reference: null; status: "POSTED"; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' to type 'JournalEntry' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ id: string; date: number; memo: string; reference: null; status: "POSTED"; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' is missing the following properties from type 'JournalEntry': companyId, createdBy, createdAt, updatedAt
+src/services/enhanced-matching.service.test.ts(233,14): error TS2532: Object is possibly 'undefined'.
+src/services/enhanced-matching.service.test.ts(233,44): error TS2339: Property 'toBeOneOf' does not exist on type 'Assertion<MatchConfidence>'.
+src/services/enhanced-matching.service.test.ts(266,9): error TS2352: Conversion of type '{ id: string; date: number; memo: string; reference: null; status: "POSTED"; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' to type 'JournalEntry' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ id: string; date: number; memo: string; reference: null; status: "POSTED"; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' is missing the following properties from type 'JournalEntry': companyId, createdBy, createdAt, updatedAt
+src/services/enhanced-matching.service.test.ts(277,9): error TS2352: Conversion of type '{ id: string; date: number; memo: string; reference: null; status: "POSTED"; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' to type 'JournalEntry' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ id: string; date: number; memo: string; reference: null; status: "POSTED"; lines: { id: string; accountId: string; debit: number; credit: number; }[]; }' is missing the following properties from type 'JournalEntry': companyId, createdBy, createdAt, updatedAt
+src/services/enhanced-matching.service.ts(87,34): error TS2532: Object is possibly 'undefined'.
+src/services/enhanced-matching.service.ts(92,30): error TS18048: 'bestMatch' is possibly 'undefined'.
+src/services/enhanced-matching.service.ts(93,21): error TS18048: 'bestMatch' is possibly 'undefined'.
+src/services/enhanced-matching.service.ts(94,16): error TS18048: 'bestMatch' is possibly 'undefined'.
+src/services/enhanced-matching.service.ts(95,36): error TS2345: Argument of type 'MatchCandidate | undefined' is not assignable to parameter of type 'MatchCandidate'.
+  Type 'undefined' is not assignable to type 'MatchCandidate'.
+src/services/enhanced-matching.service.ts(98,34): error TS18048: 'bestMatch' is possibly 'undefined'.
+src/services/enhanced-matching.service.ts(539,25): error TS18048: 'best' is possibly 'undefined'.
+src/services/enhanced-matching.service.ts(543,31): error TS18048: 'best' is possibly 'undefined'.
+src/services/enhanced-matching.service.ts(580,28): error TS18048: 'best' is possibly 'undefined'.
+src/services/enhanced-matching.service.ts(583,34): error TS18048: 'best' is possibly 'undefined'.
+src/services/enhanced-matching.service.ts(611,36): error TS2345: Argument of type 'JournalEntry | undefined' is not assignable to parameter of type 'JournalEntry'.
+  Type 'undefined' is not assignable to type 'JournalEntry'.
+src/services/enhanced-matching.service.ts(612,36): error TS2345: Argument of type 'JournalEntry | undefined' is not assignable to parameter of type 'JournalEntry'.
+  Type 'undefined' is not assignable to type 'JournalEntry'.
+src/services/enhanced-matching.service.ts(614,23): error TS2322: Type 'JournalEntry | undefined' is not assignable to type 'JournalEntry'.
+  Type 'undefined' is not assignable to type 'JournalEntry'.
+src/services/enhanced-matching.service.ts(614,40): error TS2322: Type 'JournalEntry | undefined' is not assignable to type 'JournalEntry'.
+  Type 'undefined' is not assignable to type 'JournalEntry'.
+src/services/enhanced-matching.service.ts(636,19): error TS2532: Object is possibly 'undefined'.
+src/services/enhanced-matching.service.ts(636,44): error TS2532: Object is possibly 'undefined'.
+src/services/enhanced-matching.service.ts(638,23): error TS2322: Type 'StatementTransaction | undefined' is not assignable to type 'StatementTransaction'.
+  Type 'undefined' is not assignable to type 'StatementTransaction'.
+src/services/enhanced-matching.service.ts(638,40): error TS2322: Type 'StatementTransaction | undefined' is not assignable to type 'StatementTransaction'.
+  Type 'undefined' is not assignable to type 'StatementTransaction'.
+src/services/logoUpload.test.ts(7,32): error TS6133: 'beforeEach' is declared but its value is never read.
+src/services/logoUpload.test.ts(7,44): error TS6133: 'vi' is declared but its value is never read.
+src/services/logoUpload.test.ts(10,3): error TS6133: 'uploadLogo' is declared but its value is never read.
+src/services/logoUpload.ts(272,23): error TS2532: Object is possibly 'undefined'.
+src/services/logoUpload.ts(273,20): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(data: string): string', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+  Overload 2 of 2, '(data: string): string', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/reconciliationHistory.service.test.ts(16,1): error TS6133: 'nanoid' is declared but its value is never read.
+src/services/reconciliationHistory.service.test.ts(37,3): error TS6196: 'ReconciliationPattern' is declared but never used.
+src/services/reconciliationHistory.service.test.ts(40,3): error TS6196: 'UnreconciledFlag' is declared but never used.
+src/services/reconciliationHistory.service.test.ts(41,3): error TS6196: 'DiscrepancyPattern' is declared but never used.
+src/services/reconciliationHistory.service.test.ts(97,10): error TS2352: Conversion of type '{ id: string; companyId: string; date: Date; status: any; memo: string; reference: null; lines: { id: string; accountId: string; debit: number; credit: number; }[]; createdBy: string; createdAt: Date; updatedAt: Date; }' to type 'JournalEntry' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Types of property 'reference' are incompatible.
+    Type 'null' is not comparable to type 'string | undefined'.
+src/services/reconciliationHistory.service.test.ts(155,56): error TS2345: Argument of type 'undefined' is not assignable to parameter of type 'DatabaseResult<AuditLogEntity>'.
+src/services/reconciliationHistory.service.test.ts(156,56): error TS2345: Argument of type 'undefined' is not assignable to parameter of type 'DatabaseResult<AuditLogEntity>'.
+src/services/reconciliationHistory.service.test.ts(157,56): error TS2345: Argument of type 'undefined' is not assignable to parameter of type 'DatabaseResult<AuditLogEntity>'.
+src/services/reconciliationHistory.service.test.ts(656,28): error TS2339: Property 'beginning_balance' does not exist on type 'ReconciliationEntity'.
+src/services/reconciliationHistory.service.test.ts(657,28): error TS2551: Property 'ending_balance' does not exist on type 'ReconciliationEntity'. Did you mean 'openingBalance'?
+src/services/reconciliationHistory.service.test.ts(903,18): error TS2532: Object is possibly 'undefined'.
+src/services/reconciliationHistory.service.test.ts(970,18): error TS2532: Object is possibly 'undefined'.
+src/services/reconciliationHistory.service.test.ts(1219,30): error TS2339: Property 'reopened_reason' does not exist on type 'ReconciliationEntity'.
+src/services/reconciliationHistory.service.test.ts(1220,25): error TS2339: Property 'reopened_reason' does not exist on type 'ReconciliationEntity'.
+src/services/reconciliationHistory.service.test.ts(1249,11): error TS2345: Argument of type 'JournalEntry' is not assignable to parameter of type 'TransactionEntity'.
+  Type 'JournalEntry' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, versionVector, lastModifiedBy, lastModifiedAt
+src/services/reconciliationHistory.service.test.ts(1257,18): error TS2532: Object is possibly 'undefined'.
+src/services/reconciliationHistory.service.test.ts(1258,18): error TS2532: Object is possibly 'undefined'.
+src/services/reconciliationHistory.service.test.ts(1266,11): error TS2345: Argument of type 'JournalEntry' is not assignable to parameter of type 'TransactionEntity'.
+  Type 'JournalEntry' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, versionVector, lastModifiedBy, lastModifiedAt
+src/services/reconciliationHistory.service.test.ts(1274,18): error TS2532: Object is possibly 'undefined'.
+src/services/reconciliationHistory.service.test.ts(1282,11): error TS2345: Argument of type 'JournalEntry' is not assignable to parameter of type 'TransactionEntity'.
+  Type 'JournalEntry' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, versionVector, lastModifiedBy, lastModifiedAt
+src/services/reconciliationHistory.service.test.ts(1290,18): error TS2532: Object is possibly 'undefined'.
+src/services/reconciliationHistory.service.test.ts(1298,11): error TS2345: Argument of type 'JournalEntry' is not assignable to parameter of type 'TransactionEntity'.
+  Type 'JournalEntry' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, versionVector, lastModifiedBy, lastModifiedAt
+src/services/reconciliationHistory.service.test.ts(1311,11): error TS2345: Argument of type 'JournalEntry' is not assignable to parameter of type 'TransactionEntity'.
+  Type 'JournalEntry' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, versionVector, lastModifiedBy, lastModifiedAt
+src/services/reconciliationHistory.service.test.ts(1314,11): error TS2345: Argument of type 'JournalEntry' is not assignable to parameter of type 'TransactionEntity'.
+  Type 'JournalEntry' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, versionVector, lastModifiedBy, lastModifiedAt
+src/services/reconciliationHistory.service.test.ts(1317,11): error TS2345: Argument of type 'JournalEntry' is not assignable to parameter of type 'TransactionEntity'.
+  Type 'JournalEntry' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, versionVector, lastModifiedBy, lastModifiedAt
+src/services/reconciliationHistory.service.test.ts(1325,18): error TS2532: Object is possibly 'undefined'.
+src/services/reconciliationHistory.service.test.ts(1325,59): error TS2532: Object is possibly 'undefined'.
+src/services/reconciliationHistory.service.test.ts(1326,18): error TS2532: Object is possibly 'undefined'.
+src/services/reconciliationHistory.service.test.ts(1326,59): error TS2532: Object is possibly 'undefined'.
+src/services/reconciliationHistory.service.test.ts(1358,11): error TS2345: Argument of type 'JournalEntry' is not assignable to parameter of type 'TransactionEntity'.
+  Type 'JournalEntry' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, versionVector, lastModifiedBy, lastModifiedAt
+src/services/reconciliationHistory.service.test.ts(1361,11): error TS2345: Argument of type 'JournalEntry' is not assignable to parameter of type 'TransactionEntity'.
+  Type 'JournalEntry' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, versionVector, lastModifiedBy, lastModifiedAt
+src/services/reconciliationHistory.service.test.ts(1377,11): error TS2345: Argument of type 'JournalEntry' is not assignable to parameter of type 'TransactionEntity'.
+  Type 'JournalEntry' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, versionVector, lastModifiedBy, lastModifiedAt
+src/services/reconciliationHistory.service.test.ts(1380,11): error TS2345: Argument of type 'JournalEntry' is not assignable to parameter of type 'TransactionEntity'.
+  Type 'JournalEntry' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, versionVector, lastModifiedBy, lastModifiedAt
+src/services/reconciliationHistory.service.test.ts(1398,9): error TS2532: Object is possibly 'undefined'.
+src/services/reconciliationHistory.service.test.ts(1405,9): error TS2532: Object is possibly 'undefined'.
+src/services/reconciliationHistory.service.test.ts(1407,36): error TS2345: Argument of type 'JournalEntry' is not assignable to parameter of type 'TransactionEntity'.
+  Type 'JournalEntry' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, versionVector, lastModifiedBy, lastModifiedAt
+src/services/reconciliationHistory.service.test.ts(1408,36): error TS2345: Argument of type 'JournalEntry' is not assignable to parameter of type 'TransactionEntity'.
+  Type 'JournalEntry' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, versionVector, lastModifiedBy, lastModifiedAt
+src/services/reconciliationHistory.service.test.ts(1476,45): error TS2339: Property 'toBeOneOf' does not exist on type 'Assertion<"active" | "broken" | "at_risk">'.
+src/services/reconciliationHistory.service.test.ts(1737,36): error TS2345: Argument of type 'JournalEntry' is not assignable to parameter of type 'TransactionEntity'.
+  Type 'JournalEntry' is missing the following properties from type 'TransactionEntity': isBalanced, _encrypted, versionVector, lastModifiedBy, lastModifiedAt
+src/services/reconciliationService.additional.test.ts(15,32): error TS6133: 'beforeEach' is declared but its value is never read.
+src/services/reconciliationService.additional.test.ts(30,3): error TS6196: 'Reconciliation' is declared but never used.
+src/services/reconciliationService.additional.test.ts(170,11): error TS2322: Type '"EXACT"' is not assignable to type 'MatchConfidence'.
+src/services/reconciliationService.additional.test.ts(267,11): error TS2322: Type '"EXACT"' is not assignable to type 'MatchConfidence'.
+src/services/reconciliationService.additional.test.ts(274,11): error TS2322: Type '"HIGH"' is not assignable to type 'MatchConfidence'.
+src/services/reconciliationService.additional.test.ts(281,11): error TS2322: Type '"MEDIUM"' is not assignable to type 'MatchConfidence'.
+src/services/reconciliationService.additional.test.ts(635,11): error TS2322: Type '"EXACT"' is not assignable to type 'MatchConfidence'.
+src/services/reconciliationService.additional.test.ts(642,11): error TS2322: Type '"HIGH"' is not assignable to type 'MatchConfidence'.
+src/services/reconciliationService.additional.test.ts(649,11): error TS2322: Type '"MEDIUM"' is not assignable to type 'MatchConfidence'.
+src/services/reconciliationService.additional.test.ts(804,29): error TS2551: Property 'createdAt' does not exist on type 'Reconciliation'. Did you mean 'created_at'?
+src/services/reconciliationService.additional.test.ts(805,29): error TS2551: Property 'updatedAt' does not exist on type 'Reconciliation'. Did you mean 'updated_at'?
+src/services/reconciliationService.additional.test.ts(806,29): error TS2551: Property 'createdAt' does not exist on type 'Reconciliation'. Did you mean 'created_at'?
+src/services/reconciliationService.additional.test.ts(807,24): error TS2551: Property 'updatedAt' does not exist on type 'Reconciliation'. Did you mean 'updated_at'?
+src/services/reconciliationService.additional.test.ts(821,46): error TS2551: Property 'updatedAt' does not exist on type 'Reconciliation'. Did you mean 'updated_at'?
+src/services/reconciliationService.additional.test.ts(826,24): error TS2551: Property 'updatedAt' does not exist on type 'Reconciliation'. Did you mean 'updated_at'?
+src/services/reconciliationService.test.ts(15,50): error TS6196: 'Reconciliation' is declared but never used.
+src/services/reconciliationService.test.ts(86,11): error TS2322: Type '"EXACT"' is not assignable to type 'MatchConfidence'.
+src/services/reconciliationService.test.ts(128,11): error TS2322: Type '"EXACT"' is not assignable to type 'MatchConfidence'.
+src/services/reconciliationService.test.ts(135,11): error TS2322: Type '"HIGH"' is not assignable to type 'MatchConfidence'.
+src/services/reconciliationService.test.ts(338,11): error TS2322: Type '"EXACT"' is not assignable to type 'MatchConfidence'.
+src/services/reconciliationService.test.ts(345,11): error TS2322: Type '"HIGH"' is not assignable to type 'MatchConfidence'.
+src/services/reconciliationService.ts(58,5): error TS2561: Object literal may only specify known properties, but 'createdAt' does not exist in type 'Reconciliation'. Did you mean to write 'created_at'?
+src/services/reconciliationService.ts(102,5): error TS2561: Object literal may only specify known properties, but 'updatedAt' does not exist in type 'Reconciliation'. Did you mean to write 'updated_at'?
+src/services/reconciliationService.ts(154,5): error TS2561: Object literal may only specify known properties, but 'updatedAt' does not exist in type 'Reconciliation'. Did you mean to write 'updated_at'?
+src/services/reconciliationService.ts(205,5): error TS2561: Object literal may only specify known properties, but 'updatedAt' does not exist in type 'Reconciliation'. Did you mean to write 'updated_at'?
+src/services/reconciliationService.ts(279,5): error TS2561: Object literal may only specify known properties, but 'updatedAt' does not exist in type 'Reconciliation'. Did you mean to write 'updated_at'?
+src/services/reconciliationService.ts(293,5): error TS2561: Object literal may only specify known properties, but 'updatedAt' does not exist in type 'Reconciliation'. Did you mean to write 'updated_at'?
+src/services/recurrence.service.test.ts(13,3): error TS6133: 'getAllOccurrences' is declared but its value is never read.
+src/services/recurrence.service.test.ts(27,9): error TS2322: Type '"WEEKLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(30,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(40,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(43,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(55,9): error TS2322: Type '"QUARTERLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(58,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(69,9): error TS2322: Type '"ANNUALLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(72,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(86,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(89,9): error TS2322: Type '"ON_DATE"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(100,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(103,9): error TS2322: Type '"AFTER_COUNT"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(116,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(119,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(134,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(137,9): error TS2322: Type '"ON_DATE"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(150,9): error TS2322: Type '"WEEKLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(153,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(168,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(171,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(184,9): error TS2820: Type '"BI_WEEKLY"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.WEEKLY'?
+src/services/recurrence.service.test.ts(187,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(203,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(206,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(219,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(222,9): error TS2322: Type '"AFTER_COUNT"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(238,9): error TS2322: Type '"ANNUALLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(241,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(258,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(261,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(278,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(281,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(298,9): error TS2322: Type '"QUARTERLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(301,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(319,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(322,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(333,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(336,9): error TS2322: Type '"ON_DATE"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(348,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(351,9): error TS2322: Type '"ON_DATE"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(363,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(366,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(381,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(384,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(400,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(403,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(418,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(421,9): error TS2322: Type '"ON_DATE"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(436,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(439,9): error TS2322: Type '"AFTER_COUNT"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(450,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(453,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(465,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(468,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(478,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(481,9): error TS2322: Type '"ON_DATE"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(493,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(496,9): error TS2322: Type '"ON_DATE"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(510,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(513,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.ts(14,1): error TS6192: All imports in import declaration are unused.
+src/services/recurrence.service.ts(18,3): error TS6196: 'RecurrenceEndType' is declared but never used.
+src/services/recurringInvoiceService.test.ts(8,32): error TS6133: 'beforeEach' is declared but its value is never read.
+src/services/recurringInvoiceService.test.ts(8,44): error TS6133: 'vi' is declared but its value is never read.
+src/services/recurringInvoiceService.test.ts(10,1): error TS6192: All imports in import declaration are unused.
+src/services/recurringInvoiceService.test.ts(15,3): error TS6133: 'generateInvoiceFromRecurring' is declared but its value is never read.
+src/services/recurringInvoiceService.test.ts(16,3): error TS6133: 'processRecurringInvoices' is declared but its value is never read.
+src/services/recurringInvoiceService.test.ts(17,3): error TS6133: 'getUpcomingRecurringInvoices' is declared but its value is never read.
+src/services/recurringInvoiceService.test.ts(18,3): error TS6133: 'calculateRecurringRevenue' is declared but its value is never read.
+src/services/recurringInvoiceService.test.ts(19,3): error TS6133: 'previewRecurringInvoiceDates' is declared but its value is never read.
+src/services/recurringInvoiceService.test.ts(281,14): error TS2532: Object is possibly 'undefined'.
+src/services/recurringInvoiceService.test.ts(282,14): error TS2532: Object is possibly 'undefined'.
+src/services/recurringInvoiceService.test.ts(283,14): error TS2532: Object is possibly 'undefined'.
+src/services/recurringInvoiceService.test.ts(284,14): error TS2532: Object is possibly 'undefined'.
+src/services/recurringInvoiceService.test.ts(285,14): error TS2532: Object is possibly 'undefined'.
+src/services/recurringInvoiceService.test.ts(286,14): error TS2532: Object is possibly 'undefined'.
+src/services/recurringInvoiceService.test.ts(304,14): error TS2532: Object is possibly 'undefined'.
+src/services/recurringInvoiceService.test.ts(305,14): error TS2532: Object is possibly 'undefined'.
+src/services/recurringInvoiceService.test.ts(306,14): error TS2532: Object is possibly 'undefined'.
+src/services/recurringInvoiceService.test.ts(307,14): error TS2532: Object is possibly 'undefined'.
+src/services/recurringInvoiceService.test.ts(327,14): error TS2532: Object is possibly 'undefined'.
+src/services/recurringInvoiceService.ts(16,1): error TS6192: All imports in import declaration are unused.
+src/services/recurringInvoiceService.ts(23,15): error TS6196: 'Invoice' is declared but never used.
+src/services/recurringInvoiceService.ts(43,26): error TS2702: 'RRule' only refers to a type, but is being used as a namespace here.
+src/services/recurringInvoiceService.ts(546,8): error TS2554: Expected 0-1 arguments, but got 2.
+src/services/recurringScheduler.service.ts(121,9): error TS2322: Type '"DRAFT" | "POSTED"' is not assignable to type 'TransactionStatus'.
+  Type '"DRAFT"' is not assignable to type 'TransactionStatus'.
+src/services/reports/balanceSheet.test.ts(9,1): error TS6133: 'Decimal' is declared but its value is never read.
+src/services/reports/balanceSheet.test.ts(18,24): error TS6196: 'JournalEntry' is declared but never used.
+src/services/reports/balanceSheet.test.ts(56,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(62,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(98,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(104,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(136,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(142,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(161,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(167,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(246,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(247,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(261,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(262,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(276,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(277,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(329,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(330,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(378,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(379,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(429,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(430,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.test.ts(431,11): error TS2741: Property 'id' is missing in type '{ accountId: string; debit: number; credit: number; memo: string; }' but required in type 'JournalEntryLine'.
+src/services/reports/balanceSheet.ts(13,24): error TS6196: 'JournalEntry' is declared but never used.
+src/services/reports/balanceSheet.ts(18,3): error TS6196: 'AccountBalance' is declared but never used.
+src/services/reports/pdfExport.test.ts(195,24): error TS2532: Object is possibly 'undefined'.
+src/services/reports/pdfExport.test.ts(219,24): error TS2532: Object is possibly 'undefined'.
+src/services/reports/pdfExport.test.ts(305,24): error TS2532: Object is possibly 'undefined'.
+src/services/reports/pdfExport.test.ts(332,24): error TS2532: Object is possibly 'undefined'.
+src/services/reports/pdfExport.test.ts(360,24): error TS2532: Object is possibly 'undefined'.
+src/services/reports/pdfExport.test.ts(382,24): error TS2532: Object is possibly 'undefined'.
+src/services/reports/pdfExport.test.ts(399,24): error TS2532: Object is possibly 'undefined'.
+src/services/reports/pdfExport.test.ts(416,22): error TS2532: Object is possibly 'undefined'.
+src/services/reports/pdfExport.test.ts(423,18): error TS2532: Object is possibly 'undefined'.
+src/services/reports/pdfExport.test.ts(533,24): error TS2532: Object is possibly 'undefined'.
+src/services/reports/pdfExport.test.ts(554,24): error TS2532: Object is possibly 'undefined'.
+src/services/reports/pdfExport.ts(23,24): error TS2339: Property 'pdfMake' does not exist on type 'typeof import("C:/Users/Admin/graceful_books/node_modules/@types/pdfmake/build/vfs_fonts")'.
+src/services/reports/pdfExport.ts(697,9): error TS2322: Type '{ text: string; style: string; margin: number[]; alignment: string; }' is not assignable to type 'Content'.
+  Types of property 'margin' are incompatible.
+    Type 'number[]' is not assignable to type 'Margins | undefined'.
+      Type 'number[]' is not assignable to type '[number, number] | [number, number, number, number]'.
+        Type 'number[]' is not assignable to type '[number, number, number, number]'.
+          Target requires 4 element(s) but source may have fewer.
+src/services/reports/profitLoss.test.ts(15,1): error TS6133: 'Decimal' is declared but its value is never read.
+src/services/reports/profitLoss.test.ts(35,9): error TS6133: 'baseDate' is declared but its value is never read.
+src/services/reports/profitLoss.test.ts(768,14): error TS2532: Object is possibly 'undefined'.
+src/services/reports/profitLoss.test.ts(769,14): error TS2532: Object is possibly 'undefined'.
+src/services/reports/profitLoss.test.ts(833,14): error TS2532: Object is possibly 'undefined'.
+src/services/reports/profitLoss.test.ts(896,14): error TS2532: Object is possibly 'undefined'.
+src/services/reports/profitLoss.test.ts(897,14): error TS2532: Object is possibly 'undefined'.
+src/services/reports/profitLoss.test.ts(1117,11): error TS2322: Type '"DATABASE_ERROR"' is not assignable to type 'DatabaseErrorCode'.
+src/services/reports/profitLoss.test.ts(1151,11): error TS2322: Type '"DATABASE_ERROR"' is not assignable to type 'DatabaseErrorCode'.
+src/services/reports/profitLoss.ts(222,5): error TS2345: Argument of type 'ComparisonPeriod | undefined' is not assignable to parameter of type 'DateRange | undefined'.
+  Type 'ComparisonPeriod' is not assignable to type 'DateRange'.
+    Types of property 'startDate' are incompatible.
+      Type 'Date | undefined' is not assignable to type 'Date'.
+        Type 'undefined' is not assignable to type 'Date'.
+src/services/reports/profitLoss.ts(244,5): error TS2345: Argument of type 'ComparisonPeriod | undefined' is not assignable to parameter of type 'DateRange | undefined'.
+  Type 'ComparisonPeriod' is not assignable to type 'DateRange'.
+    Types of property 'startDate' are incompatible.
+      Type 'Date | undefined' is not assignable to type 'Date'.
+        Type 'undefined' is not assignable to type 'Date'.
+src/services/reports/profitLoss.ts(272,17): error TS2339: Property 'comparisonAmount' does not exist on type '{ amount: number; percentage: number; }'.
+src/services/reports/profitLoss.ts(273,17): error TS2339: Property 'variance' does not exist on type '{ amount: number; percentage: number; }'.
+src/services/reports/profitLoss.ts(276,19): error TS2339: Property 'variancePercentage' does not exist on type '{ amount: number; percentage: number; }'.
+src/services/reports/profitLoss.ts(291,5): error TS2345: Argument of type 'ComparisonPeriod | undefined' is not assignable to parameter of type 'DateRange | undefined'.
+  Type 'ComparisonPeriod' is not assignable to type 'DateRange'.
+    Types of property 'startDate' are incompatible.
+      Type 'Date | undefined' is not assignable to type 'Date'.
+        Type 'undefined' is not assignable to type 'Date'.
+src/services/reports/profitLoss.ts(318,63): error TS2339: Property 'comparisonAmount' does not exist on type '{ amount: number; percentage: number; }'.
+src/services/reports/profitLoss.ts(321,21): error TS2339: Property 'comparisonAmount' does not exist on type '{ amount: number; percentage: number; }'.
+src/services/reports/profitLoss.ts(322,21): error TS2339: Property 'variance' does not exist on type '{ amount: number; percentage: number; }'.
+src/services/reports/profitLoss.ts(327,23): error TS2339: Property 'variancePercentage' does not exist on type '{ amount: number; percentage: number; }'.
+src/services/reports/profitLoss.ts(342,5): error TS2345: Argument of type 'ComparisonPeriod | undefined' is not assignable to parameter of type 'DateRange | undefined'.
+  Type 'ComparisonPeriod' is not assignable to type 'DateRange'.
+    Types of property 'startDate' are incompatible.
+      Type 'Date | undefined' is not assignable to type 'Date'.
+        Type 'undefined' is not assignable to type 'Date'.
+src/services/reports/profitLoss.ts(363,5): error TS2345: Argument of type 'ComparisonPeriod | undefined' is not assignable to parameter of type 'DateRange | undefined'.
+  Type 'ComparisonPeriod' is not assignable to type 'DateRange'.
+    Types of property 'startDate' are incompatible.
+      Type 'Date | undefined' is not assignable to type 'Date'.
+        Type 'undefined' is not assignable to type 'Date'.
+src/services/reports/profitLoss.ts(397,59): error TS2339: Property 'comparisonAmount' does not exist on type '{ amount: number; percentage: number; }'.
+src/services/reports/profitLoss.ts(405,15): error TS2339: Property 'comparisonAmount' does not exist on type '{ amount: number; percentage: number; isProfitable: boolean; }'.
+src/services/reports/profitLoss.ts(406,15): error TS2339: Property 'variance' does not exist on type '{ amount: number; percentage: number; isProfitable: boolean; }'.
+src/services/reports/profitLoss.ts(409,17): error TS2339: Property 'variancePercentage' does not exist on type '{ amount: number; percentage: number; isProfitable: boolean; }'.
+src/services/statementParser.ts(162,13): error TS2322: Type 'CSVColumnMapping | null' is not assignable to type 'CSVColumnMapping | undefined'.
+  Type 'null' is not assignable to type 'CSVColumnMapping | undefined'.
+src/services/statementParser.ts(258,30): error TS2532: Object is possibly 'undefined'.
+src/services/statementParser.ts(287,15): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/services/transactionMatcher.test.ts(462,40): error TS2345: Argument of type '({ statementTransactionId: string; systemTransactionId: string; confidence: "EXACT"; score: number; reasons: never[]; } | { statementTransactionId: string; systemTransactionId: string; confidence: "HIGH"; score: number; reasons: never[]; } | { ...; } | { ...; })[]' is not assignable to parameter of type 'TransactionMatch[]'.
+  Type '{ statementTransactionId: string; systemTransactionId: string; confidence: "EXACT"; score: number; reasons: never[]; } | { statementTransactionId: string; systemTransactionId: string; confidence: "HIGH"; score: number; reasons: never[]; } | { ...; } | { ...; }' is not assignable to type 'TransactionMatch'.
+    Type '{ statementTransactionId: string; systemTransactionId: string; confidence: "EXACT"; score: number; reasons: never[]; }' is not assignable to type 'TransactionMatch'.
+      Types of property 'confidence' are incompatible.
+        Type '"EXACT"' is not assignable to type 'MatchConfidence'.
+src/services/transactionMatcher.ts(38,9): error TS2532: Object is possibly 'undefined'.
+src/services/transactionMatcher.ts(40,9): error TS2532: Object is possibly 'undefined'.
+src/services/transactionMatcher.ts(43,9): error TS2532: Object is possibly 'undefined'.
+src/services/transactionMatcher.ts(44,11): error TS2532: Object is possibly 'undefined'.
+src/services/transactionMatcher.ts(45,11): error TS2532: Object is possibly 'undefined'.
+src/services/transactionMatcher.ts(46,11): error TS2532: Object is possibly 'undefined'.
+src/services/transactionMatcher.ts(52,10): error TS2532: Object is possibly 'undefined'.
+src/services/transactionMatcher.ts(274,5): error TS2322: Type '"EXACT"' is not assignable to type 'MatchConfidence'.
+src/services/transactionMatcher.ts(276,5): error TS2322: Type '"HIGH"' is not assignable to type 'MatchConfidence'.
+src/services/transactionMatcher.ts(278,5): error TS2322: Type '"MEDIUM"' is not assignable to type 'MatchConfidence'.
+src/services/transactionMatcher.ts(280,5): error TS2322: Type '"LOW"' is not assignable to type 'MatchConfidence'.
+src/services/transactionMatcher.ts(283,5): error TS2322: Type '"LOW"' is not assignable to type 'MatchConfidence'.
+src/store/bills.test.ts(34,15): error TS6196: 'Bill' is declared but never used.
+src/store/bills.test.ts(49,3): error TS2739: Type '{ encrypt: Mock<[data: string], Promise<string>>; decrypt: Mock<[data: string], Promise<string>>; }' is missing the following properties from type 'EncryptionService': encryptField, decryptField
+src/store/bills.test.ts(85,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(86,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(87,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(88,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(89,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(90,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(91,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(128,48): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(155,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'error' does not exist on type '{ success: true; data: Bill; warnings?: string[] | undefined; }'.
+src/store/bills.test.ts(183,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'error' does not exist on type '{ success: true; data: Bill; warnings?: string[] | undefined; }'.
+src/store/bills.test.ts(184,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'error' does not exist on type '{ success: true; data: Bill; warnings?: string[] | undefined; }'.
+src/store/bills.test.ts(210,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(214,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(215,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(243,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(248,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(255,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'error' does not exist on type '{ success: true; data: Bill; warnings?: string[] | undefined; }'.
+src/store/bills.test.ts(279,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(284,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'error' does not exist on type '{ success: true; data: Bill; warnings?: string[] | undefined; }'.
+src/store/bills.test.ts(310,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(329,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(330,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(354,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(362,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'error' does not exist on type '{ success: true; data: Bill; warnings?: string[] | undefined; }'.
+src/store/bills.test.ts(388,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(392,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(416,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(421,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'error' does not exist on type '{ success: true; data: Bill; warnings?: string[] | undefined; }'.
+src/store/bills.test.ts(447,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(454,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(455,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(456,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(480,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(486,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'error' does not exist on type '{ success: true; data: Bill; warnings?: string[] | undefined; }'.
+src/store/bills.test.ts(510,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(516,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(542,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(546,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(570,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(575,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(601,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(631,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(636,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<void>'.
+  Property 'error' does not exist on type '{ success: true; data: void; warnings?: string[] | undefined; }'.
+src/store/bills.test.ts(685,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(721,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(722,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(748,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(754,27): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(754,38): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/store/bills.test.ts(779,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(785,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(785,32): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/store/bills.test.ts(824,36): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(825,36): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(830,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(831,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(831,54): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(859,35): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(867,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(868,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(902,58): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(905,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<BillLineItem[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(906,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<BillLineItem[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(907,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<BillLineItem[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(939,48): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(970,48): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(1000,48): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(1030,49): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(1033,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(1034,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/bills.test.ts(1036,49): error TS2339: Property 'data' does not exist on type 'DatabaseResult<Bill>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/categorization.test.ts(72,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<number>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(128,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<CategorizationRule>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(129,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<CategorizationRule>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(130,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<CategorizationRule>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(146,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<CategorizationRule>'.
+  Property 'error' does not exist on type '{ success: true; data: CategorizationRule; }'.
+src/store/categorization.test.ts(164,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<CategorizationRule>'.
+  Property 'error' does not exist on type '{ success: true; data: CategorizationRule; }'.
+src/store/categorization.test.ts(183,47): error TS2339: Property 'data' does not exist on type 'DatabaseResult<CategorizationRule>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(189,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<CategorizationRule>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(190,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<CategorizationRule>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(209,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<CategorizationRule>'.
+  Property 'error' does not exist on type '{ success: true; data: CategorizationRule; }'.
+src/store/categorization.test.ts(228,47): error TS2339: Property 'data' does not exist on type 'DatabaseResult<CategorizationRule>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(233,64): error TS2339: Property 'data' does not exist on type 'DatabaseResult<CategorizationRule>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(251,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<void>'.
+  Property 'error' does not exist on type '{ success: true; data: void; }'.
+src/store/categorization.test.ts(283,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<CategorizationRule[]>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(286,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<CategorizationRule[]>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(286,63): error TS2339: Property 'data' does not exist on type 'DatabaseResult<CategorizationRule[]>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(317,25): error TS2339: Property 'data' does not exist on type 'DatabaseResult<CategorizationRule[]>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(318,18): error TS2339: Property 'data' does not exist on type 'DatabaseResult<CategorizationRule[]>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(337,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<SuggestionHistory>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(338,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<SuggestionHistory>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(339,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<SuggestionHistory>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(340,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<SuggestionHistory>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(341,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<SuggestionHistory>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(360,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<SuggestionHistory | null>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(361,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<SuggestionHistory | null>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(368,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<SuggestionHistory | null>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(404,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TrainingDataPoint[]>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(443,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<{ categoryId: string; categoryName: string; count: number; correctionCount: number; }[]>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(445,37): error TS2339: Property 'data' does not exist on type 'DatabaseResult<{ categoryId: string; categoryName: string; count: number; correctionCount: number; }[]>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(445,49): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/store/categorization.test.ts(446,36): error TS2339: Property 'data' does not exist on type 'DatabaseResult<{ categoryId: string; categoryName: string; count: number; correctionCount: number; }[]>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(446,48): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/store/categorization.test.ts(476,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<number>'.
+  Property 'data' does not exist on type '{ success: false; error: string; }'.
+src/store/categorization.test.ts(499,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<CategorizationRule>'.
+  Property 'error' does not exist on type '{ success: true; data: CategorizationRule; }'.
+src/store/categorization.test.ts(508,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<CategorizationRule>'.
+  Property 'error' does not exist on type '{ success: true; data: CategorizationRule; }'.
+src/store/categorization.test.ts(515,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<void>'.
+  Property 'error' does not exist on type '{ success: true; data: void; }'.
+src/store/contacts.test.ts(144,9): error TS2739: Type '{ encrypt: Mock<[data: string], Promise<string>>; decrypt: Mock<[data: string], Promise<string>>; }' is missing the following properties from type 'EncryptionService': encryptField, decryptField
+src/store/contacts.test.ts(147,53): error TS2345: Argument of type '(entity: any) => Promise<string>' is not assignable to parameter of type '(item: ContactEntity, key?: string | undefined) => PromiseExtended<string>'.
+  Property 'timeout' is missing in type 'Promise<string>' but required in type 'PromiseExtended<string>'.
+src/store/contacts.test.ts(170,9): error TS2739: Type '{ encrypt: Mock<[data: string], Promise<string>>; decrypt: Mock<[data: string], Promise<string>>; }' is missing the following properties from type 'EncryptionService': encryptField, decryptField
+src/store/contacts.test.ts(249,9): error TS2739: Type '{ encrypt: Mock<[data: string], Promise<string>>; decrypt: Mock<[data: string], Promise<string>>; }' is missing the following properties from type 'EncryptionService': encryptField, decryptField
+src/store/contacts.test.ts(252,53): error TS2345: Argument of type '(entity: any) => Promise<string>' is not assignable to parameter of type '(item: ContactEntity, key?: string | undefined) => PromiseExtended<string>'.
+  Property 'timeout' is missing in type 'Promise<string>' but required in type 'PromiseExtended<string>'.
+src/store/contacts.test.ts(348,9): error TS2739: Type '{ encrypt: Mock<[data: string], Promise<string>>; decrypt: Mock<[data: string], Promise<string>>; }' is missing the following properties from type 'EncryptionService': encryptField, decryptField
+src/store/contacts.test.ts(418,9): error TS2739: Type '{ encrypt: Mock<[data: string], Promise<string>>; decrypt: Mock<[data: string], Promise<string>>; }' is missing the following properties from type 'EncryptionService': encryptField, decryptField
+src/store/contacts.test.ts(561,16): error TS2532: Object is possibly 'undefined'.
+src/store/contacts.test.ts(600,16): error TS2532: Object is possibly 'undefined'.
+src/store/contacts.test.ts(668,9): error TS2739: Type '{ encrypt: Mock<[data: string], Promise<string>>; decrypt: Mock<[data: string], Promise<string>>; }' is missing the following properties from type 'EncryptionService': encryptField, decryptField
+src/store/emailPreferences.test.ts(377,14): error TS2532: Object is possibly 'undefined'.
+src/store/emailPreferences.ts(123,71): error TS2554: Expected 1 arguments, but got 2.
+src/store/invoiceTemplates.test.ts(51,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(52,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(53,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(65,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(78,31): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(103,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'error' does not exist on type '{ success: true; data: InvoiceTemplateCustomization; warnings?: string[] | undefined; }'.
+src/store/invoiceTemplates.test.ts(123,21): error TS2339: Property 'warnings' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'warnings' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(124,21): error TS2339: Property 'warnings' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'warnings' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(145,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(146,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(158,31): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(162,24): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(163,24): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(170,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'error' does not exist on type '{ success: true; data: InvoiceTemplateCustomization; warnings?: string[] | undefined; }'.
+src/store/invoiceTemplates.test.ts(180,31): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(190,24): error TS2339: Property 'error' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'error' does not exist on type '{ success: true; data: InvoiceTemplateCustomization; warnings?: string[] | undefined; }'.
+src/store/invoiceTemplates.test.ts(202,31): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(210,27): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(211,27): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(229,27): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(239,72): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(256,69): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(261,27): error TS2339: Property 'warnings' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'warnings' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(270,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'error' does not exist on type '{ success: true; data: InvoiceTemplateCustomization; warnings?: string[] | undefined; }'.
+src/store/invoiceTemplates.test.ts(282,31): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(302,69): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(305,27): error TS2339: Property 'error' does not exist on type 'DatabaseResult<void>'.
+  Property 'error' does not exist on type '{ success: true; data: void; warnings?: string[] | undefined; }'.
+src/store/invoiceTemplates.test.ts(312,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<void>'.
+  Property 'error' does not exist on type '{ success: true; data: void; warnings?: string[] | undefined; }'.
+src/store/invoiceTemplates.test.ts(334,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(338,13): error TS6133: 'result1' is declared but its value is never read.
+src/store/invoiceTemplates.test.ts(347,9): error TS2353: Object literal may only specify known properties, and 'active' does not exist in type '{ companyId: string; name: string; description?: string | undefined; isDefault?: boolean | undefined; logo?: LogoConfig | null | undefined; logoPosition?: LogoPosition | undefined; ... 12 more ...; paymentInstructions?: string | undefined; }'.
+src/store/invoiceTemplates.test.ts(354,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(355,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(368,9): error TS2353: Object literal may only specify known properties, and 'active' does not exist in type '{ companyId: string; name: string; description?: string | undefined; isDefault?: boolean | undefined; logo?: LogoConfig | null | undefined; logoPosition?: LogoPosition | undefined; ... 12 more ...; paymentInstructions?: string | undefined; }'.
+src/store/invoiceTemplates.test.ts(375,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(379,13): error TS6133: 'result1' is declared but its value is never read.
+src/store/invoiceTemplates.test.ts(392,61): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(399,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(400,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(416,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(417,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(424,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(425,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(429,24): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(448,58): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(453,73): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(457,72): error TS2339: Property 'data' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/invoiceTemplates.test.ts(465,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<InvoiceTemplateCustomization>'.
+  Property 'error' does not exist on type '{ success: true; data: InvoiceTemplateCustomization; warnings?: string[] | undefined; }'.
+src/store/invoiceTemplates.ts(147,9): error TS18048: 'accessibilityResults.headerContrast' is possibly 'undefined'.
+src/store/invoiceTemplates.ts(148,45): error TS18048: 'accessibilityResults.headerContrast' is possibly 'undefined'.
+src/store/invoiceTemplates.ts(150,9): error TS18048: 'accessibilityResults.bodyContrast' is possibly 'undefined'.
+src/store/invoiceTemplates.ts(151,43): error TS18048: 'accessibilityResults.bodyContrast' is possibly 'undefined'.
+src/store/invoiceTemplates.ts(422,11): error TS18048: 'accessibilityResults.headerContrast' is possibly 'undefined'.
+src/store/invoiceTemplates.ts(424,22): error TS18048: 'accessibilityResults.headerContrast' is possibly 'undefined'.
+src/store/invoiceTemplates.ts(427,11): error TS18048: 'accessibilityResults.bodyContrast' is possibly 'undefined'.
+src/store/invoiceTemplates.ts(428,45): error TS18048: 'accessibilityResults.bodyContrast' is possibly 'undefined'.
+src/store/reconciliations.ts(16,3): error TS6196: 'VersionVector' is declared but never used.
+src/store/reconciliations.ts(21,3): error TS6196: 'ReconciliationStatus' is declared but never used.
+src/store/reconciliations.ts(132,64): error TS2554: Expected 1 arguments, but got 2.
+src/store/reconciliations.ts(193,64): error TS2554: Expected 1 arguments, but got 2.
+src/store/reconciliations.ts(336,64): error TS2554: Expected 1 arguments, but got 2.
+src/store/recurringInvoices.test.ts(24,54): error TS2307: Cannot find module '../db/schema' or its corresponding type declarations.
+src/store/recurringInvoices.test.ts(607,16): error TS2532: Object is possibly 'undefined'.
+src/store/recurringInvoices.test.ts(715,16): error TS2532: Object is possibly 'undefined'.
+src/store/recurringInvoices.test.ts(716,16): error TS2532: Object is possibly 'undefined'.
+src/store/recurringTransactions.ts(149,14): error TS2322: Type 'string' is not assignable to type 'void[]'.
+src/store/recurringTransactions.ts(149,25): error TS2322: Type 'boolean' is not assignable to type 'void[]'.
+src/store/recurringTransactions.ts(302,14): error TS2322: Type 'string' is not assignable to type 'void[]'.
+src/store/recurringTransactions.ts(302,25): error TS2322: Type 'boolean' is not assignable to type 'void[]'.
+src/store/tutorials.test.ts(9,1): error TS6133: 'Dexie' is declared but its value is never read.
+src/store/tutorials.test.ts(70,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress | null>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(80,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress | null>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(81,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress | null>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(82,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress | null>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(83,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress | null>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(92,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(93,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(94,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(95,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(96,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(97,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(98,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(99,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(107,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(116,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(127,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(134,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'error' does not exist on type '{ success: true; data: TutorialProgress; warnings?: string[] | undefined; }'.
+src/store/tutorials.test.ts(145,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(146,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(147,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(163,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(170,21): error TS2339: Property 'error' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'error' does not exist on type '{ success: true; data: TutorialProgress; warnings?: string[] | undefined; }'.
+src/store/tutorials.test.ts(181,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(182,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(191,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(192,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(199,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(213,29): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialProgress | null>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(228,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<boolean>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(237,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<boolean>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(247,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<boolean>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(256,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<boolean>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(265,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<boolean>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(279,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialStats>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(280,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialStats>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(281,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialStats>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(282,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialStats>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(283,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialStats>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(284,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialStats>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(285,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialStats>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(302,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialStats>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(303,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialStats>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(319,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialStats>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(320,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialStats>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(329,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialBadge[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(347,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialBadge[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(348,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialBadge[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(380,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialBadge[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(382,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialBadge[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/store/tutorials.test.ts(383,21): error TS2339: Property 'data' does not exist on type 'DatabaseResult<TutorialBadge[]>'.
+  Property 'data' does not exist on type '{ success: false; error: DatabaseError; }'.
+src/utils/parsers/csvParser.test.ts(39,14): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/csvParser.test.ts(40,14): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/csvParser.test.ts(53,14): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/csvParser.test.ts(54,14): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/csvParser.test.ts(67,34): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/csvParser.test.ts(98,14): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/csvParser.test.ts(99,14): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/csvParser.test.ts(100,14): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/csvParser.test.ts(112,14): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/csvParser.test.ts(113,14): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/csvParser.test.ts(199,14): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/csvParser.ts(93,36): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/csvParser.ts(96,11): error TS18048: 'firstTx' is possibly 'undefined'.
+src/utils/parsers/csvParser.ts(97,26): error TS18048: 'firstTx' is possibly 'undefined'.
+src/utils/parsers/csvParser.ts(97,44): error TS18048: 'firstTx' is possibly 'undefined'.
+src/utils/parsers/csvParser.ts(102,24): error TS18048: 'lastTx' is possibly 'undefined'.
+src/utils/parsers/csvParser.ts(303,36): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/csvParser.ts(303,52): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/csvParser.ts(303,73): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/csvParser.ts(313,36): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/csvParser.ts(313,52): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/csvParser.ts(313,73): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/csvParser.ts(323,36): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/csvParser.ts(323,52): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/csvParser.ts(323,73): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/csvParser.ts(333,36): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/csvParser.ts(333,52): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/csvParser.ts(333,73): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/matchingAlgorithm.test.ts(37,11): error TS2820: Type '"POSTED"' is not assignable to type 'TransactionStatus'. Did you mean '"posted"'?
+src/utils/parsers/matchingAlgorithm.test.ts(64,14): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/matchingAlgorithm.test.ts(65,14): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/matchingAlgorithm.test.ts(87,11): error TS2820: Type '"POSTED"' is not assignable to type 'TransactionStatus'. Did you mean '"posted"'?
+src/utils/parsers/matchingAlgorithm.test.ts(126,11): error TS2820: Type '"POSTED"' is not assignable to type 'TransactionStatus'. Did you mean '"posted"'?
+src/utils/parsers/matchingAlgorithm.test.ts(148,16): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/matchingAlgorithm.test.ts(171,11): error TS2820: Type '"RECONCILED"' is not assignable to type 'TransactionStatus'. Did you mean '"reconciled"'?
+src/utils/parsers/matchingAlgorithm.test.ts(208,11): error TS2820: Type '"POSTED"' is not assignable to type 'TransactionStatus'. Did you mean '"posted"'?
+src/utils/parsers/matchingAlgorithm.test.ts(224,11): error TS2820: Type '"POSTED"' is not assignable to type 'TransactionStatus'. Did you mean '"posted"'?
+src/utils/parsers/matchingAlgorithm.test.ts(241,16): error TS2532: Object is possibly 'undefined'.
+src/utils/parsers/matchingAlgorithm.test.ts(269,11): error TS2820: Type '"POSTED"' is not assignable to type 'TransactionStatus'. Did you mean '"posted"'?
+src/utils/parsers/matchingAlgorithm.test.ts(293,39): error TS2345: Argument of type '"EXACT"' is not assignable to parameter of type 'MatchConfidence'.
+src/utils/parsers/matchingAlgorithm.test.ts(294,39): error TS2345: Argument of type '"HIGH"' is not assignable to parameter of type 'MatchConfidence'.
+src/utils/parsers/matchingAlgorithm.test.ts(295,39): error TS2345: Argument of type '"MEDIUM"' is not assignable to parameter of type 'MatchConfidence'.
+src/utils/parsers/matchingAlgorithm.test.ts(296,39): error TS2345: Argument of type '"LOW"' is not assignable to parameter of type 'MatchConfidence'.
+src/utils/parsers/matchingAlgorithm.test.ts(297,39): error TS2345: Argument of type '"MANUAL"' is not assignable to parameter of type 'MatchConfidence'.
+src/utils/parsers/matchingAlgorithm.test.ts(327,41): error TS2345: Argument of type '({ statementTransactionId: string; systemTransactionId: string; confidence: "EXACT"; score: number; reasons: never[]; } | { statementTransactionId: string; systemTransactionId: string; confidence: "HIGH"; score: number; reasons: never[]; } | { ...; })[]' is not assignable to parameter of type 'TransactionMatch[]'.
+  Type '{ statementTransactionId: string; systemTransactionId: string; confidence: "EXACT"; score: number; reasons: never[]; } | { statementTransactionId: string; systemTransactionId: string; confidence: "HIGH"; score: number; reasons: never[]; } | { ...; }' is not assignable to type 'TransactionMatch'.
+    Type '{ statementTransactionId: string; systemTransactionId: string; confidence: "EXACT"; score: number; reasons: never[]; }' is not assignable to type 'TransactionMatch'.
+      Types of property 'confidence' are incompatible.
+        Type '"EXACT"' is not assignable to type 'MatchConfidence'.
+src/utils/parsers/matchingAlgorithm.ts(50,11): error TS18048: 'bestMatch' is possibly 'undefined'.
+src/utils/parsers/matchingAlgorithm.ts(51,22): error TS2345: Argument of type 'TransactionMatch | undefined' is not assignable to parameter of type 'TransactionMatch'.
+  Type 'undefined' is not assignable to type 'TransactionMatch'.
+src/utils/parsers/matchingAlgorithm.ts(52,37): error TS18048: 'bestMatch' is possibly 'undefined'.
+src/utils/parsers/matchingAlgorithm.ts(85,9): error TS2367: This comparison appears to be unintentional because the types 'TransactionStatus' and '"RECONCILED"' have no overlap.
+src/utils/parsers/matchingAlgorithm.ts(154,5): error TS2322: Type '"EXACT"' is not assignable to type 'MatchConfidence'.
+src/utils/parsers/matchingAlgorithm.ts(156,5): error TS2322: Type '"HIGH"' is not assignable to type 'MatchConfidence'.
+src/utils/parsers/matchingAlgorithm.ts(158,5): error TS2322: Type '"MEDIUM"' is not assignable to type 'MatchConfidence'.
+src/utils/parsers/matchingAlgorithm.ts(160,5): error TS2322: Type '"LOW"' is not assignable to type 'MatchConfidence'.
+src/utils/parsers/pdfParser.ts(8,8): error TS1192: Module '"C:/Users/Admin/graceful_books/node_modules/pdf-parse/dist/pdf-parse/esm/index"' has no default export.
+src/utils/parsers/pdfParser.ts(118,35): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/pdfParser.ts(119,33): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/pdfParser.ts(165,45): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/pdfParser.ts(174,45): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/pdfParser.ts(208,30): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/pdfParser.ts(214,24): error TS18048: 'description' is possibly 'undefined'.
+src/utils/parsers/pdfParser.ts(215,31): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/pdfParser.ts(233,24): error TS18048: 'description' is possibly 'undefined'.
+src/utils/parsers/pdfParser.ts(234,31): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/pdfParser.ts(246,30): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/pdfParser.ts(252,24): error TS18048: 'description' is possibly 'undefined'.
+src/utils/parsers/pdfParser.ts(253,31): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/pdfParser.ts(303,36): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/pdfParser.ts(303,52): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/pdfParser.ts(303,73): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/pdfParser.ts(313,36): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/pdfParser.ts(313,52): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/parsers/pdfParser.ts(313,73): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/wizardState.test.ts(193,14): error TS2532: Object is possibly 'undefined'.
+src/utils/wizardState.test.ts(194,14): error TS2532: Object is possibly 'undefined'.
+src/utils/wizardState.test.ts(195,14): error TS2532: Object is possibly 'undefined'.
+src/utils/wizardState.test.ts(220,14): error TS2532: Object is possibly 'undefined'.
+src/utils/wizardState.test.ts(221,14): error TS2532: Object is possibly 'undefined'.
+src/utils/wizardState.test.ts(246,14): error TS2532: Object is possibly 'undefined'.
+src/utils/wizardState.test.ts(247,14): error TS2532: Object is possibly 'undefined'.
+src/utils/wizardState.test.ts(248,14): error TS2532: Object is possibly 'undefined'.
+src/utils/wizardState.test.ts(290,14): error TS2532: Object is possibly 'undefined'.
+src/utils/wizardState.test.ts(291,14): error TS2532: Object is possibly 'undefined'.
+src/utils/wizardState.test.ts(318,14): error TS2532: Object is possibly 'undefined'.

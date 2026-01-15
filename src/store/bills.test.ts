@@ -43,6 +43,8 @@ vi.mock('../utils/device', () => ({
 const mockEncryptionService = {
   encrypt: vi.fn(async (data: string) => `encrypted_${data}`),
   decrypt: vi.fn(async (data: string) => data.replace('encrypted_', '')),
+  encryptField: vi.fn(async <T>(field: T) => `encrypted_${JSON.stringify(field)}`),
+  decryptField: vi.fn(async <T>(encrypted: string) => JSON.parse(encrypted.replace('encrypted_', '')) as T),
 };
 
 const mockContext: EncryptionContext = {
