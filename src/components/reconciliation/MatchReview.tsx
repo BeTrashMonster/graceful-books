@@ -149,7 +149,7 @@ export const MatchReview: React.FC<MatchReviewProps> = ({
           const systemTxn = getSystemTransaction(match.systemTransactionId);
           const isConfirmed = confirmedMatches.has(match.statementTransactionId);
           const isRejected = rejectedMatches.has(match.statementTransactionId);
-          const colors = confidenceColors[match.confidence];
+          const colors = confidenceColors[match.confidence]!;
 
           if (!statementTxn || !systemTxn) return null;
 

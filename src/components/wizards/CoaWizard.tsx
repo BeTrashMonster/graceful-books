@@ -108,7 +108,7 @@ export const CoaWizard: React.FC<CoaWizardProps> = ({
   const currentStepIndex = wizardState.steps.findIndex(
     (s) => s.id === wizardState.currentStepId
   )
-  const currentStep = wizardState.steps[currentStepIndex]
+  const currentStep = wizardState.steps[currentStepIndex]!
   const isFirstStep = currentStepIndex === 0
   const isLastStep = currentStepIndex === wizardState.steps.length - 1
 

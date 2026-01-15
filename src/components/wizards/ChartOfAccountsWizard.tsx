@@ -112,7 +112,7 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
   const currentStepIndex = wizardState.steps.findIndex(
     (s) => s.id === wizardState.currentStepId
   )
-  const currentStep = wizardState.steps[currentStepIndex]
+  const currentStep = wizardState.steps[currentStepIndex]!
   const progressPercent = calculateWizardProgress(wizardState.steps)
 
   // Save progress whenever state changes
