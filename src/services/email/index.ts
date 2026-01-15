@@ -7,13 +7,12 @@
 
 // Templates
 export {
-  DISC_EMAIL_TEMPLATES,
+  EMAIL_TEMPLATE,
   getSubjectLine,
   getGreeting,
   getSectionIntro,
   getClosing,
   getEmailTemplate,
-  getAllDISCTypes,
 } from './emailTemplates';
 
 // Content Generation
@@ -29,7 +28,6 @@ export {
 // Preview
 export {
   generateEmailPreview,
-  generatePreviewsForAllDISCTypes,
   validateEmailContent,
   getSampleChecklistItems,
 } from './emailPreviewService';

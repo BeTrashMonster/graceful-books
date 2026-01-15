@@ -9,8 +9,8 @@
  * - Explanations use accessible language: "Assets are things your business owns"
  */
 
-import type { IndustryTemplate, AccountType } from '../types'
-import type { TemplateAccount } from '../types/wizard.types'
+import type { AccountType } from '../types'
+import type { IndustryTemplate, TemplateAccount } from '../types/wizard.types'
 
 /**
  * Plain English explanations for account types

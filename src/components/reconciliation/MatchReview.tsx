@@ -15,7 +15,7 @@ import type {
   TransactionMatch,
   StatementTransaction,
   MatchConfidence,
-} from '../../../types/reconciliation.types';
+} from '../../types/reconciliation.types';
 import type { JournalEntry } from '../../types';
 import { formatMoney } from '../../utils/money';
 

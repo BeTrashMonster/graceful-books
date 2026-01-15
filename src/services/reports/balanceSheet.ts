@@ -15,7 +15,6 @@ import type {
   BalanceSheetData,
   BalanceSheetSectionData,
   BalanceSheetLine,
-  AccountBalance,
   ReportFilter,
   ReportCalculationResult,
   BalanceSheetEducation,

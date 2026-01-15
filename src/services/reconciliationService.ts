@@ -55,9 +55,9 @@ export function createReconciliation(params: {
     is_first_reconciliation: isFirstReconciliation,
     completed_at: null,
     notes: null,
-    createdAt: new Date(now),
-    updatedAt: new Date(now),
-    deletedAt: undefined,
+    created_at: now,
+    updated_at: now,
+    deleted_at: null,
     version_vector: initVersionVector(),
   };
 
@@ -99,7 +99,7 @@ export function applyMatches(
     statement_data: JSON.stringify(statement),
     matched_transactions: JSON.stringify(matchedTransactionIds),
     unmatched_statement_items: JSON.stringify(unmatchedStatementIds),
-    updatedAt: new Date(now),
+    updated_at: now,
     version_vector: incrementVersionVector(reconciliation.version_vector),
   };
 }
@@ -151,7 +151,7 @@ export function addManualMatch(
     statement_data: JSON.stringify(statement),
     matched_transactions: JSON.stringify(matchedIds),
     unmatched_statement_items: JSON.stringify(updatedUnmatchedStatement),
-    updatedAt: new Date(now),
+    updated_at: now,
     version_vector: incrementVersionVector(reconciliation.version_vector),
   };
 }
@@ -202,7 +202,7 @@ export function removeMatch(
     statement_data: JSON.stringify(statement),
     matched_transactions: JSON.stringify(updatedMatchedIds),
     unmatched_statement_items: JSON.stringify(unmatchedStatementIds),
-    updatedAt: new Date(now),
+    updated_at: now,
     version_vector: incrementVersionVector(reconciliation.version_vector),
   };
 }
@@ -276,7 +276,7 @@ export function completeReconciliation(
     status: ReconciliationStatus.COMPLETED,
     completed_at: now,
     notes: notes || null,
-    updatedAt: new Date(now),
+    updated_at: now,
     version_vector: incrementVersionVector(reconciliation.version_vector),
   };
 }
@@ -290,7 +290,7 @@ export function abandonReconciliation(reconciliation: Reconciliation): Reconcili
   return {
     ...reconciliation,
     status: ReconciliationStatus.ABANDONED,
-    updatedAt: new Date(now),
+    updated_at: now,
     version_vector: incrementVersionVector(reconciliation.version_vector),
   };
 }

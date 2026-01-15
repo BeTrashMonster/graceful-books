@@ -10,7 +10,6 @@
  * - ARCH-004: CRDT-Compatible Schema Design
  */
 
-import type { BaseEntity, VersionVector } from '../../types/database.types'
 import type {
   CategorizationModel,
   TrainingDataPoint,

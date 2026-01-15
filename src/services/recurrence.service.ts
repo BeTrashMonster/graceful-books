@@ -15,7 +15,6 @@ import { addDays, startOfDay, endOfDay } from 'date-fns';
 import type {
   RecurrenceRule,
   RecurrenceFrequency,
-  RecurrenceEndType,
   RecurrencePreview,
 } from '../types/recurring.types';
 

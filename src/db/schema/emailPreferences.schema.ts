@@ -6,7 +6,7 @@
  */
 
 import type { Table } from 'dexie';
-import type { VersionVector } from '../../types/crdt.types';
+import type { VersionVector } from '../../types/database.types';
 import type { DayOfWeek, EmailFrequency, EmailContentSection } from '../../types/email.types';
 
 /**
