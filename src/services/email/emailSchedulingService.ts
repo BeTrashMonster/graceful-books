@@ -37,8 +37,8 @@ export async function scheduleEmail(
 
     // Calculate next send time
     const scheduledAt = calculateNextSendTime(
-      preferences.day_of_week,
-      preferences.time_of_day
+      preferences.dayOfWeek,
+      preferences.timeOfDay
     );
 
     // Generate preview to validate content
