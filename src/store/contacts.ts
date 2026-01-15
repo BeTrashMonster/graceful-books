@@ -153,6 +153,9 @@ export async function createContact(
     // Create entity with CRDT fields
     let entity = toContactEntity(contact)
 
+    // Keep original entity for return value
+    const originalEntity = { ...entity }
+
     // Apply encryption if service provided
     if (context?.encryptionService) {
       const { encryptionService } = context
@@ -166,9 +169,7 @@ export async function createContact(
           ? await encryptionService.encrypt(entity.phone)
           : undefined,
         address: entity.address
-          ? JSON.parse(
-              await encryptionService.encrypt(JSON.stringify(entity.address))
-            )
+          ? await encryptionService.encrypt(JSON.stringify(entity.address))
           : undefined,
         taxId: entity.taxId
           ? await encryptionService.encrypt(entity.taxId)
@@ -176,14 +177,22 @@ export async function createContact(
         notes: entity.notes
           ? await encryptionService.encrypt(entity.notes)
           : undefined,
+        _encrypted: {
+          name: true,
+          email: !!entity.email,
+          phone: !!entity.phone,
+          address: !!entity.address,
+          taxId: !!entity.taxId,
+          notes: !!entity.notes,
+        },
       }
     }
 
     // Store in database
     await db.contacts.add(entity)
 
-    // Return decrypted contact
-    const result = fromContactEntity(entity)
+    // Return original unencrypted contact
+    const result = fromContactEntity(originalEntity)
     return { success: true, data: result }
   } catch (error) {
     return {
