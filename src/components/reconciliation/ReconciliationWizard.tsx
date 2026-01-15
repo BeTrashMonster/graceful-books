@@ -36,7 +36,7 @@ export function ReconciliationWizard({
   onCancel,
 }: ReconciliationWizardProps) {
   const [state, setState] = useState<ReconciliationWizardState>({
-    currentStep: 'INTRODUCTION',
+    currentStep: ReconciliationStep.INTRODUCTION,
     accountId,
     statement: null,
     matches: [],
@@ -50,10 +50,10 @@ export function ReconciliationWizard({
   // Handle moving to next step
   const handleNext = useCallback(() => {
     const stepOrder: ReconciliationStep[] = [
-      'INTRODUCTION',
-      'UPLOAD_STATEMENT',
-      'REVIEW_MATCHES',
-      'SUMMARY',
+      ReconciliationStep.INTRODUCTION,
+      ReconciliationStep.UPLOAD_STATEMENT,
+      ReconciliationStep.REVIEW_MATCHES,
+      ReconciliationStep.SUMMARY,
     ];
 
     const currentIndex = stepOrder.indexOf(state.currentStep);
@@ -68,10 +68,10 @@ export function ReconciliationWizard({
   // Handle moving to previous step
   const handleBack = useCallback(() => {
     const stepOrder: ReconciliationStep[] = [
-      'INTRODUCTION',
-      'UPLOAD_STATEMENT',
-      'REVIEW_MATCHES',
-      'SUMMARY',
+      ReconciliationStep.INTRODUCTION,
+      ReconciliationStep.UPLOAD_STATEMENT,
+      ReconciliationStep.REVIEW_MATCHES,
+      ReconciliationStep.SUMMARY,
     ];
 
     const currentIndex = stepOrder.indexOf(state.currentStep);
