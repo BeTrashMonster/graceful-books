@@ -54,7 +54,7 @@ export const EMAIL_TEMPLATE = {
  */
 export function getSubjectLine(index: number = 0): string {
   const subjectLines = EMAIL_TEMPLATE.subjectLines;
-  return subjectLines[index % subjectLines.length];
+  return subjectLines[index % subjectLines.length]!;
 }
 
 /**
@@ -63,7 +63,7 @@ export function getSubjectLine(index: number = 0): string {
  */
 export function getGreeting(userName?: string): string {
   const greetings = EMAIL_TEMPLATE.greetings;
-  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+  const greeting = greetings[Math.floor(Math.random() * greetings.length)]!;
 
   if (userName) {
     // Add personalized name for Steadiness style (personal and supportive)
@@ -86,7 +86,7 @@ export function getSectionIntro(section: EmailContentSection): string {
  */
 export function getClosing(): string {
   const closings = EMAIL_TEMPLATE.closings;
-  return closings[Math.floor(Math.random() * closings.length)];
+  return closings[Math.floor(Math.random() * closings.length)]!;
 }
 
 /**
