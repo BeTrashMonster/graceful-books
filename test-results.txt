@@ -47009,3 +47009,478 @@ null
 
 [1m[7m[31m FAIL [39m[27m[22m[31m Tests failed. Watching for file changes...[39m
        [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/email/emailSchedulingService.test.ts[22m [34mx7[39m
+
+[90mstdout[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mscheduleEmail[2m > [22m[2mshould successfully schedule an email[22m[39m
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m,
+  subject: [32m'Test Subject'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Test Subject'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m
+}
+
+[90mstderr[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mscheduleEmail[2m > [22m[2mshould throw error when preferences are not enabled[22m[39m
+[EmailScheduling] Failed to schedule email {
+  error: AppError: Email preferences must be enabled to schedule emails
+      at Module.scheduleEmail [90m(C:\Users\Admin\graceful_books\[39msrc\services\email\emailSchedulingService.ts:31:13[90m)[39m
+      at [90mC:\Users\Admin\graceful_books\[39msrc\services\email\emailSchedulingService.test.ts:152:20
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:135:14
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:60:26
+      at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:17[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runFiles [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:958:5[90m)[39m
+      at startTests [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:967:3[90m)[39m {
+    code: [32m'VALIDATION_ERROR'[39m,
+    category: [32m'VALIDATION'[39m,
+    details: { userId: [32m'user-123'[39m },
+    field: [90mundefined[39m
+  },
+  context: {
+    user: {
+      id: [32m'user-123'[39m,
+      name: [32m'Test User'[39m,
+      email: [32m'test@example.com'[39m,
+      timezone: [32m'America/Los_Angeles'[39m
+    },
+    company: { id: [32m'company-456'[39m, name: [32m'Test Company LLC'[39m },
+    preferences: {
+      id: [32m'pref-789'[39m,
+      userId: [32m'user-123'[39m,
+      companyId: [32m'company-456'[39m,
+      enabled: [33mfalse[39m,
+      frequency: [32m'weekly'[39m,
+      dayOfWeek: [32m'monday'[39m,
+      timeOfDay: [32m'08:00'[39m,
+      timezone: [32m'America/Los_Angeles'[39m,
+      includeSections: [36m[Array][39m,
+      maxTasksToShow: [33m5[39m,
+      discProfileId: [1mnull[22m,
+      useDiscAdaptation: [33mtrue[39m,
+      lastSentAt: [1mnull[22m,
+      nextScheduledAt: [1mnull[22m,
+      unsubscribedAt: [1mnull[22m,
+      unsubscribeReason: [1mnull[22m,
+      createdAt: [35m2026-01-15T23:24:09.999Z[39m,
+      updatedAt: [35m2026-01-15T23:24:09.999Z[39m
+    },
+    checklistItems: [ [36m[Object][39m ],
+    discType: [32m'S'[39m,
+    generatedAt: [35m2026-01-15T23:24:09.999Z[39m
+  }
+}
+
+[90mstdout[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mscheduleEmail[2m > [22m[2mshould calculate correct next send time for Monday 8am[22m[39m
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m,
+  subject: [32m'Test'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Test'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m
+}
+
+[90mstdout[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mscheduleEmail[2m > [22m[2mshould schedule for next week if time has passed today[22m[39m
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-22T16:00:00.000Z[39m,
+  subject: [32m'Test'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Test'[39m,
+  scheduledAt: [35m2026-01-22T16:00:00.000Z[39m
+}
+
+[90mstderr[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mscheduleEmail[2m > [22m[2mshould handle preview generation errors gracefully[22m[39m
+[EmailScheduling] Failed to schedule email {
+  error: Error: Preview generation failed
+      at [90mC:\Users\Admin\graceful_books\[39msrc\services\email\emailSchedulingService.test.ts:210:9
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:135:14
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:60:26
+      at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:17[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runFiles [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:958:5[90m)[39m
+      at startTests [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:967:3[90m)[39m
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:116:7,
+  context: {
+    user: {
+      id: [32m'user-123'[39m,
+      name: [32m'Test User'[39m,
+      email: [32m'test@example.com'[39m,
+      timezone: [32m'America/Los_Angeles'[39m
+    },
+    company: { id: [32m'company-456'[39m, name: [32m'Test Company LLC'[39m },
+    preferences: {
+      id: [32m'pref-789'[39m,
+      userId: [32m'user-123'[39m,
+      companyId: [32m'company-456'[39m,
+      enabled: [33mtrue[39m,
+      frequency: [32m'weekly'[39m,
+      dayOfWeek: [32m'monday'[39m,
+      timeOfDay: [32m'08:00'[39m,
+      timezone: [32m'America/Los_Angeles'[39m,
+      includeSections: [36m[Array][39m,
+      maxTasksToShow: [33m5[39m,
+      discProfileId: [1mnull[22m,
+      useDiscAdaptation: [33mtrue[39m,
+      lastSentAt: [1mnull[22m,
+      nextScheduledAt: [1mnull[22m,
+      unsubscribedAt: [1mnull[22m,
+      unsubscribeReason: [1mnull[22m,
+      createdAt: [35m2026-01-15T23:24:10.026Z[39m,
+      updatedAt: [35m2026-01-15T23:24:10.026Z[39m
+    },
+    checklistItems: [ [36m[Object][39m ],
+    discType: [32m'S'[39m,
+    generatedAt: [35m2026-01-15T23:24:10.026Z[39m
+  }
+}
+
+[90mstdout[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2msendEmailNow[2m > [22m[2mshould send email immediately for testing[22m[39m
+[EmailScheduling] Sending email immediately { userId: [32m'user-123'[39m, subject: [32m'Test Subject'[39m }
+[EmailScheduling] MOCKED: Sending email via service { recipientEmail: [32m'test@example.com'[39m, subject: [32m'Test Subject'[39m }
+
+[90mstderr[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2msendEmailNow[2m > [22m[2mshould throw error on send failure[22m[39m
+[EmailScheduling] Failed to send email {
+  error: Error: Send failed
+      at [90mC:\Users\Admin\graceful_books\[39msrc\services\email\emailSchedulingService.test.ts:241:9
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:135:14
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:60:26
+      at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:17[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runFiles [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:958:5[90m)[39m
+      at startTests [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:967:3[90m)[39m
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:116:7,
+  context: {
+    user: {
+      id: [32m'user-123'[39m,
+      name: [32m'Test User'[39m,
+      email: [32m'test@example.com'[39m,
+      timezone: [32m'America/Los_Angeles'[39m
+    },
+    company: { id: [32m'company-456'[39m, name: [32m'Test Company LLC'[39m },
+    preferences: {
+      id: [32m'pref-789'[39m,
+      userId: [32m'user-123'[39m,
+      companyId: [32m'company-456'[39m,
+      enabled: [33mtrue[39m,
+      frequency: [32m'weekly'[39m,
+      dayOfWeek: [32m'monday'[39m,
+      timeOfDay: [32m'08:00'[39m,
+      timezone: [32m'America/Los_Angeles'[39m,
+      includeSections: [36m[Array][39m,
+      maxTasksToShow: [33m5[39m,
+      discProfileId: [1mnull[22m,
+      useDiscAdaptation: [33mtrue[39m,
+      lastSentAt: [1mnull[22m,
+      nextScheduledAt: [1mnull[22m,
+      unsubscribedAt: [1mnull[22m,
+      unsubscribeReason: [1mnull[22m,
+      createdAt: [35m2026-01-15T23:24:10.548Z[39m,
+      updatedAt: [35m2026-01-15T23:24:10.548Z[39m
+    },
+    checklistItems: [ [36m[Object][39m ],
+    discType: [32m'S'[39m,
+    generatedAt: [35m2026-01-15T23:24:10.548Z[39m
+  }
+}
+
+[90mstdout[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mcancelScheduledEmail[2m > [22m[2mshould cancel a scheduled email[22m[39m
+[EmailScheduling] Cancelling scheduled email { userId: [32m'user-123'[39m, deliveryId: [32m'delivery-456'[39m }
+
+[90mstdout[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mcancelScheduledEmail[2m > [22m[2mshould handle cancellation errors[22m[39m
+[EmailScheduling] Cancelling scheduled email { userId: [32m'user-123'[39m, deliveryId: [32m'delivery-456'[39m }
+
+[90mstderr[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mcancelScheduledEmail[2m > [22m[2mshould handle cancellation errors[22m[39m
+[EmailScheduling] Failed to cancel email {
+  error: Error: Database error
+      at [90mC:\Users\Admin\graceful_books\[39msrc\services\email\emailSchedulingService.test.ts:271:9
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:135:14
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:60:26
+      at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:17[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runFiles [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:958:5[90m)[39m
+      at startTests [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:967:3[90m)[39m
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:116:7,
+  userId: [32m'user-123'[39m,
+  deliveryId: [32m'delivery-456'[39m
+}
+
+[90mstdout[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2misEmailServiceConfigured[2m > [22m[2mshould return true in MVP mode[22m[39m
+[EmailScheduling] MOCKED: Checking email service configuration 
+
+[90mstdout[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mDISC-adapted email scheduling[2m > [22m[2mshould schedule emails for all DISC types[22m[39m
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m,
+  subject: [32m'Test'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Test'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m
+}
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m,
+  subject: [32m'Test'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Test'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m
+}
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m,
+  subject: [32m'Test'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Test'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m
+}
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m,
+  subject: [32m'Test'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Test'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m
+}
+
+[90mstdout[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mEdge cases[2m > [22m[2mshould handle empty checklist items[22m[39m
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m,
+  subject: [32m'Test'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Test'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m
+}
+
+[90mstdout[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mEdge cases[2m > [22m[2mshould handle different day/time combinations[22m[39m
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m,
+  subject: [32m'Test'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Test'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m
+}
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-17T01:00:00.000Z[39m,
+  subject: [32m'Test'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Test'[39m,
+  scheduledAt: [35m2026-01-17T01:00:00.000Z[39m
+}
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-19T20:00:00.000Z[39m,
+  subject: [32m'Test'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Test'[39m,
+  scheduledAt: [35m2026-01-19T20:00:00.000Z[39m
+}
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-21T17:30:00.000Z[39m,
+  subject: [32m'Test'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Test'[39m,
+  scheduledAt: [35m2026-01-21T17:30:00.000Z[39m
+}
+
+[90mstdout[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mEdge cases[2m > [22m[2mshould handle missing user name gracefully[22m[39m
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m,
+  subject: [32m'Test'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Test'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m
+}
+
+[90mstdout[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mContent hashing[2m > [22m[2mshould generate consistent hashes for same content[22m[39m
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m,
+  subject: [32m'Same Subject'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Same Subject'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m
+}
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m,
+  subject: [32m'Same Subject'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Same Subject'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m
+}
+
+[90mstdout[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mContent hashing[2m > [22m[2mshould generate different hashes for different content[22m[39m
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m,
+  subject: [32m'Subject'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Subject'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m
+}
+[EmailScheduling] Email scheduled {
+  userId: [32m'user-123'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m,
+  subject: [32m'Subject'[39m
+}
+[EmailScheduling] MOCKED: Scheduling with email service {
+  recipientEmail: [32m'test@example.com'[39m,
+  subject: [32m'Subject'[39m,
+  scheduledAt: [35m2026-01-19T16:00:00.000Z[39m
+}
+
+[90mstderr[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mError handling[2m > [22m[2mshould provide user-friendly error messages[22m[39m
+[EmailScheduling] Failed to schedule email {
+  error: Error: Network error
+      at [90mC:\Users\Admin\graceful_books\[39msrc\services\email\emailSchedulingService.test.ts:467:9
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:135:14
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:60:26
+      at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:17[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runFiles [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:958:5[90m)[39m
+      at startTests [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:967:3[90m)[39m
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:116:7,
+  context: {
+    user: {
+      id: [32m'user-123'[39m,
+      name: [32m'Test User'[39m,
+      email: [32m'test@example.com'[39m,
+      timezone: [32m'America/Los_Angeles'[39m
+    },
+    company: { id: [32m'company-456'[39m, name: [32m'Test Company LLC'[39m },
+    preferences: {
+      id: [32m'pref-789'[39m,
+      userId: [32m'user-123'[39m,
+      companyId: [32m'company-456'[39m,
+      enabled: [33mtrue[39m,
+      frequency: [32m'weekly'[39m,
+      dayOfWeek: [32m'monday'[39m,
+      timeOfDay: [32m'08:00'[39m,
+      timezone: [32m'America/Los_Angeles'[39m,
+      includeSections: [36m[Array][39m,
+      maxTasksToShow: [33m5[39m,
+      discProfileId: [1mnull[22m,
+      useDiscAdaptation: [33mtrue[39m,
+      lastSentAt: [1mnull[22m,
+      nextScheduledAt: [1mnull[22m,
+      unsubscribedAt: [1mnull[22m,
+      unsubscribeReason: [1mnull[22m,
+      createdAt: [35m2026-01-15T23:24:10.571Z[39m,
+      updatedAt: [35m2026-01-15T23:24:10.571Z[39m
+    },
+    checklistItems: [ [36m[Object][39m ],
+    discType: [32m'S'[39m,
+    generatedAt: [35m2026-01-15T23:24:10.571Z[39m
+  }
+}
+
+[90mstderr[2m | src/services/email/emailSchedulingService.test.ts[2m > [22m[2mEmail Scheduling Service[2m > [22m[2mError handling[2m > [22m[2mshould log errors for debugging[22m[39m
+[EmailScheduling] Failed to schedule email {
+  error: Error: Database connection failed
+      at [90mC:\Users\Admin\graceful_books\[39msrc\services\email\emailSchedulingService.test.ts:483:9
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:135:14
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:60:26
+      at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:17[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runFiles [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:958:5[90m)[39m
+      at startTests [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:967:3[90m)[39m
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:116:7,
+  context: {
+    user: {
+      id: [32m'user-123'[39m,
+      name: [32m'Test User'[39m,
+      email: [32m'test@example.com'[39m,
+      timezone: [32m'America/Los_Angeles'[39m
+    },
+    company: { id: [32m'company-456'[39m, name: [32m'Test Company LLC'[39m },
+    preferences: {
+      id: [32m'pref-789'[39m,
+      userId: [32m'user-123'[39m,
+      companyId: [32m'company-456'[39m,
+      enabled: [33mtrue[39m,
+      frequency: [32m'weekly'[39m,
+      dayOfWeek: [32m'monday'[39m,
+      timeOfDay: [32m'08:00'[39m,
+      timezone: [32m'America/Los_Angeles'[39m,
+      includeSections: [36m[Array][39m,
+      maxTasksToShow: [33m5[39m,
+      discProfileId: [1mnull[22m,
+      useDiscAdaptation: [33mtrue[39m,
+      lastSentAt: [1mnull[22m,
+      nextScheduledAt: [1mnull[22m,
+      unsubscribedAt: [1mnull[22m,
+      unsubscribeReason: [1mnull[22m,
+      createdAt: [35m2026-01-15T23:24:10.573Z[39m,
+      updatedAt: [35m2026-01-15T23:24:10.573Z[39m
+    },
+    checklistItems: [ [36m[Object][39m ],
+    discType: [32m'S'[39m,
+    generatedAt: [35m2026-01-15T23:24:10.573Z[39m
+  }
+}
+
+ [32m✓[39m src/services/email/emailSchedulingService.test.ts [2m ([22m[2m21 tests[22m[2m)[22m[33m 600[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m21 passed[39m[22m[90m (21)[39m
+[2m   Start at [22m 15:23:53
+[2m   Duration [22m 6.58s
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x7[39m
+[2K[1A[2K[G       [90mrerun x7[39m
+[2K[1A[2K[G       [2m[90mrerun x7[39m[22m
+[2K[1A[2K[G

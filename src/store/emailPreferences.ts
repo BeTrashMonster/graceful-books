@@ -114,17 +114,47 @@ export async function updateEmailPreferences(
       );
     }
 
-    // Prepare updates
+    // Prepare updates - map camelCase to snake_case
     const deviceId = getDeviceId();
     const now = new Date();
 
     const updatedPreferences: Partial<EmailPreferencesEntity> = {
-      ...updates,
       version_vector: incrementVersionVector(existing.version_vector),
       last_modified_by: deviceId,
       last_modified_at: now,
       updated_at: now,
     };
+
+    // Map camelCase fields to snake_case
+    if (updates.dayOfWeek !== undefined) {
+      updatedPreferences.day_of_week = updates.dayOfWeek;
+    }
+    if (updates.timeOfDay !== undefined) {
+      updatedPreferences.time_of_day = updates.timeOfDay;
+    }
+    if (updates.maxTasksToShow !== undefined) {
+      updatedPreferences.max_tasks_to_show = updates.maxTasksToShow;
+    }
+    if (updates.includeSections !== undefined) {
+      updatedPreferences.include_sections = updates.includeSections;
+    }
+    // Direct mappings
+    if (updates.enabled !== undefined) {
+      updatedPreferences.enabled = updates.enabled;
+    }
+    if (updates.frequency !== undefined) {
+      updatedPreferences.frequency = updates.frequency;
+    }
+    if (updates.timezone !== undefined) {
+      updatedPreferences.timezone = updates.timezone;
+    }
+    // Handle unsubscribe fields (passed via 'as any')
+    if ((updates as any).unsubscribedAt !== undefined) {
+      updatedPreferences.unsubscribed_at = (updates as any).unsubscribedAt;
+    }
+    if ((updates as any).unsubscribeReason !== undefined) {
+      updatedPreferences.unsubscribe_reason = (updates as any).unsubscribeReason;
+    }
 
     // Update in database
     await db.emailPreferences.update(existing.id, updatedPreferences);

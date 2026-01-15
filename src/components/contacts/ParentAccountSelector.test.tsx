@@ -30,6 +30,11 @@ vi.mock('../../db/database', () => ({
   },
 }))
 
+// Mock Dexie React hooks
+vi.mock('dexie-react-hooks', () => ({
+  useLiveQuery: vi.fn(),
+}))
+
 // Mock the validators and services
 vi.mock('../../validators/hierarchyValidator')
 vi.mock('../../services/hierarchyService')

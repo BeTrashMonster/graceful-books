@@ -187,7 +187,14 @@ describe('Email Scheduling Service', () => {
       context.preferences.dayOfWeek = dayOfWeek as any;
       context.preferences.timeOfDay = '00:00'; // Midnight (already passed)
 
-      vi.mocked(emailPreviewService.generateEmailPreview).mockResolvedValue({} as any);
+      vi.mocked(emailPreviewService.generateEmailPreview).mockResolvedValue({
+        subject: 'Test',
+        preheader: 'Test',
+        htmlContent: '<html>Test</html>',
+        plainTextContent: 'Test',
+        estimatedSendTime: addDays(new Date(), 7),
+        discType: 'S',
+      });
       vi.mocked(emailPreferencesStore.recordEmailDelivery).mockResolvedValue({} as any);
 
       const result = await scheduleEmail(context);

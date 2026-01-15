@@ -72,7 +72,7 @@ export async function createPattern(
       return {
         success: false,
         error: {
-          code: 'CONSTRAINT_VIOLATION',
+          code: 'ALREADY_EXISTS',
           message: `A pattern already exists for vendor: ${vendorName}`,
         },
       };
@@ -203,7 +203,7 @@ export async function learnFromMatch(
       return {
         success: false,
         error: {
-          code: 'VALIDATION_ERROR',
+          code: 'INVALID_INPUT',
           message: 'Could not extract vendor name from transaction description',
         },
       };
