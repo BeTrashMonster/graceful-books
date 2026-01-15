@@ -144,10 +144,10 @@ export async function createInvoiceTemplate(
     const accessibilityResults = validateBrandColorsAccessibility(colors, fontSize);
     const accessibilityWarnings: string[] = [];
 
-    if (accessibilityResults.headerContrast.recommendation) {
+    if (accessibilityResults.headerContrast?.recommendation) {
       accessibilityWarnings.push(`Header: ${accessibilityResults.headerContrast.recommendation}`);
     }
-    if (accessibilityResults.bodyContrast.recommendation) {
+    if (accessibilityResults.bodyContrast?.recommendation) {
       accessibilityWarnings.push(`Body: ${accessibilityResults.bodyContrast.recommendation}`);
     }
 
@@ -419,12 +419,12 @@ export async function updateInvoiceTemplate(
         updated.fontSize
       );
 
-      if (accessibilityResults.headerContrast.recommendation) {
+      if (accessibilityResults.headerContrast?.recommendation) {
         accessibilityWarnings.push(
           `Header: ${accessibilityResults.headerContrast.recommendation}`
         );
       }
-      if (accessibilityResults.bodyContrast.recommendation) {
+      if (accessibilityResults.bodyContrast?.recommendation) {
         accessibilityWarnings.push(`Body: ${accessibilityResults.bodyContrast.recommendation}`);
       }
     }

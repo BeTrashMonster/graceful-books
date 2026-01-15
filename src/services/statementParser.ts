@@ -255,7 +255,7 @@ export async function parseCSVStatement(
             openingBalance = transactions[0].balance - transactions[0].amount;
           }
           if (transactions[transactions.length - 1]?.balance !== undefined) {
-            closingBalance = transactions[transactions.length - 1].balance;
+            closingBalance = transactions[transactions.length - 1]!.balance;
           }
 
           const statement: ParsedStatement = {

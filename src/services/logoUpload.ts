@@ -269,8 +269,8 @@ export function getLogoDisplayDimensions(
  */
 export function dataUrlToBlob(dataUrl: string): Blob {
   const parts = dataUrl.split(',');
-  const contentType = parts[0].match(/:(.*?);/)?.[1] || 'image/png';
-  const raw = atob(parts[1]);
+  const contentType = parts[0]!.match(/:(.*?);/)?.[1] || 'image/png';
+  const raw = atob(parts[1]!);
   const rawLength = raw.length;
   const uInt8Array = new Uint8Array(rawLength);
 

@@ -633,9 +633,9 @@ function findStatementCombinationsSummingToAmount(
   // Try pairs
   for (let i = 0; i < transactions.length; i++) {
     for (let j = i + 1; j < transactions.length; j++) {
-      const sum = transactions[i].amount + transactions[j].amount;
+      const sum = transactions[i]!.amount + transactions[j]!.amount;
       if (Math.abs(sum - Math.abs(targetAmount)) <= tolerance) {
-        results.push([transactions[i], transactions[j]]);
+        results.push([transactions[i]!, transactions[j]!]);
       }
     }
   }
