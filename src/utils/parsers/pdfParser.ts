@@ -5,7 +5,7 @@
  * Uses pdf-parse to extract text and pattern matching to identify transactions.
  */
 
-import pdfParse from 'pdf-parse';
+import * as pdfParse from 'pdf-parse';
 import { nanoid } from 'nanoid';
 import type {
   ParsedStatement,

@@ -13,12 +13,10 @@ import type {
   ReconciliationEntity,
   DatabaseResult,
   DatabaseError,
-  VersionVector,
 } from './types';
 import type {
   ParsedStatement,
   TransactionMatch,
-  ReconciliationStatus,
 } from '../types/reconciliation.types';
 import { logger } from '../utils/logger';
 import { ErrorCode } from '../utils/errors';
@@ -129,7 +127,7 @@ export async function updateReconciliationMatches(
       unmatchedStatementItems: JSON.stringify(unmatchedStatementIds), // Should be encrypted
       unmatchedSystemItems: JSON.stringify(unmatchedSystemIds), // Should be encrypted
       updatedAt: now,
-      versionVector: incrementVV(reconciliation.versionVector, deviceId),
+      versionVector: incrementVV(reconciliation.versionVector),
       lastModifiedBy: deviceId,
       lastModifiedAt: now,
     };
@@ -190,7 +188,7 @@ export async function completeReconciliation(
       notes,
       completedAt: now,
       updatedAt: now,
-      versionVector: incrementVV(reconciliation.versionVector, deviceId),
+      versionVector: incrementVV(reconciliation.versionVector),
       lastModifiedBy: deviceId,
       lastModifiedAt: now,
     };
@@ -333,7 +331,7 @@ export async function deleteReconciliation(
       ...reconciliation,
       deletedAt: now,
       updatedAt: now,
-      versionVector: incrementVV(reconciliation.versionVector, deviceId),
+      versionVector: incrementVV(reconciliation.versionVector),
       lastModifiedBy: deviceId,
       lastModifiedAt: now,
     };

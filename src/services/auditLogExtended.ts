@@ -150,7 +150,7 @@ export async function searchAuditLogs(
     }
 
     // Get initial results
-    let results = await query.toArray();
+    let results = await query.toArray() as AuditLog[];
 
     // Apply additional filters
     if (options.userIds && options.userIds.length > 0) {
@@ -363,7 +363,7 @@ export async function generateAuditLogTimeline(
           groupKey = `${logDate.getFullYear()}-${String(logDate.getMonth() + 1).padStart(2, '0')}`;
           break;
         default:
-          groupKey = logDate.toISOString().split('T')[0];
+          groupKey = logDate.toISOString().split('T')[0]!;
       }
 
       if (!grouped.has(groupKey)) {

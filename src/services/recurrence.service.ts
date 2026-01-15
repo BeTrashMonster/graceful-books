@@ -11,7 +11,6 @@
  */
 
 import { RRule, Frequency } from 'rrule';
-import { addDays, startOfDay, endOfDay } from 'date-fns';
 import type {
   RecurrenceRule,
   RecurrenceFrequency,

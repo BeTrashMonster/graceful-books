@@ -120,7 +120,7 @@ export async function updateEmailPreferences(
 
     const updatedPreferences: Partial<EmailPreferencesEntity> = {
       ...updates,
-      version_vector: incrementVersionVector(existing.version_vector, deviceId),
+      version_vector: incrementVersionVector(existing.version_vector),
       last_modified_by: deviceId,
       last_modified_at: now,
       updated_at: now,

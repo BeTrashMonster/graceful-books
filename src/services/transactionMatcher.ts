@@ -49,7 +49,7 @@ function levenshteinDistance(str1: string, str2: string): number {
     }
   }
 
-  return dp[m][n]!;
+  return dp[m]![n]!;
 }
 
 /**
