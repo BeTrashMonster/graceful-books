@@ -25,15 +25,15 @@ import {
   exportAuditLogsToPDF,
 } from '../../services/auditLogExtended';
 import {
-  AuditLog,
   AuditAction,
   AuditEntityType,
 } from '../../types/database.types';
+import type { AuditLogEntity } from '../../store/types';
 
 interface AuditLogSearchProps {
   companyId: string;
   companyName?: string;
-  onLogSelect?: (log: AuditLog) => void;
+  onLogSelect?: (log: AuditLogEntity) => void;
 }
 
 const ACTION_OPTIONS: AuditAction[] = [
@@ -496,18 +496,18 @@ export function AuditLogSearch({
                           {log.action}
                         </span>
                         <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                          {log.entity_type}
+                          {log.entityType}
                         </span>
                         <span className="text-sm text-gray-500">
                           {new Date(log.timestamp).toLocaleString()}
                         </span>
                       </div>
                       <p className="text-sm text-gray-700">
-                        Entity ID: {log.entity_id.substring(0, 12)}...
+                        Entity ID: {log.entityId.substring(0, 12)}...
                       </p>
-                      {log.changed_fields.length > 0 && (
+                      {(log.changedFields?.length ?? 0) > 0 && (
                         <p className="text-sm text-gray-500 mt-1">
-                          Changed fields: {log.changed_fields.join(', ')}
+                          Changed fields: {log.changedFields!.join(', ')}
                         </p>
                       )}
                     </div>

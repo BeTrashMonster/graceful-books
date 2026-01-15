@@ -319,12 +319,12 @@ export function AuditLogTimeline({
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
                               <span
-                                className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getActionColor(log.action)}`}
+                                className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getActionColor(log.action as AuditAction)}`}
                               >
-                                {formatAction(log.action)}
+                                {formatAction(log.action as AuditAction)}
                               </span>
                               <span className="text-gray-600">
-                                {formatEntityType(log.entity_type)}
+                                {formatEntityType(log.entityType as AuditEntityType)}
                               </span>
                               <span className="text-gray-400 text-xs">
                                 {new Date(log.timestamp).toLocaleTimeString()}
@@ -339,9 +339,9 @@ export function AuditLogTimeline({
                               </button>
                             )}
                           </div>
-                          {log.changed_fields.length > 0 && (
+                          {(log.changedFields?.length ?? 0) > 0 && (
                             <div className="mt-1 text-xs text-gray-500">
-                              Changed: {log.changed_fields.join(', ')}
+                              Changed: {log.changedFields!.join(', ')}
                             </div>
                           )}
                         </div>
