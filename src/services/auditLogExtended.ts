@@ -341,7 +341,7 @@ export async function generateAuditLogTimeline(
     );
 
     // Group logs by time period
-    const grouped = new Map<string, AuditLog[]>();
+    const grouped = new Map<string, AuditLogEntity[]>();
 
     for (const log of searchResult.logs) {
       const logDate = new Date(log.timestamp);
@@ -478,14 +478,14 @@ export async function exportAuditLogsToCSV(
     for (const log of searchResult.logs) {
       const row = [
         new Date(log.timestamp).toISOString(),
-        log.user_id,
+        log.userId,
         log.action,
-        log.entity_type,
-        log.entity_id,
-        `"${log.changed_fields.join(', ')}"`,
-        log.ip_address || '',
-        log.device_id || '',
-        log.user_agent ? `"${log.user_agent.replace(/"/g, '""')}"` : '',
+        log.entityType,
+        log.entityId,
+        `"${log.changedFields.join(', ')}"`,
+        log.ipAddress || '',
+        log.deviceId || '',
+        log.userAgent ? `"${log.userAgent.replace(/"/g, '""')}"` : '',
       ];
       csvLines.push(row.join(','));
     }
@@ -544,13 +544,13 @@ export async function exportAuditLogsToPDF(
       recordCount: searchResult.logs.length,
       logs: searchResult.logs.map((log) => ({
         timestamp: new Date(log.timestamp).toLocaleString(),
-        userId: log.user_id,
+        userId: log.userId,
         action: log.action,
-        entityType: log.entity_type,
-        entityId: log.entity_id,
-        changedFields: log.changed_fields,
-        ipAddress: log.ip_address || 'N/A',
-        deviceId: log.device_id || 'N/A',
+        entityType: log.entityType,
+        entityId: log.entityId,
+        changedFields: log.changedFields,
+        ipAddress: log.ipAddress || 'N/A',
+        deviceId: log.deviceId || 'N/A',
       })),
     };
 
@@ -589,7 +589,7 @@ export interface AuditLogStatistics {
   byEntityType: Map<AuditEntityType, number>;
   byUser: Map<string, number>;
   topUsers: Array<{ userId: string; count: number }>;
-  recentActivity: AuditLog[];
+  recentActivity: AuditLogEntity[];
   executionTimeMs: number;
 }
 
@@ -626,16 +626,16 @@ export async function getAuditLogStatistics(
 
     for (const log of searchResult.logs) {
       // Count by action
-      byAction.set(log.action, (byAction.get(log.action) || 0) + 1);
+      byAction.set(log.action as AuditAction, (byAction.get(log.action as AuditAction) || 0) + 1);
 
       // Count by entity type
       byEntityType.set(
-        log.entity_type,
-        (byEntityType.get(log.entity_type) || 0) + 1
+        log.entityType as AuditEntityType,
+        (byEntityType.get(log.entityType as AuditEntityType) || 0) + 1
       );
 
       // Count by user
-      byUser.set(log.user_id, (byUser.get(log.user_id) || 0) + 1);
+      byUser.set(log.userId, (byUser.get(log.userId) || 0) + 1);
 
       // Track date range
       const logDate = new Date(log.timestamp);
