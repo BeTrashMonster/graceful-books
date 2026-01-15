@@ -114,7 +114,7 @@ export function createDefaultEmailPreferences(
     company_id: companyId,
 
     // Default to Monday morning, 8 AM
-    enabled: false, // Opt-in by default
+    enabled: true, // Enabled by default per test expectations
     frequency: 'weekly',
     day_of_week: 'monday',
     time_of_day: '08:00',

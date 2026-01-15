@@ -183,7 +183,7 @@ describe('Email Scheduling Service', () => {
       const now = new Date();
 
       // Set to current day but in the past
-      const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'lowercase' });
+      const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
       context.preferences.dayOfWeek = dayOfWeek as any;
       context.preferences.timeOfDay = '00:00'; // Midnight (already passed)
 
@@ -300,7 +300,14 @@ describe('Email Scheduling Service', () => {
     it('should schedule emails for all DISC types', async () => {
       const discTypes: Array<'D' | 'I' | 'S' | 'C'> = ['D', 'I', 'S', 'C'];
 
-      vi.mocked(emailPreviewService.generateEmailPreview).mockResolvedValue({} as any);
+      vi.mocked(emailPreviewService.generateEmailPreview).mockResolvedValue({
+        subject: 'Test',
+        preheader: 'Test',
+        htmlContent: '<html>Test</html>',
+        plainTextContent: 'Test',
+        estimatedSendTime: addDays(new Date(), 7),
+        discType: 'S',
+      });
       vi.mocked(emailPreferencesStore.recordEmailDelivery).mockResolvedValue({} as any);
 
       for (const discType of discTypes) {
@@ -317,7 +324,14 @@ describe('Email Scheduling Service', () => {
       const context = createMockContext();
       context.checklistItems = [];
 
-      vi.mocked(emailPreviewService.generateEmailPreview).mockResolvedValue({} as any);
+      vi.mocked(emailPreviewService.generateEmailPreview).mockResolvedValue({
+        subject: 'Test',
+        preheader: 'Test',
+        htmlContent: '<html>Test</html>',
+        plainTextContent: 'Test',
+        estimatedSendTime: addDays(new Date(), 7),
+        discType: 'S',
+      });
       vi.mocked(emailPreferencesStore.recordEmailDelivery).mockResolvedValue({} as any);
 
       const result = await scheduleEmail(context);
@@ -335,7 +349,14 @@ describe('Email Scheduling Service', () => {
         { day: 'wednesday', time: '09:30' },
       ];
 
-      vi.mocked(emailPreviewService.generateEmailPreview).mockResolvedValue({} as any);
+      vi.mocked(emailPreviewService.generateEmailPreview).mockResolvedValue({
+        subject: 'Test',
+        preheader: 'Test',
+        htmlContent: '<html>Test</html>',
+        plainTextContent: 'Test',
+        estimatedSendTime: addDays(new Date(), 7),
+        discType: 'S',
+      });
       vi.mocked(emailPreferencesStore.recordEmailDelivery).mockResolvedValue({} as any);
 
       for (const { day, time } of testCases) {
@@ -353,7 +374,14 @@ describe('Email Scheduling Service', () => {
       const context = createMockContext();
       context.user.name = '';
 
-      vi.mocked(emailPreviewService.generateEmailPreview).mockResolvedValue({} as any);
+      vi.mocked(emailPreviewService.generateEmailPreview).mockResolvedValue({
+        subject: 'Test',
+        preheader: 'Test',
+        htmlContent: '<html>Test</html>',
+        plainTextContent: 'Test',
+        estimatedSendTime: addDays(new Date(), 7),
+        discType: 'S',
+      });
       vi.mocked(emailPreferencesStore.recordEmailDelivery).mockResolvedValue({} as any);
 
       const result = await scheduleEmail(context);
