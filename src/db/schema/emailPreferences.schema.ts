@@ -228,10 +228,10 @@ export function validateEmailPreferences(
     errors.push('time_of_day must be in HH:MM format (e.g., 08:00)');
   }
 
-  // Validate max tasks
+  // Validate max tasks (0 means don't show tasks section)
   if (prefs.max_tasks_to_show !== undefined) {
-    if (prefs.max_tasks_to_show < 1 || prefs.max_tasks_to_show > 20) {
-      errors.push('max_tasks_to_show must be between 1 and 20');
+    if (prefs.max_tasks_to_show < 0 || prefs.max_tasks_to_show > 20) {
+      errors.push('max_tasks_to_show must be between 0 and 20');
     }
   }
 

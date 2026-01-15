@@ -115,11 +115,18 @@ export function calculateNextGenerationDate(
   _occurrencesGenerated: number
 ): Date | null {
   try {
-    const rruleString = generateRRuleString(rule, currentDate);
+    // Normalize to UTC midnight to avoid timezone issues
+    const normalizedDate = new Date(Date.UTC(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      currentDate.getDate()
+    ));
+
+    const rruleString = generateRRuleString(rule, normalizedDate);
     const rrule = rrulestr(rruleString);
 
     // Get next occurrence after current date
-    const after = new Date(currentDate.getTime() + 1000); // 1 second after current
+    const after = new Date(normalizedDate.getTime() + 1000); // 1 second after current
     const nextOccurrence = rrule.after(after);
 
     if (!nextOccurrence) {
@@ -139,26 +146,17 @@ export function calculateNextGenerationDate(
  */
 export function adjustForEndOfMonth(targetDate: Date, dayOfMonth: number): Date {
   // Create a new date to avoid mutating the input
-  const result = new Date(targetDate);
+  const year = targetDate.getFullYear();
+  const month = targetDate.getMonth();
 
-  if (dayOfMonth <= 28) {
-    // Safe for all months
-    result.setDate(dayOfMonth);
-    return result;
-  }
+  // Get the last day of the target month
+  const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
 
-  // Get the last day of the month
-  const lastDay = new Date(result.getFullYear(), result.getMonth() + 1, 0);
-  const maxDay = lastDay.getDate();
+  // Use the smaller of dayOfMonth or lastDayOfMonth
+  const actualDay = Math.min(dayOfMonth, lastDayOfMonth);
 
-  // If the requested day doesn't exist, use last day of month
-  if (dayOfMonth > maxDay) {
-    result.setDate(maxDay);
-  } else {
-    result.setDate(dayOfMonth);
-  }
-
-  return result;
+  // Create and return the adjusted date
+  return new Date(year, month, actualDay);
 }
 
 /**

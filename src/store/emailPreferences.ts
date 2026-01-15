@@ -354,7 +354,10 @@ export async function getRecentEmailDeliveries(
 export async function isUserUnsubscribed(userId: string): Promise<boolean> {
   try {
     const preferences = await getEmailPreferences(userId);
-    return preferences?.unsubscribed_at !== null;
+    if (!preferences) {
+      return false; // No preferences = not unsubscribed (fail-safe)
+    }
+    return preferences.unsubscribed_at !== null;
   } catch (error) {
     storeLogger.error('Failed to check unsubscribe status', { userId, error });
     return false; // Fail safe - don't send if we can't verify

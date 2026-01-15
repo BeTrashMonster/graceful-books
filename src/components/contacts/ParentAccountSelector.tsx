@@ -332,7 +332,6 @@ export function ParentAccountSelector({
                 ? undefined
                 : helperText
           }
-          placeholder="None (Standalone Account)"
           fullWidth
         >
           <option value="">None (Standalone Account)</option>
