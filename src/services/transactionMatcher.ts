@@ -269,17 +269,18 @@ function calculateMatchScore(
   }
 
   // Determine confidence level
+  // NOTE: All matches MUST have dates within tolerance (per ACCT-004)
   let confidence: MatchConfidence;
   if (score >= 90 && dateMatches && amountMatches) {
     confidence = MatchConfidence.EXACT;
   } else if (score >= 75 && dateMatches && amountMatches) {
     confidence = MatchConfidence.HIGH;
-  } else if (score >= 60 && amountMatches) {
+  } else if (score >= 60 && dateMatches && amountMatches) {
     confidence = MatchConfidence.MEDIUM;
-  } else if (score >= options.minConfidenceScore) {
+  } else if (score >= options.minConfidenceScore && dateMatches) {
     confidence = MatchConfidence.LOW;
   } else {
-    // Below minimum confidence
+    // Below minimum confidence or dates don't match
     confidence = MatchConfidence.LOW;
     score = 0;
     return { score, confidence, reasons: [] };
