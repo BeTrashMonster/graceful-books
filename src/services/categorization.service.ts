@@ -521,19 +521,22 @@ export class CategorizationService {
    * Convert feature vector to array for neural network
    */
   private featureVectorToArray(features: FeatureVector): number[] {
+    // Ensure exactly 5 keyword features (pad with 0 if fewer)
+    const keywords = [0, 1, 2, 3, 4].map(i => features.descriptionKeywords[i] ?? 0);
+
     return [
       features.vendorNameHash,
       features.vendorFrequency,
       features.descriptionLength / 100, // Normalize
       features.descriptionWordCount / 10, // Normalize
-      ...features.descriptionKeywords.slice(0, 5), // Take first 5 keywords
+      ...keywords,
       features.amountNormalized,
       features.amountBucket,
       features.dayOfWeek / 7,
       features.dayOfMonth / 31,
       features.monthOfYear / 12,
-      features.previousCategoryForVendor || 0,
-      features.categoryFrequency,
+      features.previousCategoryForVendor ?? 0,
+      features.categoryFrequency ?? 0,
     ]
   }
 

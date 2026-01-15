@@ -148,7 +148,7 @@ export function SummaryStep({
           Review your reconciliation before completing.
         </p>
 
-        {error && <ErrorMessage className="mb-6">{error}</ErrorMessage>}
+        {error && <ErrorMessage message={error} />}
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-4 mb-6">

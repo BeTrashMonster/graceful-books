@@ -147,7 +147,7 @@ export function UploadStatementStep({
         </p>
 
         {error && (
-          <ErrorMessage className="mb-6">{error}</ErrorMessage>
+          <ErrorMessage message={error} />
         )}
 
         <div
