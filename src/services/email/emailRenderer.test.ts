@@ -88,7 +88,8 @@ describe('Email Renderer', () => {
       const content = createMockEmailContent();
       const html = renderEmailToHTML(content);
 
-      expect(html).toContain(content.greeting);
+      // Greeting should be HTML-escaped (apostrophes become &#39;)
+      expect(html).toContain('Hi Test User, here&#39;s what&#39;s on deck this week.');
       expect(html).toContain('class="greeting"');
     });
 
@@ -227,7 +228,8 @@ describe('Email Renderer', () => {
       const html = renderEmailToHTML(content);
 
       expect(html).toContain('<!DOCTYPE html>');
-      expect(html).toContain(content.greeting);
+      // Greeting should be HTML-escaped (apostrophes become &#39;)
+      expect(html).toContain('Hi Test User, here&#39;s what&#39;s on deck this week.');
       expect(html).toContain(content.footer.companyName);
     });
 
@@ -255,7 +257,7 @@ describe('Email Renderer', () => {
       const text = renderEmailToPlainText(content);
 
       expect(text).toContain('Your Tasks This Week');
-      expect(text).toContain('----------------------'); // Underline
+      expect(text).toContain('--------------------'); // Underline (20 chars to match title length)
     });
 
     it('should render tasks as numbered list', () => {
@@ -345,7 +347,8 @@ describe('Email Renderer', () => {
       const preview = generateEmailPreviewHTML(content);
 
       expect(preview).toContain('<!DOCTYPE html>');
-      expect(preview).toContain(content.greeting);
+      // Greeting should be HTML-escaped (apostrophes become &#39;)
+      expect(preview).toContain('Hi Test User, here&#39;s what&#39;s on deck this week.');
       expect(preview).toContain(content.footer.companyName);
     });
 
