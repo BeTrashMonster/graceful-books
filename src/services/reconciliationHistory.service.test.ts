@@ -547,7 +547,7 @@ describe('ReconciliationHistory Service', () => {
         expect(auditLogs.logDelete).toHaveBeenCalledWith(
           'test-company',
           'test-user',
-          'reconciliation_pattern',
+          'RECONCILIATION_PATTERN',
           patternId,
           expect.any(Object),
           undefined
@@ -694,7 +694,7 @@ describe('ReconciliationHistory Service', () => {
         expect(auditLogs.logCreate).toHaveBeenCalledWith(
           'test-company',
           'test-user',
-          'reconciliation_record',
+          'RECONCILIATION_RECORD',
           expect.any(String),
           expect.objectContaining({
             account_id: 'test-account',
