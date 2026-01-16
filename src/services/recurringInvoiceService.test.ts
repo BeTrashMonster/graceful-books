@@ -166,8 +166,8 @@ describe('Recurring Invoice Generation Service', () => {
 
       expect(nextDate).not.toBeNull();
       if (nextDate) {
-        expect(nextDate.getDate()).toBe(15);
-        expect(nextDate.getMonth()).toBe(1); // February
+        expect(nextDate.getUTCDate()).toBe(15);
+        expect(nextDate.getUTCMonth()).toBe(1); // February
       }
     });
 
@@ -324,7 +324,7 @@ describe('Recurring Invoice Generation Service', () => {
 
       const dates = rrule.all();
 
-      expect(dates[0].getDate()).toBe(29); // 2024 Feb 29 (leap)
+      expect(dates[0].getUTCDate()).toBe(29); // 2024 Feb 29 (leap)
       // RRule should handle non-leap years by skipping or adjusting
       // The exact behavior depends on rrule library implementation
       expect(dates.length).toBeGreaterThan(0);

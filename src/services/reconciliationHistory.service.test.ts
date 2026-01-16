@@ -1354,12 +1354,13 @@ describe('ReconciliationHistory Service', () => {
 
       it('should aggregate unreconciled transactions across accounts', async () => {
         // Add old transactions to both accounts
-        await db.transactions?.add(
-          createTestJournalEntry('tx-1', Date.now() - 45 * 24 * 60 * 60 * 1000, 5000)
-        );
-        await db.transactions?.add(
-          createTestJournalEntry('tx-2', Date.now() - 75 * 24 * 60 * 60 * 1000, 3000)
-        );
+        const tx1 = createTestJournalEntry('tx-1', Date.now() - 45 * 24 * 60 * 60 * 1000, 5000);
+        tx1.lines[0].accountId = 'account-1';
+        await db.transactions?.add(tx1);
+
+        const tx2 = createTestJournalEntry('tx-2', Date.now() - 75 * 24 * 60 * 60 * 1000, 3000);
+        tx2.lines[0].accountId = 'account-2';
+        await db.transactions?.add(tx2);
 
         const result = await getUnreconciledDashboard('test-company');
 
@@ -1373,12 +1374,13 @@ describe('ReconciliationHistory Service', () => {
       });
 
       it('should track oldest transaction age', async () => {
-        await db.transactions?.add(
-          createTestJournalEntry('tx-1', Date.now() - 45 * 24 * 60 * 60 * 1000, 5000)
-        );
-        await db.transactions?.add(
-          createTestJournalEntry('tx-2', Date.now() - 120 * 24 * 60 * 60 * 1000, 3000)
-        );
+        const tx1 = createTestJournalEntry('tx-1', Date.now() - 45 * 24 * 60 * 60 * 1000, 5000);
+        tx1.lines[0].accountId = 'account-1';
+        await db.transactions?.add(tx1);
+
+        const tx2 = createTestJournalEntry('tx-2', Date.now() - 120 * 24 * 60 * 60 * 1000, 3000);
+        tx2.lines[0].accountId = 'account-2';
+        await db.transactions?.add(tx2);
 
         const result = await getUnreconciledDashboard('test-company');
 

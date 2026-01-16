@@ -176,18 +176,28 @@ export async function searchAuditLogs(
     // Apply full-text search
     if (options.searchQuery && options.searchQuery.trim().length > 0) {
       const query = options.searchQuery.toLowerCase().trim();
-      results = results.filter((log) => {
+      results = results.filter((log: any) => {
+        // Support both camelCase (AuditLogEntity) and snake_case (AuditLog) field names
+        const entityType = log.entityType || log.entity_type;
+        const action = log.action;
+        const entityId = log.entityId || log.entity_id;
+        const changedFields = log.changedFields || log.changed_fields;
+        const beforeValues = log.beforeValues || log.before_value;
+        const afterValues = log.afterValues || log.after_value;
+        const ipAddress = log.ipAddress || log.ip_address;
+        const userAgent = log.userAgent || log.user_agent;
+
         return (
-          (log.entityType && log.entityType.toLowerCase().includes(query)) ||
-          (log.action && log.action.toLowerCase().includes(query)) ||
-          (log.entityId && log.entityId.toLowerCase().includes(query)) ||
-          (log.changedFields?.some((field: string) =>
+          (entityType && entityType.toLowerCase().includes(query)) ||
+          (action && action.toLowerCase().includes(query)) ||
+          (entityId && entityId.toLowerCase().includes(query)) ||
+          (changedFields?.some((field: string) =>
             field.toLowerCase().includes(query)
           )) ||
-          (log.beforeValues && log.beforeValues.toLowerCase().includes(query)) ||
-          (log.afterValues && log.afterValues.toLowerCase().includes(query)) ||
-          (log.ipAddress && log.ipAddress.toLowerCase().includes(query)) ||
-          (log.userAgent && log.userAgent.toLowerCase().includes(query))
+          (beforeValues && beforeValues.toLowerCase().includes(query)) ||
+          (afterValues && afterValues.toLowerCase().includes(query)) ||
+          (ipAddress && ipAddress.toLowerCase().includes(query)) ||
+          (userAgent && userAgent.toLowerCase().includes(query))
         );
       });
     }
@@ -232,8 +242,8 @@ export async function searchAuditLogs(
 
     // Apply pagination
     const offset = options.offset || 0;
-    const limit = options.limit || 100;
-    const paginatedResults = results.slice(offset, offset + limit);
+    const limit = options.limit !== undefined ? options.limit : 100;
+    const paginatedResults = limit > 0 ? results.slice(offset, offset + limit) : results.slice(offset);
 
     const executionTimeMs = performance.now() - startTime;
 
