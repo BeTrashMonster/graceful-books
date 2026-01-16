@@ -1004,4 +1004,64 @@
        [34mrerun x2[39m
 [2K[1A[2K[G       [90mrerun x2[39m
 [2K[1A[2K[G       [2m[90mrerun x2[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/store/categorization.test.ts[22m [34mx2[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 16:35:15
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x2[39m
+[2K[1A[2K[G       [90mrerun x2[39m
+[2K[1A[2K[G       [2m[90mrerun x2[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/store/categorization.test.ts[22m [34mx3[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 16:35:32
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x3[39m
+[2K[1A[2K[G       [90mrerun x3[39m
+[2K[1A[2K[G       [2m[90mrerun x3[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/store/categorization.test.ts[22m [34mx4[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 16:35:53
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x4[39m
+[2K[1A[2K[G       [90mrerun x4[39m
+[2K[1A[2K[G       [2m[90mrerun x4[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/store/categorization.test.ts[22m [34mx5[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 16:41:03
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x5[39m
+[2K[1A[2K[G       [90mrerun x5[39m
+[2K[1A[2K[G       [2m[90mrerun x5[39m[22m
 [2K[1A[2K[G

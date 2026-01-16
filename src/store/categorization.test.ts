@@ -35,6 +35,9 @@ describe('Categorization Store', () => {
     await deleteDatabase()
     await initializeDatabase()
 
+    // Clear categories array from previous test runs
+    categories.length = 0
+
     // Create test categories matching system rule category names
     const categoryNames = [
       'Utilities',
@@ -377,6 +380,7 @@ describe('Categorization Store', () => {
       // Add training data directly
       await db.trainingData.add({
         id: crypto.randomUUID(),
+        company_id: companyId,
         vendorName: 'Google Ads',
         description: 'Marketing campaign',
         amount: 500.0,
@@ -389,6 +393,7 @@ describe('Categorization Store', () => {
 
       await db.trainingData.add({
         id: crypto.randomUUID(),
+        company_id: companyId,
         vendorName: 'Facebook Ads',
         description: 'Social media marketing',
         amount: 300.0,
@@ -413,6 +418,7 @@ describe('Categorization Store', () => {
       for (let i = 0; i < 5; i++) {
         await db.trainingData.add({
           id: crypto.randomUUID(),
+          company_id: companyId,
           vendorName: 'Google Ads',
           description: `Campaign ${i}`,
           amount: 100.0,
@@ -427,6 +433,7 @@ describe('Categorization Store', () => {
       for (let i = 0; i < 3; i++) {
         await db.trainingData.add({
           id: crypto.randomUUID(),
+          company_id: companyId,
           vendorName: 'Adobe',
           description: `Software ${i}`,
           amount: 50.0,
@@ -460,6 +467,7 @@ describe('Categorization Store', () => {
       for (let i = 0; i < 5; i++) {
         await db.trainingData.add({
           id: crypto.randomUUID(),
+          company_id: companyId,
           vendorName: 'Test Vendor',
           description: 'Test',
           amount: 100.0,
