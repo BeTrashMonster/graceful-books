@@ -25,11 +25,11 @@ import { format, addDays } from 'date-fns';
  * Generate complete email content
  */
 export function generateEmailContent(context: EmailGenerationContext): EmailContent {
-  const { user, company, preferences, checklistItems, generatedAt: _generatedAt } = context;
+  const { user, company, preferences, checklistItems, discType, generatedAt: _generatedAt } = context;
 
   // Generate subject line
   const subject = {
-    primary: getSubjectLine(),
+    primary: getSubjectLine(0, discType),
     fallback: 'Your Week Ahead: Small Steps, Big Progress',
   };
 
@@ -37,7 +37,7 @@ export function generateEmailContent(context: EmailGenerationContext): EmailCont
   const preheader = generatePreheader(checklistItems);
 
   // Generate greeting
-  const greeting = getGreeting(user.name);
+  const greeting = getGreeting(user.name, discType);
 
   // Generate sections based on preferences
   const sections = generateSections(
@@ -55,6 +55,7 @@ export function generateEmailContent(context: EmailGenerationContext): EmailCont
     greeting,
     sections,
     footer,
+    discType,
   };
 }
 

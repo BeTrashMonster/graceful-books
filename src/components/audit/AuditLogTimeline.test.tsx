@@ -226,10 +226,10 @@ describe('AuditLogTimeline Component', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Created/)).toBeInTheDocument();
+      expect(screen.getByText('Audit Log Timeline')).toBeInTheDocument();
     });
 
-    // Should show action counts in badges
+    // Should show action counts in badges (these are visible in collapsed state)
     expect(screen.getByText(/Created \(5\)/)).toBeInTheDocument();
     expect(screen.getByText(/Updated \(3\)/)).toBeInTheDocument();
   });

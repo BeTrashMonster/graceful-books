@@ -85,6 +85,7 @@ export interface EmailContent {
   greeting: string;
   sections: EmailSection[];
   footer: EmailFooter;
+  discType?: 'D' | 'I' | 'S' | 'C';
 }
 
 /**
@@ -140,6 +141,7 @@ export interface EmailGenerationContext {
   };
   preferences: EmailPreferences;
   checklistItems: ChecklistItem[];
+  discType?: 'D' | 'I' | 'S' | 'C';
   generatedAt: Date;
 }
 
@@ -227,6 +229,7 @@ export interface EmailPreview {
   htmlContent: string;
   plainTextContent: string;
   estimatedSendTime: Date;
+  discType?: 'D' | 'I' | 'S' | 'C';
 }
 
 // =============================================================================

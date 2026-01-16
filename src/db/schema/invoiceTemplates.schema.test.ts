@@ -255,7 +255,7 @@ describe('Invoice Template Schema', () => {
     });
 
     it('should pass AA but not AAA for moderate contrast', () => {
-      const result = validateColorContrast('#595959', '#ffffff', 11);
+      const result = validateColorContrast('#767676', '#ffffff', 11);
 
       expect(result.wcagAA).toBe(true);
       expect(result.wcagAAA).toBe(false);
@@ -273,8 +273,8 @@ describe('Invoice Template Schema', () => {
     it('should provide helpful recommendations', () => {
       const result = validateColorContrast('#cccccc', '#ffffff', 11);
 
-      expect(result.recommendation).toContain('contrast');
-      expect(result.recommendation).toContain('accessibility');
+      expect(result.recommendation?.toLowerCase()).toContain('contrast');
+      expect(result.recommendation?.toLowerCase()).toContain('accessibility');
     });
   });
 

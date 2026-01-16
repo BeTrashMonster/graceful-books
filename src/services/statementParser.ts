@@ -71,7 +71,7 @@ function detectColumnMapping(headers: string[]): CSVColumnMapping | null {
   return {
     dateColumn,
     descriptionColumn,
-    amountColumn: amountColumn ?? 0,
+    amountColumn,
     debitColumn,
     creditColumn,
     balanceColumn,
@@ -200,8 +200,8 @@ export async function parseCSVStatement(
               const parsed = parseMoney(amountStr || '0');
               amountCents = parsed ?? 0;
             } else if (mapping.debitColumn !== undefined && mapping.creditColumn !== undefined) {
-              const debitStr = row[mapping.debitColumn as number] || '0';
-              const creditStr = row[mapping.creditColumn as number] || '0';
+              const debitStr = row[mapping.debitColumn as number] || '';
+              const creditStr = row[mapping.creditColumn as number] || '';
               const debit = parseMoney(debitStr) ?? 0;
               const credit = parseMoney(creditStr) ?? 0;
               // Debits are negative (money out), credits are positive (money in)

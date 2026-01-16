@@ -349,30 +349,32 @@ describe('VendorCard', () => {
     it('should apply default variant class', () => {
       const { container } = render(<VendorCard {...defaultProps} variant="default" />)
 
-      const card = container.firstChild
-      expect(card).toHaveClass('default')
+      const card = container.firstChild as HTMLElement
+      // Default variant uses base vendorCard class without additional modifier
+      expect(card.className).toMatch(/vendorCard/)
+      expect(card.className).not.toMatch(/compact/)
     })
 
     it('should apply compact variant class', () => {
       const { container } = render(<VendorCard {...defaultProps} variant="compact" />)
 
-      const card = container.firstChild
-      expect(card).toHaveClass('compact')
+      const card = container.firstChild as HTMLElement
+      expect(card.className).toMatch(/compact/)
     })
 
     it('should apply inactive class when vendor is inactive', () => {
       const inactiveVendor = createMockVendor({ isActive: false })
       const { container } = render(<VendorCard {...defaultProps} vendor={inactiveVendor} />)
 
-      const card = container.firstChild
-      expect(card).toHaveClass('inactive')
+      const card = container.firstChild as HTMLElement
+      expect(card.className).toMatch(/inactive/)
     })
 
     it('should apply clickable class when onClick is provided', () => {
       const { container } = render(<VendorCard {...defaultProps} onClick={mockOnClick} />)
 
-      const card = container.firstChild
-      expect(card).toHaveClass('clickable')
+      const card = container.firstChild as HTMLElement
+      expect(card.className).toMatch(/clickable/)
     })
 
     it('should apply custom className', () => {

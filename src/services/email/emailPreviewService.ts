@@ -36,7 +36,25 @@ export async function generateEmailPreview(
     htmlContent,
     plainTextContent,
     estimatedSendTime,
+    discType: context.discType,
   };
+}
+
+/**
+ * Generate email previews for all DISC types
+ */
+export async function generatePreviewsForAllDISCTypes(
+  context: EmailGenerationContext
+): Promise<Record<'D' | 'I' | 'S' | 'C', EmailPreview>> {
+  const discTypes: Array<'D' | 'I' | 'S' | 'C'> = ['D', 'I', 'S', 'C'];
+  const previews: Record<string, EmailPreview> = {};
+
+  for (const discType of discTypes) {
+    const contextWithDiscType = { ...context, discType };
+    previews[discType] = await generateEmailPreview(contextWithDiscType);
+  }
+
+  return previews as Record<'D' | 'I' | 'S' | 'C', EmailPreview>;
 }
 
 /**
