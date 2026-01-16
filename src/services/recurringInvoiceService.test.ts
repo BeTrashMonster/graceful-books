@@ -227,37 +227,37 @@ describe('Recurring Invoice Generation Service', () => {
       const aprilDate = new Date('2026-04-01');
       const adjusted = adjustForEndOfMonth(aprilDate, 31);
 
-      expect(adjusted.getDate()).toBe(30);
-      expect(adjusted.getMonth()).toBe(3); // April
+      expect(adjusted.getUTCDate()).toBe(30);
+      expect(adjusted.getUTCMonth()).toBe(3); // April
     });
 
     it('should handle 30th day recurring to February', () => {
       const febDate = new Date('2026-02-01');
       const adjusted = adjustForEndOfMonth(febDate, 30);
 
-      expect(adjusted.getDate()).toBe(28);
-      expect(adjusted.getMonth()).toBe(1); // February
+      expect(adjusted.getUTCDate()).toBe(28);
+      expect(adjusted.getUTCMonth()).toBe(1); // February
     });
 
     it('should not adjust days that exist in all months', () => {
       const date = new Date('2026-02-01');
       const adjusted = adjustForEndOfMonth(date, 15);
 
-      expect(adjusted.getDate()).toBe(15);
+      expect(adjusted.getUTCDate()).toBe(15);
     });
 
     it('should handle February 29th in non-leap year', () => {
       const febDate = new Date('2026-02-01'); // Non-leap year
       const adjusted = adjustForEndOfMonth(febDate, 29);
 
-      expect(adjusted.getDate()).toBe(28);
+      expect(adjusted.getUTCDate()).toBe(28);
     });
 
     it('should preserve February 29th in leap year', () => {
       const febDate = new Date('2024-02-01'); // Leap year
       const adjusted = adjustForEndOfMonth(febDate, 29);
 
-      expect(adjusted.getDate()).toBe(29);
+      expect(adjusted.getUTCDate()).toBe(29);
     });
   });
 

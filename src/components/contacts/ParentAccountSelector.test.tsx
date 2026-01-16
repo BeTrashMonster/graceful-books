@@ -582,20 +582,24 @@ describe('ParentAccountSelector', () => {
 
     it('should handle service errors gracefully', async () => {
       const testError = new Error('Service error')
+      let callCount = 0
 
-      // Mock useLiveQuery to actually execute the query function
-      ;(useLiveQuery as any).mockImplementation(async (queryFn: any, deps: any, defaultValue: any) => {
+      // Mock useLiveQuery to execute the query function and capture errors
+      ;(useLiveQuery as any).mockImplementation((queryFn: any, deps: any, defaultValue: any) => {
+        callCount++
         // First call is for contacts list
-        if (queryFn.toString().includes('db.contacts')) {
+        if (callCount === 1) {
           return mockContacts
         }
-        // Second call is for descendants - execute the query function to trigger error handling
-        try {
-          return await queryFn()
-        } catch {
-          // If query throws, return default value
+        // Second call is for descendants - execute async and return default while loading
+        // We need to call queryFn() to trigger the error logging
+        if (callCount === 2) {
+          // Execute the query in the background (this will trigger console.error)
+          queryFn().catch(() => {}) // Ignore the error, it's logged inside
+          // Return default value immediately (as useLiveQuery does while loading)
           return defaultValue
         }
+        return defaultValue
       })
 
       // Mock HierarchyService to throw error

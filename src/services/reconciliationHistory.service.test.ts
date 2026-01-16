@@ -1236,7 +1236,7 @@ describe('ReconciliationHistory Service', () => {
           companyId: 'test-company',
           code: '1000',
           name: 'Test Bank Account',
-          type: 'BANK',
+          type: 'ASSET',
           isActive: true,
           balance: 0,
         } as any);
@@ -1336,7 +1336,7 @@ describe('ReconciliationHistory Service', () => {
           companyId: 'test-company',
           code: '1000',
           name: 'Bank Account 1',
-          type: 'BANK',
+          type: 'ASSET',
           isActive: true,
           balance: 0,
         } as any);
@@ -1346,7 +1346,7 @@ describe('ReconciliationHistory Service', () => {
           companyId: 'test-company',
           code: '1001',
           name: 'Bank Account 2',
-          type: 'BANK',
+          type: 'ASSET',
           isActive: true,
           balance: 0,
         } as any);
