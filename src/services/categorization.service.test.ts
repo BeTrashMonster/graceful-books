@@ -29,6 +29,9 @@ describe('CategorizationService', () => {
     await deleteDatabase()
     await initializeDatabase()
 
+    // Clear categories array from previous test runs
+    categories.length = 0
+
     // Create test categories
     const categoryNames = [
       { name: 'Office Supplies', type: CategoryType.EXPENSE },
@@ -374,6 +377,7 @@ describe('CategorizationService', () => {
         const example = trainingExamples[i]
         await db.trainingData.add({
           id: crypto.randomUUID(),
+          company_id: companyId,
           vendorName: example.vendor,
           description: example.description,
           amount: 100.0,
@@ -516,11 +520,19 @@ describe('CategorizationService', () => {
 
       await db.categorizationRules.add({ ...rule, id: crypto.randomUUID() } as CategorizationRule)
 
-      // Create training data for ML
+      // Create training data for ML with varied vendors
+      const trainingVendors = [
+        'Google Ads',
+        'Facebook Ads',
+        'Twitter Ads',
+        'LinkedIn Ads',
+        'Instagram Ads',
+      ]
       for (let i = 0; i < 15; i++) {
         await db.trainingData.add({
           id: crypto.randomUUID(),
-          vendorName: 'Google Ads',
+          company_id: companyId,
+          vendorName: trainingVendors[i % trainingVendors.length],
           description: `Marketing campaign ${i}`,
           amount: 100.0 + i * 10,
           categoryId: marketingCategory.id,
@@ -532,7 +544,7 @@ describe('CategorizationService', () => {
       }
 
       await service.initialize()
-      await service.trainModel({ epochs: 100 })
+      await service.trainModel({ epochs: 2000 })
 
       const suggestion = await service.getSuggestion({
         vendorName: 'Google Ads',

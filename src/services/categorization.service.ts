@@ -103,10 +103,9 @@ export class CategorizationService {
 
         if (
           ruleSuggestion &&
-          ruleSuggestion.categoryId === mlSuggestion.categoryId &&
-          ruleSuggestion.confidence > mlSuggestion.confidence
+          ruleSuggestion.categoryId === mlSuggestion.categoryId
         ) {
-          // Rules confirm ML suggestion - boost confidence
+          // Rules confirm ML suggestion - boost confidence (hybrid approach)
           return {
             ...mlSuggestion,
             confidence: Math.min(1.0, mlSuggestion.confidence * 1.2),

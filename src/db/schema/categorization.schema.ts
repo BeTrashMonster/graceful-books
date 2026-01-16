@@ -121,7 +121,7 @@ export const createDefaultAccuracyMetrics = (): AccuracyMetrics => {
  * Default values for new TrainingDataPoint
  */
 export const createTrainingDataPoint = (
-  _companyId: string,
+  companyId: string,
   vendorName: string,
   description: string,
   amount: number,
@@ -134,6 +134,7 @@ export const createTrainingDataPoint = (
 
   return {
     id: crypto.randomUUID(),
+    company_id: companyId,
     vendorName,
     description,
     amount,
