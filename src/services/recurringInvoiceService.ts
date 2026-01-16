@@ -68,14 +68,27 @@ export function generateRRuleString(rule: RecurrenceRule, startDate: Date): stri
     case 'MONTHLY':
       options.freq = RRule.MONTHLY;
       if (rule.dayOfMonth !== undefined) {
-        options.bymonthday = [rule.dayOfMonth];
+        // For end-of-month dates (28-31), use BYSETPOS=-1 to get last day of month
+        // This ensures Feb 31 becomes Feb 28/29, Apr 31 becomes Apr 30, etc.
+        if (rule.dayOfMonth >= 28) {
+          options.bymonthday = [28, 29, 30, 31];
+          options.bysetpos = [-1];
+        } else {
+          options.bymonthday = [rule.dayOfMonth];
+        }
       }
       break;
     case 'QUARTERLY':
       options.freq = RRule.MONTHLY;
       options.interval = 3;
       if (rule.dayOfMonth !== undefined) {
-        options.bymonthday = [rule.dayOfMonth];
+        // For end-of-month dates (28-31), use BYSETPOS=-1 to get last day of month
+        if (rule.dayOfMonth >= 28) {
+          options.bymonthday = [28, 29, 30, 31];
+          options.bysetpos = [-1];
+        } else {
+          options.bymonthday = [rule.dayOfMonth];
+        }
       }
       break;
     case 'ANNUALLY':
@@ -112,22 +125,41 @@ export function generateRRuleString(rule: RecurrenceRule, startDate: Date): stri
 export function calculateNextGenerationDate(
   rule: RecurrenceRule,
   currentDate: Date,
-  _occurrencesGenerated: number
+  occurrencesGenerated: number
 ): Date | null {
   try {
+    // Check if we've exhausted the occurrences
+    const { endCondition } = rule;
+    if (endCondition.type === 'AFTER_N_OCCURRENCES' && endCondition.occurrences) {
+      if (occurrencesGenerated >= endCondition.occurrences) {
+        return null;
+      }
+    }
+
     // Normalize to UTC midnight to avoid timezone issues
     const normalizedDate = new Date(Date.UTC(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      currentDate.getDate()
+      currentDate.getUTCFullYear(),
+      currentDate.getUTCMonth(),
+      currentDate.getUTCDate()
     ));
 
-    const rruleString = generateRRuleString(rule, normalizedDate);
+    // Generate rrule from a safe start date before current date
+    // This ensures the pattern is established correctly
+    // Use the 1st of the current month, or go back further if needed
+    const referenceStart = new Date(Date.UTC(
+      normalizedDate.getUTCFullYear(),
+      normalizedDate.getUTCMonth(),
+      1
+    ));
+
+    const rruleString = generateRRuleString(rule, referenceStart);
     const rrule = rrulestr(rruleString);
 
-    // Get next occurrence after current date
-    const after = new Date(normalizedDate.getTime() + 1000); // 1 second after current
-    const nextOccurrence = rrule.after(after);
+    // Get next occurrence strictly after current date (not including current date)
+    // We need to get the occurrence AFTER currentDate, so we search from currentDate + 1 day
+    // to ensure we don't include the current date itself
+    const searchFrom = new Date(normalizedDate.getTime() + 86400000); // +1 day
+    const nextOccurrence = rrule.after(searchFrom, true);
 
     if (!nextOccurrence) {
       return null;
