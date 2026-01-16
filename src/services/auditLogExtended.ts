@@ -242,8 +242,11 @@ export async function searchAuditLogs(
 
     // Apply pagination
     const offset = options.offset || 0;
-    const limit = options.limit !== undefined ? options.limit : 100;
-    const paginatedResults = limit > 0 ? results.slice(offset, offset + limit) : results.slice(offset);
+    // If limit is explicitly undefined, return all results (for exports)
+    // If limit is 0 or not provided, use default of 100
+    const paginatedResults = options.limit === undefined
+      ? results.slice(offset)
+      : results.slice(offset, offset + (options.limit || 100));
 
     const executionTimeMs = performance.now() - startTime;
 

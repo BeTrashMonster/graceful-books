@@ -959,4 +959,34 @@
        [34mrerun x13[39m
 [2K[1A[2K[G       [90mrerun x13[39m
 [2K[1A[2K[G       [2m[90mrerun x13[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/components/vendors/VendorForm.test.tsx[22m [34mx1[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 16:15:55
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x1[39m
+[2K[1A[2K[G       [90mrerun x1[39m
+[2K[1A[2K[G       [2m[90mrerun x1[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/auditLogExtended.test.ts[22m [34mx7[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 16:18:24
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x7[39m
+[2K[1A[2K[G       [90mrerun x7[39m
+[2K[1A[2K[G       [2m[90mrerun x7[39m[22m
 [2K[1A[2K[G

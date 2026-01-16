@@ -67,7 +67,7 @@ describe('VendorForm', () => {
     type: 'vendor',
     name: 'Existing Vendor',
     email: 'existing@example.com',
-    phone: '555-1234',
+    phone: '555-123-4567', // Fixed: must have at least 10 digits
     address: {
       line1: '123 Main St',
       city: 'Test City',
