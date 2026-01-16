@@ -191,7 +191,7 @@ describe('VendorForm', () => {
       expect(screen.getByText('Edit Vendor')).toBeInTheDocument()
       expect(screen.getByDisplayValue('Existing Vendor')).toBeInTheDocument()
       expect(screen.getByDisplayValue('existing@example.com')).toBeInTheDocument()
-      expect(screen.getByDisplayValue('555-1234')).toBeInTheDocument()
+      expect(screen.getByDisplayValue('555-123-4567')).toBeInTheDocument()
       expect(screen.getByDisplayValue('12-3456789')).toBeInTheDocument()
       expect(screen.getByDisplayValue('Test notes')).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /save changes/i })).toBeInTheDocument()
