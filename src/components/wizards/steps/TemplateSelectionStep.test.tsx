@@ -41,8 +41,10 @@ describe('TemplateSelectionStep', () => {
       />
     )
 
+    // Multiple templates may have the same account count, so use getAllByText
     mockTemplates.forEach((template) => {
-      expect(screen.getByText(`${template.accounts.length} accounts`)).toBeInTheDocument()
+      const accountCounts = screen.getAllByText(`${template.accounts.length} accounts`)
+      expect(accountCounts.length).toBeGreaterThan(0)
     })
   })
 
