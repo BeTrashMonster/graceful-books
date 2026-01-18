@@ -81,6 +81,22 @@ import type {
   SuggestionHistory,
   CategorizationRule,
 } from '../types/categorization.types';
+import {
+  inventoryItemsSchema,
+  inventoryLayersSchema,
+  inventoryTransactionsSchema,
+  stockTakesSchema,
+  stockTakeItemsSchema,
+  valuationMethodChangesSchema,
+} from './schema/inventoryValuation.schema';
+import type {
+  InventoryItem,
+  InventoryLayer,
+  InventoryTransaction,
+  StockTake,
+  StockTakeItem,
+  ValuationMethodChange,
+} from './schema/inventoryValuation.schema';
 
 /**
  * TreasureChest Database Class
@@ -113,6 +129,12 @@ export class TreasureChestDB extends Dexie {
   trainingData!: Table<TrainingDataPoint, string>;
   suggestionHistory!: Table<SuggestionHistory, string>;
   categorizationRules!: Table<CategorizationRule, string>;
+  inventoryItems!: Table<InventoryItem, string>;
+  inventoryLayers!: Table<InventoryLayer, string>;
+  inventoryTransactions!: Table<InventoryTransaction, string>;
+  stockTakes!: Table<StockTake, string>;
+  stockTakeItems!: Table<StockTakeItem, string>;
+  valuationMethodChanges!: Table<ValuationMethodChange, string>;
 
   constructor() {
     super('TreasureChest');
@@ -264,6 +286,39 @@ export class TreasureChestDB extends Dexie {
       categorizationRules: categorizationRulesSchema,
     });
 
+    // Version 7: Add inventory valuation tables (H6)
+    this.version(7).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+    });
+
     // Add hooks for automatic audit logging
     this.setupAuditHooks();
 
@@ -324,6 +379,12 @@ export class TreasureChestDB extends Dexie {
     this.invoiceTemplateCustomizations.hook('updating', updateTimestamp);
     this.recurringTransactions.hook('updating', updateTimestamp);
     this.generatedTransactions.hook('updating', updateTimestamp);
+    this.inventoryItems.hook('updating', updateTimestamp);
+    this.inventoryLayers.hook('updating', updateTimestamp);
+    this.inventoryTransactions.hook('updating', updateTimestamp);
+    this.stockTakes.hook('updating', updateTimestamp);
+    this.stockTakeItems.hook('updating', updateTimestamp);
+    this.valuationMethodChanges.hook('updating', updateTimestamp);
   }
 
   /**

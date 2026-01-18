@@ -60,3 +60,10 @@ export {
   isRecoverableError,
   AppError,
 } from './errors'
+
+// Secure storage
+export {
+  SecureLocalStorage,
+  getSecureStorage,
+  initializeSecureStorage,
+} from './secureStorage'

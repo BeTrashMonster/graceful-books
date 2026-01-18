@@ -16,6 +16,7 @@ import type {
 } from './types';
 import { DEFAULT_AUTH_CONFIG } from './types';
 import { createSession, generateSessionId } from './session';
+import { getSecureStorage } from '../utils/secureStorage';
 
 /**
  * Storage key for failed login attempts
@@ -347,7 +348,20 @@ export async function createPassphraseTestData(
 }
 
 /**
- * Load passphrase test data from storage
+ * Storage key prefix for passphrase test data
+ */
+const PASSPHRASE_TEST_KEY_PREFIX = 'passphrase-test';
+
+/**
+ * Legacy storage key prefix (for migration)
+ */
+const LEGACY_PASSPHRASE_TEST_KEY_PREFIX = 'passphrase-test-';
+
+/**
+ * Load passphrase test data from secure storage
+ *
+ * First attempts to load from secure storage. If not found, checks for
+ * legacy unencrypted data and migrates it automatically.
  *
  * @param companyId - Company identifier
  * @returns Passphrase test data or null if not found
@@ -356,9 +370,35 @@ async function loadPassphraseTestData(
   companyId: string
 ): Promise<PassphraseTestData | null> {
   try {
-    const stored = localStorage.getItem(`passphrase-test-${companyId}`);
-    if (!stored) return null;
-    return JSON.parse(stored);
+    const secureStorage = getSecureStorage();
+    const storageKey = `${PASSPHRASE_TEST_KEY_PREFIX}-${companyId}`;
+    const legacyKey = `${LEGACY_PASSPHRASE_TEST_KEY_PREFIX}${companyId}`;
+
+    // Ensure secure storage is initialized
+    if (!secureStorage.isInitialized()) {
+      await secureStorage.initialize();
+    }
+
+    // Try to load from secure storage first
+    const secureStored = await secureStorage.getItem(storageKey);
+    if (secureStored) {
+      return JSON.parse(secureStored);
+    }
+
+    // Check for legacy unencrypted data and migrate
+    const legacyStored = localStorage.getItem(legacyKey);
+    if (legacyStored) {
+      // Migrate to secure storage
+      const migrationResult = await secureStorage.migrateFromUnencrypted(
+        legacyKey,
+        storageKey
+      );
+      if (migrationResult.success) {
+        return JSON.parse(legacyStored);
+      }
+    }
+
+    return null;
   } catch {
     // Return null on parse error - user will get "company not found" message
     return null;
@@ -366,17 +406,30 @@ async function loadPassphraseTestData(
 }
 
 /**
- * Store passphrase test data
+ * Store passphrase test data securely
+ *
+ * Encrypts the passphrase test data before storing in localStorage.
+ * This protects sensitive authentication data from browser inspection.
  *
  * @param testData - Passphrase test data
+ * @throws Error if secure storage fails
  */
 export async function storePassphraseTestData(
   testData: PassphraseTestData
 ): Promise<void> {
-  localStorage.setItem(
-    `passphrase-test-${testData.companyId}`,
-    JSON.stringify(testData)
-  );
+  const secureStorage = getSecureStorage();
+  const storageKey = `${PASSPHRASE_TEST_KEY_PREFIX}-${testData.companyId}`;
+
+  // Ensure secure storage is initialized
+  if (!secureStorage.isInitialized()) {
+    await secureStorage.initialize();
+  }
+
+  const result = await secureStorage.setItem(storageKey, JSON.stringify(testData));
+
+  if (!result.success) {
+    throw new Error(result.error || 'Failed to store passphrase test data securely');
+  }
 }
 
 /**

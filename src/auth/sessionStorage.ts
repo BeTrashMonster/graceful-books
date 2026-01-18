@@ -3,20 +3,34 @@
  *
  * Handles "remember this device" functionality with device tokens,
  * device fingerprinting, and secure token management.
+ *
+ * Security: Device tokens and fingerprints are stored encrypted using
+ * SecureLocalStorage to prevent exposure through browser localStorage inspection.
  */
 
 import type { DeviceToken, AuthConfig } from './types';
 import { DEFAULT_AUTH_CONFIG } from './types';
+import { getSecureStorage } from '../utils/secureStorage';
 
 /**
- * Storage key prefix for device tokens
+ * Storage key prefix for device tokens (secure storage)
  */
-const DEVICE_TOKEN_KEY_PREFIX = 'graceful-books-device-token';
+const DEVICE_TOKEN_KEY_PREFIX = 'device-token';
 
 /**
- * Storage key for device fingerprint
+ * Storage key for device fingerprint (secure storage)
  */
-const DEVICE_FINGERPRINT_KEY = 'graceful-books-device-fingerprint';
+const DEVICE_FINGERPRINT_KEY = 'device-fingerprint';
+
+/**
+ * Legacy storage key prefix for device tokens (for migration)
+ */
+const LEGACY_DEVICE_TOKEN_KEY_PREFIX = 'graceful-books-device-token-';
+
+/**
+ * Legacy storage key for device fingerprint (for migration)
+ */
+const LEGACY_DEVICE_FINGERPRINT_KEY = 'graceful-books-device-fingerprint';
 
 /**
  * Generate a device fingerprint
@@ -67,38 +81,65 @@ export async function generateDeviceFingerprint(): Promise<string> {
  * Get or create device fingerprint
  *
  * Returns cached fingerprint if available, otherwise generates new one.
+ * Fingerprint is stored encrypted to prevent exposure through browser inspection.
  *
  * @returns Device fingerprint
  */
 export async function getDeviceFingerprint(): Promise<string> {
-  // Try to get cached fingerprint
-  const cached = localStorage.getItem(DEVICE_FINGERPRINT_KEY);
+  const secureStorage = getSecureStorage();
+
+  // Ensure secure storage is initialized
+  if (!secureStorage.isInitialized()) {
+    await secureStorage.initialize();
+  }
+
+  // Try to get cached fingerprint from secure storage
+  const cached = await secureStorage.getItem(DEVICE_FINGERPRINT_KEY);
   if (cached) {
     return cached;
   }
 
+  // Check for legacy unencrypted fingerprint and migrate
+  const legacyCached = localStorage.getItem(LEGACY_DEVICE_FINGERPRINT_KEY);
+  if (legacyCached) {
+    await secureStorage.migrateFromUnencrypted(
+      LEGACY_DEVICE_FINGERPRINT_KEY,
+      DEVICE_FINGERPRINT_KEY
+    );
+    return legacyCached;
+  }
+
   // Generate new fingerprint
   const fingerprint = await generateDeviceFingerprint();
-  localStorage.setItem(DEVICE_FINGERPRINT_KEY, fingerprint);
+  await secureStorage.setItem(DEVICE_FINGERPRINT_KEY, fingerprint);
   return fingerprint;
 }
 
 /**
- * Store device token
+ * Store device token securely
  *
- * Saves device token to localStorage for "remember this device" feature.
+ * Saves device token encrypted to localStorage for "remember this device" feature.
+ * This protects sensitive device tokens from browser localStorage inspection.
  *
  * @param deviceToken - Device token to store
  */
 export async function storeDeviceToken(deviceToken: DeviceToken): Promise<void> {
+  const secureStorage = getSecureStorage();
   const key = `${DEVICE_TOKEN_KEY_PREFIX}-${deviceToken.companyId}`;
-  localStorage.setItem(key, JSON.stringify(deviceToken));
+
+  // Ensure secure storage is initialized
+  if (!secureStorage.isInitialized()) {
+    await secureStorage.initialize();
+  }
+
+  await secureStorage.setItem(key, JSON.stringify(deviceToken));
 }
 
 /**
  * Get device token for company
  *
- * Retrieves stored device token if available and valid.
+ * Retrieves stored device token from secure storage if available and valid.
+ * Handles migration of legacy unencrypted tokens automatically.
  *
  * @param companyId - Company identifier
  * @returns Device token or null if not found/invalid
@@ -107,8 +148,27 @@ export async function getDeviceToken(
   companyId: string
 ): Promise<DeviceToken | null> {
   try {
+    const secureStorage = getSecureStorage();
     const key = `${DEVICE_TOKEN_KEY_PREFIX}-${companyId}`;
-    const stored = localStorage.getItem(key);
+    const legacyKey = `${LEGACY_DEVICE_TOKEN_KEY_PREFIX}${companyId}`;
+
+    // Ensure secure storage is initialized
+    if (!secureStorage.isInitialized()) {
+      await secureStorage.initialize();
+    }
+
+    // Try to get from secure storage first
+    let stored = await secureStorage.getItem(key);
+
+    // Check for legacy unencrypted token and migrate
+    if (!stored) {
+      const legacyStored = localStorage.getItem(legacyKey);
+      if (legacyStored) {
+        await secureStorage.migrateFromUnencrypted(legacyKey, key);
+        stored = legacyStored;
+      }
+    }
+
     if (!stored) return null;
 
     const token = JSON.parse(stored) as DeviceToken;
@@ -182,29 +242,44 @@ export async function createDeviceToken(
 /**
  * Revoke device token
  *
- * Removes device token from storage, requiring full passphrase login.
+ * Removes device token from both secure and legacy storage,
+ * requiring full passphrase login.
  *
  * @param companyId - Company identifier
  */
 export async function revokeDeviceToken(companyId: string): Promise<void> {
+  const secureStorage = getSecureStorage();
   const key = `${DEVICE_TOKEN_KEY_PREFIX}-${companyId}`;
-  localStorage.removeItem(key);
+  const legacyKey = `${LEGACY_DEVICE_TOKEN_KEY_PREFIX}${companyId}`;
+
+  // Remove from secure storage
+  await secureStorage.removeItem(key);
+
+  // Also remove from legacy storage if present
+  localStorage.removeItem(legacyKey);
 }
 
 /**
  * Revoke all device tokens for user
  *
  * Called when passphrase is changed or on security events.
- * Since we're using localStorage per-company, we need to clear
- * all tokens that match the user.
+ * Clears both secure and legacy storage tokens.
  */
 export async function revokeAllDeviceTokens(): Promise<void> {
-  // Get all localStorage keys
-  const keys = Object.keys(localStorage);
+  const secureStorage = getSecureStorage();
 
-  // Remove all device token keys
-  keys.forEach((key) => {
+  // Get all secure storage keys and remove device tokens
+  const secureKeys = secureStorage.getKeys();
+  for (const key of secureKeys) {
     if (key.startsWith(DEVICE_TOKEN_KEY_PREFIX)) {
+      await secureStorage.removeItem(key);
+    }
+  }
+
+  // Also remove any legacy device token keys
+  const legacyKeys = Object.keys(localStorage);
+  legacyKeys.forEach((key) => {
+    if (key.startsWith(LEGACY_DEVICE_TOKEN_KEY_PREFIX)) {
       localStorage.removeItem(key);
     }
   });
