@@ -1,0 +1,64 @@
+version: 2
+updates:
+  # npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "dependabot"
+    assignees:
+      - "infrastructure-team"
+    labels:
+      - "dependencies"
+      - "automation"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-major: "chore(deps)!"
+      prefix-minor: "chore(deps)"
+      prefix-patch: "chore(deps)"
+      include: "scope"
+    # Patch and minor updates auto-merge if tests pass
+    auto-merge:
+      auto-merge-strategy: "squash"
+      # Only auto-merge if all status checks pass and PR reviews pass
+      auto-merge-threshold: "all"
+    allow:
+      - dependency-type: "production"
+      - dependency-type: "development"
+    ignore:
+      # Ignore major version updates for now (manual review)
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+    pull-request-branch-name:
+      separator: "/"
+    rebase-strategy: "auto"
+    # Consolidate multiple updates into single PR
+    consolidate-multiple-dependabot-prs: true
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "dependabot"
+    labels:
+      - "github-actions"
+      - "automation"
+    commit-message:
+      prefix: "ci(actions)"
+      include: "scope"
+    auto-merge:
+      auto-merge-strategy: "squash"
+      auto-merge-threshold: "all"
+    pull-request-branch-name:
+      separator: "/"
+    rebase-strategy: "auto"

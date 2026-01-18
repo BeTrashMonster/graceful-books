@@ -21,7 +21,16 @@
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
     "deploy:staging": "vercel --token=$VERCEL_TOKEN",
-    "deploy:production": "vercel --prod --token=$VERCEL_TOKEN"
+    "deploy:production": "vercel --prod --token=$VERCEL_TOKEN",
+    "perf:benchmark-build": "node scripts/benchmark-build.js",
+    "perf:benchmark-tests": "node scripts/benchmark-tests.js",
+    "perf:bundle-size": "node scripts/bundle-size-check.js",
+    "perf:all": "npm run perf:benchmark-build && npm run perf:benchmark-tests && npm run perf:bundle-size",
+    "deps:check-licenses": "node scripts/license-checker.js",
+    "deps:audit": "npm audit --production && npm audit --development",
+    "deps:update-check": "npm outdated || true",
+    "deps:verify": "npm ci --audit && npm run deps:check-licenses",
+    "deps:test": "vitest run src/__tests__/infrastructure/dependencies.test.ts"
   },
   "dependencies": {
     "@types/papaparse": "^5.5.2",
@@ -43,9 +52,12 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.22.0",
-    "rrule": "^2.8.1"
+    "recharts": "^3.6.0",
+    "rrule": "^2.8.1",
+    "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.13.0",
     "@playwright/test": "^1.41.2",
     "@storybook/react": "^10.1.11",
     "@testing-library/jest-dom": "^6.4.2",
