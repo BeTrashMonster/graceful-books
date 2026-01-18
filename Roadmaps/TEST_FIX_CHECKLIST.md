@@ -1,5 +1,10 @@
 # Test Fix Checklist - Mandatory Process for All Agents
 
+**Golden Rule**: ⭐ **Quality over speed. Manual, verified fixes are better.** ⭐
+
+> 58 carefully verified fixes beat 500+ risky automated changes.
+> Trust the process. Do it right the first time.
+
 ## Phase 1: Investigation (DO NOT SKIP)
 
 ### 1.1 Read the Test File First
