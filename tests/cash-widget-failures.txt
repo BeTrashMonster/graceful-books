@@ -1,0 +1,2338 @@
+
+> graceful-books@0.1.0 test
+> vitest src/components/dashboard/CashPositionWidget.test.tsx
+
+
+[7m[1m[34m DEV [39m[22m[27m [34mv1.6.1[39m [90mC:/Users/Admin/graceful_books[39m
+
+ [33m❯[39m src/components/dashboard/CashPositionWidget.test.tsx [2m ([22m[2m30 tests[22m [2m|[22m [31m6 failed[39m[2m)[22m[33m 805[2mms[22m[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mrendering[2m > [22mshould render trend chart[39m
+[31m     → [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould display all trend data points[39m
+[31m     → expected 0 to be greater than 0[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould handle empty trend data[39m
+[31m     → [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould handle single data point in trend[39m
+[31m     → [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22medge cases[2m > [22mshould handle very small monthly expenses[39m
+[31m     → Found multiple elements with the text: /months/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<span[31m
+  [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+[36m>[31m
+  [0mMonths Covered[0m
+[36m</span>[31m
+
+Ignored nodes: comments, script, style
+[36m<span[31m
+  [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+[36m>[31m
+  [0m100000.0[0m
+  [0m months[0m
+[36m</span>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33maria-label[31m=[32m"Cash Position Widget"[31m
+      [33mclass[31m=[32m"_widget_7d1b30 "[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_header_7d1b30"[31m
+      [36m>[31m
+        [36m<h2[31m
+          [33mclass[31m=[32m"_title_7d1b30"[31m
+        [36m>[31m
+          [0mCash Position[0m
+        [36m</h2>[31m
+        [36m<span[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33maria-label[31m=[32m"Trend: flat"[31m
+          [33mclass[31m=[32m"_trendIndicator_7d1b30 _flat_7d1b30"[31m
+        [36m>[31m
+          [0m➡️[0m
+        [36m</span>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_content_7d1b30"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_balanceSection_7d1b30"[31m
+        [36m>[31m
+          [36m<p[31m
+            [33maria-label[31m=[32m"Current cash balance"[31m
+            [33mclass[31m=[32m"_balanceLabel_7d1b30"[31m
+          [36m>[31m
+            [0mCurrent Balance[0m
+          [36m</p>[31m
+          [36m<p[31m
+            [33maria-label[31m=[32m"Current balance: $1,000.00"[31m
+            [33mclass[31m=[32m"_balance_7d1b30"[31m
+          [36m>[31m
+            [0m$1,000.00[0m
+          [36m</p>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_metricsSection_7d1b30"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_metric_7d1b30"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+            [36m>[31m
+              [0mMonthly Expenses[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+            [36m>[31m
+              [0m$0.01[0m
+            [36m</span>[31m
+          [36m</div>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_metric_7d1b30"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+            [36m>[31m
+              [0mMonths Covered[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+            [36m>[31m
+              [0m100000.0[0m
+              [0m months[0m
+            [36m</span>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+        [36m<p[31m
+          [33maria-label[31m=[32m"Encouragement message"[31m
+          [33mclass[31m=[32m"_encouragement_7d1b30"[31m
+          [33mrole[31m=[32m"status"[31m
+        [36m>[31m
+          [0mexcellent position[0m
+        [36m</p>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22medge cases[2m > [22mshould handle trend with varying balances[39m
+[31m     → [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 6 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mrendering[2m > [22mshould render trend chart
+[31m[1mError[22m: [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m50:21[22m[39m
+    [90m 48| [39m      [90m// Check for chart container[39m
+    [90m 49| [39m      [35mconst[39m chart [33m=[39m container[33m.[39m[34mquerySelector[39m([32m'.recharts-wrapper'[39m)[33m;[39m
+    [90m 50| [39m      [34mexpect[39m(chart)[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m 51| [39m    })[33m;[39m
+    [90m 52| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould display all trend data points
+[31m[1mAssertionError[22m: expected 0 to be greater than 0[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m207:28[22m[39m
+    [90m205| [39m      [90m// Check for line chart[39m
+    [90m206| [39m      [35mconst[39m lines [33m=[39m container[33m.[39m[34mquerySelectorAll[39m([32m'.recharts-line'[39m)[33m;[39m
+    [90m207| [39m      [34mexpect[39m(lines[33m.[39mlength)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m208| [39m    })[33m;[39m
+    [90m209| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould handle empty trend data
+[31m[1mError[22m: [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m221:21[22m[39m
+    [90m219| [39m      [90m// Chart should still render but with no data[39m
+    [90m220| [39m      [35mconst[39m chart [33m=[39m container[33m.[39m[34mquerySelector[39m([32m'.recharts-wrapper'[39m)[33m;[39m
+    [90m221| [39m      [34mexpect[39m(chart)[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m222| [39m    })[33m;[39m
+    [90m223| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould handle single data point in trend
+[31m[1mError[22m: [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m234:21[22m[39m
+    [90m232| [39m
+    [90m233| [39m      [35mconst[39m chart [33m=[39m container[33m.[39m[34mquerySelector[39m([32m'.recharts-wrapper'[39m)[33m;[39m
+    [90m234| [39m      [34mexpect[39m(chart)[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m235| [39m    })[33m;[39m
+    [90m236| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22medge cases[2m > [22mshould handle very small monthly expenses
+[31m[1mTestingLibraryElementError[22m: Found multiple elements with the text: /months/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<span[31m
+  [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+[36m>[31m
+  [0mMonths Covered[0m
+[36m</span>[31m
+
+Ignored nodes: comments, script, style
+[36m<span[31m
+  [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+[36m>[31m
+  [0m100000.0[0m
+  [0m months[0m
+[36m</span>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33maria-label[31m=[32m"Cash Position Widget"[31m
+      [33mclass[31m=[32m"_widget_7d1b30 "[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_header_7d1b30"[31m
+      [36m>[31m
+        [36m<h2[31m
+          [33mclass[31m=[32m"_title_7d1b30"[31m
+        [36m>[31m
+          [0mCash Position[0m
+        [36m</h2>[31m
+        [36m<span[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33maria-label[31m=[32m"Trend: flat"[31m
+          [33mclass[31m=[32m"_trendIndicator_7d1b30 _flat_7d1b30"[31m
+        [36m>[31m
+          [0m➡️[0m
+        [36m</span>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_content_7d1b30"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_balanceSection_7d1b30"[31m
+        [36m>[31m
+          [36m<p[31m
+            [33maria-label[31m=[32m"Current cash balance"[31m
+            [33mclass[31m=[32m"_balanceLabel_7d1b30"[31m
+          [36m>[31m
+            [0mCurrent Balance[0m
+          [36m</p>[31m
+          [36m<p[31m
+            [33maria-label[31m=[32m"Current balance: $1,000.00"[31m
+            [33mclass[31m=[32m"_balance_7d1b30"[31m
+          [36m>[31m
+            [0m$1,000.00[0m
+          [36m</p>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_metricsSection_7d1b30"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_metric_7d1b30"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+            [36m>[31m
+              [0mMonthly Expenses[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+            [36m>[31m
+              [0m$0.01[0m
+            [36m</span>[31m
+          [36m</div>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_metric_7d1b30"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+            [36m>[31m
+              [0mMonths Covered[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+            [36m>[31m
+              [0m100000.0[0m
+              [0m months[0m
+            [36m</span>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+        [36m<p[31m
+          [33maria-label[31m=[32m"Encouragement message"[31m
+          [33mclass[31m=[32m"_encouragement_7d1b30"[31m
+          [33mrole[31m=[32m"status"[31m
+        [36m>[31m
+          [0mexcellent position[0m
+        [36m</p>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m290:21[22m[39m
+    [90m288| [39m
+    [90m289| [39m      [90m// Should show a very large number of months[39m
+    [90m290| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/months/i[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m291| [39m    })[33m;[39m
+    [90m292| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22medge cases[2m > [22mshould handle trend with varying balances
+[31m[1mError[22m: [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m308:21[22m[39m
+    [90m306| [39m
+    [90m307| [39m      [35mconst[39m chart [33m=[39m container[33m.[39m[34mquerySelector[39m([32m'.recharts-wrapper'[39m)[33m;[39m
+    [90m308| [39m      [34mexpect[39m(chart)[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m309| [39m    })[33m;[39m
+    [90m310| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m6 failed[39m[22m[2m | [22m[1m[32m24 passed[39m[22m[90m (30)[39m
+[2m   Start at [22m 19:13:30
+[2m   Duration [22m 17.09s[2m (transform 667ms, setup 2.41s, collect 4.02s, tests 805ms, environment 5.08s, prepare 848ms)[22m
+
+
+[1m[7m[31m FAIL [39m[27m[22m[31m Tests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/reports/reportBuilder.service.test.ts[22m [34mx1[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 19:17:33
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x1[39m
+[2K[1A[2K[G       [90mrerun x1[39m
+[2K[1A[2K[G       [2m[90mrerun x1[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/reports/reportBuilder.service.test.ts[22m [34mx2[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 19:18:36
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x2[39m
+[2K[1A[2K[G       [90mrerun x2[39m
+[2K[1A[2K[G       [2m[90mrerun x2[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/reports/reportBuilder.service.test.ts[22m [34mx3[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 19:19:05
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x3[39m
+[2K[1A[2K[G       [90mrerun x3[39m
+[2K[1A[2K[G       [2m[90mrerun x3[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/reports/reportBuilder.service.test.ts[22m [34mx4[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 19:19:33
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x4[39m
+[2K[1A[2K[G       [90mrerun x4[39m
+[2K[1A[2K[G       [2m[90mrerun x4[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/reports/reportBuilder.service.test.ts[22m [34mx5[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 19:21:51
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x5[39m
+[2K[1A[2K[G       [90mrerun x5[39m
+[2K[1A[2K[G       [2m[90mrerun x5[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/components/dashboard/CashPositionWidget.tsx[22m [34mx1[39m
+
+ [33m❯[39m src/components/dashboard/CashPositionWidget.test.tsx [2m ([22m[2m30 tests[22m [2m|[22m [31m6 failed[39m[2m)[22m[33m 1274[2mms[22m[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mrendering[2m > [22mshould render trend chart[39m
+[31m     → [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould display all trend data points[39m
+[31m     → expected 0 to be greater than 0[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould handle empty trend data[39m
+[31m     → [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould handle single data point in trend[39m
+[31m     → [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22medge cases[2m > [22mshould handle very small monthly expenses[39m
+[31m     → Found multiple elements with the text: /months/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<span[31m
+  [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+[36m>[31m
+  [0mMonths Covered[0m
+[36m</span>[31m
+
+Ignored nodes: comments, script, style
+[36m<span[31m
+  [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+  [33mdata-testid[31m=[32m"months-covered"[31m
+[36m>[31m
+  [0m100000.0[0m
+  [0m months[0m
+[36m</span>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33maria-label[31m=[32m"Cash Position Widget"[31m
+      [33mclass[31m=[32m"_widget_7d1b30 "[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_header_7d1b30"[31m
+      [36m>[31m
+        [36m<h2[31m
+          [33mclass[31m=[32m"_title_7d1b30"[31m
+        [36m>[31m
+          [0mCash Position[0m
+        [36m</h2>[31m
+        [36m<span[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33maria-label[31m=[32m"Trend: flat"[31m
+          [33mclass[31m=[32m"_trendIndicator_7d1b30 _flat_7d1b30"[31m
+        [36m>[31m
+          [0m➡️[0m
+        [36m</span>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_content_7d1b30"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_balanceSection_7d1b30"[31m
+        [36m>[31m
+          [36m<p[31m
+            [33maria-label[31m=[32m"Current cash balance"[31m
+            [33mclass[31m=[32m"_balanceLabel_7d1b30"[31m
+          [36m>[31m
+            [0mCurrent Balance[0m
+          [36m</p>[31m
+          [36m<p[31m
+            [33maria-label[31m=[32m"Current balance: $1,000.00"[31m
+            [33mclass[31m=[32m"_balance_7d1b30"[31m
+          [36m>[31m
+            [0m$1,000.00[0m
+          [36m</p>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_metricsSection_7d1b30"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_metric_7d1b30"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+            [36m>[31m
+              [0mMonthly Expenses[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+            [36m>[31m
+              [0m$0.01[0m
+            [36m</span>[31m
+          [36m</div>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_metric_7d1b30"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+            [36m>[31m
+              [0mMonths Covered[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+              [33mdata-testid[31m=[32m"months-covered"[31m
+            [36m>[31m
+              [0m100000.0[0m
+              [0m months[0m
+            [36m</span>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+        [36m<p[31m
+          [33maria-label[31m=[32m"Encouragement message"[31m
+          [33mclass[31m=[32m"_encouragement_7d1b30"[31m
+          [33mrole[31m=[32m"status"[31m
+        [36m>[31m
+          [0mexcellent position[0m
+        [36m</p>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22medge cases[2m > [22mshould handle trend with varying balances[39m
+[31m     → [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 6 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mrendering[2m > [22mshould render trend chart
+[31m[1mError[22m: [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m50:21[22m[39m
+    [90m 48| [39m      [90m// Check for chart container[39m
+    [90m 49| [39m      [35mconst[39m chart [33m=[39m container[33m.[39m[34mquerySelector[39m([32m'.recharts-wrapper'[39m)[33m;[39m
+    [90m 50| [39m      [34mexpect[39m(chart)[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m 51| [39m    })[33m;[39m
+    [90m 52| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould display all trend data points
+[31m[1mAssertionError[22m: expected 0 to be greater than 0[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m207:28[22m[39m
+    [90m205| [39m      [90m// Check for line chart[39m
+    [90m206| [39m      [35mconst[39m lines [33m=[39m container[33m.[39m[34mquerySelectorAll[39m([32m'.recharts-line'[39m)[33m;[39m
+    [90m207| [39m      [34mexpect[39m(lines[33m.[39mlength)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m208| [39m    })[33m;[39m
+    [90m209| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould handle empty trend data
+[31m[1mError[22m: [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m221:21[22m[39m
+    [90m219| [39m      [90m// Chart should still render but with no data[39m
+    [90m220| [39m      [35mconst[39m chart [33m=[39m container[33m.[39m[34mquerySelector[39m([32m'.recharts-wrapper'[39m)[33m;[39m
+    [90m221| [39m      [34mexpect[39m(chart)[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m222| [39m    })[33m;[39m
+    [90m223| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould handle single data point in trend
+[31m[1mError[22m: [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m234:21[22m[39m
+    [90m232| [39m
+    [90m233| [39m      [35mconst[39m chart [33m=[39m container[33m.[39m[34mquerySelector[39m([32m'.recharts-wrapper'[39m)[33m;[39m
+    [90m234| [39m      [34mexpect[39m(chart)[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m235| [39m    })[33m;[39m
+    [90m236| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22medge cases[2m > [22mshould handle very small monthly expenses
+[31m[1mTestingLibraryElementError[22m: Found multiple elements with the text: /months/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<span[31m
+  [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+[36m>[31m
+  [0mMonths Covered[0m
+[36m</span>[31m
+
+Ignored nodes: comments, script, style
+[36m<span[31m
+  [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+  [33mdata-testid[31m=[32m"months-covered"[31m
+[36m>[31m
+  [0m100000.0[0m
+  [0m months[0m
+[36m</span>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33maria-label[31m=[32m"Cash Position Widget"[31m
+      [33mclass[31m=[32m"_widget_7d1b30 "[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_header_7d1b30"[31m
+      [36m>[31m
+        [36m<h2[31m
+          [33mclass[31m=[32m"_title_7d1b30"[31m
+        [36m>[31m
+          [0mCash Position[0m
+        [36m</h2>[31m
+        [36m<span[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33maria-label[31m=[32m"Trend: flat"[31m
+          [33mclass[31m=[32m"_trendIndicator_7d1b30 _flat_7d1b30"[31m
+        [36m>[31m
+          [0m➡️[0m
+        [36m</span>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_content_7d1b30"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_balanceSection_7d1b30"[31m
+        [36m>[31m
+          [36m<p[31m
+            [33maria-label[31m=[32m"Current cash balance"[31m
+            [33mclass[31m=[32m"_balanceLabel_7d1b30"[31m
+          [36m>[31m
+            [0mCurrent Balance[0m
+          [36m</p>[31m
+          [36m<p[31m
+            [33maria-label[31m=[32m"Current balance: $1,000.00"[31m
+            [33mclass[31m=[32m"_balance_7d1b30"[31m
+          [36m>[31m
+            [0m$1,000.00[0m
+          [36m</p>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_metricsSection_7d1b30"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_metric_7d1b30"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+            [36m>[31m
+              [0mMonthly Expenses[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+            [36m>[31m
+              [0m$0.01[0m
+            [36m</span>[31m
+          [36m</div>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_metric_7d1b30"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+            [36m>[31m
+              [0mMonths Covered[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+              [33mdata-testid[31m=[32m"months-covered"[31m
+            [36m>[31m
+              [0m100000.0[0m
+              [0m months[0m
+            [36m</span>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+        [36m<p[31m
+          [33maria-label[31m=[32m"Encouragement message"[31m
+          [33mclass[31m=[32m"_encouragement_7d1b30"[31m
+          [33mrole[31m=[32m"status"[31m
+        [36m>[31m
+          [0mexcellent position[0m
+        [36m</p>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m290:21[22m[39m
+    [90m288| [39m
+    [90m289| [39m      [90m// Should show a very large number of months[39m
+    [90m290| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/months/i[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m291| [39m    })[33m;[39m
+    [90m292| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22medge cases[2m > [22mshould handle trend with varying balances
+[31m[1mError[22m: [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m308:21[22m[39m
+    [90m306| [39m
+    [90m307| [39m      [35mconst[39m chart [33m=[39m container[33m.[39m[34mquerySelector[39m([32m'.recharts-wrapper'[39m)[33m;[39m
+    [90m308| [39m      [34mexpect[39m(chart)[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m309| [39m    })[33m;[39m
+    [90m310| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m6 failed[39m[22m[2m | [22m[1m[32m24 passed[39m[22m[90m (30)[39m
+[2m   Start at [22m 19:22:56
+[2m   Duration [22m 24.06s
+
+
+[1m[7m[31m FAIL [39m[27m[22m[31m Tests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x1[39m
+[2K[1A[2K[G       [90mrerun x1[39m
+[2K[1A[2K[G       [2m[90mrerun x1[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/reports/reportBuilder.service.test.ts[22m [34mx6[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 19:24:33
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x6[39m
+[2K[1A[2K[G       [90mrerun x6[39m
+[2K[1A[2K[G       [2m[90mrerun x6[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m relay/package.json[22m [34mx2[39m
+
+ [33m❯[39m src/components/dashboard/CashPositionWidget.test.tsx [2m ([22m[2m30 tests[22m [2m|[22m [31m6 failed[39m[2m)[22m[33m 4884[2mms[22m[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mrendering[2m > [22mshould render trend chart[39m
+[31m     → [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould display all trend data points[39m
+[31m     → expected 0 to be greater than 0[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould handle empty trend data[39m
+[31m     → [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould handle single data point in trend[39m
+[31m     → [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22medge cases[2m > [22mshould handle very small monthly expenses[39m
+[31m     → Found multiple elements with the text: /months/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<span[31m
+  [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+[36m>[31m
+  [0mMonths Covered[0m
+[36m</span>[31m
+
+Ignored nodes: comments, script, style
+[36m<span[31m
+  [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+  [33mdata-testid[31m=[32m"months-covered"[31m
+[36m>[31m
+  [0m100000.0[0m
+  [0m months[0m
+[36m</span>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33maria-label[31m=[32m"Cash Position Widget"[31m
+      [33mclass[31m=[32m"_widget_7d1b30 "[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_header_7d1b30"[31m
+      [36m>[31m
+        [36m<h2[31m
+          [33mclass[31m=[32m"_title_7d1b30"[31m
+        [36m>[31m
+          [0mCash Position[0m
+        [36m</h2>[31m
+        [36m<span[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33maria-label[31m=[32m"Trend: flat"[31m
+          [33mclass[31m=[32m"_trendIndicator_7d1b30 _flat_7d1b30"[31m
+        [36m>[31m
+          [0m➡️[0m
+        [36m</span>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_content_7d1b30"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_balanceSection_7d1b30"[31m
+        [36m>[31m
+          [36m<p[31m
+            [33maria-label[31m=[32m"Current cash balance"[31m
+            [33mclass[31m=[32m"_balanceLabel_7d1b30"[31m
+          [36m>[31m
+            [0mCurrent Balance[0m
+          [36m</p>[31m
+          [36m<p[31m
+            [33maria-label[31m=[32m"Current balance: $1,000.00"[31m
+            [33mclass[31m=[32m"_balance_7d1b30"[31m
+          [36m>[31m
+            [0m$1,000.00[0m
+          [36m</p>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_metricsSection_7d1b30"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_metric_7d1b30"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+            [36m>[31m
+              [0mMonthly Expenses[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+            [36m>[31m
+              [0m$0.01[0m
+            [36m</span>[31m
+          [36m</div>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_metric_7d1b30"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+            [36m>[31m
+              [0mMonths Covered[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+              [33mdata-testid[31m=[32m"months-covered"[31m
+            [36m>[31m
+              [0m100000.0[0m
+              [0m months[0m
+            [36m</span>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+        [36m<p[31m
+          [33maria-label[31m=[32m"Encouragement message"[31m
+          [33mclass[31m=[32m"_encouragement_7d1b30"[31m
+          [33mrole[31m=[32m"status"[31m
+        [36m>[31m
+          [0mexcellent position[0m
+        [36m</p>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[31m   [33m❯[31m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22medge cases[2m > [22mshould handle trend with varying balances[39m
+[31m     → [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 6 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mrendering[2m > [22mshould render trend chart
+[31m[1mError[22m: [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m50:21[22m[39m
+    [90m 48| [39m      [90m// Check for chart container[39m
+    [90m 49| [39m      [35mconst[39m chart [33m=[39m container[33m.[39m[34mquerySelector[39m([32m'.recharts-wrapper'[39m)[33m;[39m
+    [90m 50| [39m      [34mexpect[39m(chart)[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m 51| [39m    })[33m;[39m
+    [90m 52| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould display all trend data points
+[31m[1mAssertionError[22m: expected 0 to be greater than 0[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m207:28[22m[39m
+    [90m205| [39m      [90m// Check for line chart[39m
+    [90m206| [39m      [35mconst[39m lines [33m=[39m container[33m.[39m[34mquerySelectorAll[39m([32m'.recharts-line'[39m)[33m;[39m
+    [90m207| [39m      [34mexpect[39m(lines[33m.[39mlength)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m208| [39m    })[33m;[39m
+    [90m209| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould handle empty trend data
+[31m[1mError[22m: [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m221:21[22m[39m
+    [90m219| [39m      [90m// Chart should still render but with no data[39m
+    [90m220| [39m      [35mconst[39m chart [33m=[39m container[33m.[39m[34mquerySelector[39m([32m'.recharts-wrapper'[39m)[33m;[39m
+    [90m221| [39m      [34mexpect[39m(chart)[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m222| [39m    })[33m;[39m
+    [90m223| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22mtrend visualization[2m > [22mshould handle single data point in trend
+[31m[1mError[22m: [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m234:21[22m[39m
+    [90m232| [39m
+    [90m233| [39m      [35mconst[39m chart [33m=[39m container[33m.[39m[34mquerySelector[39m([32m'.recharts-wrapper'[39m)[33m;[39m
+    [90m234| [39m      [34mexpect[39m(chart)[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m235| [39m    })[33m;[39m
+    [90m236| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22medge cases[2m > [22mshould handle very small monthly expenses
+[31m[1mTestingLibraryElementError[22m: Found multiple elements with the text: /months/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<span[31m
+  [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+[36m>[31m
+  [0mMonths Covered[0m
+[36m</span>[31m
+
+Ignored nodes: comments, script, style
+[36m<span[31m
+  [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+  [33mdata-testid[31m=[32m"months-covered"[31m
+[36m>[31m
+  [0m100000.0[0m
+  [0m months[0m
+[36m</span>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33maria-label[31m=[32m"Cash Position Widget"[31m
+      [33mclass[31m=[32m"_widget_7d1b30 "[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_header_7d1b30"[31m
+      [36m>[31m
+        [36m<h2[31m
+          [33mclass[31m=[32m"_title_7d1b30"[31m
+        [36m>[31m
+          [0mCash Position[0m
+        [36m</h2>[31m
+        [36m<span[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33maria-label[31m=[32m"Trend: flat"[31m
+          [33mclass[31m=[32m"_trendIndicator_7d1b30 _flat_7d1b30"[31m
+        [36m>[31m
+          [0m➡️[0m
+        [36m</span>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_content_7d1b30"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_balanceSection_7d1b30"[31m
+        [36m>[31m
+          [36m<p[31m
+            [33maria-label[31m=[32m"Current cash balance"[31m
+            [33mclass[31m=[32m"_balanceLabel_7d1b30"[31m
+          [36m>[31m
+            [0mCurrent Balance[0m
+          [36m</p>[31m
+          [36m<p[31m
+            [33maria-label[31m=[32m"Current balance: $1,000.00"[31m
+            [33mclass[31m=[32m"_balance_7d1b30"[31m
+          [36m>[31m
+            [0m$1,000.00[0m
+          [36m</p>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_metricsSection_7d1b30"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_metric_7d1b30"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+            [36m>[31m
+              [0mMonthly Expenses[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+            [36m>[31m
+              [0m$0.01[0m
+            [36m</span>[31m
+          [36m</div>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_metric_7d1b30"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricLabel_7d1b30"[31m
+            [36m>[31m
+              [0mMonths Covered[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_metricValue_7d1b30"[31m
+              [33mdata-testid[31m=[32m"months-covered"[31m
+            [36m>[31m
+              [0m100000.0[0m
+              [0m months[0m
+            [36m</span>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+        [36m<p[31m
+          [33maria-label[31m=[32m"Encouragement message"[31m
+          [33mclass[31m=[32m"_encouragement_7d1b30"[31m
+          [33mrole[31m=[32m"status"[31m
+        [36m>[31m
+          [0mexcellent position[0m
+        [36m</p>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m290:21[22m[39m
+    [90m288| [39m
+    [90m289| [39m      [90m// Should show a very large number of months[39m
+    [90m290| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/months/i[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m291| [39m    })[33m;[39m
+    [90m292| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/dashboard/CashPositionWidget.test.tsx[2m > [22mCashPositionWidget[2m > [22medge cases[2m > [22mshould handle trend with varying balances
+[31m[1mError[22m: [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+[39m
+[36m [2m❯[22m src/components/dashboard/CashPositionWidget.test.tsx:[2m308:21[22m[39m
+    [90m306| [39m
+    [90m307| [39m      [35mconst[39m chart [33m=[39m container[33m.[39m[34mquerySelector[39m([32m'.recharts-wrapper'[39m)[33m;[39m
+    [90m308| [39m      [34mexpect[39m(chart)[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m309| [39m    })[33m;[39m
+    [90m310| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m6 failed[39m[22m[2m | [22m[1m[32m24 passed[39m[22m[90m (30)[39m
+[2m   Start at [22m 22:29:36
+[2m   Duration [22m 77.59s
+
+
+[1m[7m[31m FAIL [39m[27m[22m[31m Tests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x2[39m
+[2K[1A[2K[G       [90mrerun x2[39m
+[2K[1A[2K[G       [2m[90mrerun x2[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/auditLogExtended.test.ts[22m [34mx1[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 22:52:18
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x1[39m
+[2K[1A[2K[G       [90mrerun x1[39m
+[2K[1A[2K[G       [2m[90mrerun x1[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/auditLogExtended.test.ts[22m [34mx2[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 23:06:07
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x2[39m
+[2K[1A[2K[G       [90mrerun x2[39m
+[2K[1A[2K[G       [2m[90mrerun x2[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/auditLogExtended.test.ts[22m [34mx3[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 23:07:46
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x3[39m
+[2K[1A[2K[G       [90mrerun x3[39m
+[2K[1A[2K[G       [2m[90mrerun x3[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m relay/src/__tests__/relay.test.ts[22m [34mx1[39m
+
+ [33m❯[39m relay/src/__tests__/relay.test.ts [2m ([22m[2m16 tests[22m [2m|[22m [31m2 failed[39m[2m)[22m[33m 2545[2mms[22m[39m
+[31m   [33m❯[31m relay/src/__tests__/relay.test.ts[2m > [22mSync Relay - SLA Tracking[2m > [22mshould calculate SLA metrics correctly[39m
+[31m     → env is not defined[39m
+[31m   [33m❯[31m relay/src/__tests__/relay.test.ts[2m > [22mSync Relay - Protocol Validation[2m > [22mshould validate protocol version[39m
+[31m     → Cannot find module '../types'
+Require stack:
+- C:\Users\Admin\graceful_books\relay\src\__tests__\relay.test.ts[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 2 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m relay/src/__tests__/relay.test.ts[2m > [22mSync Relay - SLA Tracking[2m > [22mshould calculate SLA metrics correctly
+[31m[1mReferenceError[22m: env is not defined[39m
+[36m [2m❯[22m relay/src/__tests__/relay.test.ts:[2m273:5[22m[39m
+    [90m271| [39m
+    [90m272| [39m  [34mit[39m([32m'should calculate SLA metrics correctly'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m273| [39m    env [33m=[39m [34mcreateMockEnv[39m()[33m;[39m
+    [90m   | [39m    [31m^[39m
+    [90m274| [39m
+    [90m275| [39m    [90m// Mock SLA data[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m relay/src/__tests__/relay.test.ts[2m > [22mSync Relay - Protocol Validation[2m > [22mshould validate protocol version
+[31m[1mError[22m: Cannot find module '../types'
+Require stack:
+- C:\Users\Admin\graceful_books\relay\src\__tests__\relay.test.ts[39m
+[90m [2m❯[22m TracingChannel.traceSync node:diagnostics_channel:[2m328:14[22m[39m
+[36m [2m❯[22m relay/src/__tests__/relay.test.ts:[2m332:39[22m[39m
+    [90m330| [39m[34mdescribe[39m([32m'Sync Relay - Protocol Validation'[39m[33m,[39m () [33m=>[39m {
+    [90m331| [39m  [34mit[39m([32m'should validate protocol version'[39m[33m,[39m () [33m=>[39m {
+    [90m332| [39m    [35mconst[39m { [33mSYNC_PROTOCOL_VERSION[39m } [33m=[39m [34mrequire[39m([32m'../types'[39m)[33m;[39m
+    [90m   | [39m                                      [31m^[39m
+    [90m333| [39m    [34mexpect[39m([33mSYNC_PROTOCOL_VERSION[39m)[33m.[39m[34mtoBe[39m([32m'1.0.0'[39m)[33m;[39m
+    [90m334| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'MODULE_NOT_FOUND', requireStack: [ 'C:\Users\Admin\graceful_books\relay\src\__tests__\relay.test.ts' ] }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m14 passed[39m[22m[90m (16)[39m
+[2m   Start at [22m 02:06:15
+[2m   Duration [22m 62.50s
+
+
+[1m[7m[31m FAIL [39m[27m[22m[31m Tests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x1[39m
+[2K[1A[2K[G       [90mrerun x1[39m
+[2K[1A[2K[G       [2m[90mrerun x1[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/api/__tests__/relayClient.test.ts[22m [34mx1[39m
+
+[90mstdout[2m | src/api/__tests__/relayClient.test.ts[2m > [22m[2mRelayClient - Failover[2m > [22m[2mshould failover to next region on error[22m[39m
+Failing over to: https://sync-eu.gracefulbooks.com
+
+[90mstderr[2m | src/api/__tests__/relayClient.test.ts[2m > [22m[2mRelayClient - Failover[2m > [22m[2mshould failover to next region on error[22m[39m
+Request failed (attempt 1): Error: Network error
+    at [90mC:\Users\Admin\graceful_books\[39msrc\api\__tests__\relayClient.test.ts:61:15
+    at mockCall [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/spy[24m/dist/index.js:50:17[90m)[39m
+    at spy [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mtinyspy[24m/dist/index.js:42:80[90m)[39m
+    at RelayClient.request [90m(C:\Users\Admin\graceful_books\[39msrc\api\relayClient.ts:213:32[90m)[39m
+    at RelayClient.push [90m(C:\Users\Admin\graceful_books\[39msrc\api\relayClient.ts:259:17[90m)[39m
+    at [90mC:\Users\Admin\graceful_books\[39msrc\api\__tests__\relayClient.test.ts:89:35
+    at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:135:14
+    at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:60:26
+    at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:17[90m)[39m
+    at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+
+[90mstdout[2m | src/api/__tests__/relayClient.test.ts[2m > [22m[2mRelayClient - Failover[2m > [22m[2mshould respect retry attempts limit[22m[39m
+Failing over to: https://sync-eu.gracefulbooks.com
+
+[90mstderr[2m | src/api/__tests__/relayClient.test.ts[2m > [22m[2mRelayClient - Failover[2m > [22m[2mshould respect retry attempts limit[22m[39m
+Request failed (attempt 1): Error: Network error
+    at [90mC:\Users\Admin\graceful_books\[39msrc\api\__tests__\relayClient.test.ts:96:45
+    at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:135:14
+    at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:60:26
+    at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:17[90m)[39m
+    at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+    at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+    at runFiles [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:958:5[90m)[39m
+    at startTests [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:967:3[90m)[39m
+    at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:116:7
+    at withEnv [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:83:5[90m)[39m
+Request failed (attempt 2): Error: Network error
+    at [90mC:\Users\Admin\graceful_books\[39msrc\api\__tests__\relayClient.test.ts:96:45
+    at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:135:14
+    at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:60:26
+    at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:17[90m)[39m
+    at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+    at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+    at runFiles [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:958:5[90m)[39m
+    at startTests [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:967:3[90m)[39m
+    at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:116:7
+    at withEnv [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:83:5[90m)[39m
+
+[90mstdout[2m | src/api/__tests__/relayClient.test.ts[2m > [22m[2mRelayClient - Timeout Handling[2m > [22m[2mshould timeout long requests[22m[39m
+WebSocket disconnected
+WebSocket disconnected
+
+[90mstderr[2m | src/api/__tests__/relayClient.test.ts[2m > [22m[2mRelayClient - Timeout Handling[2m > [22m[2mshould timeout long requests[22m[39m
+WebSocket error: Event { isTrusted: [36m[Getter][39m }
+WebSocket error: Event { isTrusted: [36m[Getter][39m }
+
+ [33m❯[39m src/api/__tests__/relayClient.test.ts [2m ([22m[2m10 tests[22m [2m|[22m [31m1 failed[39m[2m)[22m[33m 6296[2mms[22m[39m
+[31m   [33m❯[31m src/api/__tests__/relayClient.test.ts[2m > [22mRelayClient - Timeout Handling[2m > [22mshould timeout long requests[39m
+[31m     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 1 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/api/__tests__/relayClient.test.ts[2m > [22mRelayClient - Timeout Handling[2m > [22mshould timeout long requests
+[31m[1mError[22m: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m9 passed[39m[22m[90m (10)[39m
+[2m   Start at [22m 02:20:58
+[2m   Duration [22m 47.85s
+
+
+[1m[7m[31m FAIL [39m[27m[22m[31m Tests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x1[39m
+[2K[1A[2K[G       [90mrerun x1[39m
+[2K[1A[2K[G       [2m[90mrerun x1[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[22m [34mx1[39m
+
+ [33m❯[39m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts [2m ([22m[2m9 tests[22m [2m|[22m [31m2 failed[39m[2m)[22m[33m 491[2mms[22m[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould detect a simple loan payment[39m
+[31m     → expected false to be true // Object.is equality[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould return higher confidence for loan keywords in account name[39m
+[31m     → expected 0 to be greater than 30[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 2 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould detect a simple loan payment
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts:[2m103:41[22m[39m
+    [90m101| [39m      [35mconst[39m result [33m=[39m [35mawait[39m service[33m.[39m[34mdetectLoanPayment[39m(transaction[33m,[39m line…
+    [90m102| [39m
+    [90m103| [39m      [34mexpect[39m(result[33m.[39misLiabilityPayment)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                                        [31m^[39m
+    [90m104| [39m      [34mexpect[39m(result[33m.[39mconfidence)[33m.[39m[34mtoBeGreaterThan[39m([34m50[39m)[33m;[39m
+    [90m105| [39m      [34mexpect[39m(result[33m.[39mliabilityAccountId)[33m.[39m[34mtoBe[39m([32m'account-loan'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould return higher confidence for loan keywords in account name
+[31m[1mAssertionError[22m: expected 0 to be greater than 30[39m
+[36m [2m❯[22m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts:[2m203:33[22m[39m
+    [90m201| [39m      [35mconst[39m result [33m=[39m [35mawait[39m service[33m.[39m[34mdetectLoanPayment[39m(transaction[33m,[39m line…
+    [90m202| [39m
+    [90m203| [39m      [34mexpect[39m(result[33m.[39mconfidence)[33m.[39m[34mtoBeGreaterThan[39m([34m30[39m)[33m;[39m [90m// Base confidence[39m
+    [90m   | [39m                                [31m^[39m
+    [90m204| [39m    })[33m;[39m
+    [90m205| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m7 passed[39m[22m[90m (9)[39m
+[2m   Start at [22m 03:10:43
+[2m   Duration [22m 97.25s
+
+
+[1m[7m[31m FAIL [39m[27m[22m[31m Tests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x1[39m
+[2K[1A[2K[G       [90mrerun x1[39m
+[2K[1A[2K[G       [2m[90mrerun x1[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/interestSplit/__tests__/amortization.test.ts[22m [34mx1[39m
+
+ [33m❯[39m src/services/interestSplit/__tests__/amortization.test.ts [2m ([22m[2m15 tests[22m [2m|[22m [31m8 failed[39m[2m)[22m[33m 525[2mms[22m[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22mcalculateAmortizationSchedule[2m > [22mshould calculate correct monthly payment for standard loan[39m
+[31m     → CompoundingFrequency is not defined[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22mcalculateAmortizationSchedule[2m > [22mshould handle zero interest rate loans[39m
+[31m     → CompoundingFrequency is not defined[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22mcalculateAmortizationSchedule[2m > [22mshould calculate correct totals[39m
+[31m     → CompoundingFrequency is not defined[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22mcalculateAmortizationSchedule[2m > [22mshould handle quarterly compounding[39m
+[31m     → CompoundingFrequency is not defined[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22mcalculateSinglePayment[2m > [22mshould correctly split payment into principal and interest[39m
+[31m     → CompoundingFrequency is not defined[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22mcalculateSinglePayment[2m > [22mshould handle zero balance[39m
+[31m     → CompoundingFrequency is not defined[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22medge cases[2m > [22mshould handle very small loans[39m
+[31m     → CompoundingFrequency is not defined[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22medge cases[2m > [22mshould handle very long terms[39m
+[31m     → CompoundingFrequency is not defined[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 8 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22mcalculateAmortizationSchedule[2m > [22mshould calculate correct monthly payment for standard loan
+[31m[1mReferenceError[22m: CompoundingFrequency is not defined[39m
+[36m [2m❯[22m AmortizationService.calculateMonthlyRate src/services/interestSplit/amortization.service.ts:[2m127:12[22m[39m
+    [90m125| [39m  )[33m:[39m [33mDecimal[39m {
+    [90m126| [39m    [35mswitch[39m (frequency) {
+    [90m127| [39m      [35mcase[39m [33mCompoundingFrequency[39m[33m.[39m[33mMONTHLY[39m[33m:[39m
+    [90m   | [39m           [31m^[39m
+    [90m128| [39m        [35mreturn[39m annualRate[33m.[39m[34mdividedBy[39m([34m12[39m)[33m;[39m
+    [90m129| [39m
+[90m [2m❯[22m AmortizationService.calculateAmortizationSchedule src/services/interestSplit/amortization.service.ts:[2m36:30[22m[39m
+[90m [2m❯[22m src/services/interestSplit/__tests__/amortization.test.ts:[2m29:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22mcalculateAmortizationSchedule[2m > [22mshould handle zero interest rate loans
+[31m[1mReferenceError[22m: CompoundingFrequency is not defined[39m
+[36m [2m❯[22m AmortizationService.calculateMonthlyRate src/services/interestSplit/amortization.service.ts:[2m127:12[22m[39m
+    [90m125| [39m  )[33m:[39m [33mDecimal[39m {
+    [90m126| [39m    [35mswitch[39m (frequency) {
+    [90m127| [39m      [35mcase[39m [33mCompoundingFrequency[39m[33m.[39m[33mMONTHLY[39m[33m:[39m
+    [90m   | [39m           [31m^[39m
+    [90m128| [39m        [35mreturn[39m annualRate[33m.[39m[34mdividedBy[39m([34m12[39m)[33m;[39m
+    [90m129| [39m
+[90m [2m❯[22m AmortizationService.calculateAmortizationSchedule src/services/interestSplit/amortization.service.ts:[2m36:30[22m[39m
+[90m [2m❯[22m src/services/interestSplit/__tests__/amortization.test.ts:[2m71:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22mcalculateAmortizationSchedule[2m > [22mshould calculate correct totals
+[31m[1mReferenceError[22m: CompoundingFrequency is not defined[39m
+[36m [2m❯[22m AmortizationService.calculateMonthlyRate src/services/interestSplit/amortization.service.ts:[2m127:12[22m[39m
+    [90m125| [39m  )[33m:[39m [33mDecimal[39m {
+    [90m126| [39m    [35mswitch[39m (frequency) {
+    [90m127| [39m      [35mcase[39m [33mCompoundingFrequency[39m[33m.[39m[33mMONTHLY[39m[33m:[39m
+    [90m   | [39m           [31m^[39m
+    [90m128| [39m        [35mreturn[39m annualRate[33m.[39m[34mdividedBy[39m([34m12[39m)[33m;[39m
+    [90m129| [39m
+[90m [2m❯[22m AmortizationService.calculateAmortizationSchedule src/services/interestSplit/amortization.service.ts:[2m36:30[22m[39m
+[90m [2m❯[22m src/services/interestSplit/__tests__/amortization.test.ts:[2m100:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22mcalculateAmortizationSchedule[2m > [22mshould handle quarterly compounding
+[31m[1mReferenceError[22m: CompoundingFrequency is not defined[39m
+[36m [2m❯[22m AmortizationService.calculateMonthlyRate src/services/interestSplit/amortization.service.ts:[2m127:12[22m[39m
+    [90m125| [39m  )[33m:[39m [33mDecimal[39m {
+    [90m126| [39m    [35mswitch[39m (frequency) {
+    [90m127| [39m      [35mcase[39m [33mCompoundingFrequency[39m[33m.[39m[33mMONTHLY[39m[33m:[39m
+    [90m   | [39m           [31m^[39m
+    [90m128| [39m        [35mreturn[39m annualRate[33m.[39m[34mdividedBy[39m([34m12[39m)[33m;[39m
+    [90m129| [39m
+[90m [2m❯[22m AmortizationService.calculateAmortizationSchedule src/services/interestSplit/amortization.service.ts:[2m36:30[22m[39m
+[90m [2m❯[22m src/services/interestSplit/__tests__/amortization.test.ts:[2m139:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22mcalculateSinglePayment[2m > [22mshould correctly split payment into principal and interest
+[31m[1mReferenceError[22m: CompoundingFrequency is not defined[39m
+[36m [2m❯[22m AmortizationService.calculateMonthlyRate src/services/interestSplit/amortization.service.ts:[2m127:12[22m[39m
+    [90m125| [39m  )[33m:[39m [33mDecimal[39m {
+    [90m126| [39m    [35mswitch[39m (frequency) {
+    [90m127| [39m      [35mcase[39m [33mCompoundingFrequency[39m[33m.[39m[33mMONTHLY[39m[33m:[39m
+    [90m   | [39m           [31m^[39m
+    [90m128| [39m        [35mreturn[39m annualRate[33m.[39m[34mdividedBy[39m([34m12[39m)[33m;[39m
+    [90m129| [39m
+[90m [2m❯[22m AmortizationService.calculateSinglePayment src/services/interestSplit/amortization.service.ts:[2m297:30[22m[39m
+[90m [2m❯[22m src/services/interestSplit/__tests__/amortization.test.ts:[2m264:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22mcalculateSinglePayment[2m > [22mshould handle zero balance
+[31m[1mReferenceError[22m: CompoundingFrequency is not defined[39m
+[36m [2m❯[22m AmortizationService.calculateMonthlyRate src/services/interestSplit/amortization.service.ts:[2m127:12[22m[39m
+    [90m125| [39m  )[33m:[39m [33mDecimal[39m {
+    [90m126| [39m    [35mswitch[39m (frequency) {
+    [90m127| [39m      [35mcase[39m [33mCompoundingFrequency[39m[33m.[39m[33mMONTHLY[39m[33m:[39m
+    [90m   | [39m           [31m^[39m
+    [90m128| [39m        [35mreturn[39m annualRate[33m.[39m[34mdividedBy[39m([34m12[39m)[33m;[39m
+    [90m129| [39m
+[90m [2m❯[22m AmortizationService.calculateSinglePayment src/services/interestSplit/amortization.service.ts:[2m297:30[22m[39m
+[90m [2m❯[22m src/services/interestSplit/__tests__/amortization.test.ts:[2m279:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22medge cases[2m > [22mshould handle very small loans
+[31m[1mReferenceError[22m: CompoundingFrequency is not defined[39m
+[36m [2m❯[22m AmortizationService.calculateMonthlyRate src/services/interestSplit/amortization.service.ts:[2m127:12[22m[39m
+    [90m125| [39m  )[33m:[39m [33mDecimal[39m {
+    [90m126| [39m    [35mswitch[39m (frequency) {
+    [90m127| [39m      [35mcase[39m [33mCompoundingFrequency[39m[33m.[39m[33mMONTHLY[39m[33m:[39m
+    [90m   | [39m           [31m^[39m
+    [90m128| [39m        [35mreturn[39m annualRate[33m.[39m[34mdividedBy[39m([34m12[39m)[33m;[39m
+    [90m129| [39m
+[90m [2m❯[22m AmortizationService.calculateAmortizationSchedule src/services/interestSplit/amortization.service.ts:[2m36:30[22m[39m
+[90m [2m❯[22m src/services/interestSplit/__tests__/amortization.test.ts:[2m302:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/amortization.test.ts[2m > [22mAmortizationService[2m > [22medge cases[2m > [22mshould handle very long terms
+[31m[1mReferenceError[22m: CompoundingFrequency is not defined[39m
+[36m [2m❯[22m AmortizationService.calculateMonthlyRate src/services/interestSplit/amortization.service.ts:[2m127:12[22m[39m
+    [90m125| [39m  )[33m:[39m [33mDecimal[39m {
+    [90m126| [39m    [35mswitch[39m (frequency) {
+    [90m127| [39m      [35mcase[39m [33mCompoundingFrequency[39m[33m.[39m[33mMONTHLY[39m[33m:[39m
+    [90m   | [39m           [31m^[39m
+    [90m128| [39m        [35mreturn[39m annualRate[33m.[39m[34mdividedBy[39m([34m12[39m)[33m;[39m
+    [90m129| [39m
+[90m [2m❯[22m AmortizationService.calculateAmortizationSchedule src/services/interestSplit/amortization.service.ts:[2m36:30[22m[39m
+[90m [2m❯[22m src/services/interestSplit/__tests__/amortization.test.ts:[2m321:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m8 failed[39m[22m[2m | [22m[1m[32m7 passed[39m[22m[90m (15)[39m
+[2m   Start at [22m 03:28:52
+[2m   Duration [22m 60.18s
+
+
+[1m[7m[31m FAIL [39m[27m[22m[31m Tests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x1[39m
+[2K[1A[2K[G       [90mrerun x1[39m
+[2K[1A[2K[G       [2m[90mrerun x1[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/interestSplit/__tests__/interestSplitJournal.test.ts[22m [34mx1[39m
+
+ [32m✓[39m src/services/interestSplit/__tests__/interestSplitJournal.test.ts [2m ([22m[2m14 tests[22m[2m)[22m[90m 33[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m14 passed[39m[22m[90m (14)[39m
+[2m   Start at [22m 03:39:17
+[2m   Duration [22m 110.96s
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x1[39m
+[2K[1A[2K[G       [90mrerun x1[39m
+[2K[1A[2K[G       [2m[90mrerun x1[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/types/database.types.ts[22m
+
+ [32m✓[39m src/services/interestSplit/__tests__/interestSplitJournal.test.ts [2m ([22m[2m14 tests[22m[2m)[22m[90m 81[2mms[22m[39m
+ [33m❯[39m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts [2m ([22m[2m9 tests[22m [2m|[22m [31m2 failed[39m[2m)[22m[33m 471[2mms[22m[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould detect a simple loan payment[39m
+[31m     → expected false to be true // Object.is equality[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould return higher confidence for loan keywords in account name[39m
+[31m     → expected 0 to be greater than 30[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 2 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould detect a simple loan payment
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts:[2m103:41[22m[39m
+    [90m101| [39m      [35mconst[39m result [33m=[39m [35mawait[39m service[33m.[39m[34mdetectLoanPayment[39m(transaction[33m,[39m line…
+    [90m102| [39m
+    [90m103| [39m      [34mexpect[39m(result[33m.[39misLiabilityPayment)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                                        [31m^[39m
+    [90m104| [39m      [34mexpect[39m(result[33m.[39mconfidence)[33m.[39m[34mtoBeGreaterThan[39m([34m50[39m)[33m;[39m
+    [90m105| [39m      [34mexpect[39m(result[33m.[39mliabilityAccountId)[33m.[39m[34mtoBe[39m([32m'account-loan'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould return higher confidence for loan keywords in account name
+[31m[1mAssertionError[22m: expected 0 to be greater than 30[39m
+[36m [2m❯[22m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts:[2m203:33[22m[39m
+    [90m201| [39m      [35mconst[39m result [33m=[39m [35mawait[39m service[33m.[39m[34mdetectLoanPayment[39m(transaction[33m,[39m line…
+    [90m202| [39m
+    [90m203| [39m      [34mexpect[39m(result[33m.[39mconfidence)[33m.[39m[34mtoBeGreaterThan[39m([34m30[39m)[33m;[39m [90m// Base confidence[39m
+    [90m   | [39m                                [31m^[39m
+    [90m204| [39m    })[33m;[39m
+    [90m205| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m21 passed[39m[22m[90m (23)[39m
+[2m   Start at [22m 03:48:01
+[2m   Duration [22m 232.54s
+
+
+[1m[7m[31m FAIL [39m[27m[22m[31m Tests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/db/schema/transactions.schema.ts[22m
+
+ [33m❯[39m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts [2m ([22m[2m9 tests[22m [2m|[22m [31m2 failed[39m[2m)[22m[33m 404[2mms[22m[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould detect a simple loan payment[39m
+[31m     → expected false to be true // Object.is equality[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould return higher confidence for loan keywords in account name[39m
+[31m     → expected 0 to be greater than 30[39m
+ [32m✓[39m src/services/interestSplit/__tests__/interestSplitJournal.test.ts [2m ([22m[2m14 tests[22m[2m)[22m[33m 319[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 2 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould detect a simple loan payment
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts:[2m103:41[22m[39m
+    [90m101| [39m      [35mconst[39m result [33m=[39m [35mawait[39m service[33m.[39m[34mdetectLoanPayment[39m(transaction[33m,[39m line…
+    [90m102| [39m
+    [90m103| [39m      [34mexpect[39m(result[33m.[39misLiabilityPayment)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                                        [31m^[39m
+    [90m104| [39m      [34mexpect[39m(result[33m.[39mconfidence)[33m.[39m[34mtoBeGreaterThan[39m([34m50[39m)[33m;[39m
+    [90m105| [39m      [34mexpect[39m(result[33m.[39mliabilityAccountId)[33m.[39m[34mtoBe[39m([32m'account-loan'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould return higher confidence for loan keywords in account name
+[31m[1mAssertionError[22m: expected 0 to be greater than 30[39m
+[36m [2m❯[22m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts:[2m203:33[22m[39m
+    [90m201| [39m      [35mconst[39m result [33m=[39m [35mawait[39m service[33m.[39m[34mdetectLoanPayment[39m(transaction[33m,[39m line…
+    [90m202| [39m
+    [90m203| [39m      [34mexpect[39m(result[33m.[39mconfidence)[33m.[39m[34mtoBeGreaterThan[39m([34m30[39m)[33m;[39m [90m// Base confidence[39m
+    [90m   | [39m                                [31m^[39m
+    [90m204| [39m    })[33m;[39m
+    [90m205| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m21 passed[39m[22m[90m (23)[39m
+[2m   Start at [22m 04:11:08
+[2m   Duration [22m 163.90s
+
+
+[1m[7m[31m FAIL [39m[27m[22m[31m Tests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/db/schema/transactions.schema.ts[22m
+
+ [33m❯[39m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts [2m ([22m[2m9 tests[22m [2m|[22m [31m2 failed[39m[2m)[22m[33m 539[2mms[22m[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould detect a simple loan payment[39m
+[31m     → expected false to be true // Object.is equality[39m
+[31m   [33m❯[31m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould return higher confidence for loan keywords in account name[39m
+[31m     → expected 0 to be greater than 30[39m
+ [32m✓[39m src/services/interestSplit/__tests__/interestSplitJournal.test.ts [2m ([22m[2m14 tests[22m[2m)[22m[90m 37[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 2 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould detect a simple loan payment
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts:[2m103:41[22m[39m
+    [90m101| [39m      [35mconst[39m result [33m=[39m [35mawait[39m service[33m.[39m[34mdetectLoanPayment[39m(transaction[33m,[39m line…
+    [90m102| [39m
+    [90m103| [39m      [34mexpect[39m(result[33m.[39misLiabilityPayment)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                                        [31m^[39m
+    [90m104| [39m      [34mexpect[39m(result[33m.[39mconfidence)[33m.[39m[34mtoBeGreaterThan[39m([34m50[39m)[33m;[39m
+    [90m105| [39m      [34mexpect[39m(result[33m.[39mliabilityAccountId)[33m.[39m[34mtoBe[39m([32m'account-loan'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts[2m > [22mLoanPaymentDetectionService[2m > [22mdetectLoanPayment[2m > [22mshould return higher confidence for loan keywords in account name
+[31m[1mAssertionError[22m: expected 0 to be greater than 30[39m
+[36m [2m❯[22m src/services/interestSplit/__tests__/loanPaymentDetection.test.ts:[2m203:33[22m[39m
+    [90m201| [39m      [35mconst[39m result [33m=[39m [35mawait[39m service[33m.[39m[34mdetectLoanPayment[39m(transaction[33m,[39m line…
+    [90m202| [39m
+    [90m203| [39m      [34mexpect[39m(result[33m.[39mconfidence)[33m.[39m[34mtoBeGreaterThan[39m([34m30[39m)[33m;[39m [90m// Base confidence[39m
+    [90m   | [39m                                [31m^[39m
+    [90m204| [39m    })[33m;[39m
+    [90m205| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m21 passed[39m[22m[90m (23)[39m
+[2m   Start at [22m 04:25:33
+[2m   Duration [22m 217.19s
+
+
+[1m[7m[31m FAIL [39m[27m[22m[31m Tests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/services/__tests__/currency.service.test.ts[22m [34mx1[39m
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould create a new currency[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould create a new currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould create a new currency[22m[39m
+The query {"company_id":"lH9d3wJL7pFYBCkqGBofs","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould create a new currency[22m[39m
+<empty line>
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould create a new currency[22m[39m
+[CurrencyService] Created currency USD for company lH9d3wJL7pFYBCkqGBofs 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould create a new currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould create a new currency[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould create home currency[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould create home currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould create home currency[22m[39m
+The query {"company_id":"xhGIqGasOiOBaHtP1PqTa","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+The query {"company_id":"xhGIqGasOiOBaHtP1PqTa","is_home_currency":1} on currencies would benefit from a compound index [company_id+is_home_currency]
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould create home currency[22m[39m
+<empty line>
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould create home currency[22m[39m
+[CurrencyService] Created currency USD for company xhGIqGasOiOBaHtP1PqTa 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould create home currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould create home currency[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent duplicate currency codes[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent duplicate currency codes[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent duplicate currency codes[22m[39m
+The query {"company_id":"u_uYxZ7zOAMsCbQq1yaLG","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent duplicate currency codes[22m[39m
+<empty line>
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent duplicate currency codes[22m[39m
+[CurrencyService] Created currency USD for company u_uYxZ7zOAMsCbQq1yaLG 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent duplicate currency codes[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent duplicate currency codes[22m[39m
+The query {"company_id":"u_uYxZ7zOAMsCbQq1yaLG","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent duplicate currency codes[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent duplicate currency codes[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent multiple home currencies[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent multiple home currencies[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent multiple home currencies[22m[39m
+The query {"company_id":"66nkICNFgGllPpkyObi2J","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+The query {"company_id":"66nkICNFgGllPpkyObi2J","is_home_currency":1} on currencies would benefit from a compound index [company_id+is_home_currency]
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent multiple home currencies[22m[39m
+<empty line>
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent multiple home currencies[22m[39m
+[CurrencyService] Created currency USD for company 66nkICNFgGllPpkyObi2J 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent multiple home currencies[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent multiple home currencies[22m[39m
+The query {"company_id":"66nkICNFgGllPpkyObi2J","code":"EUR"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent multiple home currencies[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent multiple home currencies[22m[39m
+The query {"company_id":"66nkICNFgGllPpkyObi2J","is_home_currency":1} on currencies would benefit from a compound index [company_id+is_home_currency]
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent multiple home currencies[22m[39m
+<empty line>
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent multiple home currencies[22m[39m
+[CurrencyService] Created currency EUR for company 66nkICNFgGllPpkyObi2J 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent multiple home currencies[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould prevent multiple home currencies[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould uppercase currency codes[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould uppercase currency codes[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould uppercase currency codes[22m[39m
+The query {"company_id":"XVYVkNVUBRbP8NUsh_jav","code":"usd"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould uppercase currency codes[22m[39m
+[CurrencyService] Created currency USD for company XVYVkNVUBRbP8NUsh_jav 
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould uppercase currency codes[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould default decimal_places to 2[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould default decimal_places to 2[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould default decimal_places to 2[22m[39m
+The query {"company_id":"icTMbMZzTheEB0eM1Pty8","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould default decimal_places to 2[22m[39m
+[CurrencyService] Created currency USD for company icTMbMZzTheEB0eM1Pty8 
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mcreateCurrency[2m > [22m[2mshould default decimal_places to 2[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrenciesByCompany[2m > [22m[2mshould return only active currencies[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrenciesByCompany[2m > [22m[2mshould return only active currencies[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrenciesByCompany[2m > [22m[2mshould return only active currencies[22m[39m
+The query {"company_id":"fbouvPvZxfA2HbKlzCchi","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrenciesByCompany[2m > [22m[2mshould return only active currencies[22m[39m
+[CurrencyService] Created currency USD for company fbouvPvZxfA2HbKlzCchi 
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrenciesByCompany[2m > [22m[2mshould return only active currencies[22m[39m
+The query {"company_id":"fbouvPvZxfA2HbKlzCchi","code":"EUR"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrenciesByCompany[2m > [22m[2mshould return only active currencies[22m[39m
+<empty line>
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrenciesByCompany[2m > [22m[2mshould return only active currencies[22m[39m
+[CurrencyService] Created currency EUR for company fbouvPvZxfA2HbKlzCchi 
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrenciesByCompany[2m > [22m[2mshould return only active currencies[22m[39m
+<empty line>
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrenciesByCompany[2m > [22m[2mshould return only active currencies[22m[39m
+[CurrencyService] Updated currency EUR 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrenciesByCompany[2m > [22m[2mshould return only active currencies[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrenciesByCompany[2m > [22m[2mshould return only active currencies[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould find currency by code[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould find currency by code[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould find currency by code[22m[39m
+The query {"company_id":"cBDM25aPDpMfMVaVSySIr","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould find currency by code[22m[39m
+[CurrencyService] Created currency USD for company cBDM25aPDpMfMVaVSySIr 
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould find currency by code[22m[39m
+The query {"company_id":"cBDM25aPDpMfMVaVSySIr","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould find currency by code[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould find currency by code[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould be case-insensitive[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould be case-insensitive[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould be case-insensitive[22m[39m
+The query {"company_id":"Lw1HYAMgqANnPkeOELgWI","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould be case-insensitive[22m[39m
+[CurrencyService] Created currency USD for company Lw1HYAMgqANnPkeOELgWI 
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould be case-insensitive[22m[39m
+The query {"company_id":"Lw1HYAMgqANnPkeOELgWI","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould be case-insensitive[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould be case-insensitive[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould return undefined for non-existent currency[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould return undefined for non-existent currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould return undefined for non-existent currency[22m[39m
+The query {"company_id":"x27bldszGftkL0oPreWbh","code":"XYZ"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould return undefined for non-existent currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCurrencyByCode[2m > [22m[2mshould return undefined for non-existent currency[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetHomeCurrency[2m > [22m[2mshould return the home currency[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetHomeCurrency[2m > [22m[2mshould return the home currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetHomeCurrency[2m > [22m[2mshould return the home currency[22m[39m
+The query {"company_id":"ARA-PALBBUkK1wr50e4GV","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+The query {"company_id":"ARA-PALBBUkK1wr50e4GV","is_home_currency":1} on currencies would benefit from a compound index [company_id+is_home_currency]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetHomeCurrency[2m > [22m[2mshould return the home currency[22m[39m
+[CurrencyService] Created currency USD for company ARA-PALBBUkK1wr50e4GV 
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetHomeCurrency[2m > [22m[2mshould return the home currency[22m[39m
+The query {"company_id":"ARA-PALBBUkK1wr50e4GV","is_home_currency":1} on currencies would benefit from a compound index [company_id+is_home_currency]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetHomeCurrency[2m > [22m[2mshould return the home currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetHomeCurrency[2m > [22m[2mshould return the home currency[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetHomeCurrency[2m > [22m[2mshould return undefined if no home currency[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetHomeCurrency[2m > [22m[2mshould return undefined if no home currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetHomeCurrency[2m > [22m[2mshould return undefined if no home currency[22m[39m
+The query {"company_id":"nlA2qRVuGnrDxwft099a-","is_home_currency":1} on currencies would benefit from a compound index [company_id+is_home_currency]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetHomeCurrency[2m > [22m[2mshould return undefined if no home currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetHomeCurrency[2m > [22m[2mshould return undefined if no home currency[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould set a currency as home currency[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould set a currency as home currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould set a currency as home currency[22m[39m
+The query {"company_id":"xMmxyHe7wJpqJOnVwv4WI","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould set a currency as home currency[22m[39m
+<empty line>
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould set a currency as home currency[22m[39m
+[CurrencyService] Created currency USD for company xMmxyHe7wJpqJOnVwv4WI 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould set a currency as home currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould set a currency as home currency[22m[39m
+The query {"company_id":"xMmxyHe7wJpqJOnVwv4WI","is_home_currency":1} on currencies would benefit from a compound index [company_id+is_home_currency]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould set a currency as home currency[22m[39m
+[CurrencyService] Updated currency USD 
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould set a currency as home currency[22m[39m
+The query {"company_id":"xMmxyHe7wJpqJOnVwv4WI","is_home_currency":1} on currencies would benefit from a compound index [company_id+is_home_currency]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould set a currency as home currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould set a currency as home currency[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould unset previous home currency[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould unset previous home currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould unset previous home currency[22m[39m
+The query {"company_id":"ki_h9zVclYdJG7vOhmuLE","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+The query {"company_id":"ki_h9zVclYdJG7vOhmuLE","is_home_currency":1} on currencies would benefit from a compound index [company_id+is_home_currency]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould unset previous home currency[22m[39m
+[CurrencyService] Created currency USD for company ki_h9zVclYdJG7vOhmuLE 
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould unset previous home currency[22m[39m
+The query {"company_id":"ki_h9zVclYdJG7vOhmuLE","code":"EUR"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould unset previous home currency[22m[39m
+[CurrencyService] Created currency EUR for company ki_h9zVclYdJG7vOhmuLE 
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould unset previous home currency[22m[39m
+The query {"company_id":"ki_h9zVclYdJG7vOhmuLE","is_home_currency":1} on currencies would benefit from a compound index [company_id+is_home_currency]
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould unset previous home currency[22m[39m
+<empty line>
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould unset previous home currency[22m[39m
+[CurrencyService] Updated currency EUR 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould unset previous home currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2msetHomeCurrency[2m > [22m[2mshould unset previous home currency[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeactivateCurrency[2m > [22m[2mshould deactivate a currency[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeactivateCurrency[2m > [22m[2mshould deactivate a currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeactivateCurrency[2m > [22m[2mshould deactivate a currency[22m[39m
+The query {"company_id":"nwpVOl50bLp7PwsRnYkur","code":"EUR"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeactivateCurrency[2m > [22m[2mshould deactivate a currency[22m[39m
+<empty line>
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeactivateCurrency[2m > [22m[2mshould deactivate a currency[22m[39m
+[CurrencyService] Created currency EUR for company nwpVOl50bLp7PwsRnYkur 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeactivateCurrency[2m > [22m[2mshould deactivate a currency[22m[39m
+[CurrencyService] Updated currency EUR 
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeactivateCurrency[2m > [22m[2mshould deactivate a currency[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeactivateCurrency[2m > [22m[2mshould prevent deactivating home currency[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeactivateCurrency[2m > [22m[2mshould prevent deactivating home currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeactivateCurrency[2m > [22m[2mshould prevent deactivating home currency[22m[39m
+The query {"company_id":"4WuVjKAiTvIUCrbf8CYW2","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+The query {"company_id":"4WuVjKAiTvIUCrbf8CYW2","is_home_currency":1} on currencies would benefit from a compound index [company_id+is_home_currency]
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeactivateCurrency[2m > [22m[2mshould prevent deactivating home currency[22m[39m
+<empty line>
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeactivateCurrency[2m > [22m[2mshould prevent deactivating home currency[22m[39m
+[CurrencyService] Created currency USD for company 4WuVjKAiTvIUCrbf8CYW2 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeactivateCurrency[2m > [22m[2mshould prevent deactivating home currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeactivateCurrency[2m > [22m[2mshould prevent deactivating home currency[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould soft delete a currency[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould soft delete a currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould soft delete a currency[22m[39m
+The query {"company_id":"OoXREQEzja9qJIUQInbyQ","code":"EUR"} on currencies would benefit from a compound index [company_id+code]
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould soft delete a currency[22m[39m
+<empty line>
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould soft delete a currency[22m[39m
+[CurrencyService] Created currency EUR for company OoXREQEzja9qJIUQInbyQ 
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould soft delete a currency[22m[39m
+<empty line>
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould soft delete a currency[22m[39m
+[CurrencyService] Deleted currency EUR 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould soft delete a currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould soft delete a currency[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould prevent deleting home currency[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould prevent deleting home currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould prevent deleting home currency[22m[39m
+The query {"company_id":"eQuNewkW3to2jS5D-igMH","code":"USD"} on currencies would benefit from a compound index [company_id+code]
+The query {"company_id":"eQuNewkW3to2jS5D-igMH","is_home_currency":1} on currencies would benefit from a compound index [company_id+is_home_currency]
+
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould prevent deleting home currency[22m[39m
+<empty line>
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould prevent deleting home currency[22m[39m
+[CurrencyService] Created currency USD for company eQuNewkW3to2jS5D-igMH 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould prevent deleting home currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mdeleteCurrency[2m > [22m[2mshould prevent deleting home currency[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2minitializeHomeCurrency[2m > [22m[2mshould initialize USD as default[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2minitializeHomeCurrency[2m > [22m[2mshould initialize USD as default[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2minitializeHomeCurrency[2m > [22m[2mshould initialize USD as default[22m[39m
+The query {"company_id":"xNC-omFg7w8hM93dyCM40","is_home_currency":1} on currencies would benefit from a compound index [company_id+is_home_currency]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2minitializeHomeCurrency[2m > [22m[2mshould initialize USD as default[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2minitializeHomeCurrency[2m > [22m[2mshould initialize USD as default[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2minitializeHomeCurrency[2m > [22m[2mshould initialize custom currency[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2minitializeHomeCurrency[2m > [22m[2mshould initialize custom currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2minitializeHomeCurrency[2m > [22m[2mshould initialize custom currency[22m[39m
+The query {"company_id":"BpmA2COgoJLTpvn9FLkHU","is_home_currency":1} on currencies would benefit from a compound index [company_id+is_home_currency]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2minitializeHomeCurrency[2m > [22m[2mshould initialize custom currency[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2minitializeHomeCurrency[2m > [22m[2mshould initialize custom currency[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2minitializeHomeCurrency[2m > [22m[2mshould not duplicate if home currency exists[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2minitializeHomeCurrency[2m > [22m[2mshould not duplicate if home currency exists[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2minitializeHomeCurrency[2m > [22m[2mshould not duplicate if home currency exists[22m[39m
+The query {"company_id":"W_4X4KuM7Zb424mQiCjDh","is_home_currency":1} on currencies would benefit from a compound index [company_id+is_home_currency]
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2minitializeHomeCurrency[2m > [22m[2mshould not duplicate if home currency exists[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2minitializeHomeCurrency[2m > [22m[2mshould not duplicate if home currency exists[22m[39m
+[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCommonCurrencies[2m > [22m[2mshould return list of common currencies[22m[39m
+[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCommonCurrencies[2m > [22m[2mshould return list of common currencies[22m[39m
+<empty line>
+[90mstderr[2m | src/services/__tests__/currency.service.test.ts[2m > [22m[2mCurrencyService[2m > [22m[2mgetCommonCurrencies[2m > [22m[2mshould return list of common currencies[22m[39m
+[Database] TreasureChest database deleted 
+
+ [33m❯[39m src/services/__tests__/currency.service.test.ts [2m ([22m[2m22 tests[22m [2m|[22m [31m8 failed[39m[2m)[22m[33m 5717[2mms[22m[39m
+[31m   [33m❯[31m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22mcreateCurrency[2m > [22mshould prevent multiple home currencies[39m
+[31m     → promise resolved "{ id: 'xdwAtRG1qu6UOrMOtLDad', …(11) }" instead of rejecting[39m
+[31m   [33m❯[31m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22mgetHomeCurrency[2m > [22mshould return the home currency[39m
+[31m     → expected undefined not to be undefined[39m
+[31m   [33m❯[31m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22msetHomeCurrency[2m > [22mshould set a currency as home currency[39m
+[31m     → expected undefined to be 'to3RrPB1lCtzFZTUrsGKB' // Object.is equality[39m
+[31m   [33m❯[31m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22msetHomeCurrency[2m > [22mshould unset previous home currency[39m
+[31m     → expected true to be false // Object.is equality[39m
+[31m   [33m❯[31m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22minitializeHomeCurrency[2m > [22mshould initialize USD as default[39m
+[31m     → COMMON_CURRENCIES is not defined[39m
+[31m   [33m❯[31m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22minitializeHomeCurrency[2m > [22mshould initialize custom currency[39m
+[31m     → COMMON_CURRENCIES is not defined[39m
+[31m   [33m❯[31m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22minitializeHomeCurrency[2m > [22mshould not duplicate if home currency exists[39m
+[31m     → COMMON_CURRENCIES is not defined[39m
+[31m   [33m❯[31m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22mgetCommonCurrencies[2m > [22mshould return list of common currencies[39m
+[31m     → COMMON_CURRENCIES is not defined[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 8 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22mcreateCurrency[2m > [22mshould prevent multiple home currencies
+[31m[1mAssertionError[22m: promise resolved "{ id: 'xdwAtRG1qu6UOrMOtLDad', …(11) }" instead of rejecting[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [Error: rejected promise][39m
+[31m+ Object {[39m
+[31m+   "active": true,[39m
+[31m+   "code": "EUR",[39m
+[31m+   "company_id": "66nkICNFgGllPpkyObi2J",[39m
+[31m+   "created_at": 1768741398171,[39m
+[31m+   "decimal_places": 2,[39m
+[31m+   "deleted_at": null,[39m
+[31m+   "id": "xdwAtRG1qu6UOrMOtLDad",[39m
+[31m+   "is_home_currency": true,[39m
+[31m+   "name": "Euro",[39m
+[31m+   "symbol": "€",[39m
+[31m+   "updated_at": 1768741398171,[39m
+[31m+   "version_vector": Object {},[39m
+[31m+ }[39m
+
+[36m [2m❯[22m src/services/__tests__/currency.service.test.ts:[2m110:7[22m[39m
+    [90m108| [39m          is_home_currency[33m:[39m [35mtrue[39m[33m,[39m
+    [90m109| [39m        })
+    [90m110| [39m      )[33m.[39mrejects[33m.[39m[34mtoThrow[39m([32m'already has a home currency'[39m)[33m;[39m
+    [90m   | [39m      [31m^[39m
+    [90m111| [39m    })[33m;[39m
+    [90m112| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22mgetHomeCurrency[2m > [22mshould return the home currency
+[31m[1mAssertionError[22m: expected undefined not to be undefined[39m
+[36m [2m❯[22m src/services/__tests__/currency.service.test.ts:[2m202:28[22m[39m
+    [90m200| [39m      [35mconst[39m homeCurrency [33m=[39m [35mawait[39m currencyService[33m.[39m[34mgetHomeCurrency[39m(compa…
+    [90m201| [39m
+    [90m202| [39m      [34mexpect[39m(homeCurrency)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m203| [39m      [34mexpect[39m(homeCurrency[33m?.[39mcode)[33m.[39m[34mtoBe[39m([32m'USD'[39m)[33m;[39m
+    [90m204| [39m      [34mexpect[39m(homeCurrency[33m?.[39mis_home_currency)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22msetHomeCurrency[2m > [22mshould set a currency as home currency
+[31m[1mAssertionError[22m: expected undefined to be 'to3RrPB1lCtzFZTUrsGKB' // Object.is equality[39m
+
+[32m- Expected:[39m 
+"to3RrPB1lCtzFZTUrsGKB"
+
+[31m+ Received:[39m 
+undefined
+
+[36m [2m❯[22m src/services/__tests__/currency.service.test.ts:[2m226:32[22m[39m
+    [90m224| [39m      [35mconst[39m homeCurrency [33m=[39m [35mawait[39m currencyService[33m.[39m[34mgetHomeCurrency[39m(compa…
+    [90m225| [39m
+    [90m226| [39m      [34mexpect[39m(homeCurrency[33m?.[39mid)[33m.[39m[34mtoBe[39m(usd[33m.[39mid)[33m;[39m
+    [90m   | [39m                               [31m^[39m
+    [90m227| [39m    })[33m;[39m
+    [90m228| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22msetHomeCurrency[2m > [22mshould unset previous home currency
+[31m[1mAssertionError[22m: expected true to be false // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+[36m [2m❯[22m src/services/__tests__/currency.service.test.ts:[2m248:44[22m[39m
+    [90m246| [39m      [35mconst[39m updatedEur [33m=[39m [35mawait[39m currencyService[33m.[39m[34mgetCurrencyById[39m(eur[33m.[39mid)[33m;[39m
+    [90m247| [39m
+    [90m248| [39m      [34mexpect[39m(updatedUsd[33m?.[39mis_home_currency)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m   | [39m                                           [31m^[39m
+    [90m249| [39m      [34mexpect[39m(updatedEur[33m?.[39mis_home_currency)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m250| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22minitializeHomeCurrency[2m > [22mshould initialize USD as default
+[31m[1mReferenceError[22m: COMMON_CURRENCIES is not defined[39m
+[36m [2m❯[22m CurrencyService.initializeHomeCurrency src/services/currency.service.ts:[2m311:29[22m[39m
+    [90m309| [39m
+    [90m310| [39m    [90m// Find currency details from common currencies[39m
+    [90m311| [39m    [35mconst[39m commonCurrency [33m=[39m ([33mCOMMON_CURRENCIES[39m [35mas[39m readonly {
+    [90m   | [39m                            [31m^[39m
+    [90m312| [39m      code[33m:[39m string[33m;[39m
+    [90m313| [39m      name[33m:[39m string[33m;[39m
+[90m [2m❯[22m src/services/__tests__/currency.service.test.ts:[2m313:24[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22minitializeHomeCurrency[2m > [22mshould initialize custom currency
+[31m[1mReferenceError[22m: COMMON_CURRENCIES is not defined[39m
+[36m [2m❯[22m CurrencyService.initializeHomeCurrency src/services/currency.service.ts:[2m311:29[22m[39m
+    [90m309| [39m
+    [90m310| [39m    [90m// Find currency details from common currencies[39m
+    [90m311| [39m    [35mconst[39m commonCurrency [33m=[39m ([33mCOMMON_CURRENCIES[39m [35mas[39m readonly {
+    [90m   | [39m                            [31m^[39m
+    [90m312| [39m      code[33m:[39m string[33m;[39m
+    [90m313| [39m      name[33m:[39m string[33m;[39m
+[90m [2m❯[22m src/services/__tests__/currency.service.test.ts:[2m322:24[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22minitializeHomeCurrency[2m > [22mshould not duplicate if home currency exists
+[31m[1mReferenceError[22m: COMMON_CURRENCIES is not defined[39m
+[36m [2m❯[22m CurrencyService.initializeHomeCurrency src/services/currency.service.ts:[2m311:29[22m[39m
+    [90m309| [39m
+    [90m310| [39m    [90m// Find currency details from common currencies[39m
+    [90m311| [39m    [35mconst[39m commonCurrency [33m=[39m ([33mCOMMON_CURRENCIES[39m [35mas[39m readonly {
+    [90m   | [39m                            [31m^[39m
+    [90m312| [39m      code[33m:[39m string[33m;[39m
+    [90m313| [39m      name[33m:[39m string[33m;[39m
+[90m [2m❯[22m src/services/__tests__/currency.service.test.ts:[2m330:21[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/__tests__/currency.service.test.ts[2m > [22mCurrencyService[2m > [22mgetCommonCurrencies[2m > [22mshould return list of common currencies
+[31m[1mReferenceError[22m: COMMON_CURRENCIES is not defined[39m
+[36m [2m❯[22m CurrencyService.getCommonCurrencies src/services/currency.service.ts:[2m336:5[22m[39m
+    [90m334| [39m   */[39m
+    [90m335| [39m  [34mgetCommonCurrencies[39m()[33m:[39m [35mtypeof[39m [33mCOMMON_CURRENCIES[39m {
+    [90m336| [39m    [35mreturn[39m [33mCOMMON_CURRENCIES[39m[33m;[39m
+    [90m   | [39m    [31m^[39m
+    [90m337| [39m  }
+    [90m338| [39m}
+[90m [2m❯[22m src/services/__tests__/currency.service.test.ts:[2m343:38[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m8 failed[39m[22m[2m | [22m[1m[32m14 passed[39m[22m[90m (22)[39m
+[2m   Start at [22m 05:01:04
+[2m   Duration [22m 62.10s
+
+
+[1m[7m[31m FAIL [39m[27m[22m[31m Tests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x1[39m
+[2K[1A[2K[G       [90mrerun x1[39m
+[2K[1A[2K[G       [2m[90mrerun x1[39m[22m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/__tests__/integration/groupD.integration.test.ts[22m [34mx1[39m
+
+
+[2m Test Files [22m [2mno tests[22m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 05:04:40
+[2m   Duration [22m 0ms
+
+
+[1m[7m[32m PASS [39m[27m[22m[32m Waiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+       [34mrerun x1[39m
+[2K[1A[2K[G[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/db/database.ts[22m
+
+[1m[35m
+Restarting due to config changes...[39m[22m
+
+[31m⎯⎯⎯⎯[1m[7m Unhandled Rejection [27m[22m⎯⎯⎯⎯⎯[39m
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'logger')[39m
+[90m [2m❯[22m DefaultReporter.onFinished node_modules/vitest/dist/vendor/index.-xs08BYx.js:[2m2027:14[22m[39m
+[90m [2m❯[22m Vitest.report node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11537:5[22m[39m
+[90m [2m❯[22m async file:/C:/Users/Admin/graceful_books/node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11237:7[22m[39m
+
+
+[31m⎯⎯⎯⎯[1m[7m Unhandled Rejection [27m[22m⎯⎯⎯⎯⎯[39m
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'logger')[39m
+[90m [2m❯[22m DefaultReporter.onFinished node_modules/vitest/dist/vendor/index.-xs08BYx.js:[2m2027:14[22m[39m
+[90m [2m❯[22m Vitest.report node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11537:5[22m[39m
+[90m [2m❯[22m async file:/C:/Users/Admin/graceful_books/node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11237:7[22m[39m
+
+
+[31m⎯⎯⎯⎯[1m[7m Unhandled Rejection [27m[22m⎯⎯⎯⎯⎯[39m
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'logger')[39m
+[90m [2m❯[22m DefaultReporter.onFinished node_modules/vitest/dist/vendor/index.-xs08BYx.js:[2m2027:14[22m[39m
+[90m [2m❯[22m Vitest.report node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11537:5[22m[39m
+[90m [2m❯[22m async file:/C:/Users/Admin/graceful_books/node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11237:7[22m[39m
+
+
+[31m⎯⎯⎯⎯[1m[7m Unhandled Rejection [27m[22m⎯⎯⎯⎯⎯[39m
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'logger')[39m
+[90m [2m❯[22m DefaultReporter.onFinished node_modules/vitest/dist/vendor/index.-xs08BYx.js:[2m2027:14[22m[39m
+[90m [2m❯[22m Vitest.report node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11537:5[22m[39m
+[90m [2m❯[22m async file:/C:/Users/Admin/graceful_books/node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11237:7[22m[39m
+
+
+[31m⎯⎯⎯⎯[1m[7m Unhandled Rejection [27m[22m⎯⎯⎯⎯⎯[39m
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'logger')[39m
+[90m [2m❯[22m DefaultReporter.onFinished node_modules/vitest/dist/vendor/index.-xs08BYx.js:[2m2027:14[22m[39m
+[90m [2m❯[22m Vitest.report node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11537:5[22m[39m
+[90m [2m❯[22m async file:/C:/Users/Admin/graceful_books/node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11237:7[22m[39m
+
+
+[31m⎯⎯⎯⎯[1m[7m Unhandled Rejection [27m[22m⎯⎯⎯⎯⎯[39m
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'logger')[39m
+[90m [2m❯[22m DefaultReporter.onFinished node_modules/vitest/dist/vendor/index.-xs08BYx.js:[2m2027:14[22m[39m
+[90m [2m❯[22m Vitest.report node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11537:5[22m[39m
+[90m [2m❯[22m async file:/C:/Users/Admin/graceful_books/node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11237:7[22m[39m
+
+
+[31m⎯⎯⎯⎯[1m[7m Unhandled Rejection [27m[22m⎯⎯⎯⎯⎯[39m
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'logger')[39m
+[90m [2m❯[22m DefaultReporter.onFinished node_modules/vitest/dist/vendor/index.-xs08BYx.js:[2m2027:14[22m[39m
+[90m [2m❯[22m Vitest.report node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11537:5[22m[39m
+[90m [2m❯[22m async file:/C:/Users/Admin/graceful_books/node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11237:7[22m[39m
+
+
+[31m⎯⎯⎯⎯[1m[7m Unhandled Rejection [27m[22m⎯⎯⎯⎯⎯[39m
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'logger')[39m
+[90m [2m❯[22m DefaultReporter.onFinished node_modules/vitest/dist/vendor/index.-xs08BYx.js:[2m2027:14[22m[39m
+[90m [2m❯[22m Vitest.report node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11537:5[22m[39m
+[90m [2m❯[22m async file:/C:/Users/Admin/graceful_books/node_modules/vitest/dist/vendor/cli-api.OdDWuB7Y.js:[2m11237:7[22m[39m
+
+
+
+

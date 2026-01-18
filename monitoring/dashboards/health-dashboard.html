@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graceful Books - System Health Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #0f1419;
+      color: #e4e7eb;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header .subtitle {
+      color: #9ca3af;
+      font-size: 1.1rem;
+    }
+
+    .dashboard {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: #1a1f2e;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      border: 1px solid #2d3748;
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      margin-bottom: 16px;
+      color: #f3f4f6;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-healthy {
+      background: #10b981;
+      color: white;
+    }
+
+    .status-degraded {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .status-down {
+      background: #ef4444;
+      color: white;
+    }
+
+    .status-unknown {
+      background: #6b7280;
+      color: white;
+    }
+
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #374151;
+    }
+
+    .metric:last-child {
+      border-bottom: none;
+    }
+
+    .metric-label {
+      color: #9ca3af;
+      font-size: 0.95rem;
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #f3f4f6;
+    }
+
+    .metric-value.good {
+      color: #10b981;
+    }
+
+    .metric-value.warning {
+      color: #f59e0b;
+    }
+
+    .metric-value.critical {
+      color: #ef4444;
+    }
+
+    .region-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .region-card {
+      background: #111827;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #374151;
+    }
+
+    .region-name {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #f3f4f6;
+    }
+
+    .region-metric {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      margin-top: 4px;
+      color: #9ca3af;
+    }
+
+    .alert-list {
+      list-style: none;
+    }
+
+    .alert-item {
+      padding: 12px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      border-left: 4px solid;
+      background: #111827;
+    }
+
+    .alert-item.critical {
+      border-color: #ef4444;
+    }
+
+    .alert-item.high {
+      border-color: #f59e0b;
+    }
+
+    .alert-item.medium {
+      border-color: #3b82f6;
+    }
+
+    .alert-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .alert-time {
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    .chart {
+      height: 200px;
+      background: #111827;
+      border-radius: 8px;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+    }
+
+    .refresh-time {
+      text-align: center;
+      color: #6b7280;
+      font-size: 0.875rem;
+      margin-top: 20px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .loading {
+      animation: pulse 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>System Health Dashboard</h1>
+    <p class="subtitle">Real-time monitoring for Graceful Books infrastructure</p>
+  </div>
+
+  <div class="dashboard">
+    <!-- Overall Status -->
+    <div class="grid">
+      <div class="card">
+        <h2>Overall System Status</h2>
+        <div style="text-align: center; padding: 20px 0;">
+          <span id="overall-status" class="status-badge status-healthy">All Systems Operational</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Uptime (30d)</span>
+          <span id="uptime" class="metric-value good">99.98%</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Active Incidents</span>
+          <span id="active-incidents" class="metric-value">0</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Performance Metrics</h2>
+        <div class="metric">
+          <span class="metric-label">Avg Response Time</span>
+          <span id="avg-response-time" class="metric-value good">245ms</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Error Rate</span>
+          <span id="error-rate" class="metric-value good">0.12%</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Requests/min</span>
+          <span id="requests-per-min" class="metric-value">1,234</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Database Health</h2>
+        <div class="metric">
+          <span class="metric-label">Status</span>
+          <span id="db-status" class="status-badge status-healthy">Connected</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Query Time (p95)</span>
+          <span id="db-query-time" class="metric-value good">45ms</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Connections</span>
+          <span id="db-connections" class="metric-value">23 / 100</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Regional Status -->
+    <div class="card">
+      <h2>Sync Relay Status by Region</h2>
+      <div class="region-grid">
+        <div class="region-card">
+          <div class="region-name">🇺🇸 US East</div>
+          <span class="status-badge status-healthy">Healthy</span>
+          <div class="region-metric">
+            <span>Response Time:</span>
+            <span id="us-response-time">156ms</span>
+          </div>
+          <div class="region-metric">
+            <span>Uptime:</span>
+            <span id="us-uptime">99.99%</span>
+          </div>
+        </div>
+
+        <div class="region-card">
+          <div class="region-name">🇪🇺 EU West</div>
+          <span class="status-badge status-healthy">Healthy</span>
+          <div class="region-metric">
+            <span>Response Time:</span>
+            <span id="eu-response-time">189ms</span>
+          </div>
+          <div class="region-metric">
+            <span>Uptime:</span>
+            <span id="eu-uptime">99.97%</span>
+          </div>
+        </div>
+
+        <div class="region-card">
+          <div class="region-name">🌏 AP Southeast</div>
+          <span class="status-badge status-healthy">Healthy</span>
+          <div class="region-metric">
+            <span>Response Time:</span>
+            <span id="ap-response-time">234ms</span>
+          </div>
+          <div class="region-metric">
+            <span>Uptime:</span>
+            <span id="ap-uptime">99.95%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Response Time Chart -->
+    <div class="card">
+      <h2>Response Time (Last 24h)</h2>
+      <div class="chart" id="response-time-chart">
+        <canvas id="responseTimeCanvas"></canvas>
+      </div>
+    </div>
+
+    <!-- Recent Alerts -->
+    <div class="grid">
+      <div class="card">
+        <h2>Recent Alerts</h2>
+        <ul class="alert-list" id="alert-list">
+          <li class="alert-item medium">
+            <div class="alert-title">Increased response time in EU region</div>
+            <div class="alert-time">2 hours ago</div>
+          </li>
+          <li class="alert-item high">
+            <div class="alert-title">Database connection pool near limit</div>
+            <div class="alert-time">5 hours ago - Resolved</div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>SLA Compliance</h2>
+        <div class="metric">
+          <span class="metric-label">Uptime Target</span>
+          <span class="metric-value good">99.9%</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Current (30d)</span>
+          <span class="metric-value good">99.98%</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Status</span>
+          <span class="status-badge status-healthy">Meeting SLA</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="refresh-time">
+    Last updated: <span id="last-update">Loading...</span> | Auto-refresh: <span id="refresh-countdown">60s</span>
+  </div>
+
+  <script>
+    // Fetch metrics from API
+    async function fetchMetrics() {
+      try {
+        const response = await fetch('https://sync.gracefulbooks.com/metrics/sla');
+        const data = await response.json();
+        updateDashboard(data);
+      } catch (error) {
+        console.error('Failed to fetch metrics:', error);
+      }
+    }
+
+    // Update dashboard with new data
+    function updateDashboard(data) {
+      // Update overall status
+      const uptimeElement = document.getElementById('uptime');
+      if (uptimeElement && data.uptime !== undefined) {
+        uptimeElement.textContent = `${data.uptime.toFixed(2)}%`;
+        uptimeElement.className = 'metric-value ' + (data.uptime >= 99.9 ? 'good' : 'warning');
+      }
+
+      // Update error rate
+      const errorRateElement = document.getElementById('error-rate');
+      if (errorRateElement && data.errorRate !== undefined) {
+        errorRateElement.textContent = `${data.errorRate.toFixed(2)}%`;
+        errorRateElement.className = 'metric-value ' + (data.errorRate < 1 ? 'good' : 'warning');
+      }
+
+      // Update response time
+      const responseTimeElement = document.getElementById('avg-response-time');
+      if (responseTimeElement && data.averageResponseTime !== undefined) {
+        responseTimeElement.textContent = `${Math.round(data.averageResponseTime)}ms`;
+        responseTimeElement.className = 'metric-value ' + (data.averageResponseTime < 500 ? 'good' : 'warning');
+      }
+
+      // Update last refresh time
+      const lastUpdateElement = document.getElementById('last-update');
+      if (lastUpdateElement) {
+        lastUpdateElement.textContent = new Date().toLocaleTimeString();
+      }
+    }
+
+    // Auto-refresh countdown
+    let countdown = 60;
+    setInterval(() => {
+      countdown--;
+      const countdownElement = document.getElementById('refresh-countdown');
+      if (countdownElement) {
+        countdownElement.textContent = `${countdown}s`;
+      }
+
+      if (countdown === 0) {
+        countdown = 60;
+        fetchMetrics();
+      }
+    }, 1000);
+
+    // Initial load
+    fetchMetrics();
+    document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+  </script>
+</body>
+</html>

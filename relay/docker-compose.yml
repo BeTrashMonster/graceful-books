@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  # Graceful Books Sync Relay
+  sync-relay:
+    image: gracefulbooks/sync-relay:latest
+    container_name: graceful-books-sync
+    restart: unless-stopped
+
+    # Port mapping (host:container)
+    ports:
+      - "8787:8787"
+
+    # Environment configuration
+    environment:
+      # Server Configuration
+      - NODE_ENV=production
+      - PORT=8787
+      - LOG_LEVEL=info
+
+      # Database Configuration (SQLite by default)
+      - DB_PATH=/app/data/sync.db
+
+      # Rate Limiting
+      - MAX_REQUESTS_PER_MINUTE=60
+      - MAX_PAYLOAD_SIZE_MB=10
+
+      # WebSocket Settings
+      - WS_PING_INTERVAL_MS=30000
+      - WS_TIMEOUT_MS=60000
+
+      # SLA Monitoring
+      - SLA_TARGET_UPTIME=0.999
+      # - SLA_ALERT_WEBHOOK=https://your-webhook-url.com/alerts
+
+    # Volume mounts for data persistence
+    volumes:
+      - sync-data:/app/data
+      - ./logs:/app/logs
+
+    # Resource limits (adjust based on your needs)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8787/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Network configuration
+    networks:
+      - sync-network
+
+  # Optional: Nginx reverse proxy with SSL
+  # Uncomment this section if you want automatic HTTPS
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: graceful-books-nginx
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./nginx/ssl:/etc/nginx/ssl:ro
+  #   depends_on:
+  #     - sync-relay
+  #   networks:
+  #     - sync-network
+
+# Volumes for data persistence
+volumes:
+  sync-data:
+    driver: local
+
+# Network configuration
+networks:
+  sync-network:
+    driver: bridge

@@ -1,0 +1,1745 @@
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/Admin/graceful_books[39m
+
+ [31m×[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould generate a complete A/R aging report
+[31m   → ARAgingBucketLabels is not defined[39m
+ [31m×[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould correctly categorize invoices into aging buckets
+[31m   → ARAgingBucketLabels is not defined[39m
+ [31m×[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould calculate total outstanding correctly
+[31m   → ARAgingBucketLabels is not defined[39m
+ [31m×[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould calculate total overdue correctly
+[31m   → ARAgingBucketLabels is not defined[39m
+ [31m×[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould group invoices by customer correctly
+[31m   → ARAgingBucketLabels is not defined[39m
+ [31m×[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould sort customers by name in ascending order by default
+[31m   → ARAgingBucketLabels is not defined[39m
+ [31m×[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould sort customers by amount in descending order
+[31m   → ARAgingBucketLabels is not defined[39m
+ [31m×[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould generate follow-up recommendations for overdue invoices
+[31m   → ARAgingBucketLabels is not defined[39m
+ [31m×[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould generate health message for healthy A/R
+[31m   → ARAgingBucketLabels is not defined[39m
+ [31m×[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould exclude voided invoices by default
+[31m   → ARAgingBucketLabels is not defined[39m
+ [31m×[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould filter by specific customer when customerId is provided
+[31m   → ARAgingBucketLabels is not defined[39m
+ [31m×[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould set urgency levels correctly based on days overdue and amount
+[31m   → ARAgingBucketLabels is not defined[39m
+ [31m×[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mexportARAgingToCSV[2m > [22mshould export report to CSV format
+[31m   → expected 'A/R Aging Report - Test Company\nAs o…' to contain 'Total Outstanding,$8,500.00'[39m
+ [32m✓[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mexportARAgingToCSV[2m > [22mshould include all aging buckets in CSV
+ [32m✓[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgetCustomerInvoiceDetails[2m > [22mshould return all invoices for a customer from all buckets
+ [32m✓[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgetCustomerInvoiceDetails[2m > [22mshould return invoices from specific bucket when bucket is specified
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mAging Bucket Calculations[2m > [22mshould categorize current bills (not yet due)
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mAging Bucket Calculations[2m > [22mshould categorize bills 1-30 days overdue
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mAging Bucket Calculations[2m > [22mshould categorize bills 31-60 days overdue
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mAging Bucket Calculations[2m > [22mshould categorize bills 61-90 days overdue
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mAging Bucket Calculations[2m > [22mshould categorize bills 90+ days overdue
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mVendor Aging Summary[2m > [22mshould calculate aging for multiple vendors
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mVendor Aging Summary[2m > [22mshould calculate priority score for vendors
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mVendor Aging Summary[2m > [22mshould track oldest bill and due dates
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mPayment Recommendations[2m > [22mshould recommend overdue bills with high priority
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mPayment Recommendations[2m > [22mshould recommend bills due soon
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mPayment Recommendations[2m > [22mshould sort recommendations by urgency
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mSorting and Filtering[2m > [22mshould sort vendors by name
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mSorting and Filtering[2m > [22mshould filter by specific vendor
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mSorting and Filtering[2m > [22mshould exclude paid bills by default
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mHelper Functions[2m > [22mgetVendorAgingDetails should return vendor-specific aging
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mHelper Functions[2m > [22mgetAgingSummary should return dashboard metrics
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mEdge Cases[2m > [22mshould handle no bills
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mEdge Cases[2m > [22mshould handle bills query error
+ [32m✓[39m src/services/reports/apAgingReport.service.test.ts[2m > [22mA/P Aging Report Service[2m > [22mEdge Cases[2m > [22mshould handle bills with zero amounts
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould create a class[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'54cbe769-6b1f-4a6a-a6f0-e1e594373edf'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould create a class[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould create a class[22m[39m
+[ClassesService] Class created {
+  classId: [32m'18aca83a-9e7a-4db5-a6dd-d09da77cde22'[39m,
+  name: [32m'Marketing'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould get class by ID[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'd70f9686-7e79-41bb-bbbb-a7c6ae880c58'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould get class by ID[22m[39m
+[ClassesService] Class created {
+  classId: [32m'0f31e0f9-2112-4ab5-aa8a-b8801347b63f'[39m,
+  name: [32m'Sales'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass CRUD Operations[2m > [22mshould create a class
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass CRUD Operations[2m > [22mshould get class by ID
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould return null for non-existent class[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'175b6deb-c3e8-4b27-b574-dfd3bf86decb'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould return null for non-existent class[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould get all classes for company[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'e6e7cdf0-4af0-44ba-9793-15d969476d0c'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould get all classes for company[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould get all classes for company[22m[39m
+[ClassesService] Class created {
+  classId: [32m'82f624e8-8cae-4e58-973e-8648bfd85045'[39m,
+  name: [32m'Marketing'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass CRUD Operations[2m > [22mshould return null for non-existent class
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould get all classes for company[22m[39m
+[ClassesService] Class created {
+  classId: [32m'ced95c66-fdad-401d-a4b3-98bc8ce8a224'[39m,
+  name: [32m'Sales'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould get all classes for company[22m[39m
+[ClassesService] Class created {
+  classId: [32m'968c8267-f2fa-4e09-a1ee-2337d1c07b5d'[39m,
+  name: [32m'Main Office'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould filter classes by type[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'7500e211-d3c8-4903-a255-02a568a82fe1'[39m }
+[ClassesService] Classes service initialized successfully 
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass CRUD Operations[2m > [22mshould get all classes for company
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould filter classes by type[22m[39m
+[ClassesService] Class created {
+  classId: [32m'6f335226-2212-453d-90ba-86bd8e606edd'[39m,
+  name: [32m'Marketing'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould filter classes by type[22m[39m
+[ClassesService] Class created {
+  classId: [32m'8d7e811f-6d9b-4fa6-81fd-3fda4e080767'[39m,
+  name: [32m'Sales'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould filter classes by type[22m[39m
+[ClassesService] Class created {
+  classId: [32m'5172b869-7cea-42cf-baf8-df78ce2f1c92'[39m,
+  name: [32m'Main Office'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould filter classes by active status[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'82aafaad-fe99-4488-a4df-fd8214ad1dc9'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould filter classes by active status[22m[39m
+[ClassesService] Class created {
+  classId: [32m'28e136b9-5210-4b4a-a648-3984d7be62c0'[39m,
+  name: [32m'Active Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould filter classes by active status[22m[39m
+[ClassesService] Class created {
+  classId: [32m'8354ed8a-41c2-42fe-b150-7b19f838fef9'[39m,
+  name: [32m'Inactive Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass CRUD Operations[2m > [22mshould filter classes by type
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould filter classes by active status[22m[39m
+[ClassesService] Class updated {
+  classId: [32m'8354ed8a-41c2-42fe-b150-7b19f838fef9'[39m,
+  updates: { active: [33mfalse[39m }
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould update class[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'419d5c9f-1d78-45e9-b037-705bd30fd0e5'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould update class[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould update class[22m[39m
+[ClassesService] Class created {
+  classId: [32m'c30253bc-79bc-47a6-b534-9ba2387f57ac'[39m,
+  name: [32m'Marketing'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould update class[22m[39m
+[ClassesService] Class updated {
+  classId: [32m'c30253bc-79bc-47a6-b534-9ba2387f57ac'[39m,
+  updates: {
+    name: [32m'Marketing & Advertising'[39m,
+    description: [32m'Updated description'[39m,
+    color: [32m'#00FF00'[39m
+  }
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould archive class[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'1c99e369-e670-444f-b32b-45a241cba6ac'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould archive class[22m[39m
+[ClassesService] Class created {
+  classId: [32m'ef8a1c9e-6a18-4f95-86ac-964d1ab3a9af'[39m,
+  name: [32m'Test Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould archive class[22m[39m
+[ClassesService] Class archived { classId: [32m'ef8a1c9e-6a18-4f95-86ac-964d1ab3a9af'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould not archive system classes[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'c73e2920-a962-485f-a4a2-1b005f355a10'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstderr[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould not archive system classes[22m[39m
+[ClassesService] Failed to archive class {
+  error: Error: Cannot archive system classes
+      at ClassesService.archiveClass [90m(C:\Users\Admin\graceful_books\[39msrc\services\classes.service.ts:337:15[90m)[39m,
+  classId: [32m'c2c78568-5226-464a-b253-b82a3f51889c'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould not archive system classes[22m[39m
+[ClassesService] Class created {
+  classId: [32m'c2c78568-5226-464a-b253-b82a3f51889c'[39m,
+  name: [32m'System Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould restore archived class[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'12274405-4d90-4fe8-9f10-0fd9f7ed16f1'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould restore archived class[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould restore archived class[22m[39m
+[ClassesService] Class created {
+  classId: [32m'af59dfea-f6b5-4989-8ee5-95ab74f407fc'[39m,
+  name: [32m'Test Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould restore archived class[22m[39m
+[ClassesService] Class archived { classId: [32m'af59dfea-f6b5-4989-8ee5-95ab74f407fc'[39m }
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass CRUD Operations[2m > [22mshould filter classes by active status
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass CRUD Operations[2m > [22mshould update class
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass CRUD Operations[2m > [22mshould archive class
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass CRUD Operations[2m > [22mshould not archive system classes
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass CRUD Operations[2m > [22m[2mshould restore archived class[22m[39m
+[ClassesService] Class restored { classId: [32m'af59dfea-f6b5-4989-8ee5-95ab74f407fc'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould create hierarchical classes[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'ad8944a5-5b46-4d6b-943b-b317d4de98f7'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould create hierarchical classes[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould create hierarchical classes[22m[39m
+[ClassesService] Class created {
+  classId: [32m'e6172e08-6c7e-4c1b-ba1e-0a94e54c726f'[39m,
+  name: [32m'Locations'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould create hierarchical classes[22m[39m
+[ClassesService] Class created {
+  classId: [32m'ba6150c9-d964-4719-945e-1a20645c6705'[39m,
+  name: [32m'East Coast'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould enforce type matching for parent-child[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'42ad3f6a-7c6b-4a38-8a79-202951d28c38'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould enforce type matching for parent-child[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould enforce type matching for parent-child[22m[39m
+[ClassesService] Class created {
+  classId: [32m'b174191b-c68d-4c27-91b9-e7edf42db3ba'[39m,
+  name: [32m'Locations'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould enforce type matching for parent-child[22m[39m
+<empty line>
+[90mstderr[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould enforce type matching for parent-child[22m[39m
+[ClassesService] Failed to create class {
+  error: Error: Class type must match parent class type
+      at ClassesService.createClass [90m(C:\Users\Admin\graceful_books\[39msrc\services\classes.service.ts:154:17[90m)[39m
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at [90mC:\Users\Admin\graceful_books\[39msrc\services\classes.service.test.ts:197:7
+      at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:11[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runFiles [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:958:5[90m)[39m
+      at startTests [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:967:3[90m)[39m,
+  name: [32m'Marketing'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould build class tree[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'476779c8-4048-4bc9-a4d5-bab64edb52ab'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould build class tree[22m[39m
+[ClassesService] Class created {
+  classId: [32m'543ace8f-2ec9-4044-ad68-801b23288c62'[39m,
+  name: [32m'Locations'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould build class tree[22m[39m
+[ClassesService] Class created {
+  classId: [32m'3559892d-7d76-48d3-a1f2-b9f788fb6c27'[39m,
+  name: [32m'East Coast'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass CRUD Operations[2m > [22mshould restore archived class
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mHierarchical Class Structure[2m > [22mshould create hierarchical classes
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mHierarchical Class Structure[2m > [22mshould enforce type matching for parent-child
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould build class tree[22m[39m
+[ClassesService] Class created {
+  classId: [32m'07340610-8ae1-433b-8f10-f4daf16c3671'[39m,
+  name: [32m'West Coast'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould build class tree[22m[39m
+[ClassesService] Class created {
+  classId: [32m'659ade31-f31c-4cdb-a2f7-dc2f1a415297'[39m,
+  name: [32m'New York Office'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould get class breadcrumb path[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'd7cbef9f-4e26-4f16-b3ca-87273545033d'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould get class breadcrumb path[22m[39m
+[ClassesService] Class created {
+  classId: [32m'937a6bca-a88c-4d2e-a057-6f8d33613b61'[39m,
+  name: [32m'Locations'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mHierarchical Class Structure[2m > [22mshould build class tree
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould get class breadcrumb path[22m[39m
+[ClassesService] Class created {
+  classId: [32m'd96953ce-ce7a-4d5b-aac9-c1af18d99db1'[39m,
+  name: [32m'East Coast'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould get class breadcrumb path[22m[39m
+[ClassesService] Class created {
+  classId: [32m'3d7c7016-de34-4124-86ee-481fe36a853b'[39m,
+  name: [32m'New York Office'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould not archive class with children[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'72ea52f5-dcc4-41b6-abcf-d1384a2dd281'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould not archive class with children[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould not archive class with children[22m[39m
+[ClassesService] Class created {
+  classId: [32m'e416ee5f-302c-46bf-974d-46e7363594b7'[39m,
+  name: [32m'Parent'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstderr[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould not archive class with children[22m[39m
+[ClassesService] Failed to archive class {
+  error: Error: Cannot archive class with sub-classes. Archive children first.
+      at ClassesService.archiveClass [90m(C:\Users\Admin\graceful_books\[39msrc\services\classes.service.ts:343:15[90m)[39m
+      at [90mC:\Users\Admin\graceful_books\[39msrc\services\classes.service.test.ts:255:7
+      at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:11[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runFiles [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:958:5[90m)[39m
+      at startTests [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:967:3[90m)[39m
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:116:7
+      at withEnv [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:83:5[90m)[39m,
+  classId: [32m'e416ee5f-302c-46bf-974d-46e7363594b7'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould not archive class with children[22m[39m
+[ClassesService] Class created {
+  classId: [32m'3e4349db-38a4-450b-8ad6-55d29898145f'[39m,
+  name: [32m'Child'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould filter classes by parent_id[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'bd8fd272-22ee-4df5-928e-9858fea2d888'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould filter classes by parent_id[22m[39m
+[ClassesService] Class created {
+  classId: [32m'69f9041e-6353-49eb-a9a2-e305ab789fe1'[39m,
+  name: [32m'Parent'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould filter classes by parent_id[22m[39m
+[ClassesService] Class created {
+  classId: [32m'd70ccaa2-5b48-45f5-8fc0-f8c3501726f4'[39m,
+  name: [32m'Child 1'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mHierarchical Class Structure[2m > [22mshould get class breadcrumb path
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mHierarchical Class Structure[2m > [22mshould not archive class with children
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould filter classes by parent_id[22m[39m
+[ClassesService] Class created {
+  classId: [32m'fb851a34-f23c-4bdc-b823-19cd8db38118'[39m,
+  name: [32m'Child 2'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mHierarchical Class Structure[2m > [22m[2mshould filter classes by parent_id[22m[39m
+[ClassesService] Class created {
+  classId: [32m'b5bbd0ba-8c36-447d-84c5-8f7c4a068d4d'[39m,
+  name: [32m'Other'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould assign class to entity[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'7bb5292c-0de6-4947-87db-7f4e436e7d49'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould assign class to entity[22m[39m
+[ClassesService] Class created {
+  classId: [32m'c63a2afe-df57-4433-b71a-9a12fa07928e'[39m,
+  name: [32m'Test Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould assign class to entity[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'c63a2afe-df57-4433-b71a-9a12fa07928e'[39m,
+  entityType: [32m'TRANSACTION'[39m,
+  entityId: [32m'4f52d16c-d851-4fc6-ad32-d8f462eec0c5'[39m,
+  assignmentId: [32m'c9df2803-458b-4f74-9529-df063ffe96db'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould enforce single-assignment constraint[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'874e64aa-f221-4868-bd9e-3f2fc19b4e89'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould enforce single-assignment constraint[22m[39m
+[ClassesService] Class created {
+  classId: [32m'876874fd-9cf9-48bf-a41e-ef5f692bb48a'[39m,
+  name: [32m'Test Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould enforce single-assignment constraint[22m[39m
+[ClassesService] Class created {
+  classId: [32m'a4d3f14b-8a83-46b4-b8f3-49e577a57b71'[39m,
+  name: [32m'Class 1'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould enforce single-assignment constraint[22m[39m
+[ClassesService] Class created {
+  classId: [32m'7e0a5485-4dcc-4ab9-8d4c-ab1860364784'[39m,
+  name: [32m'Class 2'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mHierarchical Class Structure[2m > [22mshould filter classes by parent_id
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass Assignments[2m > [22mshould assign class to entity
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould enforce single-assignment constraint[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'a4d3f14b-8a83-46b4-b8f3-49e577a57b71'[39m,
+  entityType: [32m'TRANSACTION'[39m,
+  entityId: [32m'878ea533-dc00-4ca8-886c-cbbe638a63ee'[39m,
+  assignmentId: [32m'0829bd35-5d35-4868-861a-c9d15d78b8f1'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould enforce single-assignment constraint[22m[39m
+[ClassesService] Class assignment updated {
+  assignmentId: [32m'0829bd35-5d35-4868-861a-c9d15d78b8f1'[39m,
+  newClassId: [32m'7e0a5485-4dcc-4ab9-8d4c-ab1860364784'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould not assign inactive class[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'6fa7692f-eb1e-4923-a16d-9bed6dd8f8ac'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould not assign inactive class[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould not assign inactive class[22m[39m
+[ClassesService] Class created {
+  classId: [32m'638c88cb-449c-4db2-9f34-92579001c9b3'[39m,
+  name: [32m'Test Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstderr[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould not assign inactive class[22m[39m
+[ClassesService] Failed to assign class {
+  error: Error: Cannot assign inactive class
+      at ClassesService.assignClass [90m(C:\Users\Admin\graceful_books\[39msrc\services\classes.service.ts:402:15[90m)[39m
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m,
+  classId: [32m'638c88cb-449c-4db2-9f34-92579001c9b3'[39m,
+  entityType: [32m'TRANSACTION'[39m,
+  entityId: [32m'e7f9edae-4837-405d-bdde-21c61b519bed'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould not assign inactive class[22m[39m
+[ClassesService] Class updated {
+  classId: [32m'638c88cb-449c-4db2-9f34-92579001c9b3'[39m,
+  updates: { active: [33mfalse[39m }
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould get class assignment for entity[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'ffc75e15-0f44-4256-bfcb-0d91971faade'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould get class assignment for entity[22m[39m
+[ClassesService] Class created {
+  classId: [32m'acc42831-6b52-4241-a067-d5017a0ff793'[39m,
+  name: [32m'Test Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass Assignments[2m > [22mshould enforce single-assignment constraint
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass Assignments[2m > [22mshould not assign inactive class
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould get class assignment for entity[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'acc42831-6b52-4241-a067-d5017a0ff793'[39m,
+  entityType: [32m'TRANSACTION'[39m,
+  entityId: [32m'895c6343-1022-4cfa-bf18-0ec914251f63'[39m,
+  assignmentId: [32m'e2fc1564-4b5b-4139-bc99-54ce4342460c'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould return null when no assignment exists[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'72719ff7-cca2-4773-a6d8-6282c4f6b077'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould return null when no assignment exists[22m[39m
+[ClassesService] Class created {
+  classId: [32m'108ef911-913f-432d-ab9d-2427c107a7b1'[39m,
+  name: [32m'Test Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould update class assignment[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'ff548849-1fdd-4387-ba89-df4f2328c153'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould update class assignment[22m[39m
+[ClassesService] Class created {
+  classId: [32m'4519c209-3eb8-4652-92d1-5acaed7261f2'[39m,
+  name: [32m'Test Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould update class assignment[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'4519c209-3eb8-4652-92d1-5acaed7261f2'[39m,
+  entityType: [32m'TRANSACTION'[39m,
+  entityId: [32m'778b4c69-a2b7-4ec0-a9b1-49cf501136af'[39m,
+  assignmentId: [32m'ae30d56b-f9e0-4f3d-ae27-d4bb89ffe41b'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould update class assignment[22m[39m
+[ClassesService] Class created {
+  classId: [32m'fa43aac4-40f2-4199-94b9-918555b730a9'[39m,
+  name: [32m'New Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould update class assignment[22m[39m
+[ClassesService] Class assignment updated {
+  assignmentId: [32m'ae30d56b-f9e0-4f3d-ae27-d4bb89ffe41b'[39m,
+  newClassId: [32m'fa43aac4-40f2-4199-94b9-918555b730a9'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass Assignments[2m > [22mshould get class assignment for entity
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass Assignments[2m > [22mshould return null when no assignment exists
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass Assignments[2m > [22mshould update class assignment
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould remove class assignment[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'1ca52be5-6c7b-44a3-a87b-59ddd603d947'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould remove class assignment[22m[39m
+[ClassesService] Class created {
+  classId: [32m'4992f8c5-e21e-4683-9877-c5f71e44f35d'[39m,
+  name: [32m'Test Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould remove class assignment[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'4992f8c5-e21e-4683-9877-c5f71e44f35d'[39m,
+  entityType: [32m'TRANSACTION'[39m,
+  entityId: [32m'4aa8fa38-f1c1-450a-9352-57ef92199af4'[39m,
+  assignmentId: [32m'6b349ef6-5804-497e-a25d-294bc417c4b3'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould remove class assignment[22m[39m
+[ClassesService] Class assignment removed {
+  entityType: [32m'TRANSACTION'[39m,
+  entityId: [32m'4aa8fa38-f1c1-450a-9352-57ef92199af4'[39m,
+  assignmentId: [32m'6b349ef6-5804-497e-a25d-294bc417c4b3'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould get all assignments for a class[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'3662d4a7-61d5-48f6-bcb5-6b7afea7f073'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould get all assignments for a class[22m[39m
+[ClassesService] Class created {
+  classId: [32m'235629ab-c86a-4e9b-8a84-79f0cc1f7312'[39m,
+  name: [32m'Test Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould get all assignments for a class[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'235629ab-c86a-4e9b-8a84-79f0cc1f7312'[39m,
+  entityType: [32m'TRANSACTION'[39m,
+  entityId: [32m'42cb7f77-ce10-4393-b83e-fa6a93f5c03e'[39m,
+  assignmentId: [32m'a58ece17-6a8d-4152-b9d6-2aa185fa1650'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould get all assignments for a class[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'235629ab-c86a-4e9b-8a84-79f0cc1f7312'[39m,
+  entityType: [32m'TRANSACTION'[39m,
+  entityId: [32m'88a62ed3-dc54-499f-92c3-7407716d7fdf'[39m,
+  assignmentId: [32m'173175f7-d6f2-40bb-9ce1-0d4a756924a6'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould get all assignments for a class[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'235629ab-c86a-4e9b-8a84-79f0cc1f7312'[39m,
+  entityType: [32m'INVOICE'[39m,
+  entityId: [32m'e8c04ea4-3309-469f-a97e-9a6b4556f684'[39m,
+  assignmentId: [32m'b3a7959d-1a09-460b-b4a3-bc52bad00c2c'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass Assignments[2m > [22mshould remove class assignment
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould bulk assign class to multiple entities[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'deba11a0-f160-4afc-af3d-c8ab09f74ae5'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould bulk assign class to multiple entities[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould bulk assign class to multiple entities[22m[39m
+[ClassesService] Class created {
+  classId: [32m'd738a5af-fdf8-4d9c-b8a0-916107f9d163'[39m,
+  name: [32m'Test Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould bulk assign class to multiple entities[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'd738a5af-fdf8-4d9c-b8a0-916107f9d163'[39m,
+  entityType: [32m'TRANSACTION'[39m,
+  entityId: [32m'7796b82c-6845-4dda-ac06-4349e3947e8c'[39m,
+  assignmentId: [32m'f9b4e249-1d84-4e6b-8def-2389ff66ad34'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass Assignments[2m > [22mshould get all assignments for a class
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould bulk assign class to multiple entities[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'd738a5af-fdf8-4d9c-b8a0-916107f9d163'[39m,
+  entityType: [32m'TRANSACTION'[39m,
+  entityId: [32m'dc855a05-0f68-4291-a674-417fd5da6d0b'[39m,
+  assignmentId: [32m'7e7492af-5798-4c3c-83de-223d63e33fa4'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Assignments[2m > [22m[2mshould bulk assign class to multiple entities[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'd738a5af-fdf8-4d9c-b8a0-916107f9d163'[39m,
+  entityType: [32m'INVOICE'[39m,
+  entityId: [32m'ce29f9dd-038c-4432-995c-d70d9bf382fc'[39m,
+  assignmentId: [32m'1c6596d6-a119-44ea-b89e-0ad098f44cfa'[39m
+}
+[ClassesService] Bulk class assignment completed { classId: [32m'd738a5af-fdf8-4d9c-b8a0-916107f9d163'[39m, count: [33m3[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Statistics[2m > [22m[2mshould get class statistics[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'5f3d63a9-6938-498e-a126-9339bd42e509'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Statistics[2m > [22m[2mshould get class statistics[22m[39m
+[ClassesService] Class created {
+  classId: [32m'8239a107-6fe6-467d-8039-17cae661713d'[39m,
+  name: [32m'Test Class'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Statistics[2m > [22m[2mshould get class statistics[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'8239a107-6fe6-467d-8039-17cae661713d'[39m,
+  entityType: [32m'TRANSACTION'[39m,
+  entityId: [32m'a06be473-9282-4ee6-8380-6649bf169ee4'[39m,
+  assignmentId: [32m'9ffcca6d-5e82-4630-9abf-14d7c75f6c60'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass Assignments[2m > [22mshould bulk assign class to multiple entities
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Statistics[2m > [22m[2mshould get class statistics[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'8239a107-6fe6-467d-8039-17cae661713d'[39m,
+  entityType: [32m'TRANSACTION'[39m,
+  entityId: [32m'295df036-1e7d-4179-b92e-479c3f937048'[39m,
+  assignmentId: [32m'e4d9b1a8-f189-46d5-8a49-0143c62d2cc4'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Statistics[2m > [22m[2mshould get class statistics[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'8239a107-6fe6-467d-8039-17cae661713d'[39m,
+  entityType: [32m'INVOICE'[39m,
+  entityId: [32m'052b100c-231d-4d1e-ba3f-c022bbd0d293'[39m,
+  assignmentId: [32m'6938334a-177d-40a5-a853-7d5fe95f10b0'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Statistics[2m > [22m[2mshould get statistics for all classes[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'62252f91-ba27-4139-903f-2d2f94b3b081'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Statistics[2m > [22m[2mshould get statistics for all classes[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Statistics[2m > [22m[2mshould get statistics for all classes[22m[39m
+[ClassesService] Class created {
+  classId: [32m'8745a7d8-9b2e-4472-8e5a-4e86088c6860'[39m,
+  name: [32m'Class 1'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Statistics[2m > [22m[2mshould get statistics for all classes[22m[39m
+[ClassesService] Class created {
+  classId: [32m'e7a22268-6e58-4d82-b0bf-74703ceb2ec9'[39m,
+  name: [32m'Class 2'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass Statistics[2m > [22mshould get class statistics
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Statistics[2m > [22m[2mshould get statistics for all classes[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'8745a7d8-9b2e-4472-8e5a-4e86088c6860'[39m,
+  entityType: [32m'TRANSACTION'[39m,
+  entityId: [32m'4bf3b71a-ddf0-40cf-9640-72a5ade33d9c'[39m,
+  assignmentId: [32m'1d1e3e65-015b-40f1-817d-549df5d0cf71'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mClass Statistics[2m > [22m[2mshould get statistics for all classes[22m[39m
+[ClassesService] Class assigned {
+  classId: [32m'e7a22268-6e58-4d82-b0bf-74703ceb2ec9'[39m,
+  entityType: [32m'INVOICE'[39m,
+  entityId: [32m'be04f7e0-ded5-4fed-b5a9-129f64ecc662'[39m,
+  assignmentId: [32m'85ff560e-ebe7-4e66-bab1-bf4d5695fe6d'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mClass Statistics[2m > [22mshould get statistics for all classes
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould initialize standard classes from templates[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'042eb2bd-2707-4aed-8e3a-6326bd4869bc'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould initialize standard classes from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'79d0a939-7bde-4cb1-b36f-a6fc6de64206'[39m,
+  name: [32m'Marketing'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould initialize standard classes from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'e852e0be-3b49-4176-8f9b-6d433d6241d1'[39m,
+  name: [32m'Sales'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould initialize standard classes from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'0171a6c8-a4de-4905-afa1-fc3c1d791b28'[39m,
+  name: [32m'Operations'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould initialize standard classes from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'c815d170-a4b5-441e-a7ff-a63c4556e158'[39m,
+  name: [32m'Engineering'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould initialize standard classes from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'3c1940a0-6463-4cab-b628-2c9be7570ad4'[39m,
+  name: [32m'Customer Success'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould initialize standard classes from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'487acb8a-d720-4aaf-98c6-10290d5c4e16'[39m,
+  name: [32m'Main Office'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould initialize standard classes from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'45379702-799f-423f-b8de-2f6c857c5d38'[39m,
+  name: [32m'Remote'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould initialize standard classes from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'00d48560-f148-417d-a20f-f590b64d4dee'[39m,
+  name: [32m'Warehouse'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould initialize standard classes from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'c824a168-d1ed-4c45-bf8f-0e63d0235497'[39m,
+  name: [32m'Website Redesign'[39m,
+  type: [32m'PROJECT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould initialize standard classes from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'0ea2c330-b3be-4059-bfd6-e3e4a46985a6'[39m,
+  name: [32m'Product Launch'[39m,
+  type: [32m'PROJECT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould initialize standard classes from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'79a81f4a-3c0c-4807-ba7a-7f978e4584e1'[39m,
+  name: [32m'Consulting'[39m,
+  type: [32m'BUSINESS_UNIT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould initialize standard classes from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'2675e8c4-fc8f-4d31-b422-a85aba248305'[39m,
+  name: [32m'Products'[39m,
+  type: [32m'BUSINESS_UNIT'[39m
+}
+[ClassesService] Standard classes initialized { count: [33m12[39m }
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mStandard Class Templates[2m > [22mshould initialize standard classes from templates
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould create hierarchical structure from templates[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'bd994b20-b38b-4485-aee6-64f95b60efa0'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould create hierarchical structure from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'86f649f9-55c7-4887-8bc8-74c2601ca2a3'[39m,
+  name: [32m'Marketing'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould create hierarchical structure from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'69ad51d8-210a-48dc-8f56-2de93d737d1f'[39m,
+  name: [32m'Sales'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mStandard Class Templates[2m > [22mshould initialize standard classes from templates
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould create hierarchical structure from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'6fad2327-03da-449b-b0e4-1b458f1fb74b'[39m,
+  name: [32m'Operations'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould create hierarchical structure from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'c74133dc-5ea0-463d-bce6-76bbcc52a7bf'[39m,
+  name: [32m'Engineering'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould create hierarchical structure from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'15cccf69-8f2d-4000-89e6-72b72981f46b'[39m,
+  name: [32m'Customer Success'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould create hierarchical structure from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'51e81e2a-5167-4695-b4da-b1bc0f7f95f9'[39m,
+  name: [32m'Main Office'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould create hierarchical structure from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'c536dfb3-1dc8-4228-98a4-91353b007b96'[39m,
+  name: [32m'Remote'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould create hierarchical structure from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'80ea133d-f272-40e3-b9b1-403b6182fdf4'[39m,
+  name: [32m'Warehouse'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould create hierarchical structure from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'8c20d2b2-67c6-4e8e-a16a-36bb01a97443'[39m,
+  name: [32m'Website Redesign'[39m,
+  type: [32m'PROJECT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould create hierarchical structure from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'6deff910-e655-4eaf-8765-761cf2f31ae1'[39m,
+  name: [32m'Product Launch'[39m,
+  type: [32m'PROJECT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould create hierarchical structure from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'4650d86f-6078-4a1a-afc9-06e0a19c70c3'[39m,
+  name: [32m'Consulting'[39m,
+  type: [32m'BUSINESS_UNIT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould create hierarchical structure from templates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'2837eb0c-d327-4aa4-b9b1-754082090cd0'[39m,
+  name: [32m'Products'[39m,
+  type: [32m'BUSINESS_UNIT'[39m
+}
+[ClassesService] Standard classes initialized { count: [33m12[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould mark system classes correctly[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'307b5097-55e3-4a41-8362-28bc912d72cc'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould mark system classes correctly[22m[39m
+[ClassesService] Class created {
+  classId: [32m'2b064f1d-8d68-44b9-b993-1120e8aef23e'[39m,
+  name: [32m'Marketing'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould mark system classes correctly[22m[39m
+[ClassesService] Class created {
+  classId: [32m'63e24b17-a5c3-473c-8c5d-c57f1ea302a5'[39m,
+  name: [32m'Sales'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mStandard Class Templates[2m > [22mshould create hierarchical structure from templates
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould mark system classes correctly[22m[39m
+[ClassesService] Class created {
+  classId: [32m'ffe8082e-2924-46e1-a75c-44e478f7ed2c'[39m,
+  name: [32m'Operations'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould mark system classes correctly[22m[39m
+[ClassesService] Class created {
+  classId: [32m'6ccd9307-42b9-4dd3-b4e8-7f2a1587be35'[39m,
+  name: [32m'Engineering'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould mark system classes correctly[22m[39m
+[ClassesService] Class created {
+  classId: [32m'a5e6beb9-e46a-434c-96b7-044d00eb893f'[39m,
+  name: [32m'Customer Success'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould mark system classes correctly[22m[39m
+[ClassesService] Class created {
+  classId: [32m'2e0bc5a7-961f-46bd-93c1-638559ca25b2'[39m,
+  name: [32m'Main Office'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould mark system classes correctly[22m[39m
+[ClassesService] Class created {
+  classId: [32m'a851ea78-c8ce-4b13-8a3c-b6789898d593'[39m,
+  name: [32m'Remote'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould mark system classes correctly[22m[39m
+[ClassesService] Class created {
+  classId: [32m'dfa2176f-77af-4ae9-aa06-11f5513e2951'[39m,
+  name: [32m'Warehouse'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould mark system classes correctly[22m[39m
+[ClassesService] Class created {
+  classId: [32m'e36976c9-9f32-41fa-a1e6-9b11b5855d7a'[39m,
+  name: [32m'Website Redesign'[39m,
+  type: [32m'PROJECT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould mark system classes correctly[22m[39m
+[ClassesService] Class created {
+  classId: [32m'14dfd246-a480-4864-a41d-590c16a2883d'[39m,
+  name: [32m'Product Launch'[39m,
+  type: [32m'PROJECT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould mark system classes correctly[22m[39m
+[ClassesService] Class created {
+  classId: [32m'3f175e4a-baa7-4dd8-9594-71d9bc26352a'[39m,
+  name: [32m'Consulting'[39m,
+  type: [32m'BUSINESS_UNIT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mStandard Class Templates[2m > [22m[2mshould mark system classes correctly[22m[39m
+[ClassesService] Class created {
+  classId: [32m'703ba841-9622-43f1-b57d-629a9c2b395e'[39m,
+  name: [32m'Products'[39m,
+  type: [32m'BUSINESS_UNIT'[39m
+}
+[ClassesService] Standard classes initialized { count: [33m12[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes by name[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'fd00eb60-8596-4e4c-a014-8601d3131854'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes by name[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes by name[22m[39m
+[ClassesService] Class created {
+  classId: [32m'237d1aaf-1ee6-49e9-a5d7-7b444d267412'[39m,
+  name: [32m'Marketing Department'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes by name[22m[39m
+[ClassesService] Class created {
+  classId: [32m'11e7c4a2-830b-4684-8d0a-22bac65e5ae7'[39m,
+  name: [32m'Sales Department'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mStandard Class Templates[2m > [22mshould mark system classes correctly
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes by name[22m[39m
+[ClassesService] Class created {
+  classId: [32m'5a5113f4-b50e-4f83-960b-0c1c790f22b4'[39m,
+  name: [32m'Marketing Budget'[39m,
+  type: [32m'PROJECT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes by name[22m[39m
+[ClassesService] Class created {
+  classId: [32m'f7b1fa60-4b3d-470e-804d-6954ebfda1df'[39m,
+  name: [32m'Main Office'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes by name with type filter[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'd9518330-b66e-4c49-8ef0-6a34d3cc3ba4'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes by name with type filter[22m[39m
+[ClassesService] Class created {
+  classId: [32m'7062064e-d477-4744-933c-cfbe8b7163e0'[39m,
+  name: [32m'Marketing Department'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes by name with type filter[22m[39m
+[ClassesService] Class created {
+  classId: [32m'4fffa283-06e4-492d-a06c-8d97bb41dd5a'[39m,
+  name: [32m'Sales Department'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mSearch and Filtering[2m > [22mshould search classes by name
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes by name with type filter[22m[39m
+[ClassesService] Class created {
+  classId: [32m'de6016cc-e3b6-4cee-b581-6e0970f70adc'[39m,
+  name: [32m'Marketing Budget'[39m,
+  type: [32m'PROJECT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes by name with type filter[22m[39m
+[ClassesService] Class created {
+  classId: [32m'e01120b3-5117-4bc1-b7ab-86874bde82c5'[39m,
+  name: [32m'Main Office'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes (case-insensitive)[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'3aa537ef-8de1-4607-9d3a-224529a9a4d8'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes (case-insensitive)[22m[39m
+[ClassesService] Class created {
+  classId: [32m'ba17aa50-8801-4cc4-bf71-cbf02cc8629a'[39m,
+  name: [32m'Marketing Department'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes (case-insensitive)[22m[39m
+[ClassesService] Class created {
+  classId: [32m'da022fb7-ca4b-43ea-bbb9-bcff1b54b41f'[39m,
+  name: [32m'Sales Department'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes (case-insensitive)[22m[39m
+[ClassesService] Class created {
+  classId: [32m'cf5a4c0f-22be-4483-8aaf-adde9ae64511'[39m,
+  name: [32m'Marketing Budget'[39m,
+  type: [32m'PROJECT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search classes (case-insensitive)[22m[39m
+[ClassesService] Class created {
+  classId: [32m'8abe2f43-272f-4211-aded-8251e2fb21ad'[39m,
+  name: [32m'Main Office'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mSearch and Filtering[2m > [22mshould search classes by name with type filter
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mSearch and Filtering[2m > [22mshould search classes (case-insensitive)
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search with activeOnly filter[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'ce508d0b-33eb-48b4-85aa-514b5821c621'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search with activeOnly filter[22m[39m
+[ClassesService] Class created {
+  classId: [32m'80ba47f5-8488-4f22-a3d4-e09f801b9e0a'[39m,
+  name: [32m'Marketing Department'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search with activeOnly filter[22m[39m
+[ClassesService] Class created {
+  classId: [32m'52f945bd-64f7-41f5-86b7-c7525a1b55ad'[39m,
+  name: [32m'Sales Department'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search with activeOnly filter[22m[39m
+[ClassesService] Class created {
+  classId: [32m'd59fc0b9-833b-498e-87c1-878b8814cbfe'[39m,
+  name: [32m'Marketing Budget'[39m,
+  type: [32m'PROJECT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search with activeOnly filter[22m[39m
+[ClassesService] Class created {
+  classId: [32m'30a2dc42-aa29-4afe-8812-9ec03972bb06'[39m,
+  name: [32m'Main Office'[39m,
+  type: [32m'LOCATION'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search with activeOnly filter[22m[39m
+[ClassesService] Class created {
+  classId: [32m'56d448ca-aa35-4027-bd0e-dba36450cbb5'[39m,
+  name: [32m'Inactive Marketing'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mSearch and Filtering[2m > [22m[2mshould search with activeOnly filter[22m[39m
+[ClassesService] Class updated {
+  classId: [32m'56d448ca-aa35-4027-bd0e-dba36450cbb5'[39m,
+  updates: { active: [33mfalse[39m }
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mValidation[2m > [22m[2mshould validate class name is required[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'4d0be38d-c162-48f1-9fa1-44642c92dbf2'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstderr[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mValidation[2m > [22m[2mshould validate class name is required[22m[39m
+[ClassesService] Failed to create class {
+  error: Error: Class validation failed: name is required
+      at ClassesService.createClass [90m(C:\Users\Admin\graceful_books\[39msrc\services\classes.service.ts:141:15[90m)[39m
+      at [90mC:\Users\Admin\graceful_books\[39msrc\services\classes.service.test.ts:596:17
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:135:14
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:60:26
+      at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:17[90m)[39m
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m,
+  name: [32m''[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mValidation[2m > [22m[2mshould validate color format[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'48f74436-4bfa-4c72-9d7b-a1bdce28028d'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstderr[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mValidation[2m > [22m[2mshould validate color format[22m[39m
+[ClassesService] Failed to create class {
+  error: Error: Class validation failed: color must be a valid hex color code
+      at ClassesService.createClass [90m(C:\Users\Admin\graceful_books\[39msrc\services\classes.service.ts:141:15[90m)[39m
+      at [90mC:\Users\Admin\graceful_books\[39msrc\services\classes.service.test.ts:602:17
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:135:14
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:60:26
+      at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:17[90m)[39m
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m,
+  name: [32m'Test'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mSearch and Filtering[2m > [22mshould search with activeOnly filter
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mValidation[2m > [22mshould validate class name is required
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mValidation[2m > [22mshould validate color format
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mValidation[2m > [22m[2mshould accept valid hex color[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'b39f0990-9da5-40af-be7b-db0eb6879ee0'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mValidation[2m > [22m[2mshould accept valid hex color[22m[39m
+[ClassesService] Class created {
+  classId: [32m'bd96e87e-c363-4029-a97b-86f70de3e8aa'[39m,
+  name: [32m'Test'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mValidation[2m > [22m[2mshould validate parent class exists[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'19670451-f065-4596-a2fd-001aa2e7a1c6'[39m }
+
+[90mstderr[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mValidation[2m > [22m[2mshould validate parent class exists[22m[39m
+[ClassesService] Failed to create class {
+  error: Error: Parent class not found
+      at ClassesService.createClass [90m(C:\Users\Admin\graceful_books\[39msrc\services\classes.service.ts:148:17[90m)[39m
+      at [90mC:\Users\Admin\graceful_books\[39msrc\services\classes.service.test.ts:617:7
+      at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:11[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runFiles [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:958:5[90m)[39m
+      at startTests [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:967:3[90m)[39m
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:116:7
+      at withEnv [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:83:5[90m)[39m,
+  name: [32m'Test'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mValidation[2m > [22m[2mshould validate parent class exists[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCache Management[2m > [22m[2mshould cache classes after loading[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'80b2e959-d5fa-4a02-af24-3f3e977896f1'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCache Management[2m > [22m[2mshould cache classes after loading[22m[39m
+[ClassesService] Class created {
+  classId: [32m'fe4da903-bee3-452a-91af-1b25342a1a76'[39m,
+  name: [32m'Test 1'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCache Management[2m > [22m[2mshould cache classes after loading[22m[39m
+[ClassesService] Class created {
+  classId: [32m'15d50b03-d2eb-43d6-8170-568cb929f1d7'[39m,
+  name: [32m'Test 2'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCache Management[2m > [22m[2mshould update cache when creating class[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'3eaf1162-d8a5-49cb-9959-dfbab77e5888'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCache Management[2m > [22m[2mshould update cache when creating class[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCache Management[2m > [22m[2mshould update cache when creating class[22m[39m
+[ClassesService] Class created {
+  classId: [32m'0a861a92-7f3d-4c2b-b697-efee955e0d91'[39m,
+  name: [32m'Test'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCache Management[2m > [22m[2mshould update cache when updating class[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'10da4803-4762-4982-8e71-5e0af9fd38a7'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCache Management[2m > [22m[2mshould update cache when updating class[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCache Management[2m > [22m[2mshould update cache when updating class[22m[39m
+[ClassesService] Class created {
+  classId: [32m'84b7b62d-8238-4162-9164-4f82a29d288b'[39m,
+  name: [32m'Test'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCache Management[2m > [22m[2mshould update cache when updating class[22m[39m
+[ClassesService] Class updated {
+  classId: [32m'84b7b62d-8238-4162-9164-4f82a29d288b'[39m,
+  updates: { name: [32m'Updated'[39m }
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCache Management[2m > [22m[2mshould remove from cache when archiving[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'507c7717-b68d-4b20-a7d9-8712825a16ef'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCache Management[2m > [22m[2mshould remove from cache when archiving[22m[39m
+[ClassesService] Class created {
+  classId: [32m'83bc6325-ea57-4a44-b687-54df4c311021'[39m,
+  name: [32m'Test'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mValidation[2m > [22mshould validate color format
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mValidation[2m > [22mshould accept valid hex color
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mValidation[2m > [22mshould validate parent class exists
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mCache Management[2m > [22mshould cache classes after loading
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mCache Management[2m > [22mshould update cache when creating class
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mCache Management[2m > [22mshould update cache when updating class
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCache Management[2m > [22m[2mshould remove from cache when archiving[22m[39m
+[ClassesService] Class archived { classId: [32m'83bc6325-ea57-4a44-b687-54df4c311021'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCRDT Version Vectors[2m > [22m[2mshould initialize version vector on create[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'b0cc290b-b551-46f4-bd7e-7c5cbaed2478'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCRDT Version Vectors[2m > [22m[2mshould initialize version vector on create[22m[39m
+[ClassesService] Class created {
+  classId: [32m'455a2c81-9ebf-4de5-8b5b-ab1861fb7450'[39m,
+  name: [32m'Test'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCRDT Version Vectors[2m > [22m[2mshould increment version vector on update[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'e44e138f-a7fd-4775-8a79-76ad519a2b92'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCRDT Version Vectors[2m > [22m[2mshould increment version vector on update[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCRDT Version Vectors[2m > [22m[2mshould increment version vector on update[22m[39m
+[ClassesService] Class created {
+  classId: [32m'f1c9e404-825c-4ddb-94f0-941f10fe0632'[39m,
+  name: [32m'Test'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCRDT Version Vectors[2m > [22m[2mshould increment version vector on update[22m[39m
+[ClassesService] Class updated {
+  classId: [32m'f1c9e404-825c-4ddb-94f0-941f10fe0632'[39m,
+  updates: { name: [32m'Updated'[39m }
+}
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mCache Management[2m > [22mshould remove from cache when archiving
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mCRDT Version Vectors[2m > [22mshould initialize version vector on create
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mCRDT Version Vectors[2m > [22mshould increment version vector on update
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCRDT Version Vectors[2m > [22m[2mshould track multiple device updates[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'983d7bc0-9be0-49d8-9308-d3f6a01285f6'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCRDT Version Vectors[2m > [22m[2mshould track multiple device updates[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCRDT Version Vectors[2m > [22m[2mshould track multiple device updates[22m[39m
+[ClassesService] Class created {
+  classId: [32m'3819bb93-0057-412b-81af-c40ed2403dc6'[39m,
+  name: [32m'Test'[39m,
+  type: [32m'DEPARTMENT'[39m
+}
+[ClassesService] Initializing classes service { companyId: [32m'983d7bc0-9be0-49d8-9308-d3f6a01285f6'[39m }
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCRDT Version Vectors[2m > [22m[2mshould track multiple device updates[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mCRDT Version Vectors[2m > [22m[2mshould track multiple device updates[22m[39m
+[ClassesService] Class updated {
+  classId: [32m'3819bb93-0057-412b-81af-c40ed2403dc6'[39m,
+  updates: { name: [32m'Updated by device 2'[39m }
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mEdge Cases[2m > [22m[2mshould handle empty class list[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'1f4b028e-b3c7-4f8a-afa1-754ca23795ed'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mEdge Cases[2m > [22m[2mshould handle class tree with no classes[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'00f81e09-65cb-4e1a-a4c6-c862db1d1b2c'[39m }
+[ClassesService] Classes service initialized successfully 
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mCRDT Version Vectors[2m > [22mshould track multiple device updates
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mEdge Cases[2m > [22mshould handle empty class list
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mEdge Cases[2m > [22mshould handle class tree with no classes
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mEdge Cases[2m > [22m[2mshould handle removing non-existent assignment[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'0f99c612-dbf4-4af0-a01b-93dc2656029c'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mEdge Cases[2m > [22m[2mshould handle updating non-existent class[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'29cfa4b1-cee0-446a-ae01-81ca6ca5765f'[39m }
+[ClassesService] Classes service initialized successfully 
+
+[90mstderr[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mEdge Cases[2m > [22m[2mshould handle updating non-existent class[22m[39m
+[ClassesService] Failed to update class {
+  error: Error: Class not found
+      at ClassesService.updateClass [90m(C:\Users\Admin\graceful_books\[39msrc\services\classes.service.ts:272:15[90m)[39m
+      at [90mC:\Users\Admin\graceful_books\[39msrc\services\classes.service.test.ts:743:7
+      at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:11[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runFiles [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:958:5[90m)[39m
+      at startTests [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:967:3[90m)[39m
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:116:7
+      at withEnv [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:83:5[90m)[39m,
+  classId: [32m'non-existent'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mEdge Cases[2m > [22m[2mshould handle assigning non-existent class[22m[39m
+[ClassesService] Initializing classes service { companyId: [32m'e5364159-add2-4d4b-b5f7-1f745fb91a73'[39m }
+
+[90mstderr[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mEdge Cases[2m > [22m[2mshould handle assigning non-existent class[22m[39m
+[ClassesService] Failed to assign class {
+  error: Error: Class not found
+      at ClassesService.assignClass [90m(C:\Users\Admin\graceful_books\[39msrc\services\classes.service.ts:398:15[90m)[39m
+      at [90mC:\Users\Admin\graceful_books\[39msrc\services\classes.service.test.ts:749:7
+      at runTest [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:781:11[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runSuite [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:909:15[90m)[39m
+      at runFiles [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:958:5[90m)[39m
+      at startTests [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:967:3[90m)[39m
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:116:7
+      at withEnv [90m(file:///C:/Users/Admin/graceful_books/[39mnode_modules/[4mvitest[24m/dist/chunks/runtime-runBaseTests.oAvMKtQC.js:83:5[90m)[39m,
+  classId: [32m'non-existent'[39m,
+  entityType: [32m'TRANSACTION'[39m,
+  entityId: [32m'6c3b1172-aa4d-4382-8078-933b90a200ba'[39m
+}
+
+[90mstdout[2m | src/services/classes.service.test.ts[2m > [22m[2mClassesService[2m > [22m[2mEdge Cases[2m > [22m[2mshould handle assigning non-existent class[22m[39m
+[ClassesService] Classes service initialized successfully 
+
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mEdge Cases[2m > [22mshould handle removing non-existent assignment
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mEdge Cases[2m > [22mshould handle updating non-existent class
+ [32m✓[39m src/services/classes.service.test.ts[2m > [22mClassesService[2m > [22mEdge Cases[2m > [22mshould handle assigning non-existent class
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mcreateJournalEntry[2m > [22mshould create a balanced journal entry
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mcreateJournalEntry[2m > [22mshould reject unbalanced journal entry
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mcreateJournalEntry[2m > [22mshould generate sequential transaction numbers
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mcreateJournalEntry[2m > [22mshould create entry with approval workflow
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mcreateJournalEntry[2m > [22mshould validate line items have either debit or credit, not both
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mgetJournalEntries[2m > [22mshould filter journal entries by approval status
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mgetJournalEntries[2m > [22mshould filter journal entries by date range
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mupdateJournalEntry[2m > [22mshould update draft journal entry
+ [31m×[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mupdateJournalEntry[2m > [22mshould update line items and maintain balance
+[31m   → this.db.transaction_line_items.where(...).equals(...).toArray is not a function[39m
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mupdateJournalEntry[2m > [22mshould reject update with unbalanced line items
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mApproval Workflow[2m > [22mshould submit draft entry for approval
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mApproval Workflow[2m > [22mshould approve pending entry
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mApproval Workflow[2m > [22mshould reject pending entry
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mReversing Entries[2m > [22mshould create a reversing entry
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mReversing Entries[2m > [22mshould void entry and create reversing entry
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mTemplate Application[2m > [22mshould create entry from template
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mStatistics[2m > [22mshould calculate journal entry statistics
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mEdge Cases and Validation[2m > [22mshould reject entry with no line items
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mEdge Cases and Validation[2m > [22mshould handle decimal precision correctly
+ [32m✓[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mEdge Cases and Validation[2m > [22mshould allow small rounding differences (<$0.01)
+ [32m✓[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgenerateCashFlowReport[2m > [22mshould generate a basic cash flow report
+ [32m✓[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgenerateCashFlowReport[2m > [22mshould calculate opening and closing cash balances correctly
+ [32m✓[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgenerateCashFlowReport[2m > [22mshould categorize transactions into operating, investing, and financing activities
+ [32m✓[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgenerateCashFlowReport[2m > [22mshould handle empty transactions gracefully
+ [32m✓[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgenerateCashFlowReport[2m > [22mshould generate encouraging summary message for positive cash flow
+ [32m✓[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgenerateCashFlowReport[2m > [22mshould include educational content when requested
+ [32m✓[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgenerateCashFlowReport[2m > [22mshould exclude educational content when not requested
+ [32m✓[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgenerateCashFlowReport[2m > [22mshould throw error if no cash accounts are found
+ [32m✓[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgenerateCashFlowReport[2m > [22mshould throw error if accounts query fails
+ [32m✓[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgenerateCashFlowReport[2m > [22mshould throw error if transactions query fails
+ [31m×[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgenerateCashFlowReport[2m > [22mshould only include posted and reconciled transactions
+[31m   → expected 200 to be less than or equal to 100[39m
+ [32m✓[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgetCashFlowEducation[2m > [22mshould return educational content for all sections
+ [31m×[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgetCashFlowEducation[2m > [22mshould have plain English explanations
+[31m   → expected 'This is cash flow from running your b…' to contain 'day-to-day'[39m
+ [32m✓[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgetCashFlowEducation[2m > [22mshould explain why each section matters
+
+[31m⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 16 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/journalEntries.service.test.ts[2m > [22mJournalEntriesService[2m > [22mupdateJournalEntry[2m > [22mshould update line items and maintain balance
+[31m[1mTypeError[22m: this.db.transaction_line_items.where(...).equals(...).toArray is not a function[39m
+[36m [2m❯[22m JournalEntriesService.updateJournalEntry src/services/journalEntries.service.ts:[2m289:10[22m[39m
+    [90m287| [39m        [33m.[39m[34mwhere[39m([32m'transaction_id'[39m)
+    [90m288| [39m        [33m.[39m[34mequals[39m(entryId)
+    [90m289| [39m        [33m.[39m[34mtoArray[39m()[33m;[39m
+    [90m   | [39m         [31m^[39m
+    [90m290| [39m
+    [90m291| [39m      [35mfor[39m ([35mconst[39m item [35mof[39m existingItems) {
+[90m [2m❯[22m src/services/journalEntries.service.test.ts:[2m333:23[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould generate a complete A/R aging report
+[31m[1mReferenceError[22m: ARAgingBucketLabels is not defined[39m
+[36m [2m❯[22m getAgingBucketLabel src/services/reports/arAgingReport.service.ts:[2m71:18[22m[39m
+    [90m 69| [39m  useFriendly[33m:[39m boolean [33m=[39m [35mtrue[39m
+    [90m 70| [39m)[33m:[39m string {
+    [90m 71| [39m  [35mconst[39m labels [33m=[39m [33mARAgingBucketLabels[39m
+    [90m   | [39m                 [31m^[39m
+    [90m 72| [39m  [35mreturn[39m useFriendly [33m?[39m labels[bucket][33m.[39mfriendly [33m:[39m labels[bucket][33m.[39mformal
+    [90m 73| [39m}
+[90m [2m❯[22m createEmptyBucket src/services/reports/arAgingReport.service.ts:[2m81:12[22m[39m
+[90m [2m❯[22m Module.generateARAgingReport src/services/reports/arAgingReport.service.ts:[2m179:14[22m[39m
+[90m [2m❯[22m src/services/reports/arAgingReport.service.test.ts:[2m168:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould correctly categorize invoices into aging buckets
+[31m[1mReferenceError[22m: ARAgingBucketLabels is not defined[39m
+[36m [2m❯[22m getAgingBucketLabel src/services/reports/arAgingReport.service.ts:[2m71:18[22m[39m
+    [90m 69| [39m  useFriendly[33m:[39m boolean [33m=[39m [35mtrue[39m
+    [90m 70| [39m)[33m:[39m string {
+    [90m 71| [39m  [35mconst[39m labels [33m=[39m [33mARAgingBucketLabels[39m
+    [90m   | [39m                 [31m^[39m
+    [90m 72| [39m  [35mreturn[39m useFriendly [33m?[39m labels[bucket][33m.[39mfriendly [33m:[39m labels[bucket][33m.[39mformal
+    [90m 73| [39m}
+[90m [2m❯[22m createEmptyBucket src/services/reports/arAgingReport.service.ts:[2m81:12[22m[39m
+[90m [2m❯[22m Module.generateARAgingReport src/services/reports/arAgingReport.service.ts:[2m179:14[22m[39m
+[90m [2m❯[22m src/services/reports/arAgingReport.service.test.ts:[2m183:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould calculate total outstanding correctly
+[31m[1mReferenceError[22m: ARAgingBucketLabels is not defined[39m
+[36m [2m❯[22m getAgingBucketLabel src/services/reports/arAgingReport.service.ts:[2m71:18[22m[39m
+    [90m 69| [39m  useFriendly[33m:[39m boolean [33m=[39m [35mtrue[39m
+    [90m 70| [39m)[33m:[39m string {
+    [90m 71| [39m  [35mconst[39m labels [33m=[39m [33mARAgingBucketLabels[39m
+    [90m   | [39m                 [31m^[39m
+    [90m 72| [39m  [35mreturn[39m useFriendly [33m?[39m labels[bucket][33m.[39mfriendly [33m:[39m labels[bucket][33m.[39mformal
+    [90m 73| [39m}
+[90m [2m❯[22m createEmptyBucket src/services/reports/arAgingReport.service.ts:[2m81:12[22m[39m
+[90m [2m❯[22m Module.generateARAgingReport src/services/reports/arAgingReport.service.ts:[2m179:14[22m[39m
+[90m [2m❯[22m src/services/reports/arAgingReport.service.test.ts:[2m212:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould calculate total overdue correctly
+[31m[1mReferenceError[22m: ARAgingBucketLabels is not defined[39m
+[36m [2m❯[22m getAgingBucketLabel src/services/reports/arAgingReport.service.ts:[2m71:18[22m[39m
+    [90m 69| [39m  useFriendly[33m:[39m boolean [33m=[39m [35mtrue[39m
+    [90m 70| [39m)[33m:[39m string {
+    [90m 71| [39m  [35mconst[39m labels [33m=[39m [33mARAgingBucketLabels[39m
+    [90m   | [39m                 [31m^[39m
+    [90m 72| [39m  [35mreturn[39m useFriendly [33m?[39m labels[bucket][33m.[39mfriendly [33m:[39m labels[bucket][33m.[39mformal
+    [90m 73| [39m}
+[90m [2m❯[22m createEmptyBucket src/services/reports/arAgingReport.service.ts:[2m81:12[22m[39m
+[90m [2m❯[22m Module.generateARAgingReport src/services/reports/arAgingReport.service.ts:[2m179:14[22m[39m
+[90m [2m❯[22m src/services/reports/arAgingReport.service.test.ts:[2m224:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould group invoices by customer correctly
+[31m[1mReferenceError[22m: ARAgingBucketLabels is not defined[39m
+[36m [2m❯[22m getAgingBucketLabel src/services/reports/arAgingReport.service.ts:[2m71:18[22m[39m
+    [90m 69| [39m  useFriendly[33m:[39m boolean [33m=[39m [35mtrue[39m
+    [90m 70| [39m)[33m:[39m string {
+    [90m 71| [39m  [35mconst[39m labels [33m=[39m [33mARAgingBucketLabels[39m
+    [90m   | [39m                 [31m^[39m
+    [90m 72| [39m  [35mreturn[39m useFriendly [33m?[39m labels[bucket][33m.[39mfriendly [33m:[39m labels[bucket][33m.[39mformal
+    [90m 73| [39m}
+[90m [2m❯[22m createEmptyBucket src/services/reports/arAgingReport.service.ts:[2m81:12[22m[39m
+[90m [2m❯[22m Module.generateARAgingReport src/services/reports/arAgingReport.service.ts:[2m179:14[22m[39m
+[90m [2m❯[22m src/services/reports/arAgingReport.service.test.ts:[2m237:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould sort customers by name in ascending order by default
+[31m[1mReferenceError[22m: ARAgingBucketLabels is not defined[39m
+[36m [2m❯[22m getAgingBucketLabel src/services/reports/arAgingReport.service.ts:[2m71:18[22m[39m
+    [90m 69| [39m  useFriendly[33m:[39m boolean [33m=[39m [35mtrue[39m
+    [90m 70| [39m)[33m:[39m string {
+    [90m 71| [39m  [35mconst[39m labels [33m=[39m [33mARAgingBucketLabels[39m
+    [90m   | [39m                 [31m^[39m
+    [90m 72| [39m  [35mreturn[39m useFriendly [33m?[39m labels[bucket][33m.[39mfriendly [33m:[39m labels[bucket][33m.[39mformal
+    [90m 73| [39m}
+[90m [2m❯[22m createEmptyBucket src/services/reports/arAgingReport.service.ts:[2m81:12[22m[39m
+[90m [2m❯[22m Module.generateARAgingReport src/services/reports/arAgingReport.service.ts:[2m179:14[22m[39m
+[90m [2m❯[22m src/services/reports/arAgingReport.service.test.ts:[2m257:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould sort customers by amount in descending order
+[31m[1mReferenceError[22m: ARAgingBucketLabels is not defined[39m
+[36m [2m❯[22m getAgingBucketLabel src/services/reports/arAgingReport.service.ts:[2m71:18[22m[39m
+    [90m 69| [39m  useFriendly[33m:[39m boolean [33m=[39m [35mtrue[39m
+    [90m 70| [39m)[33m:[39m string {
+    [90m 71| [39m  [35mconst[39m labels [33m=[39m [33mARAgingBucketLabels[39m
+    [90m   | [39m                 [31m^[39m
+    [90m 72| [39m  [35mreturn[39m useFriendly [33m?[39m labels[bucket][33m.[39mfriendly [33m:[39m labels[bucket][33m.[39mformal
+    [90m 73| [39m}
+[90m [2m❯[22m createEmptyBucket src/services/reports/arAgingReport.service.ts:[2m81:12[22m[39m
+[90m [2m❯[22m Module.generateARAgingReport src/services/reports/arAgingReport.service.ts:[2m179:14[22m[39m
+[90m [2m❯[22m src/services/reports/arAgingReport.service.test.ts:[2m276:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould generate follow-up recommendations for overdue invoices
+[31m[1mReferenceError[22m: ARAgingBucketLabels is not defined[39m
+[36m [2m❯[22m getAgingBucketLabel src/services/reports/arAgingReport.service.ts:[2m71:18[22m[39m
+    [90m 69| [39m  useFriendly[33m:[39m boolean [33m=[39m [35mtrue[39m
+    [90m 70| [39m)[33m:[39m string {
+    [90m 71| [39m  [35mconst[39m labels [33m=[39m [33mARAgingBucketLabels[39m
+    [90m   | [39m                 [31m^[39m
+    [90m 72| [39m  [35mreturn[39m useFriendly [33m?[39m labels[bucket][33m.[39mfriendly [33m:[39m labels[bucket][33m.[39mformal
+    [90m 73| [39m}
+[90m [2m❯[22m createEmptyBucket src/services/reports/arAgingReport.service.ts:[2m81:12[22m[39m
+[90m [2m❯[22m Module.generateARAgingReport src/services/reports/arAgingReport.service.ts:[2m179:14[22m[39m
+[90m [2m❯[22m src/services/reports/arAgingReport.service.test.ts:[2m290:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould generate health message for healthy A/R
+[31m[1mReferenceError[22m: ARAgingBucketLabels is not defined[39m
+[36m [2m❯[22m getAgingBucketLabel src/services/reports/arAgingReport.service.ts:[2m71:18[22m[39m
+    [90m 69| [39m  useFriendly[33m:[39m boolean [33m=[39m [35mtrue[39m
+    [90m 70| [39m)[33m:[39m string {
+    [90m 71| [39m  [35mconst[39m labels [33m=[39m [33mARAgingBucketLabels[39m
+    [90m   | [39m                 [31m^[39m
+    [90m 72| [39m  [35mreturn[39m useFriendly [33m?[39m labels[bucket][33m.[39mfriendly [33m:[39m labels[bucket][33m.[39mformal
+    [90m 73| [39m}
+[90m [2m❯[22m createEmptyBucket src/services/reports/arAgingReport.service.ts:[2m81:12[22m[39m
+[90m [2m❯[22m Module.generateARAgingReport src/services/reports/arAgingReport.service.ts:[2m179:14[22m[39m
+[90m [2m❯[22m src/services/reports/arAgingReport.service.test.ts:[2m344:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould exclude voided invoices by default
+[31m[1mReferenceError[22m: ARAgingBucketLabels is not defined[39m
+[36m [2m❯[22m getAgingBucketLabel src/services/reports/arAgingReport.service.ts:[2m71:18[22m[39m
+    [90m 69| [39m  useFriendly[33m:[39m boolean [33m=[39m [35mtrue[39m
+    [90m 70| [39m)[33m:[39m string {
+    [90m 71| [39m  [35mconst[39m labels [33m=[39m [33mARAgingBucketLabels[39m
+    [90m   | [39m                 [31m^[39m
+    [90m 72| [39m  [35mreturn[39m useFriendly [33m?[39m labels[bucket][33m.[39mfriendly [33m:[39m labels[bucket][33m.[39mformal
+    [90m 73| [39m}
+[90m [2m❯[22m createEmptyBucket src/services/reports/arAgingReport.service.ts:[2m81:12[22m[39m
+[90m [2m❯[22m Module.generateARAgingReport src/services/reports/arAgingReport.service.ts:[2m179:14[22m[39m
+[90m [2m❯[22m src/services/reports/arAgingReport.service.test.ts:[2m386:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould filter by specific customer when customerId is provided
+[31m[1mReferenceError[22m: ARAgingBucketLabels is not defined[39m
+[36m [2m❯[22m getAgingBucketLabel src/services/reports/arAgingReport.service.ts:[2m71:18[22m[39m
+    [90m 69| [39m  useFriendly[33m:[39m boolean [33m=[39m [35mtrue[39m
+    [90m 70| [39m)[33m:[39m string {
+    [90m 71| [39m  [35mconst[39m labels [33m=[39m [33mARAgingBucketLabels[39m
+    [90m   | [39m                 [31m^[39m
+    [90m 72| [39m  [35mreturn[39m useFriendly [33m?[39m labels[bucket][33m.[39mfriendly [33m:[39m labels[bucket][33m.[39mformal
+    [90m 73| [39m}
+[90m [2m❯[22m createEmptyBucket src/services/reports/arAgingReport.service.ts:[2m81:12[22m[39m
+[90m [2m❯[22m Module.generateARAgingReport src/services/reports/arAgingReport.service.ts:[2m179:14[22m[39m
+[90m [2m❯[22m src/services/reports/arAgingReport.service.test.ts:[2m413:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mgenerateARAgingReport[2m > [22mshould set urgency levels correctly based on days overdue and amount
+[31m[1mReferenceError[22m: ARAgingBucketLabels is not defined[39m
+[36m [2m❯[22m getAgingBucketLabel src/services/reports/arAgingReport.service.ts:[2m71:18[22m[39m
+    [90m 69| [39m  useFriendly[33m:[39m boolean [33m=[39m [35mtrue[39m
+    [90m 70| [39m)[33m:[39m string {
+    [90m 71| [39m  [35mconst[39m labels [33m=[39m [33mARAgingBucketLabels[39m
+    [90m   | [39m                 [31m^[39m
+    [90m 72| [39m  [35mreturn[39m useFriendly [33m?[39m labels[bucket][33m.[39mfriendly [33m:[39m labels[bucket][33m.[39mformal
+    [90m 73| [39m}
+[90m [2m❯[22m createEmptyBucket src/services/reports/arAgingReport.service.ts:[2m81:12[22m[39m
+[90m [2m❯[22m Module.generateARAgingReport src/services/reports/arAgingReport.service.ts:[2m179:14[22m[39m
+[90m [2m❯[22m src/services/reports/arAgingReport.service.test.ts:[2m426:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/reports/arAgingReport.service.test.ts[2m > [22mA/R Aging Report Service[2m > [22mexportARAgingToCSV[2m > [22mshould export report to CSV format
+[31m[1mAssertionError[22m: expected 'A/R Aging Report - Test Company\nAs o…' to contain 'Total Outstanding,$8,500.00'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Total Outstanding,$8,500.00[39m
+[31m+ A/R Aging Report - Test Company[39m
+[31m+ As of: 1/16/2026[39m
+[31m+ Generated: 1/17/2026, 1:52:50 PM[39m
+[31m+[39m
+[31m+ Summary[39m
+[31m+ Total Outstanding,$8500.00,6 invoices[39m
+[31m+ Total Overdue,$6750.00,4 invoices[39m
+[31m+[39m
+[31m+ Aging Buckets[39m
+[31m+ Bucket,Amount,Invoice Count[39m
+[31m+ Current,$1750.00,2[39m
+[31m+ 1-30 days,$1750.00,2[39m
+[31m+ 31-60 days,$0.00,0[39m
+[31m+ 61-90 days,$2000.00,1[39m
+[31m+ 90+ days,$3000.00,1[39m
+[31m+[39m
+[31m+ Customer Breakdown[39m
+[31m+ Customer,Total,Current,1-30,31-60,61-90,90+[39m
+[31m+ "Customer One",$2250.00,$500.00,$1750.00,$0.00,$0.00,$0.00[39m
+
+[36m [2m❯[22m src/services/reports/arAgingReport.service.test.ts:[2m520:19[22m[39m
+    [90m518| [39m      [34mexpect[39m(csv)[33m.[39m[34mtoContain[39m([32m'A/R Aging Report'[39m)
+    [90m519| [39m      [34mexpect[39m(csv)[33m.[39m[34mtoContain[39m([32m'Test Company'[39m)
+    [90m520| [39m      [34mexpect[39m(csv)[33m.[39m[34mtoContain[39m([32m'Total Outstanding,$8,500.00'[39m)
+    [90m   | [39m                  [31m^[39m
+    [90m521| [39m      [34mexpect[39m(csv)[33m.[39m[34mtoContain[39m([32m'Customer Breakdown'[39m)
+    [90m522| [39m      [34mexpect[39m(csv)[33m.[39m[34mtoContain[39m([32m'Customer One'[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgenerateCashFlowReport[2m > [22mshould only include posted and reconciled transactions
+[31m[1mAssertionError[22m: expected 200 to be less than or equal to 100[39m
+[36m [2m❯[22m src/services/reports/cashFlowReport.service.test.ts:[2m637:53[22m[39m
+    [90m635| [39m      [34mexpect[39m(totalLineItems)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)
+    [90m636| [39m      [90m// Net cash change should only reflect the posted transaction[39m
+    [90m637| [39m      [34mexpect[39m([33mMath[39m[33m.[39m[34mabs[39m(report[33m.[39mnetCashChange[33m.[39mamount))[33m.[39m[34mtoBeLessThanOrEqua[39m…
+    [90m   | [39m                                                    [31m^[39m
+    [90m638| [39m    })
+    [90m639| [39m  })
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/reports/cashFlowReport.service.test.ts[2m > [22mCash Flow Report Service[2m > [22mgetCashFlowEducation[2m > [22mshould have plain English explanations
+[31m[1mAssertionError[22m: expected 'This is cash flow from running your b…' to contain 'day-to-day'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- day-to-day[39m
+[31m+ This is cash flow from running your business: money from customers, payments to suppliers and employees, and other regular business expenses. Think of it as the cash flowing through your main business activities.[39m
+
+[36m [2m❯[22m src/services/reports/cashFlowReport.service.test.ts:[2m657:58[22m[39m
+    [90m655| [39m
+    [90m656| [39m      [34mexpect[39m(education[33m.[39moverview[33m.[39mplainEnglish)[33m.[39m[34mtoContain[39m([32m'money moving'[39m)
+    [90m657| [39m      [34mexpect[39m(education[33m.[39moperatingActivities[33m.[39mplainEnglish)[33m.[39m[34mtoContain[39m([32m'da[39m…
+    [90m   | [39m                                                         [31m^[39m
+    [90m658| [39m      [34mexpect[39m(education[33m.[39minvestingActivities[33m.[39mplainEnglish)[33m.[39m[34mtoContain[39m([32m'eq[39m…
+    [90m659| [39m      [34mexpect[39m(education[33m.[39mfinancingActivities[33m.[39mplainEnglish)[33m.[39m[34mtoContain[39m([32m'lo[39m…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/16]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[31m16 failed[39m[22m[2m | [22m[1m[32m103 passed[39m[22m[90m (119)[39m
+[2m   Start at [22m 13:52:22
+[2m   Duration [22m 56.29s[2m (transform 4.70s, setup 39.82s, collect 14.79s, tests 2.07s, environment 66.21s, prepare 11.06s)[22m
+

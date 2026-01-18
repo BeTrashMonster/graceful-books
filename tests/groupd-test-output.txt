@@ -1,0 +1,159 @@
+
+> graceful-books@0.1.0 test
+> vitest groupD.integration.test --run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/Admin/graceful_books[39m
+
+[90mstdout[2m | src/__tests__/integration/groupD.integration.test.ts[2m > [22m[2mGroup D Integration Tests[2m > [22m[2mD1 → Transactions → D6/D7: COA Wizard to Financial Reports[2m > [22m[2mshould create accounts from wizard, record transactions, and generate accurate reports[22m[39m
+Creating accounts from wizard {
+  companyId: [32m'test-company-YzW4JWSTF6'[39m,
+  templateId: [32m'general'[39m,
+  accountCount: [33m9[39m
+}
+
+[90mstdout[2m | src/__tests__/integration/groupD.integration.test.ts[2m > [22m[2mGroup D Integration Tests[2m > [22m[2mD1 → Transactions → D6/D7: COA Wizard to Financial Reports[2m > [22m[2mshould handle customizations in COA wizard correctly[22m[39m
+Creating accounts from wizard {
+  companyId: [32m'test-company-e5wj6L5atY'[39m,
+  templateId: [32m'general'[39m,
+  accountCount: [33m10[39m
+}
+
+[90mstdout[2m | src/__tests__/integration/groupD.integration.test.ts[2m > [22m[2mGroup D Integration Tests[2m > [22m[2mD2: Bank Reconciliation with Transactions[2m > [22m[2mshould reconcile bank statement with existing transactions[22m[39m
+Auto-matching complete {
+  totalStatementTxns: [33m3[39m,
+  totalSystemTxns: [33m3[39m,
+  matchesFound: [33m3[39m,
+  matchRate: [32m'100%'[39m
+}
+
+[90mstdout[2m | src/__tests__/integration/groupD.integration.test.ts[2m > [22m[2mGroup D Integration Tests[2m > [22m[2mD2: Bank Reconciliation with Transactions[2m > [22m[2mshould handle unmatched transactions in reconciliation[22m[39m
+Auto-matching complete {
+  totalStatementTxns: [33m3[39m,
+  totalSystemTxns: [33m1[39m,
+  matchesFound: [33m1[39m,
+  matchRate: [32m'33%'[39m
+}
+
+[90mstdout[2m | src/__tests__/integration/groupD.integration.test.ts[2m > [22m[2mGroup D Integration Tests[2m > [22m[2mEnd-to-End Group D Feature Flow[2m > [22m[2mshould complete full workflow: Setup → Record → Reconcile → Report[22m[39m
+Creating accounts from wizard {
+  companyId: [32m'test-company-p08VdNg4jr'[39m,
+  templateId: [32m'general'[39m,
+  accountCount: [33m9[39m
+}
+
+[90mstdout[2m | src/__tests__/integration/groupD.integration.test.ts[2m > [22m[2mGroup D Integration Tests[2m > [22m[2mEnd-to-End Group D Feature Flow[2m > [22m[2mshould complete full workflow: Setup → Record → Reconcile → Report[22m[39m
+Auto-matching complete {
+  totalStatementTxns: [33m2[39m,
+  totalSystemTxns: [33m2[39m,
+  matchesFound: [33m2[39m,
+  matchRate: [32m'100%'[39m
+}
+
+ [33m❯[39m src/__tests__/integration/groupD.integration.test.ts [2m ([22m[2m11 tests[22m [2m|[22m [31m5 failed[39m[2m)[22m[33m 582[2mms[22m[39m
+[31m   [33m❯[31m src/__tests__/integration/groupD.integration.test.ts[2m > [22mGroup D Integration Tests[2m > [22mD1 → Transactions → D6/D7: COA Wizard to Financial Reports[2m > [22mshould create accounts from wizard, record transactions, and generate accurate reports[39m
+[31m     → expected false to be true // Object.is equality[39m
+[31m   [33m❯[31m src/__tests__/integration/groupD.integration.test.ts[2m > [22mGroup D Integration Tests[2m > [22mD2: Bank Reconciliation with Transactions[2m > [22mshould handle unmatched transactions in reconciliation[39m
+[31m     → expected true to be false // Object.is equality[39m
+[31m   [33m❯[31m src/__tests__/integration/groupD.integration.test.ts[2m > [22mGroup D Integration Tests[2m > [22mD3: Weekly Email Summary with Checklist[2m > [22mshould generate DISC-adapted email content from checklist data[39m
+[31m     → expected undefined not to be undefined[39m
+[31m   [33m❯[31m src/__tests__/integration/groupD.integration.test.ts[2m > [22mGroup D Integration Tests[2m > [22mAudit Trail Creation[2m > [22mshould create audit logs for account and transaction operations[39m
+[31m     → expected false to be true // Object.is equality[39m
+[31m   [33m❯[31m src/__tests__/integration/groupD.integration.test.ts[2m > [22mGroup D Integration Tests[2m > [22mEnd-to-End Group D Feature Flow[2m > [22mshould complete full workflow: Setup → Record → Reconcile → Report[39m
+[31m     → expected false to be true // Object.is equality[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 5 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/__tests__/integration/groupD.integration.test.ts[2m > [22mGroup D Integration Tests[2m > [22mD1 → Transactions → D6/D7: COA Wizard to Financial Reports[2m > [22mshould create accounts from wizard, record transactions, and generate accurate reports
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/__tests__/integration/groupD.integration.test.ts:[2m288:39[22m[39m
+    [90m286| [39m        entityType[33m:[39m [32m'account'[39m[33m,[39m
+    [90m287| [39m      })
+    [90m288| [39m      [34mexpect[39m(auditLogsResult[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)
+    [90m   | [39m                                      [31m^[39m
+    [90m289| [39m      [35mif[39m ([33m![39mauditLogsResult[33m.[39msuccess) [35mthrow[39m [35mnew[39m [33mError[39m(auditLogsResult[33m.[39mer…
+    [90m290| [39m      [34mexpect[39m(auditLogsResult[33m.[39mdata[33m.[39mlength)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/__tests__/integration/groupD.integration.test.ts[2m > [22mGroup D Integration Tests[2m > [22mD2: Bank Reconciliation with Transactions[2m > [22mshould handle unmatched transactions in reconciliation
+[31m[1mAssertionError[22m: expected true to be false // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+[36m [2m❯[22m src/__tests__/integration/groupD.integration.test.ts:[2m537:34[22m[39m
+    [90m535| [39m      [34mexpect[39m(summary[33m.[39munmatchedStatementCount)[33m.[39m[34mtoBe[39m([34m2[39m) [90m// 2 unmatched f[39m…
+    [90m536| [39m      [34mexpect[39m(summary[33m.[39mmatchRate)[33m.[39m[34mtoBeLessThan[39m([34m100[39m)
+    [90m537| [39m      [34mexpect[39m(summary[33m.[39misBalanced)[33m.[39m[34mtoBe[39m([35mfalse[39m)
+    [90m   | [39m                                 [31m^[39m
+    [90m538| [39m    })
+    [90m539| [39m  })
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/__tests__/integration/groupD.integration.test.ts[2m > [22mGroup D Integration Tests[2m > [22mD3: Weekly Email Summary with Checklist[2m > [22mshould generate DISC-adapted email content from checklist data
+[31m[1mAssertionError[22m: expected undefined not to be undefined[39m
+[36m [2m❯[22m src/__tests__/integration/groupD.integration.test.ts:[2m826:32[22m[39m
+    [90m824| [39m        s [33m=>[39m s[33m.[39mtype [33m===[39m [32m'checklist-summary'[39m
+    [90m825| [39m      )
+    [90m826| [39m      [34mexpect[39m(checklistSection)[33m.[39m[34mtoBeDefined[39m()
+    [90m   | [39m                               [31m^[39m
+    [90m827| [39m      [34mexpect[39m(checklistSection[33m?.[39mitems)[33m.[39m[34mtoBeDefined[39m()
+    [90m828| [39m      [34mexpect[39m(checklistSection[33m?.[39mitems[33m![39m[33m.[39mlength)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/__tests__/integration/groupD.integration.test.ts[2m > [22mGroup D Integration Tests[2m > [22mAudit Trail Creation[2m > [22mshould create audit logs for account and transaction operations
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/__tests__/integration/groupD.integration.test.ts:[2m1056:33[22m[39m
+    [90m1054| [39m      [90m// STEP 3: Query audit logs[39m
+    [90m1055| [39m      [35mconst[39m auditLogs [33m=[39m [35mawait[39m [34mqueryAuditLogs[39m({ companyId[33m:[39m testCompanyI…
+    [90m1056| [39m      [34mexpect[39m(auditLogs[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)
+    [90m   | [39m                                [31m^[39m
+    [90m1057| [39m      [35mif[39m ([33m![39mauditLogs[33m.[39msuccess) [35mthrow[39m [35mnew[39m [33mError[39m(auditLogs[33m.[39merror[33m.[39mmessage)
+    [90m1058| [39m      [34mexpect[39m(auditLogs[33m.[39mdata[33m.[39mlength)[33m.[39m[34mtoBeGreaterThanOrEqual[39m([34m2[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/__tests__/integration/groupD.integration.test.ts[2m > [22mGroup D Integration Tests[2m > [22mEnd-to-End Group D Feature Flow[2m > [22mshould complete full workflow: Setup → Record → Reconcile → Report
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/__tests__/integration/groupD.integration.test.ts:[2m1198:33[22m[39m
+    [90m1196| [39m      [90m// STEP 6: Verify audit trail exists for all operations[39m
+    [90m1197| [39m      [35mconst[39m auditLogs [33m=[39m [35mawait[39m [34mqueryAuditLogs[39m({ companyId[33m:[39m testCompanyI…
+    [90m1198| [39m      [34mexpect[39m(auditLogs[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)
+    [90m   | [39m                                [31m^[39m
+    [90m1199| [39m      [35mif[39m ([33m![39mauditLogs[33m.[39msuccess) [35mthrow[39m [35mnew[39m [33mError[39m(auditLogs[33m.[39merror[33m.[39mmessage)
+    [90m1200| [39m      [90m// Should have logs for accounts, transactions, vendor, etc.[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m6 passed[39m[22m[90m (11)[39m
+[2m   Start at [22m 16:02:37
+[2m   Duration [22m 11.88s[2m (transform 837ms, setup 2.43s, collect 2.28s, tests 582ms, environment 4.24s, prepare 1.00s)[22m
+

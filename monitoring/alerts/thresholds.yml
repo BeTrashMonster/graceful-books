@@ -1,0 +1,297 @@
+# Alert Thresholds Configuration
+#
+# Carefully tuned thresholds to minimize alert fatigue while catching
+# real issues. Thresholds are based on SLA targets and historical data.
+#
+# Philosophy:
+# - Critical: Immediate action required, affects users now
+# - High: Needs attention within 1 hour, may affect users soon
+# - Medium: Should investigate within 4 hours
+# - Low: Monitor, may need attention within 24 hours
+# - Info: FYI, no action needed
+
+# Application Performance
+performance:
+  # Response Time Thresholds
+  response_time:
+    # p50 (median) - half of requests should be this fast
+    p50:
+      target: 500ms
+      warning: 1000ms    # Medium alert
+      critical: 2000ms   # High alert
+
+    # p95 - 95% of requests should be this fast
+    p95:
+      target: 1000ms
+      warning: 2000ms    # Medium alert
+      critical: 3000ms   # High alert
+
+    # p99 - 99% of requests should be this fast
+    p99:
+      target: 2000ms
+      warning: 3000ms    # Medium alert
+      critical: 5000ms   # Critical alert
+
+  # Error Rate Thresholds
+  error_rate:
+    # Overall error rate (all endpoints)
+    overall:
+      target: 0.1%       # < 0.1% errors
+      warning: 1%        # Medium alert
+      critical: 5%       # Critical alert
+
+    # Per-endpoint error rate
+    endpoint:
+      target: 0.5%
+      warning: 2%        # Medium alert
+      critical: 10%      # High alert
+
+  # Throughput Thresholds
+  throughput:
+    # Requests per minute
+    min_rpm:
+      warning: 10        # Low alert if < 10 rpm (possible outage)
+      critical: 1        # Critical alert if < 1 rpm
+
+    # Sudden spike detection (% increase)
+    spike_threshold:
+      warning: 300%      # Medium alert if 3x normal
+      critical: 500%     # High alert if 5x normal (DDoS?)
+
+# Uptime & Availability
+availability:
+  # Uptime percentage (rolling 30 days)
+  uptime_sla:
+    target: 99.9%        # SLA target
+    warning: 99.5%       # Medium alert
+    critical: 99.0%      # Critical alert
+
+  # Consecutive failed health checks
+  health_check_failures:
+    warning: 2           # Medium alert after 2 failures
+    critical: 3          # Critical alert after 3 failures
+
+  # SSL certificate expiry
+  ssl_expiry_days:
+    warning: 30          # Medium alert at 30 days
+    critical: 14         # High alert at 14 days
+
+# Sync Relay Specific
+sync_relay:
+  # Sync operation duration
+  sync_duration:
+    p50:
+      target: 500ms
+      warning: 1000ms    # Medium alert
+      critical: 2000ms   # High alert
+
+    p95:
+      target: 1000ms
+      warning: 2000ms    # Medium alert
+      critical: 5000ms   # Critical alert
+
+  # Sync success rate
+  sync_success_rate:
+    target: 99.5%
+    warning: 98%         # Medium alert
+    critical: 95%        # Critical alert
+
+  # Queue depth (items waiting to be synced)
+  queue_depth:
+    warning: 100         # Medium alert
+    critical: 500        # High alert
+
+  # Active connections
+  active_connections:
+    min_warning: 5       # Low alert if < 5 connections
+    max_warning: 1000    # Medium alert if > 1000 connections
+
+  # Data sync rate (MB/min)
+  data_sync_rate:
+    max_warning: 100     # Medium alert if > 100 MB/min
+    max_critical: 500    # High alert if > 500 MB/min
+
+# Database
+database:
+  # Query response time
+  query_time:
+    p50:
+      target: 50ms
+      warning: 100ms     # Medium alert
+      critical: 300ms    # High alert
+
+    p95:
+      target: 100ms
+      warning: 300ms     # Medium alert
+      critical: 500ms    # Critical alert
+
+  # Connection pool
+  connection_pool:
+    usage_warning: 70%   # Medium alert at 70% utilization
+    usage_critical: 90%  # High alert at 90% utilization
+
+  # Failed queries
+  query_error_rate:
+    warning: 1%          # Medium alert
+    critical: 5%         # Critical alert
+
+  # Replica lag (for multi-region)
+  replica_lag:
+    warning: 5000ms      # Medium alert at 5s lag
+    critical: 10000ms    # High alert at 10s lag
+
+# Infrastructure
+infrastructure:
+  # CPU usage
+  cpu_usage:
+    warning: 70%         # Medium alert
+    critical: 90%        # High alert
+
+  # Memory usage
+  memory_usage:
+    warning: 80%         # Medium alert
+    critical: 95%        # Critical alert
+
+  # Worker CPU time (Cloudflare Workers limit: 50ms)
+  worker_cpu_time:
+    warning: 30ms        # Medium alert
+    critical: 45ms       # High alert (close to limit)
+
+  # Disk usage (if applicable)
+  disk_usage:
+    warning: 80%         # Medium alert
+    critical: 90%        # High alert
+
+# Rate Limiting
+rate_limiting:
+  # Rate limit hits per minute
+  hits_per_minute:
+    warning: 100         # Medium alert (possible attack)
+    critical: 500        # High alert (likely attack)
+
+  # Unique IPs being rate limited
+  unique_ips_limited:
+    warning: 10          # Low alert
+    critical: 50         # Medium alert
+
+# Security
+security:
+  # Failed authentication attempts
+  auth_failures:
+    per_minute:
+      warning: 10        # Medium alert
+      critical: 50       # High alert (brute force?)
+
+    per_ip_per_hour:
+      warning: 5         # Low alert
+      critical: 20       # Medium alert
+
+  # WAF blocks
+  waf_blocks:
+    per_minute:
+      warning: 10        # Low alert
+      critical: 100      # Medium alert (attack?)
+
+# Cache Performance
+cache:
+  # Cache hit rate
+  hit_rate:
+    target: 80%
+    warning: 60%         # Medium alert
+    critical: 40%        # High alert
+
+  # Cache eviction rate
+  eviction_rate:
+    warning: 100/min     # Medium alert
+    critical: 500/min    # High alert
+
+# Alert Suppression
+suppression:
+  # Don't alert during maintenance windows
+  maintenance_windows:
+    - name: "Weekly Maintenance"
+      schedule: "Sunday 02:00-03:00 UTC"
+
+    - name: "Monthly Patching"
+      schedule: "First Sunday 02:00-04:00 UTC"
+
+  # Deduplication window (don't send same alert within this time)
+  deduplication:
+    critical: 5min       # Can re-alert critical every 5 min
+    high: 15min          # Can re-alert high every 15 min
+    medium: 30min        # Can re-alert medium every 30 min
+    low: 1hour           # Can re-alert low every hour
+    info: 24hours        # Can re-alert info once per day
+
+  # Aggregation window (combine similar alerts)
+  aggregation:
+    enabled: true
+    window: 5min         # Combine alerts within 5 minutes
+    max_alerts: 3        # Send aggregated alert after 3 similar alerts
+
+# Escalation Rules
+escalation:
+  # Critical alerts
+  critical:
+    - delay: 0min
+      notify:
+        - pagerduty
+        - slack_engineering
+
+    - delay: 5min        # Escalate if not acknowledged
+      notify:
+        - pagerduty      # Page again
+        - email_oncall
+
+    - delay: 15min       # Escalate further
+      notify:
+        - pagerduty
+        - email_leadership
+
+  # High severity alerts
+  high:
+    - delay: 0min
+      notify:
+        - slack_engineering
+        - email_oncall
+
+    - delay: 30min       # Escalate if not resolved
+      notify:
+        - pagerduty
+        - email_leadership
+
+  # Medium severity alerts
+  medium:
+    - delay: 0min
+      notify:
+        - slack_engineering
+
+    - delay: 4hours      # Escalate if not resolved
+      notify:
+        - email_oncall
+
+  # Low severity alerts
+  low:
+    - delay: 0min
+      notify:
+        - email_engineering
+
+# Threshold Adjustment Guidelines
+#
+# These thresholds should be reviewed and adjusted based on:
+# 1. Historical data (p50, p95, p99 from actual traffic)
+# 2. Alert frequency (too many false positives? raise threshold)
+# 3. Missed incidents (real issues not caught? lower threshold)
+# 4. Business impact (user complaints? tighten thresholds)
+#
+# Review schedule:
+# - Weekly: Review alert frequency and false positive rate
+# - Monthly: Adjust thresholds based on historical data
+# - Quarterly: Major review of all thresholds
+#
+# Alert Fatigue Prevention:
+# - Each alert should be actionable
+# - If you ignore an alert regularly, remove or adjust it
+# - Aggregate similar alerts to reduce noise
+# - Use intelligent deduplication
+# - Respect on-call hours (non-critical alerts wait until business hours)

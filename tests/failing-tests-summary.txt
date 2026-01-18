@@ -1,0 +1,8 @@
+ ❯ src/services/reports/arAgingReport.service.test.ts  (16 tests | 13 failed) 117ms
+ ❯ src/services/journalEntries.service.test.ts  (20 tests | 1 failed) 135ms
+ ❯ src/services/journalEntries.integration.test.ts  (9 tests | 1 failed) 74ms
+ ❯ src/components/dashboard/OverdueInvoicesWidget.test.tsx  (33 tests | 21 failed) 1374ms
+ ❯ src/services/email/followUpTemplates.service.test.ts  (33 tests | 2 failed) 76ms
+ ❯ src/components/dashboard/RevenueExpensesChart.test.tsx  (42 tests | 30 failed) 872ms
+ ❯ src/__tests__/integration/ap-aging-report.integration.test.ts  (6 tests | 1 failed) 687ms
+ ❯ src/components/dashboard/CashPositionWidget.test.tsx  (30 tests | 18 failed) 799ms

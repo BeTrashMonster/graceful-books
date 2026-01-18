@@ -1,0 +1,61 @@
+# Cloudflare Workers configuration for Graceful Books Sync Relay
+# Requirements: ARCH-003, H8
+
+name = "graceful-books-sync-relay"
+main = "src/index.ts"
+compatibility_date = "2024-01-15"
+node_compat = true
+
+# Default configuration (development)
+[env.dev]
+name = "graceful-books-sync-relay-dev"
+vars = { ENVIRONMENT = "development" }
+
+# Staging environment
+[env.staging]
+name = "graceful-books-sync-relay-staging"
+vars = { ENVIRONMENT = "staging" }
+routes = [
+  { pattern = "sync-staging.gracefulbooks.com/*", zone_name = "gracefulbooks.com" }
+]
+
+# Production environment
+[env.production]
+name = "graceful-books-sync-relay"
+vars = { ENVIRONMENT = "production" }
+routes = [
+  { pattern = "sync.gracefulbooks.com/*", zone_name = "gracefulbooks.com" },
+  { pattern = "sync-us.gracefulbooks.com/*", zone_name = "gracefulbooks.com" },
+  { pattern = "sync-eu.gracefulbooks.com/*", zone_name = "gracefulbooks.com" },
+  { pattern = "sync-ap.gracefulbooks.com/*", zone_name = "gracefulbooks.com" }
+]
+
+# Turso database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "graceful-books-sync"
+database_id = "REPLACE_WITH_ACTUAL_DATABASE_ID"
+
+# KV namespace for rate limiting and caching
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "REPLACE_WITH_KV_ID"
+preview_id = "REPLACE_WITH_PREVIEW_KV_ID"
+
+# Analytics binding for SLA tracking
+[analytics_engine_datasets]
+binding = "ANALYTICS"
+
+# Durable Objects for WebSocket coordination
+[[durable_objects.bindings]]
+name = "SYNC_SESSIONS"
+class_name = "SyncSession"
+script_name = "graceful-books-sync-relay"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["SyncSession"]
+
+# Limits
+[limits]
+cpu_ms = 50  # 50ms CPU time per request

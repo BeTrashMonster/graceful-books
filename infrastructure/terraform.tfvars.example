@@ -1,0 +1,60 @@
+# Example Terraform Variables for Graceful Books Infrastructure
+# Copy this file to terraform.tfvars and update with your actual values
+# NEVER commit terraform.tfvars to version control!
+
+# Cloudflare Configuration
+cloudflare_account_name = "your-cloudflare-account-name"
+cloudflare_plan         = "pro" # or "free", "business", "enterprise"
+
+# Domain Configuration
+domain_name = "gracefulbooks.com"
+create_zone = false # Set to true if zone doesn't exist yet
+
+# GitHub Integration
+github_org  = "gracefulbooks"
+github_repo = "graceful-books"
+
+# Environment
+environment  = "production"
+node_version = "18"
+
+# Alerting
+alert_email = "alerts@gracefulbooks.com"
+
+# Feature Flags
+enable_argo          = false # Requires Business+ plan
+enable_load_balancer = true
+enable_waf           = true
+
+# Sync Relay Configuration
+sync_relay_regions = ["us", "eu", "ap"]
+
+# R2 Storage
+r2_asset_bucket_name     = "graceful-books-assets"
+r2_backup_bucket_name    = "graceful-books-backups"
+r2_backup_retention_days = 90
+
+# Security Configuration
+trusted_ips = [
+  # "1.2.3.4", # Example: Your office IP
+]
+min_tls_version = "1.3"
+
+# Rate Limiting
+api_rate_limit_per_minute  = 60
+auth_rate_limit_per_5min   = 5
+
+# Performance
+browser_cache_ttl = 14400   # 4 hours
+edge_cache_ttl    = 2592000 # 30 days
+
+# Worker Limits
+worker_cpu_limit_ms    = 50
+worker_memory_limit_mb = 128
+
+# Tags
+tags = {
+  Project     = "Graceful Books"
+  ManagedBy   = "Terraform"
+  Environment = "production"
+}

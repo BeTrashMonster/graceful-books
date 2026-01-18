@@ -1,0 +1,50 @@
+[90mstdout[2m | src/store/emailPreferences.test.ts[2m > [22m[2mEmail Preferences Store[2m > [22m[2mupdateEmailDeliveryStatus[2m > [22m[2mshould update status to failed with reason[22m[39m
+[90mstdout[2m | src/store/emailPreferences.test.ts[2m > [22m[2mEmail Preferences Store[2m > [22m[2mupdateEmailDeliveryStatus[2m > [22m[2mshould update status to failed with reason[22m[39m
+ [32m✓[39m src/store/emailPreferences.test.ts[2m > [22mEmail Preferences Store[2m > [22mupdateEmailDeliveryStatus[2m > [22mshould update status to failed with reason
+ [32m✓[39m src/services/ocr/billOcr.service.test.ts[2m > [22mBillOCRService[2m > [22mlearnFromCorrection[2m > [22mshould track failed patterns
+ [32m✓[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mlearnFromCorrection[2m > [22mshould track failed patterns
+ [32m✓[39m src/sync/syncQueue.test.ts[2m > [22mSyncQueue[2m > [22mmarkFailed[2m > [22mshould set to failed after max retries
+ [32m✓[39m src/sync/syncQueue.test.ts[2m > [22mSyncQueue[2m > [22mretry[2m > [22mshould reset failed item to pending
+ [32m✓[39m src/sync/syncQueue.test.ts[2m > [22mSyncQueue[2m > [22mretryAll[2m > [22mshould retry all failed items
+ [32m✓[39m src/sync/syncClient.test.ts[2m > [22mSyncClient[2m > [22mretryFailed[2m > [22mshould retry failed queue items
+[31m[1m[7m FAIL [27m[22m[39m src/services/auditLogExtended.perf.test.ts[2m > [22mExtended Audit Log Performance Tests
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mpreprocessImage
+[31m[1m[7m FAIL [27m[22m[39m src/crypto/keyDerivation.test.ts[2m > [22mKey Derivation Module[2m > [22mverifyPassphrase[2m > [22mshould verify correct passphrase
+[31m[1m[7m FAIL [27m[22m[39m src/crypto/keyDerivation.test.ts[2m > [22mKey Derivation Module[2m > [22mverifyPassphrase[2m > [22mshould reject incorrect passphrase
+[31m[1m[7m FAIL [27m[22m[39m src/crypto/keyDerivation.test.ts[2m > [22mKey Derivation Module[2m > [22mverifyPassphrase[2m > [22mshould use constant-time comparison
+[31m[1m[7m FAIL [27m[22m[39m src/crypto/keyDerivation.test.ts[2m > [22mKey Derivation Module[2m > [22msecurity properties[2m > [22mshould resist rainbow table attacks (unique salt per key)
+[31m[1m[7m FAIL [27m[22m[39m src/crypto/keyDerivation.test.ts[2m > [22mKey Derivation Module[2m > [22medge cases[2m > [22mshould treat similar passphrases as different
+[31m[1m[7m FAIL [27m[22m[39m src/services/auditLogExtended.test.ts[2m > [22mExtended Audit Log Service[2m > [22mPerformance Tests[2m > [22mshould handle 1,000 entries efficiently
+[31m[1m[7m FAIL [27m[22m[39m src/api/__tests__/relayClient.test.ts[2m > [22mRelayClient - Timeout Handling[2m > [22mshould timeout long requests
+[31m[1m[7m FAIL [27m[22m[39m src/components/accounts/AccountForm.test.tsx[2m > [22mAccountForm Component[2m > [22mform submission[2m > [22mshould submit valid form data
+[31m[1m[7m FAIL [27m[22m[39m src/components/accounts/AccountForm.test.tsx[2m > [22mAccountForm Component[2m > [22mform submission[2m > [22mshould submit with parent account
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/billOcr.integration.test.ts[2m > [22mBillOCRService Integration Tests[2m > [22mFull OCR workflow[2m > [22mshould process bill image end-to-end
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/billOcr.integration.test.ts[2m > [22mBillOCRService Integration Tests[2m > [22mFull OCR workflow[2m > [22mshould extract vendor information correctly
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/billOcr.integration.test.ts[2m > [22mBillOCRService Integration Tests[2m > [22mFull OCR workflow[2m > [22mshould extract invoice details correctly
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/billOcr.integration.test.ts[2m > [22mBillOCRService Integration Tests[2m > [22mFull OCR workflow[2m > [22mshould extract total amount correctly
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/billOcr.integration.test.ts[2m > [22mBillOCRService Integration Tests[2m > [22mFull OCR workflow[2m > [22mshould extract payment terms correctly
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/billOcr.integration.test.ts[2m > [22mBillOCRService Integration Tests[2m > [22mFull OCR workflow[2m > [22mshould extract line items when requested
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/billOcr.integration.test.ts[2m > [22mBillOCRService Integration Tests[2m > [22mConfidence scoring[2m > [22mshould assign high confidence to complete bills
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/billOcr.integration.test.ts[2m > [22mBillOCRService Integration Tests[2m > [22mConfidence scoring[2m > [22mshould flag low confidence for manual review
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/billOcr.integration.test.ts[2m > [22mBillOCRService Integration Tests[2m > [22mError handling[2m > [22mshould handle invalid image data gracefully
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/billOcr.integration.test.ts[2m > [22mBillOCRService Integration Tests[2m > [22mPerformance[2m > [22mshould process bill within reasonable time
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/billOcr.service.test.ts[2m > [22mBillOCRService[2m > [22massessImageQuality[2m > [22mshould assess image quality in test environment
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/billOcr.service.test.ts[2m > [22mBillOCRService[2m > [22massessImageQuality[2m > [22mshould return acceptable quality in test environment
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/billOcr.service.test.ts[2m > [22mBillOCRService[2m > [22mpreprocessImage[2m > [22mshould preprocess image in test environment
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/billOcr.service.test.ts[2m > [22mBillOCRService[2m > [22mpreprocessImage[2m > [22mshould return unmodified data in test environment
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22massessImageQuality[2m > [22mshould reject invalid image format
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mprocessReceiptImage[2m > [22mshould extract structured data from receipt (mocked)
+[31m[1m[7m FAIL [27m[22m[39m src/services/auditLogExtended.test.ts[2m > [22mExtended Audit Log Service[2m > [22mPerformance Tests[2m > [22mshould handle 10,000 entries efficiently
+[31m[1m[7m FAIL [27m[22m[39m src/services/auditLogExtended.test.ts[2m > [22mExtended Audit Log Service[2m > [22mPerformance Tests[2m > [22mshould handle timeline generation with large datasets
+[31m[1m[7m FAIL [27m[22m[39m src/services/consolidatedInvoicing.service.test.ts[2m > [22mConsolidatedInvoicing Service[2m > [22mgetSubAccountOrders[2m > [22mshould return empty array if no pending orders
+[31m[1m[7m FAIL [27m[22m[39m src/services/consolidatedInvoicing.service.test.ts[2m > [22mConsolidatedInvoicing Service[2m > [22mcalculateConsolidatedTotal[2m > [22mshould calculate total across all sub-accounts without tax
+[31m[1m[7m FAIL [27m[22m[39m src/services/consolidatedInvoicing.service.test.ts[2m > [22mConsolidatedInvoicing Service[2m > [22mcalculateConsolidatedTotal[2m > [22mshould calculate total with tax rate
+[31m[1m[7m FAIL [27m[22m[39m src/services/consolidatedInvoicing.service.test.ts[2m > [22mConsolidatedInvoicing Service[2m > [22mgenerateConsolidatedInvoicePreview[2m > [22mshould generate preview for itemized mode
+[31m[1m[7m FAIL [27m[22m[39m src/services/consolidatedInvoicing.service.test.ts[2m > [22mConsolidatedInvoicing Service[2m > [22mgenerateConsolidatedInvoicePreview[2m > [22mshould generate preview for summarized mode
+[31m[1m[7m FAIL [27m[22m[39m src/services/consolidatedInvoicing.service.test.ts[2m > [22mConsolidatedInvoicing Service[2m > [22mgenerateConsolidatedInvoicePreview[2m > [22mshould apply tax rate in preview
+[31m[1m[7m FAIL [27m[22m[39m src/services/consolidatedInvoicing.service.test.ts[2m > [22mConsolidatedInvoicing Service[2m > [22mcreateConsolidatedInvoice[2m > [22mshould create consolidated invoice successfully
+[31m[1m[7m FAIL [27m[22m[39m src/services/consolidatedInvoicing.service.test.ts[2m > [22mConsolidatedInvoicing Service[2m > [22mcreateConsolidatedInvoice[2m > [22mshould throw error if no line items found
+[31m[1m[7m FAIL [27m[22m[39m src/services/contactsHierarchy.integration.test.ts[2m > [22mContactsHierarchy Integration Tests[2m > [22mMulti-Level Hierarchies[2m > [22mshould handle complex branching hierarchies
+[31m[1m[7m FAIL [27m[22m[39m src/services/contactsHierarchy.integration.test.ts[2m > [22mContactsHierarchy Integration Tests[2m > [22mEdge Cases[2m > [22mshould handle inactive contacts in hierarchy
+[31m[1m[7m FAIL [27m[22m[39m src/services/products.integration.test.ts[2m > [22mProductsService Integration Tests[2m > [22mProduct-Category Integration[2m > [22mshould manage products within categories
+[31m[1m[7m FAIL [27m[22m[39m src/services/products.integration.test.ts[2m > [22mProductsService Integration Tests[2m > [22mMulti-Tier Pricing Integration[2m > [22mshould handle complex pricing scenarios

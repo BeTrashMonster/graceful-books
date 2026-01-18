@@ -1,0 +1,359 @@
+# External Uptime Monitoring Configuration
+#
+# This configuration can be used with:
+# - UptimeRobot (https://uptimerobot.com)
+# - Better Stack (https://betterstack.com)
+# - Pingdom (https://www.pingdom.com)
+#
+# Monitors all critical endpoints across regions to detect outages
+# before users are affected.
+
+# Monitor Configuration
+monitors:
+  # Frontend Application
+  - name: Graceful Books - Frontend (Global)
+    type: HTTP
+    url: https://gracefulbooks.com
+    interval: 60 # Check every 60 seconds
+    timeout: 30 # Timeout after 30 seconds
+    method: GET
+    expected_status: 200
+    alert_threshold: 2 # Alert after 2 consecutive failures
+    locations:
+      - us-east
+      - us-west
+      - eu-west
+      - ap-southeast
+    ssl_check: true
+    ssl_expiry_alert: 14 # Alert 14 days before expiry
+    headers:
+      User-Agent: "GracefulBooks-Uptime-Monitor/1.0"
+
+  # Sync Relay - US Region
+  - name: Graceful Books - Sync Relay (US)
+    type: HTTP
+    url: https://sync-us.gracefulbooks.com/health
+    interval: 60
+    timeout: 10
+    method: GET
+    expected_status: 200
+    expected_response:
+      contains: '"status":"healthy"'
+    alert_threshold: 2
+    locations:
+      - us-east
+      - us-west
+
+  # Sync Relay - EU Region
+  - name: Graceful Books - Sync Relay (EU)
+    type: HTTP
+    url: https://sync-eu.gracefulbooks.com/health
+    interval: 60
+    timeout: 10
+    method: GET
+    expected_status: 200
+    expected_response:
+      contains: '"status":"healthy"'
+    alert_threshold: 2
+    locations:
+      - eu-west
+      - eu-central
+
+  # Sync Relay - AP Region
+  - name: Graceful Books - Sync Relay (AP)
+    type: HTTP
+    url: https://sync-ap.gracefulbooks.com/health
+    interval: 60
+    timeout: 10
+    method: GET
+    expected_status: 200
+    expected_response:
+      contains: '"status":"healthy"'
+    alert_threshold: 2
+    locations:
+      - ap-southeast
+      - ap-northeast
+
+  # Sync Relay - Global (Geo-routed)
+  - name: Graceful Books - Sync Relay (Global)
+    type: HTTP
+    url: https://sync.gracefulbooks.com/health
+    interval: 60
+    timeout: 10
+    method: GET
+    expected_status: 200
+    alert_threshold: 3 # Higher threshold for geo-routed (can fail over)
+    locations:
+      - us-east
+      - eu-west
+      - ap-southeast
+
+  # API Health Check
+  - name: Graceful Books - API Health
+    type: HTTP
+    url: https://sync.gracefulbooks.com/health
+    interval: 60
+    timeout: 10
+    method: GET
+    expected_status: 200
+    expected_response:
+      json:
+        status: healthy
+        database: connected
+    alert_threshold: 2
+
+  # SLA Metrics Endpoint
+  - name: Graceful Books - SLA Metrics
+    type: HTTP
+    url: https://sync.gracefulbooks.com/metrics/sla
+    interval: 300 # Check every 5 minutes
+    timeout: 10
+    method: GET
+    expected_status: 200
+    expected_response:
+      json_property:
+        - path: uptime
+          operator: ">="
+          value: 99.9
+    alert_threshold: 1
+
+  # SSL Certificate Monitoring
+  - name: Graceful Books - SSL Certificate
+    type: SSL
+    url: gracefulbooks.com
+    interval: 86400 # Check daily
+    ssl_expiry_alert: 30 # Alert 30 days before expiry
+    ssl_check_enabled: true
+
+  # DNS Monitoring
+  - name: Graceful Books - DNS Resolution
+    type: DNS
+    hostname: gracefulbooks.com
+    interval: 300 # Check every 5 minutes
+    expected_ips:
+      - 104.21.0.0/20 # Cloudflare IP range
+      - 172.64.0.0/13 # Cloudflare IP range
+    dns_servers:
+      - 1.1.1.1 # Cloudflare DNS
+      - 8.8.8.8 # Google DNS
+
+# Alert Contacts
+alert_contacts:
+  # Primary On-Call (High Priority)
+  - name: On-Call Team
+    type: pagerduty
+    integration_key: ${PAGERDUTY_INTEGRATION_KEY}
+    priority: high
+    notify_for:
+      - down
+      - ssl_expiry
+      - performance_degraded
+
+  # Engineering Team (Medium Priority)
+  - name: Engineering Slack
+    type: slack
+    webhook_url: ${SLACK_WEBHOOK_ENGINEERING}
+    priority: medium
+    notify_for:
+      - down
+      - up
+      - ssl_expiry
+      - performance_degraded
+
+  # DevOps Team (All Alerts)
+  - name: DevOps Email
+    type: email
+    email: devops@gracefulbooks.com
+    priority: low
+    notify_for:
+      - down
+      - up
+      - ssl_expiry
+
+# Alert Rules
+alert_rules:
+  # Critical: Complete outage
+  - name: Critical Outage
+    condition:
+      type: down
+      consecutive_failures: 2
+    severity: critical
+    escalation:
+      - delay: 0
+        contacts:
+          - On-Call Team
+          - Engineering Slack
+      - delay: 300 # 5 minutes
+        contacts:
+          - On-Call Team # Escalate again
+      - delay: 900 # 15 minutes
+        contacts:
+          - DevOps Email
+
+  # High: Performance degradation
+  - name: Performance Degradation
+    condition:
+      type: slow_response
+      threshold_ms: 2000
+      consecutive_failures: 3
+    severity: high
+    escalation:
+      - delay: 0
+        contacts:
+          - Engineering Slack
+      - delay: 600 # 10 minutes
+        contacts:
+          - On-Call Team
+
+  # Medium: SSL expiring soon
+  - name: SSL Certificate Expiring
+    condition:
+      type: ssl_expiry
+      days_remaining: 14
+    severity: medium
+    escalation:
+      - delay: 0
+        contacts:
+          - Engineering Slack
+          - DevOps Email
+
+  # Low: Recovery notification
+  - name: Service Recovered
+    condition:
+      type: up
+      after_down: true
+    severity: info
+    escalation:
+      - delay: 0
+        contacts:
+          - Engineering Slack
+          - DevOps Email
+
+# Performance Thresholds
+performance_thresholds:
+  # Frontend
+  frontend:
+    response_time_p50: 1000 # 1 second
+    response_time_p95: 2000 # 2 seconds
+    response_time_p99: 3000 # 3 seconds
+    availability: 99.9 # 99.9% uptime
+
+  # Sync Relay
+  sync_relay:
+    response_time_p50: 500 # 500ms
+    response_time_p95: 1000 # 1 second
+    response_time_p99: 2000 # 2 seconds
+    availability: 99.95 # 99.95% uptime
+
+  # Database
+  database:
+    response_time_p50: 100 # 100ms
+    response_time_p95: 300 # 300ms
+    response_time_p99: 500 # 500ms
+    availability: 99.99 # 99.99% uptime
+
+# Maintenance Windows
+# Disable alerts during scheduled maintenance
+maintenance_windows:
+  # Weekly maintenance window
+  - name: Weekly Maintenance
+    schedule:
+      day: Sunday
+      start_time: "02:00:00" # 2 AM UTC
+      duration_minutes: 60
+    affected_monitors:
+      - all
+
+  # Monthly patching window
+  - name: Monthly Patching
+    schedule:
+      week_of_month: 1 # First week
+      day: Sunday
+      start_time: "02:00:00"
+      duration_minutes: 120
+    affected_monitors:
+      - all
+
+# Reporting
+reporting:
+  # Daily summary email
+  daily_summary:
+    enabled: true
+    send_to:
+      - devops@gracefulbooks.com
+    send_time: "09:00:00" # 9 AM UTC
+
+  # Weekly detailed report
+  weekly_report:
+    enabled: true
+    send_to:
+      - devops@gracefulbooks.com
+      - engineering@gracefulbooks.com
+    send_day: Monday
+    send_time: "09:00:00"
+    include:
+      - uptime_percentage
+      - response_time_stats
+      - incident_summary
+      - performance_trends
+
+  # Monthly SLA report
+  monthly_sla:
+    enabled: true
+    send_to:
+      - leadership@gracefulbooks.com
+      - devops@gracefulbooks.com
+    send_day: 1 # First day of month
+    send_time: "09:00:00"
+    include:
+      - sla_compliance
+      - availability_by_region
+      - incident_postmortems
+      - cost_analysis
+
+# UptimeRobot Specific Configuration
+uptimerobot:
+  api_key: ${UPTIMEROBOT_API_KEY}
+  account_email: monitoring@gracefulbooks.com
+
+  # Create monitors via API
+  # See: https://uptimerobot.com/api/
+  create_monitors: true
+
+# Better Stack Specific Configuration
+betterstack:
+  api_token: ${BETTERSTACK_API_TOKEN}
+  team_name: graceful-books
+
+  # Integration settings
+  integrations:
+    slack: ${SLACK_WEBHOOK_ENGINEERING}
+    pagerduty: ${PAGERDUTY_INTEGRATION_KEY}
+
+# Pingdom Specific Configuration
+pingdom:
+  api_token: ${PINGDOM_API_TOKEN}
+  account_email: monitoring@gracefulbooks.com
+
+  # Transaction monitoring
+  transaction_checks:
+    - name: User Login Flow
+      script: |
+        # Navigate to login
+        go to https://gracefulbooks.com/login
+        # Enter credentials
+        fill in "email" with "test@example.com"
+        fill in "password" with "test-password"
+        # Submit
+        click "Login"
+        # Verify dashboard loads
+        wait for element ".dashboard"
+
+    - name: Create Transaction Flow
+      script: |
+        # Login first (prerequisite)
+        go to https://gracefulbooks.com/login
+        # Navigate to transactions
+        go to https://gracefulbooks.com/transactions/new
+        # Verify form loads
+        wait for element "form[name='transaction']"

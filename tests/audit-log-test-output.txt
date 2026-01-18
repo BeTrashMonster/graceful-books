@@ -1,0 +1,364 @@
+
+> graceful-books@0.1.0 test
+> vitest src/services/auditLogExtended.test.ts --run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/Admin/graceful_books[39m
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould return all logs when no filters applied[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould return all logs when no filters applied[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m50[39m, returned: [33m50[39m, executionTimeMs: [33m80.90489999999409[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould perform full-text search across fields[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, searchQuery: [32m'special'[39m }
+[AuditLogExtended] Audit log search completed { total: [33m1[39m, returned: [33m1[39m, executionTimeMs: [33m2.6569000000017695[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould filter by date range[22m[39m
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2026-01-15T06:37:55.324Z[39m,
+  dateTo: [35m2026-01-18T06:37:55.324Z[39m
+}
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould filter by date range[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m4[39m, returned: [33m4[39m, executionTimeMs: [33m2.920400000002701[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould filter by user IDs[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, userIds: [ [32m'user-1'[39m, [32m'user-2'[39m ] }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould filter by user IDs[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m34[39m, returned: [33m34[39m, executionTimeMs: [33m3.9389000000082888[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould filter by entity types[22m[39m
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  entityTypes: [ [32m'TRANSACTION'[39m, [32m'ACCOUNT'[39m ]
+}
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould filter by entity types[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m26[39m, returned: [33m26[39m, executionTimeMs: [33m138.46880000000237[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould filter by actions[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, actions: [ [32m'CREATE'[39m, [32m'UPDATE'[39m ] }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould filter by actions[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m18[39m, returned: [33m18[39m, executionTimeMs: [33m3.581399999995483[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould combine multiple filters[22m[39m
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2026-01-11T06:37:56.056Z[39m,
+  dateTo: [35m2026-01-18T06:37:56.056Z[39m,
+  userIds: [ [32m'user-1'[39m ],
+  entityTypes: [ [32m'TRANSACTION'[39m ],
+  actions: [ [32m'CREATE'[39m ]
+}
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould combine multiple filters[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m0[39m, returned: [33m0[39m, executionTimeMs: [33m162.64029999999912[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould paginate results correctly[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m50[39m, offset: [33m0[39m }
+[AuditLogExtended] Audit log search completed { total: [33m150[39m, returned: [33m50[39m, executionTimeMs: [33m13.248699999996461[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m50[39m, offset: [33m50[39m }
+[AuditLogExtended] Audit log search completed { total: [33m150[39m, returned: [33m50[39m, executionTimeMs: [33m9.501500000013039[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould sort results correctly[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, sortBy: [32m'timestamp'[39m, sortOrder: [32m'desc'[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2msearchAuditLogs[2m > [22m[2mshould sort results correctly[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m50[39m, returned: [33m50[39m, executionTimeMs: [33m2.948100000008708[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, sortBy: [32m'timestamp'[39m, sortOrder: [32m'asc'[39m }
+[AuditLogExtended] Audit log search completed { total: [33m50[39m, returned: [33m50[39m, executionTimeMs: [33m2.3369999999995343[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgetAuditLogsByDateRange[2m > [22m[2mshould return logs within date range[22m[39m
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2026-01-11T06:37:58.117Z[39m,
+  dateTo: [35m2026-01-18T06:37:58.117Z[39m,
+  limit: [90mundefined[39m,
+  sortBy: [32m'timestamp'[39m,
+  sortOrder: [32m'desc'[39m
+}
+[AuditLogExtended] Audit log search completed { total: [33m22[39m, returned: [33m22[39m, executionTimeMs: [33m4.781600000016624[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgetAuditLogsByUsers[2m > [22m[2mshould return logs for specific users[22m[39m
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  userIds: [ [32m'user-1'[39m ],
+  dateFrom: [90mundefined[39m,
+  dateTo: [90mundefined[39m,
+  sortBy: [32m'timestamp'[39m,
+  sortOrder: [32m'desc'[39m
+}
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgetAuditLogsByUsers[2m > [22m[2mshould return logs for specific users[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m34[39m, returned: [33m34[39m, executionTimeMs: [33m21.572199999995064[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgetAuditLogsByEntityType[2m > [22m[2mshould return logs for specific entity types[22m[39m
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  entityTypes: [ [32m'TRANSACTION'[39m ],
+  dateFrom: [90mundefined[39m,
+  dateTo: [90mundefined[39m,
+  sortBy: [32m'timestamp'[39m,
+  sortOrder: [32m'desc'[39m
+}
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgetAuditLogsByEntityType[2m > [22m[2mshould return logs for specific entity types[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m25[39m, returned: [33m25[39m, executionTimeMs: [33m21.671300000016345[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgenerateAuditLogTimeline[2m > [22m[2mshould group logs by day[22m[39m
+[AuditLogExtended] Generating audit log timeline {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-12-19T06:37:59.512Z[39m,
+  dateTo: [35m2026-01-18T06:37:59.512Z[39m,
+  groupBy: [32m'day'[39m
+}
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-12-19T06:37:59.512Z[39m,
+  dateTo: [35m2026-01-18T06:37:59.512Z[39m,
+  limit: [33m999999[39m,
+  sortBy: [32m'timestamp'[39m,
+  sortOrder: [32m'desc'[39m
+}
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgenerateAuditLogTimeline[2m > [22m[2mshould group logs by day[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m100[39m, returned: [33m100[39m, executionTimeMs: [33m205.85799999997835[39m }
+[AuditLogExtended] Timeline generation completed { entryCount: [33m30[39m, totalLogs: [33m100[39m, executionTimeMs: [33m209.52509999999893[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgenerateAuditLogTimeline[2m > [22m[2mshould group logs by hour[22m[39m
+[AuditLogExtended] Generating audit log timeline {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2026-01-17T08:00:00.000Z[39m,
+  dateTo: [35m2026-01-18T07:59:59.999Z[39m,
+  groupBy: [32m'hour'[39m
+}
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2026-01-17T08:00:00.000Z[39m,
+  dateTo: [35m2026-01-18T07:59:59.999Z[39m,
+  limit: [33m999999[39m,
+  sortBy: [32m'timestamp'[39m,
+  sortOrder: [32m'desc'[39m
+}
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgenerateAuditLogTimeline[2m > [22m[2mshould group logs by hour[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m24[39m, returned: [33m24[39m, executionTimeMs: [33m2.6890999999886844[39m }
+[AuditLogExtended] Timeline generation completed { entryCount: [33m24[39m, totalLogs: [33m24[39m, executionTimeMs: [33m3.5623999999952503[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgenerateAuditLogTimeline[2m > [22m[2mshould include action and entity type counts[22m[39m
+[AuditLogExtended] Generating audit log timeline {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2026-01-11T06:38:01.105Z[39m,
+  dateTo: [35m2026-01-18T06:38:01.105Z[39m,
+  groupBy: [32m'day'[39m
+}
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2026-01-11T06:38:01.105Z[39m,
+  dateTo: [35m2026-01-18T06:38:01.105Z[39m,
+  limit: [33m999999[39m,
+  sortBy: [32m'timestamp'[39m,
+  sortOrder: [32m'desc'[39m
+}
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgenerateAuditLogTimeline[2m > [22m[2mshould include action and entity type counts[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m11[39m, returned: [33m11[39m, executionTimeMs: [33m1.576600000000326[39m }
+[AuditLogExtended] Timeline generation completed { entryCount: [33m7[39m, totalLogs: [33m11[39m, executionTimeMs: [33m2.160100000008242[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mexportAuditLogsToCSV[2m > [22m[2mshould export logs to CSV format[22m[39m
+[AuditLogExtended] Starting CSV export { companyId: [32m'test-company'[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, offset: [90mundefined[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mexportAuditLogsToCSV[2m > [22m[2mshould export logs to CSV format[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m50[39m, returned: [33m50[39m, executionTimeMs: [33m13.926300000021001[39m }
+[AuditLogExtended] CSV export completed { recordCount: [33m50[39m, executionTimeMs: [33m15.213999999978114[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mexportAuditLogsToCSV[2m > [22m[2mshould handle empty results[22m[39m
+[AuditLogExtended] Starting CSV export { companyId: [32m'nonexistent-company'[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'nonexistent-company'[39m, offset: [90mundefined[39m }
+[AuditLogExtended] Audit log search completed { total: [33m0[39m, returned: [33m0[39m, executionTimeMs: [33m0.6356000000087079[39m }
+[AuditLogExtended] CSV export completed { recordCount: [33m0[39m, executionTimeMs: [33m1.1150000000197906[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mexportAuditLogsToCSV[2m > [22m[2mshould properly escape CSV values[22m[39m
+[AuditLogExtended] Starting CSV export { companyId: [32m'test-company'[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, offset: [90mundefined[39m }
+[AuditLogExtended] Audit log search completed { total: [33m1[39m, returned: [33m1[39m, executionTimeMs: [33m0.48990000001504086[39m }
+[AuditLogExtended] CSV export completed { recordCount: [33m1[39m, executionTimeMs: [33m0.8691000000108033[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mexportAuditLogsToPDF[2m > [22m[2mshould export logs to PDF format[22m[39m
+[AuditLogExtended] Starting PDF export { companyId: [32m'test-company'[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, offset: [90mundefined[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mexportAuditLogsToPDF[2m > [22m[2mshould export logs to PDF format[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m50[39m, returned: [33m50[39m, executionTimeMs: [33m9.436100000020815[39m }
+[AuditLogExtended] PDF export data prepared { recordCount: [33m50[39m, executionTimeMs: [33m493.91660000002594[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgetAuditLogStatistics[2m > [22m[2mshould generate comprehensive statistics[22m[39m
+[AuditLogExtended] Generating audit log statistics { companyId: [32m'test-company'[39m, dateFrom: [90mundefined[39m, dateTo: [90mundefined[39m }
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [90mundefined[39m,
+  dateTo: [90mundefined[39m,
+  limit: [33m999999[39m
+}
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgetAuditLogStatistics[2m > [22m[2mshould generate comprehensive statistics[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m100[39m, returned: [33m100[39m, executionTimeMs: [33m5.490699999994831[39m }
+[AuditLogExtended] Statistics generation completed { totalLogs: [33m100[39m, executionTimeMs: [33m6.7321999999985565[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgetAuditLogStatistics[2m > [22m[2mshould limit recent activity to 50 entries[22m[39m
+[AuditLogExtended] Generating audit log statistics { companyId: [32m'test-company'[39m, dateFrom: [90mundefined[39m, dateTo: [90mundefined[39m }
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [90mundefined[39m,
+  dateTo: [90mundefined[39m,
+  limit: [33m999999[39m
+}
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgetAuditLogStatistics[2m > [22m[2mshould limit recent activity to 50 entries[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m200[39m, returned: [33m200[39m, executionTimeMs: [33m9.88310000000638[39m }
+[AuditLogExtended] Statistics generation completed { totalLogs: [33m200[39m, executionTimeMs: [33m11.340200000006007[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgetAuditLogStatistics[2m > [22m[2mshould filter statistics by date range[22m[39m
+[AuditLogExtended] Generating audit log statistics {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2026-01-11T06:38:05.012Z[39m,
+  dateTo: [35m2026-01-18T06:38:05.012Z[39m
+}
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2026-01-11T06:38:05.012Z[39m,
+  dateTo: [35m2026-01-18T06:38:05.012Z[39m,
+  limit: [33m999999[39m
+}
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mgetAuditLogStatistics[2m > [22m[2mshould filter statistics by date range[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m24[39m, returned: [33m24[39m, executionTimeMs: [33m3.733299999992596[39m }
+[AuditLogExtended] Statistics generation completed { totalLogs: [33m24[39m, executionTimeMs: [33m4.310299999982817[39m }
+
+[90mstderr[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mdeleteOldAuditLogs[2m > [22m[2mshould delete logs older than retention period[22m[39m
+[AuditLogExtended] Deleting old audit logs {
+  companyId: [32m'test-company'[39m,
+  cutoffDate: [35m2025-12-19T06:38:05.035Z[39m,
+  retentionDays: [33m30[39m
+}
+
+[90mstderr[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mdeleteOldAuditLogs[2m > [22m[2mshould delete logs older than retention period[22m[39m
+[AuditLogExtended] Old audit logs deleted { deletedCount: [33m2[39m, executionTimeMs: [33m136.30950000000303[39m }
+
+[90mstderr[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mdeleteOldAuditLogs[2m > [22m[2mshould not delete logs within retention period[22m[39m
+[AuditLogExtended] Deleting old audit logs {
+  companyId: [32m'test-company'[39m,
+  cutoffDate: [35m2025-10-20T05:38:05.454Z[39m,
+  retentionDays: [33m90[39m
+}
+[AuditLogExtended] Old audit logs deleted { deletedCount: [33m0[39m, executionTimeMs: [33m1.3984999999811407[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mPerformance Tests[2m > [22m[2mshould handle 1,000 entries efficiently[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m }
+[AuditLogExtended] Audit log search completed { total: [33m1000[39m, returned: [33m1000[39m, executionTimeMs: [33m150.68840000001364[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mPerformance Tests[2m > [22m[2mshould handle timeline generation with large datasets[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mPerformance Tests[2m > [22m[2mshould handle CSV export with large datasets[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m0[39m, returned: [33m0[39m, executionTimeMs: [33m1549.596900000004[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mPerformance Tests[2m > [22m[2mshould handle CSV export with large datasets[22m[39m
+[AuditLogExtended] Starting CSV export { companyId: [32m'test-company'[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, offset: [90mundefined[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mPerformance Tests[2m > [22m[2mshould handle CSV export with large datasets[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m5000[39m, returned: [33m5000[39m, executionTimeMs: [33m935.956199999986[39m }
+[AuditLogExtended] CSV export completed { recordCount: [33m5000[39m, executionTimeMs: [33m1201.0782999999938[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mSecurity and Data Integrity[2m > [22m[2mshould not allow modification of audit logs[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mSecurity and Data Integrity[2m > [22m[2mshould not allow modification of audit logs[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m1[39m, returned: [33m1[39m, executionTimeMs: [33m0.9089000000094529[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mSecurity and Data Integrity[2m > [22m[2mshould maintain data integrity across operations[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100[39m, returned: [33m100[39m, executionTimeMs: [33m200.41820000001462[39m }
+[AuditLogExtended] Generating audit log timeline {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-12-19T06:39:51.348Z[39m,
+  dateTo: [35m2026-01-18T06:39:51.348Z[39m,
+  groupBy: [32m'day'[39m
+}
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-12-19T06:39:51.348Z[39m,
+  dateTo: [35m2026-01-18T06:39:51.348Z[39m,
+  limit: [33m999999[39m,
+  sortBy: [32m'timestamp'[39m,
+  sortOrder: [32m'desc'[39m
+}
+[AuditLogExtended] Audit log search completed { total: [33m100[39m, returned: [33m100[39m, executionTimeMs: [33m9.175200000056066[39m }
+[AuditLogExtended] Timeline generation completed { entryCount: [33m29[39m, totalLogs: [33m100[39m, executionTimeMs: [33m10.471399999980349[39m }
+[AuditLogExtended] Starting CSV export { companyId: [32m'test-company'[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, offset: [90mundefined[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100[39m, returned: [33m100[39m, executionTimeMs: [33m5.490700000023935[39m }
+[AuditLogExtended] CSV export completed { recordCount: [33m100[39m, executionTimeMs: [33m6.395599999988917[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.test.ts[2m > [22m[2mExtended Audit Log Service[2m > [22m[2mSecurity and Data Integrity[2m > [22m[2mshould isolate data by company[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'company-1'[39m }
+[AuditLogExtended] Audit log search completed { total: [33m50[39m, returned: [33m50[39m, executionTimeMs: [33m8.142400000011548[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'company-2'[39m }
+[AuditLogExtended] Audit log search completed { total: [33m30[39m, returned: [33m30[39m, executionTimeMs: [33m2.5209000000031665[39m }
+
+ [33m❯[39m src/services/auditLogExtended.test.ts [2m ([22m[2m32 tests[22m [2m|[22m [31m4 failed[39m[2m)[22m[33m 117049[2mms[22m[39m
+[31m   [33m❯[31m src/services/auditLogExtended.test.ts[2m > [22mExtended Audit Log Service[2m > [22mgenerateAuditLogTimeline[2m > [22mshould group logs by day[39m
+[31m     → expected 209.52509999999893 to be less than 200[39m
+[31m   [33m❯[31m src/services/auditLogExtended.test.ts[2m > [22mExtended Audit Log Service[2m > [22mPerformance Tests[2m > [22mshould handle 10,000 entries efficiently[39m
+[31m     → Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m     → Hook timed out in 10000ms.
+If this is a long-running hook, pass a timeout value as the last argument or configure it globally with "hookTimeout".[39m
+[31m   [33m❯[31m src/services/auditLogExtended.test.ts[2m > [22mExtended Audit Log Service[2m > [22mPerformance Tests[2m > [22mshould handle complex queries efficiently[39m
+[31m     → Hook timed out in 10000ms.
+If this is a long-running hook, pass a timeout value as the last argument or configure it globally with "hookTimeout".[39m
+[31m     → Hook timed out in 10000ms.
+If this is a long-running hook, pass a timeout value as the last argument or configure it globally with "hookTimeout".[39m
+[31m   [33m❯[31m src/services/auditLogExtended.test.ts[2m > [22mExtended Audit Log Service[2m > [22mPerformance Tests[2m > [22mshould handle timeline generation with large datasets[39m
+[31m     → Hook timed out in 10000ms.
+If this is a long-running hook, pass a timeout value as the last argument or configure it globally with "hookTimeout".[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 4 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/auditLogExtended.test.ts[2m > [22mExtended Audit Log Service[2m > [22mgenerateAuditLogTimeline[2m > [22mshould group logs by day
+[31m[1mAssertionError[22m: expected 209.52509999999893 to be less than 200[39m
+[36m [2m❯[22m src/services/auditLogExtended.test.ts:[2m344:38[22m[39m
+    [90m342| [39m      [34mexpect[39m(result[33m.[39mentries[33m.[39mlength)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m
+    [90m343| [39m      [34mexpect[39m(result[33m.[39mtotalLogs)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m
+    [90m344| [39m      [34mexpect[39m(result[33m.[39mexecutionTimeMs)[33m.[39m[34mtoBeLessThan[39m([34m200[39m)[33m;[39m
+    [90m   | [39m                                     [31m^[39m
+    [90m345| [39m
+    [90m346| [39m      [90m// Verify entry structure[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/auditLogExtended.test.ts[2m > [22mExtended Audit Log Service[2m > [22mPerformance Tests[2m > [22mshould handle 10,000 entries efficiently
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/auditLogExtended.test.ts[2m > [22mExtended Audit Log Service[2m > [22mPerformance Tests[2m > [22mshould handle 10,000 entries efficiently
+[31m[1m[7m FAIL [27m[22m[39m src/services/auditLogExtended.test.ts[2m > [22mExtended Audit Log Service[2m > [22mPerformance Tests[2m > [22mshould handle complex queries efficiently
+[31m[1m[7m FAIL [27m[22m[39m src/services/auditLogExtended.test.ts[2m > [22mExtended Audit Log Service[2m > [22mPerformance Tests[2m > [22mshould handle complex queries efficiently
+[31m[1m[7m FAIL [27m[22m[39m src/services/auditLogExtended.test.ts[2m > [22mExtended Audit Log Service[2m > [22mPerformance Tests[2m > [22mshould handle timeline generation with large datasets
+[31m[1mError[22m: Hook timed out in 10000ms.
+If this is a long-running hook, pass a timeout value as the last argument or configure it globally with "hookTimeout".[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m28 passed[39m[22m[90m (32)[39m
+[2m   Start at [22m 22:36:00
+[2m   Duration [22m 230.52s[2m (transform 5.99s, setup 28.98s, collect 10.17s, tests 117.05s, environment 56.73s, prepare 6.90s)[22m
+
