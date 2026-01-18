@@ -2535,8 +2535,8 @@ All Group H tasks (H1-H14) are complete and archived. See `Roadmaps/archive/GROU
 
 ---
 
-### I2. Activity Feed (Nice)
-**What:** See what's happening across the team.
+### I2. Activity Feed & Communication [Nice]
+**What:** Intentional team communication via @mentions, comments, and messaging - integrated with checklists.
 
 **OpenSpec Resources:**
 - Change: `openspec/changes/advanced-sync/`
@@ -2550,55 +2550,74 @@ All Group H tasks (H1-H14) are complete and archived. See `Roadmaps/archive/GROU
 - Owner: TBD
 
 **Acceptance Criteria:**
-- [ ] Activity stream displays recent team actions in chronological order
-- [ ] Users can filter feed by team member and activity type
-- [ ] Clicking activity items navigates to related records
-- [ ] Notification preferences control which activities appear
-- [ ] Real-time updates appear in feed without refresh
-- [ ] Feed is performant with large activity volumes
-- [ ] Privacy controls respect role-based permissions
+- [ ] Users can @mention team members on any transaction, invoice, bill, or record
+- [ ] @mentions create notifications and optional checklist items
+- [ ] Comment threads remain attached to their contextual records
+- [ ] Direct messaging for quick questions about specific work
+- [ ] Checklist integration: comments on checklist items create threaded conversations
+- [ ] All communication respects role-based permissions
+- [ ] NO automatic activity feed of audit log actions (intentional communication only)
+- [ ] Users can reply to comments and build conversation threads
+- [ ] Notification preferences allow granular control
+- [ ] Comment search allows finding past discussions
 
 **Test Strategy:**
-- Unit tests for activity filtering and aggregation
-- Integration tests for real-time feed updates
-- E2E tests for navigation from feed to records
-- Performance testing with high activity volume
-- Permission boundary testing for multi-user scenarios
+- Unit tests for @mention parsing and routing
+- Integration tests for comment → checklist integration
+- E2E tests for complete @mention → notification → response workflow
+- Permission boundary testing (who can see what)
+- Notification delivery testing across channels
+- Thread integrity testing for conversation ordering
 
 **Risks & Mitigation:**
-- Risk: Feed noise may overwhelm users
-  - Mitigation: Smart filtering, notification preferences, activity summarization
-- Risk: Performance issues with large activity datasets
-  - Mitigation: Pagination, lazy loading, database indexing
-- Risk: Privacy leaks through activity visibility
+- Risk: @mention spam could become overwhelming
+  - Mitigation: Notification preferences, digest mode, "mute conversation" option
+- Risk: Comments may clutter transaction views
+  - Mitigation: Collapsible comment threads, "hide comments" toggle
+- Risk: Important communication lost in noise
+  - Mitigation: Checklist integration ensures actionable items aren't missed
+- Risk: Privacy leaks through comment visibility
   - Mitigation: Role-based filtering, comprehensive permission testing
 
 **External Dependencies:**
-- Libraries: date-fns
+- Libraries: mentions, date-fns
 - Infrastructure: None
 
-**Dependencies:** {H1, E7}
+**Dependencies:** {H1, H3, B2, C2}
 
-**Joy Opportunity:** "Stay in the loop without endless meetings."
+**Joy Opportunity:** "Ask questions right where they matter. No more endless email threads."
+
+**Delight Detail:** @mention creates notification: "Marcus mentioned you in [Expense #1234]" with context preview and one-click navigation.
 
 **Includes:**
-- Activity stream
-- Filter by user/type
-- Click to view related item
-- Notification preferences
+- @mention functionality on all records
+- Comment threads on transactions/invoices/bills
+- Direct messaging contextual to work
+- Checklist integration (comments on checklist items)
+- Notification routing and preferences
+- Comment search and history
+- Threaded conversations
+
+**Integration Spec:** How @mentions + comments + checklists work together:
+1. User @mentions teammate in expense comment: "Hey @Sarah, is this really office supplies?"
+2. Sarah gets notification with context
+3. System optionally creates checklist item: "Review expense #1234 flagged by Marcus"
+4. Sarah replies in comment thread
+5. Conversation stays attached to expense for full context
+6. Checklist item marks complete when resolved
 
 **Spec Reference:** FUTURE-002
 
 ---
 
-### I3. Comments on Transactions (Nice)
-**What:** Leave notes and questions on specific transactions.
+### I3. UX Efficiency Shortcuts [Nice]
+**What:** Quick access to recent work, search history, and duplicate detection helpers.
 
 **OpenSpec Resources:**
-- Change: `openspec/changes/advanced-sync/`
-- Proposal: `openspec/changes/advanced-sync/proposal.md`
-- Tasks: `openspec/changes/advanced-sync/tasks.md`
-- Specs: `openspec/changes/advanced-sync/specs/*/spec.md`
+- Change: `openspec/changes/ux-efficiency/`
+- Proposal: `openspec/changes/ux-efficiency/proposal.md`
+- Tasks: `openspec/changes/ux-efficiency/tasks.md`
+- Specs: `openspec/changes/ux-efficiency/specs/*/spec.md`
 
 **Status & Ownership:**
 - Status: Not Started
@@ -2606,46 +2625,51 @@ All Group H tasks (H1-H14) are complete and archived. See `Roadmaps/archive/GROU
 - Owner: TBD
 
 **Acceptance Criteria:**
-- [ ] Users can add comments to any transaction
-- [ ] @mention functionality notifies mentioned team members
-- [ ] Comment notifications are sent via configured channels
-- [ ] Full comment history is viewable and preserved
-- [ ] Comments can be edited and deleted with audit trail
-- [ ] Comment threads maintain chronological order
-- [ ] Comment count is visible on transaction list views
+- [ ] Search bar shows last 10 searches/views when focused
+- [ ] Expense entry form has "Recent entries" button showing last 20 expenses
+- [ ] Duplicate detection suggests similar recent transactions during entry
+- [ ] "Resume where you left off" widget on dashboard shows last 5 edited records
+- [ ] Quick access menu shows recently viewed transactions/invoices/bills
+- [ ] Recent activity is persisted per-user and syncs across devices
+- [ ] Users can clear their recent history
+- [ ] Recent items respect role-based permissions
 
 **Test Strategy:**
-- Unit tests for @mention parsing and notification
-- Integration tests for comment persistence and retrieval
-- E2E tests for complete comment workflow
-- Notification delivery testing
-- Permission testing for comment visibility
+- Unit tests for recent activity tracking logic
+- Integration tests for cross-device sync of recent history
+- E2E tests for complete user workflows (search → recent → quick access)
+- Duplicate detection accuracy testing
+- Performance testing with large recent history datasets
+- Permission boundary testing
 
 **Risks & Mitigation:**
-- Risk: Comment spam may clutter transactions
-  - Mitigation: Edit/delete capabilities, optional comment hiding
-- Risk: @mention notifications may become overwhelming
-  - Mitigation: Notification preferences, digest options
-- Risk: Comment sync conflicts in multi-user scenarios
-  - Mitigation: Use CRDT for comment ordering, clear conflict handling
+- Risk: Recent history may expose sensitive data
+  - Mitigation: Respect permissions, allow clearing history, encrypt synced data
+- Risk: Duplicate detection false positives may annoy users
+  - Mitigation: Smart similarity threshold, easy dismiss, "don't show again" option
+- Risk: Performance degradation with large history
+  - Mitigation: Limit history size, efficient indexing, lazy loading
 
 **External Dependencies:**
-- Libraries: mentions
+- Libraries: fuse.js (fuzzy search for duplicates), date-fns
 - Infrastructure: None
 
-**Dependencies:** {H1, B2}
+**Dependencies:** {B2, C7, E6}
 
-**Joy Opportunity:** "Have a question about a transaction? Ask right there."
+**Joy Opportunity:** "We remember so you don't have to. Pick up right where you left off."
+
+**Delight Detail:** Duplicate detection shows: "This looks similar to [Expense from 3 days ago]. Same one?" with one-click comparison.
 
 **Includes:**
-- Add comments to any transaction
-- @mention team members
-- Comment notifications
-- Comment history
+- Search history (last 10 searches)
+- Recent entries helper (last 20 by type)
+- Duplicate detection on entry
+- "Resume where you left off" dashboard widget
+- Quick access to recently viewed records
+- Per-user history persistence
+- Clear history option
 
-**Spec Reference:** FUTURE-002
-
----
+**Spec Reference:** UX-001 (new)
 
 ### I4. Multi-Currency - Full (Nice)
 **What:** Complete multi-currency with automatic rates and gain/loss.
