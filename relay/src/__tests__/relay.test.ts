@@ -17,6 +17,7 @@ import type {
   SyncPullRequest,
   SyncChange,
 } from '../types';
+import { SYNC_PROTOCOL_VERSION } from '../types';
 
 /**
  * Mock environment for testing
@@ -270,7 +271,7 @@ describe('Sync Relay - SLA Tracking', () => {
   });
 
   it('should calculate SLA metrics correctly', async () => {
-    env = createMockEnv();
+    const env = createMockEnv();
 
     // Mock SLA data
     env.DB.prepare = vi.fn(() => ({
@@ -329,7 +330,6 @@ describe('Sync Relay - Data Cleanup', () => {
 
 describe('Sync Relay - Protocol Validation', () => {
   it('should validate protocol version', () => {
-    const { SYNC_PROTOCOL_VERSION } = require('../types');
     expect(SYNC_PROTOCOL_VERSION).toBe('1.0.0');
   });
 
