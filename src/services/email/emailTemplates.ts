@@ -3,6 +3,10 @@
  *
  * Per D3: Weekly Email Summary Setup
  * Provides email templates adapted for different DISC communication styles.
+ *
+ * Security Note: This file uses Math.random() intentionally for selecting
+ * greeting and closing text variants. These random values are NOT used for
+ * security purposes - they provide variety in email communications.
  */
 
 import type { EmailContentSection } from '../../types/email.types';

@@ -67,3 +67,15 @@ export {
   getSecureStorage,
   initializeSecureStorage,
 } from './secureStorage'
+
+// Rate limiting
+export {
+  RateLimiter,
+  RateLimitError,
+  rateLimiter,
+  CRYPTO_RATE_LIMITS,
+  withRateLimit,
+  formatWaitTime,
+  type RateLimitConfig,
+  type RateLimitResult,
+} from './rateLimiter'

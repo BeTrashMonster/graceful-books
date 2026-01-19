@@ -33,26 +33,107 @@ const LEGACY_DEVICE_TOKEN_KEY_PREFIX = 'graceful-books-device-token-';
 const LEGACY_DEVICE_FINGERPRINT_KEY = 'graceful-books-device-fingerprint';
 
 /**
- * Generate a device fingerprint
+ * Generate a device fingerprint for the "Remember this device" convenience feature.
  *
- * Creates a unique identifier for the device based on browser
- * and system characteristics. This is NOT foolproof but provides
- * a reasonable device identification for convenience features.
+ * ## Purpose
+ * This function creates a semi-unique identifier for the current device/browser
+ * combination. Its primary purpose is to REDUCE LOGIN FRICTION for returning users
+ * by allowing them to skip full passphrase entry on recognized devices.
  *
- * @returns Device fingerprint string
+ * ## IMPORTANT SECURITY LIMITATIONS
+ *
+ * **This is a CONVENIENCE feature, NOT a security feature.**
+ *
+ * Device fingerprinting has significant limitations that users and developers
+ * should understand:
+ *
+ * 1. **Fingerprints can be spoofed**: A malicious actor with access to the
+ *    fingerprint hash (e.g., from stolen localStorage) can potentially replay
+ *    it. The fingerprint itself does not authenticate the user.
+ *
+ * 2. **Browser characteristics are not unique**: Many users share identical
+ *    fingerprints due to common browser/OS/screen configurations.
+ *
+ * 3. **Fingerprints change over time**: Browser updates, OS changes, or even
+ *    installing new fonts can alter the fingerprint, requiring re-authentication.
+ *
+ * 4. **Privacy tools interfere**: Users with privacy extensions or strict browser
+ *    settings may have blocked fingerprinting features (canvas, etc.), resulting
+ *    in degraded accuracy.
+ *
+ * 5. **Not tamper-proof**: Unlike server-side session validation, client-side
+ *    fingerprints can be modified by anyone with JavaScript access to the page.
+ *
+ * ## Data Collected
+ *
+ * The fingerprint combines the following browser/system attributes:
+ * - User agent string (browser, version, OS)
+ * - Browser language preference
+ * - Screen dimensions (width, height, color depth)
+ * - Timezone offset
+ * - Canvas rendering characteristics (lightweight)
+ *
+ * These are hashed together using SHA-256 to produce a consistent identifier.
+ * No personal data or hardware identifiers are collected.
+ *
+ * ## Security Model
+ *
+ * The device fingerprint works as ONE FACTOR in a multi-layered approach:
+ *
+ * 1. Primary authentication: Passphrase (zero-knowledge proof)
+ * 2. Secondary factor: Device token (stored encrypted, time-limited)
+ * 3. Tertiary check: Device fingerprint (convenience validation)
+ *
+ * For sensitive operations (password change, data export, payment info),
+ * additional verification should always be required regardless of device
+ * recognition status.
+ *
+ * ## Recommendations
+ *
+ * - For high-security scenarios, implement MFA (TOTP, WebAuthn)
+ * - Device tokens should have reasonable expiration (default: 30 days)
+ * - Consider requiring re-authentication for sensitive operations
+ * - Educate users that "Remember this device" is for convenience, not security
+ *
+ * @returns Promise<string> - SHA-256 hash of combined device characteristics
+ *
+ * @example
+ * ```typescript
+ * const fingerprint = await generateDeviceFingerprint();
+ * // Returns: "a1b2c3d4e5f6..." (64-character hex string)
+ * ```
+ *
+ * @see getDeviceFingerprintDisclaimer - User-facing explanation of limitations
+ * @see createDeviceToken - Creates token associated with this fingerprint
  */
 export async function generateDeviceFingerprint(): Promise<string> {
   const components: string[] = [];
 
+  // ============================================================
+  // DATA COLLECTION SECTION
+  // Each component contributes to the fingerprint uniqueness.
+  // None of these are truly unique identifiers on their own.
+  // ============================================================
+
   // Browser and platform info
+  // Note: User agent can be easily spoofed via browser settings or extensions
   components.push(navigator.userAgent);
+
+  // Language preference - common value, provides limited entropy
   components.push(navigator.language);
+
+  // Screen characteristics - shared by many users with same monitor/resolution
   components.push(String(screen.width));
   components.push(String(screen.height));
   components.push(String(screen.colorDepth));
+
+  // Timezone - provides some geographic hint, easily spoofed
   components.push(String(new Date().getTimezoneOffset()));
 
   // Canvas fingerprint (lightweight version)
+  // This technique renders text/graphics and captures the output.
+  // Different GPUs/drivers/fonts produce slightly different results.
+  // LIMITATION: Privacy-focused browsers may block or normalize canvas output.
   try {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -66,15 +147,45 @@ export async function generateDeviceFingerprint(): Promise<string> {
       components.push(canvas.toDataURL());
     }
   } catch (e) {
-    // Canvas fingerprinting may be blocked
+    // Canvas fingerprinting may be blocked by privacy tools
+    // Fall back to a placeholder - reduces fingerprint uniqueness
     components.push('canvas-blocked');
   }
 
-  // Combine and hash
+  // ============================================================
+  // HASHING SECTION
+  // Combine all components and hash for consistent output format.
+  // SHA-256 is used for consistency, not security (fingerprint
+  // is not a secret).
+  // ============================================================
   const combined = components.join('|');
   const fingerprint = await hashString(combined);
 
   return fingerprint;
+}
+
+/**
+ * Returns a user-facing disclaimer about device fingerprinting limitations.
+ *
+ * Use this text in UI components, help tooltips, or documentation to ensure
+ * users understand that "Remember this device" is a convenience feature and
+ * does not provide strong security guarantees.
+ *
+ * @returns string - User-friendly explanation of fingerprinting limitations
+ *
+ * @example
+ * ```tsx
+ * <HelpTooltip>
+ *   {getDeviceFingerprintDisclaimer()}
+ * </HelpTooltip>
+ * ```
+ */
+export function getDeviceFingerprintDisclaimer(): string {
+  return (
+    'Device recognition is a convenience feature to reduce login friction. ' +
+    'It does not replace strong authentication. For sensitive operations, ' +
+    'additional verification may be required.'
+  );
 }
 
 /**

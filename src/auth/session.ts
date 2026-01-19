@@ -14,6 +14,7 @@ import type {
   SessionEvent,
 } from './types';
 import { DEFAULT_AUTH_CONFIG } from './types';
+import { constantTimeEqual } from '../utils/crypto/constantTime';
 
 /**
  * Active session state (in-memory only)
@@ -85,9 +86,9 @@ export async function validateSessionToken(
 
     const [_tokenId, payloadB64, signature] = parts;
 
-    // Verify signature
+    // Verify signature using constant-time comparison to prevent timing attacks
     const expectedSignature = await generateHmacSignature(payloadB64 || '');
-    if (signature !== expectedSignature) {
+    if (!constantTimeEqual(signature || '', expectedSignature)) {
       emitSessionEvent({
         type: 'validation_failed',
         timestamp: Date.now(),

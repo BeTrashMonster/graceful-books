@@ -156,6 +156,10 @@ export default function Login() {
               />
               <span>Remember this device for 30 days</span>
             </label>
+            <p className="checkbox-helper-text">
+              This is a convenience feature to make signing in easier.
+              It does not replace your passphrase security.
+            </p>
           </div>
 
           <Button
@@ -245,6 +249,13 @@ export default function Login() {
           width: 1rem;
           height: 1rem;
           cursor: pointer;
+        }
+
+        .checkbox-helper-text {
+          margin: 0.375rem 0 0 1.5rem;
+          font-size: 0.75rem;
+          color: var(--color-text-tertiary, #9ca3af);
+          line-height: 1.4;
         }
 
         .auth-footer {

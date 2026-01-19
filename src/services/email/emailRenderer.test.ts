@@ -423,6 +423,7 @@ describe('Email Renderer', () => {
                 id: '1',
                 title: '<svg onload=alert(1)>',
                 description: '<object data="evil.com"></object>',
+                // eslint-disable-next-line no-script-url -- Intentional: Testing XSS prevention with malicious input
                 actionLink: 'javascript:alert(1)',
                 actionText: '<script>alert(1)</script>',
               },

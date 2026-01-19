@@ -53,6 +53,7 @@ export {
 export {
   generateDeviceFingerprint,
   getDeviceFingerprint,
+  getDeviceFingerprintDisclaimer,
   storeDeviceToken,
   getDeviceToken,
   createDeviceToken,

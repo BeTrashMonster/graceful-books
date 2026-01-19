@@ -5,6 +5,10 @@
  * Features subtle confetti animation and personalized recommendations.
  *
  * Per Requirements: Results summary page with "What this means" explanations
+ *
+ * Security Note: This file uses Math.random() intentionally for visual animations.
+ * These random values create variety in confetti particle appearance and motion.
+ * Math.random() is appropriate here as cryptographic randomness is not required.
  */
 
 import { useEffect, useState } from 'react';

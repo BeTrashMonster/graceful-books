@@ -5,6 +5,11 @@
  *
  * Creates a simple, lightweight confetti animation using canvas
  * with reduced motion support.
+ *
+ * Security Note: This file uses Math.random() intentionally for visual animations.
+ * These random values are NOT used for security purposes - they create visual
+ * variety in confetti particle physics (position, velocity, rotation).
+ * Math.random() is appropriate here as cryptographic randomness is not required.
  */
 
 interface ConfettiOptions {

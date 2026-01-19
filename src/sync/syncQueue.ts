@@ -118,8 +118,14 @@ export class SyncQueue {
 
   /**
    * Generate a unique ID for queue items
+   *
+   * Note: Uses Math.random() intentionally for local queue item identification only.
+   * These IDs are NOT used for security purposes - they're combined with timestamps
+   * to create locally unique identifiers for queue management. For cryptographic
+   * operations, the encryption layer uses crypto.getRandomValues().
    */
   private generateId(): string {
+    // See function doc for security justification of Math.random() usage
     return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
   }
 

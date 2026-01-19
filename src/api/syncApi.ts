@@ -7,6 +7,11 @@
  *
  * Requirements:
  * - B6: Sync Relay Client
+ *
+ * Security Note: This file uses Math.random() intentionally for mock API simulation.
+ * These random values are NOT used for security purposes - they simulate network
+ * delays and random failures for testing the sync client's error handling.
+ * In production, this mock implementation will be replaced with real HTTP calls.
  */
 
 import type {

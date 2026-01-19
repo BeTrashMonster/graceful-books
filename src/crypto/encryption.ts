@@ -13,6 +13,11 @@
  * Uses:
  * - @noble/ciphers for encryption (primary)
  * - Web Crypto API as fallback
+ *
+ * Security Fix M-4: Rate limiting on batch encryption operations
+ * - Prevents client-side DoS through repeated expensive operations
+ * - Batch encryption: 10 operations per minute
+ * - Re-encryption: 5 operations per minute
  */
 
 import type {
@@ -22,6 +27,13 @@ import type {
   DerivedKey,
   CryptoResult,
 } from './types';
+
+import {
+  rateLimiter,
+  CRYPTO_RATE_LIMITS,
+  RateLimitError,
+  type RateLimitResult,
+} from '../utils/rateLimiter';
 
 /**
  * AES-256-GCM algorithm identifier
@@ -491,9 +503,13 @@ export async function decryptObject<T>(
  *
  * Used during key rotation. Decrypts with old key and encrypts with new key.
  *
+ * Security Fix M-4: Rate limited to 5 operations per minute to prevent
+ * client-side DoS during key rotation operations.
+ *
  * @param encryptedData - Data encrypted with old key
  * @param oldKey - Old encryption key
  * @param newKey - New encryption key
+ * @param options - Optional configuration including rate limiting bypass
  * @returns Promise resolving to re-encrypted data or error
  *
  * @example
@@ -508,9 +524,27 @@ export async function decryptObject<T>(
 export async function reencrypt(
   encryptedData: EncryptedData,
   oldKey: MasterKey | DerivedKey,
-  newKey: MasterKey | DerivedKey
+  newKey: MasterKey | DerivedKey,
+  options?: { skipRateLimit?: boolean }
 ): Promise<CryptoResult<EncryptedData>> {
   try {
+    // Check rate limit (unless explicitly skipped)
+    if (!options?.skipRateLimit) {
+      const rateLimitResult = await rateLimiter.check(
+        'reencrypt',
+        CRYPTO_RATE_LIMITS.reencrypt
+      );
+
+      if (!rateLimitResult.allowed) {
+        const waitSeconds = Math.ceil((rateLimitResult.waitTimeMs || 0) / 1000);
+        return {
+          success: false,
+          error: `Rate limit exceeded. Please wait ${waitSeconds} second${waitSeconds !== 1 ? 's' : ''} before trying again.`,
+          errorCode: 'UNKNOWN_ERROR',
+        };
+      }
+    }
+
     // Decrypt with old key
     const decryptResult = await decryptToBytes(encryptedData, oldKey);
 
@@ -538,8 +572,12 @@ export async function reencrypt(
  *
  * Encrypts multiple values in parallel for better performance.
  *
+ * Security Fix M-4: Rate limited to 10 operations per minute to prevent
+ * client-side DoS through repeated batch encryption calls.
+ *
  * @param values - Array of values to encrypt
  * @param key - Encryption key
+ * @param options - Optional configuration including rate limiting bypass
  * @returns Promise resolving to array of encrypted data results
  *
  * @example
@@ -551,8 +589,27 @@ export async function reencrypt(
  */
 export async function batchEncrypt(
   values: (string | Uint8Array)[],
-  key: MasterKey | DerivedKey
+  key: MasterKey | DerivedKey,
+  options?: { skipRateLimit?: boolean }
 ): Promise<CryptoResult<EncryptedData>[]> {
+  // Check rate limit (unless explicitly skipped)
+  if (!options?.skipRateLimit) {
+    const rateLimitResult = await rateLimiter.check(
+      'batchEncrypt',
+      CRYPTO_RATE_LIMITS.batchEncrypt
+    );
+
+    if (!rateLimitResult.allowed) {
+      const waitSeconds = Math.ceil((rateLimitResult.waitTimeMs || 0) / 1000);
+      // Return an array of errors matching the input length
+      return values.map(() => ({
+        success: false,
+        error: `Rate limit exceeded. Please wait ${waitSeconds} second${waitSeconds !== 1 ? 's' : ''} before trying again.`,
+        errorCode: 'UNKNOWN_ERROR' as const,
+      }));
+    }
+  }
+
   return Promise.all(values.map(value => encrypt(value, key)));
 }
 
@@ -605,3 +662,39 @@ export async function verifyIntegrity(
   const result = await decrypt(encryptedData, key);
   return result.success;
 }
+
+/**
+ * Get current rate limit status for batch encryption
+ *
+ * Useful for displaying quota information in the UI before
+ * attempting a batch encryption operation.
+ *
+ * @returns Current quota status
+ */
+export function getBatchEncryptRateLimitStatus(): {
+  remaining: number;
+  maxOperations: number;
+  resetsAt: number | null;
+} {
+  return rateLimiter.getQuotaStatus('batchEncrypt', CRYPTO_RATE_LIMITS.batchEncrypt);
+}
+
+/**
+ * Get current rate limit status for re-encryption operations
+ *
+ * Useful for displaying quota information in the UI before
+ * attempting a key rotation operation.
+ *
+ * @returns Current quota status
+ */
+export function getReencryptRateLimitStatus(): {
+  remaining: number;
+  maxOperations: number;
+  resetsAt: number | null;
+} {
+  return rateLimiter.getQuotaStatus('reencrypt', CRYPTO_RATE_LIMITS.reencrypt);
+}
+
+// Re-export rate limit utilities for convenience
+export { RateLimitError } from '../utils/rateLimiter';
+export type { RateLimitResult };

@@ -11,6 +11,10 @@
  * - Iterations: 3 minimum (adjusted based on device performance)
  * - Parallelism: 4 threads
  * - Output: 256-bit key
+ *
+ * Security Fix M-4: Rate limiting on key derivation operations
+ * - Prevents client-side DoS through repeated expensive key derivation
+ * - Default limit: 5 operations per minute
  */
 
 import type {
@@ -18,6 +22,15 @@ import type {
   MasterKey,
   CryptoResult,
 } from './types';
+
+import {
+  rateLimiter,
+  CRYPTO_RATE_LIMITS,
+  RateLimitError,
+  type RateLimitResult,
+} from '../utils/rateLimiter';
+
+import { constantTimeEqual } from '../utils/crypto/constantTime';
 
 /**
  * Default Argon2id parameters per ARCH-002 specification
@@ -69,9 +82,13 @@ export function generateSalt(length: number = 16): Uint8Array {
  * - Parallelism: 4 threads
  * - Output: 256-bit key
  *
+ * Security Fix M-4: Rate limited to 5 operations per minute to prevent
+ * client-side DoS through repeated expensive key derivation.
+ *
  * @param passphrase - User's passphrase (must meet strength requirements)
  * @param salt - Optional salt (generated if not provided)
  * @param params - Optional custom derivation parameters
+ * @param options - Optional configuration including rate limiting bypass
  * @returns Promise resolving to master key or error
  *
  * @example
@@ -86,9 +103,27 @@ export function generateSalt(length: number = 16): Uint8Array {
 export async function deriveMasterKey(
   passphrase: string,
   salt?: Uint8Array,
-  params?: Partial<KeyDerivationParams>
+  params?: Partial<KeyDerivationParams>,
+  options?: { skipRateLimit?: boolean }
 ): Promise<CryptoResult<MasterKey>> {
   try {
+    // Check rate limit (unless explicitly skipped for internal operations)
+    if (!options?.skipRateLimit) {
+      const rateLimitResult = await rateLimiter.check(
+        'keyDerivation',
+        CRYPTO_RATE_LIMITS.keyDerivation
+      );
+
+      if (!rateLimitResult.allowed) {
+        const waitSeconds = Math.ceil((rateLimitResult.waitTimeMs || 0) / 1000);
+        return {
+          success: false,
+          error: `Too many key derivation attempts. Please wait ${waitSeconds} second${waitSeconds !== 1 ? 's' : ''} before trying again.`,
+          errorCode: 'UNKNOWN_ERROR',
+        };
+      }
+    }
+
     // Validate passphrase
     if (!passphrase || passphrase.length === 0) {
       return {
@@ -267,6 +302,8 @@ async function generateKeyId(keyMaterial: Uint8Array): Promise<string> {
  * Used to restore a master key from a passphrase when the user logs in.
  * The salt and derivation parameters must be stored separately (not secret).
  *
+ * Note: This function is rate limited along with deriveMasterKey.
+ *
  * @param passphrase - User's passphrase
  * @param derivationParams - Previously used derivation parameters
  * @returns Promise resolving to master key or error
@@ -287,6 +324,34 @@ export async function rederiveMasterKey(
 ): Promise<CryptoResult<MasterKey>> {
   return deriveMasterKey(passphrase, derivationParams.salt, derivationParams);
 }
+
+/**
+ * Get current rate limit status for key derivation
+ *
+ * Useful for displaying quota information in the UI before
+ * attempting a key derivation operation.
+ *
+ * @returns Current quota status
+ *
+ * @example
+ * ```typescript
+ * const status = getKeyDerivationRateLimitStatus();
+ * if (status.remaining === 0) {
+ *   showMessage(`Please wait ${formatWaitTime(status.resetsAt - Date.now())}`);
+ * }
+ * ```
+ */
+export function getKeyDerivationRateLimitStatus(): {
+  remaining: number;
+  maxOperations: number;
+  resetsAt: number | null;
+} {
+  return rateLimiter.getQuotaStatus('keyDerivation', CRYPTO_RATE_LIMITS.keyDerivation);
+}
+
+// Re-export rate limit utilities for convenience
+export { RateLimitError } from '../utils/rateLimiter';
+export type { RateLimitResult };
 
 /**
  * Verify a passphrase against a known master key
@@ -322,29 +387,6 @@ export async function verifyPassphrase(
   } catch {
     return false;
   }
-}
-
-/**
- * Constant-time string comparison
- *
- * Prevents timing attacks by ensuring comparison takes the same time
- * regardless of where strings differ.
- *
- * @param a - First string
- * @param b - Second string
- * @returns True if strings are equal
- */
-function constantTimeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) {
-    return false;
-  }
-
-  let result = 0;
-  for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  }
-
-  return result === 0;
 }
 
 /**

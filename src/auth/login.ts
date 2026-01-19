@@ -530,9 +530,15 @@ async function generateDeviceToken(
  * Constant-time delay to prevent timing attacks
  *
  * Adds a small random delay to make timing analysis harder.
+ *
+ * Security Note: Uses Math.random() intentionally for timing jitter, which is
+ * acceptable for this use case. The randomness adds variability to response times,
+ * making timing analysis harder. The actual security does not depend on the
+ * unpredictability of this delay - it just needs to be variable. Using Math.random()
+ * here avoids the async overhead of crypto.getRandomValues() for a non-critical random value.
  */
 async function constantTimeDelay(): Promise<void> {
-  const delay = 100 + Math.random() * 200; // 100-300ms
+  const delay = 100 + Math.random() * 200; // 100-300ms - see function doc for security justification
   await new Promise((resolve) => setTimeout(resolve, delay));
 }
 

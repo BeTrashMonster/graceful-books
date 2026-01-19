@@ -209,9 +209,53 @@ await logout({
 - No key persistence to disk
 
 ### 6. Device Fingerprinting
+
+Device fingerprinting is used for the "Remember this device" convenience feature.
+
+**Purpose:**
+- Reduces login friction for returning users
+- Allows skipping full passphrase entry on recognized devices
+- Provides a secondary validation layer (not primary security)
+
+**Data collected:**
+- User agent string (browser, version, OS)
+- Browser language preference
+- Screen dimensions (width, height, color depth)
+- Timezone offset
+- Canvas rendering characteristics
+
+**How it works:**
 - Combines multiple browser/system attributes
 - Validates on each device token use
 - Revoked on fingerprint mismatch
+
+**IMPORTANT: Security Limitations**
+
+Device fingerprinting is a **CONVENIENCE feature, NOT a security feature**:
+
+1. **Fingerprints can be spoofed** - A malicious actor with access to the fingerprint hash can potentially replay it
+2. **Not unique** - Many users share identical fingerprints due to common configurations
+3. **Changes over time** - Browser updates or OS changes can alter the fingerprint
+4. **Privacy tools interfere** - Users with privacy extensions may have blocked fingerprinting
+5. **Not tamper-proof** - Client-side fingerprints can be modified
+
+**Recommendations:**
+- For high-security scenarios, implement MFA (TOTP, WebAuthn)
+- Device tokens should have reasonable expiration (default: 30 days)
+- Require re-authentication for sensitive operations (password change, data export)
+- Educate users that "Remember this device" is for convenience, not security
+
+**User-facing disclaimer:**
+
+Use `getDeviceFingerprintDisclaimer()` to display appropriate messaging:
+
+```typescript
+import { getDeviceFingerprintDisclaimer } from '@/auth';
+
+// Returns: "Device recognition is a convenience feature to reduce login friction.
+// It does not replace strong authentication. For sensitive operations,
+// additional verification may be required."
+```
 
 ## Configuration
 
@@ -352,6 +396,16 @@ Add optional MFA:
 - TOTP (Time-based One-Time Password)
 - SMS/Email verification
 - Hardware keys (WebAuthn)
+
+**Recommended for sensitive operations:**
+- Password/passphrase changes
+- Data export or backup
+- Payment information updates
+- User role changes
+- Device management (revoking remembered devices)
+
+Note: The "Remember this device" feature should NOT bypass MFA requirements
+for sensitive operations. Device recognition is a convenience feature only.
 
 ## Dependencies
 

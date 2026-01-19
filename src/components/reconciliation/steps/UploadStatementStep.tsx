@@ -15,6 +15,7 @@ import { parseCSVStatement } from '../../../utils/parsers/csvParser';
 import { parsePDFStatement } from '../../../utils/parsers/pdfParser';
 import { matchTransactions } from '../../../utils/parsers/matchingAlgorithm';
 import { queryTransactions } from '../../../store';
+import { validateStatementFile } from '../../../utils/fileValidation';
 
 interface UploadStatementStepProps {
   accountId: string;
@@ -41,23 +42,26 @@ export function UploadStatementStep({
     async (file: File) => {
       setError(null);
       setIsProcessing(true);
-      setProgress('Reading file...');
+      setProgress('Validating file...');
 
       try {
-        // Validate file type
-        const fileType = file.type;
-        const fileName = file.name.toLowerCase();
+        // Comprehensive file validation (magic number, size, structure)
+        const validationResult = await validateStatementFile(file);
+        if (!validationResult.valid) {
+          throw new Error(validationResult.error || 'File validation failed.');
+        }
+
+        setProgress('Reading file...');
+
+        // Determine file type from validated result
+        const fileType = validationResult.fileType;
 
         let statement: ParsedStatement;
 
-        if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
+        if (fileType === 'pdf') {
           setProgress('Extracting data from PDF...');
           statement = await parsePDFStatement(file);
-        } else if (
-          fileType === 'text/csv' ||
-          fileType === 'application/vnd.ms-excel' ||
-          fileName.endsWith('.csv')
-        ) {
+        } else if (fileType === 'csv') {
           setProgress('Parsing CSV data...');
           statement = await parseCSVStatement(file);
         } else {

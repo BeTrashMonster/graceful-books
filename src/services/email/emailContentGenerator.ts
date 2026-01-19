@@ -3,6 +3,10 @@
  *
  * Per D3: Weekly Email Summary Setup
  * Generates email content with Steadiness communication style from checklist data and user preferences.
+ *
+ * Security Note: This file uses Math.random() intentionally for selecting
+ * content variants (tips, greetings). These random values are NOT used for
+ * security purposes - they provide variety in email communications.
  */
 
 import type {
