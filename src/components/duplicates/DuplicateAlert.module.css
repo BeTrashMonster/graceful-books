@@ -1,0 +1,247 @@
+/**
+ * DuplicateAlert Component Styles
+ *
+ * WCAG 2.1 AA compliant with accessible colors and interactive states.
+ */
+
+.container {
+  background: #fffaf0;
+  border: 2px solid #ed8936;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.iconWrapper {
+  flex-shrink: 0;
+}
+
+.icon {
+  font-size: 1.5rem;
+}
+
+.titleSection {
+  flex: 1;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #7c2d12;
+  margin: 0 0 0.25rem;
+}
+
+.message {
+  font-size: 0.875rem;
+  color: #9c4221;
+  margin: 0;
+}
+
+.confidenceBadge {
+  flex-shrink: 0;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 0.25rem;
+}
+
+.confidenceHigh {
+  color: #742a2a;
+  background: #fed7d7;
+  border: 1px solid #fc8181;
+}
+
+.confidenceMedium {
+  color: #744210;
+  background: #feebc8;
+  border: 1px solid #f6ad55;
+}
+
+.confidenceLow {
+  color: #5f370e;
+  background: #fef5e7;
+  border: 1px solid #ecc94b;
+}
+
+.comparison {
+  background: white;
+  border: 1px solid #fbd38d;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.comparisonSection {
+  margin-bottom: 1rem;
+}
+
+.comparisonLabel {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #744210;
+  margin-bottom: 0.75rem;
+}
+
+.comparisonDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detailRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.detailLabel {
+  font-weight: 500;
+  color: #7c2d12;
+  min-width: 9rem;
+  flex-shrink: 0;
+}
+
+.detailValue {
+  color: #2d3748;
+  flex: 1;
+}
+
+.similarityMeter {
+  padding-top: 1rem;
+  border-top: 1px solid #fbd38d;
+}
+
+.similarityLabel {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #744210;
+  margin-bottom: 0.5rem;
+}
+
+.similarityBar {
+  width: 100%;
+  height: 0.625rem;
+  background: #feebc8;
+  border-radius: 0.3125rem;
+  overflow: hidden;
+}
+
+.similarityFill {
+  height: 100%;
+  background: linear-gradient(90deg, #ed8936 0%, #dd6b20 100%);
+  border-radius: 0.3125rem;
+  transition: width 0.3s ease;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.primaryButton,
+.secondaryButton {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.primaryButton {
+  color: white;
+  background: #c05621;
+  border-color: #c05621;
+}
+
+.primaryButton:hover {
+  background: #9c4221;
+  border-color: #9c4221;
+}
+
+.primaryButton:focus {
+  outline: 2px solid #c05621;
+  outline-offset: 2px;
+}
+
+.secondaryButton {
+  color: #7c2d12;
+  background: white;
+  border-color: #ed8936;
+}
+
+.secondaryButton:hover {
+  background: #fffaf0;
+  border-color: #dd6b20;
+}
+
+.secondaryButton:focus {
+  outline: 2px solid #ed8936;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .container {
+    border-width: 3px;
+  }
+
+  .primaryButton:hover,
+  .secondaryButton:hover {
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .primaryButton,
+  .secondaryButton,
+  .similarityFill {
+    transition: none;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  .detailRow {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .detailLabel {
+    min-width: auto;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+}

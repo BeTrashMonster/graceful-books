@@ -115,6 +115,32 @@ import type {
   ApprovalDelegation,
   ApprovalHistory,
 } from './schema/approvalWorkflows.schema';
+import {
+  reportScheduleSchema,
+  scheduledReportDeliverySchema,
+} from './schema/scheduledReports.schema.index';
+import type {
+  ReportScheduleEntity,
+  ScheduledReportDeliveryEntity,
+} from './schema/scheduledReports.schema';
+import { recentActivitySchema } from './schema/recentActivity.schema';
+import type { RecentActivity } from '../types/recentActivity.types';
+import {
+  conflictHistorySchema,
+  conflictNotificationsSchema,
+} from './schema/conflicts.schema';
+import type {
+  ConflictHistoryEntry,
+  ConflictNotification,
+} from '../types/crdt.types';
+import {
+  commentsSchema,
+  mentionsSchema,
+} from './schema/comments.schema';
+import type {
+  Comment,
+  Mention,
+} from './schema/comments.schema';
 
 /**
  * TreasureChest Database Class
@@ -160,6 +186,13 @@ export class TreasureChestDB extends Dexie {
   approvalActions!: Table<ApprovalAction, string>;
   approvalDelegations!: Table<ApprovalDelegation, string>;
   approvalHistory!: Table<ApprovalHistory, string>;
+  reportSchedules!: Table<ReportScheduleEntity, string>;
+  scheduledReportDeliveries!: Table<ScheduledReportDeliveryEntity, string>;
+  recentActivity!: Table<RecentActivity, string>;
+  conflict_history!: Table<ConflictHistoryEntry, string>;
+  conflict_notifications!: Table<ConflictNotification, string>;
+  comments!: Table<Comment, string>;
+  mentions!: Table<Mention, string>;
 
   constructor() {
     super('TreasureChest');
@@ -417,6 +450,183 @@ export class TreasureChestDB extends Dexie {
       approvalActions: approvalActionsSchema,
       approvalDelegations: approvalDelegationsSchema,
       approvalHistory: approvalHistorySchema,
+    });
+
+    // Version 10: Add scheduled reports tables (I6: Scheduled Report Delivery)
+    this.version(10).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+    });
+
+    // Version 11: Add recent activity table (I3: UX Efficiency Shortcuts)
+    this.version(11).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+      recentActivity: recentActivitySchema,
+    });
+
+    // Version 12: Add CRDT conflict resolution tables (Group I, I1)
+    this.version(12).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+      recentActivity: recentActivitySchema,
+      conflict_history: conflictHistorySchema,
+      conflict_notifications: conflictNotificationsSchema,
+    });
+
+    // Version 13: Add Comments and Mentions tables (Group I, I2)
+    this.version(13).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+      recentActivity: recentActivitySchema,
+      conflict_history: conflictHistorySchema,
+      conflict_notifications: conflictNotificationsSchema,
+      comments: commentsSchema,
+      mentions: mentionsSchema,
     });
 
     // Add hooks for automatic audit logging

@@ -1,0 +1,149 @@
+# Promtail Configuration for Graceful Books
+# Collects logs and sends to Loki
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://localhost:3100/loki/api/v1/push
+
+scrape_configs:
+  # Application logs (JSON structured)
+  - job_name: graceful-books-app
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: graceful-books
+          app: frontend
+          __path__: /var/log/graceful-books/app-*.log
+
+    pipeline_stages:
+      # Parse JSON logs
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            message: message
+            correlationId: correlationId
+            userId: userId
+            deviceId: deviceId
+            operation: operation
+            error: error
+
+      # Extract timestamp
+      - timestamp:
+          source: timestamp
+          format: RFC3339
+
+      # Add labels
+      - labels:
+          level: level
+          correlationId: correlationId
+          operation: operation
+
+      # Drop debug logs in production
+      - match:
+          selector: '{level="debug"}'
+          stages:
+            - drop:
+                expression: '.*'
+                older_than: 1h
+
+  # Sync relay logs
+  - job_name: graceful-books-relay
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: graceful-books
+          app: relay
+          __path__: /var/log/graceful-books/relay-*.log
+
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            message: message
+            correlationId: correlationId
+            region: region
+
+      - timestamp:
+          source: timestamp
+          format: RFC3339
+
+      - labels:
+          level: level
+          correlationId: correlationId
+          region: region
+
+  # System logs
+  - job_name: system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: system
+          __path__: /var/log/syslog
+
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<timestamp>\S+\s+\d+\s+\d+:\d+:\d+)\s+(?P<hostname>\S+)\s+(?P<service>\S+):\s+(?P<message>.*)$'
+
+      - timestamp:
+          source: timestamp
+          format: 'Jan _2 15:04:05'
+
+      - labels:
+          hostname: hostname
+          service: service
+
+  # Nginx access logs (if applicable)
+  - job_name: nginx-access
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nginx
+          type: access
+          __path__: /var/log/nginx/access.log
+
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<remote_addr>[\d\.]+)\s+-\s+(?P<remote_user>\S+)\s+\[(?P<time_local>[^\]]+)\]\s+"(?P<request>[^"]+)"\s+(?P<status>\d+)\s+(?P<body_bytes_sent>\d+)\s+"(?P<http_referer>[^"]*)"\s+"(?P<http_user_agent>[^"]*)"'
+
+      - labels:
+          status: status
+          remote_addr: remote_addr
+
+  # Nginx error logs
+  - job_name: nginx-error
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nginx
+          type: error
+          __path__: /var/log/nginx/error.log
+
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<timestamp>\d{4}/\d{2}/\d{2}\s+\d{2}:\d{2}:\d{2})\s+\[(?P<level>\w+)\]\s+(?P<message>.*)$'
+
+      - timestamp:
+          source: timestamp
+          format: '2006/01/02 15:04:05'
+
+      - labels:
+          level: level
+
+# Retention configuration
+# Logs are sent to Loki which handles retention
+# Keep positions file for 7 days
+target_config:
+  sync_period: 10s

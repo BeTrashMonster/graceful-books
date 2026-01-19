@@ -381,6 +381,7 @@ export const getTransactionTypePrefix = (type: TransactionType): string => {
     BILL: 'BILL',
     CREDIT_NOTE: 'CN',
     ADJUSTMENT: 'ADJ',
+    BARTER: 'BRT', // I5: Barter/Trade Transactions
   };
 
   return prefixes[type] || 'TXN';

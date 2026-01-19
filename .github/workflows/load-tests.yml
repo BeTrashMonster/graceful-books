@@ -1,0 +1,309 @@
+name: Load Tests
+
+on:
+  # Run on PR to main (light load only)
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'src/sync/**'
+      - 'src/db/crdt.ts'
+      - 'src/api/syncApi.ts'
+      - 'tests/load/**'
+      - '.github/workflows/load-tests.yml'
+
+  # Run nightly (medium and heavy load)
+  schedule:
+    - cron: '0 2 * * *' # 2 AM UTC daily
+
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      test_profile:
+        description: 'Load test profile to run'
+        required: true
+        type: choice
+        options:
+          - light
+          - medium
+          - heavy
+          - all
+        default: 'light'
+
+jobs:
+  # Light load test for PRs
+  light-load-test:
+    name: Light Load Test (100 VUs)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.test_profile == 'light')
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Verify k6 installation
+        run: k6 version
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Start application (background)
+        run: |
+          npm run preview &
+          echo $! > .preview-pid
+          sleep 10
+
+      - name: Wait for application to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:3000 > /dev/null 2>&1; then
+              echo "Application is ready"
+              exit 0
+            fi
+            echo "Waiting for application... ($i/30)"
+            sleep 2
+          done
+          echo "Application failed to start"
+          exit 1
+
+      - name: Run light load tests
+        run: bash scripts/run-load-tests.sh light
+        env:
+          BASE_URL: http://localhost:3000
+
+      - name: Stop application
+        if: always()
+        run: |
+          if [ -f .preview-pid ]; then
+            kill $(cat .preview-pid) || true
+            rm .preview-pid
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-results-light
+          path: tests/load/results/
+          retention-days: 30
+
+      - name: Check for performance regressions
+        if: success()
+        run: |
+          echo "Checking for performance regressions..."
+          # Placeholder for regression detection logic
+          # In production, this would compare against baseline metrics
+          echo "No regressions detected (placeholder)"
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Read latest summary file
+            const resultsDir = 'tests/load/results';
+            const files = fs.readdirSync(resultsDir)
+              .filter(f => f.includes('light') && f.includes('summary.json'))
+              .sort()
+              .reverse();
+
+            if (files.length === 0) {
+              console.log('No summary files found');
+              return;
+            }
+
+            const summaryPath = path.join(resultsDir, files[0]);
+            const summary = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
+
+            const comment = `## Load Test Results (Light Profile)
+
+            **100 concurrent users** - 5 minute test
+
+            ### Key Metrics
+            - **Requests:** ${summary.metrics.http_reqs?.count || 'N/A'}
+            - **RPS:** ${(summary.metrics.http_reqs?.rate || 0).toFixed(2)}
+            - **Response Time (p95):** ${(summary.metrics.http_req_duration?.['p(95)'] || 0).toFixed(2)}ms
+            - **Error Rate:** ${((summary.metrics.http_req_failed?.rate || 0) * 100).toFixed(2)}%
+
+            ### Status
+            ${summary.metrics.http_req_failed?.rate < 0.05 ? '✅ Passed' : '❌ Failed'} - Error rate within threshold
+            ${summary.metrics.http_req_duration?.['p(95)'] < 500 ? '✅ Passed' : '❌ Failed'} - Response time within threshold
+
+            Full results available in artifacts.
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # Medium load test for nightly runs
+  medium-load-test:
+    name: Medium Load Test (500 VUs)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.test_profile == 'medium' || github.event.inputs.test_profile == 'all'))
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Start application
+        run: |
+          npm run preview &
+          echo $! > .preview-pid
+          sleep 10
+
+      - name: Run medium load tests
+        run: bash scripts/run-load-tests.sh medium
+        env:
+          BASE_URL: http://localhost:3000
+
+      - name: Stop application
+        if: always()
+        run: |
+          if [ -f .preview-pid ]; then
+            kill $(cat .preview-pid) || true
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-results-medium
+          path: tests/load/results/
+          retention-days: 90
+
+      - name: Update baseline metrics
+        if: success() && github.event_name == 'schedule'
+        run: |
+          echo "Updating baseline metrics..."
+          # Placeholder for baseline update logic
+
+  # Heavy load test (manual or nightly on weekends)
+  heavy-load-test:
+    name: Heavy Load Test (1000 VUs)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.test_profile == 'heavy' || github.event.inputs.test_profile == 'all')
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Start application
+        run: |
+          npm run preview &
+          echo $! > .preview-pid
+          sleep 10
+
+      - name: Run heavy load tests
+        run: bash scripts/run-load-tests.sh heavy
+        env:
+          BASE_URL: http://localhost:3000
+
+      - name: Stop application
+        if: always()
+        run: |
+          if [ -f .preview-pid ]; then
+            kill $(cat .preview-pid) || true
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-results-heavy
+          path: tests/load/results/
+          retention-days: 90
+
+      - name: Analyze breaking points
+        if: success()
+        run: |
+          echo "Analyzing system breaking points..."
+          echo "Results available in artifacts"
+
+  # Notification job
+  notify-results:
+    name: Notify Load Test Results
+    runs-on: ubuntu-latest
+    needs: [light-load-test, medium-load-test, heavy-load-test]
+    if: always() && github.event_name == 'schedule'
+
+    steps:
+      - name: Send notification
+        run: |
+          echo "Load test results:"
+          echo "  Light: ${{ needs.light-load-test.result }}"
+          echo "  Medium: ${{ needs.medium-load-test.result }}"
+          echo "  Heavy: ${{ needs.heavy-load-test.result }}"
+
+          # Placeholder for notification logic (Slack, email, etc.)

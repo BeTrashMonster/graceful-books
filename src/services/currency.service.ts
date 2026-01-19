@@ -19,6 +19,7 @@ import type {
   CurrencyFormatOptions,
   CurrencyValidationResult,
 } from '../types/currency.types';
+import { PREDEFINED_CURRENCIES } from '../types/currency.types';
 
 // Configure Decimal.js for 28 decimal places precision
 Decimal.set({ precision: 28, rounding: Decimal.ROUND_HALF_UP });
@@ -140,7 +141,7 @@ export class CurrencyService implements ICurrencyService {
    */
   async getCurrencyByCode(companyId: string, code: CurrencyCode): Promise<Currency | null> {
     const currency = await this.db.currencies
-      .where(['company_id+code'])
+      .where('company_id+code')
       .equals([companyId, code])
       .first();
 
@@ -166,7 +167,7 @@ export class CurrencyService implements ICurrencyService {
    */
   async getBaseCurrency(companyId: string): Promise<Currency | null> {
     const currency = await this.db.currencies
-      .where(['company_id+is_base_currency'])
+      .where('company_id+is_base_currency')
       .equals([companyId, true])
       .first();
 
@@ -199,10 +200,11 @@ export class CurrencyService implements ICurrencyService {
     }
 
     // Update currency
+    const now = Date.now();
     const updated: Currency = {
       ...existing,
       ...updates,
-      updated_at: Date.now(),
+      updated_at: Math.max(now, existing.updated_at + 1), // Ensure updated_at always increases
     };
 
     // Validate
@@ -322,14 +324,17 @@ export class CurrencyService implements ICurrencyService {
 
     const config = this.getPredefinedConfig(currency);
 
+    // Escape special regex characters in symbol
+    const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     // Remove currency symbols and code
     let cleaned = input
-      .replace(new RegExp(config.symbol, 'g'), '')
+      .replace(new RegExp(escapeRegex(config.symbol), 'g'), '')
       .replace(currency, '')
       .trim();
 
     // Remove thousands separators
-    cleaned = cleaned.replace(new RegExp(`\\${config.thousandsSeparator}`, 'g'), '');
+    cleaned = cleaned.replace(new RegExp(escapeRegex(config.thousandsSeparator), 'g'), '');
 
     // Replace decimal separator with standard dot
     if (config.decimalSeparator !== '.') {
@@ -349,8 +354,6 @@ export class CurrencyService implements ICurrencyService {
    * Get predefined currency configuration
    */
   private getPredefinedConfig(code: CurrencyCode): CurrencyDisplayConfig {
-    // Import PREDEFINED_CURRENCIES at runtime to avoid circular dependencies
-    const { PREDEFINED_CURRENCIES } = require('../types/currency.types');
     const config = PREDEFINED_CURRENCIES[code];
 
     if (!config) {
@@ -372,7 +375,6 @@ export class CurrencyService implements ICurrencyService {
  * Get all supported currency codes
  */
 export function getSupportedCurrencies(): CurrencyCode[] {
-  const { PREDEFINED_CURRENCIES } = require('../types/currency.types');
   return Object.keys(PREDEFINED_CURRENCIES) as CurrencyCode[];
 }
 
@@ -380,7 +382,6 @@ export function getSupportedCurrencies(): CurrencyCode[] {
  * Check if a currency code is supported
  */
 export function isSupportedCurrency(code: string): code is CurrencyCode {
-  const { PREDEFINED_CURRENCIES } = require('../types/currency.types');
   return code in PREDEFINED_CURRENCIES;
 }
 
@@ -388,7 +389,6 @@ export function isSupportedCurrency(code: string): code is CurrencyCode {
  * Get currency display name
  */
 export function getCurrencyName(code: CurrencyCode): string {
-  const { PREDEFINED_CURRENCIES } = require('../types/currency.types');
   return PREDEFINED_CURRENCIES[code]?.name || code;
 }
 
@@ -396,6 +396,5 @@ export function getCurrencyName(code: CurrencyCode): string {
  * Get currency symbol
  */
 export function getCurrencySymbol(code: CurrencyCode): string {
-  const { PREDEFINED_CURRENCIES } = require('../types/currency.types');
   return PREDEFINED_CURRENCIES[code]?.symbol || code;
 }

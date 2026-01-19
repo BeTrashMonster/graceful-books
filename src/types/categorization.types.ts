@@ -44,6 +44,7 @@ export interface CategorizationInput {
  */
 export interface TrainingDataPoint {
   id: string
+  company_id: string
   vendorName: string
   description: string
   amount: number

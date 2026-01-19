@@ -1,0 +1,22 @@
+{
+  "name": "Medium Load Test",
+  "description": "500 concurrent users - nightly testing",
+  "env": {
+    "BASE_URL": "http://localhost:3000",
+    "VUS_START": "50",
+    "VUS_PEAK": "500",
+    "CONFLICT_VUS": "100",
+    "LIGHT_USERS": "200",
+    "ACTIVE_USERS": "250",
+    "POWER_USERS": "50"
+  },
+  "duration": "10m",
+  "expectedRPS": "1000-2000",
+  "expectedP95": "<800ms",
+  "expectedErrorRate": "<5%",
+  "scenarios": [
+    "sync-relay",
+    "crdt-conflicts",
+    "mixed-workload"
+  ]
+}

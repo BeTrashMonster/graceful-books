@@ -15,6 +15,8 @@
 
 import type { BaseEntity, VersionVector } from '../types/database.types';
 
+export type { VersionVector } from '../types/database.types';
+
 /**
  * Entity with version vector for CRDT support
  */

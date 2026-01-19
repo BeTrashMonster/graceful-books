@@ -84,6 +84,7 @@ export enum TransactionType {
   BILL = 'BILL',
   CREDIT_NOTE = 'CREDIT_NOTE',
   ADJUSTMENT = 'ADJUSTMENT',
+  BARTER = 'BARTER', // I5: Barter/Trade Transactions
 }
 
 /**

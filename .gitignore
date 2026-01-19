@@ -28,6 +28,10 @@ dist-ssr
 coverage
 .nyc_output
 
+# Load testing results
+tests/load/results/
+*.k6.json
+
 # Playwright
 test-results/
 playwright-report/

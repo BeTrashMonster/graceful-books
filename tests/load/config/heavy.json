@@ -1,0 +1,27 @@
+{
+  "name": "Heavy Load Test",
+  "description": "1000 concurrent users - stress testing and capacity planning",
+  "env": {
+    "BASE_URL": "http://localhost:3000",
+    "VUS_START": "100",
+    "VUS_PEAK": "1000",
+    "CONFLICT_VUS": "200",
+    "LIGHT_USERS": "400",
+    "ACTIVE_USERS": "500",
+    "POWER_USERS": "100"
+  },
+  "duration": "15m",
+  "expectedRPS": "2000-4000",
+  "expectedP95": "<1500ms",
+  "expectedErrorRate": "<10%",
+  "scenarios": [
+    "sync-relay",
+    "crdt-conflicts",
+    "mixed-workload"
+  ],
+  "notes": [
+    "This test is designed to find the breaking point",
+    "Error rates up to 10% are acceptable",
+    "Focus on identifying bottlenecks and capacity limits"
+  ]
+}

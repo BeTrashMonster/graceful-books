@@ -1,0 +1,430 @@
+{
+  "dashboard": {
+    "title": "Graceful Books - Observability Dashboard",
+    "tags": ["observability", "graceful-books"],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "CRDT Conflict Rate",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+        "targets": [
+          {
+            "expr": "rate(crdt_conflict_total[1h])",
+            "legendFormat": "Conflicts/hour",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Conflicts/hour",
+            "show": true
+          }
+        ],
+        "xaxis": {
+          "show": true,
+          "mode": "time"
+        },
+        "alert": {
+          "name": "High CRDT Conflict Rate",
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [10],
+                "type": "gt"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": ["A", "5m", "now"]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ]
+        }
+      },
+      {
+        "id": 2,
+        "title": "Sync Latency (Percentiles)",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(sync_latency_bucket[5m]))",
+            "legendFormat": "p50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(sync_latency_bucket[5m]))",
+            "legendFormat": "p95",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(sync_latency_bucket[5m]))",
+            "legendFormat": "p99",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Latency (ms)",
+            "show": true
+          }
+        ],
+        "xaxis": {
+          "show": true,
+          "mode": "time"
+        }
+      },
+      {
+        "id": 3,
+        "title": "Active Users",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 0, "y": 8 },
+        "targets": [
+          {
+            "expr": "count(count_over_time(user_activity_total[1h]) > 0)",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "value": null,
+                  "color": "red"
+                },
+                {
+                  "value": 10,
+                  "color": "yellow"
+                },
+                {
+                  "value": 50,
+                  "color": "green"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "API Error Rate",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 6, "y": 8 },
+        "targets": [
+          {
+            "expr": "rate(api_request_total{error=\"true\"}[5m]) / rate(api_request_total[5m]) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "value": null,
+                  "color": "green"
+                },
+                {
+                  "value": 1,
+                  "color": "yellow"
+                },
+                {
+                  "value": 5,
+                  "color": "red"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "Sync Success Rate",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 12, "y": 8 },
+        "targets": [
+          {
+            "expr": "rate(sync_latency_total{success=\"true\"}[5m]) / rate(sync_latency_total[5m]) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "value": null,
+                  "color": "red"
+                },
+                {
+                  "value": 95,
+                  "color": "yellow"
+                },
+                {
+                  "value": 99,
+                  "color": "green"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "Conflict Resolution Time",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 18, "y": 8 },
+        "targets": [
+          {
+            "expr": "avg(crdt_resolution_time)",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms",
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "value": null,
+                  "color": "green"
+                },
+                {
+                  "value": 100,
+                  "color": "yellow"
+                },
+                {
+                  "value": 500,
+                  "color": "red"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "Feature Adoption",
+        "type": "bargauge",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+        "targets": [
+          {
+            "expr": "topk(10, sum(feature_usage_total) by (feature))",
+            "legendFormat": "{{feature}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        },
+        "options": {
+          "orientation": "horizontal",
+          "displayMode": "gradient"
+        }
+      },
+      {
+        "id": 8,
+        "title": "User Activity by Feature",
+        "type": "piechart",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+        "targets": [
+          {
+            "expr": "sum(user_activity_total) by (feature)",
+            "legendFormat": "{{feature}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "right"
+          },
+          "pieType": "donut"
+        }
+      },
+      {
+        "id": 9,
+        "title": "Sync Operations Timeline",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 24, "x": 0, "y": 20 },
+        "targets": [
+          {
+            "expr": "rate(sync_operation_total[5m])",
+            "legendFormat": "Sync ops/sec",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(sync_operation_total{success=\"false\"}[5m])",
+            "legendFormat": "Failed ops/sec",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Operations/sec",
+            "show": true
+          }
+        ],
+        "xaxis": {
+          "show": true,
+          "mode": "time"
+        }
+      },
+      {
+        "id": 10,
+        "title": "Database Query Performance",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 28 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(db_query_duration_bucket[5m]))",
+            "legendFormat": "p95 query time",
+            "refId": "A"
+          },
+          {
+            "expr": "avg(db_query_rows)",
+            "legendFormat": "Avg rows returned",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Duration (ms)",
+            "show": true
+          },
+          {
+            "label": "Rows",
+            "show": true
+          }
+        ],
+        "xaxis": {
+          "show": true,
+          "mode": "time"
+        }
+      },
+      {
+        "id": 11,
+        "title": "Encryption/Decryption Performance",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 28 },
+        "targets": [
+          {
+            "expr": "rate(crypto_operation_duration_sum[5m]) / rate(crypto_operation_duration_count[5m])",
+            "legendFormat": "Avg crypto time (ms)",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Duration (ms)",
+            "show": true
+          }
+        ],
+        "xaxis": {
+          "show": true,
+          "mode": "time"
+        }
+      },
+      {
+        "id": 12,
+        "title": "Log Volume by Level",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 24, "x": 0, "y": 36 },
+        "targets": [
+          {
+            "expr": "sum(rate(log_entries_total[5m])) by (level)",
+            "legendFormat": "{{level}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Logs/sec",
+            "show": true
+          }
+        ],
+        "xaxis": {
+          "show": true,
+          "mode": "time"
+        }
+      },
+      {
+        "id": 13,
+        "title": "Recent Errors",
+        "type": "logs",
+        "gridPos": { "h": 8, "w": 24, "x": 0, "y": 44 },
+        "targets": [
+          {
+            "expr": "{level=\"error\"}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "showTime": true,
+          "showLabels": true,
+          "sortOrder": "Descending"
+        }
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "environment",
+          "type": "query",
+          "query": "label_values(environment)",
+          "current": {
+            "text": "production",
+            "value": "production"
+          }
+        },
+        {
+          "name": "client_id",
+          "type": "query",
+          "query": "label_values(sync_latency_total, clientId)",
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          }
+        }
+      ]
+    },
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    }
+  }
+}

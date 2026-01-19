@@ -52,30 +52,39 @@ class MockDatabase {
       where: (field: string | string[]) => {
         return {
           equals: (value: any) => {
-            return {
-              and: (filter: (r: ExchangeRate) => boolean) => {
-                return {
-                  sortBy: async (sortField: string) => {
-                    const values = Array.from(this.rates.values());
-                    const filtered = values.filter(filter);
+            const baseFilters: ((r: ExchangeRate) => boolean)[] = [];
 
-                    let result: ExchangeRate[] = [];
-                    if (Array.isArray(field)) {
-                      const [f1, f2, f3] = field;
-                      const [v1, v2, v3] = value;
+            // Handle compound index (e.g., 'company_id+from_currency+to_currency')
+            if (typeof field === 'string' && field.includes('+')) {
+              const fields = field.split('+');
+              const values = Array.isArray(value) ? value : [value];
+              baseFilters.push((r: any) => fields.every((f, i) => r[f] === values[i]));
+            } else if (Array.isArray(field)) {
+              const [f1, f2, f3] = field;
+              const [v1, v2, v3] = value;
+              if (f3) {
+                baseFilters.push((r: any) => r[f1] === v1 && r[f2] === v2 && r[f3] === v3);
+              } else if (f2) {
+                baseFilters.push((r: any) => r[f1] === v1 && r[f2] === v2);
+              } else {
+                baseFilters.push((r: any) => r[f1] === v1);
+              }
+            } else {
+              baseFilters.push((r: any) => r[field as keyof ExchangeRate] === value);
+            }
 
-                      if (f3) {
-                        result = filtered.filter((r: any) => r[f1] === v1 && r[f2] === v2 && r[f3] === v3);
-                      } else if (f2) {
-                        result = filtered.filter((r: any) => r[f1] === v1 && r[f2] === v2);
-                      }
-                    }
-
-                    return result.sort((a: any, b: any) => a[sortField] - b[sortField]);
-                  },
-                };
+            const makeQuery = (filters: ((r: ExchangeRate) => boolean)[]) => ({
+              and: (filter: (r: ExchangeRate) => boolean) => makeQuery([...filters, filter]),
+              sortBy: async (sortField: string) => {
+                let result = Array.from(this.rates.values());
+                for (const f of filters) {
+                  result = result.filter(f);
+                }
+                return result.sort((a: any, b: any) => a[sortField] - b[sortField]);
               },
-            };
+            });
+
+            return makeQuery(baseFilters);
           },
         };
       },

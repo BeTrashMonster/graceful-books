@@ -50,7 +50,14 @@ class MockDatabase {
             return {
               first: async () => {
                 const values = Array.from(this.currencyMap.values());
-                if (Array.isArray(field)) {
+                // Handle compound index (e.g., 'company_id+code')
+                if (typeof field === 'string' && field.includes('+')) {
+                  const fields = field.split('+');
+                  const values = Array.isArray(value) ? value : [value];
+                  return Array.from(this.currencyMap.values()).find((c: any) =>
+                    fields.every((f, i) => c[f as keyof Currency] === values[i])
+                  );
+                } else if (Array.isArray(field)) {
                   const [field1, field2] = field;
                   const [value1, value2] = value;
                   return values.find((c: any) => c[field1 as keyof Currency] === value1 && c[field2 as keyof Currency] === value2);
@@ -63,7 +70,14 @@ class MockDatabase {
                   first: async () => {
                     const values = Array.from(this.currencyMap.values());
                     const filtered = values.filter(filter);
-                    if (Array.isArray(field)) {
+                    // Handle compound index (e.g., 'company_id+code')
+                    if (typeof field === 'string' && field.includes('+')) {
+                      const fields = field.split('+');
+                      const values = Array.isArray(value) ? value : [value];
+                      return filtered.find((c: any) =>
+                        fields.every((f, i) => c[f as keyof Currency] === values[i])
+                      );
+                    } else if (Array.isArray(field)) {
                       const [field1, field2] = field;
                       const [value1, value2] = value;
                       return filtered.find((c: any) => c[field1 as keyof Currency] === value1 && c[field2 as keyof Currency] === value2);
@@ -74,7 +88,14 @@ class MockDatabase {
                   toArray: async () => {
                     const values = Array.from(this.currencyMap.values());
                     const filtered = values.filter(filter);
-                    if (Array.isArray(field)) {
+                    // Handle compound index (e.g., 'company_id+code')
+                    if (typeof field === 'string' && field.includes('+')) {
+                      const fields = field.split('+');
+                      const values = Array.isArray(value) ? value : [value];
+                      return filtered.filter((c: any) =>
+                        fields.every((f, i) => c[f as keyof Currency] === values[i])
+                      );
+                    } else if (Array.isArray(field)) {
                       const [field1, field2] = field;
                       const [value1, value2] = value;
                       return filtered.filter((c: any) => c[field1 as keyof Currency] === value1 && c[field2 as keyof Currency] === value2);

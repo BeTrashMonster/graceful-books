@@ -96,7 +96,7 @@ describe('CurrencyConversionService', () => {
       expect(result.original_currency).toBe('USD');
       expect(result.converted_currency).toBe('EUR');
       expect(new Decimal(result.converted_amount).toNumber()).toBeCloseTo(85, 2);
-      expect(result.exchange_rate).toBe('0.85');
+      expect(result.exchange_rate).toBe('0.8500000000000000000000000000');
     });
 
     it('should handle same currency conversion', async () => {

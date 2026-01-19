@@ -1,0 +1,22 @@
+{
+  "name": "Light Load Test",
+  "description": "100 concurrent users - suitable for PR validation",
+  "env": {
+    "BASE_URL": "http://localhost:3000",
+    "VUS_START": "10",
+    "VUS_PEAK": "100",
+    "CONFLICT_VUS": "20",
+    "LIGHT_USERS": "40",
+    "ACTIVE_USERS": "50",
+    "POWER_USERS": "10"
+  },
+  "duration": "5m",
+  "expectedRPS": "200-400",
+  "expectedP95": "<500ms",
+  "expectedErrorRate": "<5%",
+  "scenarios": [
+    "sync-relay",
+    "crdt-conflicts",
+    "mixed-workload"
+  ]
+}
