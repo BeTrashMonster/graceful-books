@@ -6,6 +6,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Graceful Books - A local-first, zero-knowledge accounting platform for entrepreneurs" />
 
+    <!--
+      SECURITY NOTE: Subresource Integrity (SRI)
+
+      This application is FULLY SELF-CONTAINED with NO external resources.
+      All scripts, stylesheets, and assets are bundled locally via Vite.
+
+      This is a deliberate security design choice that:
+      1. Eliminates CDN compromise attack vectors
+      2. Ensures offline-first capability (critical for local-first architecture)
+      3. Prevents supply chain attacks via compromised external resources
+      4. Aligns with our zero-knowledge encryption architecture
+
+      If external resources are added in the future, they MUST include SRI attributes:
+
+      <link rel="stylesheet" href="https://example.com/style.css"
+            integrity="sha384-[hash]"
+            crossorigin="anonymous">
+
+      <script src="https://example.com/script.js"
+              integrity="sha384-[hash]"
+              crossorigin="anonymous"></script>
+
+      Use scripts/generate-sri.js to generate SRI hashes:
+        node scripts/generate-sri.js <url>
+
+      The Vite build configuration includes validation to warn about
+      external resources that lack SRI attributes.
+    -->
+
     <!-- Security Headers (Fallback for static hosting) -->
     <!-- Note: frame-ancestors cannot be enforced via meta tags, use HTTP headers for full protection -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'" />

@@ -17,6 +17,12 @@ import type {
 import { DEFAULT_AUTH_CONFIG } from './types';
 import { createSession, generateSessionId } from './session';
 import { getSecureStorage } from '../utils/secureStorage';
+import {
+  sanitizeError,
+  logSecurityError,
+  SecurityErrorCode,
+  isDevMode,
+} from '../utils/errorSanitizer';
 
 /**
  * Storage key for failed login attempts
@@ -164,12 +170,19 @@ export async function login(
       expiresAt,
     };
   } catch (error) {
-    // Log error internally but don't expose details to user
+    // Log error securely (full details in dev, sanitized in prod)
+    logSecurityError(error as Error, 'auth.login');
     recordFailedAttempt(identifier);
+
+    // Sanitize error for user display
+    const sanitized = sanitizeError(error as Error, 'auth');
+
     return {
       success: false,
-      error: 'An error occurred during login. Please try again.',
-      errorCode: 'UNKNOWN_ERROR',
+      error: sanitized.userMessage,
+      errorCode: sanitized.errorCode,
+      // Include detailed error only in development mode
+      ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
   }
 }
@@ -269,6 +282,10 @@ async function validatePassphrase(
     const decryptedText = new TextDecoder().decode(decrypted);
     return decryptedText === PASSPHRASE_TEST_VALUE;
   } catch (error) {
+    // Log decryption failure securely (doesn't expose to user)
+    if (isDevMode()) {
+      logSecurityError(error as Error, 'auth.validatePassphrase');
+    }
     // Decryption failure means invalid passphrase
     return false;
   }
@@ -428,7 +445,11 @@ export async function storePassphraseTestData(
   const result = await secureStorage.setItem(storageKey, JSON.stringify(testData));
 
   if (!result.success) {
-    throw new Error(result.error || 'Failed to store passphrase test data securely');
+    const error = new Error(result.error || 'Failed to store passphrase test data securely');
+    logSecurityError(error, 'auth.storePassphraseTestData');
+    // Throw sanitized error - original details already logged
+    const sanitized = sanitizeError(error, 'storage');
+    throw new Error(sanitized.userMessage);
   }
 }
 

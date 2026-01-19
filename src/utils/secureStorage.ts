@@ -54,6 +54,57 @@ interface StorageResult<T> {
 }
 
 /**
+ * Extended result type for setItem operations with specific error codes
+ */
+export interface SetItemResult {
+  success: boolean
+  error?: 'QUOTA_EXCEEDED' | 'ENCRYPTION_FAILED' | 'NOT_INITIALIZED' | 'UNKNOWN'
+  message?: string
+}
+
+/**
+ * Storage usage statistics
+ */
+export interface StorageStats {
+  /** Bytes used by secure storage entries */
+  used: number
+  /** Estimated maximum storage available (typically 5-10MB) */
+  estimatedMax: number
+  /** Percentage of storage used (0-100) */
+  percentUsed: number
+}
+
+/**
+ * Metadata stored with each secure entry for cleanup purposes
+ */
+interface EntryMetadata {
+  /** Timestamp when entry was created/updated */
+  timestamp: number
+  /** Original key name */
+  key: string
+}
+
+/**
+ * Prefix for entry metadata storage
+ */
+const METADATA_PREFIX = 'secure_meta:'
+
+/**
+ * Default maximum age for cleanup (30 days in milliseconds)
+ */
+const DEFAULT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000
+
+/**
+ * Estimated localStorage limit (5MB is most conservative estimate)
+ */
+const ESTIMATED_STORAGE_LIMIT = 5 * 1024 * 1024
+
+/**
+ * Threshold percentage for "nearly full" warning
+ */
+const NEARLY_FULL_THRESHOLD = 80
+
+/**
  * SecureLocalStorage Class
  *
  * Provides encrypted localStorage operations using a device-derived key.
@@ -148,18 +199,22 @@ export class SecureLocalStorage {
    *
    * @param key - Storage key (will be prefixed with 'secure:')
    * @param value - Value to encrypt and store
-   * @returns Promise resolving to success result
+   * @returns Promise resolving to success result with specific error codes
    *
    * @example
    * ```typescript
-   * await storage.setItem('auth-token', sensitiveToken)
+   * const result = await storage.setItem('auth-token', sensitiveToken)
+   * if (!result.success && result.error === 'QUOTA_EXCEEDED') {
+   *   // Handle storage full scenario
+   * }
    * ```
    */
-  public async setItem(key: string, value: string): Promise<StorageResult<void>> {
+  public async setItem(key: string, value: string): Promise<SetItemResult> {
     if (!this.initialized || !this.deviceKey) {
       return {
         success: false,
-        error: 'Secure storage not initialized. Please try again in a moment.',
+        error: 'NOT_INITIALIZED',
+        message: 'Secure storage not initialized. Please try again in a moment.',
       }
     }
 
@@ -168,16 +223,139 @@ export class SecureLocalStorage {
       const serialized = JSON.stringify(encrypted)
       const prefixedKey = this.getPrefixedKey(key)
 
-      localStorage.setItem(prefixedKey, serialized)
-
-      return { success: true }
+      // Try to store the value, handling quota errors
+      const storeResult = await this.tryStoreWithQuotaHandling(prefixedKey, serialized, key)
+      return storeResult
     } catch (error) {
+      // Check if it's an encryption error
+      if (error instanceof Error && error.message.includes('encrypt')) {
+        return {
+          success: false,
+          error: 'ENCRYPTION_FAILED',
+          message: 'We had trouble securing your data. Please try again.',
+        }
+      }
+
       const message = error instanceof Error ? error.message : 'Unknown error'
       return {
         success: false,
-        error: `Unable to save securely: ${message}`,
+        error: 'UNKNOWN',
+        message: `Unable to save securely: ${message}`,
       }
     }
+  }
+
+  /**
+   * Try to store a value, handling quota exceeded errors gracefully
+   *
+   * @param prefixedKey - The storage key with prefix
+   * @param serialized - The serialized value to store
+   * @param originalKey - The original key (without prefix) for metadata
+   * @returns Promise resolving to SetItemResult
+   */
+  private async tryStoreWithQuotaHandling(
+    prefixedKey: string,
+    serialized: string,
+    originalKey: string
+  ): Promise<SetItemResult> {
+    try {
+      localStorage.setItem(prefixedKey, serialized)
+      // Store metadata for cleanup purposes
+      this.storeEntryMetadata(originalKey)
+      return { success: true }
+    } catch (error) {
+      // Check if it's a quota exceeded error
+      if (this.isQuotaExceededError(error)) {
+        // Try to clean up old entries first
+        const cleanedCount = await this.cleanupOldEntries()
+
+        if (cleanedCount > 0) {
+          // Retry after cleanup
+          try {
+            localStorage.setItem(prefixedKey, serialized)
+            this.storeEntryMetadata(originalKey)
+            return { success: true }
+          } catch (retryError) {
+            if (this.isQuotaExceededError(retryError)) {
+              return {
+                success: false,
+                error: 'QUOTA_EXCEEDED',
+                message:
+                  'Your browser storage is full. We cleaned up some old data, but there still is not enough space. ' +
+                  'You may need to clear some browser data or use a different browser.',
+              }
+            }
+          }
+        }
+
+        return {
+          success: false,
+          error: 'QUOTA_EXCEEDED',
+          message:
+            'Your browser storage is full. Please clear some browser data to continue saving. ' +
+            'Do not worry - your existing data is safe.',
+        }
+      }
+
+      // Re-throw if it's not a quota error
+      throw error
+    }
+  }
+
+  /**
+   * Check if an error is a quota exceeded error
+   *
+   * @param error - The error to check
+   * @returns True if it's a quota exceeded error
+   */
+  private isQuotaExceededError(error: unknown): boolean {
+    if (error instanceof Error) {
+      // Different browsers use different error names/messages
+      return (
+        error.name === 'QuotaExceededError' ||
+        error.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+        error.message.includes('quota') ||
+        error.message.includes('QuotaExceeded') ||
+        // Safari specific
+        error.name === 'QUOTA_EXCEEDED_ERR'
+      )
+    }
+    return false
+  }
+
+  /**
+   * Store metadata for an entry (for cleanup tracking)
+   *
+   * @param key - The original key (without prefix)
+   */
+  private storeEntryMetadata(key: string): void {
+    try {
+      const metadata: EntryMetadata = {
+        timestamp: Date.now(),
+        key: key,
+      }
+      localStorage.setItem(`${METADATA_PREFIX}${key}`, JSON.stringify(metadata))
+    } catch {
+      // Metadata storage failure is not critical
+    }
+  }
+
+  /**
+   * Get metadata for an entry
+   *
+   * @param key - The original key (without prefix)
+   * @returns Entry metadata or null if not found
+   */
+  private getEntryMetadata(key: string): EntryMetadata | null {
+    try {
+      const metadataStr = localStorage.getItem(`${METADATA_PREFIX}${key}`)
+      if (metadataStr) {
+        return JSON.parse(metadataStr) as EntryMetadata
+      }
+    } catch {
+      // Parse failure
+    }
+    return null
   }
 
   /**
@@ -228,17 +406,19 @@ export class SecureLocalStorage {
   public async removeItem(key: string): Promise<void> {
     const prefixedKey = this.getPrefixedKey(key)
     localStorage.removeItem(prefixedKey)
+    // Also remove associated metadata
+    localStorage.removeItem(`${METADATA_PREFIX}${key}`)
   }
 
   /**
    * Clear all secure storage entries
    *
-   * Only removes keys with the 'secure:' prefix.
+   * Only removes keys with the 'secure:' prefix and associated metadata.
    */
   public async clear(): Promise<void> {
     const keys = Object.keys(localStorage)
     keys.forEach((key) => {
-      if (key.startsWith(SECURE_KEY_PREFIX)) {
+      if (key.startsWith(SECURE_KEY_PREFIX) || key.startsWith(METADATA_PREFIX)) {
         localStorage.removeItem(key)
       }
     })
@@ -327,6 +507,142 @@ export class SecureLocalStorage {
     return keys
       .filter((key) => key.startsWith(SECURE_KEY_PREFIX))
       .map((key) => key.slice(SECURE_KEY_PREFIX.length))
+  }
+
+  // ============================================================
+  // STORAGE QUOTA MANAGEMENT METHODS
+  // ============================================================
+
+  /**
+   * Get current storage usage statistics
+   *
+   * Calculates how much space is being used by secure storage entries
+   * and estimates the percentage of available storage consumed.
+   *
+   * @returns Promise resolving to storage statistics
+   *
+   * @example
+   * ```typescript
+   * const stats = await storage.getStorageStats()
+   * if (stats.percentUsed > 80) {
+   *   console.log('Storage is getting full!')
+   * }
+   * ```
+   */
+  public async getStorageStats(): Promise<StorageStats> {
+    let totalBytes = 0
+
+    // Calculate bytes used by all localStorage entries
+    const allKeys = Object.keys(localStorage)
+    for (const key of allKeys) {
+      const value = localStorage.getItem(key)
+      if (value) {
+        // Each character in JavaScript strings is 2 bytes (UTF-16)
+        // But localStorage typically stores as UTF-8, so we approximate
+        totalBytes += key.length * 2 + value.length * 2
+      }
+    }
+
+    const percentUsed = (totalBytes / ESTIMATED_STORAGE_LIMIT) * 100
+
+    return {
+      used: totalBytes,
+      estimatedMax: ESTIMATED_STORAGE_LIMIT,
+      percentUsed: Math.min(percentUsed, 100), // Cap at 100%
+    }
+  }
+
+  /**
+   * Get storage usage for secure entries only
+   *
+   * @returns Bytes used by secure storage entries
+   */
+  public getSecureStorageUsage(): number {
+    let totalBytes = 0
+
+    const allKeys = Object.keys(localStorage)
+    for (const key of allKeys) {
+      if (key.startsWith(SECURE_KEY_PREFIX) || key.startsWith(METADATA_PREFIX)) {
+        const value = localStorage.getItem(key)
+        if (value) {
+          totalBytes += key.length * 2 + value.length * 2
+        }
+      }
+    }
+
+    return totalBytes
+  }
+
+  /**
+   * Clean up old entries to free storage space
+   *
+   * Removes entries older than the specified maximum age. This helps
+   * prevent storage quota issues by removing stale data.
+   *
+   * @param maxAge - Maximum age in milliseconds (default: 30 days)
+   * @returns Promise resolving to number of entries cleaned up
+   *
+   * @example
+   * ```typescript
+   * // Clean entries older than 7 days
+   * const cleaned = await storage.cleanupOldEntries(7 * 24 * 60 * 60 * 1000)
+   * console.log(`Cleaned up ${cleaned} old entries`)
+   * ```
+   */
+  public async cleanupOldEntries(maxAge: number = DEFAULT_MAX_AGE_MS): Promise<number> {
+    const now = Date.now()
+    const cutoffTime = now - maxAge
+    let cleanedCount = 0
+
+    // Get all secure storage keys
+    const secureKeys = this.getKeys()
+
+    for (const key of secureKeys) {
+      const metadata = this.getEntryMetadata(key)
+
+      // If we have metadata and it's old, or if there's no metadata and we're being aggressive
+      if (metadata && metadata.timestamp < cutoffTime) {
+        await this.removeItem(key)
+        // Also remove the metadata
+        localStorage.removeItem(`${METADATA_PREFIX}${key}`)
+        cleanedCount++
+      }
+    }
+
+    // Also clean up orphaned metadata entries
+    const allKeys = Object.keys(localStorage)
+    for (const key of allKeys) {
+      if (key.startsWith(METADATA_PREFIX)) {
+        const originalKey = key.slice(METADATA_PREFIX.length)
+        const prefixedKey = this.getPrefixedKey(originalKey)
+        // If the secure entry doesn't exist, remove the metadata
+        if (!localStorage.getItem(prefixedKey)) {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    return cleanedCount
+  }
+
+  /**
+   * Check if storage is nearly full (above threshold)
+   *
+   * Returns true if storage usage is above 80% of the estimated limit.
+   * This can be used to warn users before they hit the storage limit.
+   *
+   * @returns Promise resolving to true if storage is nearly full
+   *
+   * @example
+   * ```typescript
+   * if (await storage.isNearlyFull()) {
+   *   showWarning('Storage is getting full. Consider cleaning up old data.')
+   * }
+   * ```
+   */
+  public async isNearlyFull(): Promise<boolean> {
+    const stats = await this.getStorageStats()
+    return stats.percentUsed >= NEARLY_FULL_THRESHOLD
   }
 
   /**

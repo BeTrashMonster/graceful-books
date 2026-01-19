@@ -5,6 +5,22 @@
  * configurations to protect the Graceful Books application from common web
  * security vulnerabilities including XSS, clickjacking, and content injection.
  *
+ * IMPORTANT: Subresource Integrity (SRI) Note
+ * ============================================
+ * Graceful Books is designed to be FULLY SELF-CONTAINED with no external
+ * resources loaded from CDNs. This architectural decision:
+ *
+ * 1. Eliminates CDN compromise attack vectors entirely
+ * 2. Enables true offline-first functionality
+ * 3. Prevents supply chain attacks via compromised external resources
+ * 4. Aligns with our zero-knowledge encryption architecture
+ *
+ * If external resources become necessary in the future, they MUST include
+ * SRI integrity attributes. Use scripts/generate-sri.js to generate hashes.
+ *
+ * The Vite build configuration includes an SRI validation plugin that will
+ * warn about any external resources without integrity attributes.
+ *
  * @module config/securityHeaders
  */
 

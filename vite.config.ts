@@ -1,7 +1,90 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
-import type { Connect } from 'vite'
+import type { Connect, Plugin } from 'vite'
+
+/**
+ * Subresource Integrity (SRI) Validation Plugin
+ *
+ * This plugin validates that external resources in HTML files include
+ * integrity attributes to protect against CDN compromise attacks.
+ *
+ * IMPORTANT: Graceful Books is designed to be fully self-contained with
+ * no external resources. This plugin serves as a safety net to catch
+ * any accidentally added external resources without SRI protection.
+ *
+ * External resources requiring SRI validation:
+ * - <script src="https://...">
+ * - <link href="https://...">
+ *
+ * Excluded from validation:
+ * - Local resources (src="/..." or href="/...")
+ * - Data URIs
+ * - Same-origin resources
+ */
+function sriValidationPlugin(): Plugin {
+  return {
+    name: 'sri-validation',
+    enforce: 'post',
+    transformIndexHtml(html) {
+      const warnings: string[] = []
+
+      // Regex patterns to find external resources
+      const externalScriptPattern = /<script[^>]+src=["'](https?:\/\/[^"']+)["'][^>]*>/gi
+      const externalLinkPattern = /<link[^>]+href=["'](https?:\/\/[^"']+)["'][^>]*>/gi
+
+      // Check for external scripts without integrity attribute
+      let match
+      while ((match = externalScriptPattern.exec(html)) !== null) {
+        const fullTag = match[0]
+        const url = match[1]
+
+        if (!fullTag.includes('integrity=')) {
+          warnings.push(
+            `SECURITY WARNING: External script lacks SRI integrity attribute!\n` +
+            `  URL: ${url}\n` +
+            `  Fix: Add integrity="sha384-..." crossorigin="anonymous"\n` +
+            `  Generate hash: node scripts/generate-sri.js "${url}"`
+          )
+        }
+      }
+
+      // Check for external stylesheets without integrity attribute
+      while ((match = externalLinkPattern.exec(html)) !== null) {
+        const fullTag = match[0]
+        const url = match[1]
+
+        // Only check stylesheet links
+        if (fullTag.includes('rel="stylesheet"') || fullTag.includes("rel='stylesheet'")) {
+          if (!fullTag.includes('integrity=')) {
+            warnings.push(
+              `SECURITY WARNING: External stylesheet lacks SRI integrity attribute!\n` +
+              `  URL: ${url}\n` +
+              `  Fix: Add integrity="sha384-..." crossorigin="anonymous"\n` +
+              `  Generate hash: node scripts/generate-sri.js "${url}"`
+            )
+          }
+        }
+      }
+
+      // Log warnings during build
+      if (warnings.length > 0) {
+        console.warn('\n' + '='.repeat(70))
+        console.warn('SUBRESOURCE INTEGRITY (SRI) VALIDATION WARNINGS')
+        console.warn('='.repeat(70))
+        warnings.forEach(warning => {
+          console.warn('\n' + warning)
+        })
+        console.warn('\n' + '='.repeat(70))
+        console.warn('Graceful Books should be fully self-contained.')
+        console.warn('Consider bundling these resources locally instead of using CDNs.')
+        console.warn('='.repeat(70) + '\n')
+      }
+
+      return html
+    }
+  }
+}
 
 // Security headers for development server
 // These headers protect against XSS, clickjacking, and other web vulnerabilities
@@ -34,6 +117,8 @@ export default defineConfig({
         server.middlewares.use(securityHeadersMiddleware)
       },
     },
+    // SRI validation - warns about external resources without integrity attributes
+    sriValidationPlugin(),
   ],
   resolve: {
     alias: {

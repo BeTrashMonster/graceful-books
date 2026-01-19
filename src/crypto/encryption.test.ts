@@ -19,6 +19,7 @@ import {
   deserializeEncryptedData,
 } from './encryption';
 import type { MasterKey } from './types';
+import { SecurityErrorCode } from '../utils/errorSanitizer';
 
 describe('Encryption Module', () => {
   let testKey: MasterKey;
@@ -186,7 +187,8 @@ describe('Encryption Module', () => {
       const decryptResult = await decrypt(tamperedData, testKey);
 
       expect(decryptResult.success).toBe(false);
-      expect(decryptResult.errorCode).toBe('DECRYPTION_FAILED');
+      // Security fix L-1: Error codes are now sanitized security error codes
+      expect(decryptResult.errorCode).toBe(SecurityErrorCode.CRYPTO_FAILED);
     });
 
     it('should fail with tampered auth tag', async () => {
@@ -204,7 +206,8 @@ describe('Encryption Module', () => {
       const decryptResult = await decrypt(tamperedData, testKey);
 
       expect(decryptResult.success).toBe(false);
-      expect(decryptResult.errorCode).toBe('DECRYPTION_FAILED');
+      // Security fix L-1: Error codes are now sanitized security error codes
+      expect(decryptResult.errorCode).toBe(SecurityErrorCode.CRYPTO_FAILED);
     });
 
     it('should handle Unicode characters', async () => {

@@ -35,6 +35,13 @@ import {
   type RateLimitResult,
 } from '../utils/rateLimiter';
 
+import {
+  sanitizeError,
+  logSecurityError,
+  SecurityErrorCode,
+  isDevMode,
+} from '../utils/errorSanitizer';
+
 /**
  * AES-256-GCM algorithm identifier
  */
@@ -117,10 +124,16 @@ export async function encrypt(
       data: encryptedData,
     };
   } catch (error) {
+    // Log securely and sanitize for user display
+    logSecurityError(error as Error, 'crypto.encrypt');
+    const sanitized = sanitizeError(error as Error, 'crypto');
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Encryption failed',
-      errorCode: 'UNKNOWN_ERROR',
+      error: sanitized.userMessage,
+      errorCode: sanitized.errorCode,
+      // Include original error only in development
+      ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
   }
 }
@@ -191,10 +204,16 @@ export async function decrypt(
       data: plaintext,
     };
   } catch (error) {
+    // Log securely and sanitize for user display
+    logSecurityError(error as Error, 'crypto.decrypt');
+    const sanitized = sanitizeError(error as Error, 'crypto');
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Decryption failed',
-      errorCode: 'DECRYPTION_FAILED',
+      error: sanitized.userMessage,
+      errorCode: sanitized.errorCode,
+      // Include original error only in development
+      ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
   }
 }
@@ -235,10 +254,16 @@ export async function decryptToBytes(
       data: plaintextBytes,
     };
   } catch (error) {
+    // Log securely and sanitize for user display
+    logSecurityError(error as Error, 'crypto.decryptToBytes');
+    const sanitized = sanitizeError(error as Error, 'crypto');
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Decryption failed',
-      errorCode: 'DECRYPTION_FAILED',
+      error: sanitized.userMessage,
+      errorCode: sanitized.errorCode,
+      // Include original error only in development
+      ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
   }
 }
@@ -444,10 +469,15 @@ export async function encryptObject<T>(
     const json = JSON.stringify(obj);
     return encrypt(json, key);
   } catch (error) {
+    // Log securely and sanitize for user display
+    logSecurityError(error as Error, 'crypto.encryptObject');
+    const sanitized = sanitizeError(error as Error, 'crypto');
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to serialize object',
-      errorCode: 'UNKNOWN_ERROR',
+      error: sanitized.userMessage,
+      errorCode: sanitized.errorCode,
+      ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
   }
 }
@@ -490,10 +520,15 @@ export async function decryptObject<T>(
       data: obj,
     };
   } catch (error) {
+    // Log securely and sanitize for user display
+    logSecurityError(error as Error, 'crypto.decryptObject');
+    const sanitized = sanitizeError(error as Error, 'crypto');
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to parse decrypted object',
-      errorCode: 'DECRYPTION_FAILED',
+      error: sanitized.userMessage,
+      errorCode: sanitized.errorCode,
+      ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
   }
 }
@@ -559,10 +594,15 @@ export async function reencrypt(
     // Encrypt with new key
     return encrypt(decryptResult.data, newKey);
   } catch (error) {
+    // Log securely and sanitize for user display
+    logSecurityError(error as Error, 'crypto.reencrypt');
+    const sanitized = sanitizeError(error as Error, 'crypto');
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Re-encryption failed',
-      errorCode: 'UNKNOWN_ERROR',
+      error: sanitized.userMessage,
+      errorCode: sanitized.errorCode,
+      ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
   }
 }
