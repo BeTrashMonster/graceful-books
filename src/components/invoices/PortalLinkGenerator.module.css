@@ -1,0 +1,193 @@
+/**
+ * Portal Link Generator Styles
+ *
+ * WCAG 2.1 AA compliant component styling
+ */
+
+.container {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.5rem;
+}
+
+.description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Generate Section */
+.generateSection {
+  margin-top: 1rem;
+}
+
+/* Error Message */
+.errorMessage {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.errorIcon {
+  font-size: 1.25rem;
+}
+
+.errorText {
+  font-size: 0.875rem;
+  color: #991b1b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.retryButton {
+  align-self: flex-start;
+}
+
+/* Link Section */
+.linkSection {
+  margin-top: 1rem;
+}
+
+.linkHeading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 1rem;
+}
+
+.linkBox {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.linkInput {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-family: monospace;
+  color: #1f2937;
+  background: white;
+  min-height: 44px;
+}
+
+.linkInput:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+  border-color: #667eea;
+}
+
+.copyButton {
+  flex-shrink: 0;
+  min-width: 100px;
+}
+
+/* Copied Message */
+.copiedMessage {
+  background: #ecfdf5;
+  color: #065f46;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Link Info */
+.linkInfo {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.infoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.infoLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.infoValue {
+  font-size: 0.875rem;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* Actions */
+.actions {
+  margin-bottom: 1rem;
+}
+
+/* Security Notice */
+.securityNotice {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 6px;
+  margin-top: 1rem;
+}
+
+.securityIcon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.securityText {
+  font-size: 0.75rem;
+  color: #1e40af;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .linkBox {
+    flex-direction: column;
+  }
+
+  .copyButton {
+    min-width: auto;
+  }
+
+  .infoItem {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
+
+/* Focus indicators */
+*:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}

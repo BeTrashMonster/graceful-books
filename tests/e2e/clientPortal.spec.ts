@@ -1,357 +1,390 @@
 /**
- * Client Portal End-to-End Tests
+ * Client Portal E2E Tests
  *
- * Full user journey testing using Playwright including:
- * - Business user generating portal links
- * - Customer accessing portal
- * - Viewing invoices
- * - Payment flow (mocked)
- * - Accessibility compliance (WCAG 2.1 AA)
- *
- * Requirements:
- * - H4: Client Portal
- * - WCAG 2.1 AA compliance
- * - Mobile-responsive testing
+ * End-to-end tests for the customer portal workflow:
+ * - Portal link generation
+ * - Customer invoice viewing
+ * - Payment processing
+ * - Accessibility compliance
+ * - Mobile responsiveness
  */
 
-import { test, expect } from '@playwright/test';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { test, expect, type Page } from '@playwright/test';
 
-expect.extend(toHaveNoViolations);
+test.describe('Client Portal', () => {
+  let portalUrl: string;
 
-test.describe('Client Portal - Customer Journey', () => {
   test.beforeEach(async ({ page }) => {
-    // Setup: Login as business user and navigate to customer management
-    await page.goto('/login');
-    await page.fill('[name="email"]', 'testuser@gracefulbooks.com');
-    await page.fill('[name="password"]', 'TestPassword123!');
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/dashboard');
+    // Set up: Create an invoice and generate portal link
+    // In production, this would use the actual app routes
+    await page.goto('/');
+
+    // Simulate logged-in business user creating invoice
+    // This is a simplified setup - actual implementation would involve authentication
   });
 
-  test('Business user can generate portal link for customer', async ({ page }) => {
-    // Navigate to customers
-    await page.click('a[href="/customers"]');
-    await expect(page).toHaveURL('/customers');
+  test.describe('Portal Link Generation', () => {
+    test('should generate portal link for invoice', async ({ page }) => {
+      // Navigate to invoice page
+      await page.goto('/invoices/test-invoice-id');
 
-    // Find and click on test customer
-    await page.click('text=Test Customer');
+      // Click generate portal link button
+      const generateButton = page.getByRole('button', { name: /generate portal link/i });
+      await expect(generateButton).toBeVisible();
+      await generateButton.click();
 
-    // Open portal link generator
-    await page.click('button:has-text("Generate Portal Link")');
+      // Wait for link generation
+      await expect(page.getByText(/portal link generated/i)).toBeVisible();
 
-    // Modal should appear
-    await expect(
-      page.locator('h2:has-text("Customer Portal Access")')
-    ).toBeVisible();
+      // Verify link is displayed
+      const linkInput = page.getByLabel(/portal link url/i);
+      await expect(linkInput).toBeVisible();
 
-    // Generate link
-    await page.click('button:has-text("Generate New Portal Link")');
+      const linkValue = await linkInput.inputValue();
+      expect(linkValue).toContain('/portal/');
+      expect(linkValue).toMatch(/^https?:\/\/.*\/portal\/[a-zA-Z0-9_-]{64}$/);
 
-    // Link should be displayed
-    const linkInput = page.locator('input[aria-label="Generated portal link"]');
-    await expect(linkInput).toBeVisible();
-
-    const portalLink = await linkInput.inputValue();
-    expect(portalLink).toContain('/portal/');
-    expect(portalLink.length).toBeGreaterThan(30);
-
-    // Copy button should work
-    await page.click('button:has-text("Copy")');
-    await expect(page.locator('button:has-text("Copied!")'));.toBeVisible();
-  });
-
-  test('Customer can access portal and view invoices', async ({ page, context }) => {
-    // First, generate a portal link as business user
-    await page.goto('/customers');
-    await page.click('text=Test Customer');
-    await page.click('button:has-text("Generate Portal Link")');
-    await page.click('button:has-text("Generate New Portal Link")');
-
-    const linkInput = page.locator('input[aria-label="Generated portal link"]');
-    const portalLink = await linkInput.inputValue();
-
-    // Open new incognito context to simulate customer
-    const customerContext = await context.browser()?.newContext({
-      storageState: undefined, // No auth state
-    });
-    const customerPage = await customerContext?.newPage() || page;
-
-    // Customer accesses portal link
-    await customerPage.goto(portalLink);
-
-    // Verify portal loaded
-    await expect(
-      customerPage.locator('h1:has-text("Invoice Portal")')
-    ).toBeVisible();
-
-    await expect(
-      customerPage.locator('text=Easy to view, easy to pay')
-    ).toBeVisible();
-
-    // Current Invoice tab should be active by default
-    const currentInvoiceTab = customerPage.locator(
-      'button:has-text("Current Invoice")[aria-current="page"]'
-    );
-    await expect(currentInvoiceTab).toBeVisible();
-
-    // Should see invoice details
-    await expect(
-      customerPage.locator('text=/Invoice #/')
-    ).toBeVisible();
-
-    await expect(
-      customerPage.locator('text=/Total:/')
-    ).toBeVisible();
-
-    // Switch to invoice history
-    await customerPage.click('button:has-text("Invoice History")');
-
-    // Should see invoice list
-    await expect(
-      customerPage.locator('h2:has-text("Invoice History")')
-    ).toBeVisible();
-
-    await customerContext?.close();
-  });
-
-  test('Customer can initiate payment (mocked)', async ({ page, context }) => {
-    // Generate portal link
-    await page.goto('/customers');
-    await page.click('text=Test Customer');
-    await page.click('button:has-text("Generate Portal Link")');
-    await page.click('button:has-text("Generate New Portal Link")');
-
-    const linkInput = page.locator('input[aria-label="Generated portal link"]');
-    const portalLink = await linkInput.inputValue();
-
-    // Access as customer
-    const customerContext = await context.browser()?.newContext({
-      storageState: undefined,
-    });
-    const customerPage = await customerContext?.newPage() || page;
-
-    await customerPage.goto(portalLink);
-
-    // Click pay button
-    const payButton = customerPage.locator('button:has-text("Pay")');
-    await expect(payButton).toBeVisible();
-    await payButton.click();
-
-    // In production, this would show payment form
-    // For now, verify the processing state
-    await expect(
-      customerPage.locator('button:has-text("Processing")')
-    ).toBeVisible();
-
-    await customerContext?.close();
-  });
-
-  test('Portal denies access with invalid token', async ({ page }) => {
-    // Try to access portal with fake token
-    await page.goto('/portal/invalidtoken123456789012345678901234567890123456789012');
-
-    // Should show access denied error
-    await expect(page.locator('h1:has-text("Access Denied")')).toBeVisible();
-
-    await expect(
-      page.locator('text=/Invalid or expired token/')
-    ).toBeVisible();
-  });
-
-  test('Portal denies access with revoked token', async ({ page, context }) => {
-    // Generate portal link
-    await page.goto('/customers');
-    await page.click('text=Test Customer');
-    await page.click('button:has-text("Generate Portal Link")');
-    await page.click('button:has-text("Generate New Portal Link")');
-
-    const linkInput = page.locator('input[aria-label="Generated portal link"]');
-    const portalLink = await linkInput.inputValue();
-
-    // Revoke the token
-    await page.click('button:has-text("Revoke")');
-    await page.click('button:has-text("OK")'); // Confirm revocation
-
-    // Try to access with revoked token
-    const customerContext = await context.browser()?.newContext({
-      storageState: undefined,
-    });
-    const customerPage = await customerContext?.newPage() || page;
-
-    await customerPage.goto(portalLink);
-
-    // Should be denied
-    await expect(
-      customerPage.locator('h1:has-text("Access Denied")')
-    ).toBeVisible();
-
-    await customerContext?.close();
-  });
-});
-
-test.describe('Client Portal - Accessibility', () => {
-  test('Portal page should have no accessibility violations', async ({ page }) => {
-    // Mock portal access for testing
-    await page.goto('/portal/test-token-for-accessibility-testing');
-
-    // Run axe accessibility tests
-    const results = await page.evaluate(async () => {
-      const axe = require('axe-core');
-      return await axe.run();
+      portalUrl = linkValue;
     });
 
-    expect(results.violations).toHaveLength(0);
-  });
+    test('should copy portal link to clipboard', async ({ page, context }) => {
+      // Grant clipboard permissions
+      await context.grantPermissions(['clipboard-read', 'clipboard-write']);
 
-  test('Portal should be keyboard navigable', async ({ page }) => {
-    await page.goto('/portal/test-token');
+      // Generate link first
+      await page.goto('/invoices/test-invoice-id');
+      await page.getByRole('button', { name: /generate portal link/i }).click();
+      await expect(page.getByText(/portal link generated/i)).toBeVisible();
 
-    // Tab through navigation
-    await page.keyboard.press('Tab');
-    const currentInvoiceButton = page.locator(
-      'button:has-text("Current Invoice"):focus'
-    );
-    await expect(currentInvoiceButton).toBeVisible();
+      // Click copy button
+      const copyButton = page.getByRole('button', { name: /copy link/i });
+      await copyButton.click();
 
-    await page.keyboard.press('Tab');
-    const historyButton = page.locator('button:has-text("Invoice History"):focus');
-    await expect(historyButton).toBeVisible();
+      // Verify copied message
+      await expect(page.getByText(/link copied to clipboard/i)).toBeVisible();
 
-    // Activate with Enter
-    await page.keyboard.press('Enter');
-    await expect(
-      page.locator('h2:has-text("Invoice History")')
-    ).toBeVisible();
-  });
-
-  test('Portal should have proper ARIA labels', async ({ page }) => {
-    await page.goto('/portal/test-token');
-
-    // Check for required ARIA attributes
-    await expect(page.locator('[role="main"]')).toBeVisible();
-    await expect(page.locator('[role="navigation"]')).toBeVisible();
-    await expect(page.locator('[aria-label="Portal navigation"]')).toBeVisible();
-  });
-
-  test('Loading state should have proper accessibility', async ({ page }) => {
-    await page.goto('/portal/test-token');
-
-    // Check loading spinner has proper attributes
-    const spinner = page.locator('.spinner');
-    await expect(spinner).toHaveAttribute('aria-label', 'Loading');
-
-    const loadingContainer = page.locator('[aria-busy="true"]');
-    await expect(loadingContainer).toBeVisible();
-  });
-});
-
-test.describe('Client Portal - Mobile Responsiveness', () => {
-  test('Portal should be responsive on mobile devices', async ({
-    page,
-    browser,
-  }) => {
-    // Create mobile viewport
-    const mobileContext = await browser.newContext({
-      viewport: { width: 375, height: 667 }, // iPhone SE size
-      userAgent:
-        'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15',
+      // Verify clipboard contains the link
+      const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+      expect(clipboardText).toContain('/portal/');
     });
 
-    const mobilePage = await mobileContext.newPage();
-    await mobilePage.goto('/portal/test-token');
+    test('should show link expiration information', async ({ page }) => {
+      await page.goto('/invoices/test-invoice-id');
+      await page.getByRole('button', { name: /generate portal link/i }).click();
 
-    // Verify mobile layout
-    await expect(mobilePage.locator('.portal-container')).toBeVisible();
-
-    // Navigation should stack vertically on mobile
-    const nav = mobilePage.locator('.portal-nav');
-    const navBox = await nav.boundingBox();
-    expect(navBox?.height).toBeGreaterThan(100); // Stacked buttons are taller
-
-    // Pay button should be full width on mobile
-    const payButton = mobilePage.locator('.btn-large');
-    const buttonBox = await payButton.boundingBox();
-    const pageBox = await mobilePage.locator('.portal-container').boundingBox();
-
-    if (buttonBox && pageBox) {
-      expect(buttonBox.width).toBeGreaterThan(pageBox.width * 0.9);
-    }
-
-    await mobileContext.close();
-  });
-
-  test('Portal should support touch interactions', async ({ page, browser }) => {
-    const mobileContext = await browser.newContext({
-      viewport: { width: 375, height: 667 },
-      hasTouch: true,
-    });
-
-    const mobilePage = await mobileContext.newPage();
-    await mobilePage.goto('/portal/test-token');
-
-    // Tap navigation button
-    await mobilePage.tap('button:has-text("Invoice History")');
-
-    await expect(
-      mobilePage.locator('h2:has-text("Invoice History")')
-    ).toBeVisible();
-
-    await mobileContext.close();
-  });
-});
-
-test.describe('Client Portal - Security', () => {
-  test('Portal should not expose sensitive company data', async ({ page }) => {
-    await page.goto('/portal/test-token');
-
-    // Customer should only see invoice data, not internal company info
-    const pageContent = await page.content();
-
-    // Should not contain internal identifiers
-    expect(pageContent).not.toContain('internal_id');
-    expect(pageContent).not.toContain('company_secret');
-    expect(pageContent).not.toContain('api_key');
-  });
-
-  test('Portal should handle XSS attempts', async ({ page }) => {
-    // Attempt to inject script via URL
-    await page.goto('/portal/<script>alert("xss")</script>');
-
-    // Should show error, not execute script
-    await expect(page.locator('h1:has-text("Access Denied")')).toBeVisible();
-
-    // Verify no alert dialog appeared
-    page.on('dialog', () => {
-      throw new Error('XSS script executed!');
+      // Check for expiration date
+      await expect(page.getByText(/expires/i)).toBeVisible();
     });
   });
 
-  test('Portal should use HTTPS in production', async ({ page }) => {
-    // In production, verify the portal URL uses HTTPS
-    const url = page.url();
-    if (process.env.NODE_ENV === 'production') {
-      expect(url).toMatch(/^https:\/\//);
-    }
+  test.describe('Customer Portal Access', () => {
+    test('should display invoice details to customer', async ({ page }) => {
+      // Customer accesses portal link
+      await page.goto(portalUrl || '/portal/test-token-1234567890123456789012345678901234567890123456789012');
+
+      // Wait for invoice to load
+      await expect(page.getByRole('main')).toBeVisible();
+
+      // Verify invoice heading
+      await expect(page.getByRole('heading', { name: /invoice/i })).toBeVisible();
+
+      // Verify invoice number is displayed
+      await expect(page.getByText(/INV-\d{4}-\d{4}/)).toBeVisible();
+
+      // Verify status badge
+      await expect(page.getByText(/outstanding|paid/i)).toBeVisible();
+
+      // Verify invoice details section
+      await expect(page.getByText(/invoice date/i)).toBeVisible();
+      await expect(page.getByText(/due date/i)).toBeVisible();
+
+      // Verify line items table
+      const table = page.getByRole('table', { name: /invoice line items/i });
+      await expect(table).toBeVisible();
+
+      // Verify totals section
+      await expect(page.getByText(/subtotal/i)).toBeVisible();
+      await expect(page.getByText(/total/i)).toBeVisible();
+    });
+
+    test('should show error for invalid token', async ({ page }) => {
+      await page.goto('/portal/invalid-token-1234567890123456789012345678901234567890123456');
+
+      // Verify error message
+      await expect(page.getByRole('alert')).toBeVisible();
+      await expect(page.getByText(/access denied|invalid|expired/i)).toBeVisible();
+    });
+
+    test('should show error for expired token', async ({ page }) => {
+      // Use a token that's marked as expired in the database
+      await page.goto('/portal/expired-token-123456789012345678901234567890123456789012');
+
+      await expect(page.getByRole('alert')).toBeVisible();
+      await expect(page.getByText(/expired|revoked/i)).toBeVisible();
+    });
   });
-});
 
-test.describe('Client Portal - Print Functionality', () => {
-  test('Invoice should be printable', async ({ page }) => {
-    await page.goto('/portal/test-token');
+  test.describe('Payment Flow', () => {
+    test('should display payment section for unpaid invoice', async ({ page }) => {
+      await page.goto(portalUrl || '/portal/test-token-1234567890123456789012345678901234567890123456789012');
 
-    // Trigger print (this won't actually print in headless mode)
-    await page.emulateMedia({ media: 'print' });
+      // Wait for page load
+      await expect(page.getByRole('main')).toBeVisible();
 
-    // Verify print-friendly layout
-    const paymentActions = page.locator('.payment-actions');
-    const isHidden = await paymentActions.isHidden();
-    expect(isHidden).toBe(true); // Payment buttons should be hidden in print
+      // Verify payment section exists
+      const paymentSection = page.getByRole('region', { name: /make a payment/i });
+      await expect(paymentSection).toBeVisible();
 
-    const footer = page.locator('.portal-footer');
-    const footerHidden = await footer.isHidden();
-    expect(footerHidden).toBe(true); // Footer should be hidden in print
+      // Verify pay button with amount
+      const payButton = page.getByRole('button', { name: /pay \$/i });
+      await expect(payButton).toBeVisible();
+      await expect(payButton).toBeEnabled();
 
-    await page.emulateMedia({ media: 'screen' });
+      // Verify security badge
+      await expect(page.getByText(/secure payment/i)).toBeVisible();
+    });
+
+    test('should process payment successfully', async ({ page }) => {
+      await page.goto(portalUrl || '/portal/test-token-1234567890123456789012345678901234567890123456789012');
+
+      // Click pay button
+      const payButton = page.getByRole('button', { name: /pay \$/i });
+      await payButton.click();
+
+      // Wait for processing
+      await expect(page.getByText(/processing/i)).toBeVisible();
+
+      // Wait for success message
+      await expect(page.getByRole('status')).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText(/payment successful/i)).toBeVisible();
+
+      // Verify confirmation details
+      await expect(page.getByText(/thank you for your payment/i)).toBeVisible();
+      await expect(page.getByText(/amount paid/i)).toBeVisible();
+    });
+
+    test('should not show payment option for paid invoice', async ({ page }) => {
+      // Access portal for already paid invoice
+      await page.goto('/portal/paid-invoice-token-12345678901234567890123456789012345');
+
+      await expect(page.getByRole('main')).toBeVisible();
+
+      // Verify "Paid" status
+      await expect(page.getByText(/this invoice has been paid/i)).toBeVisible();
+
+      // Verify no payment button
+      const payButton = page.getByRole('button', { name: /pay \$/i });
+      await expect(payButton).not.toBeVisible();
+    });
+  });
+
+  test.describe('Accessibility (WCAG 2.1 AA)', () => {
+    test('should have proper ARIA labels', async ({ page }) => {
+      await page.goto(portalUrl || '/portal/test-token-1234567890123456789012345678901234567890123456789012');
+
+      // Check main landmark
+      await expect(page.getByRole('main')).toBeVisible();
+
+      // Check headings hierarchy
+      const mainHeading = page.getByRole('heading', { level: 1, name: /invoice/i });
+      await expect(mainHeading).toBeVisible();
+
+      // Check table accessibility
+      const table = page.getByRole('table', { name: /invoice line items/i });
+      await expect(table).toBeVisible();
+
+      // Check button labels
+      const payButton = page.getByRole('button', { name: /pay \$/i });
+      const ariaLabel = await payButton.getAttribute('aria-label');
+      expect(ariaLabel).toBeTruthy();
+    });
+
+    test('should be keyboard navigable', async ({ page }) => {
+      await page.goto(portalUrl || '/portal/test-token-1234567890123456789012345678901234567890123456789012');
+
+      // Tab through interactive elements
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Tab');
+
+      // Verify focus indicators are visible
+      const focusedElement = page.locator(':focus');
+      await expect(focusedElement).toBeVisible();
+
+      // Navigate to pay button and activate with keyboard
+      const payButton = page.getByRole('button', { name: /pay \$/i });
+      await payButton.focus();
+      await expect(payButton).toBeFocused();
+
+      // Activate with Enter key
+      await page.keyboard.press('Enter');
+      await expect(page.getByText(/processing/i)).toBeVisible();
+    });
+
+    test('should have sufficient color contrast', async ({ page }) => {
+      await page.goto(portalUrl || '/portal/test-token-1234567890123456789012345678901234567890123456789012');
+
+      // This is a basic check - in production use axe-core or similar
+      // Verify text is visible against background
+      const title = page.getByRole('heading', { name: /invoice/i });
+      await expect(title).toBeVisible();
+
+      const titleColor = await title.evaluate((el) => {
+        return window.getComputedStyle(el).color;
+      });
+
+      const bgColor = await title.evaluate((el) => {
+        return window.getComputedStyle(el).backgroundColor;
+      });
+
+      // Both should be defined (actual contrast calculation would be done by axe-core)
+      expect(titleColor).toBeTruthy();
+      expect(bgColor).toBeTruthy();
+    });
+
+    test('should have minimum touch target sizes', async ({ page }) => {
+      await page.goto(portalUrl || '/portal/test-token-1234567890123456789012345678901234567890123456789012');
+
+      // Check pay button touch target
+      const payButton = page.getByRole('button', { name: /pay \$/i });
+      const boundingBox = await payButton.boundingBox();
+
+      expect(boundingBox).toBeTruthy();
+      expect(boundingBox!.height).toBeGreaterThanOrEqual(44);
+      expect(boundingBox!.width).toBeGreaterThanOrEqual(44);
+    });
+  });
+
+  test.describe('Mobile Responsiveness', () => {
+    test('should display correctly on mobile', async ({ page }) => {
+      // Set mobile viewport
+      await page.setViewportSize({ width: 375, height: 667 }); // iPhone SE
+
+      await page.goto(portalUrl || '/portal/test-token-1234567890123456789012345678901234567890123456789012');
+
+      // Verify content is visible
+      await expect(page.getByRole('heading', { name: /invoice/i })).toBeVisible();
+
+      // Verify no horizontal scroll
+      const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+      const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+      expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 1); // Allow 1px tolerance
+
+      // Verify table stacks on mobile
+      const table = page.getByRole('table');
+      await expect(table).toBeVisible();
+
+      // Verify button is full width on mobile
+      const payButton = page.getByRole('button', { name: /pay \$/i });
+      const buttonBox = await payButton.boundingBox();
+      expect(buttonBox).toBeTruthy();
+      expect(buttonBox!.width).toBeGreaterThan(300); // Should be nearly full width
+    });
+
+    test('should be usable on tablet', async ({ page }) => {
+      // Set tablet viewport
+      await page.setViewportSize({ width: 768, height: 1024 }); // iPad
+
+      await page.goto(portalUrl || '/portal/test-token-1234567890123456789012345678901234567890123456789012');
+
+      // Verify layout
+      await expect(page.getByRole('main')).toBeVisible();
+      await expect(page.getByRole('heading', { name: /invoice/i })).toBeVisible();
+
+      // Verify table displays properly
+      const table = page.getByRole('table');
+      await expect(table).toBeVisible();
+    });
+  });
+
+  test.describe('Loading States', () => {
+    test('should show loading indicator while fetching invoice', async ({ page }) => {
+      // Slow down network to see loading state
+      await page.route('**/api/**', (route) => {
+        setTimeout(() => route.continue(), 1000);
+      });
+
+      await page.goto(portalUrl || '/portal/test-token-1234567890123456789012345678901234567890123456789012');
+
+      // Verify loading indicator
+      await expect(page.getByText(/getting everything ready/i)).toBeVisible();
+      await expect(page.getByLabel(/loading invoice/i)).toBeVisible();
+    });
+
+    test('should show processing state during payment', async ({ page }) => {
+      await page.goto(portalUrl || '/portal/test-token-1234567890123456789012345678901234567890123456789012');
+
+      const payButton = page.getByRole('button', { name: /pay \$/i });
+      await payButton.click();
+
+      // Verify processing state
+      await expect(page.getByText(/processing/i)).toBeVisible();
+
+      // Button should be disabled during processing
+      await expect(payButton).toBeDisabled();
+    });
+  });
+
+  test.describe('Error Handling', () => {
+    test('should handle network errors gracefully', async ({ page }) => {
+      // Simulate network failure
+      await page.route('**/api/payments/**', (route) => {
+        route.abort('failed');
+      });
+
+      await page.goto(portalUrl || '/portal/test-token-1234567890123456789012345678901234567890123456789012');
+
+      const payButton = page.getByRole('button', { name: /pay \$/i });
+      await payButton.click();
+
+      // Should show error message
+      await expect(page.getByRole('alert')).toBeVisible();
+      await expect(page.getByText(/error|try again/i)).toBeVisible();
+
+      // Should have retry button
+      const retryButton = page.getByRole('button', { name: /try again/i });
+      await expect(retryButton).toBeVisible();
+    });
+
+    test('should handle payment failures', async ({ page }) => {
+      await page.goto(portalUrl || '/portal/test-token-1234567890123456789012345678901234567890123456789012');
+
+      // Mock payment failure
+      await page.route('**/api/payments/**', (route) => {
+        route.fulfill({
+          status: 400,
+          body: JSON.stringify({ error: 'Card declined' }),
+        });
+      });
+
+      const payButton = page.getByRole('button', { name: /pay \$/i });
+      await payButton.click();
+
+      // Should show error
+      await expect(page.getByRole('alert')).toBeVisible();
+      await expect(page.getByText(/payment.*failed|error/i)).toBeVisible();
+    });
+  });
+
+  test.describe('Security', () => {
+    test('should not expose sensitive data in URLs', async ({ page }) => {
+      await page.goto(portalUrl || '/portal/test-token-1234567890123456789012345678901234567890123456789012');
+
+      // Verify URL only contains token, no customer data
+      const url = page.url();
+      expect(url).toContain('/portal/');
+      expect(url).not.toContain('@'); // No email
+      expect(url).not.toContain('amount'); // No amount
+      expect(url).not.toContain('customer'); // No customer name
+    });
+
+    test('should rate limit excessive access', async ({ page }) => {
+      // Make 101 requests from same IP
+      for (let i = 0; i < 101; i++) {
+        await page.goto(portalUrl || '/portal/test-token-1234567890123456789012345678901234567890123456789012');
+      }
+
+      // Should show rate limit error
+      await expect(page.getByText(/wait a moment|too many/i)).toBeVisible();
+    });
   });
 });

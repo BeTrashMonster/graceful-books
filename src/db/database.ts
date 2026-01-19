@@ -97,6 +97,24 @@ import type {
   StockTakeItem,
   ValuationMethodChange,
 } from './schema/inventoryValuation.schema';
+import { portalTokensSchema } from './schema/portalTokens.schema';
+import type { PortalToken } from './schema/portalTokens.schema';
+import { paymentsSchema } from './schema/payments.schema';
+import type { Payment } from './schema/payments.schema';
+import {
+  approvalRulesSchema,
+  approvalRequestsSchema,
+  approvalActionsSchema,
+  approvalDelegationsSchema,
+  approvalHistorySchema,
+} from './schema/approvalWorkflows.schema';
+import type {
+  ApprovalRule,
+  ApprovalRequest,
+  ApprovalAction,
+  ApprovalDelegation,
+  ApprovalHistory,
+} from './schema/approvalWorkflows.schema';
 
 /**
  * TreasureChest Database Class
@@ -135,6 +153,13 @@ export class TreasureChestDB extends Dexie {
   stockTakes!: Table<StockTake, string>;
   stockTakeItems!: Table<StockTakeItem, string>;
   valuationMethodChanges!: Table<ValuationMethodChange, string>;
+  portalTokens!: Table<PortalToken, string>;
+  payments!: Table<Payment, string>;
+  approvalRules!: Table<ApprovalRule, string>;
+  approvalRequests!: Table<ApprovalRequest, string>;
+  approvalActions!: Table<ApprovalAction, string>;
+  approvalDelegations!: Table<ApprovalDelegation, string>;
+  approvalHistory!: Table<ApprovalHistory, string>;
 
   constructor() {
     super('TreasureChest');
@@ -319,6 +344,81 @@ export class TreasureChestDB extends Dexie {
       valuationMethodChanges: valuationMethodChangesSchema,
     });
 
+    // Version 8: Add client portal tables (H4)
+    this.version(8).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+    });
+
+    // Version 9: Add approval workflow tables (H3: Approval Workflows)
+    this.version(9).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+    });
+
     // Add hooks for automatic audit logging
     this.setupAuditHooks();
 
@@ -385,6 +485,8 @@ export class TreasureChestDB extends Dexie {
     this.stockTakes.hook('updating', updateTimestamp);
     this.stockTakeItems.hook('updating', updateTimestamp);
     this.valuationMethodChanges.hook('updating', updateTimestamp);
+    this.portalTokens.hook('updating', updateTimestamp);
+    this.payments.hook('updating', updateTimestamp);
   }
 
   /**

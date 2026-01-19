@@ -9,13 +9,13 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { PaymentSplitService } from './paymentSplit.service';
-import type { Database } from '../../db/database';
+import type { TreasureChestDB } from '../../db/database';
 import type { SplitPaymentRequest } from '../../types/loanAmortization.types';
 import Decimal from 'decimal.js';
 
 describe('PaymentSplitService', () => {
   let service: PaymentSplitService;
-  let mockDb: Partial<Database>;
+  let mockDb: Partial<TreasureChestDB>;
 
   beforeEach(() => {
     mockDb = {

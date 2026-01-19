@@ -11,7 +11,7 @@
 
 import Decimal from 'decimal.js';
 import { nanoid } from 'nanoid';
-import type { Database } from '../../db/database';
+import type { TreasureChestDB } from '../../db/database';
 import type {
   SplitPaymentRequest,
   SplitPaymentResult,
@@ -25,15 +25,16 @@ import type {
   CreateJournalEntryRequest,
 } from '../../types/journalEntry.types';
 import type { Account, AccountType } from '../../types/database.types';
+import { TransactionType, TransactionStatus } from '../../types/database.types';
 import { ErrorCode } from '../../utils/errors';
 
 /**
  * Payment Split Service
  */
 export class PaymentSplitService {
-  private db: Database;
+  private db: TreasureChestDB;
 
-  constructor(db: Database) {
+  constructor(db: TreasureChestDB) {
     this.db = db;
   }
 
@@ -267,8 +268,8 @@ export class PaymentSplitService {
       company_id: companyId,
       transaction_number: `JE-${Date.now()}`, // Temporary, should use sequence
       transaction_date: request.payment_date,
-      type: 'JOURNAL_ENTRY',
-      status: 'POSTED',
+      type: TransactionType.JOURNAL_ENTRY,
+      status: TransactionStatus.POSTED,
       description: `Loan payment split - Principal & Interest`,
       reference: request.schedule_entry_id || null,
       memo: request.notes || `Original transaction: ${request.transaction_id}`,
@@ -295,7 +296,7 @@ export class PaymentSplitService {
 
     // Save to database
     await this.db.transactions.add(entry);
-    await this.db.transaction_line_items.bulkAdd(lineItems);
+    await this.db.transactionLineItems.bulkAdd(lineItems);
 
     return { entry, line_items: lineItems };
   }
@@ -307,7 +308,7 @@ export class PaymentSplitService {
     transactionId: string
   ): Promise<Account | null> {
     // Get line items for the transaction
-    const lineItems = await this.db.transaction_line_items
+    const lineItems = await this.db.transactionLineItems
       .where('transaction_id')
       .equals(transactionId)
       .and((item) => !item.deleted_at)

@@ -49,6 +49,8 @@ export * from './schema/users.schema';
 export * from './schema/audit.schema';
 export * from './schema/recurring.schema';
 export * from './schema/categorization.schema';
+export * from './schema/portalTokens.schema';
+export * from './schema/payments.schema';
 
 // Type exports
 export * from '../types/database.types';

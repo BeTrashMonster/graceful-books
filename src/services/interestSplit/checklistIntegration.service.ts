@@ -9,7 +9,7 @@
  */
 
 import { nanoid } from 'nanoid';
-import type { Database } from '../../db/database';
+import type { TreasureChestDB } from '../../db/database';
 import type {
   LiabilityPaymentDetection,
   DeferredInterestSplitItem,
@@ -25,9 +25,9 @@ import type {
  * Checklist Integration Service
  */
 export class ChecklistIntegrationService {
-  private db: Database;
+  private db: TreasureChestDB;
 
-  constructor(db: Database) {
+  constructor(db: TreasureChestDB) {
     this.db = db;
   }
 
@@ -82,39 +82,26 @@ export class ChecklistIntegrationService {
 
     const checklistItem: ChecklistItem = {
       id: nanoid(),
-      userId,
-      companyId,
-      category: 'monthly',
+      categoryId: 'monthly',
       title: 'Split loan payment into principal and interest',
       description: this.generateChecklistDescription(deferredItem),
+      explanationLevel: 'detailed',
       status: 'active' as ChecklistItemStatus,
-      priority: 'medium',
-      dueDate: deferredItem.due_date || undefined,
+      completedAt: null,
+      snoozedUntil: null,
+      snoozedReason: null,
+      notApplicableReason: null,
+      featureLink: `/transactions/${deferredItem.transaction_id}`,
+      helpArticle: null,
+      isCustom: false,
+      isReordered: false,
+      customOrder: null,
       recurrence: 'once',
-      whyItMatters: 'Splitting loan payments ensures accurate financial records and helps you track tax-deductible interest.',
-      howToComplete: this.generateHowToComplete(deferredItem),
-      estimatedMinutes: 3,
-      relatedLinks: [
-        {
-          text: 'View Transaction',
-          url: `/transactions/${deferredItem.transaction_id}`,
-        },
-      ],
-      completedAt: undefined,
-      snoozedUntil: undefined,
-      streakCount: 0,
-      lastCompletedAt: undefined,
+      priority: 'medium',
+      lastDueDate: null,
+      nextDueDate: deferredItem.due_date ? new Date(deferredItem.due_date) : null,
       createdAt: new Date(now),
       updatedAt: new Date(now),
-      // Additional metadata for interest split
-      metadata: {
-        type: 'interest_split',
-        deferred_item_id: deferredItem.id,
-        transaction_id: deferredItem.transaction_id,
-        confidence: deferredItem.detection.confidence,
-        suggested_principal: deferredItem.detection.suggested_principal,
-        suggested_interest: deferredItem.detection.suggested_interest,
-      },
     };
 
     // TODO: Save to checklist_items table

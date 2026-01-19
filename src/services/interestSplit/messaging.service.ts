@@ -24,7 +24,7 @@ export class InterestSplitMessagingService {
   getPromptMessages(detection: LiabilityPaymentDetection): InterestSplitMessages {
     return {
       prompt_title: this.getPromptTitles(),
-      prompt_message: this.getPromptMessages(detection),
+      prompt_message: this.getPromptMessageTexts(detection),
       tax_benefit_note: this.getTaxBenefitNotes(),
       split_now_button: this.getSplitNowButtons(),
       defer_button: this.getDeferButtons(),
@@ -43,8 +43,8 @@ export class InterestSplitMessagingService {
     detection?: LiabilityPaymentDetection
   ): string {
     const messages = detection
-      ? this.getPromptMessages(detection)
-      : this.getPromptMessages({} as LiabilityPaymentDetection);
+      ? this.getPromptMessageTexts(detection)
+      : this.getPromptMessageTexts({} as LiabilityPaymentDetection);
 
     const messageSet =
       messageType === 'prompt_message'
@@ -71,7 +71,7 @@ export class InterestSplitMessagingService {
   // Prompt Messages
   // ============================================================================
 
-  private getPromptMessages(
+  private getPromptMessageTexts(
     detection: LiabilityPaymentDetection
   ): Record<DISCType, string> {
     const confidence = detection.confidence || 'MEDIUM';

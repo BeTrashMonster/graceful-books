@@ -10,7 +10,7 @@
  */
 
 import Decimal from 'decimal.js';
-import type { Database } from '../../db/database';
+import type { TreasureChestDB } from '../../db/database';
 import type {
   LoanAccount,
   AmortizationSchedule,
@@ -27,9 +27,9 @@ import { nanoid } from 'nanoid';
  * Amortization Service
  */
 export class AmortizationService {
-  private db: Database;
+  private db: TreasureChestDB;
 
-  constructor(db: Database) {
+  constructor(db: TreasureChestDB) {
     this.db = db;
   }
 
@@ -97,7 +97,7 @@ export class AmortizationService {
       (sum, entry) => sum.plus(new Decimal(entry.interest_amount)),
       new Decimal(0)
     );
-    const totalPayments = entries.reduce(
+    const totalScheduledPayments = entries.reduce(
       (sum, entry) => sum.plus(new Decimal(entry.scheduled_payment)),
       new Decimal(0)
     );
@@ -106,7 +106,7 @@ export class AmortizationService {
       loan_account_id,
       entries,
       total_interest: totalInterest.toFixed(2),
-      total_payments: totalPayments.toFixed(2),
+      total_payments: totalScheduledPayments.toFixed(2),
       generated_at: Date.now(),
     };
   }

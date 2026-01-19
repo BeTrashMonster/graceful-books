@@ -9,17 +9,17 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { AmortizationService } from './amortization.service';
-import type { Database } from '../../db/database';
+import type { TreasureChestDB } from '../../db/database';
 import type { GenerateScheduleRequest } from '../../types/loanAmortization.types';
 import Decimal from 'decimal.js';
 
 describe('AmortizationService', () => {
   let service: AmortizationService;
-  let mockDb: Partial<Database>;
+  let mockDb: Partial<TreasureChestDB>;
 
   beforeEach(() => {
     mockDb = {};
-    service = new AmortizationService(mockDb as Database);
+    service = new AmortizationService(mockDb as TreasureChestDB);
   });
 
   describe('generateSchedule', () => {

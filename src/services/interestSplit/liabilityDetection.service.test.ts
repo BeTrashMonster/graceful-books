@@ -9,11 +9,11 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { LiabilityDetectionService } from './liabilityDetection.service';
-import type { Database } from '../../db/database';
+import type { TreasureChestDB } from '../../db/database';
 import type { Transaction, TransactionLineItem, Account } from '../../types/database.types';
 
 // Mock database
-const createMockDb = (): Partial<Database> => {
+const createMockDb = (): Partial<TreasureChestDB> => {
   const transactions = new Map<string, Transaction>();
   const lineItems = new Map<string, TransactionLineItem[]>();
   const accounts = new Map<string, Account>();

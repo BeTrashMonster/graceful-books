@@ -280,38 +280,3 @@ export interface JournalEntryStatistics {
   entries_from_templates: number;
 }
 
-// =============================================================================
-// Export all types
-// =============================================================================
-
-export type {
-  // Core types
-  JournalEntry,
-  JournalEntryLineItem,
-  JournalEntryWithLineItems,
-
-  // Template types
-  JournalEntryTemplate,
-  JournalEntryTemplateLineItem,
-
-  // Request types
-  CreateJournalEntryRequest,
-  CreateJournalEntryLineItemRequest,
-  UpdateJournalEntryRequest,
-  UpdateJournalEntryLineItemRequest,
-  ApproveJournalEntryRequest,
-  RejectJournalEntryRequest,
-  VoidJournalEntryRequest,
-
-  // Query types
-  JournalEntryQueryFilters,
-
-  // Validation types
-  JournalEntryValidationResult,
-
-  // Reversing entry types
-  CreateReversingEntryOptions,
-
-  // Statistics types
-  JournalEntryStatistics,
-};

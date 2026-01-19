@@ -9,7 +9,7 @@
  * - ACCT-009: Loan Payment Detection (97% accuracy)
  */
 
-import type { Database } from '../../db/database';
+import type { TreasureChestDB } from '../../db/database';
 import type {
   Transaction,
   TransactionLineItem,
@@ -49,9 +49,9 @@ const LOAN_KEYWORDS = [
  * Liability Payment Detection Service
  */
 export class LiabilityDetectionService {
-  private db: Database;
+  private db: TreasureChestDB;
 
-  constructor(db: Database) {
+  constructor(db: TreasureChestDB) {
     this.db = db;
   }
 
@@ -80,7 +80,7 @@ export class LiabilityDetectionService {
       throw new Error(`Transaction ${transactionId} not found`);
     }
 
-    const lineItems = await this.db.transaction_line_items
+    const lineItems = await this.db.transactionLineItems
       .where('transaction_id')
       .equals(transactionId)
       .and((item) => !item.deleted_at)
@@ -261,14 +261,14 @@ export class LiabilityDetectionService {
     // Look for previous transactions in the last 6 months
     const sixMonthsAgo = currentDate - 6 * 30 * 24 * 60 * 60 * 1000;
 
-    const lineItems = await this.db.transaction_line_items
+    const lineItems = await this.db.transactionLineItems
       .where('account_id')
       .equals(accountId)
       .and((item) => !item.deleted_at)
       .toArray();
 
     // Get transactions for these line items
-    const transactionIds = [...new Set(lineItems.map((item) => item.transaction_id))];
+    const transactionIds = Array.from(new Set(lineItems.map((item) => item.transaction_id)));
     const transactions = await this.db.transactions
       .where('id')
       .anyOf(transactionIds)

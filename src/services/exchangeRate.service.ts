@@ -16,9 +16,9 @@ import Decimal from 'decimal.js';
 import type {
   ExchangeRate,
   CurrencyCode,
-  ExchangeRateSource,
   ExchangeRateValidationResult,
 } from '../types/currency.types';
+import { ExchangeRateSource } from '../types/currency.types';
 import type { VersionVector } from '../types/database.types';
 
 // Configure Decimal.js for 28 decimal places precision
@@ -245,7 +245,7 @@ export class ExchangeRateService implements IExchangeRateService {
 
     // If updating the rate value, encrypt it
     if (updates.rate) {
-      const rateDecimal = updates.rate instanceof Decimal ? updates.rate : new Decimal(updates.rate);
+      const rateDecimal = new Decimal(updates.rate);
       updates.rate = await this.encryptionService.encrypt(rateDecimal.toFixed(28));
     }
 
