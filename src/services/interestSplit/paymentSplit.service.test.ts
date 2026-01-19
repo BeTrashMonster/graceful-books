@@ -23,7 +23,7 @@ describe('PaymentSplitService', () => {
         get: vi.fn(),
         add: vi.fn(),
       } as any,
-      transaction_line_items: {
+      transactionLineItems: {
         where: vi.fn(() => ({
           equals: vi.fn(() => ({
             and: vi.fn(() => ({
@@ -37,11 +37,73 @@ describe('PaymentSplitService', () => {
         get: vi.fn(),
       } as any,
     };
-    service = new PaymentSplitService(mockDb as Database);
+    service = new PaymentSplitService(mockDb as TreasureChestDB);
   });
 
   describe('validateSplit', () => {
     it('should validate when principal + interest equals total', async () => {
+      // Mock loan account (table doesn't exist yet)
+      const mockLoanAccount = {
+        id: 'loan-1',
+        company_id: 'company-1',
+        account_id: 'liability-account-1',
+        interest_expense_account_id: 'interest-expense-1',
+        current_balance: '10000.00',
+        original_amount: '10000.00',
+        interest_rate: '6.0',
+        term_months: 12,
+        start_date: Date.now(),
+        payment_frequency: 'MONTHLY' as const,
+        calculation_method: 'AMORTIZED' as const,
+        name: 'Business Loan',
+        lender_name: 'ABC Bank',
+        account_number: null,
+        notes: null,
+        created_at: Date.now(),
+        updated_at: Date.now(),
+        deleted_at: null,
+        version_vector: { device1: 1 },
+      };
+
+      // Mock account lookups
+      vi.spyOn(service as any, 'getLoanAccount').mockResolvedValue(mockLoanAccount);
+      vi.mocked(mockDb.accounts!.get).mockImplementation(async (id: string) => {
+        if (id === 'liability-account-1') {
+          return {
+            id: 'liability-account-1',
+            company_id: 'company-1',
+            account_number: '2000',
+            name: 'Loan Payable',
+            type: 'LIABILITY',
+            parent_id: null,
+            balance: '10000.00',
+            description: null,
+            active: true,
+            created_at: Date.now(),
+            updated_at: Date.now(),
+            deleted_at: null,
+            version_vector: { device1: 1 },
+          } as any;
+        } else if (id === 'interest-expense-1') {
+          return {
+            id: 'interest-expense-1',
+            company_id: 'company-1',
+            account_number: '5100',
+            name: 'Interest Expense',
+            type: 'EXPENSE',
+            parent_id: null,
+            balance: '0',
+            description: null,
+            active: true,
+            created_at: Date.now(),
+            updated_at: Date.now(),
+            deleted_at: null,
+            version_vector: { device1: 1 },
+          } as any;
+        }
+        return undefined;
+      });
+
       const request: SplitPaymentRequest = {
         transaction_id: 'txn-1',
         loan_account_id: 'loan-1',
@@ -61,6 +123,23 @@ describe('PaymentSplitService', () => {
     });
 
     it('should reject when principal + interest does not equal total', async () => {
+      // Mock loan account
+      vi.spyOn(service as any, 'getLoanAccount').mockResolvedValue({
+        id: 'loan-1',
+        account_id: 'liability-account-1',
+        interest_expense_account_id: 'interest-expense-1',
+        current_balance: '10000.00',
+      });
+
+      vi.mocked(mockDb.accounts!.get).mockImplementation(async (id: string) => {
+        if (id === 'liability-account-1') {
+          return { type: 'LIABILITY' } as any;
+        } else if (id === 'interest-expense-1') {
+          return { type: 'EXPENSE' } as any;
+        }
+        return undefined;
+      });
+
       const request: SplitPaymentRequest = {
         transaction_id: 'txn-1',
         loan_account_id: 'loan-1',
@@ -76,12 +155,11 @@ describe('PaymentSplitService', () => {
       const result = await service.validateSplit(request);
 
       expect(result.is_valid).toBe(false);
-      expect(result.errors).toContain(
-        expect.stringContaining('Principal')
-      );
-      expect(result.errors).toContain(
-        expect.stringContaining('must equal total payment')
-      );
+      expect(result.errors.length).toBeGreaterThan(0);
+      // The error message should contain information about the mismatch
+      const errorMessage = result.errors.join(' ');
+      expect(errorMessage).toContain('Principal');
+      expect(errorMessage).toContain('must equal total payment');
     });
 
     it('should reject negative principal', async () => {
@@ -123,6 +201,23 @@ describe('PaymentSplitService', () => {
     });
 
     it('should handle decimal precision correctly', async () => {
+      // Mock loan account
+      vi.spyOn(service as any, 'getLoanAccount').mockResolvedValue({
+        id: 'loan-1',
+        account_id: 'liability-account-1',
+        interest_expense_account_id: 'interest-expense-1',
+        current_balance: '10000.00',
+      });
+
+      vi.mocked(mockDb.accounts!.get).mockImplementation(async (id: string) => {
+        if (id === 'liability-account-1') {
+          return { type: 'LIABILITY' } as any;
+        } else if (id === 'interest-expense-1') {
+          return { type: 'EXPENSE' } as any;
+        }
+        return undefined;
+      });
+
       const request: SplitPaymentRequest = {
         transaction_id: 'txn-1',
         loan_account_id: 'loan-1',
@@ -142,6 +237,23 @@ describe('PaymentSplitService', () => {
     });
 
     it('should warn when principal exceeds loan balance', async () => {
+      // Mock loan account with lower balance than principal payment
+      vi.spyOn(service as any, 'getLoanAccount').mockResolvedValue({
+        id: 'loan-1',
+        account_id: 'liability-account-1',
+        interest_expense_account_id: 'interest-expense-1',
+        current_balance: '10000.00', // Lower than principal of 14500
+      });
+
+      vi.mocked(mockDb.accounts!.get).mockImplementation(async (id: string) => {
+        if (id === 'liability-account-1') {
+          return { type: 'LIABILITY' } as any;
+        } else if (id === 'interest-expense-1') {
+          return { type: 'EXPENSE' } as any;
+        }
+        return undefined;
+      });
+
       const request: SplitPaymentRequest = {
         transaction_id: 'txn-1',
         loan_account_id: 'loan-1',
@@ -154,14 +266,12 @@ describe('PaymentSplitService', () => {
         notes: null,
       };
 
-      // Mock loan account with lower balance
-      // (would need implementation when loan_accounts table exists)
-
       const result = await service.validateSplit(request);
 
       // Should still validate but with warning
-      // (In full implementation, would check warnings array)
       expect(result.is_valid).toBe(true);
+      expect(result.warnings.length).toBeGreaterThan(0);
+      expect(result.warnings[0]).toContain('exceeds current loan balance');
     });
   });
 

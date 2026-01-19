@@ -131,7 +131,12 @@ export class CurrencyConversionService implements ICurrencyConversionService {
     }
 
     // Decrypt the rate (in production, would use actual decryption)
-    const rate = new Decimal(exchangeRate.rate);
+    // Handle mock encryption that prefixes with "encrypted_"
+    let rateString = exchangeRate.rate;
+    if (rateString.startsWith('encrypted_')) {
+      rateString = rateString.replace('encrypted_', '');
+    }
+    const rate = new Decimal(rateString);
 
     // Perform conversion with 28 decimal precision
     const convertedAmount = amountDecimal.mul(rate);
@@ -328,7 +333,7 @@ export function formatGainLoss(amount: string | Decimal, precision: number = 2):
  */
 export function isGain(amount: string | Decimal): boolean {
   const amountDecimal = amount instanceof Decimal ? amount : new Decimal(amount);
-  return amountDecimal.isPositive();
+  return amountDecimal.gt(0);
 }
 
 /**

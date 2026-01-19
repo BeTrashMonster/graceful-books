@@ -507,7 +507,7 @@ async function calculateWeightedAverageCOGS(
   }
 
   const currentQty = new Decimal(item.quantity_on_hand);
-  const currentUnitCost = new Decimal(item.unit_cost);
+  const currentValue = new Decimal(item.total_value);
 
   if (quantitySold.greaterThan(currentQty)) {
     throw new AppError(
@@ -516,11 +516,16 @@ async function calculateWeightedAverageCOGS(
     );
   }
 
+  // Calculate weighted average unit cost with full precision
+  // Use total_value / quantity instead of stored unit_cost to avoid rounding errors
+  const currentUnitCost = currentQty.greaterThan(0)
+    ? currentValue.dividedBy(currentQty)
+    : new Decimal(0);
+
   // COGS = quantity sold × weighted average unit cost
   const totalCOGS = quantitySold.times(currentUnitCost);
 
   const newQuantity = currentQty.minus(quantitySold);
-  const currentValue = new Decimal(item.total_value);
   const newTotalValue = currentValue.minus(totalCOGS);
 
   // Unit cost remains the same for weighted average
@@ -619,16 +624,16 @@ export async function processSale(
     });
   });
 
+  if (!cogsCalculation) {
+    throw new AppError(ErrorCode.VALIDATION_ERROR, 'COGS calculation failed');
+  }
+
   serviceLogger.info('Processed inventory sale', {
     inventoryItemId,
     quantitySold,
     cogs: cogsCalculation.cogsAmount,
     method: item.valuation_method,
   });
-
-  if (!cogsCalculation) {
-    throw new AppError(ErrorCode.VALIDATION_ERROR, 'COGS calculation failed');
-  }
 
   const invTransaction = await db.inventoryTransactions
     .where('transaction_id')
