@@ -273,3 +273,172 @@ export function getCSPMetaTagContent(): string {
  * Pre-generated CSP string for meta tag use (excludes frame-ancestors).
  */
 export const CSP_META_TAG_CONTENT = getCSPMetaTagContent();
+
+/**
+ * CSP Reporting Configuration
+ *
+ * Controls how Content Security Policy violations are reported back to the server.
+ * Violation reports help identify XSS attempts and misconfigured resources.
+ *
+ * @remarks
+ * - In development, reports are logged to the console
+ * - In production, reports should be sent to a monitoring service
+ * - Use reportOnly mode first when testing new CSP policies
+ * - Rate limiting prevents DoS via report flooding
+ */
+export interface CSPReportConfig {
+  /**
+   * When true, violations are reported but not enforced.
+   * Use this mode when testing new CSP policies to avoid breaking functionality.
+   */
+  reportOnly: boolean;
+
+  /**
+   * The endpoint URL where violation reports are sent.
+   * This is the legacy reporting mechanism using report-uri directive.
+   */
+  reportUri: string;
+
+  /**
+   * The reporting group name for the modern Reporting API.
+   * Used with the report-to directive and Report-To header.
+   */
+  reportTo: string;
+
+  /**
+   * Maximum age (in seconds) for the reporting endpoint configuration.
+   * Browsers will cache this configuration for the specified duration.
+   */
+  maxAge: number;
+}
+
+/**
+ * Default CSP reporting configuration.
+ *
+ * @remarks
+ * - reportOnly is false by default for production security
+ * - Set reportOnly to true when first deploying to detect issues
+ * - The report endpoint handles both legacy and modern report formats
+ */
+export const CSP_REPORT_CONFIG: CSPReportConfig = {
+  // Report-only mode for testing (doesn't block, just reports)
+  // Set to true when first deploying new CSP rules
+  reportOnly: false,
+
+  // Reporting endpoint (relative to application root)
+  reportUri: '/api/csp-report',
+
+  // Modern report-to group name
+  reportTo: 'csp-endpoint',
+
+  // Cache reporting config for ~126 days
+  maxAge: 10886400,
+};
+
+/**
+ * Generates the Report-To header value for the Reporting API.
+ *
+ * @param config - The CSP report configuration
+ * @returns A JSON string for the Report-To header
+ *
+ * @remarks
+ * The Reporting API is the modern replacement for report-uri.
+ * It provides better queuing and batching of reports.
+ *
+ * @example
+ * ```typescript
+ * const reportToHeader = generateReportToHeader(CSP_REPORT_CONFIG);
+ * // Returns: {"group":"csp-endpoint","max_age":10886400,"endpoints":[{"url":"/api/csp-report"}]}
+ * ```
+ */
+export function generateReportToHeader(config: CSPReportConfig): string {
+  return JSON.stringify({
+    group: config.reportTo,
+    max_age: config.maxAge,
+    endpoints: [{ url: config.reportUri }],
+  });
+}
+
+/**
+ * Generates the CSP string with reporting directives included.
+ *
+ * @param cspConfig - The CSP configuration object
+ * @param reportConfig - The CSP report configuration
+ * @returns A CSP string with report-uri and report-to directives
+ *
+ * @example
+ * ```typescript
+ * const cspWithReporting = generateCSPStringWithReporting(CSP_CONFIG, CSP_REPORT_CONFIG);
+ * // Returns: "default-src 'self'; ... report-uri /api/csp-report; report-to csp-endpoint"
+ * ```
+ */
+export function generateCSPStringWithReporting(
+  cspConfig: CSPConfig,
+  reportConfig: CSPReportConfig
+): string {
+  const baseCSP = generateCSPString(cspConfig);
+
+  // Add reporting directives
+  const reportingDirectives = [
+    `report-uri ${reportConfig.reportUri}`,
+    `report-to ${reportConfig.reportTo}`,
+  ];
+
+  return `${baseCSP}; ${reportingDirectives.join('; ')}`;
+}
+
+/**
+ * Pre-generated CSP string with reporting directives.
+ */
+export const CSP_STRING_WITH_REPORTING = generateCSPStringWithReporting(
+  CSP_CONFIG,
+  CSP_REPORT_CONFIG
+);
+
+/**
+ * Returns all security headers including CSP reporting headers.
+ *
+ * @param includeReporting - Whether to include CSP reporting (default: true)
+ * @returns An object with header names as keys and header values as values
+ *
+ * @remarks
+ * This function extends getSecurityHeaders() to include:
+ * - CSP with report-uri and report-to directives
+ * - Report-To header for the Reporting API
+ * - Optionally Content-Security-Policy-Report-Only for testing
+ *
+ * @example
+ * ```typescript
+ * const headers = getSecurityHeadersWithReporting();
+ * // Use in Express middleware:
+ * Object.entries(headers).forEach(([key, value]) => {
+ *   res.setHeader(key, value);
+ * });
+ * ```
+ */
+export function getSecurityHeadersWithReporting(
+  includeReporting = true
+): Record<string, string> {
+  const baseHeaders = getSecurityHeaders();
+
+  if (!includeReporting) {
+    return baseHeaders;
+  }
+
+  const headers: Record<string, string> = {
+    ...baseHeaders,
+    'Report-To': generateReportToHeader(CSP_REPORT_CONFIG),
+  };
+
+  // Use report-only header when in testing mode
+  if (CSP_REPORT_CONFIG.reportOnly) {
+    // Remove the enforcing CSP and use report-only instead
+    delete headers['Content-Security-Policy'];
+    headers['Content-Security-Policy-Report-Only'] = CSP_STRING_WITH_REPORTING;
+  } else {
+    // Use the CSP with reporting directives
+    headers['Content-Security-Policy'] = CSP_STRING_WITH_REPORTING;
+  }
+
+  return headers;
+}

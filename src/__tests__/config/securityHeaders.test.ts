@@ -7,6 +7,11 @@ import {
   generateCSPString,
   getSecurityHeaders,
   getCSPMetaTagContent,
+  CSP_REPORT_CONFIG,
+  CSP_STRING_WITH_REPORTING,
+  generateReportToHeader,
+  generateCSPStringWithReporting,
+  getSecurityHeadersWithReporting,
 } from '../../config/securityHeaders';
 
 describe('Security Headers Configuration', () => {
@@ -209,6 +214,157 @@ describe('Security Headers Configuration', () => {
 
     it('should restrict form-action to prevent form hijacking', () => {
       expect(CSP_CONFIG['form-action']).toContain("'self'");
+    });
+  });
+
+  describe('CSP Reporting Configuration', () => {
+    describe('CSP_REPORT_CONFIG', () => {
+      it('should have all required properties', () => {
+        expect(CSP_REPORT_CONFIG).toHaveProperty('reportOnly');
+        expect(CSP_REPORT_CONFIG).toHaveProperty('reportUri');
+        expect(CSP_REPORT_CONFIG).toHaveProperty('reportTo');
+        expect(CSP_REPORT_CONFIG).toHaveProperty('maxAge');
+      });
+
+      it('should have reportOnly set to false by default for production security', () => {
+        expect(CSP_REPORT_CONFIG.reportOnly).toBe(false);
+      });
+
+      it('should have a valid report URI', () => {
+        expect(CSP_REPORT_CONFIG.reportUri).toBe('/api/csp-report');
+      });
+
+      it('should have a valid report-to group name', () => {
+        expect(CSP_REPORT_CONFIG.reportTo).toBe('csp-endpoint');
+      });
+
+      it('should have a reasonable max-age value', () => {
+        // Should be at least a week (604800 seconds)
+        expect(CSP_REPORT_CONFIG.maxAge).toBeGreaterThanOrEqual(604800);
+      });
+    });
+
+    describe('generateReportToHeader', () => {
+      it('should generate valid JSON for Report-To header', () => {
+        const header = generateReportToHeader(CSP_REPORT_CONFIG);
+        const parsed = JSON.parse(header);
+
+        expect(parsed.group).toBe(CSP_REPORT_CONFIG.reportTo);
+        expect(parsed.max_age).toBe(CSP_REPORT_CONFIG.maxAge);
+        expect(parsed.endpoints).toHaveLength(1);
+        expect(parsed.endpoints[0].url).toBe(CSP_REPORT_CONFIG.reportUri);
+      });
+
+      it('should handle custom config', () => {
+        const customConfig = {
+          reportOnly: true,
+          reportUri: '/custom/endpoint',
+          reportTo: 'custom-group',
+          maxAge: 3600,
+        };
+
+        const header = generateReportToHeader(customConfig);
+        const parsed = JSON.parse(header);
+
+        expect(parsed.group).toBe('custom-group');
+        expect(parsed.max_age).toBe(3600);
+        expect(parsed.endpoints[0].url).toBe('/custom/endpoint');
+      });
+    });
+
+    describe('generateCSPStringWithReporting', () => {
+      it('should include report-uri directive', () => {
+        const csp = generateCSPStringWithReporting(CSP_CONFIG, CSP_REPORT_CONFIG);
+        expect(csp).toContain('report-uri /api/csp-report');
+      });
+
+      it('should include report-to directive', () => {
+        const csp = generateCSPStringWithReporting(CSP_CONFIG, CSP_REPORT_CONFIG);
+        expect(csp).toContain('report-to csp-endpoint');
+      });
+
+      it('should include all original CSP directives', () => {
+        const csp = generateCSPStringWithReporting(CSP_CONFIG, CSP_REPORT_CONFIG);
+        expect(csp).toContain("default-src 'self'");
+        expect(csp).toContain("script-src 'self'");
+        expect(csp).toContain("frame-ancestors 'none'");
+      });
+
+      it('should append reporting directives after original directives', () => {
+        const csp = generateCSPStringWithReporting(CSP_CONFIG, CSP_REPORT_CONFIG);
+        const parts = csp.split('; ');
+
+        // Reporting directives should be at the end
+        const lastParts = parts.slice(-2);
+        expect(lastParts).toContain('report-uri /api/csp-report');
+        expect(lastParts).toContain('report-to csp-endpoint');
+      });
+    });
+
+    describe('CSP_STRING_WITH_REPORTING', () => {
+      it('should be pre-generated from config', () => {
+        expect(CSP_STRING_WITH_REPORTING).toBe(
+          generateCSPStringWithReporting(CSP_CONFIG, CSP_REPORT_CONFIG)
+        );
+      });
+
+      it('should not be empty', () => {
+        expect(CSP_STRING_WITH_REPORTING.length).toBeGreaterThan(0);
+      });
+
+      it('should include both original CSP and reporting', () => {
+        expect(CSP_STRING_WITH_REPORTING).toContain("default-src 'self'");
+        expect(CSP_STRING_WITH_REPORTING).toContain('report-uri');
+        expect(CSP_STRING_WITH_REPORTING).toContain('report-to');
+      });
+    });
+
+    describe('getSecurityHeadersWithReporting', () => {
+      it('should include Report-To header', () => {
+        const headers = getSecurityHeadersWithReporting();
+        expect(headers).toHaveProperty('Report-To');
+      });
+
+      it('should have valid Report-To JSON', () => {
+        const headers = getSecurityHeadersWithReporting();
+        const reportTo = headers['Report-To'];
+        expect(reportTo).toBeDefined();
+        const parsed = JSON.parse(reportTo!);
+
+        expect(parsed.group).toBe('csp-endpoint');
+        expect(parsed.endpoints).toHaveLength(1);
+      });
+
+      it('should include CSP with reporting directives', () => {
+        const headers = getSecurityHeadersWithReporting();
+        expect(headers['Content-Security-Policy']).toContain('report-uri');
+        expect(headers['Content-Security-Policy']).toContain('report-to');
+      });
+
+      it('should include all standard security headers', () => {
+        const headers = getSecurityHeadersWithReporting();
+
+        expect(headers).toHaveProperty('X-Frame-Options');
+        expect(headers).toHaveProperty('X-Content-Type-Options');
+        expect(headers).toHaveProperty('Referrer-Policy');
+        expect(headers).toHaveProperty('Permissions-Policy');
+        expect(headers).toHaveProperty('Strict-Transport-Security');
+      });
+
+      it('should return headers without reporting when disabled', () => {
+        const headers = getSecurityHeadersWithReporting(false);
+
+        expect(headers).not.toHaveProperty('Report-To');
+        expect(headers['Content-Security-Policy']).not.toContain('report-uri');
+      });
+
+      it('should return a new object each time', () => {
+        const headers1 = getSecurityHeadersWithReporting();
+        const headers2 = getSecurityHeadersWithReporting();
+
+        expect(headers1).not.toBe(headers2);
+        expect(headers1).toEqual(headers2);
+      });
     });
   });
 });

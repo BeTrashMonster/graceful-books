@@ -1,0 +1,93 @@
+name: Dependency Review
+
+on:
+  pull_request:
+    branches: [main, master, develop]
+
+# Cancel in-progress runs for the same workflow and branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          # Fail on high and critical severity vulnerabilities
+          fail-on-severity: high
+          # Also check for license compatibility
+          deny-licenses: GPL-3.0, AGPL-3.0
+          # Allow specific licenses commonly used in open source
+          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, CC0-1.0, Unlicense
+          # Comment on PR with findings
+          comment-summary-in-pr: always
+          # Warn about dependencies with no license
+          warn-on-openssf-scorecard-level: 3
+
+      - name: Check for dependency changes summary
+        if: always()
+        run: |
+          echo "## Dependency Review Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "This PR has been scanned for:" >> $GITHUB_STEP_SUMMARY
+          echo "- Known vulnerabilities (high and critical severity)" >> $GITHUB_STEP_SUMMARY
+          echo "- License compatibility issues" >> $GITHUB_STEP_SUMMARY
+          echo "- OpenSSF Scorecard warnings" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See the Dependency Review comment on this PR for details." >> $GITHUB_STEP_SUMMARY
+
+  license-check:
+    name: License Compliance Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check licenses
+        run: |
+          echo "Checking dependency licenses..."
+          npx license-checker --summary || true
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## License Summary" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          npx license-checker --summary >> $GITHUB_STEP_SUMMARY || true
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Check for problematic licenses
+        run: |
+          echo "Checking for GPL licenses in production dependencies..."
+
+          # Check for GPL licenses (which could require source disclosure)
+          if npx license-checker --production --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense;Python-2.0;BlueOak-1.0.0" 2>/dev/null; then
+            echo "All production licenses are permissive."
+          else
+            echo "WARNING: Some dependencies may have non-permissive licenses."
+            echo "Review the license output above for details."
+            # Don't fail, just warn - manual review may be needed
+          fi
