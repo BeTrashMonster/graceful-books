@@ -187,7 +187,7 @@ export async function pullBaselineSnapshot(
 export function calculateTemplateAdjustment(
   templateKey: ScenarioTemplateKey,
   params: Record<string, unknown>,
-  baseline: ScenarioBaseline
+  _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
   switch (templateKey) {
     case 'reclassify-employee-to-owner':
@@ -244,7 +244,7 @@ export function calculateTemplateAdjustment(
  */
 function calculateReclassifyEmployeeToOwner(
   params: Record<string, unknown>,
-  baseline: ScenarioBaseline
+  _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
   const annualSalary = Number(params.annual_salary || 0);
   const employerTaxRate = 0.0765; // FICA rate (7.65%)
@@ -308,7 +308,7 @@ function calculateReclassifyEmployeeToOwner(
  */
 function calculateAddNewEmployee(
   params: Record<string, unknown>,
-  baseline: ScenarioBaseline
+  _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
   const annualSalary = Number(params.annual_salary || 0);
   const employerTaxRate = 0.0765;
@@ -368,7 +368,7 @@ function calculateAddNewEmployee(
  */
 function calculateRemoveEmployee(
   params: Record<string, unknown>,
-  baseline: ScenarioBaseline
+  _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
   const annualSalary = Number(params.annual_salary || 0);
   const employerTaxRate = 0.0765;
@@ -428,7 +428,7 @@ function calculateRemoveEmployee(
  */
 function calculateChangeCompensation(
   params: Record<string, unknown>,
-  baseline: ScenarioBaseline
+  _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
   const currentSalary = Number(params.current_salary || 0);
   const newSalary = Number(params.new_salary || 0);
@@ -472,7 +472,7 @@ function calculateChangeCompensation(
  */
 function calculateAddRecurringExpense(
   params: Record<string, unknown>,
-  baseline: ScenarioBaseline
+  _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
   const monthlyAmount = Number(params.monthly_amount || 0);
   const annualAmount = monthlyAmount * 12;
@@ -504,7 +504,7 @@ function calculateAddRecurringExpense(
  */
 function calculateRemoveRecurringExpense(
   params: Record<string, unknown>,
-  baseline: ScenarioBaseline
+  _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
   const monthlyAmount = Number(params.monthly_amount || 0);
   const annualAmount = monthlyAmount * 12;
@@ -548,7 +548,7 @@ function calculateRemoveRecurringExpense(
  */
 function calculateChangePricing(
   params: Record<string, unknown>,
-  baseline: ScenarioBaseline
+  _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
   const currentRevenue = baseline.profit_loss.sections.find(s => s.type === 'income')?.total || 0;
   const priceChangePercentage = Number(params.price_change_percentage || 0);
@@ -584,7 +584,7 @@ function calculateChangePricing(
  */
 function calculateTakeOnDebt(
   params: Record<string, unknown>,
-  baseline: ScenarioBaseline
+  _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
   const loanAmount = Number(params.loan_amount || 0);
   const interestRate = Number(params.interest_rate || 0) / 100;
@@ -636,7 +636,7 @@ function calculateTakeOnDebt(
  */
 function calculatePayOffDebt(
   params: Record<string, unknown>,
-  baseline: ScenarioBaseline
+  _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
   const debtAmount = Number(params.debt_amount || 0);
   const currentInterestRate = Number(params.current_interest_rate || 0) / 100;
@@ -681,7 +681,7 @@ function calculatePayOffDebt(
  */
 function calculateEquipmentPurchase(
   params: Record<string, unknown>,
-  baseline: ScenarioBaseline
+  _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
   const purchasePrice = Number(params.purchase_price || 0);
   const usefulLifeYears = Number(params.useful_life_years || 5);
@@ -738,7 +738,7 @@ function calculateEquipmentPurchase(
  */
 function calculateLeaseVsBuy(
   params: Record<string, unknown>,
-  baseline: ScenarioBaseline
+  _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
   const monthlyLeasePayment = Number(params.monthly_lease_payment || 0);
   const annualLeasePayment = monthlyLeasePayment * 12;
@@ -799,7 +799,7 @@ function calculateLeaseVsBuy(
  */
 function calculateAddRevenueStream(
   params: Record<string, unknown>,
-  baseline: ScenarioBaseline
+  _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
   const monthlyRevenue = Number(params.monthly_revenue || 0);
   const annualRevenue = monthlyRevenue * 12;
@@ -968,7 +968,7 @@ export function calculateProjection(
  */
 export function parseFormula(
   formula: string,
-  baseline: ScenarioBaseline
+  _baseline: ScenarioBaseline
 ): FormulaParseResult {
   // This is a simplified formula parser
   // Production version would use a proper expression parser like math.js
