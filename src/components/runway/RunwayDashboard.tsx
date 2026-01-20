@@ -23,7 +23,6 @@ import {
   calculateRunway,
   calculateRunwayTrend,
   getDateRangeFromPreset,
-  suggestCalculationMethod,
 } from '../../services/runway/runwayCalculator.service'
 import { analyzeBurnRate, analyzeRevenueBreakdown } from '../../services/runway/burnRateAnalyzer.service'
 import { RunwayGauge } from './RunwayGauge'

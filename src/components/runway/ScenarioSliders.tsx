@@ -23,7 +23,7 @@ export const ScenarioSliders: React.FC<ScenarioSlidersProps> = ({
   currentRevenue,
   currentExpenses,
   currentCash,
-  currentRunway,
+  currentRunway: _currentRunway,
   onScenarioChange,
 }) => {
   // Slider states

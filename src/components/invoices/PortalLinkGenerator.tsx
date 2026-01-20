@@ -15,7 +15,7 @@
 
 import { useState } from 'react';
 import { Button } from '../core/Button';
-import { createPortalToken, generatePortalUrl, getInvoicePortalTokens } from '../../services/portalService';
+import { createPortalToken, generatePortalUrl } from '../../services/portalService';
 import type { PortalToken } from '../../db/schema/portalTokens.schema';
 import type { Invoice } from '../../db/schema/invoices.schema';
 import styles from './PortalLinkGenerator.module.css';
