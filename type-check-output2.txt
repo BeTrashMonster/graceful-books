@@ -13,8 +13,7 @@ monitoring/config/metrics-collector.ts(100,5): error TS2322: Type '(string | und
     Type 'undefined' is not assignable to type 'string'.
 monitoring/config/metrics-collector.ts(117,5): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
   Type 'undefined' is not assignable to type 'number'.
-src/__mocks__/brain.js.ts(34,11): error TS6133: 'options' is declared but its value is never read.
-src/__tests__/infrastructure/dependencies.test.ts(396,26): error TS6133: 'name' is declared but its value is never read.
+src/__mocks__/brain.js.ts(34,11): error TS6133: '_options' is declared but its value is never read.
 src/__tests__/infrastructure/dependencies.test.ts(447,35): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
   Type 'undefined' is not assignable to type 'string'.
 src/__tests__/infrastructure/dependencies.test.ts(448,35): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
@@ -83,8 +82,7 @@ src/__tests__/utils/fileValidation.test.ts(33,17): error TS2322: Type 'Uint8Arra
         Type 'SharedArrayBuffer' is not assignable to type 'ArrayBuffer'.
           Types of property '[Symbol.toStringTag]' are incompatible.
             Type '"SharedArrayBuffer"' is not assignable to type '"ArrayBuffer"'.
-src/auth/login.ts(23,3): error TS6133: 'SecurityErrorCode' is declared but its value is never read.
-src/auth/login.ts(183,7): error TS2322: Type 'SecurityErrorCode' is not assignable to type '"RATE_LIMITED" | "UNKNOWN_ERROR" | "INVALID_PASSPHRASE" | "ACCOUNT_LOCKED" | undefined'.
+src/auth/login.ts(182,7): error TS2322: Type 'SecurityErrorCode' is not assignable to type '"RATE_LIMITED" | "UNKNOWN_ERROR" | "INVALID_PASSPHRASE" | "ACCOUNT_LOCKED" | undefined'.
 src/components/accounts/AccountForm.test.tsx(285,46): error TS2532: Object is possibly 'undefined'.
 src/components/accounts/AccountForm.test.tsx(320,46): error TS2532: Object is possibly 'undefined'.
 src/components/accounts/AccountForm.test.tsx(348,46): error TS2532: Object is possibly 'undefined'.
@@ -105,19 +103,16 @@ src/components/activity/CommentComposer.tsx(161,28): error TS2532: Object is pos
 src/components/activity/CommentComposer.tsx(285,33): error TS2345: Argument of type 'MentionUser | undefined' is not assignable to parameter of type 'MentionUser'.
   Type 'undefined' is not assignable to type 'MentionUser'.
 src/components/activity/MentionDropdown.tsx(91,9): error TS6133: 'selectedUserId' is declared but its value is never read.
-src/components/admin/CharityImpactDashboard.tsx(16,8): error TS6133: 'MonthlyGrowthData' is declared but its value is never read.
-src/components/admin/CharityImpactDashboard.tsx(50,9): error TS6133: 'formatDate' is declared but its value is never read.
-src/components/admin/CharityImpactDashboard.tsx(235,7): error TS2532: Object is possibly 'undefined'.
-src/components/admin/CharityImpactDashboard.tsx(235,42): error TS2532: Object is possibly 'undefined'.
+src/components/admin/CharityImpactDashboard.tsx(229,7): error TS2532: Object is possibly 'undefined'.
+src/components/admin/CharityImpactDashboard.tsx(229,42): error TS2532: Object is possibly 'undefined'.
 src/components/admin/CharityList.tsx(13,39): error TS6196: 'CharityCategory' is declared but never used.
-src/components/admin/CharityList.tsx(20,3): error TS6133: 'updateCharity' is declared but its value is never read.
-src/components/admin/CharityList.tsx(169,34): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+src/components/admin/CharityList.tsx(168,34): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/components/admin/CharityList.tsx(169,36): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
   Type 'undefined' is not assignable to type 'string'.
 src/components/admin/CharityList.tsx(170,36): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
   Type 'undefined' is not assignable to type 'string'.
 src/components/admin/CharityList.tsx(171,36): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/components/admin/CharityList.tsx(172,36): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
   Type 'undefined' is not assignable to type 'string'.
 src/components/admin/CharityManagement.tsx(96,44): error TS2345: Argument of type '"VERIFIED"' is not assignable to parameter of type 'SetStateAction<CharityStatus | "ALL">'.
 src/components/admin/CharityManagement.tsx(103,44): error TS2345: Argument of type '"PENDING"' is not assignable to parameter of type 'SetStateAction<CharityStatus | "ALL">'.
@@ -136,11 +131,9 @@ src/components/admin/CharityVerificationForm.tsx(40,5): error TS2322: Type '"OTH
 src/components/admin/CharityVerificationForm.tsx(48,15): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
 src/components/admin/CharityVerificationForm.tsx(48,20): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
 src/components/admin/CharityVerificationForm.tsx(144,9): error TS2322: Type 'number' is not assignable to type 'CharityCategory'.
-src/components/admin/MonthlyDistributionReport.tsx(124,9): error TS6133: 'allPending' is declared but its value is never read.
-src/components/admin/MonthlyDistributionReport.tsx(125,9): error TS6133: 'allSent' is declared but its value is never read.
-src/components/admin/MonthlyDistributionReport.tsx(397,34): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+src/components/admin/MonthlyDistributionReport.tsx(395,34): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
   Type 'undefined' is not assignable to type 'string'.
-src/components/admin/MonthlyDistributionReport.tsx(397,50): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+src/components/admin/MonthlyDistributionReport.tsx(395,50): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
   Type 'undefined' is not assignable to type 'string'.
 src/components/audit/AuditLogTimeline.test.tsx(52,13): error TS2322: Type 'number' is not assignable to type 'Date'.
 src/components/automation/SuggestionCard.tsx(22,3): error TS6196: 'CategorizationSuggestion' is declared but never used.
@@ -148,17 +141,11 @@ src/components/automation/SuggestionCard.tsx(23,3): error TS6196: 'RecurringTran
 src/components/automation/SuggestionCard.tsx(24,3): error TS6196: 'TransactionAnomaly' is declared but never used.
 src/components/billing/InvoiceHistory.tsx(111,15): error TS2322: Type '"small"' is not assignable to type '"sm" | "md" | "lg" | undefined'.
 src/components/billing/InvoiceHistory.tsx(120,15): error TS2322: Type '"small"' is not assignable to type '"sm" | "md" | "lg" | undefined'.
-src/components/billing/PaymentMethodManager.tsx(13,1): error TS6133: 'Loading' is declared but its value is never read.
-src/components/billing/PaymentMethodManager.tsx(194,13): error TS2322: Type '"small"' is not assignable to type '"sm" | "md" | "lg" | undefined'.
-src/components/billing/PaymentMethodManager.tsx(203,11): error TS2322: Type '"small"' is not assignable to type '"sm" | "md" | "lg" | undefined'.
-src/components/billing/SubscriptionManager.test.tsx(7,1): error TS6133: 'userEvent' is declared but its value is never read.
+src/components/billing/PaymentMethodManager.tsx(193,13): error TS2322: Type '"small"' is not assignable to type '"sm" | "md" | "lg" | undefined'.
+src/components/billing/PaymentMethodManager.tsx(202,11): error TS2322: Type '"small"' is not assignable to type '"sm" | "md" | "lg" | undefined'.
 src/components/billing/SubscriptionManager.tsx(15,15): error TS6196: 'Subscription' is declared but never used.
-src/components/billing/SubscriptionManager.tsx(19,3): error TS6133: 'formatBillingSummary' is declared but its value is never read.
-src/components/billing/SubscriptionManager.tsx(327,35): error TS2322: Type '"small"' is not assignable to type '"sm" | "md" | "lg" | undefined'.
-src/components/billing/SubscriptionManager.tsx(337,35): error TS2322: Type '"small"' is not assignable to type '"sm" | "md" | "lg" | undefined'.
-src/components/conflicts/ConflictDetailView.tsx(2,16): error TS6133: 'CardHeader' is declared but its value is never read.
-src/components/conflicts/ConflictDetailView.tsx(2,28): error TS6133: 'CardBody' is declared but its value is never read.
-src/components/conflicts/ConflictDetailView.tsx(2,38): error TS6133: 'CardFooter' is declared but its value is never read.
+src/components/billing/SubscriptionManager.tsx(326,35): error TS2322: Type '"small"' is not assignable to type '"sm" | "md" | "lg" | undefined'.
+src/components/billing/SubscriptionManager.tsx(336,35): error TS2322: Type '"small"' is not assignable to type '"sm" | "md" | "lg" | undefined'.
 src/components/conflicts/ConflictListModal.test.tsx(360,24): error TS2345: Argument of type 'HTMLElement | undefined' is not assignable to parameter of type 'Element'.
   Type 'undefined' is not assignable to type 'Element'.
 src/components/conflicts/ConflictListModal.tsx(19,3): error TS6196: 'CRDTEntity' is declared but never used.
@@ -181,10 +168,8 @@ src/components/csv/CSVExporter.test.tsx(83,13): error TS6133: 'styles' is declar
 src/components/csv/CSVExporter.test.tsx(89,13): error TS6133: 'container' is declared but its value is never read.
 src/components/csv/CSVExporter.test.tsx(252,13): error TS6133: 'dateRangeSelect' is declared but its value is never read.
 src/components/csv/CSVExporter.test.tsx(253,13): error TS6133: 'exportButton' is declared but its value is never read.
-src/components/csv/CSVImporter.tsx(53,10): error TS6133: 'importMode' is declared but its value is never read.
-src/components/csv/CSVImporter.tsx(53,22): error TS6133: 'setImportMode' is declared but its value is never read.
+src/components/csv/CSVImporter.tsx(17,3): error TS6196: 'ImportMode' is declared but never used.
 src/components/csv/ImportPreview.tsx(185,47): error TS2532: Object is possibly 'undefined'.
-src/components/currency/RateOverride.tsx(17,1): error TS6133: 'ExchangeRateSource' is declared but its value is never read.
 src/components/customers/CustomerForm.test.tsx(330,47): error TS2532: Object is possibly 'undefined'.
 src/components/customers/CustomerForm.test.tsx(377,47): error TS2532: Object is possibly 'undefined'.
 src/components/dashboard/CashPositionWidget.tsx(76,17): error TS2532: Object is possibly 'undefined'.
@@ -194,7 +179,6 @@ src/components/dashboard/CashPositionWidget.tsx(175,19): error TS2322: Type '(va
     Type 'number | undefined' is not assignable to type 'number'.
       Type 'undefined' is not assignable to type 'number'.
 src/components/dashboard/ResumeWidget.tsx(13,1): error TS6192: All imports in import declaration are unused.
-src/components/dashboard/ResumeWidget.tsx(15,1): error TS6133: 'format' is declared but its value is never read.
 src/components/dashboard/RevenueExpensesChart.tsx(75,26): error TS2532: Object is possibly 'undefined'.
 src/components/dashboard/RevenueExpensesChart.tsx(76,25): error TS2532: Object is possibly 'undefined'.
 src/components/dashboard/RevenueExpensesChart.tsx(211,15): error TS2322: Type '(value: number, name: string) => [string, "Expenses" | "Revenue"]' is not assignable to type 'Formatter<number, string>'.
@@ -211,22 +195,18 @@ src/components/interestSplit/InterestSplitPrompt.tsx(360,14): error TS2322: Type
   Property 'jsx' does not exist on type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
 src/components/interestSplit/InterestSplitSettings.tsx(289,14): error TS2322: Type '{ children: string; jsx: true; }' is not assignable to type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
   Property 'jsx' does not exist on type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
-src/components/interestSplit/LoanAmortizationSchedule.tsx(12,1): error TS6133: 'Button' is declared but its value is never read.
-src/components/interestSplit/LoanAmortizationSchedule.tsx(164,46): error TS2345: Argument of type 'AmortizationScheduleEntry[] | undefined' is not assignable to parameter of type 'AmortizationScheduleEntry[]'.
+src/components/interestSplit/LoanAmortizationSchedule.tsx(163,46): error TS2345: Argument of type 'AmortizationScheduleEntry[] | undefined' is not assignable to parameter of type 'AmortizationScheduleEntry[]'.
   Type 'undefined' is not assignable to type 'AmortizationScheduleEntry[]'.
-src/components/interestSplit/LoanAmortizationSchedule.tsx(177,20): error TS18048: 'entries' is possibly 'undefined'.
-src/components/interestSplit/LoanAmortizationSchedule.tsx(199,24): error TS18048: 'entries' is possibly 'undefined'.
-src/components/interestSplit/LoanAmortizationSchedule.tsx(252,14): error TS2322: Type '{ children: string; jsx: true; }' is not assignable to type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
+src/components/interestSplit/LoanAmortizationSchedule.tsx(176,20): error TS18048: 'entries' is possibly 'undefined'.
+src/components/interestSplit/LoanAmortizationSchedule.tsx(198,24): error TS18048: 'entries' is possibly 'undefined'.
+src/components/interestSplit/LoanAmortizationSchedule.tsx(251,14): error TS2322: Type '{ children: string; jsx: true; }' is not assignable to type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
   Property 'jsx' does not exist on type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
 src/components/invoices/PortalLinkGenerator.tsx(18,48): error TS6133: 'getInvoicePortalTokens' is declared but its value is never read.
-src/components/metrics/MetricsReport.tsx(10,20): error TS6133: 'useEffect' is declared but its value is never read.
-src/components/metrics/MetricsReport.tsx(23,1): error TS6133: 'PeerBenchmark' is declared but its value is never read.
-src/components/metrics/MetricsReport.tsx(672,25): error TS6198: All destructured elements are unused.
+src/components/metrics/MetricsReport.tsx(671,25): error TS6198: All destructured elements are unused.
 src/components/metrics/PeerBenchmark.tsx(38,9): error TS6133: 'medianValue' is declared but its value is never read.
 src/components/metrics/TrendChart.tsx(97,77): error TS2532: Object is possibly 'undefined'.
 src/components/metrics/TrendChart.tsx(97,103): error TS2532: Object is possibly 'undefined'.
 src/components/recurring/RecurringTransactionForm.tsx(189,41): error TS2345: Argument of type 'string' is not assignable to parameter of type 'SetStateAction<RecurrenceFrequency>'.
-src/components/reports/BarterReport.tsx(9,20): error TS6133: 'useEffect' is declared but its value is never read.
 src/components/reports/ScheduleEditor.tsx(34,3): error TS6133: 'userId' is declared but its value is never read.
 src/components/runway/BurnRateAnalyzer.tsx(9,33): error TS6196: 'ExpenseCategory' is declared but never used.
 src/components/runway/EmergencyFundRecommendations.tsx(10,15): error TS6196: 'EmergencyFundRecommendation' is declared but never used.
@@ -239,8 +219,7 @@ src/components/runway/RunwayTrendChart.tsx(60,141): error TS2532: Object is poss
 src/components/runway/RunwayTrendChart.tsx(105,14): error TS2532: Object is possibly 'undefined'.
 src/components/runway/RunwayTrendChart.tsx(113,14): error TS2532: Object is possibly 'undefined'.
 src/components/runway/ScenarioSliders.tsx(26,3): error TS6133: 'currentRunway' is declared but its value is never read.
-src/components/search/RecentSearches.tsx(15,1): error TS6133: 'format' is declared but its value is never read.
-src/components/search/RecentSearches.tsx(181,17): error TS2464: A computed property name must be of type 'string', 'number', 'symbol', or 'any'.
+src/components/search/RecentSearches.tsx(180,17): error TS2464: A computed property name must be of type 'string', 'number', 'symbol', or 'any'.
 src/components/tax/TaxDocumentChecklist.tsx(11,1): error TS6133: 'Button' is declared but its value is never read.
 src/components/tax/TaxDocumentChecklist.tsx(17,3): error TS6133: 'getTaxDocumentsByCategory' is declared but its value is never read.
 src/components/tax/TaxDocumentChecklist.tsx(19,24): error TS6196: 'TaxDocumentCategory' is declared but never used.
@@ -295,28 +274,25 @@ src/crypto/encryption.ts(479,7): error TS2322: Type 'SecurityErrorCode' is not a
 src/crypto/encryption.ts(530,7): error TS2322: Type 'SecurityErrorCode' is not assignable to type '"UNKNOWN_ERROR" | "DECRYPTION_FAILED" | "INVALID_KEY" | "WEAK_PASSPHRASE" | "KEY_EXPIRED" | undefined'.
 src/crypto/encryption.ts(604,7): error TS2322: Type 'SecurityErrorCode' is not assignable to type '"UNKNOWN_ERROR" | "DECRYPTION_FAILED" | "INVALID_KEY" | "WEAK_PASSPHRASE" | "KEY_EXPIRED" | undefined'.
 src/crypto/keyDerivation.ts(29,3): error TS6133: 'RateLimitError' is declared but its value is never read.
-src/crypto/keyManagement.test.ts(33,19): error TS6133: 'data' is declared but its value is never read.
-src/crypto/keyManagement.test.ts(46,21): error TS6133: 'data' is declared but its value is never read.
-src/crypto/keyManagement.test.ts(46,27): error TS6133: 'oldKey' is declared but its value is never read.
 src/crypto/keyManagement.test.ts(307,40): error TS2345: Argument of type 'PermissionLevel | undefined' is not assignable to parameter of type 'PermissionLevel'.
   Type 'undefined' is not assignable to type 'PermissionLevel'.
 src/crypto/keyManagement.test.ts(631,33): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
   Type 'undefined' is not assignable to type 'string'.
-src/data/charities.ts(21,5): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
+src/data/charities.ts(21,5): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
 src/data/charities.ts(30,5): error TS2322: Type '"POVERTY"' is not assignable to type 'CharityCategory'.
-src/data/charities.ts(39,5): error TS2820: Type '"health"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.HEALTH'?
-src/data/charities.ts(48,5): error TS2820: Type '"health"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.HEALTH'?
-src/data/charities.ts(57,5): error TS2820: Type '"environment"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.ENVIRONMENT'?
-src/data/charities.ts(66,5): error TS2820: Type '"environment"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.ENVIRONMENT'?
+src/data/charities.ts(39,5): error TS2322: Type '"HEALTH"' is not assignable to type 'CharityCategory'.
+src/data/charities.ts(48,5): error TS2322: Type '"HEALTH"' is not assignable to type 'CharityCategory'.
+src/data/charities.ts(57,5): error TS2322: Type '"ENVIRONMENT"' is not assignable to type 'CharityCategory'.
+src/data/charities.ts(66,5): error TS2322: Type '"ENVIRONMENT"' is not assignable to type 'CharityCategory'.
 src/data/charities.ts(75,5): error TS2322: Type '"POVERTY"' is not assignable to type 'CharityCategory'.
 src/data/charities.ts(84,5): error TS2322: Type '"ANIMAL_WELFARE"' is not assignable to type 'CharityCategory'.
 src/data/charities.ts(93,5): error TS2322: Type '"HUMAN_RIGHTS"' is not assignable to type 'CharityCategory'.
 src/data/charities.ts(102,5): error TS2322: Type '"DISASTER_RELIEF"' is not assignable to type 'CharityCategory'.
-src/data/charities.ts(111,5): error TS2820: Type '"health"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.HEALTH'?
+src/data/charities.ts(111,5): error TS2322: Type '"HEALTH"' is not assignable to type 'CharityCategory'.
 src/data/charities.ts(120,5): error TS2322: Type '"COMMUNITY"' is not assignable to type 'CharityCategory'.
-src/data/charities.ts(129,5): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/data/charities.ts(138,5): error TS2820: Type '"environment"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.ENVIRONMENT'?
-src/data/charities.ts(147,5): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
+src/data/charities.ts(129,5): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/data/charities.ts(138,5): error TS2322: Type '"ENVIRONMENT"' is not assignable to type 'CharityCategory'.
+src/data/charities.ts(147,5): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
 src/data/charities.ts(196,3): error TS2322: Type '{ category: string; count: number; }[]' is not assignable to type '{ category: CharityCategory; count: number; }[]'.
   Type '{ category: string; count: number; }' is not assignable to type '{ category: CharityCategory; count: number; }'.
     Types of property 'category' are incompatible.
@@ -325,50 +301,47 @@ src/data/industryTemplates.test.ts(153,26): error TS2532: Object is possibly 'un
 src/data/industryTemplates.test.ts(170,26): error TS2532: Object is possibly 'undefined'.
 src/db/schema/approvalWorkflows.schema.ts(13,42): error TS6196: 'TransactionType' is declared but never used.
 src/db/schema/approvalWorkflows.schema.ts(13,59): error TS6196: 'AccountType' is declared but never used.
-src/db/schema/charity.schema.test.ts(12,1): error TS6133: 'CharityCategory' is declared but its value is never read.
-src/db/schema/charity.schema.test.ts(21,9): error TS2345: Argument of type '"EDUCATION"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(38,9): error TS2345: Argument of type '"HEALTH"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(54,9): error TS2345: Argument of type '"EDUCATION"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(70,38): error TS2345: Argument of type '{ name: string; description: string; category: string; website: string; }' is not assignable to parameter of type 'Partial<Charity>'.
+src/db/schema/charity.schema.test.ts(20,9): error TS2345: Argument of type '"EDUCATION"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(37,9): error TS2345: Argument of type '"HEALTH"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(53,9): error TS2345: Argument of type '"EDUCATION"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(69,38): error TS2345: Argument of type '{ name: string; description: string; category: string; website: string; }' is not assignable to parameter of type 'Partial<Charity>'.
   Types of property 'category' are incompatible.
     Type 'string' is not assignable to type 'CharityCategory | undefined'.
-src/db/schema/charity.schema.test.ts(82,38): error TS2345: Argument of type '{ name: string; description: string; category: string; website: string; }' is not assignable to parameter of type 'Partial<Charity>'.
+src/db/schema/charity.schema.test.ts(81,38): error TS2345: Argument of type '{ name: string; description: string; category: string; website: string; }' is not assignable to parameter of type 'Partial<Charity>'.
   Types of property 'category' are incompatible.
     Type 'string' is not assignable to type 'CharityCategory | undefined'.
-src/db/schema/charity.schema.test.ts(105,38): error TS2345: Argument of type '{ name: string; description: string; category: string; website: string; }' is not assignable to parameter of type 'Partial<Charity>'.
+src/db/schema/charity.schema.test.ts(104,38): error TS2345: Argument of type '{ name: string; description: string; category: string; website: string; }' is not assignable to parameter of type 'Partial<Charity>'.
   Types of property 'category' are incompatible.
     Type 'string' is not assignable to type 'CharityCategory | undefined'.
-src/db/schema/charity.schema.test.ts(117,38): error TS2345: Argument of type '{ name: string; description: string; category: string; website: string; }' is not assignable to parameter of type 'Partial<Charity>'.
+src/db/schema/charity.schema.test.ts(116,38): error TS2345: Argument of type '{ name: string; description: string; category: string; website: string; }' is not assignable to parameter of type 'Partial<Charity>'.
   Types of property 'category' are incompatible.
     Type 'string' is not assignable to type 'CharityCategory | undefined'.
-src/db/schema/charity.schema.test.ts(137,33): error TS2345: Argument of type '"EDUCATION"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(138,33): error TS2345: Argument of type '"ENVIRONMENT"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(139,33): error TS2345: Argument of type '"HEALTH"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(140,33): error TS2345: Argument of type '"POVERTY"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(141,33): error TS2345: Argument of type '"ANIMAL_WELFARE"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(142,33): error TS2345: Argument of type '"HUMAN_RIGHTS"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(143,33): error TS2345: Argument of type '"DISASTER_RELIEF"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(144,33): error TS2345: Argument of type '"ARTS_CULTURE"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(145,33): error TS2345: Argument of type '"COMMUNITY"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(146,33): error TS2345: Argument of type '"OTHER"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(152,37): error TS2345: Argument of type '"EDUCATION"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(153,37): error TS2345: Argument of type '"ENVIRONMENT"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(154,37): error TS2345: Argument of type '"HEALTH"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(155,37): error TS2345: Argument of type '"POVERTY"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(156,37): error TS2345: Argument of type '"ANIMAL_WELFARE"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(157,37): error TS2345: Argument of type '"HUMAN_RIGHTS"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(158,37): error TS2345: Argument of type '"DISASTER_RELIEF"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(159,37): error TS2345: Argument of type '"ARTS_CULTURE"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(160,37): error TS2345: Argument of type '"COMMUNITY"' is not assignable to parameter of type 'CharityCategory'.
-src/db/schema/charity.schema.test.ts(161,37): error TS2345: Argument of type '"OTHER"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(136,33): error TS2345: Argument of type '"EDUCATION"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(137,33): error TS2345: Argument of type '"ENVIRONMENT"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(138,33): error TS2345: Argument of type '"HEALTH"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(139,33): error TS2345: Argument of type '"POVERTY"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(140,33): error TS2345: Argument of type '"ANIMAL_WELFARE"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(141,33): error TS2345: Argument of type '"HUMAN_RIGHTS"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(142,33): error TS2345: Argument of type '"DISASTER_RELIEF"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(143,33): error TS2345: Argument of type '"ARTS_CULTURE"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(144,33): error TS2345: Argument of type '"COMMUNITY"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(145,33): error TS2345: Argument of type '"OTHER"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(151,37): error TS2345: Argument of type '"EDUCATION"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(152,37): error TS2345: Argument of type '"ENVIRONMENT"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(153,37): error TS2345: Argument of type '"HEALTH"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(154,37): error TS2345: Argument of type '"POVERTY"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(155,37): error TS2345: Argument of type '"ANIMAL_WELFARE"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(156,37): error TS2345: Argument of type '"HUMAN_RIGHTS"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(157,37): error TS2345: Argument of type '"DISASTER_RELIEF"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(158,37): error TS2345: Argument of type '"ARTS_CULTURE"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(159,37): error TS2345: Argument of type '"COMMUNITY"' is not assignable to parameter of type 'CharityCategory'.
+src/db/schema/charity.schema.test.ts(160,37): error TS2345: Argument of type '"OTHER"' is not assignable to parameter of type 'CharityCategory'.
 src/db/schema/charity.schema.ts(12,41): error TS6196: 'CharityStatus' is declared but never used.
-src/db/schema/charity.schema.ts(51,5): error TS2820: Type '"pending"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.PENDING'?
+src/db/schema/charity.schema.ts(51,5): error TS2322: Type '"PENDING"' is not assignable to type 'CharityStatus | undefined'.
 src/db/schema/invoiceTemplates.schema.test.ts(299,14): error TS18048: 'results.headerContrast' is possibly 'undefined'.
 src/db/schema/invoiceTemplates.schema.test.ts(302,14): error TS18048: 'results.bodyContrast' is possibly 'undefined'.
 src/db/schema/invoiceTemplates.schema.test.ts(333,13): error TS6133: 'resultsSmall' is declared but its value is never read.
 src/db/schema/invoiceTemplates.schema.test.ts(337,14): error TS18048: 'resultsLarge.bodyContrast' is possibly 'undefined'.
-src/db/schema/payments.schema.ts(103,5): error TS2820: Type '"pending"' is not assignable to type 'PaymentStatus | undefined'. Did you mean '"PENDING"'?
-src/db/schema/recurringInvoices.schema.ts(194,5): error TS2820: Type '"active"' is not assignable to type 'RecurringInvoiceStatus | undefined'. Did you mean '"ACTIVE"'?
 src/db/schema/users.schema.test.ts(136,13): error TS2322: Type '"ADMIN"' is not assignable to type 'UserRole'.
 src/db/schema/users.schema.test.ts(150,58): error TS2345: Argument of type '"OWNER"' is not assignable to parameter of type 'UserRole'.
 src/db/schema/users.schema.test.ts(151,58): error TS2345: Argument of type '"ADMIN"' is not assignable to parameter of type 'UserRole'.
@@ -411,36 +384,36 @@ src/db/schema/users.schema.test.ts(724,47): error TS2345: Argument of type 'User
 src/db/seeds/charities.seed.ts(11,30): error TS7016: Could not find a declaration file for module 'uuid'. 'C:/Users/Admin/graceful_books/node_modules/uuid/dist/esm-browser/index.js' implicitly has an 'any' type.
   Try `npm i --save-dev @types/uuid` if it exists or add a new declaration (.d.ts) file containing `declare module 'uuid';`
 src/db/seeds/charities.seed.ts(13,24): error TS6196: 'CharityCategory' is declared but never used.
-src/db/seeds/charities.seed.ts(21,5): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/db/seeds/charities.seed.ts(24,5): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
-src/db/seeds/charities.seed.ts(34,5): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/db/seeds/charities.seed.ts(37,5): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
-src/db/seeds/charities.seed.ts(49,5): error TS2820: Type '"environment"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.ENVIRONMENT'?
-src/db/seeds/charities.seed.ts(52,5): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
-src/db/seeds/charities.seed.ts(62,5): error TS2820: Type '"environment"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.ENVIRONMENT'?
-src/db/seeds/charities.seed.ts(65,5): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
-src/db/seeds/charities.seed.ts(77,5): error TS2820: Type '"health"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.HEALTH'?
-src/db/seeds/charities.seed.ts(80,5): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
-src/db/seeds/charities.seed.ts(90,5): error TS2820: Type '"health"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.HEALTH'?
-src/db/seeds/charities.seed.ts(93,5): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
+src/db/seeds/charities.seed.ts(21,5): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/db/seeds/charities.seed.ts(24,5): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
+src/db/seeds/charities.seed.ts(34,5): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/db/seeds/charities.seed.ts(37,5): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
+src/db/seeds/charities.seed.ts(49,5): error TS2322: Type '"ENVIRONMENT"' is not assignable to type 'CharityCategory'.
+src/db/seeds/charities.seed.ts(52,5): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
+src/db/seeds/charities.seed.ts(62,5): error TS2322: Type '"ENVIRONMENT"' is not assignable to type 'CharityCategory'.
+src/db/seeds/charities.seed.ts(65,5): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
+src/db/seeds/charities.seed.ts(77,5): error TS2322: Type '"HEALTH"' is not assignable to type 'CharityCategory'.
+src/db/seeds/charities.seed.ts(80,5): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
+src/db/seeds/charities.seed.ts(90,5): error TS2322: Type '"HEALTH"' is not assignable to type 'CharityCategory'.
+src/db/seeds/charities.seed.ts(93,5): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
 src/db/seeds/charities.seed.ts(105,5): error TS2322: Type '"POVERTY"' is not assignable to type 'CharityCategory'.
-src/db/seeds/charities.seed.ts(108,5): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
+src/db/seeds/charities.seed.ts(108,5): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
 src/db/seeds/charities.seed.ts(118,5): error TS2322: Type '"POVERTY"' is not assignable to type 'CharityCategory'.
-src/db/seeds/charities.seed.ts(121,5): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
+src/db/seeds/charities.seed.ts(121,5): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
 src/db/seeds/charities.seed.ts(133,5): error TS2322: Type '"ANIMAL_WELFARE"' is not assignable to type 'CharityCategory'.
-src/db/seeds/charities.seed.ts(136,5): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
+src/db/seeds/charities.seed.ts(136,5): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
 src/db/seeds/charities.seed.ts(148,5): error TS2322: Type '"HUMAN_RIGHTS"' is not assignable to type 'CharityCategory'.
-src/db/seeds/charities.seed.ts(151,5): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
+src/db/seeds/charities.seed.ts(151,5): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
 src/db/seeds/charities.seed.ts(163,5): error TS2322: Type '"DISASTER_RELIEF"' is not assignable to type 'CharityCategory'.
-src/db/seeds/charities.seed.ts(166,5): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
+src/db/seeds/charities.seed.ts(166,5): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
 src/db/seeds/charities.seed.ts(178,5): error TS2322: Type '"ARTS_CULTURE"' is not assignable to type 'CharityCategory'.
-src/db/seeds/charities.seed.ts(181,5): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
+src/db/seeds/charities.seed.ts(181,5): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
 src/db/seeds/charities.seed.ts(193,5): error TS2322: Type '"COMMUNITY"' is not assignable to type 'CharityCategory'.
-src/db/seeds/charities.seed.ts(196,5): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
+src/db/seeds/charities.seed.ts(196,5): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
 src/db/seeds/charities.seed.ts(206,5): error TS2322: Type '"COMMUNITY"' is not assignable to type 'CharityCategory'.
-src/db/seeds/charities.seed.ts(209,5): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
-src/db/seeds/charities.seed.ts(221,5): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/db/seeds/charities.seed.ts(224,5): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
+src/db/seeds/charities.seed.ts(209,5): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
+src/db/seeds/charities.seed.ts(221,5): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/db/seeds/charities.seed.ts(224,5): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
 src/hooks/useVendors.test.ts(21,39): error TS6133: 'deps' is declared but its value is never read.
 src/hooks/useVendors.test.ts(21,53): error TS6133: 'defaultValue' is declared but its value is never read.
 src/hooks/useVendors.test.ts(101,13): error TS6133: 'inactiveVendor' is declared but its value is never read.
@@ -467,68 +440,64 @@ src/observability/tracing.ts(76,15): error TS6133: 'processor' is declared but i
 src/pages/CustomerPortal.tsx(35,9): error TS6133: 'navigate' is declared but its value is never read.
 src/pages/CustomerPortal.tsx(64,11): error TS2367: This comparison appears to be unintentional because the types 'DatabaseErrorCode' and 'ErrorCode.RATE_LIMITED' have no overlap.
 src/services/admin/charity.service.test.ts(12,24): error TS6196: 'CharityStatus' is declared but never used.
-src/services/admin/charity.service.test.ts(58,9): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/services/admin/charity.service.test.ts(83,11): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/services/admin/charity.service.test.ts(96,11): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/services/admin/charity.service.test.ts(112,11): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/services/admin/charity.service.test.ts(115,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
-src/services/admin/charity.service.test.ts(143,11): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/services/admin/charity.service.test.ts(146,11): error TS2820: Type '"pending"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.PENDING'?
+src/services/admin/charity.service.test.ts(58,9): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(83,11): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(96,11): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(112,11): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(115,11): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
+src/services/admin/charity.service.test.ts(143,11): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(146,11): error TS2322: Type '"PENDING"' is not assignable to type 'CharityStatus'.
 src/services/admin/charity.service.test.ts(164,31): error TS2820: Type '"pending"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.PENDING'?
-src/services/admin/charity.service.test.ts(177,11): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/services/admin/charity.service.test.ts(180,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
-src/services/admin/charity.service.test.ts(193,11): error TS2820: Type '"health"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.HEALTH'?
-src/services/admin/charity.service.test.ts(196,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
+src/services/admin/charity.service.test.ts(177,11): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(180,11): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
+src/services/admin/charity.service.test.ts(193,11): error TS2322: Type '"HEALTH"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(196,11): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
 src/services/admin/charity.service.test.ts(214,14): error TS2532: Object is possibly 'undefined'.
-src/services/admin/charity.service.test.ts(226,11): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/services/admin/charity.service.test.ts(229,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
-src/services/admin/charity.service.test.ts(262,9): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/services/admin/charity.service.test.ts(265,9): error TS2820: Type '"pending"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.PENDING'?
-src/services/admin/charity.service.test.ts(296,9): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/services/admin/charity.service.test.ts(299,9): error TS2820: Type '"pending"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.PENDING'?
-src/services/admin/charity.service.test.ts(332,9): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/services/admin/charity.service.test.ts(335,9): error TS2820: Type '"pending"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.PENDING'?
-src/services/admin/charity.service.test.ts(367,9): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/services/admin/charity.service.test.ts(370,9): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
-src/services/admin/charity.service.test.ts(397,9): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/services/admin/charity.service.test.ts(400,9): error TS2820: Type '"pending"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.PENDING'?
-src/services/admin/charity.service.test.ts(434,9): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
+src/services/admin/charity.service.test.ts(226,11): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(229,11): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
+src/services/admin/charity.service.test.ts(262,9): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(265,9): error TS2322: Type '"PENDING"' is not assignable to type 'CharityStatus'.
+src/services/admin/charity.service.test.ts(296,9): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(299,9): error TS2322: Type '"PENDING"' is not assignable to type 'CharityStatus'.
+src/services/admin/charity.service.test.ts(332,9): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(335,9): error TS2322: Type '"PENDING"' is not assignable to type 'CharityStatus'.
+src/services/admin/charity.service.test.ts(367,9): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(370,9): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
+src/services/admin/charity.service.test.ts(397,9): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(400,9): error TS2322: Type '"PENDING"' is not assignable to type 'CharityStatus'.
+src/services/admin/charity.service.test.ts(434,9): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
 src/services/admin/charity.service.test.ts(437,9): error TS2322: Type '"REJECTED"' is not assignable to type 'CharityStatus'.
-src/services/admin/charity.service.test.ts(465,9): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/services/admin/charity.service.test.ts(468,9): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
-src/services/admin/charity.service.test.ts(500,11): error TS2820: Type '"education"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.EDUCATION'?
-src/services/admin/charity.service.test.ts(503,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
-src/services/admin/charity.service.test.ts(516,11): error TS2820: Type '"health"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.HEALTH'?
-src/services/admin/charity.service.test.ts(519,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
+src/services/admin/charity.service.test.ts(465,9): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(468,9): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
+src/services/admin/charity.service.test.ts(500,11): error TS2322: Type '"EDUCATION"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(503,11): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
+src/services/admin/charity.service.test.ts(516,11): error TS2322: Type '"HEALTH"' is not assignable to type 'CharityCategory'.
+src/services/admin/charity.service.test.ts(519,11): error TS2322: Type '"VERIFIED"' is not assignable to type 'CharityStatus'.
 src/services/admin/charity.service.test.ts(532,11): error TS2820: Type '"environment"' is not assignable to type 'CharityCategory'. Did you mean 'CharityCategory.ENVIRONMENT'?
-src/services/admin/charity.service.test.ts(535,11): error TS2820: Type '"pending"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.PENDING'?
+src/services/admin/charity.service.test.ts(535,11): error TS2322: Type '"PENDING"' is not assignable to type 'CharityStatus'.
 src/services/admin/charity.service.ts(11,30): error TS7016: Could not find a declaration file for module 'uuid'. 'C:/Users/Admin/graceful_books/node_modules/uuid/dist/esm-browser/index.js' implicitly has an 'any' type.
   Try `npm i --save-dev @types/uuid` if it exists or add a new declaration (.d.ts) file containing `declare module 'uuid';`
 src/services/admin/charity.service.ts(266,7): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus'. Did you mean 'CharityStatus.VERIFIED'?
 src/services/admin/charity.service.ts(306,7): error TS2322: Type '"REJECTED"' is not assignable to type 'CharityStatus'.
 src/services/admin/charity.service.ts(336,7): error TS2322: Type '"INACTIVE"' is not assignable to type 'CharityStatus'.
-src/services/admin/charityDistribution.service.test.ts(16,3): error TS6133: 'getDistributionsForMonth' is declared but its value is never read.
-src/services/admin/charityDistribution.service.test.ts(18,3): error TS6133: 'getUserAnnualContribution' is declared but its value is never read.
-src/services/admin/charityDistribution.service.test.ts(19,3): error TS6133: 'getCharityImpactStats' is declared but its value is never read.
-src/services/admin/charityDistribution.service.test.ts(20,3): error TS6133: 'getAllCharityImpactStats' is declared but its value is never read.
-src/services/admin/charityDistribution.service.test.ts(87,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.VERIFIED'?
-src/services/admin/charityDistribution.service.test.ts(95,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.VERIFIED'?
-src/services/admin/charityDistribution.service.test.ts(122,14): error TS2532: Object is possibly 'undefined'.
-src/services/admin/charityDistribution.service.test.ts(123,14): error TS2532: Object is possibly 'undefined'.
-src/services/admin/charityDistribution.service.test.ts(124,14): error TS2532: Object is possibly 'undefined'.
-src/services/admin/charityDistribution.service.test.ts(125,14): error TS2532: Object is possibly 'undefined'.
-src/services/admin/charityDistribution.service.test.ts(158,11): error TS2820: Type '"pending"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.PENDING'?
-src/services/admin/charityDistribution.service.test.ts(208,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.VERIFIED'?
-src/services/admin/charityDistribution.service.test.ts(235,14): error TS2532: Object is possibly 'undefined'.
-src/services/admin/charityDistribution.service.test.ts(236,14): error TS2532: Object is possibly 'undefined'.
-src/services/admin/charityDistribution.service.test.ts(242,13): error TS6133: 'mockContributions' is declared but its value is never read.
-src/services/admin/charityDistribution.service.test.ts(267,57): error TS2352: Conversion of type '{ id: string; name: string; ein: string; status: "verified"; website: string; payment_address: string; }[]' to type 'Charity[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/services/admin/charityDistribution.service.test.ts(83,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.VERIFIED'?
+src/services/admin/charityDistribution.service.test.ts(91,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.VERIFIED'?
+src/services/admin/charityDistribution.service.test.ts(118,14): error TS2532: Object is possibly 'undefined'.
+src/services/admin/charityDistribution.service.test.ts(119,14): error TS2532: Object is possibly 'undefined'.
+src/services/admin/charityDistribution.service.test.ts(120,14): error TS2532: Object is possibly 'undefined'.
+src/services/admin/charityDistribution.service.test.ts(121,14): error TS2532: Object is possibly 'undefined'.
+src/services/admin/charityDistribution.service.test.ts(154,11): error TS2820: Type '"pending"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.PENDING'?
+src/services/admin/charityDistribution.service.test.ts(204,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.VERIFIED'?
+src/services/admin/charityDistribution.service.test.ts(231,14): error TS2532: Object is possibly 'undefined'.
+src/services/admin/charityDistribution.service.test.ts(232,14): error TS2532: Object is possibly 'undefined'.
+src/services/admin/charityDistribution.service.test.ts(238,13): error TS6133: 'mockContributions' is declared but its value is never read.
+src/services/admin/charityDistribution.service.test.ts(263,57): error TS2352: Conversion of type '{ id: string; name: string; ein: string; status: "verified"; website: string; payment_address: string; }[]' to type 'Charity[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
   Type '{ id: string; name: string; ein: string; status: "verified"; website: string; payment_address: string; }' is missing the following properties from type 'Charity': description, category, logo, verification_notes, and 5 more.
-src/services/admin/charityDistribution.service.test.ts(367,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.VERIFIED'?
-src/services/admin/charityDistribution.service.test.ts(418,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.VERIFIED'?
-src/services/admin/charityDistribution.service.test.ts(462,13): error TS6133: 'records' is declared but its value is never read.
-src/services/admin/charityDistribution.service.test.ts(637,14): error TS2532: Object is possibly 'undefined'.
-src/services/admin/charityDistribution.service.test.ts(659,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.VERIFIED'?
+src/services/admin/charityDistribution.service.test.ts(363,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.VERIFIED'?
+src/services/admin/charityDistribution.service.test.ts(414,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.VERIFIED'?
+src/services/admin/charityDistribution.service.test.ts(458,13): error TS6133: 'records' is declared but its value is never read.
+src/services/admin/charityDistribution.service.test.ts(633,14): error TS2532: Object is possibly 'undefined'.
+src/services/admin/charityDistribution.service.test.ts(655,11): error TS2820: Type '"verified"' is not assignable to type 'CharityStatus | undefined'. Did you mean 'CharityStatus.VERIFIED'?
 src/services/admin/charityDistribution.service.ts(11,30): error TS7016: Could not find a declaration file for module 'uuid'. 'C:/Users/Admin/graceful_books/node_modules/uuid/dist/esm-browser/index.js' implicitly has an 'any' type.
   Try `npm i --save-dev @types/uuid` if it exists or add a new declaration (.d.ts) file containing `declare module 'uuid';`
 src/services/admin/charityDistribution.service.ts(14,1): error TS6133: 'Subscription' is declared but its value is never read.
@@ -693,8 +662,6 @@ src/services/barter.service.test.ts(180,40): error TS2532: Object is possibly 'u
 src/services/barter.service.test.ts(561,14): error TS2532: Object is possibly 'undefined'.
 src/services/barter.service.test.ts(649,14): error TS2532: Object is possibly 'undefined'.
 src/services/barter.service.test.ts(650,14): error TS2532: Object is possibly 'undefined'.
-src/services/billing.service.test.ts(20,3): error TS6133: 'addTeamMemberToAdvisor' is declared but its value is never read.
-src/services/billing.service.test.ts(21,3): error TS6133: 'removeTeamMemberFromAdvisor' is declared but its value is never read.
 src/services/billing.service.ts(14,3): error TS6196: 'RelationshipStatus' is declared but never used.
 src/services/billing.service.ts(15,3): error TS6196: 'TeamMemberStatus' is declared but never used.
 src/services/billing.service.ts(17,19): error TS6133: 'BILLING_TIERS' is declared but its value is never read.
@@ -722,31 +689,28 @@ src/services/coaWizardService.additional.test.ts(627,32): error TS18048: 'callAr
 src/services/coaWizardService.test.ts(396,32): error TS18048: 'callArgs' is possibly 'undefined'.
 src/services/coaWizardService.test.ts(428,32): error TS18048: 'callArgs' is possibly 'undefined'.
 src/services/coaWizardService.test.ts(458,32): error TS18048: 'callArgs' is possibly 'undefined'.
-src/services/comments.service.test.ts(17,8): error TS6133: 'CreateCommentOptions' is declared but its value is never read.
-src/services/comments.service.test.ts(18,8): error TS6133: 'UpdateCommentOptions' is declared but its value is never read.
-src/services/comments.service.test.ts(36,7): error TS6133: 'TEST_INVOICE_ID' is declared but its value is never read.
-src/services/comments.service.test.ts(51,24): error TS2352: Conversion of type '{ id: string; email: string; name: string; hashed_password: string; created_at: number; updated_at: number; deleted_at: null; version_vector: { "device-test-001": number; }; }' to type 'User' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/services/comments.service.test.ts(48,24): error TS2352: Conversion of type '{ id: string; email: string; name: string; hashed_password: string; created_at: number; updated_at: number; deleted_at: null; version_vector: { "device-test-001": number; }; }' to type 'User' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
   Type '{ id: string; email: string; name: string; hashed_password: string; created_at: number; updated_at: number; deleted_at: null; version_vector: { "device-test-001": number; }; }' is missing the following properties from type 'User': passphrase_hash, master_key_encrypted, preferences, selected_charity_id
-src/services/comments.service.test.ts(62,24): error TS2352: Conversion of type '{ id: string; email: string; name: string; hashed_password: string; created_at: number; updated_at: number; deleted_at: null; version_vector: { "device-test-001": number; }; }' to type 'User' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/services/comments.service.test.ts(59,24): error TS2352: Conversion of type '{ id: string; email: string; name: string; hashed_password: string; created_at: number; updated_at: number; deleted_at: null; version_vector: { "device-test-001": number; }; }' to type 'User' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
   Type '{ id: string; email: string; name: string; hashed_password: string; created_at: number; updated_at: number; deleted_at: null; version_vector: { "device-test-001": number; }; }' is missing the following properties from type 'User': passphrase_hash, master_key_encrypted, preferences, selected_charity_id
-src/services/comments.service.test.ts(127,7): error TS2322: Type '"INCOME"' is not assignable to type 'TransactionType'.
-src/services/comments.service.test.ts(130,7): error TS2322: Type '"pending"' is not assignable to type 'TransactionStatus'.
-src/services/comments.service.test.ts(322,14): error TS2532: Object is possibly 'undefined'.
-src/services/comments.service.test.ts(323,14): error TS2532: Object is possibly 'undefined'.
+src/services/comments.service.test.ts(124,7): error TS2322: Type '"INCOME"' is not assignable to type 'TransactionType'.
+src/services/comments.service.test.ts(127,7): error TS2322: Type '"pending"' is not assignable to type 'TransactionStatus'.
+src/services/comments.service.test.ts(319,14): error TS2532: Object is possibly 'undefined'.
+src/services/comments.service.test.ts(320,14): error TS2532: Object is possibly 'undefined'.
+src/services/comments.service.test.ts(474,14): error TS2532: Object is possibly 'undefined'.
+src/services/comments.service.test.ts(475,14): error TS2532: Object is possibly 'undefined'.
+src/services/comments.service.test.ts(476,14): error TS2532: Object is possibly 'undefined'.
 src/services/comments.service.test.ts(477,14): error TS2532: Object is possibly 'undefined'.
-src/services/comments.service.test.ts(478,14): error TS2532: Object is possibly 'undefined'.
-src/services/comments.service.test.ts(479,14): error TS2532: Object is possibly 'undefined'.
-src/services/comments.service.test.ts(480,14): error TS2532: Object is possibly 'undefined'.
-src/services/comments.service.test.ts(513,14): error TS2532: Object is possibly 'undefined'.
-src/services/comments.service.test.ts(514,14): error TS2532: Object is possibly 'undefined'.
-src/services/comments.service.test.ts(514,14): error TS2532: Object is possibly 'undefined'.
-src/services/comments.service.test.ts(515,14): error TS2532: Object is possibly 'undefined'.
-src/services/comments.service.test.ts(540,14): error TS18048: 'current' is possibly 'undefined'.
-src/services/comments.service.test.ts(541,19): error TS18048: 'current' is possibly 'undefined'.
-src/services/comments.service.test.ts(897,16): error TS2532: Object is possibly 'undefined'.
-src/services/comments.service.test.ts(897,65): error TS2532: Object is possibly 'undefined'.
-src/services/comments.service.test.ts(1116,16): error TS2532: Object is possibly 'undefined'.
-src/services/comments.service.test.ts(1117,11): error TS2532: Object is possibly 'undefined'.
+src/services/comments.service.test.ts(510,14): error TS2532: Object is possibly 'undefined'.
+src/services/comments.service.test.ts(511,14): error TS2532: Object is possibly 'undefined'.
+src/services/comments.service.test.ts(511,14): error TS2532: Object is possibly 'undefined'.
+src/services/comments.service.test.ts(512,14): error TS2532: Object is possibly 'undefined'.
+src/services/comments.service.test.ts(537,14): error TS18048: 'current' is possibly 'undefined'.
+src/services/comments.service.test.ts(538,19): error TS18048: 'current' is possibly 'undefined'.
+src/services/comments.service.test.ts(894,16): error TS2532: Object is possibly 'undefined'.
+src/services/comments.service.test.ts(894,65): error TS2532: Object is possibly 'undefined'.
+src/services/comments.service.test.ts(1113,16): error TS2532: Object is possibly 'undefined'.
+src/services/comments.service.test.ts(1114,11): error TS2532: Object is possibly 'undefined'.
 src/services/comments.service.ts(523,5): error TS6133: 'commentableId' is declared but its value is never read.
 src/services/conflictResolution.service.test.ts(28,3): error TS6196: 'ConflictSeverity' is declared but never used.
 src/services/conflictResolution.service.test.ts(41,5): error TS2322: Type '"ASSET"' is not assignable to type 'AccountType'.
@@ -821,13 +785,7 @@ src/services/currencyGainLoss.service.test.ts(18,43): error TS6196: 'ExchangeRat
 src/services/currencyGainLoss.service.test.ts(398,14): error TS2532: Object is possibly 'undefined'.
 src/services/currencyGainLoss.service.test.ts(399,14): error TS2532: Object is possibly 'undefined'.
 src/services/currencyGainLoss.service.ts(28,3): error TS6196: 'ExchangeRate' is declared but never used.
-src/services/currencyGainLoss.service.ts(30,24): error TS6133: 'ExchangeRateSource' is declared but its value is never read.
 src/services/currencyGainLoss.service.ts(108,13): error TS6138: Property 'db' is declared but its value is never read.
-src/services/currencyGainLoss.service.ts(281,5): error TS6133: 'transactionIds' is declared but its value is never read.
-src/services/currencyGainLoss.service.ts(282,5): error TS6133: 'baseCurrency' is declared but its value is never read.
-src/services/currencyGainLoss.service.ts(300,5): error TS6133: 'accountIds' is declared but its value is never read.
-src/services/currencyGainLoss.service.ts(301,5): error TS6133: 'revaluationDate' is declared but its value is never read.
-src/services/currencyGainLoss.service.ts(302,5): error TS6133: 'baseCurrency' is declared but its value is never read.
 src/services/currencyRevaluation.service.ts(30,3): error TS6196: 'CurrencyGainLoss' is declared but never used.
 src/services/currencyRevaluation.service.ts(32,1): error TS6133: 'GainLossType' is declared but its value is never read.
 src/services/currencyRevaluation.service.ts(136,13): error TS6138: Property 'gainLossService' is declared but its value is never read.
@@ -1050,9 +1008,6 @@ src/services/interestSplit/liabilityDetection.service.ts(290,36): error TS2532: 
 src/services/interestSplit/liabilityDetection.service.ts(306,5): error TS6133: 'transactionDate' is declared but its value is never read.
 src/services/interestSplit/liabilityDetection.service.ts(307,5): error TS6133: 'amount' is declared but its value is never read.
 src/services/interestSplit/liabilityDetection.service.ts(319,5): error TS6133: 'transactionDate' is declared but its value is never read.
-src/services/interestSplit/liabilityDetection.service.ts(357,32): error TS6133: 'accountId' is declared but its value is never read.
-src/services/interestSplit/liabilityDetection.service.ts(366,30): error TS6133: 'memoText' is declared but its value is never read.
-src/services/interestSplit/liabilityDetection.service.ts(366,48): error TS6133: 'loanAccount' is declared but its value is never read.
 src/services/interestSplit/messaging.service.ts(52,11): error TS7053: Element implicitly has an 'any' type because expression of type '`get${string}`' can't be used to index type 'InterestSplitMessagingService'.
 src/services/interestSplit/messaging.service.ts(239,50): error TS18048: 'qualifiers.MEDIUM' is possibly 'undefined'.
 src/services/interestSplit/paymentSplit.service.test.ts(70,58): error TS2345: Argument of type '(id: string) => Promise<any>' is not assignable to parameter of type '(equalityCriterias: { [key: string]: any; }, thenShortcut: ThenShortcut<Account | undefined, unknown>) => PromiseExtended<unknown>'.
@@ -1389,54 +1344,49 @@ src/services/multiUser/keyRotation.enhanced.service.ts(19,3): error TS6196: 'Der
 src/services/multiUser/keyRotation.enhanced.service.ts(21,3): error TS6196: 'KeyRotationResult' is declared but never used.
 src/services/multiUser/keyRotation.enhanced.service.ts(23,3): error TS6196: 'PermissionLevel' is declared but never used.
 src/services/multiUser/keyRotation.enhanced.service.ts(26,1): error TS6192: All imports in import declaration are unused.
-src/services/multiUser/keyRotation.enhanced.service.ts(27,24): error TS6133: 'cryptoRotateKeys' is declared but its value is never read.
-src/services/multiUser/keyRotation.enhanced.service.ts(30,1): error TS6133: 'ErrorCode' is declared but its value is never read.
-src/services/multiUser/keyRotation.enhanced.service.ts(279,73): error TS2551: Property 'deleted_at' does not exist on type 'AccountEntity'. Did you mean 'deletedAt'?
-src/services/multiUser/keyRotation.enhanced.service.ts(280,77): error TS2551: Property 'deleted_at' does not exist on type 'TransactionEntity'. Did you mean 'deletedAt'?
-src/services/multiUser/keyRotation.enhanced.service.ts(281,12): error TS2551: Property 'transactionLines' does not exist on type 'GracefulBooksDB'. Did you mean 'transactions'?
-src/services/multiUser/keyRotation.enhanced.service.ts(281,72): error TS7006: Parameter 'tl' implicitly has an 'any' type.
-src/services/multiUser/keyRotation.enhanced.service.ts(282,73): error TS2551: Property 'deleted_at' does not exist on type 'ContactEntity'. Did you mean 'deletedAt'?
-src/services/multiUser/keyRotation.enhanced.service.ts(283,60): error TS2551: Property 'deleted_at' does not exist on type 'UserEntity'. Did you mean 'deletedAt'?
-src/services/multiUser/keyRotation.enhanced.service.ts(320,41): error TS2552: Cannot find name 'oldContext'. Did you mean '_oldContext'?
-src/services/multiUser/keyRotation.enhanced.service.ts(320,53): error TS2552: Cannot find name 'newContext'. Did you mean '_newContext'?
-src/services/multiUser/keyRotation.enhanced.service.ts(327,45): error TS2552: Cannot find name 'oldContext'. Did you mean '_oldContext'?
-src/services/multiUser/keyRotation.enhanced.service.ts(327,57): error TS2552: Cannot find name 'newContext'. Did you mean '_newContext'?
-src/services/multiUser/keyRotation.enhanced.service.ts(334,49): error TS2552: Cannot find name 'oldContext'. Did you mean '_oldContext'?
-src/services/multiUser/keyRotation.enhanced.service.ts(334,61): error TS2304: Cannot find name 'newContext'.
-src/services/multiUser/keyRotation.enhanced.service.ts(341,41): error TS2304: Cannot find name 'oldContext'.
-src/services/multiUser/keyRotation.enhanced.service.ts(341,53): error TS2304: Cannot find name 'newContext'.
-src/services/multiUser/keyRotation.enhanced.service.ts(348,38): error TS2304: Cannot find name 'oldContext'.
-src/services/multiUser/keyRotation.enhanced.service.ts(348,50): error TS2304: Cannot find name 'newContext'.
-src/services/multiUser/keyRotation.enhanced.service.ts(367,22): error TS2551: Property 'deleted_at' does not exist on type 'AccountEntity'. Did you mean 'deletedAt'?
-src/services/multiUser/keyRotation.enhanced.service.ts(377,56): error TS2551: Property 'version_vector' does not exist on type 'AccountEntity'. Did you mean 'versionVector'?
-src/services/multiUser/keyRotation.enhanced.service.ts(383,47): error TS2532: Object is possibly 'undefined'.
-src/services/multiUser/keyRotation.enhanced.service.ts(398,22): error TS2551: Property 'deleted_at' does not exist on type 'TransactionEntity'. Did you mean 'deletedAt'?
-src/services/multiUser/keyRotation.enhanced.service.ts(407,60): error TS2551: Property 'version_vector' does not exist on type 'TransactionEntity'. Did you mean 'versionVector'?
-src/services/multiUser/keyRotation.enhanced.service.ts(411,51): error TS2532: Object is possibly 'undefined'.
-src/services/multiUser/keyRotation.enhanced.service.ts(423,28): error TS2551: Property 'transactionLines' does not exist on type 'GracefulBooksDB'. Did you mean 'transactions'?
-src/services/multiUser/keyRotation.enhanced.service.ts(426,13): error TS7006: Parameter 'tl' implicitly has an 'any' type.
-src/services/multiUser/keyRotation.enhanced.service.ts(432,34): error TS7006: Parameter 'line' implicitly has an 'any' type.
-src/services/multiUser/keyRotation.enhanced.service.ts(438,16): error TS2551: Property 'transactionLines' does not exist on type 'GracefulBooksDB'. Did you mean 'transactions'?
-src/services/multiUser/keyRotation.enhanced.service.ts(454,22): error TS2551: Property 'deleted_at' does not exist on type 'ContactEntity'. Did you mean 'deletedAt'?
-src/services/multiUser/keyRotation.enhanced.service.ts(463,56): error TS2551: Property 'version_vector' does not exist on type 'ContactEntity'. Did you mean 'versionVector'?
-src/services/multiUser/keyRotation.enhanced.service.ts(467,47): error TS2532: Object is possibly 'undefined'.
-src/services/multiUser/keyRotation.enhanced.service.ts(482,22): error TS2551: Property 'deleted_at' does not exist on type 'UserEntity'. Did you mean 'deletedAt'?
-src/services/multiUser/keyRotation.enhanced.service.ts(491,53): error TS2551: Property 'version_vector' does not exist on type 'UserEntity'. Did you mean 'versionVector'?
-src/services/multiUser/keyRotation.enhanced.service.ts(495,44): error TS2532: Object is possibly 'undefined'.
-src/services/multiUser/keyRotation.enhanced.service.ts(502,62): error TS6133: 'newMasterKeyId' is declared but its value is never read.
-src/services/multiUser/keyRotation.enhanced.service.ts(509,9): error TS2353: Object literal may only specify known properties, and 'updated_at' does not exist in type 'UpdateSpec<CompanyEntity> | ((obj: CompanyEntity, ctx: { value: any; primKey: IndexableType; }) => boolean | void)'.
-src/services/multiUser/keyRotation.enhanced.service.ts(510,56): error TS2551: Property 'version_vector' does not exist on type 'CompanyEntity'. Did you mean 'versionVector'?
-src/services/multiUser/keyRotation.enhanced.service.ts(519,31): error TS2339: Property 'sessions' does not exist on type 'GracefulBooksDB'.
-src/services/multiUser/keyRotation.enhanced.service.ts(522,13): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/services/multiUser/keyRotation.enhanced.service.ts(526,11): error TS6133: 'deviceId' is declared but its value is never read.
-src/services/multiUser/keyRotation.enhanced.service.ts(528,35): error TS7006: Parameter 'session' implicitly has an 'any' type.
-src/services/multiUser/keyRotation.enhanced.service.ts(536,14): error TS2339: Property 'sessions' does not exist on type 'GracefulBooksDB'.
-src/services/multiUser/keyRotation.enhanced.service.ts(547,5): error TS6133: 'oldContext' is declared but its value is never read.
-src/services/multiUser/keyRotation.enhanced.service.ts(637,36): error TS2339: Property 'companyUsers' does not exist on type 'GracefulBooksDB'.
-src/services/multiUser/keyRotation.enhanced.service.ts(647,13): error TS6133: 'deviceId' is declared but its value is never read.
-src/services/multiUser/keyRotation.enhanced.service.ts(649,16): error TS2339: Property 'companyUsers' does not exist on type 'GracefulBooksDB'.
-src/services/multiUser/keyRotation.enhanced.service.ts(710,36): error TS2339: Property 'companyUsers' does not exist on type 'GracefulBooksDB'.
-src/services/multiUser/keyRotation.enhanced.service.ts(721,16): error TS2339: Property 'companyUsers' does not exist on type 'GracefulBooksDB'.
+src/services/multiUser/keyRotation.enhanced.service.ts(30,10): error TS6133: 'getDeviceId' is declared but its value is never read.
+src/services/multiUser/keyRotation.enhanced.service.ts(278,73): error TS2551: Property 'deleted_at' does not exist on type 'AccountEntity'. Did you mean 'deletedAt'?
+src/services/multiUser/keyRotation.enhanced.service.ts(279,77): error TS2551: Property 'deleted_at' does not exist on type 'TransactionEntity'. Did you mean 'deletedAt'?
+src/services/multiUser/keyRotation.enhanced.service.ts(280,12): error TS2551: Property 'transactionLines' does not exist on type 'GracefulBooksDB'. Did you mean 'transactions'?
+src/services/multiUser/keyRotation.enhanced.service.ts(280,72): error TS7006: Parameter 'tl' implicitly has an 'any' type.
+src/services/multiUser/keyRotation.enhanced.service.ts(281,73): error TS2551: Property 'deleted_at' does not exist on type 'ContactEntity'. Did you mean 'deletedAt'?
+src/services/multiUser/keyRotation.enhanced.service.ts(282,60): error TS2551: Property 'deleted_at' does not exist on type 'UserEntity'. Did you mean 'deletedAt'?
+src/services/multiUser/keyRotation.enhanced.service.ts(319,41): error TS2552: Cannot find name 'oldContext'. Did you mean '_oldContext'?
+src/services/multiUser/keyRotation.enhanced.service.ts(319,53): error TS2552: Cannot find name 'newContext'. Did you mean '_newContext'?
+src/services/multiUser/keyRotation.enhanced.service.ts(326,45): error TS2552: Cannot find name 'oldContext'. Did you mean '_oldContext'?
+src/services/multiUser/keyRotation.enhanced.service.ts(326,57): error TS2552: Cannot find name 'newContext'. Did you mean '_newContext'?
+src/services/multiUser/keyRotation.enhanced.service.ts(333,49): error TS2552: Cannot find name 'oldContext'. Did you mean '_oldContext'?
+src/services/multiUser/keyRotation.enhanced.service.ts(333,61): error TS2304: Cannot find name 'newContext'.
+src/services/multiUser/keyRotation.enhanced.service.ts(340,41): error TS2304: Cannot find name 'oldContext'.
+src/services/multiUser/keyRotation.enhanced.service.ts(340,53): error TS2304: Cannot find name 'newContext'.
+src/services/multiUser/keyRotation.enhanced.service.ts(347,38): error TS2304: Cannot find name 'oldContext'.
+src/services/multiUser/keyRotation.enhanced.service.ts(347,50): error TS2304: Cannot find name 'newContext'.
+src/services/multiUser/keyRotation.enhanced.service.ts(366,22): error TS2551: Property 'deleted_at' does not exist on type 'AccountEntity'. Did you mean 'deletedAt'?
+src/services/multiUser/keyRotation.enhanced.service.ts(376,56): error TS2551: Property 'version_vector' does not exist on type 'AccountEntity'. Did you mean 'versionVector'?
+src/services/multiUser/keyRotation.enhanced.service.ts(382,47): error TS2532: Object is possibly 'undefined'.
+src/services/multiUser/keyRotation.enhanced.service.ts(397,22): error TS2551: Property 'deleted_at' does not exist on type 'TransactionEntity'. Did you mean 'deletedAt'?
+src/services/multiUser/keyRotation.enhanced.service.ts(406,60): error TS2551: Property 'version_vector' does not exist on type 'TransactionEntity'. Did you mean 'versionVector'?
+src/services/multiUser/keyRotation.enhanced.service.ts(410,51): error TS2532: Object is possibly 'undefined'.
+src/services/multiUser/keyRotation.enhanced.service.ts(422,28): error TS2551: Property 'transactionLines' does not exist on type 'GracefulBooksDB'. Did you mean 'transactions'?
+src/services/multiUser/keyRotation.enhanced.service.ts(425,13): error TS7006: Parameter 'tl' implicitly has an 'any' type.
+src/services/multiUser/keyRotation.enhanced.service.ts(431,34): error TS7006: Parameter 'line' implicitly has an 'any' type.
+src/services/multiUser/keyRotation.enhanced.service.ts(437,16): error TS2551: Property 'transactionLines' does not exist on type 'GracefulBooksDB'. Did you mean 'transactions'?
+src/services/multiUser/keyRotation.enhanced.service.ts(453,22): error TS2551: Property 'deleted_at' does not exist on type 'ContactEntity'. Did you mean 'deletedAt'?
+src/services/multiUser/keyRotation.enhanced.service.ts(462,56): error TS2551: Property 'version_vector' does not exist on type 'ContactEntity'. Did you mean 'versionVector'?
+src/services/multiUser/keyRotation.enhanced.service.ts(466,47): error TS2532: Object is possibly 'undefined'.
+src/services/multiUser/keyRotation.enhanced.service.ts(481,22): error TS2551: Property 'deleted_at' does not exist on type 'UserEntity'. Did you mean 'deletedAt'?
+src/services/multiUser/keyRotation.enhanced.service.ts(490,53): error TS2551: Property 'version_vector' does not exist on type 'UserEntity'. Did you mean 'versionVector'?
+src/services/multiUser/keyRotation.enhanced.service.ts(494,44): error TS2532: Object is possibly 'undefined'.
+src/services/multiUser/keyRotation.enhanced.service.ts(508,9): error TS2353: Object literal may only specify known properties, and 'updated_at' does not exist in type 'UpdateSpec<CompanyEntity> | ((obj: CompanyEntity, ctx: { value: any; primKey: IndexableType; }) => boolean | void)'.
+src/services/multiUser/keyRotation.enhanced.service.ts(509,56): error TS2551: Property 'version_vector' does not exist on type 'CompanyEntity'. Did you mean 'versionVector'?
+src/services/multiUser/keyRotation.enhanced.service.ts(518,31): error TS2339: Property 'sessions' does not exist on type 'GracefulBooksDB'.
+src/services/multiUser/keyRotation.enhanced.service.ts(521,13): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/services/multiUser/keyRotation.enhanced.service.ts(526,35): error TS7006: Parameter 'session' implicitly has an 'any' type.
+src/services/multiUser/keyRotation.enhanced.service.ts(534,14): error TS2339: Property 'sessions' does not exist on type 'GracefulBooksDB'.
+src/services/multiUser/keyRotation.enhanced.service.ts(635,36): error TS2339: Property 'companyUsers' does not exist on type 'GracefulBooksDB'.
+src/services/multiUser/keyRotation.enhanced.service.ts(646,16): error TS2339: Property 'companyUsers' does not exist on type 'GracefulBooksDB'.
+src/services/multiUser/keyRotation.enhanced.service.ts(707,36): error TS2339: Property 'companyUsers' does not exist on type 'GracefulBooksDB'.
+src/services/multiUser/keyRotation.enhanced.service.ts(718,16): error TS2339: Property 'companyUsers' does not exist on type 'GracefulBooksDB'.
 src/services/multiUser/notification.service.test.ts(67,14): error TS2532: Object is possibly 'undefined'.
 src/services/multiUser/notification.service.test.ts(82,14): error TS2532: Object is possibly 'undefined'.
 src/services/multiUser/notification.service.test.ts(83,14): error TS2532: Object is possibly 'undefined'.
@@ -1632,81 +1582,72 @@ src/services/reconciliationService.test.ts(135,11): error TS2322: Type '"HIGH"' 
 src/services/reconciliationService.test.ts(338,11): error TS2322: Type '"EXACT"' is not assignable to type 'MatchConfidence'.
 src/services/reconciliationService.test.ts(345,11): error TS2322: Type '"HIGH"' is not assignable to type 'MatchConfidence'.
 src/services/recurrence.service.test.ts(13,3): error TS6133: 'getAllOccurrences' is declared but its value is never read.
-src/services/recurrence.service.test.ts(27,9): error TS2820: Type '"weekly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.WEEKLY'?
-src/services/recurrence.service.test.ts(30,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
-src/services/recurrence.service.test.ts(40,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(43,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
+src/services/recurrence.service.test.ts(27,9): error TS2322: Type '"WEEKLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(30,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(40,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(43,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
 src/services/recurrence.service.test.ts(55,9): error TS2322: Type '"QUARTERLY"' is not assignable to type 'RecurrenceFrequency'.
-src/services/recurrence.service.test.ts(58,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
+src/services/recurrence.service.test.ts(58,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
 src/services/recurrence.service.test.ts(69,9): error TS2322: Type '"ANNUALLY"' is not assignable to type 'RecurrenceFrequency'.
-src/services/recurrence.service.test.ts(72,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
-src/services/recurrence.service.test.ts(86,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(89,9): error TS2820: Type '"on-date"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.ON_DATE'?
-src/services/recurrence.service.test.ts(100,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
+src/services/recurrence.service.test.ts(72,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(86,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(89,9): error TS2322: Type '"ON_DATE"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(100,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
 src/services/recurrence.service.test.ts(103,9): error TS2322: Type '"AFTER_COUNT"' is not assignable to type 'RecurrenceEndType'.
-src/services/recurrence.service.test.ts(116,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(119,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
-src/services/recurrence.service.test.ts(134,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(137,9): error TS2820: Type '"on-date"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.ON_DATE'?
-src/services/recurrence.service.test.ts(150,9): error TS2820: Type '"weekly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.WEEKLY'?
-src/services/recurrence.service.test.ts(153,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
-src/services/recurrence.service.test.ts(168,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(171,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
+src/services/recurrence.service.test.ts(116,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(119,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(134,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(137,9): error TS2322: Type '"ON_DATE"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(150,9): error TS2322: Type '"WEEKLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(153,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(168,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(171,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
 src/services/recurrence.service.test.ts(184,9): error TS2820: Type '"BI_WEEKLY"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.WEEKLY'?
-src/services/recurrence.service.test.ts(187,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
-src/services/recurrence.service.test.ts(203,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(206,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
-src/services/recurrence.service.test.ts(219,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
+src/services/recurrence.service.test.ts(187,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(203,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(206,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(219,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
 src/services/recurrence.service.test.ts(222,9): error TS2322: Type '"AFTER_COUNT"' is not assignable to type 'RecurrenceEndType'.
 src/services/recurrence.service.test.ts(238,9): error TS2322: Type '"ANNUALLY"' is not assignable to type 'RecurrenceFrequency'.
-src/services/recurrence.service.test.ts(241,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
-src/services/recurrence.service.test.ts(258,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(261,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
-src/services/recurrence.service.test.ts(278,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(281,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
+src/services/recurrence.service.test.ts(241,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(258,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(261,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(278,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(281,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
 src/services/recurrence.service.test.ts(298,9): error TS2322: Type '"QUARTERLY"' is not assignable to type 'RecurrenceFrequency'.
-src/services/recurrence.service.test.ts(301,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
-src/services/recurrence.service.test.ts(319,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(322,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
-src/services/recurrence.service.test.ts(333,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(336,9): error TS2820: Type '"on-date"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.ON_DATE'?
-src/services/recurrence.service.test.ts(348,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(351,9): error TS2820: Type '"on-date"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.ON_DATE'?
-src/services/recurrence.service.test.ts(363,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(366,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
-src/services/recurrence.service.test.ts(381,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(384,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
-src/services/recurrence.service.test.ts(400,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(403,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
-src/services/recurrence.service.test.ts(418,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(421,9): error TS2820: Type '"on-date"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.ON_DATE'?
-src/services/recurrence.service.test.ts(436,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
+src/services/recurrence.service.test.ts(301,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(319,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(322,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(333,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(336,9): error TS2322: Type '"ON_DATE"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(348,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(351,9): error TS2322: Type '"ON_DATE"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(363,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(366,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(381,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(384,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(400,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(403,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(418,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(421,9): error TS2322: Type '"ON_DATE"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(436,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
 src/services/recurrence.service.test.ts(439,9): error TS2322: Type '"AFTER_COUNT"' is not assignable to type 'RecurrenceEndType'.
-src/services/recurrence.service.test.ts(450,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(453,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
-src/services/recurrence.service.test.ts(465,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(468,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
-src/services/recurrence.service.test.ts(478,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(481,9): error TS2820: Type '"on-date"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.ON_DATE'?
-src/services/recurrence.service.test.ts(493,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(496,9): error TS2820: Type '"on-date"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.ON_DATE'?
-src/services/recurrence.service.test.ts(510,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean 'RecurrenceFrequency.MONTHLY'?
-src/services/recurrence.service.test.ts(513,9): error TS2820: Type '"never"' is not assignable to type 'RecurrenceEndType'. Did you mean 'RecurrenceEndType.NEVER'?
+src/services/recurrence.service.test.ts(450,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(453,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(465,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(468,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(478,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(481,9): error TS2322: Type '"ON_DATE"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(493,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(496,9): error TS2322: Type '"ON_DATE"' is not assignable to type 'RecurrenceEndType'.
+src/services/recurrence.service.test.ts(510,9): error TS2322: Type '"MONTHLY"' is not assignable to type 'RecurrenceFrequency'.
+src/services/recurrence.service.test.ts(513,9): error TS2322: Type '"NEVER"' is not assignable to type 'RecurrenceEndType'.
 src/services/recurringInvoiceService.test.ts(10,1): error TS6192: All imports in import declaration are unused.
 src/services/recurringInvoiceService.test.ts(15,3): error TS6133: 'generateInvoiceFromRecurring' is declared but its value is never read.
 src/services/recurringInvoiceService.test.ts(16,3): error TS6133: 'processRecurringInvoices' is declared but its value is never read.
 src/services/recurringInvoiceService.test.ts(17,3): error TS6133: 'getUpcomingRecurringInvoices' is declared but its value is never read.
 src/services/recurringInvoiceService.test.ts(18,3): error TS6133: 'calculateRecurringRevenue' is declared but its value is never read.
 src/services/recurringInvoiceService.test.ts(19,3): error TS6133: 'previewRecurringInvoiceDates' is declared but its value is never read.
-src/services/recurringInvoiceService.test.ts(27,9): error TS2820: Type '"daily"' is not assignable to type 'RecurrenceFrequency'. Did you mean '"DAILY"'?
-src/services/recurringInvoiceService.test.ts(42,9): error TS2820: Type '"weekly"' is not assignable to type 'RecurrenceFrequency'. Did you mean '"WEEKLY"'?
-src/services/recurringInvoiceService.test.ts(75,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean '"MONTHLY"'?
-src/services/recurringInvoiceService.test.ts(124,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean '"MONTHLY"'?
-src/services/recurringInvoiceService.test.ts(140,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean '"MONTHLY"'?
-src/services/recurringInvoiceService.test.ts(157,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean '"MONTHLY"'?
-src/services/recurringInvoiceService.test.ts(176,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean '"MONTHLY"'?
-src/services/recurringInvoiceService.test.ts(192,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean '"MONTHLY"'?
-src/services/recurringInvoiceService.test.ts(267,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean '"MONTHLY"'?
 src/services/recurringInvoiceService.test.ts(281,14): error TS2532: Object is possibly 'undefined'.
 src/services/recurringInvoiceService.test.ts(282,14): error TS2532: Object is possibly 'undefined'.
 src/services/recurringInvoiceService.test.ts(283,14): error TS2532: Object is possibly 'undefined'.
@@ -1718,11 +1659,6 @@ src/services/recurringInvoiceService.test.ts(305,14): error TS2532: Object is po
 src/services/recurringInvoiceService.test.ts(306,14): error TS2532: Object is possibly 'undefined'.
 src/services/recurringInvoiceService.test.ts(307,14): error TS2532: Object is possibly 'undefined'.
 src/services/recurringInvoiceService.test.ts(327,14): error TS2532: Object is possibly 'undefined'.
-src/services/recurringInvoiceService.test.ts(360,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean '"MONTHLY"'?
-src/services/recurringInvoiceService.test.ts(375,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean '"MONTHLY"'?
-src/services/recurringInvoiceService.test.ts(390,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean '"MONTHLY"'?
-src/services/recurringInvoiceService.test.ts(409,9): error TS2820: Type '"weekly"' is not assignable to type 'RecurrenceFrequency'. Did you mean '"WEEKLY"'?
-src/services/recurringInvoiceService.test.ts(455,9): error TS2820: Type '"monthly"' is not assignable to type 'RecurrenceFrequency'. Did you mean '"MONTHLY"'?
 src/services/reportDelivery.service.test.ts(130,14): error TS2532: Object is possibly 'undefined'.
 src/services/reportDelivery.service.ts(91,51): error TS2552: Cannot find name 'ReportScheduleEntity'. Did you mean 'ReportSchedule'?
 src/services/reportDelivery.service.ts(422,21): error TS2552: Cannot find name 'ReportScheduleEntity'. Did you mean 'ReportSchedule'?
