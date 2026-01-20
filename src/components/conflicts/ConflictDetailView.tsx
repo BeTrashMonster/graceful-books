@@ -194,7 +194,7 @@ export function ConflictDetailView<T extends CRDTEntity = CRDTEntity>({
           </div>
 
           <div className={styles.fieldList} role="list">
-            {fieldConflicts.map((field, index) => (
+            {fieldConflicts.map((field, _index) => (
               <Card
                 key={field.fieldName}
                 variant="bordered"

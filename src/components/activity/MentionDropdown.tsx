@@ -79,7 +79,7 @@ export function MentionDropdown({
     }
   }, [selectedIndex])
 
-  const handleMouseEnter = (index: number) => {
+  const handleMouseEnter = (_index: number) => {
     // Update parent component's selectedIndex via onSelect callback
     // (Parent needs to handle hover state)
   }

@@ -279,7 +279,7 @@ export function MonthlyDistributionReport() {
                 </tr>
               </thead>
               <tbody>
-                {report.contributions.map((contribution, index) => {
+                {report.contributions.map((contribution, _index) => {
                   const distRecord = distributions.find(
                     d => d.charity_id === contribution.charity_id
                   );

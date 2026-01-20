@@ -81,7 +81,7 @@ export const FlowNode: React.FC<FlowNodeProps> = ({
   const handleSubAccountKeyDown = (
     e: React.KeyboardEvent,
     accountId: string,
-    index: number
+    _index: number
   ) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()

@@ -116,7 +116,7 @@ export const GoalDetailView: React.FC<GoalDetailViewProps> = ({
           </h3>
 
           <div className={styles.historyList}>
-            {progressHistory.slice(-10).reverse().map((snapshot, index) => (
+            {progressHistory.slice(-10).reverse().map((snapshot, _index) => (
               <div key={snapshot.id} className={styles.historyItem}>
                 <span className={styles.historyDate}>
                   {new Date(snapshot.snapshot_date).toLocaleDateString()}

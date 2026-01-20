@@ -345,7 +345,7 @@ function CharityDetailModal({ charity, onClose }: CharityDetailModalProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {charity.monthly_growth.map((data, index) => (
+                  {charity.monthly_growth.map((data, _index) => (
                     <tr key={data.month}>
                       <td className={styles.monthCell}>{data.month}</td>
                       <td className={styles.amountCell}>
