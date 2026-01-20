@@ -8,7 +8,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import Dexie from 'dexie';
 import { LiquidityMetricsService } from './liquidityMetrics.service';
 import type { TreasureChestDB } from '../../db/database';
-import { AccountType, TransactionStatus } from '../../types/database.types';
+import { AccountType } from '../../types/database.types';
 
 describe('LiquidityMetricsService', () => {
   let db: TreasureChestDB;

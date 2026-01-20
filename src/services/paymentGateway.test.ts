@@ -19,7 +19,6 @@ import {
   getInvoicePayments,
   getPayment,
 } from './paymentGateway';
-import { createPortalToken } from './portalService';
 import { nanoid } from 'nanoid';
 
 describe('PaymentGateway', () => {

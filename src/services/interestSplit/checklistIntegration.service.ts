@@ -122,13 +122,6 @@ export class ChecklistIntegrationService {
   }
 
   /**
-   * Generate how-to-complete instructions
-   */
-  private _generateHowToComplete(_deferredItem: DeferredInterestSplitItem): string {
-    return `1. Review the transaction to confirm it's a loan payment\n2. Verify the suggested principal and interest amounts\n3. Adjust amounts if needed\n4. Click "Split Payment" to create the journal entry\n5. The split will automatically reduce your loan balance and record interest expense`;
-  }
-
-  /**
    * Calculate due date (end of current month)
    */
   private calculateDueDate(timestamp: number): number {

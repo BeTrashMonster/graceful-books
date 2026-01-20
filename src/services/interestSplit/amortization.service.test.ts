@@ -7,10 +7,7 @@
  * - H7: Interest Split Prompt System (Precise calculations)
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import { AmortizationService } from './amortization.service';
-import type { TreasureChestDB } from '../../db/database';
-import type { GenerateScheduleRequest } from '../../types/loanAmortization.types';
+import { describe, it, expect } from 'vitest';
 import Decimal from 'decimal.js';
 
 describe('AmortizationService', () => {
