@@ -303,8 +303,8 @@ export class LiabilityDetectionService {
    */
   private async checkScheduleMatch(
     _loanAccountId: string,
-    transactionDate: number,
-    amount: string
+    _transactionDate: number,
+    _amount: string
   ): Promise<{ matches: boolean; principal?: string; interest?: string }> {
     // TODO: Implement when amortization_schedule_entries table exists
     // For now, return no match
@@ -316,7 +316,7 @@ export class LiabilityDetectionService {
    */
   private async checkScheduledDate(
     _loanAccountId: string,
-    transactionDate: number
+    _transactionDate: number
   ): Promise<boolean> {
     // TODO: Implement when amortization_schedule_entries table exists
     // For now, return false
