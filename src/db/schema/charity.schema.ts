@@ -48,7 +48,7 @@ export const createDefaultCharity = (
     category,
     website,
     logo: logo || null,
-    status: 'pending',
+    status: 'PENDING',
     verification_notes: null,
     rejection_reason: null,
     created_by: createdBy || null,

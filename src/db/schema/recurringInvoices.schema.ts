@@ -191,7 +191,7 @@ export const createDefaultRecurringInvoice = (
     last_generation_date: null,
     auto_send: false,
     send_reminder_days_before: null,
-    status: 'active',
+    status: 'ACTIVE',
     occurrences_generated: 0,
     payment_terms_days: 30,
     created_at: now,
