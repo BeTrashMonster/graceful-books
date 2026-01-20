@@ -136,7 +136,7 @@ export class CSVExporterService {
   /**
    * Fetch transactions (placeholder - will integrate with actual database)
    */
-  private async fetchTransactions(startDate: Date | null, endDate: Date | null): Promise<TransactionCSVRow[]> {
+  private async fetchTransactions(_startDate: Date | null, _endDate: Date | null): Promise<TransactionCSVRow[]> {
     // TODO: Integrate with actual transaction store
     // For now, return empty array
     return [];
@@ -145,7 +145,7 @@ export class CSVExporterService {
   /**
    * Fetch invoices (placeholder - will integrate with actual database)
    */
-  private async fetchInvoices(startDate: Date | null, endDate: Date | null): Promise<InvoiceCSVRow[]> {
+  private async fetchInvoices(_startDate: Date | null, _endDate: Date | null): Promise<InvoiceCSVRow[]> {
     // TODO: Integrate with actual invoice store
     return [];
   }
@@ -153,7 +153,7 @@ export class CSVExporterService {
   /**
    * Fetch bills (placeholder - will integrate with actual database)
    */
-  private async fetchBills(startDate: Date | null, endDate: Date | null): Promise<BillCSVRow[]> {
+  private async fetchBills(_startDate: Date | null, _endDate: Date | null): Promise<BillCSVRow[]> {
     // TODO: Integrate with actual bill store
     return [];
   }

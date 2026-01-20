@@ -74,7 +74,7 @@ export class ChecklistIntegrationService {
     deferredItem: DeferredInterestSplitItem,
     _companyId: string,
     userId: string,
-    deviceId: string
+    _deviceId: string
   ): Promise<ChecklistItem> {
     const now = Date.now();
 

@@ -328,7 +328,7 @@ export class PaymentSplitService {
   /**
    * Get loan account (placeholder for when table exists)
    */
-  private async getLoanAccount(loanAccountId: string): Promise<LoanAccount | null> {
+  private async getLoanAccount(_loanAccountId: string): Promise<LoanAccount | null> {
     // TODO: Implement when loan_accounts table exists
     return null;
   }

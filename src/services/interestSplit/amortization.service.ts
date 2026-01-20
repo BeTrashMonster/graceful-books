@@ -374,7 +374,7 @@ export class AmortizationService {
    */
   async updateLoanBalance(
     request: UpdateLoanBalanceRequest,
-    deviceId: string
+    _deviceId: string
   ): Promise<void> {
     const loanAccount = await this.getLoanAccount(request.loan_account_id);
     if (!loanAccount) {
@@ -401,7 +401,7 @@ export class AmortizationService {
   /**
    * Get loan account (placeholder for when table exists)
    */
-  private async getLoanAccount(loanAccountId: string): Promise<LoanAccount | null> {
+  private async getLoanAccount(_loanAccountId: string): Promise<LoanAccount | null> {
     // TODO: Implement when loan_accounts table exists
     // For now, return mock data
     return null;
