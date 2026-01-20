@@ -6,7 +6,8 @@
  */
 
 // @ts-expect-error - pdf-parse has mixed ESM/CommonJS exports
-import pdfParse from 'pdf-parse';
+import * as pdfParseModule from 'pdf-parse';
+const pdfParse = (pdfParseModule as any).default || pdfParseModule;
 import { nanoid } from 'nanoid';
 import type {
   ParsedStatement,

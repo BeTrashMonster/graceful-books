@@ -31,7 +31,7 @@ import {
   getUpcomingBills,
   getOverdueBills,
 } from './bills';
-import type { Bill, BillLineItem } from '../db/schema/bills.schema';
+import type { BillLineItem } from '../db/schema/bills.schema';
 import type { EncryptionContext } from './types';
 
 // Mock the device ID utility
@@ -48,7 +48,9 @@ const mockEncryptionService = {
 };
 
 const mockContext: EncryptionContext = {
-  encryptionService: mockEncryptionService,
+  companyId: 'test-company',
+  userId: 'test-user',
+  encryptionService: mockEncryptionService as any,
 };
 
 describe('Bills Store', () => {
@@ -84,13 +86,13 @@ describe('Bills Store', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
-      expect(result.data?.company_id).toBe('company-123');
-      expect(result.data?.vendor_id).toBe('vendor-456');
-      expect(result.data?.status).toBe('DRAFT');
-      expect(result.data?.subtotal).toBe('50.00');
-      expect(result.data?.tax).toBe('4.00');
-      expect(result.data?.total).toBe('54.00');
+      expect((result as any).data).toBeDefined();
+      expect((result as any).data.company_id).toBe('company-123');
+      expect((result as any).data.vendor_id).toBe('vendor-456');
+      expect((result as any).data.status).toBe('DRAFT');
+      expect((result as any).data.subtotal).toBe('50.00');
+      expect((result as any).data.tax).toBe('4.00');
+      expect((result as any).data.total).toBe('54.00');
     });
 
     it('should encrypt sensitive fields when encryption service provided', async () => {
@@ -127,7 +129,7 @@ describe('Bills Store', () => {
       );
 
       // Verify encrypted data is stored in database
-      const stored = await db.bills.get(result.data!.id);
+      const stored = await db.bills.get((result as any).data.id);
       expect(stored?.notes).toBe('encrypted_Sensitive note');
       expect(stored?.internal_memo).toBe('encrypted_Sensitive memo');
     });
@@ -154,7 +156,7 @@ describe('Bills Store', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('VALIDATION_ERROR');
+      expect((result as any).error.code).toBe('VALIDATION_ERROR');
     });
 
     it('should reject due date before bill date', async () => {
@@ -182,8 +184,8 @@ describe('Bills Store', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('VALIDATION_ERROR');
-      expect(result.error?.message).toContain('due_date must be after bill_date');
+      expect((result as any).error.code).toBe('VALIDATION_ERROR');
+      expect((result as any).error.message).toContain('due_date must be after bill_date');
     });
   });
 
@@ -209,12 +211,12 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
       const result = await getBill(billId);
 
       expect(result.success).toBe(true);
-      expect(result.data?.id).toBe(billId);
-      expect(result.data?.bill_number).toBe('BILL-005');
+      expect((result as any).data.id).toBe(billId);
+      expect((result as any).data.bill_number).toBe('BILL-005');
     });
 
     it('should decrypt sensitive fields when encryption service provided', async () => {
@@ -242,19 +244,19 @@ describe('Bills Store', () => {
         mockContext
       );
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
       const result = await getBill(billId, mockContext);
 
       expect(result.success).toBe(true);
       expect(mockEncryptionService.decrypt).toHaveBeenCalled();
-      expect(result.data?.notes).toBe('Test note'); // Decrypted
+      expect((result as any).data.notes).toBe('Test note'); // Decrypted
     });
 
     it('should return error for non-existent bill', async () => {
       const result = await getBill('non-existent-id');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
 
     it('should return error for soft-deleted bill', async () => {
@@ -278,12 +280,12 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
       await deleteBill(billId);
 
       const result = await getBill(billId);
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
   });
 
@@ -309,7 +311,7 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
 
       const newLineItems: BillLineItem[] = [
         {
@@ -328,8 +330,8 @@ describe('Bills Store', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.data?.subtotal).toBe('30.00');
-      expect(result.data?.notes).toBe('Updated note');
+      expect((result as any).data.subtotal).toBe('30.00');
+      expect((result as any).data.notes).toBe('Updated note');
     });
 
     it('should not allow updating a posted bill', async () => {
@@ -353,7 +355,7 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
       await postBill(billId); // Change status to DUE
 
       const result = await updateBill(billId, {
@@ -361,7 +363,7 @@ describe('Bills Store', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('CONSTRAINT_VIOLATION');
+      expect((result as any).error.code).toBe('CONSTRAINT_VIOLATION');
     });
   });
 
@@ -387,11 +389,11 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
       const result = await postBill(billId);
 
       expect(result.success).toBe(true);
-      expect(result.data?.status).toBe('DUE');
+      expect((result as any).data.status).toBe('DUE');
     });
 
     it('should not allow posting an already posted bill', async () => {
@@ -415,12 +417,12 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
       await postBill(billId);
 
       const result = await postBill(billId);
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('CONSTRAINT_VIOLATION');
+      expect((result as any).error.code).toBe('CONSTRAINT_VIOLATION');
     });
   });
 
@@ -446,16 +448,16 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
       await postBill(billId);
 
       const paymentDate = Date.now();
       const result = await markBillPaid(billId, paymentDate, 'transaction-123');
 
       expect(result.success).toBe(true);
-      expect(result.data?.status).toBe('PAID');
-      expect(result.data?.paid_at).toBe(paymentDate);
-      expect(result.data?.transaction_id).toBe('transaction-123');
+      expect((result as any).data.status).toBe('PAID');
+      expect((result as any).data.paid_at).toBe(paymentDate);
+      expect((result as any).data.transaction_id).toBe('transaction-123');
     });
 
     it('should not allow marking a voided bill as paid', async () => {
@@ -479,13 +481,13 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
       await postBill(billId);
       await voidBill(billId);
 
       const result = await markBillPaid(billId, Date.now());
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('CONSTRAINT_VIOLATION');
+      expect((result as any).error.code).toBe('CONSTRAINT_VIOLATION');
     });
 
     it('should be idempotent for already paid bills', async () => {
@@ -509,13 +511,13 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
       await postBill(billId);
       await markBillPaid(billId, Date.now());
 
       const result = await markBillPaid(billId, Date.now());
       expect(result.success).toBe(true);
-      expect(result.data?.status).toBe('PAID');
+      expect((result as any).data.status).toBe('PAID');
     });
   });
 
@@ -541,11 +543,11 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
       const result = await voidBill(billId);
 
       expect(result.success).toBe(true);
-      expect(result.data?.status).toBe('VOID');
+      expect((result as any).data.status).toBe('VOID');
     });
 
     it('should be idempotent for already voided bills', async () => {
@@ -569,12 +571,12 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
       await voidBill(billId);
 
       const result = await voidBill(billId);
       expect(result.success).toBe(true);
-      expect(result.data?.status).toBe('VOID');
+      expect((result as any).data.status).toBe('VOID');
     });
   });
 
@@ -600,7 +602,7 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
       const result = await deleteBill(billId);
 
       expect(result.success).toBe(true);
@@ -630,12 +632,12 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
       await postBill(billId);
 
       const result = await deleteBill(billId);
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('CONSTRAINT_VIOLATION');
+      expect((result as any).error.code).toBe('CONSTRAINT_VIOLATION');
     });
   });
 
@@ -684,7 +686,7 @@ describe('Bills Store', () => {
       const result = await getBills({ company_id: 'company-123' });
 
       expect(result.success).toBe(true);
-      expect(result.data?.length).toBe(2);
+      expect((result as any).data.length).toBe(2);
     });
 
     it('should filter bills by vendor', async () => {
@@ -720,8 +722,8 @@ describe('Bills Store', () => {
       const result = await getVendorBills('company-123', 'vendor-456');
 
       expect(result.success).toBe(true);
-      expect(result.data?.length).toBe(1);
-      expect(result.data?.[0].vendor_id).toBe('vendor-456');
+      expect((result as any).data.length).toBe(1);
+      expect((result as any).data[0].vendor_id).toBe('vendor-456');
     });
 
     it('should automatically update overdue bills', async () => {
@@ -747,13 +749,13 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
       await postBill(billId); // Status: DUE
 
       const result = await getBills({ company_id: 'company-123' });
 
       expect(result.success).toBe(true);
-      const bill = result.data?.find(b => b.id === billId);
+      const bill = (result as any).data?.find((b: any) => b.id === billId);
       expect(bill?.status).toBe('OVERDUE');
     });
 
@@ -778,13 +780,13 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const billId = createResult.data!.id;
+      const billId = (createResult as any).data.id;
       await deleteBill(billId);
 
       const result = await getBills({ company_id: 'company-123' });
 
       expect(result.success).toBe(true);
-      expect(result.data?.find(b => b.id === billId)).toBeUndefined();
+      expect((result as any).data.find((b: any) => b.id === billId)).toBeUndefined();
     });
   });
 
@@ -823,14 +825,14 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      await postBill(createResult1.data!.id);
-      await postBill(createResult2.data!.id);
+      await postBill((createResult1 as any).data.id);
+      await postBill((createResult2 as any).data.id);
 
       const result = await getUpcomingBills('company-123', 7);
 
       expect(result.success).toBe(true);
-      expect(result.data?.length).toBe(1);
-      expect(result.data?.[0].id).toBe(createResult1.data!.id);
+      expect((result as any).data.length).toBe(1);
+      expect((result as any).data[0].id).toBe((createResult1 as any).data.id);
     });
   });
 
@@ -858,7 +860,7 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      await postBill(createResult.data!.id);
+      await postBill((createResult as any).data.id);
 
       // Trigger overdue status update
       await getBills({ company_id: 'company-123' });
@@ -866,8 +868,8 @@ describe('Bills Store', () => {
       const result = await getOverdueBills('company-123');
 
       expect(result.success).toBe(true);
-      expect(result.data?.length).toBeGreaterThan(0);
-      expect(result.data?.[0].status).toBe('OVERDUE');
+      expect((result as any).data.length).toBeGreaterThan(0);
+      expect((result as any).data[0].status).toBe('OVERDUE');
     });
   });
 
@@ -901,12 +903,12 @@ describe('Bills Store', () => {
         lineItems,
       });
 
-      const result = await getBillLineItems(createResult.data!.id);
+      const result = await getBillLineItems((createResult as any).data.id);
 
       expect(result.success).toBe(true);
-      expect(result.data?.length).toBe(2);
-      expect(result.data?.[0].description).toBe('Item 1');
-      expect(result.data?.[1].description).toBe('Item 2');
+      expect((result as any).data.length).toBe(2);
+      expect((result as any).data[0].description).toBe('Item 1');
+      expect((result as any).data[1].description).toBe('Item 2');
     });
   });
 
@@ -938,7 +940,7 @@ describe('Bills Store', () => {
 
       expect(result.success).toBe(true);
 
-      const stored = await db.bills.get(result.data!.id);
+      const stored = await db.bills.get((result as any).data.id);
       expect(stored?.notes).toBe('encrypted_Confidential payment terms');
     });
 
@@ -969,7 +971,7 @@ describe('Bills Store', () => {
 
       expect(result.success).toBe(true);
 
-      const stored = await db.bills.get(result.data!.id);
+      const stored = await db.bills.get((result as any).data.id);
       expect(stored?.internal_memo).toBe('encrypted_Sensitive internal note');
     });
 
@@ -999,7 +1001,7 @@ describe('Bills Store', () => {
 
       expect(result.success).toBe(true);
 
-      const stored = await db.bills.get(result.data!.id);
+      const stored = await db.bills.get((result as any).data.id);
       expect(stored?.line_items).toContain('encrypted_');
     });
 
@@ -1029,13 +1031,13 @@ describe('Bills Store', () => {
         mockContext
       );
 
-      const result = await getBill(createResult.data!.id, mockContext);
+      const result = await getBill((createResult as any).data.id, mockContext);
 
       expect(result.success).toBe(true);
-      expect(result.data?.notes).toBe('Top secret');
-      expect(result.data?.internal_memo).toBe('Classified');
+      expect((result as any).data.notes).toBe('Top secret');
+      expect((result as any).data.internal_memo).toBe('Classified');
 
-      const parsedLineItems = JSON.parse(result.data!.line_items);
+      const parsedLineItems = JSON.parse((result as any).data.line_items);
       expect(parsedLineItems[0].description).toBe('Secret project');
     });
   });

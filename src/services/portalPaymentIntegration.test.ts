@@ -71,16 +71,16 @@ describe('Portal and Payment Integration', () => {
       // Step 1: Create portal token
       const tokenResult = await createPortalToken(mockCompanyId, mockInvoiceId, mockEmail);
       expect(tokenResult.success).toBe(true);
-      expect(tokenResult.data?.token).toHaveLength(64);
+      expect((tokenResult as any).data.token).toHaveLength(64);
 
       const portalToken = tokenResult.data!;
 
       // Step 2: Customer validates token
       const validateResult = await validateToken(portalToken.token, mockIp);
       expect(validateResult.success).toBe(true);
-      expect(validateResult.data?.invoice.id).toBe(mockInvoiceId);
-      expect(validateResult.data?.invoice.status).toBe('SENT');
-      expect(validateResult.data?.invoice.total).toBe('110.00');
+      expect((validateResult as any).data.invoice.id).toBe(mockInvoiceId);
+      expect((validateResult as any).data.invoice.status).toBe('SENT');
+      expect((validateResult as any).data.invoice.total).toBe('110.00');
 
       // Step 3: Create payment intent
       const intentResult = await createPaymentIntent(
@@ -94,29 +94,29 @@ describe('Portal and Payment Integration', () => {
         'John Doe'
       );
       expect(intentResult.success).toBe(true);
-      expect(intentResult.data?.clientSecret).toBeDefined();
+      expect((intentResult as any).data.clientSecret).toBeDefined();
 
       // Step 4: Customer completes payment (simulated)
-      const confirmResult = await confirmPayment(intentResult.data!.paymentId, {
+      const confirmResult = await confirmPayment((intentResult as any).data.paymentId, {
         type: 'card',
         last4: '4242',
         brand: 'Visa',
       });
       expect(confirmResult.success).toBe(true);
-      expect(confirmResult.data?.status).toBe('SUCCEEDED');
+      expect((confirmResult as any).data.status).toBe('SUCCEEDED');
 
       // Step 5: Verify invoice is marked as paid
       const invoiceResult = await getInvoice(mockInvoiceId);
       expect(invoiceResult.success).toBe(true);
-      expect(invoiceResult.data?.status).toBe('PAID');
-      expect(invoiceResult.data?.paid_at).toBeTruthy();
+      expect((invoiceResult as any).data.status).toBe('PAID');
+      expect((invoiceResult as any).data.paid_at).toBeTruthy();
 
       // Step 6: Verify payment is stored
       const paymentsResult = await getInvoicePayments(mockCompanyId, mockInvoiceId);
       expect(paymentsResult.success).toBe(true);
-      expect(paymentsResult.data?.length).toBe(1);
-      expect(paymentsResult.data?.[0].status).toBe('SUCCEEDED');
-      expect(paymentsResult.data?.[0].amount).toBe('110.00');
+      expect((paymentsResult as any).data.length).toBe(1);
+      expect((paymentsResult as any).data[0].status).toBe('SUCCEEDED');
+      expect((paymentsResult as any).data[0].amount).toBe('110.00');
     });
 
     it('should handle failed payment without marking invoice as paid', async () => {
@@ -125,14 +125,14 @@ describe('Portal and Payment Integration', () => {
       expect(tokenResult.success).toBe(true);
 
       // Validate token
-      const validateResult = await validateToken(tokenResult.data!.token, mockIp);
+      const validateResult = await validateToken((tokenResult as any).data.token, mockIp);
       expect(validateResult.success).toBe(true);
 
       // Create payment intent
       const intentResult = await createPaymentIntent(
         mockCompanyId,
         mockInvoiceId,
-        tokenResult.data!.id,
+        (tokenResult as any).data.id,
         'STRIPE',
         '110.00',
         'USD',
@@ -141,8 +141,8 @@ describe('Portal and Payment Integration', () => {
       expect(intentResult.success).toBe(true);
 
       // Payment fails (card declined)
-      const payment = await db.payments.get(intentResult.data!.paymentId);
-      await db.payments.update(intentResult.data!.paymentId, {
+      const payment = await db.payments.get((intentResult as any).data.paymentId);
+      await db.payments.update((intentResult as any).data.paymentId, {
         status: 'FAILED',
         error_message: 'Card declined',
         updated_at: Date.now(),
@@ -151,8 +151,8 @@ describe('Portal and Payment Integration', () => {
       // Verify invoice is NOT marked as paid
       const invoiceResult = await getInvoice(mockInvoiceId);
       expect(invoiceResult.success).toBe(true);
-      expect(invoiceResult.data?.status).toBe('SENT');
-      expect(invoiceResult.data?.paid_at).toBeNull();
+      expect((invoiceResult as any).data.status).toBe('SENT');
+      expect((invoiceResult as any).data.paid_at).toBeNull();
     });
 
     it('should allow multiple payment attempts for same invoice', async () => {
@@ -164,13 +164,13 @@ describe('Portal and Payment Integration', () => {
       const intent1 = await createPaymentIntent(
         mockCompanyId,
         mockInvoiceId,
-        tokenResult.data!.id,
+        (tokenResult as any).data.id,
         'STRIPE',
         '110.00',
         'USD',
         mockEmail
       );
-      await db.payments.update(intent1.data!.paymentId, {
+      await db.payments.update((intent1 as any).data.paymentId, {
         status: 'FAILED',
         error_message: 'Card declined',
       });
@@ -179,23 +179,23 @@ describe('Portal and Payment Integration', () => {
       const intent2 = await createPaymentIntent(
         mockCompanyId,
         mockInvoiceId,
-        tokenResult.data!.id,
+        (tokenResult as any).data.id,
         'STRIPE',
         '110.00',
         'USD',
         mockEmail
       );
-      await confirmPayment(intent2.data!.paymentId);
+      await confirmPayment((intent2 as any).data.paymentId);
 
       // Verify two payment records exist
       const paymentsResult = await getInvoicePayments(mockCompanyId, mockInvoiceId);
       expect(paymentsResult.success).toBe(true);
-      expect(paymentsResult.data?.length).toBe(2);
+      expect((paymentsResult as any).data.length).toBe(2);
 
       // Verify invoice is paid
       const invoiceResult = await getInvoice(mockInvoiceId);
       expect(invoiceResult.success).toBe(true);
-      expect(invoiceResult.data?.status).toBe('PAID');
+      expect((invoiceResult as any).data.status).toBe('PAID');
     });
 
     it('should track portal token access during payment flow', async () => {
@@ -203,31 +203,31 @@ describe('Portal and Payment Integration', () => {
       const tokenResult = await createPortalToken(mockCompanyId, mockInvoiceId, mockEmail);
       expect(tokenResult.success).toBe(true);
 
-      const initialAccessCount = tokenResult.data!.access_count;
+      const initialAccessCount = (tokenResult as any).data.access_count;
 
       // Customer views invoice multiple times
-      await validateToken(tokenResult.data!.token, mockIp);
-      await validateToken(tokenResult.data!.token, mockIp);
-      await validateToken(tokenResult.data!.token, mockIp);
+      await validateToken((tokenResult as any).data.token, mockIp);
+      await validateToken((tokenResult as any).data.token, mockIp);
+      await validateToken((tokenResult as any).data.token, mockIp);
 
       // Check access count increased
-      const updatedToken = await db.portalTokens.get(tokenResult.data!.id);
+      const updatedToken = await db.portalTokens.get((tokenResult as any).data.id);
       expect(updatedToken?.access_count).toBe(initialAccessCount + 3);
 
       // Complete payment
       const intentResult = await createPaymentIntent(
         mockCompanyId,
         mockInvoiceId,
-        tokenResult.data!.id,
+        (tokenResult as any).data.id,
         'STRIPE',
         '110.00',
         'USD',
         mockEmail
       );
-      await confirmPayment(intentResult.data!.paymentId);
+      await confirmPayment((intentResult as any).data.paymentId);
 
       // Access count should still be tracked
-      const finalToken = await db.portalTokens.get(tokenResult.data!.id);
+      const finalToken = await db.portalTokens.get((tokenResult as any).data.id);
       expect(finalToken?.access_count).toBe(initialAccessCount + 3);
     });
 
@@ -237,14 +237,14 @@ describe('Portal and Payment Integration', () => {
       expect(tokenResult.success).toBe(true);
 
       // Manually expire the token
-      await db.portalTokens.update(tokenResult.data!.id, {
+      await db.portalTokens.update((tokenResult as any).data.id, {
         expires_at: Date.now() - 1000,
       });
 
       // Attempt to validate token should fail
-      const validateResult = await validateToken(tokenResult.data!.token, mockIp);
+      const validateResult = await validateToken((tokenResult as any).data.token, mockIp);
       expect(validateResult.success).toBe(false);
-      expect(validateResult.error?.code).toBe('SESSION_INVALID');
+      expect((validateResult as any).error.code).toBe('SESSION_INVALID');
 
       // Note: In production, the UI would prevent payment attempts with invalid tokens
       // Here we just verify the token validation fails as expected
@@ -256,14 +256,14 @@ describe('Portal and Payment Integration', () => {
       expect(tokenResult.success).toBe(true);
 
       // Revoke the token
-      await db.portalTokens.update(tokenResult.data!.id, {
+      await db.portalTokens.update((tokenResult as any).data.id, {
         revoked_at: Date.now(),
       });
 
       // Attempt to validate token should fail
-      const validateResult = await validateToken(tokenResult.data!.token, mockIp);
+      const validateResult = await validateToken((tokenResult as any).data.token, mockIp);
       expect(validateResult.success).toBe(false);
-      expect(validateResult.error?.code).toBe('SESSION_INVALID');
+      expect((validateResult as any).error.code).toBe('SESSION_INVALID');
     });
 
     it('should handle payment for already paid invoice gracefully', async () => {
@@ -275,25 +275,25 @@ describe('Portal and Payment Integration', () => {
       const intent1 = await createPaymentIntent(
         mockCompanyId,
         mockInvoiceId,
-        tokenResult.data!.id,
+        (tokenResult as any).data.id,
         'STRIPE',
         '110.00',
         'USD',
         mockEmail
       );
-      await confirmPayment(intent1.data!.paymentId);
+      await confirmPayment((intent1 as any).data.paymentId);
 
       // Verify invoice is paid
       const invoiceResult = await getInvoice(mockInvoiceId);
       expect(invoiceResult.success).toBe(true);
-      expect(invoiceResult.data?.status).toBe('PAID');
+      expect((invoiceResult as any).data.status).toBe('PAID');
 
       // Second payment attempt (customer didn't see update yet)
       // This should still create payment record but invoice is already paid
       const intent2 = await createPaymentIntent(
         mockCompanyId,
         mockInvoiceId,
-        tokenResult.data!.id,
+        (tokenResult as any).data.id,
         'STRIPE',
         '110.00',
         'USD',
@@ -304,7 +304,7 @@ describe('Portal and Payment Integration', () => {
       // Both payments exist
       const paymentsResult = await getInvoicePayments(mockCompanyId, mockInvoiceId);
       expect(paymentsResult.success).toBe(true);
-      expect(paymentsResult.data?.length).toBe(2);
+      expect((paymentsResult as any).data.length).toBe(2);
     });
   });
 
@@ -318,14 +318,14 @@ describe('Portal and Payment Integration', () => {
 
       // Make 100 valid requests
       for (let i = 0; i < 100; i++) {
-        const result = await validateToken(tokenResult.data!.token, testIp);
+        const result = await validateToken((tokenResult as any).data.token, testIp);
         expect(result.success).toBe(true);
       }
 
       // 101st request should be rate limited
-      const rateLimitedResult = await validateToken(tokenResult.data!.token, testIp);
+      const rateLimitedResult = await validateToken((tokenResult as any).data.token, testIp);
       expect(rateLimitedResult.success).toBe(false);
-      expect(rateLimitedResult.error?.code).toBe('RATE_LIMITED');
+      expect((rateLimitedResult as any).error.code).toBe('RATE_LIMITED');
     });
 
     it('should allow payment creation even after multiple portal views', async () => {
@@ -335,14 +335,14 @@ describe('Portal and Payment Integration', () => {
 
       // Customer views invoice 50 times (within rate limit)
       for (let i = 0; i < 50; i++) {
-        await validateToken(tokenResult.data!.token, mockIp);
+        await validateToken((tokenResult as any).data.token, mockIp);
       }
 
       // Should still be able to create payment
       const intentResult = await createPaymentIntent(
         mockCompanyId,
         mockInvoiceId,
-        tokenResult.data!.id,
+        (tokenResult as any).data.id,
         'STRIPE',
         '110.00',
         'USD',

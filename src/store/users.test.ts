@@ -5,9 +5,9 @@
  * and soft delete functionality for the H1 Multi-User implementation.
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { UserProfile, UserRole, BusinessPhase } from '../types';
-import type { EncryptionContext, DatabaseResult } from './types';
+import type { EncryptionContext } from './types';
 
 // Mock nanoid
 vi.mock('nanoid', () => ({
@@ -55,6 +55,8 @@ describe('Users Data Access Layer', () => {
   let mockEncryptionService: {
     encrypt: ReturnType<typeof vi.fn>;
     decrypt: ReturnType<typeof vi.fn>;
+    encryptField: ReturnType<typeof vi.fn>;
+    decryptField: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
@@ -75,6 +77,8 @@ describe('Users Data Access Layer', () => {
     mockEncryptionService = {
       encrypt: vi.fn((data: string) => Promise.resolve(`encrypted-${data}`)),
       decrypt: vi.fn((data: string) => Promise.resolve(data.replace('encrypted-', ''))),
+      encryptField: vi.fn((data: string) => Promise.resolve(`encrypted-${data}`)),
+      decryptField: vi.fn((data: string) => Promise.resolve(data.replace('encrypted-', ''))),
     };
   });
 
@@ -95,7 +99,7 @@ describe('Users Data Access Layer', () => {
         encryptedMasterKey: 'encrypted-key',
       };
 
-      db.users.where.mockReturnValue({
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn(() => ({
             first: vi.fn(() => Promise.resolve(null)),
@@ -103,20 +107,22 @@ describe('Users Data Access Layer', () => {
         })),
       });
 
-      db.users.add.mockResolvedValue('user-id');
+      (db.users.add as any).mockResolvedValue('user-id');
 
       const context: EncryptionContext = {
         companyId: 'company-1',
         userId: 'user-1',
-        encryptionService: mockEncryptionService,
+        encryptionService: mockEncryptionService as any,
       };
 
       const result = await createUser(userData, context);
 
       expect(result.success).toBe(true);
       // createUser returns encrypted data when encryption context is provided
-      expect(result.data?.email).toBe('encrypted-test@example.com');
-      expect(result.data?.name).toBe('encrypted-Test User');
+      if (result.success) {
+        expect(result.data.email).toBe('encrypted-test@example.com');
+        expect(result.data.name).toBe('encrypted-Test User');
+      }
       expect(mockEncryptionService.encrypt).toHaveBeenCalledWith('test@example.com');
       expect(mockEncryptionService.encrypt).toHaveBeenCalledWith('Test User');
       expect(db.users.add).toHaveBeenCalled();
@@ -134,8 +140,10 @@ describe('Users Data Access Layer', () => {
       const result = await createUser(userData);
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('VALIDATION_ERROR');
-      expect(result.error?.message).toContain('email');
+      if (!result.success) {
+        expect((result as any).error.code).toBe('VALIDATION_ERROR');
+        expect((result as any).error.message).toContain('email');
+      }
     });
 
     it('should reject duplicate email in same company', async () => {
@@ -147,7 +155,7 @@ describe('Users Data Access Layer', () => {
         phase: 'organize' as BusinessPhase,
       };
 
-      db.users.where.mockReturnValue({
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn(() => ({
             first: vi.fn(() => Promise.resolve({ id: 'existing-user' })),
@@ -158,8 +166,8 @@ describe('Users Data Access Layer', () => {
       const result = await createUser(userData);
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('CONSTRAINT_VIOLATION');
-      expect(result.error?.message).toContain('Email already exists');
+      expect((result as any).error.code).toBe('CONSTRAINT_VIOLATION');
+      expect((result as any).error.message).toContain('Email already exists');
     });
 
     it('should initialize version vector with device ID', async () => {
@@ -171,7 +179,7 @@ describe('Users Data Access Layer', () => {
         phase: 'organize' as BusinessPhase,
       };
 
-      db.users.where.mockReturnValue({
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn(() => ({
             first: vi.fn(() => Promise.resolve(null)),
@@ -180,7 +188,7 @@ describe('Users Data Access Layer', () => {
       });
 
       let savedEntity: any;
-      db.users.add.mockImplementation((entity: any) => {
+      (db.users.add as any).mockImplementation((entity: any) => {
         savedEntity = entity;
         return Promise.resolve('user-id');
       });
@@ -200,7 +208,7 @@ describe('Users Data Access Layer', () => {
         phase: 'organize' as BusinessPhase,
       };
 
-      db.users.where.mockReturnValue({
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn(() => ({
             first: vi.fn(() => Promise.resolve(null)),
@@ -208,7 +216,7 @@ describe('Users Data Access Layer', () => {
         })),
       });
 
-      db.users.add.mockResolvedValue('user-id');
+      (db.users.add as any).mockResolvedValue('user-id');
 
       const result = await createUser(userData);
 
@@ -225,7 +233,7 @@ describe('Users Data Access Layer', () => {
         phase: 'organize' as BusinessPhase,
       };
 
-      db.users.where.mockReturnValue({
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn(() => ({
             first: vi.fn(() => Promise.resolve(null)),
@@ -234,7 +242,7 @@ describe('Users Data Access Layer', () => {
       });
 
       let savedEntity: any;
-      db.users.add.mockImplementation((entity: any) => {
+      (db.users.add as any).mockImplementation((entity: any) => {
         savedEntity = entity;
         return Promise.resolve('user-id');
       });
@@ -268,31 +276,31 @@ describe('Users Data Access Layer', () => {
         _encrypted: { email: true, name: true },
       };
 
-      db.users.get.mockResolvedValue(mockUser);
+      (db.users.get as any).mockResolvedValue(mockUser);
 
       const context: EncryptionContext = {
         companyId: 'company-1',
         userId: 'user-1',
-        encryptionService: mockEncryptionService,
+        encryptionService: mockEncryptionService as any,
       };
 
       const result = await getUser('user-1', context);
 
       expect(result.success).toBe(true);
-      expect(result.data?.id).toBe('user-1');
-      expect(result.data?.email).toBe('test@example.com');
-      expect(result.data?.name).toBe('Test User');
+      expect((result as any).data.id).toBe('user-1');
+      expect((result as any).data.email).toBe('test@example.com');
+      expect((result as any).data.name).toBe('Test User');
       expect(mockEncryptionService.decrypt).toHaveBeenCalledWith('encrypted-test@example.com');
       expect(mockEncryptionService.decrypt).toHaveBeenCalledWith('encrypted-Test User');
     });
 
     it('should return error for non-existent user', async () => {
-      db.users.get.mockResolvedValue(null);
+      (db.users.get as any).mockResolvedValue(null);
 
       const result = await getUser('non-existent-id');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
 
     it('should return error for soft-deleted user', async () => {
@@ -301,13 +309,13 @@ describe('Users Data Access Layer', () => {
         deletedAt: new Date(),
       };
 
-      db.users.get.mockResolvedValue(deletedUser);
+      (db.users.get as any).mockResolvedValue(deletedUser);
 
       const result = await getUser('user-1');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
-      expect(result.error?.message).toContain('deleted');
+      expect((result as any).error.code).toBe('NOT_FOUND');
+      expect((result as any).error.message).toContain('deleted');
     });
 
     it('should work without encryption context', async () => {
@@ -327,7 +335,7 @@ describe('Users Data Access Layer', () => {
         _encrypted: { email: true, name: true },
       };
 
-      db.users.get.mockResolvedValue(mockUser);
+      (db.users.get as any).mockResolvedValue(mockUser);
 
       const result = await getUser('user-1');
 
@@ -359,7 +367,7 @@ describe('Users Data Access Layer', () => {
         },
       ];
 
-      db.users.where.mockReturnValue({
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn(() => ({
             toArray: vi.fn(() => Promise.resolve(mockUsers)),
@@ -370,19 +378,19 @@ describe('Users Data Access Layer', () => {
       const context: EncryptionContext = {
         companyId: 'company-1',
         userId: 'user-1',
-        encryptionService: mockEncryptionService,
+        encryptionService: mockEncryptionService as any,
       };
 
       const result = await getUserByEmail('company-1', 'test@example.com', context);
 
       expect(result.success).toBe(true);
-      expect(result.data?.email).toBe('test@example.com');
-      expect(result.data?.passwordHash).toBe('hash');
-      expect(result.data?.salt).toBe('salt');
+      expect((result as any).data.email).toBe('test@example.com');
+      expect((result as any).data.passwordHash).toBe('hash');
+      expect((result as any).data.salt).toBe('salt');
     });
 
     it('should return error when email not found', async () => {
-      db.users.where.mockReturnValue({
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn(() => ({
             toArray: vi.fn(() => Promise.resolve([])),
@@ -393,17 +401,17 @@ describe('Users Data Access Layer', () => {
       const context: EncryptionContext = {
         companyId: 'company-1',
         userId: 'user-1',
-        encryptionService: mockEncryptionService,
+        encryptionService: mockEncryptionService as any,
       };
 
       const result = await getUserByEmail('company-1', 'notfound@example.com', context);
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
 
     it('should filter out deleted users', async () => {
-      db.users.where.mockReturnValue({
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn((filterFn: any) => {
             const users = [
@@ -418,7 +426,7 @@ describe('Users Data Access Layer', () => {
         })),
       });
 
-      const result = await getUserByEmail('company-1', 'test@example.com');
+      await getUserByEmail('company-1', 'test@example.com');
 
       expect(db.users.where).toHaveBeenCalledWith('companyId');
     });
@@ -442,8 +450,8 @@ describe('Users Data Access Layer', () => {
         _encrypted: { email: true, name: true },
       };
 
-      db.users.get.mockResolvedValue(existingUser);
-      db.users.put.mockResolvedValue('user-1');
+      (db.users.get as any).mockResolvedValue(existingUser);
+      (db.users.put as any).mockResolvedValue('user-1');
 
       const updates = {
         name: 'New Name',
@@ -453,8 +461,8 @@ describe('Users Data Access Layer', () => {
       const result = await updateUser('user-1', updates);
 
       expect(result.success).toBe(true);
-      expect(result.data?.name).toBe('New Name');
-      expect(result.data?.phase).toBe('build');
+      expect((result as any).data.name).toBe('New Name');
+      expect((result as any).data.phase).toBe('build');
       expect(db.users.put).toHaveBeenCalled();
     });
 
@@ -475,10 +483,10 @@ describe('Users Data Access Layer', () => {
         _encrypted: { email: true, name: true },
       };
 
-      db.users.get.mockResolvedValue(existingUser);
+      (db.users.get as any).mockResolvedValue(existingUser);
 
       let updatedEntity: any;
-      db.users.put.mockImplementation((entity: any) => {
+      (db.users.put as any).mockImplementation((entity: any) => {
         updatedEntity = entity;
         return Promise.resolve('user-1');
       });
@@ -506,10 +514,10 @@ describe('Users Data Access Layer', () => {
         _encrypted: { email: true, name: true },
       };
 
-      db.users.get.mockResolvedValue(existingUser);
+      (db.users.get as any).mockResolvedValue(existingUser);
 
       let updatedEntity: any;
-      db.users.put.mockImplementation((entity: any) => {
+      (db.users.put as any).mockImplementation((entity: any) => {
         updatedEntity = entity;
         return Promise.resolve('user-1');
       });
@@ -527,12 +535,12 @@ describe('Users Data Access Layer', () => {
         deletedAt: new Date(),
       };
 
-      db.users.get.mockResolvedValue(deletedUser);
+      (db.users.get as any).mockResolvedValue(deletedUser);
 
       const result = await updateUser('user-1', { name: 'New Name' });
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
 
     it('should validate email on update', async () => {
@@ -552,12 +560,12 @@ describe('Users Data Access Layer', () => {
         _encrypted: { email: true, name: true },
       };
 
-      db.users.get.mockResolvedValue(existingUser);
+      (db.users.get as any).mockResolvedValue(existingUser);
 
       const result = await updateUser('user-1', { email: 'invalid-email' });
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('VALIDATION_ERROR');
+      expect((result as any).error.code).toBe('VALIDATION_ERROR');
     });
 
     it('should check for duplicate email on update', async () => {
@@ -577,8 +585,8 @@ describe('Users Data Access Layer', () => {
         _encrypted: { email: true, name: true },
       };
 
-      db.users.get.mockResolvedValue(existingUser);
-      db.users.where.mockReturnValue({
+      (db.users.get as any).mockResolvedValue(existingUser);
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn(() => ({
             first: vi.fn(() => Promise.resolve({ id: 'user-2' })),
@@ -589,7 +597,7 @@ describe('Users Data Access Layer', () => {
       const result = await updateUser('user-1', { email: 'taken@example.com' });
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('CONSTRAINT_VIOLATION');
+      expect((result as any).error.code).toBe('CONSTRAINT_VIOLATION');
     });
   });
 
@@ -601,8 +609,8 @@ describe('Users Data Access Layer', () => {
         deletedAt: undefined,
       };
 
-      db.users.get.mockResolvedValue(existingUser);
-      db.users.update.mockResolvedValue(1);
+      (db.users.get as any).mockResolvedValue(existingUser);
+      (db.users.update as any).mockResolvedValue(1);
 
       const result = await updateUserPassword('user-1', 'newhash', 'newsalt', 'newkey');
 
@@ -621,8 +629,8 @@ describe('Users Data Access Layer', () => {
         deletedAt: undefined,
       };
 
-      db.users.get.mockResolvedValue(existingUser);
-      db.users.update.mockResolvedValue(1);
+      (db.users.get as any).mockResolvedValue(existingUser);
+      (db.users.update as any).mockResolvedValue(1);
 
       await updateUserPassword('user-1', 'hash', 'salt');
 
@@ -639,12 +647,12 @@ describe('Users Data Access Layer', () => {
         deletedAt: new Date(),
       };
 
-      db.users.get.mockResolvedValue(deletedUser);
+      (db.users.get as any).mockResolvedValue(deletedUser);
 
       const result = await updateUserPassword('user-1', 'hash', 'salt');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
   });
 
@@ -655,12 +663,10 @@ describe('Users Data Access Layer', () => {
         lastLoginAt: undefined,
       };
 
-      db.users.get.mockResolvedValue(existingUser);
-      db.users.update.mockResolvedValue(1);
+      (db.users.get as any).mockResolvedValue(existingUser);
+      (db.users.update as any).mockResolvedValue(1);
 
-      const before = new Date();
       const result = await updateLastLogin('user-1');
-      const after = new Date();
 
       expect(result.success).toBe(true);
       expect(db.users.update).toHaveBeenCalledWith('user-1', expect.objectContaining({
@@ -669,12 +675,12 @@ describe('Users Data Access Layer', () => {
     });
 
     it('should return error for non-existent user', async () => {
-      db.users.get.mockResolvedValue(null);
+      (db.users.get as any).mockResolvedValue(null);
 
       const result = await updateLastLogin('non-existent-id');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
   });
 
@@ -688,15 +694,15 @@ describe('Users Data Access Layer', () => {
         versionVector: { 'device-1': 1 },
       };
 
-      db.users.get.mockResolvedValue(existingUser);
-      db.users.where.mockReturnValue({
+      (db.users.get as any).mockResolvedValue(existingUser);
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn(() => ({
             count: vi.fn(() => Promise.resolve(2)),
           })),
         })),
       });
-      db.users.update.mockResolvedValue(1);
+      (db.users.update as any).mockResolvedValue(1);
 
       const result = await deleteUser('user-1');
 
@@ -715,8 +721,8 @@ describe('Users Data Access Layer', () => {
         versionVector: { 'device-1': 1 },
       };
 
-      db.users.get.mockResolvedValue(adminUser);
-      db.users.where.mockReturnValue({
+      (db.users.get as any).mockResolvedValue(adminUser);
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn(() => ({
             count: vi.fn(() => Promise.resolve(1)),
@@ -727,8 +733,8 @@ describe('Users Data Access Layer', () => {
       const result = await deleteUser('user-1');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('CONSTRAINT_VIOLATION');
-      expect(result.error?.message).toContain('last admin');
+      expect((result as any).error.code).toBe('CONSTRAINT_VIOLATION');
+      expect((result as any).error.message).toContain('last admin');
     });
 
     it('should increment version vector on delete', async () => {
@@ -740,15 +746,15 @@ describe('Users Data Access Layer', () => {
         versionVector: { 'device-1': 3 },
       };
 
-      db.users.get.mockResolvedValue(existingUser);
-      db.users.where.mockReturnValue({
+      (db.users.get as any).mockResolvedValue(existingUser);
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn(() => ({
             count: vi.fn(() => Promise.resolve(2)),
           })),
         })),
       });
-      db.users.update.mockResolvedValue(1);
+      (db.users.update as any).mockResolvedValue(1);
 
       await deleteUser('user-1');
 
@@ -765,7 +771,7 @@ describe('Users Data Access Layer', () => {
         deletedAt: new Date(),
       };
 
-      db.users.get.mockResolvedValue(deletedUser);
+      (db.users.get as any).mockResolvedValue(deletedUser);
 
       const result = await deleteUser('user-1');
 
@@ -774,12 +780,12 @@ describe('Users Data Access Layer', () => {
     });
 
     it('should return error for non-existent user', async () => {
-      db.users.get.mockResolvedValue(null);
+      (db.users.get as any).mockResolvedValue(null);
 
       const result = await deleteUser('non-existent-id');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
   });
 
@@ -818,7 +824,7 @@ describe('Users Data Access Layer', () => {
         },
       ];
 
-      db.users.where.mockReturnValue({
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn(() => ({
             toArray: vi.fn(() => Promise.resolve(mockUsers)),
@@ -830,9 +836,9 @@ describe('Users Data Access Layer', () => {
       const result = await getCompanyUsers('company-1');
 
       expect(result.success).toBe(true);
-      expect(result.data).toHaveLength(2);
-      expect(result.data?.[0].id).toBe('user-1');
-      expect(result.data?.[1].id).toBe('user-2');
+      expect((result as any).data).toHaveLength(2);
+      expect((result as any).data[0].id).toBe('user-1');
+      expect((result as any).data[1].id).toBe('user-2');
     });
 
     it('should decrypt user fields when encryption context provided', async () => {
@@ -854,7 +860,7 @@ describe('Users Data Access Layer', () => {
         },
       ];
 
-      db.users.where.mockReturnValue({
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn(() => ({
             toArray: vi.fn(() => Promise.resolve(mockUsers)),
@@ -866,18 +872,18 @@ describe('Users Data Access Layer', () => {
       const context: EncryptionContext = {
         companyId: 'company-1',
         userId: 'user-1',
-        encryptionService: mockEncryptionService,
+        encryptionService: mockEncryptionService as any,
       };
 
       const result = await getCompanyUsers('company-1', false, context);
 
       expect(result.success).toBe(true);
-      expect(result.data?.[0].email).toBe('test@example.com');
-      expect(result.data?.[0].name).toBe('Test User');
+      expect((result as any).data[0].email).toBe('test@example.com');
+      expect((result as any).data[0].name).toBe('Test User');
     });
 
     it('should exclude deleted users by default', async () => {
-      db.users.where.mockReturnValue({
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn((filterFn: any) => {
             const users = [
@@ -903,7 +909,7 @@ describe('Users Data Access Layer', () => {
         { id: 'user-2', deletedAt: new Date() },
       ];
 
-      db.users.where.mockReturnValue({
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           toArray: vi.fn(() => Promise.resolve(mockUsers)),
         })),
@@ -915,7 +921,7 @@ describe('Users Data Access Layer', () => {
     });
 
     it('should return empty array when no users found', async () => {
-      db.users.where.mockReturnValue({
+      (db.users.where as any).mockReturnValue({
         equals: vi.fn(() => ({
           and: vi.fn(() => ({
             toArray: vi.fn(() => Promise.resolve([])),
@@ -927,7 +933,7 @@ describe('Users Data Access Layer', () => {
       const result = await getCompanyUsers('company-1');
 
       expect(result.success).toBe(true);
-      expect(result.data).toEqual([]);
+      expect((result as any).data).toEqual([]);
     });
   });
 });

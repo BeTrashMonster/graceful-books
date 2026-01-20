@@ -114,10 +114,10 @@ describe('PaymentGateway', () => {
       );
 
       expect(result.success).toBe(true);
-      expect(result.data?.paymentId).toBeDefined();
-      expect(result.data?.gatewayTransactionId).toBeDefined();
-      expect(result.data?.clientSecret).toBeDefined();
-      expect(result.data?.gatewayTransactionId).toMatch(/^pi_mock_/);
+      expect((result as any).data.paymentId).toBeDefined();
+      expect((result as any).data.gatewayTransactionId).toBeDefined();
+      expect((result as any).data.clientSecret).toBeDefined();
+      expect((result as any).data.gatewayTransactionId).toMatch(/^pi_mock_/);
     });
 
     it('should create a Square payment intent', async () => {
@@ -132,10 +132,10 @@ describe('PaymentGateway', () => {
       );
 
       expect(result.success).toBe(true);
-      expect(result.data?.paymentId).toBeDefined();
-      expect(result.data?.gatewayTransactionId).toBeDefined();
-      expect(result.data?.checkoutUrl).toBeDefined();
-      expect(result.data?.gatewayTransactionId).toMatch(/^sq_mock_/);
+      expect((result as any).data.paymentId).toBeDefined();
+      expect((result as any).data.gatewayTransactionId).toBeDefined();
+      expect((result as any).data.checkoutUrl).toBeDefined();
+      expect((result as any).data.gatewayTransactionId).toMatch(/^sq_mock_/);
     });
 
     it('should create a manual payment record', async () => {
@@ -150,8 +150,8 @@ describe('PaymentGateway', () => {
       );
 
       expect(result.success).toBe(true);
-      expect(result.data?.paymentId).toBeDefined();
-      expect(result.data?.gatewayTransactionId).toMatch(/^manual_/);
+      expect((result as any).data.paymentId).toBeDefined();
+      expect((result as any).data.gatewayTransactionId).toMatch(/^manual_/);
     });
 
     it('should store payment in database with PROCESSING status', async () => {
@@ -167,7 +167,7 @@ describe('PaymentGateway', () => {
 
       expect(result.success).toBe(true);
 
-      const payment = await db.payments.get(result.data!.paymentId);
+      const payment = await db.payments.get((result as any).data.paymentId);
       expect(payment).toBeDefined();
       expect(payment?.status).toBe('PROCESSING');
       expect(payment?.amount).toBe('110.00');
@@ -187,7 +187,7 @@ describe('PaymentGateway', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
 
     it('should validate payment amount', async () => {
@@ -202,7 +202,7 @@ describe('PaymentGateway', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('VALIDATION_ERROR');
+      expect((result as any).error.code).toBe('VALIDATION_ERROR');
     });
   });
 
@@ -219,17 +219,17 @@ describe('PaymentGateway', () => {
       );
       expect(intentResult.success).toBe(true);
 
-      const confirmResult = await confirmPayment(intentResult.data!.paymentId, {
+      const confirmResult = await confirmPayment((intentResult as any).data.paymentId, {
         type: 'card',
         last4: '4242',
         brand: 'Visa',
       });
 
       expect(confirmResult.success).toBe(true);
-      expect(confirmResult.data?.status).toBe('SUCCEEDED');
-      expect(confirmResult.data?.paid_at).toBeTruthy();
-      expect(confirmResult.data?.payment_method_type).toBe('card');
-      expect(confirmResult.data?.payment_method_last4).toBe('4242');
+      expect((confirmResult as any).data.status).toBe('SUCCEEDED');
+      expect((confirmResult as any).data.paid_at).toBeTruthy();
+      expect((confirmResult as any).data.payment_method_type).toBe('card');
+      expect((confirmResult as any).data.payment_method_last4).toBe('4242');
 
       // Check invoice is marked as paid
       const invoice = await db.invoices.get(mockInvoiceId);
@@ -249,18 +249,18 @@ describe('PaymentGateway', () => {
       );
       expect(intentResult.success).toBe(true);
 
-      await confirmPayment(intentResult.data!.paymentId);
-      const result = await confirmPayment(intentResult.data!.paymentId);
+      await confirmPayment((intentResult as any).data.paymentId);
+      const result = await confirmPayment((intentResult as any).data.paymentId);
 
       expect(result.success).toBe(true);
-      expect(result.data?.status).toBe('SUCCEEDED');
+      expect((result as any).data.status).toBe('SUCCEEDED');
     });
 
     it('should fail for non-existent payment', async () => {
       const result = await confirmPayment('non-existent-payment-id');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
   });
 
@@ -278,13 +278,13 @@ describe('PaymentGateway', () => {
       expect(intentResult.success).toBe(true);
 
       const failResult = await failPayment(
-        intentResult.data!.paymentId,
+        (intentResult as any).data.paymentId,
         'Card declined'
       );
 
       expect(failResult.success).toBe(true);
-      expect(failResult.data?.status).toBe('FAILED');
-      expect(failResult.data?.error_message).toBe('Card declined');
+      expect((failResult as any).data.status).toBe('FAILED');
+      expect((failResult as any).data.error_message).toBe('Card declined');
     });
 
     it('should not mark invoice as paid', async () => {
@@ -299,7 +299,7 @@ describe('PaymentGateway', () => {
       );
       expect(intentResult.success).toBe(true);
 
-      await failPayment(intentResult.data!.paymentId, 'Card declined');
+      await failPayment((intentResult as any).data.paymentId, 'Card declined');
 
       const invoice = await db.invoices.get(mockInvoiceId);
       expect(invoice?.status).not.toBe('PAID');
@@ -319,13 +319,13 @@ describe('PaymentGateway', () => {
       );
       expect(intentResult.success).toBe(true);
 
-      await confirmPayment(intentResult.data!.paymentId);
+      await confirmPayment((intentResult as any).data.paymentId);
 
-      const refundResult = await refundPayment(intentResult.data!.paymentId);
+      const refundResult = await refundPayment((intentResult as any).data.paymentId);
 
       expect(refundResult.success).toBe(true);
-      expect(refundResult.data?.status).toBe('REFUNDED');
-      expect(refundResult.data?.refunded_at).toBeTruthy();
+      expect((refundResult as any).data.status).toBe('REFUNDED');
+      expect((refundResult as any).data.refunded_at).toBeTruthy();
     });
 
     it('should support partial refunds', async () => {
@@ -340,12 +340,12 @@ describe('PaymentGateway', () => {
       );
       expect(intentResult.success).toBe(true);
 
-      await confirmPayment(intentResult.data!.paymentId);
+      await confirmPayment((intentResult as any).data.paymentId);
 
-      const refundResult = await refundPayment(intentResult.data!.paymentId, '50.00');
+      const refundResult = await refundPayment((intentResult as any).data.paymentId, '50.00');
 
       expect(refundResult.success).toBe(true);
-      expect(refundResult.data?.status).toBe('REFUNDED');
+      expect((refundResult as any).data.status).toBe('REFUNDED');
     });
 
     it('should fail to refund non-successful payment', async () => {
@@ -360,10 +360,10 @@ describe('PaymentGateway', () => {
       );
       expect(intentResult.success).toBe(true);
 
-      const refundResult = await refundPayment(intentResult.data!.paymentId);
+      const refundResult = await refundPayment((intentResult as any).data.paymentId);
 
       expect(refundResult.success).toBe(false);
-      expect(refundResult.error?.code).toBe('CONSTRAINT_VIOLATION');
+      expect((refundResult as any).error.code).toBe('CONSTRAINT_VIOLATION');
     });
   });
 
@@ -392,7 +392,7 @@ describe('PaymentGateway', () => {
       const result = await getInvoicePayments(mockCompanyId, mockInvoiceId);
 
       expect(result.success).toBe(true);
-      expect(result.data?.length).toBe(2);
+      expect((result as any).data.length).toBe(2);
     });
 
     it('should not return deleted payments', async () => {
@@ -408,14 +408,14 @@ describe('PaymentGateway', () => {
       expect(intentResult.success).toBe(true);
 
       // Soft delete the payment
-      await db.payments.update(intentResult.data!.paymentId, {
+      await db.payments.update((intentResult as any).data.paymentId, {
         deleted_at: Date.now(),
       });
 
       const result = await getInvoicePayments(mockCompanyId, mockInvoiceId);
 
       expect(result.success).toBe(true);
-      expect(result.data?.length).toBe(0);
+      expect((result as any).data.length).toBe(0);
     });
   });
 
@@ -432,17 +432,17 @@ describe('PaymentGateway', () => {
       );
       expect(intentResult.success).toBe(true);
 
-      const result = await getPayment(intentResult.data!.paymentId);
+      const result = await getPayment((intentResult as any).data.paymentId);
 
       expect(result.success).toBe(true);
-      expect(result.data?.id).toBe(intentResult.data!.paymentId);
+      expect((result as any).data.id).toBe((intentResult as any).data.paymentId);
     });
 
     it('should fail for non-existent payment', async () => {
       const result = await getPayment('non-existent-id');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
 
     it('should not return deleted payment', async () => {
@@ -457,14 +457,14 @@ describe('PaymentGateway', () => {
       );
       expect(intentResult.success).toBe(true);
 
-      await db.payments.update(intentResult.data!.paymentId, {
+      await db.payments.update((intentResult as any).data.paymentId, {
         deleted_at: Date.now(),
       });
 
-      const result = await getPayment(intentResult.data!.paymentId);
+      const result = await getPayment((intentResult as any).data.paymentId);
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
   });
 });
