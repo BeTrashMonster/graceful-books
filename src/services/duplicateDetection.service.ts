@@ -13,9 +13,6 @@
 import Fuse from 'fuse.js';
 import { format, differenceInDays } from 'date-fns';
 import { db } from '../db/database';
-import type { Transaction } from '../types/database.types';
-import type { Invoice } from '../db/schema/invoices.schema';
-import type { Bill } from '../db/schema/bills.schema';
 import { logger } from '../utils/logger';
 
 const serviceLogger = logger.child('DuplicateDetectionService');
