@@ -263,7 +263,7 @@ export async function verifyCharity(input: VerifyCharityInput): Promise<Charity>
 
     const updated: Charity = {
       ...charity,
-      status: 'verified',
+      status: 'VERIFIED',
       verification_notes: updatedNotes,
       updated_at: Date.now(),
     };

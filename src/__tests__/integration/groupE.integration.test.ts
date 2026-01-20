@@ -403,7 +403,7 @@ describe('Group E Integration Tests', () => {
       expect((billAuditResult as any).data[0].entityId).toBe(bill.id);
 
       // Update bill status
-      await db.bills.update(bill.id, { status: 'paid' });
+      await db.bills.update(bill.id, { status: 'PAID' });
 
       // Verify audit log captured update (E7)
       const updatedAuditResult = await queryAuditLogs({

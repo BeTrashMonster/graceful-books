@@ -161,7 +161,7 @@ describe('Admin Charity Service', () => {
         equals: mockEquals,
       });
 
-      await getAllCharities({ status: 'pending' });
+      await getAllCharities({ status: 'PENDING' });
 
       expect(db.charities.where).toHaveBeenCalledWith('status');
       expect(mockEquals).toHaveBeenCalledWith('PENDING');
@@ -529,7 +529,7 @@ describe('Admin Charity Service', () => {
           name: 'Pending 1',
           ein: '34-5678901',
           description: 'Test',
-          category: 'environment',
+          category: 'ENVIRONMENT',
           website: 'https://charity3.org',
           logo: null,
           status: 'PENDING',
