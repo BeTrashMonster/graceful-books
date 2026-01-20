@@ -171,12 +171,14 @@
 }
 
 .loading .content {
-  visibility: hidden;
+  /* Keep accessible to screen readers, but visually transparent */
+  opacity: 0;
 }
 
 .loading .iconBefore,
 .loading .iconAfter {
-  visibility: hidden;
+  /* Keep accessible to screen readers, but visually transparent */
+  opacity: 0;
 }
 
 /* Spinner animation */

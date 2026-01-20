@@ -16,6 +16,7 @@ describe('Charity Schema', () => {
     it('should create a charity with all required fields', () => {
       const charity = createDefaultCharity(
         'Test Charity',
+        '12-3456789',
         'A test charity description',
         'EDUCATION' as CharityCategory,
         'https://testcharity.org'
@@ -32,9 +33,11 @@ describe('Charity Schema', () => {
     it('should include logo when provided', () => {
       const charity = createDefaultCharity(
         'Test Charity',
+        '23-4567890',
         'Description',
         'HEALTH' as CharityCategory,
         'https://testcharity.org',
+        undefined,
         'test-logo'
       );
 
@@ -46,6 +49,7 @@ describe('Charity Schema', () => {
     it('should pass validation for valid charity', () => {
       const charity = createDefaultCharity(
         'Valid Charity',
+        '34-5678901',
         'Valid description',
         'EDUCATION' as CharityCategory,
         'https://validcharity.org'
