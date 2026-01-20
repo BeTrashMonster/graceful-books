@@ -1,7 +1,7 @@
 # Phase 2 TypeScript Error Fixing - Progress Report
 **Date:** 2026-01-19 (Overnight Session)
 **Status:** In Progress
-**Commits Pushed:** 5
+**Commits Pushed:** 9
 
 ## Summary
 
@@ -10,8 +10,8 @@ While you were sleeping, I systematically worked through TypeScript errors follo
 ## Overall Progress
 
 - **Starting Point:** ~1,982 TypeScript errors
-- **Current:** ~1,923 TypeScript errors
-- **Fixed:** 59 errors (3% reduction)
+- **Current:** ~1,900 TypeScript errors
+- **Fixed:** ~82 errors (4% reduction)
 - **Approach:** Quality over speed, manual verification, minimal changes
 
 ## Phase 1: Missing Exports ✅ COMPLETE
@@ -37,8 +37,8 @@ While you were sleeping, I systematically worked through TypeScript errors follo
 
 ## Phase 2: Unused Variables 🔄 IN PROGRESS
 
-**Status:** 59 of ~336 TS6133 errors fixed (277 remaining)
-**Progress:** 18% complete
+**Status:** 75 of ~336 TS6133 errors fixed (261 remaining)
+**Progress:** 22% complete
 
 ### Phase 2a: Remove Unused Test Imports
 **Commit:** `562b24a`
@@ -100,16 +100,50 @@ While you were sleeping, I systematically worked through TypeScript errors follo
 - Single file: `src/services/scenarios/scenarioCalculator.service.ts`
 - Template functions have baseline parameter for future use but don't need it currently
 
+### Phase 2f: Remove Unused DB Imports
+**Commit:** `fe1041b`
+**Errors Fixed:** 3 (277 → 274 remaining)
+
+- Removed 3 unused `db` imports from automation services
+- Renamed 5 class properties with underscore prefix in metrics + interest split services
+
+**Files:**
+- 3 automation services (anomaly detection, auto categorization, recurring detection)
+- 2 interest split services (amortization, checklist integration)
+- 3 metrics services (cash flow, growth, valuation)
+
+### Phase 2g: Fix Remaining DB Class Properties
+**Commit:** `e238b33`
+**Errors Fixed:** 5 (274 → 269 remaining)
+
+- Removed unused class properties and moved db parameter to constructor with underscore prefix
+- Placeholder service classes with db parameter reserved for future implementation
+
+**Files:**
+- 2 interest split services
+- 3 metrics services
+
+### Phase 2h: Prefix Unused CompanyId Parameters
+**Commit:** `7bba051`
+**Errors Fixed:** 8 (269 → 261 remaining)
+
+- Fixed 8 unused `companyId` parameters across components and services
+- Parameters needed for API consistency but not used in placeholder implementations
+
+**Files:**
+- 3 components (MetricsReport, BarterReport, ScheduleEditor)
+- 3 services (currency revaluation, checklist integration × 2, leverage metrics × 2)
+
 ## Next Steps (When You Return)
 
 ### Immediate Phase 2 Work:
-Still ~277 TS6133 unused variable errors to fix. Most common remaining patterns:
+Still ~261 TS6133 unused variable errors to fix. Most common remaining patterns:
 
-1. **db imports** (8 occurrences) - Database imports not used
-2. **companyId parameters** (8) - Function parameters not used
-3. **oldContext/newContext** (11 total) - Test context variables
-4. **Decimal imports** (5) - Type imports not used
-5. **Various test imports** (within, fireEvent, user) - Testing utilities not used
+1. **oldContext/newContext** (11 total) - Test context variables
+2. **Decimal imports** (5) - Type imports not used
+3. **Various test imports** (within, fireEvent, user) - Testing utilities not used
+4. **endDate/startDate parameters** (7 total) - Date parameters not used
+5. **data variables** (5) - Various unused data variables
 
 ### Subsequent Phases:
 - **Phase 3:** Fix 'possibly undefined' errors (~405 TS2532 errors)
