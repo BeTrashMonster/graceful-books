@@ -276,6 +276,12 @@ export interface ProfitLossReport {
     variancePercentage?: number
     isProfitable: boolean
   }
+
+  // Alternative structure for scenario calculator
+  sections?: Array<{
+    type: string
+    total: number
+  }>
 }
 
 /**

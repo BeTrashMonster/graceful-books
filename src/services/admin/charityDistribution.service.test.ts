@@ -235,7 +235,7 @@ describe('CharityDistributionService', () => {
 
   describe('generateMonthlyReport', () => {
     it('should generate complete monthly report', async () => {
-      const mockContributions = [
+      const _mockContributions = [
         {
           charity_id: 'charity-1',
           charity_name: 'Khan Academy',
@@ -455,7 +455,7 @@ describe('CharityDistributionService', () => {
 
       vi.mocked(db.charityDistributions.update).mockResolvedValue(1);
 
-      const records = await createDistributionRecords('2026-01');
+      const _records = await createDistributionRecords('2026-01');
 
       expect(db.charityDistributions.update).toHaveBeenCalled();
     });
