@@ -227,7 +227,7 @@ export const FlowAnimationQueue: React.FC<FlowAnimationQueueProps> = ({
   maxConcurrent = 3,
 }) => {
   const [activeFlows, setActiveFlows] = useState<TransactionFlow[]>([])
-  const [queuedFlows, setQueuedFlows] = useState<TransactionFlow[]>(flows)
+  const [_queuedFlows, setQueuedFlows] = useState<TransactionFlow[]>(flows)
 
   // Start next animation when one completes
   const handleAnimationComplete = (flowId: string) => {

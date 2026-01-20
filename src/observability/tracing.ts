@@ -73,7 +73,7 @@ export class TracingService {
         });
 
         // Add batch span processor
-        const processor = new BatchSpanProcessor(exporter);
+        const _processor = new BatchSpanProcessor(exporter);
         // Note: addSpanProcessor method may not exist in some versions
         // We'll register the provider first
       }

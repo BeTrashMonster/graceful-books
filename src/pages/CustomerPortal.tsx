@@ -32,7 +32,7 @@ type PortalState = 'loading' | 'valid' | 'invalid' | 'payment' | 'success' | 'er
  */
 export default function CustomerPortal() {
   const { token } = useParams<{ token: string }>();
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   const [state, setState] = useState<PortalState>('loading');
   const [portalToken, setPortalToken] = useState<PortalToken | null>(null);
