@@ -150,7 +150,7 @@ export class AutoCategorizationService {
    */
   private async matchDescriptionPattern(input: CategorizationInput): Promise<CategorizationSuggestion | null> {
     const descriptionLower = input.description.toLowerCase().trim()
-    const words = descriptionLower.split(/\s+/)
+    const _words = descriptionLower.split(/\s+/)
 
     // Find patterns where description contains key words
     let bestMatch: { pattern: LearnedPattern; wordMatchCount: number } | null = null

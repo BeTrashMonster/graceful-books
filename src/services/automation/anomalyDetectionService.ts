@@ -390,7 +390,7 @@ export class AnomalyDetectionService {
    */
   private async findSimilarTransactions(
     input: AnomalyDetectionInput,
-    daysBack: number
+    _daysBack: number
   ): Promise<Array<{ id: string; description: string; amount: string; date: number; similarity: number }>> {
     try {
       // Placeholder - would use fuzzy matching to find similar transactions

@@ -338,7 +338,7 @@ export class RecurringDetectionService {
     lastDate: number,
     frequency: 'weekly' | 'bi-weekly' | 'monthly' | 'quarterly' | 'yearly',
     dayOfMonth?: number,
-    dayOfWeek?: number
+    _dayOfWeek?: number
   ): number {
     const date = new Date(lastDate)
 
