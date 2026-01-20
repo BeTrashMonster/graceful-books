@@ -12,7 +12,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import clsx from 'clsx';
-import { format } from 'date-fns';
 import { getRelativeTimeString, getEntityTypeIcon } from '../../db/schema/recentActivity.schema';
 import type { RecentSearchEntry } from '../../types/recentActivity.types';
 import styles from './RecentSearches.module.css';

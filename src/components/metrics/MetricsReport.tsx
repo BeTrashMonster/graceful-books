@@ -7,7 +7,7 @@
  * Requirements: J4 - Key Financial Metrics Reports (Nice)
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type {
   LiquidityMetrics,
   ProfitabilityMetrics,
@@ -20,7 +20,6 @@ import type {
   ExportFormat,
 } from '../../types/metrics.types';
 import { TrendChart } from './TrendChart';
-import { PeerBenchmark } from './PeerBenchmark';
 
 export interface MetricsReportProps {
   companyId: string;

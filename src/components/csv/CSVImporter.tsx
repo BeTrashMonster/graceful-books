@@ -50,7 +50,6 @@ export function CSVImporter({ entityType, onImportComplete, onCancel }: CSVImpor
   const [autoMapping, setAutoMapping] = useState<AutoMappingResult | null>(null);
   const [columnMappings, setColumnMappings] = useState<ColumnMapping[]>([]);
   const [validationResult, setValidationResult] = useState<CSVImportResult | null>(null);
-  const [importMode, setImportMode] = useState<ImportMode>('dryRun');
   const [error, setError] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 

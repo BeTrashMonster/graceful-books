@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Card, CardHeader, CardBody, CardFooter } from '../ui/Card'
+import { Card } from '../ui/Card'
 import { Button } from '../core/Button'
 import { ConflictResolutionButtons } from './ConflictResolutionButtons'
 import { getFieldConflicts } from '../../services/conflictResolution.service'

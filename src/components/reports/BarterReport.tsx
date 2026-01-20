@@ -6,7 +6,7 @@
  * Requirements: I5 - Barter/Trade Transactions (Nice)
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type {
   BarterTransaction,
   BarterTransactionStatistics,
