@@ -354,7 +354,7 @@ export class LiabilityDetectionService {
   /**
    * Get loan account details
    */
-  private async getLoanAccount(accountId: string): Promise<LoanAccount | null> {
+  private async getLoanAccount(_accountId: string): Promise<LoanAccount | null> {
     // TODO: Implement when loan_accounts table exists
     // For now, return null
     return null;
@@ -363,7 +363,7 @@ export class LiabilityDetectionService {
   /**
    * Check if payee matches lender name
    */
-  private payeeMatchesLender(memoText: string, loanAccount: LoanAccount): boolean {
+  private payeeMatchesLender(_memoText: string, _loanAccount: LoanAccount): boolean {
     // TODO: Implement fuzzy matching when loan_accounts table exists
     // For now, return false
     return false;

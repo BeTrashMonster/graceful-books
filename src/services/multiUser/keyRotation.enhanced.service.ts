@@ -24,10 +24,9 @@ import type {
   CryptoResult,
 } from '../../crypto/types';
 import type { CompanyUser, Session, User, VersionVector } from '../../types/database.types';
-import { rotateKeys as cryptoRotateKeys, deriveAllKeys, createEncryptionContext } from '../../crypto/keyManagement';
+import { deriveAllKeys, createEncryptionContext } from '../../crypto/keyManagement';
 import { db } from '../../store/database';
 import { logger } from '../../utils/logger';
-import { ErrorCode } from '../../utils/errors';
 import { getDeviceId, generateId } from '../../utils/device';
 import { incrementVersionVector } from '../../utils/versionVector';
 
@@ -499,7 +498,7 @@ export class KeyRotationService {
   /**
    * Update master key references in database
    */
-  private async updateMasterKeyReferences(companyId: string, newMasterKeyId: string): Promise<void> {
+  private async updateMasterKeyReferences(companyId: string, _newMasterKeyId: string): Promise<void> {
     // Update company record with new master key ID
     const company = await db.companies.where('id').equals(companyId).first();
 
@@ -523,7 +522,6 @@ export class KeyRotationService {
       .toArray();
 
     const now = Date.now();
-    const deviceId = getDeviceId();
 
     const updates = sessions.map((session) => ({
       ...session,
@@ -544,7 +542,7 @@ export class KeyRotationService {
    */
   private async rollbackRotation(
     job: RotationJob,
-    oldContext: EncryptionContext
+    _oldContext: EncryptionContext
   ): Promise<void> {
     log.warn('Rolling back key rotation', { jobId: job.id });
 
@@ -644,7 +642,6 @@ export class KeyRotationService {
       }
 
       const now = Date.now();
-      const deviceId = getDeviceId();
 
       await db.companyUsers.update(companyUser.id, {
         active: false,

@@ -27,7 +27,7 @@ import type {
   CurrencyConversionMetadata,
   ExchangeRate,
 } from '../types/currency.types';
-import { GainLossType, ExchangeRateSource } from '../types/currency.types';
+import { GainLossType } from '../types/currency.types';
 import type { IExchangeRateService } from './exchangeRate.service';
 
 // Configure Decimal.js for 28 decimal places precision
@@ -278,8 +278,8 @@ export class CurrencyGainLossService implements ICurrencyGainLossService {
    * Calculate realized gain/loss for multiple transactions
    */
   async calculateAllRealizedGainLoss(
-    transactionIds: string[],
-    baseCurrency: CurrencyCode
+    _transactionIds: string[],
+    _baseCurrency: CurrencyCode
   ): Promise<CurrencyGainLoss[]> {
     const gainLosses: CurrencyGainLoss[] = [];
 
@@ -297,9 +297,9 @@ export class CurrencyGainLossService implements ICurrencyGainLossService {
    * Calculate unrealized gain/loss for multiple accounts
    */
   async calculateAllUnrealizedGainLoss(
-    accountIds: string[],
-    revaluationDate: number,
-    baseCurrency: CurrencyCode
+    _accountIds: string[],
+    _revaluationDate: number,
+    _baseCurrency: CurrencyCode
   ): Promise<CurrencyGainLoss[]> {
     const gainLosses: CurrencyGainLoss[] = [];
 
