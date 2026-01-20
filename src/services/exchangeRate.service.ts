@@ -21,7 +21,6 @@ import type {
   ExchangeRateValidationResult,
 } from '../types/currency.types';
 import { ExchangeRateSource } from '../types/currency.types';
-import type { VersionVector } from '../types/database.types';
 
 // Configure Decimal.js for 28 decimal places precision
 Decimal.set({ precision: 28, rounding: Decimal.ROUND_HALF_UP });
@@ -653,7 +652,7 @@ export class ExchangeRateService implements IExchangeRateService {
     baseCurrency: CurrencyCode,
     targetCurrencies: CurrencyCode[]
   ): Promise<Map<CurrencyCode, Decimal>> {
-    const rates = new Map<CurrencyCode, Decimal>();
+    const _rates = new Map<CurrencyCode, Decimal>();
 
     switch (this.apiConfig.provider) {
       case 'exchangerate-api':

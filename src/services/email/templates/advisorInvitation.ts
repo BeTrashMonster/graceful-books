@@ -11,7 +11,6 @@ import {
   wrapEmailBody,
   createButton,
   replaceVariables,
-  htmlToPlainText,
 } from '../templateUtils';
 
 export function renderAdvisorInvitation(

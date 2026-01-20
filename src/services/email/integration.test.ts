@@ -4,7 +4,7 @@
  * End-to-end integration test verifying complete email workflow
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { EmailTemplateType } from '../../types/ic4-email.types';
 
 describe('IC4: Email Service Integration', () => {

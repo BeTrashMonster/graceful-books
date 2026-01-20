@@ -12,7 +12,6 @@ import {
   getSampleChecklistItems,
 } from './emailPreviewService';
 import type { EmailGenerationContext } from '../../types/email.types';
-import { addDays } from 'date-fns';
 
 /**
  * Create minimal valid context for testing
