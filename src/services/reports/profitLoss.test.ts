@@ -31,7 +31,6 @@ vi.mock('../../store/transactions', () => ({
 
 describe('Profit & Loss Report Service', () => {
   const mockCompanyId = 'test-company-123'
-  const baseDate = new Date('2024-01-15')
 
   const mockAccounts: Account[] = [
     {

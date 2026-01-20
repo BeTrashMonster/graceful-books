@@ -273,11 +273,11 @@ describe('Webhook Signature Validation', () => {
 
     // Mock signature validation
     const mockValidateSignature = (
-      payload: string,
+      _payload: string,
       signature: string,
       secret: string
     ): boolean => {
-      // Simplified validation logic
+      // Simplified validation logic (payload would be validated in real implementation)
       return signature.length > 0 && secret.length > 0;
     };
 
@@ -289,7 +289,7 @@ describe('Webhook Signature Validation', () => {
 
   it('should reject empty signatures', () => {
     const mockValidateSignature = (
-      payload: string,
+      _payload: string,
       signature: string,
       secret: string
     ): boolean => {
