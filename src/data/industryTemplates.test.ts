@@ -150,7 +150,7 @@ describe('industryTemplates', () => {
 
   describe('getDefaultAccounts', () => {
     it('should return only default accounts', () => {
-      const templateId = INDUSTRY_TEMPLATES[0].id
+      const templateId = INDUSTRY_TEMPLATES[0]!.id
       const defaultAccounts = getDefaultAccounts(templateId)
 
       expect(defaultAccounts.length).toBeGreaterThan(0)
@@ -167,7 +167,7 @@ describe('industryTemplates', () => {
 
   describe('getRequiredAccounts', () => {
     it('should return only required accounts', () => {
-      const templateId = INDUSTRY_TEMPLATES[0].id
+      const templateId = INDUSTRY_TEMPLATES[0]!.id
       const requiredAccounts = getRequiredAccounts(templateId)
 
       expect(requiredAccounts.length).toBeGreaterThan(0)

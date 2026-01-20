@@ -105,7 +105,7 @@ describe('useVendors', () => {
 
       await waitFor(() => {
         expect(result.current.vendors).toHaveLength(1)
-        expect(result.current.vendors[0].isActive).toBe(true)
+        expect(result.current.vendors[0]!.isActive).toBe(true)
       })
 
       expect(contactsStore.queryContacts).toHaveBeenCalledWith(
@@ -129,7 +129,7 @@ describe('useVendors', () => {
 
       await waitFor(() => {
         expect(result.current.vendors).toHaveLength(1)
-        expect(result.current.vendors[0].is1099Eligible).toBe(true)
+        expect(result.current.vendors[0]!.is1099Eligible).toBe(true)
       })
     })
   })
@@ -257,7 +257,7 @@ describe('useVendors', () => {
       const searchResults = result.current.search('Acme')
 
       expect(searchResults).toHaveLength(1)
-      expect(searchResults[0].name).toBe('Acme Corporation')
+      expect(searchResults[0]!.name).toBe('Acme Corporation')
     })
 
     it('should search vendors by email', async () => {
@@ -270,7 +270,7 @@ describe('useVendors', () => {
       const searchResults = result.current.search('bestsupplies')
 
       expect(searchResults).toHaveLength(1)
-      expect(searchResults[0].email).toBe('info@bestsupplies.com')
+      expect(searchResults[0]!.email).toBe('info@bestsupplies.com')
     })
 
     it('should search vendors by phone', async () => {
@@ -283,7 +283,7 @@ describe('useVendors', () => {
       const searchResults = result.current.search('555-9999')
 
       expect(searchResults).toHaveLength(1)
-      expect(searchResults[0].phone).toBe('555-9999')
+      expect(searchResults[0]!.phone).toBe('555-9999')
     })
 
     it('should return all vendors when search query is empty', async () => {
@@ -325,7 +325,7 @@ describe('useVendors', () => {
 
       expect(dupeCheck.isDuplicate).toBe(true)
       expect(dupeCheck.potentialDuplicates).toHaveLength(1)
-      expect(dupeCheck.potentialDuplicates[0].vendor.name).toBe('Acme Corporation')
+      expect(dupeCheck.potentialDuplicates[0]!.vendor.name).toBe('Acme Corporation')
     })
 
     it('should detect duplicate by similar name (realistic high similarity)', async () => {
@@ -407,8 +407,8 @@ describe('useVendors', () => {
 
       // Should detect duplicate due to name match, strengthened by email
       expect(dupeCheck.isDuplicate).toBe(true)
-      expect(dupeCheck.potentialDuplicates[0].matchingFields).toContain('name')
-      expect(dupeCheck.potentialDuplicates[0].matchingFields).toContain('email')
+      expect(dupeCheck.potentialDuplicates[0]!.matchingFields).toContain('name')
+      expect(dupeCheck.potentialDuplicates[0]!.matchingFields).toContain('email')
     })
 
     it('should not flag as duplicate when no matches exist', async () => {

@@ -61,7 +61,7 @@ describe('TemplateSelectionStep', () => {
       />
     )
 
-    const templateName = screen.getAllByText(mockTemplates[0].friendlyName)[0]
+    const templateName = screen.getAllByText(mockTemplates[0].friendlyName)[0]!
     const templateCard = templateName.closest('button')!
     await user.click(templateCard)
 
@@ -82,7 +82,7 @@ describe('TemplateSelectionStep', () => {
       />
     )
 
-    const templateName = screen.getAllByText(mockTemplates[0].friendlyName)[0]
+    const templateName = screen.getAllByText(mockTemplates[0].friendlyName)[0]!
     const templateCard = templateName.closest('button')!
     await user.click(templateCard)
 
@@ -90,7 +90,7 @@ describe('TemplateSelectionStep', () => {
     expect(screen.getByText(/What's included/i)).toBeInTheDocument()
 
     // Should show some default accounts
-    const defaultAccounts = mockTemplates[0].accounts.filter((a) => a.isDefault).slice(0, 5)
+    const defaultAccounts = mockTemplates[0]!.accounts.filter((a) => a.isDefault).slice(0, 5)
     defaultAccounts.forEach((account) => {
       expect(screen.getByText(account.name)).toBeInTheDocument()
     })
@@ -110,7 +110,7 @@ describe('TemplateSelectionStep', () => {
     )
 
     // Select a template - use getByText on the heading instead of getByRole
-    const templateName = screen.getAllByText(mockTemplates[0].friendlyName)[0]
+    const templateName = screen.getAllByText(mockTemplates[0].friendlyName)[0]!
     const templateCard = templateName.closest('button')!
     await user.click(templateCard)
 
@@ -118,7 +118,7 @@ describe('TemplateSelectionStep', () => {
     const continueButton = screen.getByRole('button', { name: /Continue with this template/i })
     await user.click(continueButton)
 
-    expect(onSelect).toHaveBeenCalledWith(mockTemplates[0].id)
+    expect(onSelect).toHaveBeenCalledWith(mockTemplates[0]!.id)
   })
 
   it('should call onBack when back button is clicked', async () => {
@@ -186,7 +186,7 @@ describe('TemplateSelectionStep', () => {
 
     // Should be able to navigate to template cards with keyboard
     await user.tab()
-    const templateName = screen.getAllByText(mockTemplates[0].friendlyName)[0]
+    const templateName = screen.getAllByText(mockTemplates[0].friendlyName)[0]!
     const firstCard = templateName.closest('button')!
     expect(firstCard).toHaveFocus()
 
@@ -202,13 +202,13 @@ describe('TemplateSelectionStep', () => {
     render(
       <TemplateSelectionStep
         templates={mockTemplates}
-        selectedTemplateId={mockTemplates[1].id}
+        selectedTemplateId={mockTemplates[1]!.id}
         onSelect={onSelect}
         onBack={onBack}
       />
     )
 
-    const templateName = screen.getAllByText(mockTemplates[1].friendlyName)[0]
+    const templateName = screen.getAllByText(mockTemplates[1].friendlyName)[0]!
     const selectedCard = templateName.closest('button')!
     expect(selectedCard).toHaveAttribute('aria-pressed', 'true')
   })

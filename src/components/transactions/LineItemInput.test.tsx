@@ -100,7 +100,7 @@ describe('LineItemInput', () => {
     fireEvent.change(select, { target: { value: 'acc-2' } })
 
     expect(onChange).toHaveBeenCalled()
-    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1][0]
+    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1]![0]
     expect(lastCall.accountId).toBe('acc-2')
   })
 
@@ -146,7 +146,7 @@ describe('LineItemInput', () => {
     fireEvent.change(debitInput, { target: { value: '100' } })
 
     expect(onChange).toHaveBeenCalled()
-    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1][0]
+    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1]![0]
     expect(lastCall.debit).toBe(100)
     expect(lastCall.credit).toBe(0)
   })
@@ -166,7 +166,7 @@ describe('LineItemInput', () => {
     fireEvent.change(creditInput, { target: { value: '75' } })
 
     expect(onChange).toHaveBeenCalled()
-    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1][0]
+    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1]![0]
     expect(lastCall.debit).toBe(0)
     expect(lastCall.credit).toBe(75)
   })
@@ -186,7 +186,7 @@ describe('LineItemInput', () => {
     fireEvent.change(memoInput, { target: { value: 'Test memo' } })
 
     expect(onChange).toHaveBeenCalled()
-    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1][0]
+    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1]![0]
     expect(lastCall.memo).toBe('Test memo')
   })
 
