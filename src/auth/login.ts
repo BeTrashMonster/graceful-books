@@ -20,7 +20,6 @@ import { getSecureStorage } from '../utils/secureStorage';
 import {
   sanitizeError,
   logSecurityError,
-  SecurityErrorCode,
   isDevMode,
 } from '../utils/errorSanitizer';
 

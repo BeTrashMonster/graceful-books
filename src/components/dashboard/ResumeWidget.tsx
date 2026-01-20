@@ -12,7 +12,6 @@
 
 import { useEffect, useState } from 'react';
 import clsx from 'clsx';
-import { format } from 'date-fns';
 import { getRelativeTimeString, getEntityTypeIcon, getEntityTypeDisplayName } from '../../db/schema/recentActivity.schema';
 import type { RecentEditEntry } from '../../types/recentActivity.types';
 import styles from './ResumeWidget.module.css';

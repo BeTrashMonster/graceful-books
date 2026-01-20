@@ -13,7 +13,6 @@ import { useState, useEffect } from 'react';
 import {
   getAllCharityImpactStats,
   type CharityImpactStats,
-  type MonthlyGrowthData,
 } from '../../services/admin/charityDistribution.service';
 import styles from './CharityImpactDashboard.module.css';
 
@@ -45,11 +44,6 @@ export function CharityImpactDashboard() {
 
   const formatCurrency = (cents: number): string => {
     return `$${(cents / 100).toLocaleString()}`;
-  };
-
-  const formatDate = (timestamp: number | null): string => {
-    if (!timestamp) return 'N/A';
-    return new Date(timestamp).toLocaleDateString();
   };
 
   // Sort stats

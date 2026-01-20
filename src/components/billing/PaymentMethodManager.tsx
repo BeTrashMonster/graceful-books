@@ -10,7 +10,6 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
 import { Card } from '../ui/Card';
 import { Button } from '../core/Button';
-import { Loading } from '../feedback/Loading';
 import { ErrorMessage } from '../feedback/ErrorMessage';
 import type { PaymentMethod } from '../../types/billing.types';
 import { logger } from '../../utils/logger';

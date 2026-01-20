@@ -16,7 +16,6 @@ import type { Subscription, BillingCalculation } from '../../types/billing.types
 import {
   calculateAdvisorMonthlyCost,
   formatCurrency,
-  formatBillingSummary,
 } from '../../services/billing.service';
 import {
   cancelSubscription,

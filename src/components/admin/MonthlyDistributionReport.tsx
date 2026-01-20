@@ -121,8 +121,6 @@ export function MonthlyDistributionReport() {
   };
 
   const hasDistributions = distributions.length > 0;
-  const allPending = distributions.every(d => d.status === 'pending');
-  const allSent = distributions.every(d => d.status === 'sent' || d.status === 'confirmed');
 
   return (
     <div className={styles.container}>

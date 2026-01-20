@@ -14,7 +14,6 @@
 import { useState, useEffect } from 'react';
 import Decimal from 'decimal.js';
 import type { CurrencyCode, ExchangeRate } from '../../types/currency.types';
-import { ExchangeRateSource } from '../../types/currency.types';
 
 // Configure Decimal.js for 28 decimal places precision
 Decimal.set({ precision: 28, rounding: Decimal.ROUND_HALF_UP });

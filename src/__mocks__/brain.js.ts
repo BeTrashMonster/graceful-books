@@ -31,10 +31,10 @@ export interface TrainingData {
 
 export class NeuralNetwork {
   private model: any = null
-  private options: NeuralNetworkOptions
+  private _options: NeuralNetworkOptions
 
   constructor(options?: NeuralNetworkOptions) {
-    this.options = options || {}
+    this._options = options || {}
     this.model = {}
   }
 

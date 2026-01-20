@@ -17,7 +17,6 @@ import {
   verifyCharity,
   rejectCharity,
   removeCharity,
-  updateCharity,
   type CharityFilterOptions,
 } from '../../services/admin/charity.service';
 import { getCategoryDisplay } from '../../db/schema/charity.schema';
