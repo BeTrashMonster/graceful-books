@@ -6,7 +6,6 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import Decimal from 'decimal.js'
 import { db } from '../../store/database'
 import { createAccount } from '../../store/accounts'
 import { createTransaction } from '../../store/transactions'

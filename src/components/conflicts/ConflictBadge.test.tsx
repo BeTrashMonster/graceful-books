@@ -158,7 +158,6 @@ describe('ConflictBadge Component', () => {
     })
 
     it('should not call onClick when no conflicts exist', async () => {
-      const user = userEvent.setup()
       const handleClick = vi.fn()
 
       vi.mocked(conflictsStore.getUnresolvedConflicts).mockResolvedValue([])

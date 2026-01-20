@@ -12,7 +12,6 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import Decimal from 'decimal.js'
 import { generateProfitLossReport } from './profitLoss'
 import type { ProfitLossOptions } from '../../types/reports.types'
 import type { Account, JournalEntry } from '../../types'

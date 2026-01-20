@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ConflictDetailView } from './ConflictDetailView'
 import type { DetectedConflict } from '../../types/crdt.types'
@@ -369,8 +369,6 @@ describe('ConflictDetailView Component', () => {
     })
 
     it('should announce loading state to screen readers', async () => {
-      const user = userEvent.setup()
-
       const { rerender } = render(
         <ConflictDetailView
           conflict={mockConflict}

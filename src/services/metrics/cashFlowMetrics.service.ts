@@ -4,7 +4,6 @@
  * Requirements: J4 - Key Financial Metrics Reports (Nice)
  */
 
-import Decimal from 'decimal.js';
 import type { TreasureChestDB } from '../../db/database';
 import type {
   CashFlowMetrics,

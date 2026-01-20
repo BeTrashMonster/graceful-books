@@ -309,8 +309,8 @@ export class KeyRotationService {
    */
   private async reEncryptAllData(
     job: RotationJob,
-    oldContext: EncryptionContext,
-    newContext: EncryptionContext,
+    _oldContext: EncryptionContext,
+    _newContext: EncryptionContext,
     counts: EntityTypeCount
   ): Promise<void> {
     let processedCount = 0;
@@ -356,8 +356,8 @@ export class KeyRotationService {
    */
   private async reEncryptAccounts(
     job: RotationJob,
-    oldContext: EncryptionContext,
-    newContext: EncryptionContext
+    _oldContext: EncryptionContext,
+    _newContext: EncryptionContext
   ): Promise<void> {
     // Note: In a real implementation, this would decrypt with old context
     // and re-encrypt with new context. For now, we'll simulate the process.
@@ -389,8 +389,8 @@ export class KeyRotationService {
    */
   private async reEncryptTransactions(
     job: RotationJob,
-    oldContext: EncryptionContext,
-    newContext: EncryptionContext
+    _oldContext: EncryptionContext,
+    _newContext: EncryptionContext
   ): Promise<void> {
     const transactions = await db.transactions
       .where('company_id')
@@ -417,8 +417,8 @@ export class KeyRotationService {
    */
   private async reEncryptTransactionLines(
     job: RotationJob,
-    oldContext: EncryptionContext,
-    newContext: EncryptionContext
+    _oldContext: EncryptionContext,
+    _newContext: EncryptionContext
   ): Promise<void> {
     const lines = await db.transactionLines
       .where('company_id')
@@ -445,8 +445,8 @@ export class KeyRotationService {
    */
   private async reEncryptContacts(
     job: RotationJob,
-    oldContext: EncryptionContext,
-    newContext: EncryptionContext
+    _oldContext: EncryptionContext,
+    _newContext: EncryptionContext
   ): Promise<void> {
     const contacts = await db.contacts
       .where('company_id')
@@ -473,8 +473,8 @@ export class KeyRotationService {
    */
   private async reEncryptUsers(
     job: RotationJob,
-    oldContext: EncryptionContext,
-    newContext: EncryptionContext
+    _oldContext: EncryptionContext,
+    _newContext: EncryptionContext
   ): Promise<void> {
     const users = await db.users
       .where('email')

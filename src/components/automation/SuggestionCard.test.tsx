@@ -13,7 +13,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent, within } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { SuggestionCard } from './SuggestionCard'
 import type { AutomationSuggestion } from '../../types/automation.types'
 
