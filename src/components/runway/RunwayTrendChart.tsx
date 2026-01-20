@@ -56,7 +56,7 @@ export const RunwayTrendChart: React.FC<RunwayTrendChartProps> = ({ data, target
       <div
         className="chart-container"
         role="img"
-        aria-label={`Runway trend over ${data.length} months showing ${data[data.length - 1].runwayMonths === null ? 'infinite runway' : `${data[data.length - 1].runwayMonths?.toFixed(1)} months`}`}
+        aria-label={`Runway trend over ${data.length} months showing ${data[data.length - 1]!.runwayMonths === null ? 'infinite runway' : `${data[data.length - 1]!.runwayMonths?.toFixed(1)} months`}`}
       >
         <svg
           viewBox={`0 0 100 ${chartHeight}`}
@@ -101,7 +101,7 @@ export const RunwayTrendChart: React.FC<RunwayTrendChartProps> = ({ data, target
         {/* X-axis labels */}
         <div className="x-axis-labels" aria-hidden="true">
           <span className="axis-label">
-            {data[0].date.toLocaleDateString('en-US', { month: 'short' })}
+            {data[0]!.date.toLocaleDateString('en-US', { month: 'short' })}
           </span>
           <span className="axis-label">
             {data[Math.floor(data.length / 2)]?.date.toLocaleDateString('en-US', {
@@ -109,7 +109,7 @@ export const RunwayTrendChart: React.FC<RunwayTrendChartProps> = ({ data, target
             })}
           </span>
           <span className="axis-label">
-            {data[data.length - 1].date.toLocaleDateString('en-US', { month: 'short' })}
+            {data[data.length - 1]!.date.toLocaleDateString('en-US', { month: 'short' })}
           </span>
         </div>
       </div>

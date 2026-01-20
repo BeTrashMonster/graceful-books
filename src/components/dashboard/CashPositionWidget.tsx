@@ -73,8 +73,8 @@ const getEncouragingMessage = (monthsCovered: number, monthlyExpenses: number): 
 const getTrendDirection = (trend: Array<{ date: string; balance: number }>): 'up' | 'down' | 'flat' => {
   if (trend.length < 2) return 'flat';
 
-  const first = trend[0].balance;
-  const last = trend[trend.length - 1].balance;
+  const first = trend[0]!.balance;
+  const last = trend[trend.length - 1]!.balance;
   const difference = last - first;
 
   // Consider change less than 5% as flat

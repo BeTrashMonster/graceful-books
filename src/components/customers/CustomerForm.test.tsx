@@ -327,7 +327,7 @@ describe('CustomerForm Component', () => {
         expect(mockOnSubmit).toHaveBeenCalled()
       })
 
-      const submittedData: CustomerFormData = mockOnSubmit.mock.calls[0][0]
+      const submittedData: CustomerFormData = mockOnSubmit.mock.calls[0]![0]
       expect(submittedData.name).toBe('New Customer')
       expect(submittedData.email).toBe('new@example.com')
       expect(submittedData.phone).toBe('5551234567')
@@ -374,7 +374,7 @@ describe('CustomerForm Component', () => {
         expect(mockOnSubmit).toHaveBeenCalled()
       })
 
-      const submittedData: CustomerFormData = mockOnSubmit.mock.calls[0][0]
+      const submittedData: CustomerFormData = mockOnSubmit.mock.calls[0]![0]
       expect(submittedData.address?.line1).toBe('456 Oak Ave')
       expect(submittedData.address?.city).toBe('Boston')
       expect(submittedData.address?.state).toBe('MA')

@@ -182,7 +182,7 @@ export function ImportPreview({ preview, mappings, errors = [], warnings = [], t
                       <td
                         key={cellIndex}
                         className={hasCellError ? styles.errorCell : ''}
-                        title={hasCellError ? cellErrors[0].message : undefined}
+                        title={hasCellError ? cellErrors[0]!.message : undefined}
                       >
                         {cell || <span className={styles.emptyCell}>(empty)</span>}
                       </td>

@@ -226,7 +226,7 @@ function CharityCard({ charity, onViewDetails }: CharityCardProps) {
   const growth = charity.monthly_growth;
   const hasGrowth = growth.length >= 2;
   const trend = hasGrowth
-    ? growth[growth.length - 1].amount > growth[growth.length - 2].amount
+    ? growth[growth.length - 1]!.amount > growth[growth.length - 2]!.amount
       ? 'up'
       : 'down'
     : 'neutral';

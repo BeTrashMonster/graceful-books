@@ -282,7 +282,7 @@ describe('AccountForm Component', () => {
         expect(mockOnSubmit).toHaveBeenCalled()
       })
 
-      const submittedData: AccountFormData = mockOnSubmit.mock.calls[0][0]
+      const submittedData: AccountFormData = mockOnSubmit.mock.calls[0]![0]
       expect(submittedData.name).toBe('New Account')
       expect(submittedData.accountNumber).toBe('5000')
       expect(submittedData.type).toBe('expense')
@@ -317,7 +317,7 @@ describe('AccountForm Component', () => {
         expect(mockOnSubmit).toHaveBeenCalled()
       })
 
-      const submittedData: AccountFormData = mockOnSubmit.mock.calls[0][0]
+      const submittedData: AccountFormData = mockOnSubmit.mock.calls[0]![0]
       expect(submittedData.parentAccountId).toBe('acc-1')
     })
 
@@ -345,7 +345,7 @@ describe('AccountForm Component', () => {
         expect(mockOnSubmit).toHaveBeenCalled()
       })
 
-      const submittedData: AccountFormData = mockOnSubmit.mock.calls[0][0]
+      const submittedData: AccountFormData = mockOnSubmit.mock.calls[0]![0]
       expect(submittedData.isActive).toBe(false)
     })
 

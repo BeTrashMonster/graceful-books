@@ -94,7 +94,7 @@ export function TrendChart({ title, dataPoints, color = '#0066cc', height = 200 
             viewBox={`0 0 ${width} ${height}`}
             style={{ maxWidth: '100%' }}
             role="img"
-            aria-label={`Line chart showing ${title} trend over time from ${dataPoints[0].label} to ${dataPoints[dataPoints.length - 1].label}`}
+            aria-label={`Line chart showing ${title} trend over time from ${dataPoints[0]!.label} to ${dataPoints[dataPoints.length - 1]!.label}`}
           >
             {/* Grid lines */}
             <g stroke="#e0e0e0" strokeWidth="1">

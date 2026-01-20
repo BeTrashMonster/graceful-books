@@ -72,8 +72,8 @@ const calculateSummary = (data: RevenueExpensesData[]) => {
   // Calculate trend (compare first and last revenue)
   let trend: 'growing' | 'declining' | 'stable' = 'stable';
   if (data.length >= 2) {
-    const firstRevenue = data[0].revenue;
-    const lastRevenue = data[data.length - 1].revenue;
+    const firstRevenue = data[0]!.revenue;
+    const lastRevenue = data[data.length - 1]!.revenue;
     if (lastRevenue > firstRevenue * 1.05) {
       trend = 'growing';
     } else if (lastRevenue < firstRevenue * 0.95) {

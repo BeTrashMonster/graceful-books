@@ -158,7 +158,7 @@ export function CommentComposer({
       const queryLower = query.toLowerCase()
       const matchedUsers: MentionUser[] = users
         .filter((user) => {
-          const username = user.email.split('@')[0].toLowerCase()
+          const username = (user.email.split('@')[0] || '').toLowerCase()
           const nameLower = user.name.toLowerCase()
           return (
             username.includes(queryLower) ||
