@@ -52,6 +52,7 @@ export interface Account extends BaseEntity {
   account_number: string | null; // Optional account number (e.g., "1000", "4500")
   name: string; // ENCRYPTED - Account name (e.g., "Cash", "Sales Revenue")
   type: AccountType; // Plaintext for querying
+  subType?: string | null; // Optional account subtype for more granular categorization
   parent_id: string | null; // UUID - For sub-accounts (must match parent type)
   balance: string; // ENCRYPTED - Stored as string to preserve decimal precision (DECIMAL(15,2))
   description: string | null; // ENCRYPTED - Optional description
@@ -95,12 +96,14 @@ export interface Transaction extends BaseEntity {
   company_id: string; // UUID - links to Company
   transaction_number: string; // ENCRYPTED - Sequential number (e.g., "JE-0001")
   transaction_date: number; // Unix timestamp - Date of transaction
+  date?: number; // Alternative name for transaction_date
   type: TransactionType; // Plaintext for querying
   status: TransactionStatus; // Plaintext for querying
   description: string | null; // ENCRYPTED - Transaction description
   reference: string | null; // ENCRYPTED - External reference (e.g., invoice number)
   memo: string | null; // ENCRYPTED - Internal memo
   attachments: string[]; // ENCRYPTED - Array of attachment IDs/URLs
+  lines?: any[]; // Alternative name for line items when joined
   version_vector: VersionVector; // For CRDT conflict resolution
 }
 

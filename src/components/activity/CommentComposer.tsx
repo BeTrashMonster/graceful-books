@@ -282,7 +282,10 @@ export function CommentComposer({
         case 'Enter':
           if (!e.shiftKey) {
             e.preventDefault()
-            handleMentionSelect(filteredUsers[selectedUserIndex])
+            const user = filteredUsers[selectedUserIndex]
+            if (user) {
+              handleMentionSelect(user)
+            }
           }
           break
         case 'Escape':

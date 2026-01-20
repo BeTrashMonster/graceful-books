@@ -392,7 +392,7 @@ function getCurrentMonth(): string {
 
 function formatMonthDisplay(monthString: string): string {
   const [year, month] = monthString.split('-');
-  const date = new Date(parseInt(year), parseInt(month) - 1);
+  const date = new Date(parseInt(year as string, 10), parseInt(month as string, 10) - 1);
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
 }
 

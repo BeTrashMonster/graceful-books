@@ -160,7 +160,7 @@ export const LoanAmortizationSchedule = ({
       <div className="schedule-years">
         {years.map((year) => {
           const entries = entriesByYear[year];
-          const totals = calculateYearTotals(entries);
+          const totals = calculateYearTotals(entries || []);
           const isExpanded = expandedYear === year;
 
           return (

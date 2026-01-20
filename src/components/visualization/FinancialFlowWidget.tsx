@@ -22,7 +22,6 @@ import {
   determineTransactionFlow,
   hasActiveBarterActivity,
   formatCurrency,
-  type FlowNode,
   type TransactionFlow,
 } from '../../utils/flowCalculations'
 import type { Account, JournalEntry } from '../../types'
@@ -162,7 +161,7 @@ export const FinancialFlowWidget: React.FC<FinancialFlowWidgetProps> = ({
             height={compactSize.height}
             isCompact={true}
             showBarterFlows={showBarterFlows}
-            onNodeClick={(nodeType) => {
+            onNodeClick={(_nodeType) => {
               // Click expands to full screen
               setIsExpanded(true)
             }}

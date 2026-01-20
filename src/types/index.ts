@@ -202,6 +202,7 @@ export interface Invoice {
   id: string
   companyId: string
   customerId: string
+  contactId?: string // Alternative name for customerId
   invoiceNumber: string
   date: Date
   dueDate: Date

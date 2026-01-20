@@ -76,6 +76,7 @@ export interface RunwayCalculation {
   currentCash: number
   monthlyBurnRate: number
   runwayMonths: number | null // null = infinite (positive cash flow)
+  months_of_runway?: number | null // Alternative name
   projectedDepletionDate: Date | null
   confidenceRange: {
     min: number | null

@@ -446,6 +446,7 @@ export interface EmailFollowUpTemplateContent {
   subject: string
   body: string
   variables: Record<string, string>
+  templateId?: string
 }
 
 export interface EmailFollowUpTemplate {

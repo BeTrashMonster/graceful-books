@@ -182,7 +182,7 @@ export async function generateARAgingReport(
     sortOrder = 'asc',
   } = options
 
-  const asOfTimestamp = asOfDate.getTime()
+  const asOfTimestamp = typeof asOfDate === 'number' ? asOfDate : asOfDate.getTime()
 
   // Initialize bucket summaries
   const bucketSummary = {

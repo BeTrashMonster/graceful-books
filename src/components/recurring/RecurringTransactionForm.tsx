@@ -186,7 +186,7 @@ export function RecurringTransactionForm({
         <select
           id="frequency"
           value={frequency}
-          onChange={(e) => setFrequency(e.target.value)}
+          onChange={(e) => setFrequency(e.target.value as any)}
           disabled={isLoading}
           style={{ padding: '8px', width: '100%', fontSize: '1rem', borderRadius: '4px', border: '1px solid #ccc' }}
         >

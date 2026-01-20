@@ -357,7 +357,10 @@ describe('ConflictListModal Component', () => {
 
       // Find Keep Mine button in detail view (there might be multiple)
       const buttons = screen.getAllByRole('button', { name: /keep mine/i })
-      await user.click(buttons[0])
+      const firstButton = buttons[0]
+      if (firstButton) {
+        await user.click(firstButton)
+      }
 
       await waitFor(() => {
         expect(conflictsStore.updateConflictResolution).toHaveBeenCalled()

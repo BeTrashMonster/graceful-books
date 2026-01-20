@@ -93,28 +93,28 @@ export function CharityManagement() {
           value={statistics.verified}
           color="green"
           selected={selectedStatus === 'VERIFIED'}
-          onClick={() => setSelectedStatus('VERIFIED')}
+          onClick={() => setSelectedStatus('VERIFIED' as CharityStatus)}
         />
         <StatCard
           label="Pending Verification"
           value={statistics.pending}
           color="yellow"
           selected={selectedStatus === 'PENDING'}
-          onClick={() => setSelectedStatus('PENDING')}
+          onClick={() => setSelectedStatus('PENDING' as CharityStatus)}
         />
         <StatCard
           label="Rejected"
           value={statistics.rejected}
           color="red"
           selected={selectedStatus === 'REJECTED'}
-          onClick={() => setSelectedStatus('REJECTED')}
+          onClick={() => setSelectedStatus('REJECTED' as CharityStatus)}
         />
         <StatCard
           label="Inactive"
           value={statistics.inactive}
           color="gray"
           selected={selectedStatus === 'INACTIVE'}
-          onClick={() => setSelectedStatus('INACTIVE')}
+          onClick={() => setSelectedStatus('INACTIVE' as CharityStatus)}
         />
       </div>
 
