@@ -336,7 +336,7 @@ describe('Invoice Template Storage', () => {
     });
 
     it('should filter out inactive templates by default', async () => {
-      const result1 = await createInvoiceTemplate({
+      await createInvoiceTemplate({
         companyId,
         name: 'Active',
         colors: testColors,
@@ -377,7 +377,7 @@ describe('Invoice Template Storage', () => {
     });
 
     it('should not include deleted templates', async () => {
-      const result1 = await createInvoiceTemplate({
+      await createInvoiceTemplate({
         companyId,
         name: 'Active',
         colors: testColors,

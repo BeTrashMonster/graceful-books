@@ -31,7 +31,6 @@ describe('Journal Entries Integration Tests', () => {
   const companyId = 'company-123';
   const cashAccountId = 'account-cash';
   const expenseAccountId = 'account-expense';
-  const revenueAccountId = 'account-revenue';
 
   beforeEach(() => {
     // Create a mock database with in-memory stores
@@ -494,7 +493,7 @@ describe('Journal Entries Integration Tests', () => {
   describe('Statistics and Reporting', () => {
     it('should calculate accurate statistics', async () => {
       // Create various entries
-      const draft = await service.createJournalEntry(
+      await service.createJournalEntry(
         {
           company_id: companyId,
           transaction_date: Date.now(),
@@ -508,7 +507,7 @@ describe('Journal Entries Integration Tests', () => {
         userId1
       );
 
-      const pending = await service.createJournalEntry(
+      await service.createJournalEntry(
         {
           company_id: companyId,
           transaction_date: Date.now(),
