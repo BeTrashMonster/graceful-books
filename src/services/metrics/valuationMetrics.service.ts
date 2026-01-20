@@ -13,10 +13,8 @@ import type {
 } from '../../types/metrics.types';
 
 export class ValuationMetricsService {
-  private _db: TreasureChestDB;
-
-  constructor(db: TreasureChestDB) {
-    this._db = db;
+  constructor(_db: TreasureChestDB) {
+    // db parameter reserved for future implementation
   }
 
   async calculateValuationMetrics(request: ValuationMetricsRequest): Promise<ValuationMetrics> {

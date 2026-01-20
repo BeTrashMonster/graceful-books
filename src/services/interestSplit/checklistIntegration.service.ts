@@ -25,10 +25,8 @@ import type {
  * Checklist Integration Service
  */
 export class ChecklistIntegrationService {
-  private _db: TreasureChestDB;
-
-  constructor(db: TreasureChestDB) {
-    this._db = db;
+  constructor(_db: TreasureChestDB) {
+    // db parameter reserved for future implementation
   }
 
   /**
