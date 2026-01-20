@@ -13,7 +13,6 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { nanoid } from 'nanoid';
 import { db } from '../store/database';
 import * as auditLogs from '../store/auditLogs';
 import {

@@ -10,7 +10,6 @@ import {
   calculateAvailableCash,
   getDateRangeFromPreset,
   suggestCalculationMethod,
-  calculateRunwayTrend,
 } from './runwayCalculator.service'
 import type {
   RunwayCalculationMethod,

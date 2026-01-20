@@ -10,7 +10,6 @@ import {
   getNextOccurrence,
   getOccurrencesBetween,
   getRecurrencePreview,
-  getAllOccurrences,
   getTotalOccurrenceCount,
   hasRecurrenceEnded,
   getRecurrenceDescription,

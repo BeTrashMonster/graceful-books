@@ -19,7 +19,6 @@ import {
   formatCurrency,
   getNodeColor,
   getHealthColor,
-  type FlowNode,
 } from './flowCalculations'
 import type { Account, JournalEntry, AccountType } from '../types'
 

@@ -8,8 +8,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { db } from '../db/database';
 import {
   createReportSchedule,
-  getReportSchedule,
-  listReportSchedules,
   updateReportSchedule,
   deleteReportSchedule,
   pauseReportSchedule,
