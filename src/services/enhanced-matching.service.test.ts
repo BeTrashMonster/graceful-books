@@ -46,9 +46,9 @@ describe('Enhanced Matching Service', () => {
       });
 
       expect(result.matches).toHaveLength(1);
-      expect(result.matches[0].confidence).toBe(MatchConfidence.EXACT);
-      expect(result.matches[0].statementTransactionId).toBe('stmt-1');
-      expect(result.matches[0].systemTransactionId).toBe('sys-1');
+      expect(result.matches[0]!.confidence).toBe(MatchConfidence.EXACT);
+      expect(result.matches[0]!.statementTransactionId).toBe('stmt-1');
+      expect(result.matches[0]!.systemTransactionId).toBe('sys-1');
       expect(result.accuracy).toBeGreaterThan(99);
     });
 

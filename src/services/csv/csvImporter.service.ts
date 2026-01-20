@@ -234,8 +234,8 @@ export class CSVImporterService {
     matches.sort((a, b) => b.confidence - a.confidence);
 
     return {
-      field: matches[0].field,
-      confidence: matches[0].confidence,
+      field: matches[0]!.field,
+      confidence: matches[0]!.confidence,
       alternatives: matches.slice(1, 3), // Top 2 alternatives
     };
   }

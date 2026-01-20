@@ -93,9 +93,9 @@ describe('DuplicateDetectionService', () => {
       const candidates = await service.checkForDuplicates(input);
 
       expect(candidates).toHaveLength(1);
-      expect(candidates[0].id).toBe('inv-001');
-      expect(candidates[0].similarity_score).toBeGreaterThan(0.8);
-      expect(candidates[0].confidence_level).toBeTruthy();
+      expect(candidates[0]!.id).toBe('inv-001');
+      expect(candidates[0]!.similarity_score).toBeGreaterThan(0.8);
+      expect(candidates[0]!.confidence_level).toBeTruthy();
     });
 
     it('should detect similar invoice with typo', async () => {
@@ -109,7 +109,7 @@ describe('DuplicateDetectionService', () => {
       const candidates = await service.checkForDuplicates(input);
 
       expect(candidates.length).toBeGreaterThanOrEqual(1);
-      expect(candidates[0].similarity_score).toBeGreaterThan(0.7);
+      expect(candidates[0]!.similarity_score).toBeGreaterThan(0.7);
     });
 
     it('should not detect duplicate with different amount', async () => {
@@ -351,7 +351,7 @@ describe('DuplicateDetectionService', () => {
       const candidates = await service.checkForDuplicates(input);
 
       expect(candidates).toHaveLength(1);
-      expect(candidates[0].confidence_level).toBe('high');
+      expect(candidates[0]!.confidence_level).toBe('high');
     });
   });
 

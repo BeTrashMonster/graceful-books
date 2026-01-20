@@ -395,8 +395,8 @@ describe('CurrencyGainLossService', () => {
 
       expect(realized).toHaveLength(2);
       expect(unrealized).toHaveLength(2);
-      expect(realized[0].type).toBe(GainLossType.REALIZED);
-      expect(unrealized[0].type).toBe(GainLossType.UNREALIZED);
+      expect(realized[0]!.type).toBe(GainLossType.REALIZED);
+      expect(unrealized[0]!.type).toBe(GainLossType.UNREALIZED);
     });
   });
 

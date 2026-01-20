@@ -144,7 +144,7 @@ describe('Email Content Generator', () => {
 
       // D type should have direct, action-oriented tone
       expect(content.greeting.length).toBeLessThan(100); // Brief
-      expect(content.sections[0].title).toBeTruthy();
+      expect(content.sections[0]!.title).toBeTruthy();
     });
 
     it('should generate content for Influence (I) type', () => {
@@ -377,7 +377,7 @@ describe('Email Content Generator', () => {
       const summarySection = content.sections.find((s) => s.type === 'checklist-summary');
       if (summarySection && summarySection.items) {
         // First item should be high priority
-        expect(summarySection.items[0].title).toBe('High priority task');
+        expect(summarySection.items[0]!.title).toBe('High priority task');
       }
     });
   });

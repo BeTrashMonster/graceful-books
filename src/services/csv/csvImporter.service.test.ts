@@ -48,7 +48,7 @@ describe('CSVImporterService', () => {
 
       const result = await service.parseCSV(file);
       expect(result.success).toBe(true);
-      expect(result.rows[0][1]).toContain('Line 1\nLine 2');
+      expect(result.rows[0]![1]).toContain('Line 1\nLine 2');
     });
 
     it('should return preview of first 10 rows', async () => {

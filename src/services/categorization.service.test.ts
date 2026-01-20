@@ -210,9 +210,9 @@ describe('CategorizationService', () => {
       const trainingData = await db.trainingData.where('company_id').equals(companyId).toArray()
 
       expect(trainingData).toHaveLength(1)
-      expect(trainingData[0].vendorName).toBe('Facebook Ads')
-      expect(trainingData[0].categoryId).toBe(marketingCategory.id)
-      expect(trainingData[0].wasCorrection).toBe(true)
+      expect(trainingData[0]!.vendorName).toBe('Facebook Ads')
+      expect(trainingData[0]!.categoryId).toBe(marketingCategory.id)
+      expect(trainingData[0]!.wasCorrection).toBe(true)
     })
 
     it('should update accuracy metrics when feedback is recorded', async () => {
@@ -451,7 +451,7 @@ describe('CategorizationService', () => {
         await service.recordFeedback({
           transactionId: `txn-early-${i}`,
           suggestedCategoryId: marketingCategory.id,
-          actualCategoryId: i < 2 ? marketingCategory.id : categories[0].id, // 40% accuracy
+          actualCategoryId: i < 2 ? marketingCategory.id : categories[0]!.id, // 40% accuracy
           vendorName: 'Google Ads',
           description: 'Ad campaign',
           amount: 100.0,

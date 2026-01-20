@@ -235,7 +235,7 @@ describe('CSVValidatorService', () => {
 
       const result = service.validateRows(rows, columnMap, 'transactions');
       expect(result.valid).toBe(false);
-      expect(result.errors[0].message).toContain('Too many rows');
+      expect(result.errors[0]!.message).toContain('Too many rows');
     });
   });
 
