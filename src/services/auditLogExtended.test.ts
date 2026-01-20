@@ -264,7 +264,7 @@ describe('Extended Audit Log Service', () => {
         const prevTime = descResult.logs[i - 1]?.timestamp instanceof Date
           ? descResult.logs[i - 1]?.timestamp.getTime()
           : descResult.logs[i - 1]?.timestamp;
-        expect(currentTime ?? 0).toBeLessThanOrEqual(prevTime ?? 0);
+        expect(Number(currentTime ?? 0)).toBeLessThanOrEqual(Number(prevTime ?? 0));
       }
 
       // Check ascending order
@@ -275,7 +275,7 @@ describe('Extended Audit Log Service', () => {
         const prevTime = ascResult.logs[i - 1]?.timestamp instanceof Date
           ? ascResult.logs[i - 1]?.timestamp.getTime()
           : ascResult.logs[i - 1]?.timestamp;
-        expect(currentTime ?? 0).toBeGreaterThanOrEqual(prevTime ?? 0);
+        expect(Number(currentTime ?? 0)).toBeGreaterThanOrEqual(Number(prevTime ?? 0));
       }
     });
   });

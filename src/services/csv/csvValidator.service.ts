@@ -99,7 +99,7 @@ export class CSVValidatorService {
     for (let i = 0; i < rows.length; i++) {
       const rowNumber = i + 2; // +2 because row 1 is headers, and we're 0-indexed
       const row = rows[i];
-      const rowErrors = this.validateRow(row, columnMappings, rules, rowNumber, headers);
+      const rowErrors = this.validateRow(row, columnMappings || [], rules, rowNumber, headers);
 
       if (rowErrors.length > 0) {
         errors.push(...rowErrors);
@@ -139,7 +139,7 @@ export class CSVValidatorService {
       columnMappings.forEach((entityField, csvColumn) => {
         const columnIndex = headers.indexOf(csvColumn);
         if (columnIndex >= 0 && columnIndex < row.length) {
-          fieldValues.set(entityField, row[columnIndex]);
+          fieldValues.set(entityField, row[columnIndex] || '');
         } else {
           // Field not found in headers, set empty string
           fieldValues.set(entityField, '');
@@ -152,7 +152,7 @@ export class CSVValidatorService {
       columnMappings.forEach((entityField, csvColumn) => {
         const columnIndex = csvColumns.indexOf(csvColumn);
         if (columnIndex >= 0 && columnIndex < row.length) {
-          fieldValues.set(entityField, row[columnIndex]);
+          fieldValues.set(entityField, row[columnIndex] || '');
         } else {
           // Field not found in this row, set empty string
           fieldValues.set(entityField, '');
@@ -318,9 +318,9 @@ export class CSVValidatorService {
     const usPattern = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
     if (usPattern.test(value)) {
       const parts = value.split('/');
-      const month = parseInt(parts[0], 10);
-      const day = parseInt(parts[1], 10);
-      const year = parseInt(parts[2], 10);
+      const month = parseInt(parts[0] || '0', 10);
+      const day = parseInt(parts[1] || '0', 10);
+      const year = parseInt(parts[2] || '0', 10);
       const date = new Date(year, month - 1, day);
       return !isNaN(date.getTime()) && date.getMonth() === month - 1;
     }

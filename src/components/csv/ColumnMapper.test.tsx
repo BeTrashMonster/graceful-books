@@ -238,7 +238,7 @@ describe('ColumnMapper Component', () => {
     });
 
     it('should filter to show only unmapped columns', () => {
-      const { rerender } = render(
+      const { rerender: _rerender } = render(
         <ColumnMapper
           headers={mockHeaders}
           suggestions={mockSuggestions}

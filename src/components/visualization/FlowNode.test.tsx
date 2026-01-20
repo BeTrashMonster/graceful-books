@@ -218,7 +218,7 @@ describe('FlowNode', () => {
   })
 
   it('should render in compact mode with smaller size', () => {
-    const { container } = render(
+    const { container: _container } = render(
       <svg>
         <FlowNode {...defaultProps} isCompact={true} />
       </svg>
