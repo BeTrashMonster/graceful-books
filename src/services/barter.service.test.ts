@@ -172,12 +172,12 @@ describe('BarterService', () => {
       expect(result.expense_line_items).toHaveLength(2); // Debit expense, Credit clearing
 
       // Verify line items balance
-      const incomeDebit = parseFloat(result.income_line_items[0].debit);
-      const incomeCredit = parseFloat(result.income_line_items[1].credit);
+      const incomeDebit = parseFloat(result.income_line_items[0]!.debit);
+      const incomeCredit = parseFloat(result.income_line_items[1]!.credit);
       expect(incomeDebit).toBe(incomeCredit);
 
-      const expenseDebit = parseFloat(result.expense_line_items[0].debit);
-      const expenseCredit = parseFloat(result.expense_line_items[1].credit);
+      const expenseDebit = parseFloat(result.expense_line_items[0]!.debit);
+      const expenseCredit = parseFloat(result.expense_line_items[1]!.credit);
       expect(expenseDebit).toBe(expenseCredit);
     });
 
@@ -558,7 +558,7 @@ describe('BarterService', () => {
       });
 
       expect(reportable.length).toBe(1);
-      expect(reportable[0].goods_received_description).toBe('Large transaction');
+      expect(reportable[0]!.goods_received_description).toBe('Large transaction');
     });
   });
 
@@ -646,8 +646,8 @@ describe('BarterService', () => {
 
       expect(summary.counterparty_count).toBe(1);
       expect(summary.total_reportable_income).toBe('1800.00');
-      expect(summary.counterparties[0].counterparty_name).toBe('Test Counterparty');
-      expect(summary.counterparties[0].transaction_count).toBe(2);
+      expect(summary.counterparties[0]!.counterparty_name).toBe('Test Counterparty');
+      expect(summary.counterparties[0]!.transaction_count).toBe(2);
     });
   });
 });
