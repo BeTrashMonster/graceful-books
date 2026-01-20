@@ -16,7 +16,7 @@
 import type { AuditLog, VersionVector } from '../../types/database.types';
 import { db } from '../../store/database';
 import { logger } from '../../utils/logger';
-import { getDeviceId, generateId } from '../../utils/device';
+import { getDeviceId } from '../../utils/device';
 
 const log = logger.child('MultiUserAudit');
 
@@ -164,7 +164,6 @@ export interface AuditStatistics {
 export class MultiUserAuditService {
   private readonly RETENTION_DAYS = 2555; // ~7 years
   private readonly MAX_QUERY_LIMIT = 1000;
-  private readonly BATCH_SIZE = 100;
 
   /**
    * Log an audit event

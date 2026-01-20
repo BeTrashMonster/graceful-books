@@ -21,7 +21,6 @@ import type {
 } from '../types/billing.types';
 import {
   calculateAdvisorMonthlyCost,
-  getTierPrice,
 } from './billing.service';
 import { logger } from '../utils/logger';
 
@@ -669,8 +668,8 @@ function getPriceIdForSubscriptionType(type: SubscriptionType): string {
  * Get price ID for specific amount
  * This is a placeholder - in production, you'd create prices in Stripe for each tier
  */
-function getPriceIdForAmount(amount: number): string {
-  // Map amount to price ID
+function getPriceIdForAmount(_amount: number): string {
+  // TODO: Map amount to price ID based on tier
   // For now, return tier 1 price ID
   return import.meta.env.VITE_STRIPE_PRICE_ADVISOR_TIER_1 || '';
 }
