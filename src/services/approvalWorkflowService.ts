@@ -388,7 +388,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
           request.company_id,
           approvalRequestId,
           approverUserId,
-          'APPROVE',
+          'APPROVE' as any,
           request.current_level,
           deviceId
         ),
@@ -542,7 +542,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
           request.company_id,
           approvalRequestId,
           approverUserId,
-          'REJECT',
+          'REJECT' as any,
           request.current_level,
           deviceId
         ),
@@ -631,7 +631,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
           request.company_id,
           approvalRequestId,
           requesterUserId,
-          'RECALL',
+          'RECALL' as any,
           request.current_level,
           deviceId
         ),

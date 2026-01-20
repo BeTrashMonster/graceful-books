@@ -110,8 +110,8 @@ export async function calculateMonthlyContributions(
 
         // Check if subscription was active during the month
         const [year, monthNum] = month.split('-').map(Number);
-        const monthStart = new Date(year, monthNum - 1, 1).getTime();
-        const monthEnd = new Date(year, monthNum, 0, 23, 59, 59, 999).getTime();
+        const monthStart = new Date(year || 0, (monthNum || 1) - 1, 1).getTime();
+        const monthEnd = new Date(year || 0, monthNum || 1, 0, 23, 59, 59, 999).getTime();
 
         // Subscription must have started before month end
         if (sub.created_at > monthEnd) return false;

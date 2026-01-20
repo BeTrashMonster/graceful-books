@@ -304,8 +304,12 @@ describe('Key Management', () => {
 
       for (let i = 0; i < hierarchy.length; i++) {
         for (let j = 0; j < hierarchy.length; j++) {
-          const result = hasPermission(hierarchy[i], hierarchy[j]);
-          expect(result).toBe(i <= j);
+          const userLevel = hierarchy[i];
+          const requiredLevel = hierarchy[j];
+          if (userLevel && requiredLevel) {
+            const result = hasPermission(userLevel, requiredLevel);
+            expect(result).toBe(i <= j);
+          }
         }
       }
     });
@@ -628,7 +632,7 @@ describe('Key Management', () => {
 
       expect(result.success).toBe(true);
       if (result.data) {
-        expect(() => JSON.parse(result.data)).not.toThrow();
+        expect(() => JSON.parse(result.data as string)).not.toThrow();
       }
     });
   });

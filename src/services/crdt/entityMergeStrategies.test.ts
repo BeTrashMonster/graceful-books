@@ -12,9 +12,6 @@ import { describe, it, expect } from 'vitest';
 import {
   mergeWithStrategy,
   accountMergeStrategy,
-  transactionMergeStrategy,
-  contactMergeStrategy,
-  productMergeStrategy,
   getMergeStrategy,
   applyFieldStrategy,
 } from './entityMergeStrategies';

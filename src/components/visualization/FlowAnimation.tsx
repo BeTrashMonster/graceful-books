@@ -237,7 +237,9 @@ export const FlowAnimationQueue: React.FC<FlowAnimationQueueProps> = ({
     setQueuedFlows((current) => {
       if (current.length > 0) {
         const [next, ...rest] = current
-        setActiveFlows((active) => [...active, next])
+        if (next) {
+          setActiveFlows((active) => [...active, next])
+        }
         return rest
       }
       return current
