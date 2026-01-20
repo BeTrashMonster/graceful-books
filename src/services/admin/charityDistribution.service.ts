@@ -11,8 +11,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { db } from '../../db';
 import type { CharityDistribution } from '../../types/billing.types';
-import type { Subscription } from '../../types/billing.types';
-import type { Charity } from '../../types/database.types';
 import { PRICING } from '../../types/billing.types';
 
 /**

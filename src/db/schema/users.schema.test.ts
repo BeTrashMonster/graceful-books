@@ -147,9 +147,9 @@ describe('Users Schema', () => {
     });
 
     it('should set permissions based on role', () => {
-      const owner = createDefaultCompanyUser('c1', 'u1', 'OWNER', 'd1');
-      const admin = createDefaultCompanyUser('c1', 'u1', 'ADMIN', 'd1');
-      const viewer = createDefaultCompanyUser('c1', 'u1', 'VIEWER', 'd1');
+      const owner = createDefaultCompanyUser('c1', 'u1', 'OWNER' as any, 'd1');
+      const admin = createDefaultCompanyUser('c1', 'u1', 'ADMIN' as any, 'd1');
+      const viewer = createDefaultCompanyUser('c1', 'u1', 'VIEWER' as any, 'd1');
 
       expect(owner.permissions?.length).toBeGreaterThan(admin.permissions?.length || 0);
       expect(admin.permissions?.length).toBeGreaterThan(viewer.permissions?.length || 0);
@@ -157,7 +157,7 @@ describe('Users Schema', () => {
 
     it('should initialize version vector', () => {
       const deviceId = 'device-xyz';
-      const companyUser = createDefaultCompanyUser('c1', 'u1', 'BOOKKEEPER', deviceId);
+      const companyUser = createDefaultCompanyUser('c1', 'u1', 'BOOKKEEPER' as any, deviceId);
 
       expect(companyUser.version_vector).toBeDefined();
       expect(companyUser.version_vector?.[deviceId]).toBe(1);
@@ -260,7 +260,7 @@ describe('Users Schema', () => {
 
   describe('getDefaultPermissionsForRole', () => {
     it('should return permissions for OWNER role', () => {
-      const permissions = getDefaultPermissionsForRole('OWNER');
+      const permissions = getDefaultPermissionsForRole('OWNER' as any);
 
       expect(permissions).toContain('company.delete');
       expect(permissions).toContain('users.delete');
@@ -269,7 +269,7 @@ describe('Users Schema', () => {
     });
 
     it('should return permissions for ADMIN role', () => {
-      const permissions = getDefaultPermissionsForRole('ADMIN');
+      const permissions = getDefaultPermissionsForRole('ADMIN' as any);
 
       expect(permissions).toContain('users.create');
       expect(permissions).toContain('accounts.delete');
@@ -278,7 +278,7 @@ describe('Users Schema', () => {
     });
 
     it('should return permissions for ACCOUNTANT role', () => {
-      const permissions = getDefaultPermissionsForRole('ACCOUNTANT');
+      const permissions = getDefaultPermissionsForRole('ACCOUNTANT' as any);
 
       expect(permissions).toContain('reports.read');
       expect(permissions).toContain('reports.export');
@@ -288,7 +288,7 @@ describe('Users Schema', () => {
     });
 
     it('should return permissions for BOOKKEEPER role', () => {
-      const permissions = getDefaultPermissionsForRole('BOOKKEEPER');
+      const permissions = getDefaultPermissionsForRole('BOOKKEEPER' as any);
 
       expect(permissions).toContain('transactions.create');
       expect(permissions).toContain('transactions.update');
@@ -298,7 +298,7 @@ describe('Users Schema', () => {
     });
 
     it('should return permissions for VIEWER role', () => {
-      const permissions = getDefaultPermissionsForRole('VIEWER');
+      const permissions = getDefaultPermissionsForRole('VIEWER' as any);
 
       expect(permissions).toContain('accounts.read');
       expect(permissions).toContain('transactions.read');
@@ -315,11 +315,11 @@ describe('Users Schema', () => {
     });
 
     it('should maintain permission hierarchy', () => {
-      const owner = getDefaultPermissionsForRole('OWNER');
-      const admin = getDefaultPermissionsForRole('ADMIN');
-      const accountant = getDefaultPermissionsForRole('ACCOUNTANT');
-      const bookkeeper = getDefaultPermissionsForRole('BOOKKEEPER');
-      const viewer = getDefaultPermissionsForRole('VIEWER');
+      const owner = getDefaultPermissionsForRole('OWNER' as any);
+      const admin = getDefaultPermissionsForRole('ADMIN' as any);
+      const accountant = getDefaultPermissionsForRole('ACCOUNTANT' as any);
+      const bookkeeper = getDefaultPermissionsForRole('BOOKKEEPER' as any);
+      const viewer = getDefaultPermissionsForRole('VIEWER' as any);
 
       expect(owner.length).toBeGreaterThan(admin.length);
       expect(admin.length).toBeGreaterThan(accountant.length);
@@ -650,11 +650,11 @@ describe('Users Schema', () => {
 
   describe('getUserRoleDisplay', () => {
     it('should return display names for all roles', () => {
-      expect(getUserRoleDisplay('OWNER')).toBe('Owner');
-      expect(getUserRoleDisplay('ADMIN')).toBe('Administrator');
-      expect(getUserRoleDisplay('ACCOUNTANT')).toBe('Accountant');
-      expect(getUserRoleDisplay('BOOKKEEPER')).toBe('Bookkeeper');
-      expect(getUserRoleDisplay('VIEWER')).toBe('Viewer');
+      expect(getUserRoleDisplay('OWNER' as any)).toBe('Owner');
+      expect(getUserRoleDisplay('ADMIN' as any)).toBe('Administrator');
+      expect(getUserRoleDisplay('ACCOUNTANT' as any)).toBe('Accountant');
+      expect(getUserRoleDisplay('BOOKKEEPER' as any)).toBe('Bookkeeper');
+      expect(getUserRoleDisplay('VIEWER' as any)).toBe('Viewer');
     });
   });
 
@@ -664,7 +664,7 @@ describe('Users Schema', () => {
         id: 'cu1',
         company_id: 'c1',
         user_id: 'u1',
-        role: 'ADMIN',
+        role: 'ADMIN' as any,
         permissions: ['accounts.read', 'accounts.update', 'transactions.create'],
         active: true,
         created_at: Date.now(),
@@ -682,7 +682,7 @@ describe('Users Schema', () => {
         id: 'cu1',
         company_id: 'c1',
         user_id: 'u1',
-        role: 'VIEWER',
+        role: 'VIEWER' as any,
         permissions: ['accounts.read', 'transactions.read'],
         active: true,
         created_at: Date.now(),
@@ -698,22 +698,22 @@ describe('Users Schema', () => {
 
   describe('hasHigherOrEqualRole', () => {
     it('should return true for same role', () => {
-      expect(hasHigherOrEqualRole('ADMIN', 'ADMIN')).toBe(true);
-      expect(hasHigherOrEqualRole('VIEWER', 'VIEWER')).toBe(true);
+      expect(hasHigherOrEqualRole('ADMIN' as any, 'ADMIN' as any)).toBe(true);
+      expect(hasHigherOrEqualRole('VIEWER' as any, 'VIEWER' as any)).toBe(true);
     });
 
     it('should return true for higher role', () => {
-      expect(hasHigherOrEqualRole('OWNER', 'ADMIN')).toBe(true);
-      expect(hasHigherOrEqualRole('ADMIN', 'ACCOUNTANT')).toBe(true);
-      expect(hasHigherOrEqualRole('ACCOUNTANT', 'BOOKKEEPER')).toBe(true);
-      expect(hasHigherOrEqualRole('BOOKKEEPER', 'VIEWER')).toBe(true);
+      expect(hasHigherOrEqualRole('OWNER' as any, 'ADMIN' as any)).toBe(true);
+      expect(hasHigherOrEqualRole('ADMIN' as any, 'ACCOUNTANT' as any)).toBe(true);
+      expect(hasHigherOrEqualRole('ACCOUNTANT' as any, 'BOOKKEEPER' as any)).toBe(true);
+      expect(hasHigherOrEqualRole('BOOKKEEPER' as any, 'VIEWER' as any)).toBe(true);
     });
 
     it('should return false for lower role', () => {
-      expect(hasHigherOrEqualRole('ADMIN', 'OWNER')).toBe(false);
-      expect(hasHigherOrEqualRole('ACCOUNTANT', 'ADMIN')).toBe(false);
-      expect(hasHigherOrEqualRole('BOOKKEEPER', 'ACCOUNTANT')).toBe(false);
-      expect(hasHigherOrEqualRole('VIEWER', 'BOOKKEEPER')).toBe(false);
+      expect(hasHigherOrEqualRole('ADMIN' as any, 'OWNER' as any)).toBe(false);
+      expect(hasHigherOrEqualRole('ACCOUNTANT' as any, 'ADMIN' as any)).toBe(false);
+      expect(hasHigherOrEqualRole('BOOKKEEPER' as any, 'ACCOUNTANT' as any)).toBe(false);
+      expect(hasHigherOrEqualRole('VIEWER' as any, 'BOOKKEEPER' as any)).toBe(false);
     });
 
     it('should handle complete hierarchy', () => {

@@ -14,7 +14,7 @@ import type {
   RelationshipStatus,
   TeamMemberStatus,
 } from '../types/billing.types';
-import { PRICING, BILLING_TIERS } from '../types/billing.types';
+import { PRICING } from '../types/billing.types';
 import { logger } from '../utils/logger';
 
 const billingLogger = logger.child('BillingService');

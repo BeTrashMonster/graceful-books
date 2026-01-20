@@ -88,7 +88,7 @@ export function MentionDropdown({
     onSelect(user)
   }
 
-  const selectedUserId = users[selectedIndex]?.id
+  const _selectedUserId = users[selectedIndex]?.id
 
   return (
     <div
