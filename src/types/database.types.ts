@@ -50,7 +50,9 @@ export enum AccountType {
 export interface Account extends BaseEntity {
   company_id: string; // UUID - links to Company
   account_number: string | null; // Optional account number (e.g., "1000", "4500")
+  account_code?: string | null; // Alternative name for account_number
   name: string; // ENCRYPTED - Account name (e.g., "Cash", "Sales Revenue")
+  account_name?: string; // Alternative name for name
   type: AccountType; // Plaintext for querying
   subType?: string | null; // Optional account subtype for more granular categorization
   parent_id: string | null; // UUID - For sub-accounts (must match parent type)
