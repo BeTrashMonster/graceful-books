@@ -413,9 +413,9 @@ export class CSVImporterService {
    * Detect duplicate records
    */
   private async detectDuplicates(
-    rows: string[][],
-    columnMap: Map<string, string>,
-    entityType: CSVEntityType
+    _rows: string[][],
+    _columnMap: Map<string, string>,
+    _entityType: CSVEntityType
   ): Promise<DuplicateDetectionResult> {
     // TODO: Implement duplicate detection logic
     // This would query the database for similar records
@@ -428,7 +428,7 @@ export class CSVImporterService {
   /**
    * Import a single row
    */
-  private async importRow(row: string[], columnMap: Map<string, string>, entityType: CSVEntityType): Promise<void> {
+  private async importRow(_row: string[], _columnMap: Map<string, string>, _entityType: CSVEntityType): Promise<void> {
     // TODO: Implement actual import logic
     // This would create the entity in the database
     // For now, this is a placeholder
