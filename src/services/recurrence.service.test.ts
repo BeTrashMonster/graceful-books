@@ -24,10 +24,10 @@ describe('recurrence.service', () => {
   describe('createRRule', () => {
     it('should create a weekly recurrence rule', () => {
       const rule: RecurrenceRule = {
-        frequency: 'weekly',
+        frequency: 'WEEKLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
       };
 
       const rrule = createRRule(rule);
@@ -37,10 +37,10 @@ describe('recurrence.service', () => {
 
     it('should create a monthly recurrence rule', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-15').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 15,
       };
 
@@ -55,7 +55,7 @@ describe('recurrence.service', () => {
         frequency: 'QUARTERLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 1,
       };
 
@@ -69,7 +69,7 @@ describe('recurrence.service', () => {
         frequency: 'ANNUALLY',
         interval: 1,
         startDate: new Date('2026-03-15').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 15,
         monthOfYear: 3,
       };
@@ -83,10 +83,10 @@ describe('recurrence.service', () => {
 
     it('should handle end date', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'on-date',
+        endType: 'ON_DATE',
         endDate: new Date('2026-12-31').getTime(),
         dayOfMonth: 1,
       };
@@ -97,7 +97,7 @@ describe('recurrence.service', () => {
 
     it('should handle occurrence count', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
         endType: 'AFTER_COUNT',
@@ -113,10 +113,10 @@ describe('recurrence.service', () => {
   describe('getNextOccurrence', () => {
     it('should calculate next monthly occurrence', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-15').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 15,
       };
 
@@ -131,10 +131,10 @@ describe('recurrence.service', () => {
 
     it('should return null if recurrence has ended', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'on-date',
+        endType: 'ON_DATE',
         endDate: new Date('2026-06-30').getTime(),
         dayOfMonth: 1,
       };
@@ -147,10 +147,10 @@ describe('recurrence.service', () => {
 
     it('should handle weekly occurrences', () => {
       const rule: RecurrenceRule = {
-        frequency: 'weekly',
+        frequency: 'WEEKLY',
         interval: 1,
         startDate: new Date('2026-01-05').getTime(), // Monday
-        endType: 'never',
+        endType: 'NEVER',
         dayOfWeek: 1, // Monday
       };
 
@@ -165,10 +165,10 @@ describe('recurrence.service', () => {
   describe('getOccurrencesBetween', () => {
     it('should get all occurrences in a date range', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 1,
       };
 
@@ -184,7 +184,7 @@ describe('recurrence.service', () => {
         frequency: 'BI_WEEKLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
       };
 
       const startDate = new Date('2026-01-01');
@@ -200,10 +200,10 @@ describe('recurrence.service', () => {
   describe('getRecurrencePreview', () => {
     it('should generate preview of upcoming occurrences', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-15').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 15,
       };
 
@@ -216,7 +216,7 @@ describe('recurrence.service', () => {
 
     it('should handle limited occurrences', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
         endType: 'AFTER_COUNT',
@@ -238,7 +238,7 @@ describe('recurrence.service', () => {
         frequency: 'ANNUALLY',
         interval: 1,
         startDate: new Date('2024-02-29').getTime(), // Leap year
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 29,
         monthOfYear: 2,
       };
@@ -255,10 +255,10 @@ describe('recurrence.service', () => {
 
     it('should handle month-end dates (31st) in months with fewer days', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-31').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 31,
       };
 
@@ -275,10 +275,10 @@ describe('recurrence.service', () => {
 
     it('should handle 30th of month in February', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-30').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 30,
       };
 
@@ -298,7 +298,7 @@ describe('recurrence.service', () => {
         frequency: 'QUARTERLY',
         interval: 1,
         startDate: new Date('2025-11-01').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 1,
       };
 
@@ -316,10 +316,10 @@ describe('recurrence.service', () => {
   describe('validateRecurrenceRule', () => {
     it('should validate a valid rule', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 1,
       };
 
@@ -330,10 +330,10 @@ describe('recurrence.service', () => {
 
     it('should reject rule with end date before start date', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-06-01').getTime(),
-        endType: 'on-date',
+        endType: 'ON_DATE',
         endDate: new Date('2026-01-01').getTime(),
         dayOfMonth: 1,
       };
@@ -345,10 +345,10 @@ describe('recurrence.service', () => {
 
     it('should reject rule with missing end date when ON_DATE', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'on-date',
+        endType: 'ON_DATE',
         dayOfMonth: 1,
       };
 
@@ -360,10 +360,10 @@ describe('recurrence.service', () => {
   describe('getDueOccurrences', () => {
     it('should get occurrences that are due', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 1,
       };
 
@@ -378,10 +378,10 @@ describe('recurrence.service', () => {
 
     it('should return empty array if no occurrences are due', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 1,
       };
 
@@ -397,10 +397,10 @@ describe('recurrence.service', () => {
   describe('calculateNextOccurrence', () => {
     it('should calculate next occurrence after last created', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 1,
       };
 
@@ -415,10 +415,10 @@ describe('recurrence.service', () => {
 
     it('should return null if recurrence has ended', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'on-date',
+        endType: 'ON_DATE',
         endDate: new Date('2026-03-31').getTime(),
         dayOfMonth: 1,
       };
@@ -433,7 +433,7 @@ describe('recurrence.service', () => {
   describe('getTotalOccurrenceCount', () => {
     it('should return count for AFTER_COUNT rules', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
         endType: 'AFTER_COUNT',
@@ -447,10 +447,10 @@ describe('recurrence.service', () => {
 
     it('should return null for NEVER rules', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 1,
       };
 
@@ -462,10 +462,10 @@ describe('recurrence.service', () => {
   describe('hasRecurrenceEnded', () => {
     it('should return false for NEVER rules', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 1,
       };
 
@@ -475,10 +475,10 @@ describe('recurrence.service', () => {
 
     it('should return true if end date has passed', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'on-date',
+        endType: 'ON_DATE',
         endDate: new Date('2026-06-30').getTime(),
         dayOfMonth: 1,
       };
@@ -490,10 +490,10 @@ describe('recurrence.service', () => {
 
     it('should return false if end date has not passed', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'on-date',
+        endType: 'ON_DATE',
         endDate: new Date('2026-12-31').getTime(),
         dayOfMonth: 1,
       };
@@ -507,10 +507,10 @@ describe('recurrence.service', () => {
   describe('getRecurrenceDescription', () => {
     it('should generate human-readable description', () => {
       const rule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         startDate: new Date('2026-01-15').getTime(),
-        endType: 'never',
+        endType: 'NEVER',
         dayOfMonth: 15,
       };
 
