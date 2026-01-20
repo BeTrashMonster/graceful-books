@@ -5,7 +5,7 @@
  * Per ROADMAP J8 and J7 specifications
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '../core/Button'
 import { db } from '../../db'
 import type { TaxYear, TaxAdvisorAccess } from '../../types/tax.types'

@@ -5,7 +5,6 @@
  * Part of IC2 Billing Infrastructure
  */
 
-import React from 'react';
 import { SubscriptionManager } from './SubscriptionManager';
 import { PaymentMethodManager } from './PaymentMethodManager';
 import { InvoiceHistory } from './InvoiceHistory';

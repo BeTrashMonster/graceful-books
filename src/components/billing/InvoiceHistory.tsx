@@ -5,7 +5,6 @@
  * Part of IC2 Billing Infrastructure
  */
 
-import React from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
 import { Card } from '../ui/Card';

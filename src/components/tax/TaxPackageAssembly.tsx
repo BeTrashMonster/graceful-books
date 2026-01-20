@@ -5,7 +5,7 @@
  * Per ROADMAP J8 specification
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Button } from '../core/Button'
 import { generateTaxPackage, shareTaxPackageWithAdvisor } from '../../services/tax/taxPackageGenerator.service'
 import type { TaxYear } from '../../types/tax.types'

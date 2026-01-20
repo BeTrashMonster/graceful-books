@@ -7,7 +7,7 @@
  * Per ROADMAP J8 specification
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '../core/Button'
 import { TaxDocumentUpload } from './TaxDocumentUpload'
 import {
