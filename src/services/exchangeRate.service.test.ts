@@ -241,8 +241,6 @@ describe('ExchangeRateService', () => {
     });
 
     it('should return null if no rate exists before date', async () => {
-      const futureDate = Date.now() + 86400000;
-
       const rate = await service.getExchangeRateForDate(
         companyId,
         'USD',

@@ -275,7 +275,7 @@ describe('Email Content Generator', () => {
         C: createMockContext('C'),
       };
 
-      for (const [type, context] of Object.entries(contexts)) {
+      for (const context of Object.values(contexts)) {
         const content = generateEmailContent(context);
         expect(content.preheader).toBeTruthy();
         expect(content.preheader.length).toBeGreaterThan(10);

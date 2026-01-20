@@ -14,29 +14,10 @@ import type { GenerateScheduleRequest } from '../../types/loanAmortization.types
 import Decimal from 'decimal.js';
 
 describe('AmortizationService', () => {
-  let _service: AmortizationService;
-  let mockDb: Partial<TreasureChestDB>;
-
-  beforeEach(() => {
-    mockDb = {};
-    _service = new AmortizationService(mockDb as TreasureChestDB);
-  });
-
   describe('generateSchedule', () => {
     it('should generate amortized schedule with correct calculations', async () => {
-      const _request: GenerateScheduleRequest = {
-        loan_account_id: 'loan-1',
-        principal_amount: '10000.00',
-        interest_rate: '6.0', // 6% annual
-        term_months: 12,
-        payment_frequency: 'MONTHLY',
-        first_payment_date: new Date('2024-02-01').getTime(),
-        calculation_method: 'AMORTIZED',
-      };
-
-      // Mock getLoanAccount (private method called internally)
-      // Since it's private, we'll test through the public interface
-      // For now, this will return null and throw, so we'll skip this test
+      // TODO: Implement test with proper mocking
+      // Need to mock getLoanAccount (private method called internally)
       // In production, we'd need the loan_accounts table to exist
 
       // This test would work once the loan_accounts table exists
@@ -63,7 +44,6 @@ describe('AmortizationService', () => {
 
     it('should handle zero interest rate', () => {
       const principal = new Decimal('10000');
-      const _rate = new Decimal('0');
       const months = 12;
 
       // With 0% interest, payment should be principal / months

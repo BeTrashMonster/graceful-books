@@ -363,11 +363,11 @@ export class MentionsService {
 
       // Generate checklist item title
       const title = customTitle || `Review ${commentableType.toLowerCase()} ${entityName}`;
-      const _description = `You were mentioned in a comment. Please review and respond.`;
 
       // Create checklist item
       // (This would integrate with ChecklistService in full implementation)
       // For now, just return a placeholder
+      // Description would be: "You were mentioned in a comment. Please review and respond."
       serviceLogger.debug('Would create checklist item', {
         assignedUserId,
         commentId,

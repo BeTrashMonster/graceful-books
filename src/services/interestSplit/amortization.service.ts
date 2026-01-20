@@ -380,20 +380,10 @@ export class AmortizationService {
       throw new Error(`Loan account ${request.loan_account_id} not found`);
     }
 
-    // Update current balance
-    const currentBalance = new Decimal(loanAccount.current_balance);
-    const principalPaid = new Decimal(request.principal_amount);
-    const _newBalance = currentBalance.minus(principalPaid);
-
-    // Update totals
-    const _totalPrincipal = new Decimal(loanAccount.total_paid_principal).plus(
-      principalPaid
-    );
-    const _totalInterest = new Decimal(loanAccount.total_paid_interest).plus(
-      new Decimal(request.interest_amount)
-    );
-
-    // TODO: Update loan account in database when loan_accounts table exists
+    // TODO: Update loan account balance and totals in database when loan_accounts table exists
+    // Will need to:
+    // - Calculate new balance: currentBalance - principalPaid
+    // - Update total_paid_principal and total_paid_interest
     // For now, this is a placeholder
   }
 
