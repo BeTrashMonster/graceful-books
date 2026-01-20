@@ -24,7 +24,7 @@ export interface BarterReportProps {
 }
 
 export function BarterReport({
-  companyId,
+  companyId: _companyId,
   taxYear,
   transactions,
   statistics,

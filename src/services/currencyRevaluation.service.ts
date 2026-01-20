@@ -285,7 +285,7 @@ export class CurrencyRevaluationService implements ICurrencyRevaluationService {
    * Get all foreign currency balances
    */
   async getForeignCurrencyBalances(
-    companyId: string,
+    _companyId: string,
     accountIds?: string[]
   ): Promise<ForeignCurrencyBalance[]> {
     // This would typically query the database for foreign currency balances

@@ -37,7 +37,7 @@ export interface MetricsReportProps {
 }
 
 export function MetricsReport({
-  companyId,
+  companyId: _companyId,
   asOfDate,
   liquidityMetrics,
   profitabilityMetrics,

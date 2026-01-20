@@ -72,7 +72,7 @@ export class ChecklistIntegrationService {
    */
   private async createChecklistItem(
     deferredItem: DeferredInterestSplitItem,
-    companyId: string,
+    _companyId: string,
     userId: string,
     deviceId: string
   ): Promise<ChecklistItem> {
@@ -173,7 +173,7 @@ export class ChecklistIntegrationService {
   /**
    * Get all deferred items for a company
    */
-  async getDeferredItems(companyId: string): Promise<DeferredInterestSplitItem[]> {
+  async getDeferredItems(_companyId: string): Promise<DeferredInterestSplitItem[]> {
     // TODO: Query from database when table exists
     // For now, return empty array
     return [];

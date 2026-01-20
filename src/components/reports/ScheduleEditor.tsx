@@ -30,7 +30,7 @@ export interface ScheduleEditorProps {
 
 export function ScheduleEditor({
   schedule,
-  companyId,
+  companyId: _companyId,
   userId,
   onSave,
   onCancel,
