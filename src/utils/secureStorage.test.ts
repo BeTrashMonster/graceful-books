@@ -47,13 +47,6 @@ const createLocalStorageMock = () => {
   return new Proxy({}, handler)
 }
 
-const localStorageMock = {
-  getItem: getItemMock,
-  setItem: setItemMock,
-  removeItem: removeItemMock,
-  clear: clearMock,
-}
-
 // Mock crypto.subtle
 const mockCryptoKey = { type: 'secret' } as CryptoKey
 
