@@ -145,7 +145,7 @@ describe('ParentAccountSelector', () => {
 
     // Mock useLiveQuery to return mock data synchronously
     // The component calls useLiveQuery twice: once for contacts, once for descendants
-    ;(useLiveQuery as any).mockImplementation((queryFn: any, deps: any, defaultValue: any) => {
+    ;(useLiveQuery as any).mockImplementation((queryFn: any, _deps: any, _defaultValue: any) => {
       // First call is for contacts list
       if (queryFn.toString().includes('db.contacts')) {
         return mockContacts
@@ -448,7 +448,7 @@ describe('ParentAccountSelector', () => {
   describe('Visibility Control', () => {
     it('should not render if user has only one contact', async () => {
       // Mock useLiveQuery to return only one contact (the current one)
-      ;(useLiveQuery as any).mockImplementation((queryFn: any, deps: any, defaultValue: any) => {
+      ;(useLiveQuery as any).mockImplementation((queryFn: any, _deps: any, _defaultValue: any) => {
         // First call is for contacts list - return only current contact
         if (queryFn.toString().includes('db.contacts')) {
           return [mockContacts[3]]
@@ -585,7 +585,7 @@ describe('ParentAccountSelector', () => {
       let callCount = 0
 
       // Mock useLiveQuery to execute the query function and capture errors
-      ;(useLiveQuery as any).mockImplementation((queryFn: any, deps: any, defaultValue: any) => {
+      ;(useLiveQuery as any).mockImplementation((queryFn: any, _deps: any, _defaultValue: any) => {
         callCount++
         // First call is for contacts list
         if (callCount === 1) {

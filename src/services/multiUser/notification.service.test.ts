@@ -64,7 +64,7 @@ describe('MultiUserNotificationService', () => {
 
       const notifications = service.getUnreadNotifications('user-456');
       expect(notifications).toHaveLength(1);
-      expect(notifications[0].type).toBe(NotificationType.USER_INVITED);
+      expect(notifications[0]?.type).toBe(NotificationType.USER_INVITED);
     });
 
     it('should use correct DISC variant for Dominance (D)', async () => {
@@ -79,8 +79,8 @@ describe('MultiUserNotificationService', () => {
       );
 
       const notifications = service.getUnreadNotifications('user-456');
-      expect(notifications[0].title).toContain('Security update in progress');
-      expect(notifications[0].body).toContain('takes under a minute');
+      expect(notifications[0]?.title).toContain('Security update in progress');
+      expect(notifications[0]?.body).toContain('takes under a minute');
     });
 
     it('should use correct DISC variant for Influence (I)', async () => {
@@ -94,8 +94,8 @@ describe('MultiUserNotificationService', () => {
       );
 
       const notifications = service.getUnreadNotifications('user-456');
-      expect(notifications[0].title).toContain('All secure!');
-      expect(notifications[0].body).toContain('Perfect!');
+      expect(notifications[0]?.title).toContain('All secure!');
+      expect(notifications[0]?.body).toContain('Perfect!');
     });
 
     it('should use correct DISC variant for Steadiness (S)', async () => {
@@ -109,8 +109,8 @@ describe('MultiUserNotificationService', () => {
       );
 
       const notifications = service.getUnreadNotifications('user-456');
-      expect(notifications[0].title).toContain('Your access has been changed');
-      expect(notifications[0].body).toContain('reach out to your administrator');
+      expect(notifications[0]?.title).toContain('Your access has been changed');
+      expect(notifications[0]?.body).toContain('reach out to your administrator');
     });
 
     it('should use correct DISC variant for Conscientiousness (C)', async () => {
@@ -124,8 +124,8 @@ describe('MultiUserNotificationService', () => {
       );
 
       const notifications = service.getUnreadNotifications('user-456');
-      expect(notifications[0].title).toContain('Key rotation completed successfully');
-      expect(notifications[0].body).toContain('Encryption key rotation completed');
+      expect(notifications[0]?.title).toContain('Key rotation completed successfully');
+      expect(notifications[0]?.body).toContain('Encryption key rotation completed');
     });
 
     it('should interpolate variables in messages', async () => {
@@ -140,8 +140,8 @@ describe('MultiUserNotificationService', () => {
       );
 
       const notifications = service.getUnreadNotifications('user-456');
-      expect(notifications[0].body).toContain('BOOKKEEPER');
-      expect(notifications[0].body).toContain('ADMIN');
+      expect(notifications[0]?.body).toContain('BOOKKEEPER');
+      expect(notifications[0]?.body).toContain('ADMIN');
     });
 
     it('should respect user disabled notification types', async () => {
@@ -216,7 +216,7 @@ describe('MultiUserNotificationService', () => {
 
       const notifications = service.getAllNotifications('user-456');
       expect(notifications).toHaveLength(1);
-      expect(notifications[0].channel).toBe(NotificationChannel.IN_APP);
+      expect(notifications[0]?.channel).toBe(NotificationChannel.IN_APP);
     });
   });
 
@@ -325,14 +325,14 @@ describe('MultiUserNotificationService', () => {
 
     it('should order notifications by creation time (newest first)', () => {
       const notifications = service.getUnreadNotifications('user-456');
-      expect(notifications[0].createdAt).toBeGreaterThanOrEqual(
-        notifications[1].createdAt
+      expect(notifications[0]?.createdAt ?? 0).toBeGreaterThanOrEqual(
+        notifications[1]?.createdAt ?? 0
       );
     });
 
     it('should not include read notifications', async () => {
       const allNotifications = service.getAllNotifications('user-456');
-      service.markAsRead(allNotifications[0].id);
+      service.markAsRead(allNotifications[0]?.id ?? '');
 
       const unread = service.getUnreadNotifications('user-456');
       expect(unread).toHaveLength(1);
@@ -366,7 +366,7 @@ describe('MultiUserNotificationService', () => {
 
     it('should include both read and unread notifications', () => {
       const allNotifications = service.getAllNotifications('user-456');
-      service.markAsRead(allNotifications[0].id);
+      service.markAsRead(allNotifications[0]?.id ?? '');
 
       const notifications = service.getAllNotifications('user-456');
       expect(notifications).toHaveLength(5);
@@ -392,8 +392,8 @@ describe('MultiUserNotificationService', () => {
       expect(success).toBe(true);
 
       const notifications = service.getAllNotifications('user-456');
-      expect(notifications[0].read).toBe(true);
-      expect(notifications[0].readAt).toBeDefined();
+      expect(notifications[0]?.read).toBe(true);
+      expect(notifications[0]?.readAt).toBeDefined();
     });
 
     it('should return false for non-existent notification', () => {
@@ -432,7 +432,7 @@ describe('MultiUserNotificationService', () => {
 
     it('should not count already read notifications', () => {
       const notifications = service.getAllNotifications('user-456');
-      service.markAsRead(notifications[0].id);
+      service.markAsRead(notifications[0]?.id ?? '');
 
       const count = service.markAllAsRead('user-456');
       expect(count).toBe(1);
@@ -569,7 +569,7 @@ describe('MultiUserNotificationService', () => {
         );
 
         const notifications = service.getAllNotifications(`user-${discType}`);
-        messages[discType] = notifications[0].body;
+        messages[discType] = notifications[0]?.body ?? '';
       }
 
       // All messages should be different
