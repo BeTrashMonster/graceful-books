@@ -82,8 +82,8 @@ function determineImpact(
 function generateImpactDescription(
   currentRunway: number | null,
   newRunway: number | null,
-  currentNetBurn: number,
-  newNetBurn: number
+  _currentNetBurn: number,
+  _newNetBurn: number
 ): string {
   const impact = determineImpact(currentRunway, newRunway)
 
@@ -294,7 +294,7 @@ export function generateSmartSuggestions(
   revenueBreakdown: RevenueBreakdown,
   burnRateAnalysis: BurnRateAnalysis,
   currentRevenue: number,
-  currentExpenses: number
+  _currentExpenses: number
 ): SmartScenarioSuggestion[] {
   const suggestions: SmartScenarioSuggestion[] = []
 

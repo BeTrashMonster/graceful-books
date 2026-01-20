@@ -900,7 +900,7 @@ describe('ReconciliationHistory Service', () => {
         expect(result.success).toBe(true);
         if (result.success) {
           expect((result as any).data).toHaveLength(2);
-          expect(result.data[0].account_id).toBe('test-account');
+          expect(result.data[0]?.account_id).toBe('test-account');
         }
       });
 
@@ -967,7 +967,7 @@ describe('ReconciliationHistory Service', () => {
         expect(result.success).toBe(true);
         if (result.success) {
           expect((result as any).data).toHaveLength(1);
-          expect(result.data[0].account_id).toBe('test-account');
+          expect(result.data[0]?.account_id).toBe('test-account');
         }
       });
     });
@@ -1254,8 +1254,8 @@ describe('ReconciliationHistory Service', () => {
         expect(result.success).toBe(true);
         if (result.success) {
           expect((result as any).data).toHaveLength(1);
-          expect(result.data[0].flag).toBe('WARNING');
-          expect(result.data[0].age_days).toBeGreaterThanOrEqual(45);
+          expect(result.data[0]?.flag).toBe('WARNING');
+          expect(result.data[0]?.age_days).toBeGreaterThanOrEqual(45);
         }
       });
 
@@ -1271,7 +1271,7 @@ describe('ReconciliationHistory Service', () => {
         expect(result.success).toBe(true);
         if (result.success) {
           expect((result as any).data).toHaveLength(1);
-          expect(result.data[0].flag).toBe('ATTENTION');
+          expect(result.data[0]?.flag).toBe('ATTENTION');
         }
       });
 
@@ -1287,7 +1287,7 @@ describe('ReconciliationHistory Service', () => {
         expect(result.success).toBe(true);
         if (result.success) {
           expect((result as any).data).toHaveLength(1);
-          expect(result.data[0].flag).toBe('URGENT');
+          expect(result.data[0]?.flag).toBe('URGENT');
         }
       });
 
@@ -1322,8 +1322,8 @@ describe('ReconciliationHistory Service', () => {
         expect(result.success).toBe(true);
         if (result.success) {
           expect((result as any).data).toHaveLength(3);
-          expect(result.data[0].age_days).toBeGreaterThan(result.data[1].age_days);
-          expect(result.data[1].age_days).toBeGreaterThan(result.data[2].age_days);
+          expect(result.data[0]?.age_days ?? 0).toBeGreaterThan(result.data[1]?.age_days ?? 0);
+          expect(result.data[1]?.age_days ?? 0).toBeGreaterThan(result.data[2]?.age_days ?? 0);
         }
       });
     });
@@ -1355,11 +1355,11 @@ describe('ReconciliationHistory Service', () => {
       it('should aggregate unreconciled transactions across accounts', async () => {
         // Add old transactions to both accounts
         const tx1 = createTestJournalEntry('tx-1', Date.now() - 45 * 24 * 60 * 60 * 1000, 5000);
-        tx1.lines[0].accountId = 'account-1';
+        if (tx1.lines[0]) tx1.lines[0].accountId = 'account-1';
         await db.transactions?.add(tx1);
 
         const tx2 = createTestJournalEntry('tx-2', Date.now() - 75 * 24 * 60 * 60 * 1000, 3000);
-        tx2.lines[0].accountId = 'account-2';
+        if (tx2.lines[0]) tx2.lines[0].accountId = 'account-2';
         await db.transactions?.add(tx2);
 
         const result = await getUnreconciledDashboard('test-company');
@@ -1375,11 +1375,11 @@ describe('ReconciliationHistory Service', () => {
 
       it('should track oldest transaction age', async () => {
         const tx1 = createTestJournalEntry('tx-1', Date.now() - 45 * 24 * 60 * 60 * 1000, 5000);
-        tx1.lines[0].accountId = 'account-1';
+        if (tx1.lines[0]) tx1.lines[0].accountId = 'account-1';
         await db.transactions?.add(tx1);
 
         const tx2 = createTestJournalEntry('tx-2', Date.now() - 120 * 24 * 60 * 60 * 1000, 3000);
-        tx2.lines[0].accountId = 'account-2';
+        if (tx2.lines[0]) tx2.lines[0].accountId = 'account-2';
         await db.transactions?.add(tx2);
 
         const result = await getUnreconciledDashboard('test-company');
@@ -1397,14 +1397,14 @@ describe('ReconciliationHistory Service', () => {
           Date.now() - 45 * 24 * 60 * 60 * 1000,
           5000
         );
-        tx1.lines[0].accountId = 'account-1';
+        if (tx1.lines[0]) tx1.lines[0].accountId = 'account-1';
 
         const tx2 = createTestJournalEntry(
           'tx-2',
           Date.now() - 75 * 24 * 60 * 60 * 1000,
           3000
         );
-        tx2.lines[0].accountId = 'account-2';
+        if (tx2.lines[0]) tx2.lines[0].accountId = 'account-2';
 
         await db.transactions?.add(tx1);
         await db.transactions?.add(tx2);

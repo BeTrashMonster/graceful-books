@@ -101,7 +101,7 @@ function createEmptyBucket(bucket: ARAgingBucket): ARAgingBucketData {
  */
 function calculateUrgencyLevel(
   daysOverdue: number,
-  amount: number
+  _amount: number
 ): 'high' | 'medium' | 'low' {
   // High urgency: 90+ days overdue
   if (daysOverdue >= 90) {
@@ -518,7 +518,7 @@ export function exportARAgingToCSV(report: ARAgingReport): string {
  */
 export function getCustomerInvoiceDetails(
   report: ARAgingReport,
-  customerId: string,
+  _customerId: string,
   bucket?: ARAgingBucket
 ): Array<{
   id: string
@@ -551,7 +551,7 @@ export function getCustomerInvoiceDetails(
         : 'current'
 
     const bucketData = report.bucketSummary[bucketKey]
-    const customerInvoices = bucketData.invoices.filter((inv) => {
+    const customerInvoices = bucketData.invoices.filter((_inv) => {
       // Need to match by customer - would require additional data
       // For now, return all from bucket
       return true

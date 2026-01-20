@@ -15,7 +15,7 @@
 
 import { nanoid } from 'nanoid';
 import { db } from '../db/database';
-import { createDefaultMention, validateMention } from '../db/schema/comments.schema';
+import { createDefaultMention } from '../db/schema/comments.schema';
 import type { Mention, CommentableType } from '../db/schema/comments.schema';
 import type { CompanyUser } from '../types/database.types';
 import { logger } from '../utils/logger';
@@ -199,7 +199,7 @@ export class MentionsService {
   private async checkEntityAccess(
     companyUser: CompanyUser,
     commentableType: CommentableType,
-    commentableId: string
+    _commentableId: string
   ): Promise<boolean> {
     try {
       // For now, check basic read permissions
@@ -363,7 +363,7 @@ export class MentionsService {
 
       // Generate checklist item title
       const title = customTitle || `Review ${commentableType.toLowerCase()} ${entityName}`;
-      const description = `You were mentioned in a comment. Please review and respond.`;
+      const _description = `You were mentioned in a comment. Please review and respond.`;
 
       // Create checklist item
       // (This would integrate with ChecklistService in full implementation)
