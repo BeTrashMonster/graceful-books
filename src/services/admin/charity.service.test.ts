@@ -211,7 +211,7 @@ describe('Admin Charity Service', () => {
       const result = await getAllCharities({ searchTerm: 'Khan' });
 
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe('Khan Academy');
+      expect(result[0]!.name).toBe('Khan Academy');
     });
   });
 

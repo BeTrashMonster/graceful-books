@@ -453,7 +453,7 @@ describe('useVendors', () => {
 
       const dupeCheck = result.current.checkDuplicates(newVendor)
 
-      expect(dupeCheck.potentialDuplicates[0].similarityScore).toBeGreaterThanOrEqual(
+      expect(dupeCheck.potentialDuplicates[0]!.similarityScore).toBeGreaterThanOrEqual(
         dupeCheck.potentialDuplicates[1]?.similarityScore || 0
       )
     })

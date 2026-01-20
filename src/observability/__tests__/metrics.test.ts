@@ -152,10 +152,10 @@ describe('UserActivityTracker', () => {
     tracker.recordActivity('user-1', 'create', 'transaction');
 
     const mostActive = tracker.getMostActiveUsers(2);
-    expect(mostActive[0].userId).toBe('user-1');
-    expect(mostActive[0].count).toBe(3);
-    expect(mostActive[1].userId).toBe('user-2');
-    expect(mostActive[1].count).toBe(1);
+    expect(mostActive[0]!.userId).toBe('user-1');
+    expect(mostActive[0]!.count).toBe(3);
+    expect(mostActive[1]!.userId).toBe('user-2');
+    expect(mostActive[1]!.count).toBe(1);
   });
 });
 
@@ -207,8 +207,8 @@ describe('FeatureAdoptionTracker', () => {
     tracker.recordFeatureUsage('transactions', 'user-1');
 
     const mostUsed = tracker.getMostUsedFeatures(5);
-    expect(mostUsed[0].feature).toBe('invoicing');
-    expect(mostUsed[0].usageCount).toBe(2);
+    expect(mostUsed[0]!.feature).toBe('invoicing');
+    expect(mostUsed[0]!.usageCount).toBe(2);
   });
 });
 
@@ -251,8 +251,8 @@ describe('ApiErrorRateTracker', () => {
     tracker.recordRequest('/api/transactions', false, 200);
 
     const highest = tracker.getHighestErrorRateEndpoints(5);
-    expect(highest[0].endpoint).toBe('/api/sync');
-    expect(highest[0].errorRate).toBe(100);
+    expect(highest[0]!.endpoint).toBe('/api/sync');
+    expect(highest[0]!.errorRate).toBe(100);
   });
 
   it('should return 0 for no requests', () => {

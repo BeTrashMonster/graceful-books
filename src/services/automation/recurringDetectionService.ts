@@ -191,7 +191,7 @@ export class RecurringDetectionService {
 
     const intervals: number[] = []
     for (let i = 1; i < sorted.length; i++) {
-      const interval = differenceInDays(new Date(sorted[i].date), new Date(sorted[i - 1].date))
+      const interval = differenceInDays(new Date(sorted[i]!.date), new Date(sorted[i - 1]!.date))
       intervals.push(interval)
     }
 

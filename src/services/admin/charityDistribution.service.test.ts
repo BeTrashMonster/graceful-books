@@ -115,10 +115,10 @@ describe('CharityDistributionService', () => {
       const result = await calculateMonthlyContributions('2026-01');
 
       expect(result).toHaveLength(2);
-      expect(result[0].charity_id).toBe('charity-1');
-      expect(result[0].charity_name).toBe('Khan Academy');
-      expect(result[0].total_amount).toBe(PRICING.CHARITY_CONTRIBUTION);
-      expect(result[0].contributor_count).toBe(1);
+      expect(result[0]!.charity_id).toBe('charity-1');
+      expect(result[0]!.charity_name).toBe('Khan Academy');
+      expect(result[0]!.total_amount).toBe(PRICING.CHARITY_CONTRIBUTION);
+      expect(result[0]!.contributor_count).toBe(1);
     });
 
     it('should handle month with no contributions', async () => {
@@ -228,8 +228,8 @@ describe('CharityDistributionService', () => {
       const result = await calculateMonthlyContributions('2026-01');
 
       expect(result).toHaveLength(1);
-      expect(result[0].total_amount).toBe(PRICING.CHARITY_CONTRIBUTION * 2);
-      expect(result[0].contributor_count).toBe(2);
+      expect(result[0]!.total_amount).toBe(PRICING.CHARITY_CONTRIBUTION * 2);
+      expect(result[0]!.contributor_count).toBe(2);
     });
   });
 
@@ -618,7 +618,7 @@ describe('CharityDistributionService', () => {
       const result = await getUnpaidDistributions();
 
       expect(result.length).toBeGreaterThan(0);
-      expect(result[0].status).toBe('pending');
+      expect(result[0]!.status).toBe('pending');
     });
   });
 
