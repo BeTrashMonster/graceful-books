@@ -91,7 +91,7 @@ async function seedTestData(count: number, companyId: string = 'test-company') {
     );
   }
 
-  await db.auditLogs.bulkAdd(logs as AuditLog[]);
+  await db.auditLogs.bulkAdd(logs as any);
   return logs;
 }
 
@@ -125,7 +125,7 @@ describe('Extended Audit Log Service', () => {
         createTestAuditLog({
           entity_id: 'special-entity-id',
           after_value: JSON.stringify({ description: 'Special Transaction' }),
-        }) as AuditLog
+        }) as any
       );
       await seedTestData(20);
 
@@ -444,7 +444,7 @@ describe('Extended Audit Log Service', () => {
       await db.auditLogs.add(
         createTestAuditLog({
           user_agent: 'Browser with "quotes" and, commas',
-        }) as AuditLog
+        }) as any
       );
 
       const result = await exportAuditLogsToCSV({

@@ -18,7 +18,7 @@ let mockVendorData: any[] = []
 
 // Mock Dexie React Hooks
 vi.mock('dexie-react-hooks', () => ({
-  useLiveQuery: vi.fn((callback: any, deps?: any[], defaultValue?: any) => {
+  useLiveQuery: vi.fn((callback: any, _deps?: any[], _defaultValue?: any) => {
     // Execute callback to trigger queryContacts for test assertions
     if (callback) {
       try {
@@ -98,7 +98,7 @@ describe('useVendors', () => {
 
     it('should filter by active status', async () => {
       const activeVendor = createMockVendor({ isActive: true })
-      const inactiveVendor = createMockVendor({ id: 'vendor-456', isActive: false })
+      const _inactiveVendor = createMockVendor({ id: 'vendor-456', isActive: false })
 
       setMockVendors([activeVendor])
 
