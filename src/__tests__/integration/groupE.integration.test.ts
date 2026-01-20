@@ -187,13 +187,23 @@ describe('Group E Integration Tests', () => {
       // Create a category
       const category = {
         id: nanoid(),
-        companyId: testCompanyId,
+        company_id: testCompanyId,
         name: 'Office Supplies',
         type: 'expense' as const,
-        created: new Date(),
+        parent_id: null,
+        description: null,
+        color: null,
+        icon: null,
+        active: true,
+        is_system: false,
+        sort_order: 0,
+        version_vector: {},
+        created_at: Date.now(),
+        updated_at: Date.now(),
+        deleted_at: null,
       };
 
-      await db.categories.add(category);
+      await db.categories.add(category as any);
 
       // Create recurring transaction schedule (E2)
       const scheduleResult = await createRecurringSchedule({
@@ -227,7 +237,7 @@ describe('Group E Integration Tests', () => {
       transaction.description = 'Office supplies order';
       transaction.amount = 150;
 
-      await db.transactions.add(transaction);
+      await db.transactions.add(transaction as any);
 
       // Test categorization service (E5)
       const categorizeResult = await categorizeTransaction(
@@ -264,7 +274,7 @@ describe('Group E Integration Tests', () => {
         created: new Date(),
       };
 
-      await db.contacts.add(customer);
+      await db.contacts.add(customer as any);
 
       // Create invoice template (E3)
       const template = {
@@ -343,7 +353,7 @@ describe('Group E Integration Tests', () => {
         created: new Date(),
       };
 
-      await db.contacts.add(vendor);
+      await db.contacts.add(vendor as any);
 
       // Create a category for bills
       const category = {
@@ -354,7 +364,7 @@ describe('Group E Integration Tests', () => {
         created: new Date(),
       };
 
-      await db.categories.add(category);
+      await db.categories.add(category as any);
 
       // Create a bill (E6)
       const bill = {
@@ -379,7 +389,7 @@ describe('Group E Integration Tests', () => {
         created: new Date(),
       };
 
-      await db.bills.add(bill);
+      await db.bills.add(bill as any);
 
       // Categorize bill line item (E5)
       const categorizeResult = await categorizeTransaction(
@@ -428,7 +438,7 @@ describe('Group E Integration Tests', () => {
         type: 'customer' as const,
         created: new Date(),
       };
-      await db.contacts.add(customer);
+      await db.contacts.add(customer as any);
 
       const template = {
         id: nanoid(),
@@ -461,7 +471,7 @@ describe('Group E Integration Tests', () => {
         type: 'vendor' as const,
         created: new Date(),
       };
-      await db.contacts.add(vendor);
+      await db.contacts.add(vendor as any);
 
       const rentCategory = {
         id: nanoid(),
@@ -470,7 +480,7 @@ describe('Group E Integration Tests', () => {
         type: 'expense' as const,
         created: new Date(),
       };
-      await db.categories.add(rentCategory);
+      await db.categories.add(rentCategory as any);
 
       const rentSchedule = await createRecurringSchedule({
         companyId: testCompanyId,
@@ -491,7 +501,7 @@ describe('Group E Integration Tests', () => {
       const transaction = createTestTransaction(testCompanyId, testAccountId);
       transaction.description = 'Office rent payment';
       transaction.amount = -2000;
-      await db.transactions.add(transaction);
+      await db.transactions.add(transaction as any);
 
       const categorized = await categorizeTransaction(
         transaction.id,
@@ -501,21 +511,19 @@ describe('Group E Integration Tests', () => {
       );
       expect(categorized.success).toBe(true);
 
+      const statementTx: any = {
+        id: nanoid(),
+        date: transaction.date.getTime(),
+        description: 'RENT PAYMENT',
+        amount: 2000,
+        matched: false,
+      };
       const pattern = await learnFromMatch(
         testCompanyId,
-        testUserId,
-        {
-          transactionId: transaction.id,
-          transactionDescription: transaction.description,
-          transactionAmount: Math.abs(transaction.amount),
-          transactionDate: transaction.date,
-        },
-        {
-          statementDescription: 'RENT PAYMENT',
-          statementAmount: 2000,
-          statementDate: transaction.date,
-        },
-        { confidence: 0.95, autoMatched: false }
+        statementTx as any,
+        transaction as any,
+        true,
+        testUserId
       );
       expect(pattern.success).toBe(true);
 
