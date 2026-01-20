@@ -31,14 +31,12 @@ import type {
 import {
   rateLimiter,
   CRYPTO_RATE_LIMITS,
-  RateLimitError,
   type RateLimitResult,
 } from '../utils/rateLimiter';
 
 import {
   sanitizeError,
   logSecurityError,
-  SecurityErrorCode,
   isDevMode,
 } from '../utils/errorSanitizer';
 

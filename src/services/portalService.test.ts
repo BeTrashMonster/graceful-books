@@ -95,8 +95,9 @@ describe('PortalService', () => {
 
       expect(result1.success).toBe(true);
       expect(result2.success).toBe(true);
-      expect((result1 as any).data.id).toBe(result2.data?.id);
-      expect((result1 as any).data.token).toBe(result2.data?.token);
+      if (!result1.success || !result2.success) throw new Error('Expected success');
+      expect(result1.data.id).toBe(result2.data.id);
+      expect(result1.data.token).toBe(result2.data.token);
     });
 
     it('should fail for non-existent invoice', async () => {

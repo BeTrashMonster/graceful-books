@@ -17,7 +17,7 @@ describe('Charity Schema', () => {
         'Test Charity',
         '12-3456789',
         'A test charity description',
-        'EDUCATION',
+        'EDUCATION' as any,
         'https://testcharity.org'
       );
 
@@ -34,7 +34,7 @@ describe('Charity Schema', () => {
         'Test Charity',
         '23-4567890',
         'Description',
-        'HEALTH',
+        'HEALTH' as any,
         'https://testcharity.org',
         undefined,
         'test-logo'
@@ -50,7 +50,7 @@ describe('Charity Schema', () => {
         'Valid Charity',
         '34-5678901',
         'Valid description',
-        'EDUCATION',
+        'EDUCATION' as any,
         'https://validcharity.org'
       );
 
@@ -66,7 +66,7 @@ describe('Charity Schema', () => {
         website: 'https://test.org',
       };
 
-      const errors = validateCharity(charity);
+      const errors = validateCharity(charity as any);
       expect(errors).toContain('name is required');
     });
 
@@ -78,7 +78,7 @@ describe('Charity Schema', () => {
         website: 'https://test.org',
       };
 
-      const errors = validateCharity(charity);
+      const errors = validateCharity(charity as any);
       expect(errors).toContain('description is required');
     });
 
@@ -101,7 +101,7 @@ describe('Charity Schema', () => {
         website: '',
       };
 
-      const errors = validateCharity(charity);
+      const errors = validateCharity(charity as any);
       expect(errors).toContain('website is required');
     });
 

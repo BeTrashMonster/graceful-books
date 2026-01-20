@@ -263,6 +263,8 @@ export class TreasureChestDB extends Dexie {
   taxPrepSessions!: Table<TaxPrepSession, string>;
   taxAdvisorAccess!: Table<TaxAdvisorAccess, string>;
   taxPackages!: Table<TaxPackage, string>;
+  journalEntries!: Table<any, string>;
+  scenario_notes!: Table<any, string>;
 
   constructor() {
     super('TreasureChest');

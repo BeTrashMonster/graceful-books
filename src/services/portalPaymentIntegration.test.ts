@@ -71,9 +71,10 @@ describe('Portal and Payment Integration', () => {
       // Step 1: Create portal token
       const tokenResult = await createPortalToken(mockCompanyId, mockInvoiceId, mockEmail);
       expect(tokenResult.success).toBe(true);
-      expect((tokenResult as any).data.token).toHaveLength(64);
+      if (!tokenResult.success) throw new Error('Expected success');
+      expect(tokenResult.data.token).toHaveLength(64);
 
-      const portalToken = tokenResult.data!;
+      const portalToken = tokenResult.data;
 
       // Step 2: Customer validates token
       const validateResult = await validateToken(portalToken.token, mockIp);
