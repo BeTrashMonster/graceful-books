@@ -25,7 +25,6 @@ import type {
 import type { ReportScheduleEntity } from '../db/schema/scheduledReports.schema';
 import {
   createDefaultReportSchedule,
-  validateReportSchedule,
   validateEmailAddresses,
 } from '../db/schema/scheduledReports.schema';
 
@@ -460,7 +459,7 @@ export async function resumeReportSchedule(scheduleId: string): Promise<Schedule
 export function calculateNextRunTime(
   frequency: ScheduleFrequency,
   timeOfDay: string,
-  timezone: string,
+  _timezone: string,
   options: {
     dayOfWeek?: DayOfWeek;
     dayOfMonth?: number;
@@ -469,6 +468,7 @@ export function calculateNextRunTime(
   } = {}
 ): NextRunCalculation {
   try {
+    // TODO: Use timezone for proper time calculation
     const now = new Date();
     const [hours, minutes] = timeOfDay.split(':').map(Number);
 

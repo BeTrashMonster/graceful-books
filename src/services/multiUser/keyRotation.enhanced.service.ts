@@ -27,7 +27,7 @@ import type { CompanyUser, Session, User, VersionVector } from '../../types/data
 import { deriveAllKeys, createEncryptionContext } from '../../crypto/keyManagement';
 import { db } from '../../store/database';
 import { logger } from '../../utils/logger';
-import { getDeviceId, generateId } from '../../utils/device';
+import { generateId } from '../../utils/device';
 import { incrementVersionVector } from '../../utils/versionVector';
 
 const log = logger.child('KeyRotation');

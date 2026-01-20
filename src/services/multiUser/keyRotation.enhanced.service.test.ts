@@ -15,7 +15,6 @@ import {
   KeyRotationService,
   RotationStatus,
   type RotationJob,
-  type RevocationResult,
 } from './keyRotation.enhanced.service';
 import type {
   MasterKey,
