@@ -51,7 +51,7 @@ export function BarterEntry({
 
   // FMV documentation
   const [fmvBasis, setFmvBasis] = useState<string>('');
-  const [fmvDocumentation, setFmvDocumentation] = useState<string[]>([]);
+  const [fmvDocumentation, _setFmvDocumentation] = useState<string[]>([]);
 
   // Counterparty
   const [counterpartyContactId, setCounterpartyContactId] = useState('');
@@ -59,7 +59,7 @@ export function BarterEntry({
   // Optional fields
   const [reference, setReference] = useState('');
   const [memo, setMemo] = useState('');
-  const [attachments, setAttachments] = useState<string[]>([]);
+  const [attachments, _setAttachments] = useState<string[]>([]);
 
   // Validation and warnings
   const [validation, setValidation] = useState<BarterTransactionValidationResult | null>(null);
