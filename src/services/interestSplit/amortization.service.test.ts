@@ -14,17 +14,17 @@ import type { GenerateScheduleRequest } from '../../types/loanAmortization.types
 import Decimal from 'decimal.js';
 
 describe('AmortizationService', () => {
-  let service: AmortizationService;
+  let _service: AmortizationService;
   let mockDb: Partial<TreasureChestDB>;
 
   beforeEach(() => {
     mockDb = {};
-    service = new AmortizationService(mockDb as TreasureChestDB);
+    _service = new AmortizationService(mockDb as TreasureChestDB);
   });
 
   describe('generateSchedule', () => {
     it('should generate amortized schedule with correct calculations', async () => {
-      const request: GenerateScheduleRequest = {
+      const _request: GenerateScheduleRequest = {
         loan_account_id: 'loan-1',
         principal_amount: '10000.00',
         interest_rate: '6.0', // 6% annual
@@ -63,7 +63,7 @@ describe('AmortizationService', () => {
 
     it('should handle zero interest rate', () => {
       const principal = new Decimal('10000');
-      const rate = new Decimal('0');
+      const _rate = new Decimal('0');
       const months = 12;
 
       // With 0% interest, payment should be principal / months

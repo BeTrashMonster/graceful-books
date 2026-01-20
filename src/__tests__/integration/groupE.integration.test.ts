@@ -93,29 +93,21 @@ describe('Group E Integration Tests', () => {
       const transaction = createTestTransaction(testCompanyId, testAccountId);
 
       // Create a bank statement entry
-      const statementEntry = {
+      const statementEntry: any = {
         id: nanoid(),
-        date: new Date(),
+        date: Date.now(),
         description: 'Coffee Shop',
         amount: -50,
+        matched: false,
       };
 
       // Learn pattern from match (E1)
       const patternResult = await learnFromMatch(
         testCompanyId,
-        testUserId,
-        {
-          transactionId: transaction.id,
-          transactionDescription: transaction.description,
-          transactionAmount: transaction.amount,
-          transactionDate: transaction.date,
-        },
-        {
-          statementDescription: statementEntry.description,
-          statementAmount: Math.abs(statementEntry.amount),
-          statementDate: statementEntry.date,
-        },
-        { confidence: 0.95, autoMatched: false }
+        statementEntry as any,
+        transaction as any,
+        true,
+        testUserId
       );
 
       expect(patternResult.success).toBe(true);
@@ -144,21 +136,29 @@ describe('Group E Integration Tests', () => {
 
       // Perform several reconciliations
       for (let i = 0; i < 5; i++) {
+        const statementTx: any = {
+          id: nanoid(),
+          date: Date.now() - i * 86400000,
+          description: `Statement ${i}`,
+          amount: 100,
+          matched: false,
+        };
+        const systemTx: any = {
+          id: nanoid(),
+          companyId: testCompanyId,
+          accountId: testAccountId,
+          date: new Date(Date.now() - i * 86400000),
+          description: `Transaction ${i}`,
+          amount: 100,
+          type: 'debit',
+          created: new Date(),
+        };
         await learnFromMatch(
           testCompanyId,
-          testUserId,
-          {
-            transactionId: nanoid(),
-            transactionDescription: `Transaction ${i}`,
-            transactionAmount: 100,
-            transactionDate: new Date(Date.now() - i * 86400000),
-          },
-          {
-            statementDescription: `Statement ${i}`,
-            statementAmount: 100,
-            statementDate: new Date(Date.now() - i * 86400000),
-          },
-          { confidence: 0.9, autoMatched: false }
+          statementTx as any,
+          systemTx as any,
+          true,
+          testUserId
         );
       }
 

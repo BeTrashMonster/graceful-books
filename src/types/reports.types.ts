@@ -361,39 +361,75 @@ export interface ARAgingBucketData {
 export interface CustomerARAging {
   customerId: string
   customerName: string
-  totalOwed: number
-  buckets: Record<ARAgingBucket, ARAgingBucketData>
-  oldestInvoiceDate?: number
+  totalOwed?: number // Legacy name
+  totalOutstanding: number
+  invoiceCount: number
+  buckets: {
+    current: number
+    days1to30: number
+    days31to60: number
+    days61to90: number
+    days90plus: number
+  }
+  oldestInvoiceDate: number | null
+  oldestDueDate: number | null
   oldestInvoiceDays?: number
+  hasOverdueInvoices: boolean
+  urgencyLevel: 'low' | 'medium' | 'high'
 }
 
 export interface FollowUpRecommendation {
   customerId: string
   customerName: string
-  urgency: 'low' | 'medium' | 'high' | 'urgent'
-  message: string
-  suggestedAction: string
-  amount: number
+  invoiceIds: string[]
+  totalAmount: number
+  recommendedDate: Date
+  reason: 'long-overdue' | 'overdue' | 'approaching-due'
+  urgencyLevel: 'low' | 'medium' | 'high'
+  urgency?: 'low' | 'medium' | 'high' | 'urgent' // Legacy
   daysOverdue: number
+  suggestedTemplate: 'polite-reminder' | 'formal-notice' | 'urgent-follow-up'
+  message?: string // Legacy
+  suggestedAction?: string // Legacy
+  amount?: number // Legacy
 }
 
 export interface ARAgingReportOptions {
   companyId: string
-  asOfDate?: number
+  asOfDate?: Date | number
   includeZeroBalances?: boolean
-  sortBy?: 'customer' | 'amount' | 'days'
+  includeVoidedInvoices?: boolean
+  includePaidInvoices?: boolean
+  customerId?: string
+  sortBy?: 'customer' | 'amount' | 'age' | 'days'
   sortOrder?: 'asc' | 'desc'
 }
 
 export interface ARAgingReport {
-  generatedAt: number
-  asOfDate: number
   companyId: string
-  totalReceivables: number
-  buckets: Record<ARAgingBucket, ARAgingBucketData>
-  customers: CustomerARAging[]
-  recommendations: FollowUpRecommendation[]
-  summary: {
+  companyName: string
+  asOfDate: Date
+  generatedAt: Date
+  totalOutstanding: number
+  totalInvoiceCount: number
+  totalOverdue: number
+  overdueInvoiceCount: number
+  bucketSummary: {
+    current: ARAgingBucketData
+    days1to30: ARAgingBucketData
+    days31to60: ARAgingBucketData
+    days61to90: ARAgingBucketData
+    days90plus: ARAgingBucketData
+  }
+  customerAging: CustomerARAging[]
+  followUpRecommendations: FollowUpRecommendation[]
+  healthMessage?: string
+  // Legacy fields
+  totalReceivables?: number
+  buckets?: Record<ARAgingBucket, ARAgingBucketData>
+  customers?: CustomerARAging[]
+  recommendations?: FollowUpRecommendation[]
+  summary?: {
     totalCustomers: number
     customersOverdue: number
     percentOverdue: number

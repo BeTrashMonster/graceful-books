@@ -73,6 +73,13 @@ export interface JournalEntryLineItem extends TransactionLineItem {
 export interface JournalEntryWithLineItems {
   entry: JournalEntry;
   line_items: JournalEntryLineItem[];
+  // Computed properties
+  is_balanced: boolean;
+  total_debits: string; // DECIMAL
+  total_credits: string; // DECIMAL
+  can_edit: boolean;
+  can_approve: boolean;
+  can_void: boolean;
 }
 
 // =============================================================================
@@ -92,6 +99,10 @@ export interface JournalEntryTemplate {
   // Template line items
   line_items: JournalEntryTemplateLineItem[];
 
+  // Auto-reverse settings
+  auto_reverse?: boolean;
+  reverse_days?: number;
+
   // Metadata
   created_at: number; // Unix timestamp
   updated_at: number; // Unix timestamp
@@ -109,6 +120,7 @@ export interface JournalEntryTemplateLineItem {
   account_id: string;
   debit: string | null; // ENCRYPTED - Null if variable (DECIMAL)
   credit: string | null; // ENCRYPTED - Null if variable (DECIMAL)
+  is_debit?: boolean; // Alternative way to specify debit/credit
   description: string | null; // ENCRYPTED
   is_variable_amount: boolean; // True if amount should be entered when using template
 }

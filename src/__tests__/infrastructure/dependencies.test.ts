@@ -444,8 +444,8 @@ describe('Dependency Update Safety', () => {
 
     it('should identify major version changes', () => {
       const isMajorChange = (oldVersion: string, newVersion: string) => {
-        const oldMajor = parseInt(oldVersion.split('.')[0], 10);
-        const newMajor = parseInt(newVersion.split('.')[0], 10);
+        const oldMajor = parseInt(oldVersion.split('.')[0] as string, 10);
+        const newMajor = parseInt(newVersion.split('.')[0] as string, 10);
         return newMajor > oldMajor;
       };
 
@@ -458,10 +458,10 @@ describe('Dependency Update Safety', () => {
       const isMinorChange = (oldVersion: string, newVersion: string) => {
         const oldParts = oldVersion.split('.');
         const newParts = newVersion.split('.');
-        const oldMinor = parseInt(oldParts[1], 10);
-        const newMinor = parseInt(newParts[1], 10);
+        const oldMinor = parseInt(oldParts[1] as string, 10);
+        const newMinor = parseInt(newParts[1] as string, 10);
         return (
-          parseInt(oldParts[0], 10) === parseInt(newParts[0], 10) &&
+          parseInt(oldParts[0] as string, 10) === parseInt(newParts[0] as string, 10) &&
           newMinor > oldMinor
         );
       };
@@ -476,9 +476,9 @@ describe('Dependency Update Safety', () => {
         const oldParts = oldVersion.split('.');
         const newParts = newVersion.split('.');
         return (
-          parseInt(oldParts[0], 10) === parseInt(newParts[0], 10) &&
-          parseInt(oldParts[1], 10) === parseInt(newParts[1], 10) &&
-          parseInt(oldParts[2], 10) < parseInt(newParts[2], 10)
+          parseInt(oldParts[0] as string, 10) === parseInt(newParts[0] as string, 10) &&
+          parseInt(oldParts[1] as string, 10) === parseInt(newParts[1] as string, 10) &&
+          parseInt(oldParts[2] as string, 10) < parseInt(newParts[2] as string, 10)
         );
       };
 
@@ -491,8 +491,8 @@ describe('Dependency Update Safety', () => {
   describe('Breaking Change Detection', () => {
     it('should flag major versions as breaking', () => {
       const isBreakingChange = (oldVersion: string, newVersion: string) => {
-        const oldMajor = parseInt(oldVersion.split('.')[0], 10);
-        const newMajor = parseInt(newVersion.split('.')[0], 10);
+        const oldMajor = parseInt(oldVersion.split('.')[0] as string, 10);
+        const newMajor = parseInt(newVersion.split('.')[0] as string, 10);
         return newMajor > oldMajor;
       };
 
@@ -503,7 +503,7 @@ describe('Dependency Update Safety', () => {
 
     it('should mark 0.x versions as potentially breaking', () => {
       const isPotentiallyBreaking = (version: string) => {
-        const major = parseInt(version.split('.')[0], 10);
+        const major = parseInt(version.split('.')[0] as string, 10);
         return major === 0;
       };
 
