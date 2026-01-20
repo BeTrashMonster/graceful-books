@@ -98,7 +98,6 @@ export class GoalProgressService {
     goalsLogger.info('Goal created', { goalId, type: goal.type, targetAmount: goal.target_amount });
 
     // Calculate initial progress
-    const _currentAmount = await this.getCurrentMetricValue(goal);
     await this.updateGoalProgress({
       goal_id: goalId,
       company_id: request.company_id,

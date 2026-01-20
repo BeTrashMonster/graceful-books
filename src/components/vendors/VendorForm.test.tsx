@@ -341,7 +341,7 @@ describe('VendorForm', () => {
 
       await waitFor(() => {
         const nameInput = screen.getByLabelText(/vendor name/i)
-        const _errorMessage = screen.getByText(/we'll need a name/i)
+        screen.getByText(/we'll need a name/i) // Assert error message exists
 
         expect(nameInput).toHaveAccessibleDescription()
       })

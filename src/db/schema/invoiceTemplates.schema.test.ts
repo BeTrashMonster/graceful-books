@@ -330,7 +330,6 @@ describe('Invoice Template Schema', () => {
         background: '#ffffff',
       };
 
-      const _resultsSmall = validateBrandColorsAccessibility(colors, 10);
       const resultsLarge = validateBrandColorsAccessibility(colors, 14);
 
       // Body contrast requirements differ by font size

@@ -652,8 +652,6 @@ export class ExchangeRateService implements IExchangeRateService {
     baseCurrency: CurrencyCode,
     targetCurrencies: CurrencyCode[]
   ): Promise<Map<CurrencyCode, Decimal>> {
-    const _rates = new Map<CurrencyCode, Decimal>();
-
     switch (this.apiConfig.provider) {
       case 'exchangerate-api':
         return this.fetchFromExchangeRateApi(baseCurrency, targetCurrencies);

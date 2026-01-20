@@ -98,7 +98,6 @@ describe('useVendors', () => {
 
     it('should filter by active status', async () => {
       const activeVendor = createMockVendor({ isActive: true })
-      const _inactiveVendor = createMockVendor({ id: 'vendor-456', isActive: false })
 
       setMockVendors([activeVendor])
 
