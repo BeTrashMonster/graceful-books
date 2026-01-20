@@ -26,7 +26,6 @@ import type {
 } from '../../types/journalEntry.types';
 import type { Account, AccountType } from '../../types/database.types';
 import { TransactionType, TransactionStatus } from '../../types/database.types';
-import { ErrorCode } from '../../utils/errors';
 
 /**
  * Payment Split Service

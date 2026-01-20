@@ -5,8 +5,6 @@
  * Supports advisor-based pricing with client tiers and team member billing
  */
 
-import type Stripe from 'stripe';
-
 /**
  * User subscription types
  */

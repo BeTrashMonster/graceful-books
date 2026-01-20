@@ -27,7 +27,6 @@ import type {
   RunwayDateRangePreset,
   RunwayTrendDataPoint,
 } from '../../types/runway.types'
-import type { AccountType } from '../../types'
 import { db } from '../../db/database'
 
 // Configure Decimal.js for currency precision

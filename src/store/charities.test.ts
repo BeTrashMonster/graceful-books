@@ -10,7 +10,6 @@ import {
   searchCharities,
   getCharitiesGroupedByCategory,
 } from './charities';
-import { CharityCategory } from '../types/database.types';
 
 describe('Charities Store', () => {
   describe('getAllCharities', () => {

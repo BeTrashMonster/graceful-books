@@ -6,7 +6,6 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import Dexie from 'dexie';
 import 'fake-indexeddb/auto';
 import { db } from './database';
 import {
