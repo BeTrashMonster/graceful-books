@@ -119,7 +119,7 @@ export class LeverageMetricsService {
     };
   }
 
-  private async calculateInterestCoverage(_companyId: string, asOfDate: number): Promise<Metric> {
+  private async calculateInterestCoverage(_companyId: string, _asOfDate: number): Promise<Metric> {
     // Simplified - would need actual interest expense tracking
     return {
       value: '0',
@@ -149,8 +149,8 @@ export class LeverageMetricsService {
 
   private async getHistoricalLeverageMetrics(
     _companyId: string,
-    endDate: number,
-    months: number
+    _endDate: number,
+    _months: number
   ): Promise<{
     debt_to_equity: MetricDataPoint[];
     debt_to_assets: MetricDataPoint[];
@@ -165,7 +165,7 @@ export class LeverageMetricsService {
 
   private async getBalanceSheetData(
     companyId: string,
-    asOfDate: number
+    _asOfDate: number
   ): Promise<{
     total_assets: Decimal;
     total_debt: Decimal;

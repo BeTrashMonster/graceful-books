@@ -20,7 +20,6 @@ import type {
   InterestCalculationMethod,
   UpdateLoanBalanceRequest,
 } from '../../types/loanAmortization.types';
-import type { VersionVector } from '../../types/database.types';
 import { nanoid } from 'nanoid';
 
 /**
@@ -384,13 +383,13 @@ export class AmortizationService {
     // Update current balance
     const currentBalance = new Decimal(loanAccount.current_balance);
     const principalPaid = new Decimal(request.principal_amount);
-    const newBalance = currentBalance.minus(principalPaid);
+    const _newBalance = currentBalance.minus(principalPaid);
 
     // Update totals
-    const totalPrincipal = new Decimal(loanAccount.total_paid_principal).plus(
+    const _totalPrincipal = new Decimal(loanAccount.total_paid_principal).plus(
       principalPaid
     );
-    const totalInterest = new Decimal(loanAccount.total_paid_interest).plus(
+    const _totalInterest = new Decimal(loanAccount.total_paid_interest).plus(
       new Decimal(request.interest_amount)
     );
 
