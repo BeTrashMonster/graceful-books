@@ -9,7 +9,7 @@
  * - Accuracy tracking over time
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { CategorizationService, createCategorizationService } from './categorization.service'
 import { db } from '../db/database'
 import { initializeDatabase, deleteDatabase } from '../db/database'

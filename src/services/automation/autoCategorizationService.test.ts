@@ -11,7 +11,7 @@
  * - Settings respect (enabled/disabled, min confidence)
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import {
   AutoCategorizationService,
   createAutoCategorizationService,

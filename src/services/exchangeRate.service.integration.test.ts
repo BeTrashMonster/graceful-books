@@ -10,7 +10,7 @@
  * - Test API fallback scenarios
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Dexie from 'dexie';
 import { ExchangeRateService } from './exchangeRate.service';
 import type { ExchangeRateApiConfig } from './exchangeRate.service';

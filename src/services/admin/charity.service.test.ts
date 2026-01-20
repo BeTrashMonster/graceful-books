@@ -13,9 +13,7 @@ import type { Charity, CharityStatus } from '../../types/database.types';
 import {
   createCharity,
   getAllCharities,
-  getCharityById,
   getVerifiedCharities,
-  updateCharity,
   addVerificationNote,
   verifyCharity,
   rejectCharity,
@@ -51,23 +49,6 @@ describe('Admin Charity Service', () => {
 
   describe('createCharity', () => {
     it('should create a charity with PENDING status', async () => {
-      const mockCharity = {
-        id: expect.any(String),
-        name: 'Test Charity',
-        ein: '12-3456789',
-        description: 'A test charity for education',
-        category: 'education' as const,
-        website: 'https://testcharity.org',
-        logo: null,
-        status: 'pending',
-        verification_notes: null,
-        rejection_reason: null,
-        created_by: 'admin-123',
-        created_at: expect.any(Number),
-        updated_at: expect.any(Number),
-        active: true,
-      };
-
       (db.charities.add as any).mockResolvedValue('charity-id');
 
       const result = await createCharity({
@@ -180,7 +161,7 @@ describe('Admin Charity Service', () => {
         equals: mockEquals,
       });
 
-      const result = await getAllCharities({ status: 'pending' });
+      await getAllCharities({ status: 'pending' });
 
       expect(db.charities.where).toHaveBeenCalledWith('status');
       expect(mockEquals).toHaveBeenCalledWith('PENDING');

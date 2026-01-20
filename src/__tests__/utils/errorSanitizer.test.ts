@@ -6,7 +6,7 @@
  * information disclosure while maintaining debugging capability.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   sanitizeError,
   logSecurityError,

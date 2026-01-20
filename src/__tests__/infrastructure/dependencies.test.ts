@@ -5,7 +5,7 @@
  * These tests verify that the dependency management system is properly configured.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 

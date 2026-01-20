@@ -4,7 +4,7 @@
  * Per I6: Scheduled Report Delivery - Unit Tests for Export
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { exportReport, exportResultToBuffer, getExportMimeType } from './reportExport.service';
 import type { BalanceSheetData, ProfitLossReport } from '../../types/reports.types';
 

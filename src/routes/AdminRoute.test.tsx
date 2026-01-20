@@ -7,7 +7,7 @@
  * - IC3: Admin Panel - Charity Management (403 error for non-admin users)
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AdminRoute } from './AdminRoute';

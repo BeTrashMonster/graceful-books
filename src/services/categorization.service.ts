@@ -708,7 +708,7 @@ export function createCategorizationService(companyId: string): CategorizationSe
 export async function categorizeTransaction(
   transactionId: string,
   categoryId: string,
-  companyId: string,
+  _companyId: string,
   userId: string
 ): Promise<{ success: boolean; data?: any; error?: any }> {
   // Stub implementation for integration tests
@@ -728,9 +728,9 @@ export async function categorizeTransaction(
  * Gets category suggestions for a transaction
  */
 export async function getCategorySuggestions(
-  description: string,
-  amount: number,
-  companyId: string
+  _description: string,
+  _amount: number,
+  _companyId: string
 ): Promise<{ success: boolean; data?: any[]; error?: any }> {
   // Stub implementation for integration tests
   return {

@@ -5,7 +5,7 @@
  * for the H1 Multi-User implementation.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
   createDefaultUser,
   createDefaultCompany,

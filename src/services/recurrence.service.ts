@@ -369,9 +369,9 @@ export async function createRecurringSchedule(params: {
  * Gets upcoming recurrences within a date range
  */
 export async function getUpcomingRecurrences(
-  companyId: string,
+  _companyId: string,
   startDate: Date,
-  endDate: Date
+  _endDate: Date
 ): Promise<{ success: boolean; data?: any[]; error?: any }> {
   // Stub implementation for integration tests
   // Returns 3 mock monthly recurrences for testing
