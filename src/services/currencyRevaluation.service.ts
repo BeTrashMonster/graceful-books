@@ -29,7 +29,6 @@ import type {
   CurrencyRevaluationResult,
   CurrencyGainLoss,
 } from '../types/currency.types';
-import { GainLossType } from '../types/currency.types';
 import type { IExchangeRateService } from './exchangeRate.service';
 import type { ICurrencyGainLossService } from './currencyGainLoss.service';
 
@@ -286,7 +285,7 @@ export class CurrencyRevaluationService implements ICurrencyRevaluationService {
    */
   async getForeignCurrencyBalances(
     _companyId: string,
-    accountIds?: string[]
+    _accountIds?: string[]
   ): Promise<ForeignCurrencyBalance[]> {
     // This would typically query the database for foreign currency balances
     // For now, we'll return an empty array as a placeholder

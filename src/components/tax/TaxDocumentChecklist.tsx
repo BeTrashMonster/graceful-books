@@ -8,13 +8,11 @@
  */
 
 import { useState, useEffect } from 'react'
-import { Button } from '../core/Button'
 import { TaxDocumentUpload } from './TaxDocumentUpload'
 import {
   getTaxDocumentCategories,
   getCategoryStatus,
   setCategoryStatus,
-  getTaxDocumentsByCategory,
 } from '../../services/tax/taxDocumentManager.service'
 import type { TaxYear, TaxDocumentCategory } from '../../types/tax.types'
 import './TaxDocumentChecklist.css'
