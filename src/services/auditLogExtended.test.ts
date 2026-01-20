@@ -258,24 +258,24 @@ describe('Extended Audit Log Service', () => {
 
       // Check descending order
       for (let i = 1; i < descResult.logs.length; i++) {
-        const currentTime = descResult.logs[i].timestamp instanceof Date
-          ? descResult.logs[i].timestamp.getTime()
-          : descResult.logs[i].timestamp;
-        const prevTime = descResult.logs[i - 1].timestamp instanceof Date
-          ? descResult.logs[i - 1].timestamp.getTime()
-          : descResult.logs[i - 1].timestamp;
-        expect(currentTime).toBeLessThanOrEqual(prevTime);
+        const currentTime = descResult.logs[i]?.timestamp instanceof Date
+          ? descResult.logs[i]?.timestamp.getTime()
+          : descResult.logs[i]?.timestamp;
+        const prevTime = descResult.logs[i - 1]?.timestamp instanceof Date
+          ? descResult.logs[i - 1]?.timestamp.getTime()
+          : descResult.logs[i - 1]?.timestamp;
+        expect(currentTime ?? 0).toBeLessThanOrEqual(prevTime ?? 0);
       }
 
       // Check ascending order
       for (let i = 1; i < ascResult.logs.length; i++) {
-        const currentTime = ascResult.logs[i].timestamp instanceof Date
-          ? ascResult.logs[i].timestamp.getTime()
-          : ascResult.logs[i].timestamp;
-        const prevTime = ascResult.logs[i - 1].timestamp instanceof Date
-          ? ascResult.logs[i - 1].timestamp.getTime()
-          : ascResult.logs[i - 1].timestamp;
-        expect(currentTime).toBeGreaterThanOrEqual(prevTime);
+        const currentTime = ascResult.logs[i]?.timestamp instanceof Date
+          ? ascResult.logs[i]?.timestamp.getTime()
+          : ascResult.logs[i]?.timestamp;
+        const prevTime = ascResult.logs[i - 1]?.timestamp instanceof Date
+          ? ascResult.logs[i - 1]?.timestamp.getTime()
+          : ascResult.logs[i - 1]?.timestamp;
+        expect(currentTime ?? 0).toBeGreaterThanOrEqual(prevTime ?? 0);
       }
     });
   });
@@ -662,8 +662,8 @@ describe('Extended Audit Log Service', () => {
         companyId: 'test-company',
       });
 
-      expect(result.logs[0].id).toBe(log.id);
-      expect(result.logs[0].companyId).toBe(log.company_id);
+      expect(result.logs[0]?.id).toBe(log.id);
+      expect(result.logs[0]?.companyId).toBe(log.company_id);
     });
 
     it('should maintain data integrity across operations', async () => {

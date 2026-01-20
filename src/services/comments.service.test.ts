@@ -316,8 +316,8 @@ describe('CommentsService', () => {
       });
 
       expect(comments).toHaveLength(2);
-      expect(comments[0].content).toBe('First comment');
-      expect(comments[1].content).toBe('Second comment');
+      expect(comments[0]?.content).toBe('First comment');
+      expect(comments[1]?.content).toBe('Second comment');
     });
 
     it('should filter top-level comments only', async () => {
@@ -471,10 +471,10 @@ describe('CommentsService', () => {
       );
 
       expect(threads).toHaveLength(1);
-      expect(threads[0].comment.id).toBe(parent.comment.id);
-      expect(threads[0].replies).toHaveLength(2);
-      expect(threads[0].replyCount).toBe(2);
-      expect(threads[0].depth).toBe(0);
+      expect(threads[0]?.comment.id).toBe(parent.comment.id);
+      expect(threads[0]?.replies).toHaveLength(2);
+      expect(threads[0]?.replyCount).toBe(2);
+      expect(threads[0]?.depth).toBe(0);
     });
 
     it('should build nested thread with multiple levels', async () => {
@@ -507,9 +507,9 @@ describe('CommentsService', () => {
       );
 
       expect(threads).toHaveLength(1);
-      expect(threads[0].replies).toHaveLength(1);
-      expect(threads[0].replies[0].replies).toHaveLength(1);
-      expect(threads[0].replyCount).toBe(2); // Total replies
+      expect(threads[0]?.replies).toHaveLength(1);
+      expect(threads[0]?.replies[0]?.replies).toHaveLength(1);
+      expect(threads[0]?.replyCount).toBe(2); // Total replies
     });
 
     it('should respect maxDepth parameter', async () => {
@@ -891,7 +891,7 @@ describe('CommentsService', () => {
       expect(recent.length).toBeGreaterThan(0);
       // Should be in reverse chronological order (most recent first)
       for (let i = 1; i < recent.length; i++) {
-        expect(recent[i - 1].created_at).toBeGreaterThanOrEqual(recent[i].created_at);
+        expect(recent[i - 1]?.created_at ?? 0).toBeGreaterThanOrEqual(recent[i]?.created_at ?? 0);
       }
     });
 
@@ -1110,8 +1110,8 @@ describe('CommentsService', () => {
 
       // Should be in chronological order
       for (let i = 1; i < retrieved.length; i++) {
-        expect(retrieved[i].created_at).toBeGreaterThanOrEqual(
-          retrieved[i - 1].created_at
+        expect(retrieved[i]?.created_at ?? 0).toBeGreaterThanOrEqual(
+          retrieved[i - 1]?.created_at ?? 0
         );
       }
     });
