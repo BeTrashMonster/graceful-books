@@ -28,7 +28,6 @@ export const RunwayTrendChart: React.FC<RunwayTrendChartProps> = ({ data, target
 
   // Calculate chart dimensions
   const chartHeight = 200
-  const _chartWidth = 100 // percentage
 
   // Generate SVG path for line chart
   const generatePath = () => {

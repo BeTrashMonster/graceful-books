@@ -80,7 +80,6 @@ describe('CSVExporter Component', () => {
     it('should have minimum touch target size for buttons', () => {
       const { container: _container } = render(<CSVExporter />);
       const exportButton = screen.getByRole('button', { name: /export to csv/i });
-      const _styles = window.getComputedStyle(exportButton);
       // Min height and width should be 44px
       expect(exportButton).toBeInTheDocument();
     });
@@ -249,8 +248,6 @@ describe('CSVExporter Component', () => {
       render(<CSVExporter defaultEntityType="transactions" />);
 
       const entitySelect = screen.getByLabelText(/what would you like to export/i);
-      const _dateRangeSelect = screen.getByLabelText(/date range/i);
-      const _exportButton = screen.getByRole('button', { name: /export to csv/i });
 
       // Tab through elements
       entitySelect.focus();

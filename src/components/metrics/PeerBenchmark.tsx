@@ -35,7 +35,6 @@ export function PeerBenchmark({ metricName, yourValue, benchmark, industry }: Pe
   }
 
   const yourNumericValue = parseFloat(yourValue);
-  const _medianValue = parseFloat(benchmark.median);
   const lowerQuartile = parseFloat(benchmark.lower_quartile);
   const upperQuartile = parseFloat(benchmark.upper_quartile);
 

@@ -12,7 +12,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Button } from '../components/core/Button';
 import { validateToken } from '../services/portalService';
 import { createPaymentIntent, confirmPayment } from '../services/paymentGateway';
@@ -32,7 +32,6 @@ type PortalState = 'loading' | 'valid' | 'invalid' | 'payment' | 'success' | 'er
  */
 export default function CustomerPortal() {
   const { token } = useParams<{ token: string }>();
-  const _navigate = useNavigate();
 
   const [state, setState] = useState<PortalState>('loading');
   const [portalToken, setPortalToken] = useState<PortalToken | null>(null);

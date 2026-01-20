@@ -67,16 +67,14 @@ export class TracingService {
       });
 
       // Configure exporter (if endpoint provided)
-      if (this.config.endpoint) {
-        const exporter = new OTLPTraceExporter({
-          url: this.config.endpoint,
-        });
-
-        // Add batch span processor
-        const _processor = new BatchSpanProcessor(exporter);
-        // Note: addSpanProcessor method may not exist in some versions
-        // We'll register the provider first
-      }
+      // TODO: Implement exporter configuration when needed
+      // if (this.config.endpoint) {
+      //   const exporter = new OTLPTraceExporter({
+      //     url: this.config.endpoint,
+      //   });
+      //   const processor = new BatchSpanProcessor(exporter);
+      //   // Add processor to provider when API is available
+      // }
 
       // Register the provider
       this.provider.register();

@@ -110,7 +110,6 @@ export const InterestSplitPrompt = ({
     try {
       const principal = new Decimal(principalAmount);
       const interest = new Decimal(interestAmount);
-      const _total = principal.plus(interest);
 
       // Get total from detection (would need to calculate from transaction)
       // For now, just validate that both are positive

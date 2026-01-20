@@ -88,8 +88,6 @@ export function MentionDropdown({
     onSelect(user)
   }
 
-  const _selectedUserId = users[selectedIndex]?.id
-
   return (
     <div
       className={clsx(styles.dropdown, className)}
