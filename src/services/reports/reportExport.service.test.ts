@@ -112,7 +112,7 @@ describe('ReportExport Service', () => {
       const result = await exportReport('custom' as any, {}, 'pdf');
 
       expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+      expect((result as any).error).toBeDefined();
     });
   });
 

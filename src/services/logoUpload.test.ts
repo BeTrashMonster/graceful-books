@@ -27,7 +27,7 @@ describe('Logo Upload Service', () => {
 
       const result = validateLogoFile(file);
       expect(result.valid).toBe(true);
-      expect(result.error).toBeUndefined();
+      expect((result as any).error).toBeUndefined();
     });
 
     it('should accept valid JPEG file', () => {
@@ -52,8 +52,8 @@ describe('Logo Upload Service', () => {
 
       const result = validateLogoFile(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('exceeds maximum allowed size');
-      expect(result.error).toContain('5MB');
+      expect((result as any).error).toContain('exceeds maximum allowed size');
+      expect((result as any).error).toContain('5MB');
     });
 
     it('should reject unsupported file type', () => {
@@ -62,8 +62,8 @@ describe('Logo Upload Service', () => {
 
       const result = validateLogoFile(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('not supported');
-      expect(result.error).toContain('PNG, JPEG, GIF, or WebP');
+      expect((result as any).error).toContain('not supported');
+      expect((result as any).error).toContain('PNG, JPEG, GIF, or WebP');
     });
 
     it('should reject SVG files', () => {

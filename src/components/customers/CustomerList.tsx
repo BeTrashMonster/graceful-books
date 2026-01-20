@@ -221,7 +221,7 @@ export const CustomerList: FC<CustomerListProps> = ({
   // Get parent name for child accounts
   const getParentName = (parentId?: string | null): string | undefined => {
     if (!parentId) return undefined
-    const parent = customers.find(c => c.id === parentId)
+    const parent = customers.find(c => c!.id === parentId)
     return parent?.name
   }
 

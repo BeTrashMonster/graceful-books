@@ -1,0 +1,12 @@
+.tax-document-upload { padding: 1rem; }
+.upload-area { margin-bottom: 1.5rem; }
+.upload-prompt { text-align: center; padding: 2rem; border: 2px dashed var(--color-border, #ccc); border-radius: 8px; }
+.upload-hint { font-size: 0.875rem; color: var(--color-text-secondary, #666); margin-top: 0.5rem; }
+.notes-input { margin-top: 1rem; }
+.notes-input label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+.notes-input textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--color-border, #ccc); border-radius: 4px; resize: vertical; }
+.document-list ul { list-style: none; padding: 0; }
+.document-list li { display: flex; gap: 1rem; padding: 0.75rem; border: 1px solid var(--color-border, #e0e0e0); border-radius: 4px; margin-bottom: 0.5rem; align-items: center; }
+.doc-name { flex: 1; font-weight: 500; }
+.doc-notes { font-size: 0.875rem; color: var(--color-text-secondary, #666); }
+.error-message { color: #f44336; padding: 0.5rem; margin-top: 0.5rem; }

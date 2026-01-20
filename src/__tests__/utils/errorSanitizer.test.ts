@@ -333,7 +333,7 @@ describe('withErrorSanitization', () => {
 
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data).toBe(10);
+      expect((result as any).data).toBe(10);
     }
   });
 
@@ -347,7 +347,7 @@ describe('withErrorSanitization', () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error).not.toContain('line 42');
+      expect((result as any).error).not.toContain('line 42');
       expect(result.errorCode).toBeTruthy();
     }
   });
@@ -360,7 +360,7 @@ describe('withErrorSanitization', () => {
 
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data).toBe(7);
+      expect((result as any).data).toBe(7);
     }
   });
 });

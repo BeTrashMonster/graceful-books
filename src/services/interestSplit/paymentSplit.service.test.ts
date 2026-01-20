@@ -53,7 +53,7 @@ describe('PaymentSplitService', () => {
         interest_rate: '6.0',
         term_months: 12,
         start_date: Date.now(),
-        payment_frequency: 'MONTHLY' as const,
+        payment_frequency: 'monthly' as const,
         calculation_method: 'AMORTIZED' as const,
         name: 'Business Loan',
         lender_name: 'ABC Bank',

@@ -416,19 +416,42 @@ export enum CharityCategory {
 }
 
 /**
+ * Charity verification status
+ */
+export enum CharityStatus {
+  PENDING = 'PENDING', // Awaiting verification
+  VERIFIED = 'VERIFIED', // Verified and available for selection
+  REJECTED = 'REJECTED', // Rejected during verification
+  INACTIVE = 'INACTIVE', // Previously verified but now inactive
+}
+
+/**
  * Charity entity
  * Represents charitable organizations users can support
  */
 export interface Charity {
   id: string; // UUID
   name: string; // Charity name (e.g., "Khan Academy", "GiveDirectly")
+  ein: string; // EIN/Tax ID (format: XX-XXXXXXX)
   description: string; // 1-2 sentence description
   category: CharityCategory; // Charity category
   website: string; // Charity website URL
   logo: string | null; // Logo URL or icon identifier
-  active: boolean; // Whether the charity is currently available for selection
+  payment_address: string | null; // Payment address for ACH/check/wire (ENCRYPTED)
+  status: CharityStatus; // Verification status
+  verification_notes: string | null; // Admin notes during verification process
+  rejection_reason: string | null; // Reason for rejection (if status is REJECTED)
+  created_by: string | null; // Admin user ID who created the charity
+  created_at: number; // Unix timestamp
+  updated_at: number; // Unix timestamp
+  active: boolean; // Whether the charity is currently available for selection (deprecated - use status instead)
 }
 
 // ============================================================================
 // All types and enums are exported inline above
 // ============================================================================
+
+/**
+ * Re-exports from other type files for convenience
+ */
+export type { JournalEntry } from './journalEntry.types'

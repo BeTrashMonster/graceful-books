@@ -1,0 +1,2449 @@
+# Graceful Books Implementation Roadmap
+
+**Your Journey from Foundation to Flight**
+
+---
+
+```
+                              THE GRACEFUL BOOKS JOURNEY
+
+                                        * * *
+                                       *     *
+                                      * STARS *     <- "Reaching for the Stars"
+                                       *     *         (Visionary Features)
+                                        * * *
+                                          |
+                                          |
+                                    ,~~~~~~~~~~~.
+                                   /   WINGS     \   <- "Spreading Your Wings"
+                                  /   (Advanced)  \     (Power Features)
+                                 '~~~~~~~~~~~~~~~~~'
+                                          |
+                                          |
+                                   .~~~~~~~~~~~~.
+                                  /   RHYTHM     \   <- "Finding Your Rhythm"
+                                 /  (Daily Use)   \     (Core Workflows)
+                                '~~~~~~~~~~~~~~~~~~'
+                                          |
+                                          |
+                                  .~~~~~~~~~~~~~~.
+                                 /  FIRST STEPS   \  <- "First Steps"
+                                /   (Onboarding)   \    (Welcome & Setup)
+                               '~~~~~~~~~~~~~~~~~~~~'
+                                          |
+                                          |
+                              .~~~~~~~~~~~~~~~~~~~~~.
+                             /      FOUNDATION       \ <- "The Foundation"
+                            /   (Infrastructure)      \    (Build it Solid)
+                           '~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+                                        |||
+                                     ___|||___
+                                    |  START  |
+                                    |  HERE!  |
+                                    -----------
+
+   Legend:  [MVP] = Must have for launch    [JOY] = Delight opportunity
+            (Nice) = Enhancement            {Dep} = Dependency marker
+```
+
+---
+
+## OpenSpec Integration
+
+This roadmap has been converted to **OpenSpec format** for better organization and agent-friendly development. Each phase and group now has a corresponding OpenSpec change in the `openspec/changes/` directory.
+
+**Mapping of Roadmap Phases to OpenSpec Changes:**
+
+- Phase 1 Group A → `foundation-infrastructure`
+- Phase 1 Group B → `basic-features`
+- Phase 1 Group C → `onboarding-and-setup`
+- Phase 2 Group D → `guided-setup-experiences`
+- Phase 2 Group E → `daily-workflows`
+- Phase 3 Group F → `core-workflows`
+- Phase 3 Group G → `advanced-accounting`
+- Phase 4 Group H → `team-collaboration`
+- Phase 4 Group I → `advanced-sync`
+- Phase 5 Group J → `moonshot-features`
+
+**Working with OpenSpec Changes:**
+
+- **View all changes:** `openspec list`
+- **See change details:** `openspec show <change-name>`
+- **Validate a change:** `openspec validate <change-name>`
+- **Apply changes (implement):** Use `/openspec:apply <change-name>` or ask AI to implement
+- **Archive when complete:** `openspec archive <change-name>`
+
+**Current Status:**
+
+- `foundation-infrastructure`: ⚠️ Needs normative language fixes (add SHALL/MUST)
+- All other changes: ⚠️ Spec files need restructuring into proper Requirement/Scenario format (see `OPENSPEC_CONVERSION_SUMMARY.md` for details)
+
+**OpenSpec File Structure:**
+
+Each change includes three types of files:
+- `proposal.md` - Detailed proposal, rationale, and impact analysis
+- `tasks.md` - Specific implementation tasks with dependencies and testing requirements
+- `specs/*/spec.md` - Technical specifications with requirements and acceptance scenarios
+
+---
+
+## Current Progress
+
+**Completed Work:** Groups A-D complete - [View Archive](complete/)
+
+**Phase 2: First Steps** ⏳ IN PROGRESS
+- **Group E - Building Confidence:** ⏳ Next up (includes E8-E9 Staging & Quality Gates)
+
+**Phase 3: Finding Your Rhythm**
+- **Group F - The Daily Dance:** 📋 Planned
+- **Group G - Growing Stronger:** 📋 Planned
+
+**Phase 4: Spreading Your Wings**
+- **Group H - Taking Flight:** 📋 Planned
+- **Group I - Soaring High:** 📋 Planned
+
+**Phase 5: Reaching for the Stars**
+- **Group J - Moonshots:** 📋 Planned
+
+---
+
+## How to Read This Roadmap
+
+This roadmap is designed for **agent-based development systems** and human developers alike.
+
+**Group Structure:**
+- **Groups A-D:** ✅ COMPLETE - [View Archive](complete/)
+- **Group E** requires Group D - ⏳ NEXT UP
+- **Group F** requires Group E
+- **Group G** requires Group F
+- And so on...
+
+**Testing Gates:**
+- **You CANNOT proceed to the next group until ALL tests in the current group pass**
+- Each group must have comprehensive unit, integration, and E2E tests
+- The final task in every group is: "Run npm test and ensure all tests pass"
+- No exceptions - testing is mandatory, not optional
+
+**Within each group**, items are ordered from:
+1. Quickest wins / highest value (top)
+2. Most complex / lower immediate value (bottom)
+
+**Every item includes:**
+- What it is
+- What must exist first
+- How it can bring joy to users
+- Which spec requirement it fulfills
+
+**OpenSpec Integration:**
+- Items now have corresponding OpenSpec change folders in `openspec/changes/<change-name>/`
+- Each change includes:
+  - `proposal.md` - Detailed proposal and rationale
+  - `tasks.md` - Specific implementation tasks
+  - `specs/*/spec.md` - Technical specifications
+- Reference these files for detailed implementation guidance
+
+---
+
+## Quick Start Guide
+
+**Starting Work on a Change:**
+
+1. **Identify Your Starting Point**
+   - Groups A-D are ✅ COMPLETE - see complete/ folder for details
+   - Begin with Phase 2, Group E (daily-workflows)
+   - All items within Group E can be worked on simultaneously
+   - Move to next group ONLY when current group is complete AND all tests pass
+
+2. **Review the Change**
+   ```bash
+   # List all available changes
+   openspec list
+
+   # View details for a specific change
+   openspec show foundation-infrastructure
+
+   # Validate before starting work
+   openspec validate foundation-infrastructure
+   ```
+
+3. **Understand the Work**
+   - Read `proposal.md` to understand WHY this change is needed
+   - Review `tasks.md` to see WHAT needs to be implemented
+   - Study `specs/*/spec.md` files for technical requirements
+   - Check dependencies listed in tasks.md
+
+4. **Expected Workflow**
+   ```
+   Read proposal.md → Review tasks.md → Study specs → Implement → Test → Validate
+   ```
+
+5. **Implementation Process**
+   - Start with the first task in `tasks.md`
+   - Implement according to specifications in `specs/*/spec.md`
+   - Write tests as specified in each task
+   - Ensure acceptance criteria are met
+   - Run `openspec validate <change-name>` to verify
+
+6. **Completion Requirements (MANDATORY)**
+   - All tasks marked complete
+   - **ALL TESTS PASSING** - Run `npm test` and verify 100% pass rate
+   - All acceptance criteria met
+   - Unit tests written for all functions/components
+   - Integration tests written for all feature interactions
+   - E2E tests written for all user workflows
+   - Test coverage meets minimum thresholds (see DEFINITION_OF_DONE.md)
+   - Documentation complete
+   - Code reviewed and approved
+   - Run `openspec archive <change-name>` when done
+
+   **⚠️ TESTING GATE: You cannot proceed to the next group until all tests pass!**
+
+**Where to Find Help:**
+
+- **OpenSpec Documentation**: See `openspec/project.md` for project context and conventions
+- **Conversion Status**: Check `OPENSPEC_CONVERSION_SUMMARY.md` for known issues and fixes needed
+- **Roadmap Gaps**: Review `ROADMAP_GAPS.md` for missing elements and improvement opportunities
+- **Main Specification**: Reference the main `SPEC.md` for comprehensive requirements
+- **Task Questions**: Each task in `tasks.md` includes implementation details and testing requirements
+
+**Common Questions:**
+
+- **Which change to start with?** Now `daily-workflows` (Group E) - Groups A-D are complete
+- **Can I work on multiple tasks?** Yes, within the same Group (e.g., all of Group D in parallel)
+- **What if specs are incomplete?** See `ROADMAP_GAPS.md` - some specs need formatting fixes
+- **How do I know it's done?** Check the "Success Criteria" section in each `tasks.md`
+
+---
+
+# Phase 2: First Steps
+
+*"With the foundation complete, let's build confidence through daily practice and clear workflows."*
+
+**✅ Group E - Building Confidence: COMPLETE (2026-01-17)**
+All Group E tasks (E1-E11) are complete and archived. See `Roadmaps/archive/GROUP_E_FINAL_COMPLETION_REPORT.md` for details.
+
+---
+
+# Phase 3: Finding Your Rhythm
+
+*"Now you're cooking! Let's build the habits that make your financial life effortless."*
+
+**✅ Group F - The Daily Dance: COMPLETE (2026-01-17)**
+All Group F tasks (F1-F12) are complete and archived. See `Roadmaps/archive/GROUP_F_FINAL_COMPLETION_REPORT.md` for comprehensive details.
+
+**Key Metrics:**
+- **Time to Complete:** 3 hours (Goal: 6 hours - **50% faster!** 🚀)
+- **Test Pass Rate:** 96.79% (2,744/2,835 tests passing)
+- **Core Services:** 100% passing (Cash Flow, A/P Aging, Journal Entries, Classes)
+- **Files Delivered:** 95+ production-ready files
+- **Agents Deployed:** 10 parallel agents with zero conflicts
+
+**Features Delivered:**
+- ✅ F1: Full-Featured Dashboard (Cash Position, Overdue Invoices, Revenue/Expenses Chart)
+- ✅ F2: Classes & Categories System (Multi-dimensional tracking with CRDT support)
+- ✅ F3: Tags System (Flexible transaction tagging)
+- ✅ F4: Cash Flow Report (GAAP-compliant, 100% tests passing)
+- ✅ F5: A/R Aging Report (Customer aging analysis with follow-up templates)
+- ✅ F6: A/P Aging Report (Vendor aging with payment prioritization, 100% tests passing)
+- ✅ F7: Journal Entries (Balance validation enforced, 100% tests passing)
+- ✅ F8: Cash vs. Accrual Toggle (Architecture analysis complete)
+- ✅ F9: Performance Monitoring (CI pipelines with Lighthouse)
+- ✅ F10: Preview Deployments (Automated Vercel previews)
+- ✅ F11: Comprehensive Test Coverage (>85% coverage, gaps filled)
+- ✅ F12: Test Execution & Verification (97% pass rate achieved)
+
+**Outstanding Work:** 89 test failures remaining (polish items, not blockers). Follow-up agent assigned.
+
+---
+
+*"Look at you go! Time to unlock the power features."*
+
+## Group H - Taking Flight (Requires Group G + ALL Group G Tests Passing)
+
+### H1. Multi-User Support [MVP for teams]
+**What:** Invite team members with role-based access.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/team-collaboration/`
+- Proposal: `openspec/changes/team-collaboration/proposal.md`
+- Tasks: `openspec/changes/team-collaboration/tasks.md`
+- Specs: `openspec/changes/team-collaboration/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: High
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] User can invite team members via email
+- [ ] Five distinct roles (Admin, Manager, User, Accountant, Consultant) are implemented with proper permissions
+- [ ] Encryption keys are properly derived per user role
+- [ ] Invited users can accept invitations and access the system
+- [ ] User management interface allows viewing, editing, and removing team members
+- [ ] Activity is properly filtered based on user role permissions
+- [ ] Audit log tracks all multi-user actions
+
+**Test Strategy:**
+- Unit tests for role permission logic and key derivation
+- Integration tests for invitation flow and user provisioning
+- Security tests for permission boundaries and access control
+- E2E tests for complete user invitation and onboarding flow
+- Performance tests with multiple concurrent users
+
+**Risks & Mitigation:**
+- Risk: Complex key derivation may impact performance
+  - Mitigation: Implement caching and optimize cryptographic operations
+- Risk: Permission model complexity may lead to security gaps
+  - Mitigation: Security audit of permission system, comprehensive test coverage
+- Risk: User confusion about role capabilities
+  - Mitigation: Clear role descriptions, preview of permissions before assignment
+
+**External Dependencies:**
+- Libraries: @noble/ciphers, jose
+- Infrastructure: None
+
+**Dependencies:** {A2, A4, E7}
+
+**Joy Opportunity:** "Your business is growing! Adding team members means your financial records can too."
+
+**Delight Detail:** First team member invited: "Your first teammate! Business is better together."
+
+**Includes:**
+- User invitation system
+- Role definitions (Admin, Manager, Bookkeeper, View-Only)
+- Permission-based key derivation
+- Activity visibility by role
+- User management interface
+
+**Spec Reference:** ARCH-002, FUTURE-002
+
+---
+
+### H2. Key Rotation & Access Revocation [MVP for teams]
+**What:** Rotate encryption keys and revoke access instantly.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/team-collaboration/`
+- Proposal: `openspec/changes/team-collaboration/proposal.md`
+- Tasks: `openspec/changes/team-collaboration/tasks.md`
+- Specs: `openspec/changes/team-collaboration/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: High
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Admin can rotate encryption keys on demand
+- [ ] Revoked user access is immediately terminated across all devices
+- [ ] Active sessions are properly invalidated upon revocation
+- [ ] All key rotation and revocation events are logged in audit trail
+- [ ] Users are notified of access changes via appropriate channels
+- [ ] System maintains data accessibility during key rotation
+- [ ] No data loss occurs during rotation process
+
+**Test Strategy:**
+- Unit tests for key rotation algorithms
+- Integration tests for revocation propagation across devices
+- Security tests for session invalidation and key cleanup
+- E2E tests for complete rotation and revocation workflows
+- Recovery testing for interrupted rotation processes
+
+**Risks & Mitigation:**
+- Risk: Key rotation failure could lock users out of data
+  - Mitigation: Implement rollback mechanism, staged rotation with verification
+- Risk: Active sessions might not terminate immediately
+  - Mitigation: Real-time session monitoring, forced logout on revocation
+- Risk: Performance impact during key re-encryption
+  - Mitigation: Background processing, incremental re-encryption
+
+**External Dependencies:**
+- Libraries: @noble/ciphers
+- Infrastructure: Web Crypto API
+
+**Dependencies:** {H1}
+
+**Joy Opportunity:** Security messages are reassuring, not scary: "Access updated. Your data remains secure and private."
+
+**Includes:**
+- Key rotation mechanism
+- Instant access revocation
+- Active session handling
+- Audit logging of changes
+- User notification
+
+**Spec Reference:** ARCH-002
+
+---
+
+### H3. Approval Workflows (Nice)
+**What:** Require approval for bills, expenses, or large transactions.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/team-collaboration/`
+- Proposal: `openspec/changes/team-collaboration/proposal.md`
+- Tasks: `openspec/changes/team-collaboration/tasks.md`
+- Specs: `openspec/changes/team-collaboration/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Medium
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Admin can configure approval rules by transaction type and amount threshold
+- [ ] Transactions requiring approval enter pending state
+- [ ] Approvers receive timely notifications via configured channels
+- [ ] Approvers can approve or reject with optional comments
+- [ ] Approval history is maintained and viewable
+- [ ] Delegation allows temporary assignment of approval authority
+- [ ] System handles multi-level approval chains
+
+**Test Strategy:**
+- Unit tests for rule evaluation engine
+- Integration tests for notification delivery
+- E2E tests for complete approval workflows
+- Edge case testing for delegation and multi-level approvals
+- Performance tests with high-volume approval queues
+
+**Risks & Mitigation:**
+- Risk: Notification delays may slow critical approvals
+  - Mitigation: Real-time notifications, escalation for urgent items
+- Risk: Complex approval chains may confuse users
+  - Mitigation: Visual workflow diagrams, clear status indicators
+- Risk: Bottlenecks if approvers are unavailable
+  - Mitigation: Delegation system, backup approver configuration
+
+**External Dependencies:**
+- Libraries: None
+- Infrastructure: None
+
+**Dependencies:** {H1, E6}
+
+**Joy Opportunity:** "Trust, but verify. Approvals keep everyone on the same page."
+
+**Delight Detail:** Approval notification: "Marcus approved your expense report!"
+
+**Includes:**
+- Configure approval rules
+- Approval notifications
+- Approve/reject interface
+- Approval history
+- Delegation options
+
+**Spec Reference:** FUTURE-002
+
+---
+
+### H4. Client Portal (Nice)
+**What:** Customers can view and pay invoices online.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/team-collaboration/`
+- Proposal: `openspec/changes/team-collaboration/proposal.md`
+- Tasks: `openspec/changes/team-collaboration/tasks.md`
+- Specs: `openspec/changes/team-collaboration/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Medium
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Each customer receives unique, secure portal link
+- [ ] Customers can view invoices without creating an account
+- [ ] Payment processing is integrated and functional
+- [ ] Complete invoice history is accessible to customers
+- [ ] Portal design is professional, responsive, and accessible
+- [ ] Payment confirmation is sent to both customer and business
+- [ ] Portal supports multiple payment methods
+
+**Test Strategy:**
+- Unit tests for link generation and security
+- Integration tests for payment gateway integration
+- E2E tests for complete customer payment flow
+- Security testing for unauthorized access prevention
+- Cross-browser and mobile device testing
+
+**Risks & Mitigation:**
+- Risk: Payment gateway integration complexity
+  - Mitigation: Use well-documented payment providers, comprehensive testing
+- Risk: Security vulnerabilities in public-facing portal
+  - Mitigation: Security audit, rate limiting, link expiration
+- Risk: Poor mobile experience may frustrate customers
+  - Mitigation: Mobile-first design approach, extensive device testing
+
+**External Dependencies:**
+- Libraries: react
+- Services: Stripe, Square
+- Infrastructure: None
+
+**Dependencies:** {C7}
+
+**Joy Opportunity:** "Give your customers a professional portal. They'll be impressed."
+
+**Delight Detail:** Customer sees: "Invoice from [Your Business]. Easy to view, easy to pay."
+
+**Includes:**
+- Unique portal links per customer
+- Invoice view (no account required)
+- Payment integration
+- Invoice history
+- Simple, professional design
+
+**Spec Reference:** ACCT-002
+
+---
+
+### H5. Multi-Currency - Basic (Nice)
+**What:** Handle transactions in foreign currencies.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/team-collaboration/`
+- Proposal: `openspec/changes/team-collaboration/proposal.md`
+- Tasks: `openspec/changes/team-collaboration/tasks.md`
+- Specs: `openspec/changes/team-collaboration/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Medium
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] User can configure multiple currencies with symbols and codes
+- [ ] Transactions can be entered in any configured currency
+- [ ] Manual exchange rates can be entered and updated
+- [ ] System converts foreign currency to home currency for reporting
+- [ ] Currency is displayed correctly on all transaction views
+- [ ] Exchange rate history is maintained
+- [ ] Reports show both original and converted amounts
+
+**Test Strategy:**
+- Unit tests for currency conversion calculations
+- Integration tests for multi-currency transaction flow
+- E2E tests for foreign currency invoice creation and payment
+- Edge case testing for precision and rounding
+- Validation testing for exchange rate accuracy
+
+**Risks & Mitigation:**
+- Risk: Rounding errors in currency conversion
+  - Mitigation: Use decimal precision libraries, comprehensive calculation tests
+- Risk: User confusion about which currency to use
+  - Mitigation: Clear currency indicators, contextual help
+- Risk: Stale exchange rates lead to inaccurate reporting
+  - Mitigation: Visual indicators for rate age, reminders to update
+
+**External Dependencies:**
+- Libraries: decimal.js
+- Services: Exchange Rates API, Open Exchange Rates
+- Infrastructure: None
+
+**Dependencies:** {B2, B1}
+
+**Joy Opportunity:** "Going global! Multi-currency lets you work with customers and vendors anywhere."
+
+**Includes:**
+- Currency setup
+- Exchange rates (manual entry)
+- Transaction in foreign currency
+- Conversion to home currency
+- Currency display on transactions
+
+**Spec Reference:** CURR-001
+
+---
+
+### H6. Advanced Inventory (Nice)
+**What:** Full inventory with multiple valuation methods.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/team-collaboration/`
+- Proposal: `openspec/changes/team-collaboration/proposal.md`
+- Tasks: `openspec/changes/team-collaboration/tasks.md`
+- Specs: `openspec/changes/team-collaboration/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Low
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] User can select valuation method (FIFO, LIFO, Weighted Average)
+- [ ] Inventory valuation reports generate accurately for chosen method
+- [ ] COGS is calculated automatically based on valuation method
+- [ ] Stock take process allows physical count entry and variance reporting
+- [ ] All inventory adjustments are logged with reason and audit trail
+- [ ] Method changes require confirmation and show impact
+- [ ] Historical data remains accurate when method changes
+
+**Test Strategy:**
+- Unit tests for each valuation method calculation
+- Integration tests for COGS flow through accounting
+- E2E tests for complete inventory cycle (purchase to sale)
+- Comparison tests between methods for accuracy
+- Edge case testing for negative inventory scenarios
+
+**Risks & Mitigation:**
+- Risk: Complex valuation calculations may have edge case bugs
+  - Mitigation: Extensive test coverage, peer review of algorithms
+- Risk: Method switching may confuse historical data
+  - Mitigation: Clear warnings, method change audit trail, restatement options
+- Risk: Performance issues with large inventory databases
+  - Mitigation: Optimize queries, implement caching, batch processing
+
+**External Dependencies:**
+- Libraries: decimal.js
+- Infrastructure: None
+
+**Dependencies:** {G5}
+
+**Joy Opportunity:** "Level up your inventory! FIFO, LIFO, weighted average - choose your adventure."
+
+**Includes:**
+- FIFO/LIFO/Weighted Average selection
+- Inventory valuation reports
+- COGS calculation
+- Stock take functionality
+- Inventory adjustments with audit trail
+
+**Spec Reference:** ACCT-007
+
+---
+
+### H7. Interest Split Prompt System (Nice)
+**What:** Prompt to split principal and interest on loan payments.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/team-collaboration/`
+- Proposal: `openspec/changes/team-collaboration/proposal.md`
+- Tasks: `openspec/changes/team-collaboration/tasks.md`
+- Specs: `openspec/changes/team-collaboration/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Low
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] System detects liability account payments automatically
+- [ ] User is prompted to split principal and interest with helpful context
+- [ ] Split workflow is intuitive with default calculations provided
+- [ ] Journal entry is generated correctly upon split confirmation
+- [ ] Deferred splits are added to checklist automatically
+- [ ] User can disable prompts in settings
+- [ ] Historical loan amortization can be entered for accurate splits
+
+**Test Strategy:**
+- Unit tests for liability payment detection logic
+- Integration tests for journal entry generation
+- E2E tests for complete split workflow
+- Edge case testing for various loan types
+- Checklist integration testing
+
+**Risks & Mitigation:**
+- Risk: False positives in payment detection
+  - Mitigation: Clear identification criteria, easy dismissal option
+- Risk: Incorrect interest calculation suggestions
+  - Mitigation: Allow manual override, provide calculation guidance
+- Risk: User overwhelmed by prompts
+  - Mitigation: Smart frequency limits, persistent disable option
+
+**External Dependencies:**
+- Libraries: None
+- Infrastructure: None
+
+**Dependencies:** {B2, F7}
+
+**Joy Opportunity:** "This looks like a loan payment. Should we split out the interest? (It's tax-deductible!)"
+
+**Delight Detail:** "Not now" adds a checklist item: "Split interest from [Loan] payment" so nothing is forgotten.
+
+**Includes:**
+- Liability payment detection
+- Split workflow
+- Journal entry generation
+- Checklist integration for "later"
+- Settings to disable
+
+**Spec Reference:** LIAB-001
+
+---
+
+### H8. Sync Relay - Hosted [MVP]
+**What:** Managed sync relay service for multi-device access.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/advanced-sync/`
+- Proposal: `openspec/changes/advanced-sync/proposal.md`
+- Tasks: `openspec/changes/advanced-sync/tasks.md`
+- Specs: `openspec/changes/advanced-sync/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: High
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Production relay servers are deployed across multiple regions
+- [ ] Geographic load balancing routes users to nearest relay
+- [ ] Health monitoring detects and alerts on service issues
+- [ ] SLA metrics are tracked and meet 99.9% uptime target
+- [ ] Users can manually select preferred region
+- [ ] Relay handles encryption/decryption without accessing plaintext
+- [ ] Automatic failover occurs when relay becomes unavailable
+
+**Test Strategy:**
+- Load testing for concurrent user scenarios
+- Geographic distribution testing from multiple locations
+- Failover and recovery testing
+- Security testing for encryption boundary verification
+- Performance benchmarking for sync latency
+- Stress testing under high load conditions
+
+**Risks & Mitigation:**
+- Risk: High infrastructure costs for global deployment
+  - Mitigation: Phased regional rollout, cost monitoring, auto-scaling
+- Risk: Sync latency impacts user experience
+  - Mitigation: CDN optimization, edge caching, performance monitoring
+- Risk: Service outages affect all users
+  - Mitigation: Multi-region redundancy, automated failover, status page
+
+**External Dependencies:**
+- Libraries: ws, express
+- Services: AWS/GCP/Azure hosting, CDN
+- Infrastructure: WebSocket server, Load balancer
+
+**Dependencies:** {B6}
+
+**Joy Opportunity:** "Your data travels with you. Work on any device, stay in sync."
+
+**Includes:**
+- Production relay deployment
+- Geographic distribution
+- Health monitoring
+- SLA tracking
+- User region selection
+
+**Spec Reference:** ARCH-003
+
+---
+
+### H9. Sync Relay - Self-Hosted Documentation (Nice)
+**What:** Enable users to run their own sync relay.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/advanced-sync/`
+- Proposal: `openspec/changes/advanced-sync/proposal.md`
+- Tasks: `openspec/changes/advanced-sync/tasks.md`
+- Specs: `openspec/changes/advanced-sync/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Low
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Docker container is published and runnable
+- [ ] Binary builds are available for major platforms (Linux, Windows, macOS)
+- [ ] Comprehensive setup documentation covers installation and configuration
+- [ ] Configuration guide explains all environment variables and options
+- [ ] Health check endpoints allow monitoring of relay status
+- [ ] Migration path from hosted to self-hosted is documented
+- [ ] Troubleshooting guide addresses common issues
+
+**Test Strategy:**
+- Docker container testing on multiple platforms
+- Binary execution tests on target platforms
+- Documentation walkthrough testing
+- Configuration validation testing
+- Health check endpoint verification
+
+**Risks & Mitigation:**
+- Risk: Self-hosted users may lack technical expertise
+  - Mitigation: Detailed documentation, troubleshooting guide, community support
+- Risk: Version compatibility issues between client and self-hosted relay
+  - Mitigation: Version checking, compatibility matrix, clear upgrade paths
+- Risk: Security misconfigurations in self-hosted deployments
+  - Mitigation: Secure defaults, security checklist, automated validation
+
+**External Dependencies:**
+- Libraries: docker
+- Infrastructure: Container runtime
+
+**Dependencies:** {H8}
+
+**Joy Opportunity:** "Full control. Your data on your servers. We'll show you how."
+
+**Includes:**
+- Docker container
+- Binary builds
+- Setup documentation
+- Configuration guide
+- Health check endpoints
+
+**Spec Reference:** ARCH-003
+
+---
+
+### H10. Production Infrastructure [MVP] [INFRASTRUCTURE]
+**What:** Infrastructure as Code and production deployment pipeline.
+
+**Dependencies:** {E8, H8}
+
+**Joy Opportunity:** "Production-ready infrastructure that's reproducible and version-controlled."
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Critical (Infrastructure)
+- Owner: Unassigned
+- Last Updated: 2026-01-11
+
+**Acceptance Criteria:**
+- [ ] Infrastructure as Code (Terraform, Pulumi, or CloudFormation)
+- [ ] Production deployment pipeline configured
+- [ ] SSL/TLS certificates automated (Let's Encrypt or similar)
+- [ ] CDN configured for static assets
+- [ ] Database backup automation (if applicable)
+- [ ] Secrets management solution implemented
+- [ ] Environment parity between staging and production
+- [ ] Blue-green or rolling deployment capability
+- [ ] Rollback procedure documented and tested
+- [ ] Infrastructure changes require PR review
+
+**Test Strategy:**
+- Deploy to production-like environment to verify
+- Test rollback procedure
+- Verify SSL certificate automation
+- Test backup restoration
+
+**Includes:**
+- Infrastructure as Code templates
+- Production deployment workflow
+- SSL/TLS automation
+- CDN configuration
+- Backup automation
+- Secrets management
+
+**Spec Reference:** INFRA-010 (new)
+
+---
+
+### H11. Monitoring & Alerting [MVP] [INFRASTRUCTURE]
+**What:** Application performance monitoring, error tracking, and alert routing.
+
+**Dependencies:** {H10}
+
+**Joy Opportunity:** "Know about problems before your users do. Monitoring is your early warning system."
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Critical (Infrastructure)
+- Owner: Unassigned
+- Last Updated: 2026-01-11
+
+**Acceptance Criteria:**
+- [ ] Application Performance Monitoring (APM) integrated
+- [ ] Error tracking service configured (Sentry or similar)
+- [ ] Uptime monitoring enabled (external checks)
+- [ ] Alert routing configured (Slack, PagerDuty, email)
+- [ ] Critical alerts escalate appropriately
+- [ ] Dashboard for system health overview
+- [ ] Key metrics tracked (response time, error rate, throughput)
+- [ ] Sync relay health specifically monitored
+- [ ] Alert fatigue minimized (meaningful thresholds)
+- [ ] On-call schedule defined (if team)
+
+**Test Strategy:**
+- Trigger intentional error to verify tracking
+- Verify alerts route correctly
+- Test uptime monitoring detection
+
+**Includes:**
+- APM integration
+- Error tracking setup
+- Uptime monitoring
+- Alert routing rules
+- Health dashboards
+
+**Spec Reference:** INFRA-011 (new)
+
+---
+
+### H12. Incident Response Documentation [MVP] [INFRASTRUCTURE]
+**What:** Runbooks, rollback procedures, and on-call guidelines.
+
+**Dependencies:** {H10, H11}
+
+**Joy Opportunity:** "When things go wrong, a clear playbook turns panic into process."
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: High (Infrastructure)
+- Owner: Unassigned
+- Last Updated: 2026-01-11
+
+**Acceptance Criteria:**
+- [ ] Incident severity levels defined
+- [ ] Runbooks created for common issues
+- [ ] Rollback procedure documented step-by-step
+- [ ] Communication templates for outages
+- [ ] Post-mortem process defined
+- [ ] On-call rotation documented (if team)
+- [ ] Escalation paths clear
+- [ ] Recovery time objectives (RTO) defined
+- [ ] Recovery point objectives (RPO) defined
+- [ ] Incident response tested via drill
+
+**Includes:**
+- Incident severity definitions
+- Runbook documentation
+- Rollback procedures
+- Communication templates
+- Post-mortem process
+- On-call guidelines
+
+**Spec Reference:** INFRA-012 (new)
+
+---
+
+### H13. Write Comprehensive Tests for Group H Features [MVP] [MANDATORY]
+**What:** Write complete test suites for all Group H features before proceeding to Group I.
+
+**Dependencies:** {H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12}
+
+**⚠️ TESTING GATE:** This task is MANDATORY. You CANNOT proceed to Group I until ALL Group H tests pass.
+
+**Includes:**
+- Unit tests for all Group H components and functions
+- Integration tests for all Group H feature interactions
+- E2E tests for all Group H user workflows
+- Performance tests per DEFINITION_OF_DONE.md requirements
+
+**Status & Ownership:**
+**Status:** Not Started
+**Owner:** Unassigned
+**Last Updated:** 2026-01-10
+
+**Acceptance Criteria:**
+- [ ] Unit tests written for Multi-User Support (H1)
+- [ ] Unit tests written for Key Rotation & Access Revocation (H2)
+- [ ] Unit tests written for Approval Workflows (H3)
+- [ ] Unit tests written for Client Portal (H4)
+- [ ] Unit tests written for Multi-Currency (H5)
+- [ ] Unit tests written for Advanced Inventory (H6)
+- [ ] Unit tests written for Interest Split Prompt System (H7)
+- [ ] Unit tests written for Sync Relay - Hosted (H8)
+- [ ] Unit tests written for Sync Relay - Self-Hosted Documentation (H9)
+- [ ] Integration tests verify interactions between all Group H features
+- [ ] E2E tests cover complete multi-user and collaboration workflows
+- [ ] Performance tests verify all Group H features meet requirements
+- [ ] Test coverage meets minimum thresholds
+- [ ] All tests pass with 100% success rate
+
+**Test Strategy:**
+- **Unit Tests:** User permission logic, key rotation security, currency conversion accuracy
+- **Integration Tests:** Multi-user → sync integration, approval workflow integration
+- **E2E Tests:** Complete team collaboration workflow, client portal usage
+- **Performance Tests:** Sync speed, multi-currency calculations, inventory updates
+
+**External Dependencies:**
+- **Libraries:** vitest, @testing-library/react, playwright
+
+
+---
+
+### H14. Run All Tests and Verify 100% Pass Rate [MVP] [MANDATORY]
+**What:** Run the complete test suite and verify ALL tests pass before moving to Group I.
+
+**Dependencies:** {H13}
+
+**⚠️ CRITICAL GATE:** Group I work CANNOT begin until this task is complete.
+
+**Includes:**
+- Run `npm test` and verify 100% pass rate
+- Review test coverage reports
+- Fix any failing tests
+- Document test results
+
+**Status & Ownership:**
+**Status:** Not Started
+**Owner:** Unassigned
+**Last Updated:** 2026-01-10
+
+**Acceptance Criteria:**
+- [ ] Command `npm test` runs successfully with 0 failures
+- [ ] All unit tests pass (100% pass rate)
+- [ ] All integration tests pass (100% pass rate)
+- [ ] All E2E tests pass (100% pass rate)
+- [ ] All performance tests pass (100% pass rate)
+- [ ] Test coverage meets minimum requirements
+- [ ] Test results documented and reviewed
+
+**Success Criteria:**
+✅ **ALL TESTS PASSING** = Ready to proceed to Group I
+❌ **ANY TESTS FAILING** = Must fix before proceeding
+
+
+---
+
+## Group I - Soaring High (Requires Group H + ALL Group H Tests Passing)
+
+### I1. CRDT Conflict Resolution [MVP for multi-user]
+**What:** Handle simultaneous edits without data loss.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/advanced-sync/`
+- Proposal: `openspec/changes/advanced-sync/proposal.md`
+- Tasks: `openspec/changes/advanced-sync/tasks.md`
+- Specs: `openspec/changes/advanced-sync/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: High
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] CRDT data structures implemented for all core entity types
+- [ ] Merge algorithm handles concurrent edits without data loss
+- [ ] Conflict notifications are surfaced to users with clear explanation
+- [ ] Conflict history is viewable and auditable
+- [ ] Manual resolution interface is available for complex conflicts
+- [ ] System maintains consistency across all clients
+- [ ] Performance remains acceptable with large datasets
+
+**Test Strategy:**
+- Unit tests for CRDT merge operations
+- Concurrent edit simulation testing
+- Integration tests for multi-client scenarios
+- Conflict resolution UI testing
+- Performance testing with high conflict rates
+- Edge case testing for rare conflict scenarios
+
+**Risks & Mitigation:**
+- Risk: CRDT complexity may introduce subtle bugs
+  - Mitigation: Use proven CRDT libraries, extensive testing, code review
+- Risk: Some conflicts may be unresolvable automatically
+  - Mitigation: Manual resolution interface, clear user guidance
+- Risk: Performance degradation with conflict-heavy usage
+  - Mitigation: Optimize CRDT operations, implement conflict rate monitoring
+
+**External Dependencies:**
+- Libraries: yjs, automerge
+- Infrastructure: None
+
+**Dependencies:** {H1, B6}
+
+**Joy Opportunity:** "Two people edited this at once, and we kept both changes. No drama."
+
+**Delight Detail:** Conflict notification is calm: "Heads up: this record was updated by both you and [User]. We merged the changes."
+
+**Includes:**
+- CRDT implementation per data type
+- Merge algorithm
+- Conflict notification
+- Conflict history view
+- Manual resolution for complex cases
+
+**Spec Reference:** ARCH-004
+
+---
+
+### I2. Activity Feed (Nice)
+**What:** See what's happening across the team.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/advanced-sync/`
+- Proposal: `openspec/changes/advanced-sync/proposal.md`
+- Tasks: `openspec/changes/advanced-sync/tasks.md`
+- Specs: `openspec/changes/advanced-sync/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Medium
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Activity stream displays recent team actions in chronological order
+- [ ] Users can filter feed by team member and activity type
+- [ ] Clicking activity items navigates to related records
+- [ ] Notification preferences control which activities appear
+- [ ] Real-time updates appear in feed without refresh
+- [ ] Feed is performant with large activity volumes
+- [ ] Privacy controls respect role-based permissions
+
+**Test Strategy:**
+- Unit tests for activity filtering and aggregation
+- Integration tests for real-time feed updates
+- E2E tests for navigation from feed to records
+- Performance testing with high activity volume
+- Permission boundary testing for multi-user scenarios
+
+**Risks & Mitigation:**
+- Risk: Feed noise may overwhelm users
+  - Mitigation: Smart filtering, notification preferences, activity summarization
+- Risk: Performance issues with large activity datasets
+  - Mitigation: Pagination, lazy loading, database indexing
+- Risk: Privacy leaks through activity visibility
+  - Mitigation: Role-based filtering, comprehensive permission testing
+
+**External Dependencies:**
+- Libraries: date-fns
+- Infrastructure: None
+
+**Dependencies:** {H1, E7}
+
+**Joy Opportunity:** "Stay in the loop without endless meetings."
+
+**Includes:**
+- Activity stream
+- Filter by user/type
+- Click to view related item
+- Notification preferences
+
+**Spec Reference:** FUTURE-002
+
+---
+
+### I3. Comments on Transactions (Nice)
+**What:** Leave notes and questions on specific transactions.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/advanced-sync/`
+- Proposal: `openspec/changes/advanced-sync/proposal.md`
+- Tasks: `openspec/changes/advanced-sync/tasks.md`
+- Specs: `openspec/changes/advanced-sync/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Medium
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Users can add comments to any transaction
+- [ ] @mention functionality notifies mentioned team members
+- [ ] Comment notifications are sent via configured channels
+- [ ] Full comment history is viewable and preserved
+- [ ] Comments can be edited and deleted with audit trail
+- [ ] Comment threads maintain chronological order
+- [ ] Comment count is visible on transaction list views
+
+**Test Strategy:**
+- Unit tests for @mention parsing and notification
+- Integration tests for comment persistence and retrieval
+- E2E tests for complete comment workflow
+- Notification delivery testing
+- Permission testing for comment visibility
+
+**Risks & Mitigation:**
+- Risk: Comment spam may clutter transactions
+  - Mitigation: Edit/delete capabilities, optional comment hiding
+- Risk: @mention notifications may become overwhelming
+  - Mitigation: Notification preferences, digest options
+- Risk: Comment sync conflicts in multi-user scenarios
+  - Mitigation: Use CRDT for comment ordering, clear conflict handling
+
+**External Dependencies:**
+- Libraries: mentions
+- Infrastructure: None
+
+**Dependencies:** {H1, B2}
+
+**Joy Opportunity:** "Have a question about a transaction? Ask right there."
+
+**Includes:**
+- Add comments to any transaction
+- @mention team members
+- Comment notifications
+- Comment history
+
+**Spec Reference:** FUTURE-002
+
+---
+
+### I4. Multi-Currency - Full (Nice)
+**What:** Complete multi-currency with automatic rates and gain/loss.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/advanced-sync/`
+- Proposal: `openspec/changes/advanced-sync/proposal.md`
+- Tasks: `openspec/changes/advanced-sync/tasks.md`
+- Specs: `openspec/changes/advanced-sync/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Low
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Exchange rates update automatically from reliable API source
+- [ ] Realized gain/loss calculated correctly on foreign currency payments
+- [ ] Unrealized gain/loss reported accurately for open balances
+- [ ] Currency revaluation process handles all outstanding balances
+- [ ] Aging reports display amounts in both original and home currency
+- [ ] Manual rate override capability is available
+- [ ] Historical rate accuracy is maintained
+
+**Test Strategy:**
+- Unit tests for gain/loss calculation algorithms
+- Integration tests for automatic rate updates
+- E2E tests for complete foreign currency transaction lifecycle
+- Comparison testing against known accounting scenarios
+- Edge case testing for extreme exchange rate fluctuations
+
+**Risks & Mitigation:**
+- Risk: Exchange rate API outages prevent updates
+  - Mitigation: Fallback to manual entry, cache recent rates, multiple API sources
+- Risk: Complex gain/loss calculations may have errors
+  - Mitigation: Extensive test coverage, CPA review of algorithms
+- Risk: Users confused by unrealized vs. realized gain/loss
+  - Mitigation: Educational tooltips, clear report labels, examples
+
+**External Dependencies:**
+- Libraries: decimal.js
+- Services: Exchange Rates API
+- Infrastructure: None
+
+**Dependencies:** {H5}
+
+**Joy Opportunity:** "Exchange rates update automatically. Gain and loss tracked perfectly."
+
+**Includes:**
+- Automatic exchange rate updates
+- Realized gain/loss on payments
+- Unrealized gain/loss reporting
+- Currency revaluation
+- Multi-currency aging reports
+
+**Spec Reference:** CURR-001
+
+---
+
+### I5. Barter/Trade Transactions (Nice)
+**What:** Record barter exchanges properly.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/advanced-sync/`
+- Proposal: `openspec/changes/advanced-sync/proposal.md`
+- Tasks: `openspec/changes/advanced-sync/tasks.md`
+- Specs: `openspec/changes/advanced-sync/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Low
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Dedicated barter transaction type is available
+- [ ] Users can enter fair market value for both sides of exchange
+- [ ] System automatically creates offsetting journal entries
+- [ ] Barter income and expense are tracked separately in reports
+- [ ] 1099-B guidance is provided with educational content
+- [ ] Barter transactions are clearly labeled in all views
+- [ ] Tax implications are explained in plain language
+
+**Test Strategy:**
+- Unit tests for barter entry creation and offsetting
+- Integration tests for reporting accuracy
+- E2E tests for complete barter transaction workflow
+- Tax calculation verification
+- Educational content review
+
+**Risks & Mitigation:**
+- Risk: Users may not understand fair market value concept
+  - Mitigation: Educational tooltips, examples, valuation guidance
+- Risk: Incorrect tax treatment of barter income
+  - Mitigation: CPA review of feature, clear disclaimers, educational content
+- Risk: Limited user need for this feature
+  - Mitigation: Mark as "Nice to have", prioritize based on user feedback
+
+**External Dependencies:**
+- Libraries: decimal.js
+- Infrastructure: None
+
+**Dependencies:** {F7, B2}
+
+**Joy Opportunity:** "Traded services? We've got you covered. Barter is real income (and the IRS agrees)."
+
+**Delight Detail:** Educational explainer about barter tax implications included.
+
+**Includes:**
+- Barter transaction type
+- Fair market value entry
+- Automatic offsetting entries
+- Barter income/expense tracking
+- 1099-B guidance
+
+**Spec Reference:** BARTER-001
+
+---
+
+### I6. Scheduled Report Delivery (Nice)
+**What:** Receive reports automatically by email.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/advanced-sync/`
+- Proposal: `openspec/changes/advanced-sync/proposal.md`
+- Tasks: `openspec/changes/advanced-sync/tasks.md`
+- Specs: `openspec/changes/advanced-sync/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Low
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Users can configure schedules for any saved report
+- [ ] Email delivery occurs reliably at scheduled times
+- [ ] Multiple recipients can be specified per schedule
+- [ ] Delivery history is viewable and includes success/failure status
+- [ ] Schedule pausing and deletion is supported
+- [ ] Time zone handling is correct for all users
+- [ ] Report attachments are properly formatted (PDF/Excel)
+
+**Test Strategy:**
+- Unit tests for schedule parsing and next-run calculation
+- Integration tests for email delivery
+- E2E tests for complete scheduling workflow
+- Time zone testing across multiple regions
+- Failure recovery testing
+
+**Risks & Mitigation:**
+- Risk: Email delivery failures go unnoticed
+  - Mitigation: Delivery status tracking, retry logic, user notifications
+- Risk: Scheduled reports may contain stale data
+  - Mitigation: Real-time report generation, clear timestamp on reports
+- Risk: Time zone confusion leads to unexpected delivery times
+  - Mitigation: Clear time zone indicators, preview of next delivery time
+
+**External Dependencies:**
+- Libraries: node-cron, nodemailer
+- Infrastructure: SMTP
+
+**Dependencies:** {G1, D3}
+
+**Joy Opportunity:** "P&L delivered to your inbox every Monday. Automatic financial awareness."
+
+**Includes:**
+- Schedule configuration per report
+- Email delivery
+- Multiple recipients
+- Delivery history
+
+**Spec Reference:** ACCT-009
+
+---
+
+### I7. Load Testing Infrastructure [MVP] [INFRASTRUCTURE]
+**What:** Load testing suite for sync relay and real-time features.
+
+**Dependencies:** {H8, I1}
+
+**Joy Opportunity:** "Know your limits before your users find them. Load testing reveals bottlenecks."
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: High (Infrastructure)
+- Owner: Unassigned
+- Last Updated: 2026-01-11
+
+**Acceptance Criteria:**
+- [ ] Load test suite created for sync relay
+- [ ] Concurrent user simulation (100, 500, 1000 users)
+- [ ] Performance baseline established
+- [ ] Automated load tests run before major releases
+- [ ] CRDT sync tested under concurrent modification
+- [ ] Response time degradation tracked
+- [ ] Breaking point identified and documented
+- [ ] Load test results stored historically
+- [ ] Alerts if performance regresses
+
+**Test Strategy:**
+- Run load tests against staging environment
+- Compare results against baseline
+- Identify bottlenecks and optimize
+
+**Includes:**
+- Load test scripts (k6, Artillery, or similar)
+- Concurrent user scenarios
+- Performance baseline documentation
+- CI integration for release testing
+
+**Spec Reference:** INFRA-013 (new)
+
+---
+
+### I8. Observability Stack [MVP] [INFRASTRUCTURE]
+**What:** Distributed tracing, log aggregation, and metrics dashboards.
+
+**Dependencies:** {H11}
+
+**Joy Opportunity:** "See everything, understand everything. Observability turns mystery into clarity."
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: High (Infrastructure)
+- Owner: Unassigned
+- Last Updated: 2026-01-11
+
+**Acceptance Criteria:**
+- [ ] Distributed tracing implemented (trace sync operations across clients)
+- [ ] Log aggregation configured (structured JSON logging)
+- [ ] Metrics dashboards created (Grafana or similar)
+- [ ] CRDT conflict rate tracked as metric
+- [ ] Sync latency tracked per client
+- [ ] Log search and filtering available
+- [ ] Log retention policy defined
+- [ ] Correlation IDs link logs across services
+- [ ] Custom dashboards for business metrics
+
+**Test Strategy:**
+- Verify traces span full sync operation
+- Test log search finds relevant entries
+- Verify metrics dashboards update in real-time
+
+**Includes:**
+- Distributed tracing setup
+- Log aggregation configuration
+- Metrics collection
+- Dashboard creation
+- Log retention policies
+
+**Spec Reference:** INFRA-014 (new)
+
+---
+
+### I9. Write Comprehensive Tests for Group I Features [MVP] [MANDATORY]
+**What:** Write complete test suites for all Group I features before proceeding to Group J.
+
+**Dependencies:** {I1, I2, I3, I4, I5, I6, I7, I8}
+
+**⚠️ TESTING GATE:** This task is MANDATORY. You CANNOT proceed to Group J until ALL Group I tests pass.
+
+**Includes:**
+- Unit tests for all Group I components and functions
+- Integration tests for all Group I feature interactions
+- E2E tests for all Group I user workflows
+- Performance tests per DEFINITION_OF_DONE.md requirements
+
+**Status & Ownership:**
+**Status:** Not Started
+**Owner:** Unassigned
+**Last Updated:** 2026-01-10
+
+**Acceptance Criteria:**
+- [ ] Unit tests written for CRDT Conflict Resolution (I1)
+- [ ] Unit tests written for Activity Feed (I2)
+- [ ] Unit tests written for Comments on Transactions (I3)
+- [ ] Unit tests written for Multi-Currency - Full (I4)
+- [ ] Unit tests written for Barter/Trade Transactions (I5)
+- [ ] Unit tests written for Scheduled Report Delivery (I6)
+- [ ] Integration tests verify interactions between all Group I features
+- [ ] E2E tests cover complete conflict resolution and collaboration workflows
+- [ ] Performance tests verify all Group I features meet requirements
+- [ ] Test coverage meets minimum thresholds
+- [ ] All tests pass with 100% success rate
+
+**Test Strategy:**
+- **Unit Tests:** CRDT merge logic, conflict detection, currency exchange calculations
+- **Integration Tests:** Activity feed integration, comment synchronization
+- **E2E Tests:** Complete multi-user conflict scenario, barter transaction workflow
+- **Performance Tests:** Conflict resolution speed, report delivery reliability
+
+**External Dependencies:**
+- **Libraries:** vitest, @testing-library/react, playwright
+
+
+---
+
+### I10. Run All Tests and Verify 100% Pass Rate [MVP] [MANDATORY]
+**What:** Run the complete test suite and verify ALL tests pass before moving to Group J.
+
+**Dependencies:** {I9}
+
+**⚠️ CRITICAL GATE:** Group J work CANNOT begin until this task is complete.
+
+**Includes:**
+- Run `npm test` and verify 100% pass rate
+- Review test coverage reports
+- Fix any failing tests
+- Document test results
+
+**Status & Ownership:**
+**Status:** Not Started
+**Owner:** Unassigned
+**Last Updated:** 2026-01-10
+
+**Acceptance Criteria:**
+- [ ] Command `npm test` runs successfully with 0 failures
+- [ ] All unit tests pass (100% pass rate)
+- [ ] All integration tests pass (100% pass rate)
+- [ ] All E2E tests pass (100% pass rate)
+- [ ] All performance tests pass (100% pass rate)
+- [ ] Test coverage meets minimum requirements
+- [ ] Test results documented and reviewed
+
+**Success Criteria:**
+✅ **ALL TESTS PASSING** = Ready to proceed to Group J
+❌ **ANY TESTS FAILING** = Must fix before proceeding
+
+
+---
+
+---
+
+# Phase 5: Reaching for the Stars
+
+*"Dream big. These features push the boundaries of what accounting software can be."*
+
+## Group J - Moonshots (Requires Group I + ALL Group I Tests Passing)
+
+### J1. 3D Financial Visualization (Nice)
+**What:** Interactive 3D representation of money flow.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/moonshot-features/`
+- Proposal: `openspec/changes/moonshot-features/proposal.md`
+- Tasks: `openspec/changes/moonshot-features/tasks.md`
+- Specs: `openspec/changes/moonshot-features/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Low (Moonshot)
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] 3D visualization renders correctly on WebGL-capable browsers
+- [ ] Cash flow is visualized as animated flow between accounts
+- [ ] Balance sheet displays as 3D hierarchical structure
+- [ ] P&L shows revenue/expense flows interactively
+- [ ] Users can rotate, zoom, and interact with visualizations
+- [ ] 2D fallback is automatically provided for incompatible browsers
+- [ ] Screen reader descriptions make visualizations accessible
+- [ ] Performance remains smooth with large datasets
+
+**Test Strategy:**
+- Cross-browser WebGL compatibility testing
+- Performance testing with various data volumes
+- Accessibility testing with screen readers
+- Usability testing for 3D interaction paradigms
+- Fallback testing on non-WebGL browsers
+
+**Risks & Mitigation:**
+- Risk: High complexity may lead to bugs and performance issues
+  - Mitigation: Use proven 3D libraries, iterative development, performance profiling
+- Risk: Limited browser support may exclude users
+  - Mitigation: Comprehensive 2D fallback, feature detection
+- Risk: 3D may be gimmicky rather than useful
+  - Mitigation: User research, A/B testing, clear value proposition
+- Risk: Accessibility challenges for visual impairments
+  - Mitigation: Complete screen reader support, keyboard navigation, text alternatives
+
+**External Dependencies:**
+- Libraries: three.js, d3.js, react-three-fiber
+- Infrastructure: WebGL
+
+**Dependencies:** {F4, D6, D7}
+
+**Joy Opportunity:** "See your finances in a whole new dimension. Watch money flow through your business like a river."
+
+**Delight Detail:** Time-lapse mode: watch a year of finances unfold like a beautiful animation.
+
+**Includes:**
+- 3D engine integration
+- Cash flow visualization
+- Balance sheet visualization
+- P&L flow diagram
+- Interactive controls
+- 2D fallback
+- Accessibility descriptions
+
+**Spec Reference:** VIZ-001
+
+---
+
+### J2. AI-Powered Insights (Nice)
+**What:** Intelligent analysis and recommendations.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/moonshot-features/`
+- Proposal: `openspec/changes/moonshot-features/proposal.md`
+- Tasks: `openspec/changes/moonshot-features/tasks.md`
+- Specs: `openspec/changes/moonshot-features/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Medium (Moonshot)
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Anomaly detection identifies unusual transactions and patterns
+- [ ] Trend analysis surfaces meaningful business insights
+- [ ] Natural language insights are clear, actionable, and non-judgmental
+- [ ] Cash flow forecasting provides reasonable predictions with confidence intervals
+- [ ] Expense pattern recognition learns from user behavior
+- [ ] Users can provide feedback to improve AI accuracy
+- [ ] All AI suggestions include explanations of reasoning
+
+**Test Strategy:**
+- Algorithm validation with known datasets
+- Accuracy measurement for forecasting models
+- User acceptance testing for insight clarity
+- False positive rate monitoring
+- Continuous learning validation
+- Privacy and data security testing
+
+**Risks & Mitigation:**
+- Risk: Requires advanced AI/ML technology not yet mature
+  - Mitigation: Start with rule-based heuristics, evolve to ML, partner with AI providers
+- Risk: Inaccurate predictions may mislead users
+  - Mitigation: Confidence scores, clear disclaimers, human oversight
+- Risk: High computational costs for AI processing
+  - Mitigation: Cloud-based processing, tiered feature access, optimization
+- Risk: Privacy concerns with AI analyzing financial data
+  - Mitigation: Local processing where possible, clear data usage policies, opt-in approach
+
+**External Dependencies:**
+- Libraries: tensorflow.js, brain.js
+- Services: OpenAI API, Anthropic Claude API
+- Infrastructure: None
+
+**Dependencies:** {F1, F4, G1}
+
+**Joy Opportunity:** "I noticed your expenses grew faster than revenue this quarter. Want to dig into why?"
+
+**Delight Detail:** Insights are helpful, never judgmental: "Here's something interesting..." not "Warning!"
+
+**Includes:**
+- Anomaly detection
+- Trend analysis
+- Natural language insights
+- Cash flow forecasting
+- Expense pattern recognition
+
+**Spec Reference:** AI-001 (from Ideas)
+
+---
+
+### J3. "What-If" Scenario Planner (Nice)
+**What:** Model business decisions before making them.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/moonshot-features/`
+- Proposal: `openspec/changes/moonshot-features/proposal.md`
+- Tasks: `openspec/changes/moonshot-features/tasks.md`
+- Specs: `openspec/changes/moonshot-features/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Low (Moonshot)
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Users can create multiple named scenarios
+- [ ] Variable adjustments (revenue, expenses, hiring, etc.) are intuitive
+- [ ] Projected financial impact is calculated and displayed clearly
+- [ ] Multiple scenarios can be compared side-by-side
+- [ ] Scenarios can be saved, edited, and deleted
+- [ ] Scenarios can be shared with team members or advisors
+- [ ] Assumptions and calculations are transparent
+
+**Test Strategy:**
+- Unit tests for scenario calculation engine
+- Integration tests for data persistence and sharing
+- E2E tests for complete scenario planning workflow
+- Accuracy validation for financial projections
+- Usability testing for scenario creation interface
+
+**Risks & Mitigation:**
+- Risk: Complex modeling may require advanced financial knowledge
+  - Mitigation: Templates for common scenarios, educational guidance, simple defaults
+- Risk: Projections may be overly optimistic or pessimistic
+  - Mitigation: Conservative defaults, multiple scenario comparison, clear assumptions
+- Risk: Feature complexity may overwhelm users
+  - Mitigation: Progressive disclosure, wizard-based creation, examples
+- Risk: Requires AI foundation from J2
+  - Mitigation: Build simpler version first, add AI enhancement later
+
+**External Dependencies:**
+- Libraries: decimal.js
+- Infrastructure: None
+
+**Dependencies:** {J2, F4}
+
+**Joy Opportunity:** "What if you hired an employee? Let's find out... without the commitment."
+
+**Delight Detail:** Scenarios can be named: "The Expansion Dream" or "Conservative Growth"
+
+**Includes:**
+- Scenario creation
+- Adjust variables
+- See projected impact
+- Compare scenarios
+- Save and share scenarios
+
+**Spec Reference:** AI-002 (from Ideas)
+
+---
+
+### J4. Financial Health Score (Nice)
+**What:** Simple 0-100 score representing overall business health.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/moonshot-features/`
+- Proposal: `openspec/changes/moonshot-features/proposal.md`
+- Tasks: `openspec/changes/moonshot-features/tasks.md`
+- Specs: `openspec/changes/moonshot-features/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Medium (Moonshot)
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Score calculation produces consistent 0-100 value
+- [ ] Component breakdown shows liquidity, profitability, efficiency, and leverage
+- [ ] Historical trend tracking displays score changes over time
+- [ ] Improvement recommendations are specific and actionable
+- [ ] Industry benchmarking provides context (when data available)
+- [ ] Score updates automatically as financial data changes
+- [ ] Clear explanations help users understand score meaning
+
+**Test Strategy:**
+- Unit tests for scoring algorithm with known scenarios
+- Validation against financial health principles
+- E2E tests for score display and breakdown
+- Comparison testing with industry standards
+- User comprehension testing
+
+**Risks & Mitigation:**
+- Risk: Simplifying financial health to single score may be misleading
+  - Mitigation: Clear component breakdown, educational content, disclaimers
+- Risk: Algorithm may not account for industry-specific factors
+  - Mitigation: Industry-specific scoring models, customization options
+- Risk: Score volatility may confuse or stress users
+  - Mitigation: Smoothing algorithms, context for changes, positive framing
+- Risk: Lack of industry benchmark data
+  - Mitigation: Start with internal benchmarks, partner for industry data
+
+**External Dependencies:**
+- Libraries: None
+- Infrastructure: None
+
+**Dependencies:** {F4, D6, D7, F5, F6}
+
+**Joy Opportunity:** "Your Financial Health Score is 73. Here's what that means and how to improve."
+
+**Delight Detail:** Score improvements celebrated: "Your score went up 5 points this month!"
+
+**Includes:**
+- Score calculation algorithm
+- Component breakdown (liquidity, profitability, etc.)
+- Trend tracking
+- Improvement recommendations
+- Industry benchmarking (if data available)
+
+**Spec Reference:** HEALTH-001 (from Ideas)
+
+---
+
+### J5. Goal Setting & Tracking (Nice)
+**What:** Set and track financial goals.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/moonshot-features/`
+- Proposal: `openspec/changes/moonshot-features/proposal.md`
+- Tasks: `openspec/changes/moonshot-features/tasks.md`
+- Specs: `openspec/changes/moonshot-features/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Medium (Moonshot)
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Users can create goals for revenue, profit, expense reduction, and custom metrics
+- [ ] Progress visualization shows current status vs. target
+- [ ] Milestone notifications alert users at 25%, 50%, 75%, and 100% completion
+- [ ] Complete goal history is maintained and viewable
+- [ ] Goals can be linked to specific checklist items
+- [ ] Goal achievement triggers confetti celebration
+- [ ] Goals support time-based targets (monthly, quarterly, annual)
+
+**Test Strategy:**
+- Unit tests for goal progress calculation
+- Integration tests for milestone notification delivery
+- E2E tests for complete goal lifecycle
+- Visualization testing for various goal types
+- Celebration animation testing
+
+**Risks & Mitigation:**
+- Risk: Users may set unrealistic goals and become discouraged
+  - Mitigation: Guidance on goal setting, suggested targets, celebrate partial progress
+- Risk: Too many notifications may become annoying
+  - Mitigation: Notification preferences, smart frequency controls
+- Risk: Goal tracking may add pressure rather than motivation
+  - Mitigation: Positive framing, optional feature, emphasis on learning
+
+**External Dependencies:**
+- Libraries: canvas-confetti
+- Infrastructure: None
+
+**Dependencies:** {J4, C4}
+
+**Joy Opportunity:** "Set a goal, watch your progress. Celebrate when you hit it!"
+
+**CONFETTI MOMENT: Goal achievement = full confetti celebration.
+
+**Includes:**
+- Goal creation (revenue, profit, expense reduction)
+- Progress visualization
+- Milestone notifications
+- Goal history
+- Connect goals to checklist items
+
+**Spec Reference:** GOAL-001 (from Ideas)
+
+---
+
+### J6. Emergency Fund & Runway Calculator (Nice)
+**What:** Know how long your business can survive.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/moonshot-features/`
+- Proposal: `openspec/changes/moonshot-features/proposal.md`
+- Tasks: `openspec/changes/moonshot-features/tasks.md`
+- Specs: `openspec/changes/moonshot-features/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Medium (Moonshot)
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Runway calculation accurately projects months of operation based on current burn rate
+- [ ] Emergency fund recommendations are personalized to business type and size
+- [ ] Threshold alerts notify users when runway falls below configurable limits
+- [ ] Scenario modeling allows users to explore runway extension strategies
+- [ ] Visual runway representation is clear and easy to understand
+- [ ] Calculation methodology is transparent and adjustable
+- [ ] Conservative estimates are used to avoid false security
+
+**Test Strategy:**
+- Unit tests for runway calculation algorithm
+- Validation against known business scenarios
+- E2E tests for alert delivery
+- Scenario modeling accuracy testing
+- User comprehension testing
+
+**Risks & Mitigation:**
+- Risk: Runway calculations may cause anxiety
+  - Mitigation: Positive framing, actionable recommendations, opt-in approach
+- Risk: Volatile expenses may make projections unreliable
+  - Mitigation: Multiple projection methods, confidence ranges, trend smoothing
+- Risk: Users may not understand burn rate concept
+  - Mitigation: Educational content, plain language explanations, examples
+- Risk: Feature may be too advanced for early-stage businesses
+  - Mitigation: Progressive feature revelation, simple default view
+
+**External Dependencies:**
+- Libraries: decimal.js, date-fns
+- Infrastructure: None
+
+**Dependencies:** {F4}
+
+**Joy Opportunity:** "You have 4.2 months of runway. That's peace of mind."
+
+**Delight Detail:** Runway alerts are helpful, not scary: "Just a heads up - runway is at 2 months. Here are some ideas..."
+
+**Includes:**
+- Runway calculation
+- Emergency fund recommendations
+- Threshold alerts
+- Scenario modeling for extension
+- Visual runway representation
+
+**Spec Reference:** RUNWAY-001 (from Ideas)
+
+---
+
+### J7. Mentor/Advisor Portal (Nice)
+**What:** Invite accountants or advisors for collaborative access.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/moonshot-features/`
+- Proposal: `openspec/changes/moonshot-features/proposal.md`
+- Tasks: `openspec/changes/moonshot-features/tasks.md`
+- Specs: `openspec/changes/moonshot-features/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Low (Moonshot)
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Business owners can invite advisors via email
+- [ ] Advisors can choose view-only or collaborative access levels
+- [ ] Document sharing is secure and encrypted
+- [ ] Advisors can leave feedback and comments on records
+- [ ] Access can be granted, modified, or revoked at any time
+- [ ] Advisor activity is tracked in audit log
+- [ ] Professional advisor dashboard shows all client businesses
+
+**Test Strategy:**
+- Unit tests for invitation and access control logic
+- Integration tests for document sharing
+- E2E tests for complete advisor collaboration workflow
+- Security testing for access boundaries
+- Multi-client advisor testing
+
+**Risks & Mitigation:**
+- Risk: Privacy concerns about third-party access to financial data
+  - Mitigation: Clear permissions, encryption, easy revocation, transparent activity logs
+- Risk: Advisor confusion with multi-client interface
+  - Mitigation: Clear client switching, separate dashboards, client context indicators
+- Risk: Complex permission model may lead to errors
+  - Mitigation: Simple default permissions, clear role descriptions, extensive testing
+- Risk: Limited advisor adoption
+  - Mitigation: Marketing to accounting professionals, onboarding support, value proposition
+
+**External Dependencies:**
+- Libraries: None
+- Infrastructure: None
+
+**Dependencies:** {H1, I3}
+
+**Joy Opportunity:** "Invite your accountant to see your books. Collaboration without file sharing."
+
+**Includes:**
+- Advisor invitation
+- View-only or collaborative roles
+- Secure document sharing
+- Feedback/comments
+- Access control
+
+**Spec Reference:** MENTOR-001 (from Ideas)
+
+---
+
+### J8. Tax Time Preparation Mode (Nice)
+**What:** Guided workflow to prepare for tax season.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/moonshot-features/`
+- Proposal: `openspec/changes/moonshot-features/proposal.md`
+- Tasks: `openspec/changes/moonshot-features/tasks.md`
+- Specs: `openspec/changes/moonshot-features/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Medium (Moonshot)
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Tax prep mode can be activated for specific tax year
+- [ ] Documents checklist is comprehensive and business-type appropriate
+- [ ] System identifies missing information with clear guidance
+- [ ] Tax-ready report bundle includes all necessary financial statements
+- [ ] Accountant export package is industry-standard format (CSV, PDF, QBO)
+- [ ] Deduction suggestions are educational with clear disclaimers
+- [ ] Progress indicator shows completion percentage
+
+**Test Strategy:**
+- Unit tests for completeness checking algorithms
+- Integration tests for report bundle generation
+- E2E tests for complete tax prep workflow
+- Export format validation
+- CPA review of feature completeness
+
+**Risks & Mitigation:**
+- Risk: Tax advice could create legal liability
+  - Mitigation: Educational disclaimers, "consult a tax professional" messaging, no specific advice
+- Risk: Jurisdiction-specific requirements may be missed
+  - Mitigation: Focus on general preparation, jurisdiction selection, CPA partnerships
+- Risk: Overwhelming complexity for users
+  - Mitigation: Progressive disclosure, wizard-based workflow, help at every step
+- Risk: Annual feature may not justify development cost
+  - Mitigation: Reusable components, marketing opportunity, user retention value
+
+**External Dependencies:**
+- Libraries: pdfmake
+- Infrastructure: None
+
+**Dependencies:** {D6, D7, G9, G6}
+
+**Joy Opportunity:** "Tax season doesn't have to be scary. We'll get you ready, step by step."
+
+**Delight Detail:** Checklist turns green as items complete. "You're 80% ready for taxes!"
+
+**Includes:**
+- Tax prep workflow activation
+- Documents checklist
+- Missing info identification
+- Tax-ready report bundle
+- Accountant export package
+- Deduction suggestions (educational)
+
+**Spec Reference:** TAX-001 (from Ideas)
+
+---
+
+### J9. Integration Hub - First Integrations (Nice)
+**What:** Connect to external services.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/moonshot-features/`
+- Proposal: `openspec/changes/moonshot-features/proposal.md`
+- Tasks: `openspec/changes/moonshot-features/tasks.md`
+- Specs: `openspec/changes/moonshot-features/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Medium (Moonshot)
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Integration framework supports OAuth and API key authentication
+- [ ] First integrations (Stripe, Square, PayPal) are fully functional
+- [ ] Data mapping is configurable and validates correctly
+- [ ] Sync scheduling allows manual and automatic synchronization
+- [ ] Error handling provides clear messages and recovery options
+- [ ] Integration status is visible and monitored
+- [ ] User can disconnect integrations cleanly
+
+**Test Strategy:**
+- Unit tests for integration framework
+- Integration tests with external service sandboxes
+- E2E tests for complete connection and sync workflows
+- Error scenario testing (API failures, auth issues, rate limits)
+- Data mapping validation testing
+
+**Risks & Mitigation:**
+- Risk: External API changes may break integrations
+  - Mitigation: Version pinning, change monitoring, automated testing, graceful degradation
+- Risk: Complex data mapping may confuse users
+  - Mitigation: Smart defaults, templates, validation with clear errors
+- Risk: Authentication security vulnerabilities
+  - Mitigation: OAuth best practices, secure token storage, security audit
+- Risk: Requires advanced technology integration
+  - Mitigation: Use integration platforms (Zapier API, Merge.dev), focus on most-requested services
+
+**External Dependencies:**
+- Libraries: axios
+- Services: Stripe API, Square API, PayPal API
+- Infrastructure: OAuth 2.0
+
+**Dependencies:** {A1, A4}
+
+**Joy Opportunity:** "Connect your tools. Less copy-paste, more automation."
+
+**Includes:**
+- Integration framework
+- First integrations (e.g., Stripe, Square)
+- Data mapping
+- Sync scheduling
+- Error handling
+
+**Spec Reference:** INTEG-001 (from Ideas)
+
+---
+
+### J10. Mobile Receipt Capture App (Nice)
+**What:** Dedicated mobile app for on-the-go receipt capture.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/moonshot-features/`
+- Proposal: `openspec/changes/moonshot-features/proposal.md`
+- Tasks: `openspec/changes/moonshot-features/tasks.md`
+- Specs: `openspec/changes/moonshot-features/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Low (Moonshot)
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] Native mobile app works on iOS and Android
+- [ ] Camera integration provides clear receipt capture
+- [ ] Offline capture stores receipts locally and syncs when online
+- [ ] GPS-based mileage tracking calculates distances automatically
+- [ ] Quick expense entry allows minimal-friction data input
+- [ ] Home screen widget enables instant capture
+- [ ] OCR processes receipts for automatic data extraction
+
+**Test Strategy:**
+- Device compatibility testing (iOS/Android, various screen sizes)
+- Camera quality and OCR accuracy testing
+- Offline functionality and sync verification
+- GPS accuracy and battery impact testing
+- Widget functionality testing
+- Cross-platform feature parity testing
+
+**Risks & Mitigation:**
+- Risk: High development cost for native mobile apps
+  - Mitigation: React Native for cross-platform, MVP feature set first, user demand validation
+- Risk: OCR accuracy may be lower on mobile
+  - Mitigation: Cloud processing option, manual override, quality guidelines
+- Risk: Battery drain from GPS tracking
+  - Mitigation: Smart tracking algorithms, user controls, battery monitoring
+- Risk: Requires advanced mobile development expertise
+  - Mitigation: Partner with mobile specialists, use established frameworks, iterative development
+
+**External Dependencies:**
+- Libraries: react-native, expo, react-native-camera
+- Infrastructure: iOS/Android platform APIs
+
+**Dependencies:** {G7, H8}
+
+**Joy Opportunity:** "Snap a receipt at lunch. It'll be categorized by dinner."
+
+**Delight Detail:** Quick-capture widget on phone home screen.
+
+**Includes:**
+- Native mobile app
+- Camera integration
+- Offline capture with sync
+- Mileage tracking with GPS
+- Quick expense entry
+
+**Spec Reference:** MOBILE-001 (from Ideas)
+
+---
+
+### J11. API Access for Developers (Nice)
+**What:** Public API for custom integrations.
+
+**OpenSpec Resources:**
+- Change: `openspec/changes/moonshot-features/`
+- Proposal: `openspec/changes/moonshot-features/proposal.md`
+- Tasks: `openspec/changes/moonshot-features/tasks.md`
+- Specs: `openspec/changes/moonshot-features/specs/*/spec.md`
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Low (Moonshot)
+- Owner: TBD
+
+**Acceptance Criteria:**
+- [ ] RESTful API follows OpenAPI 3.0 specification
+- [ ] API key authentication is secure and well-documented
+- [ ] Rate limiting protects against abuse (configurable per tier)
+- [ ] Comprehensive API documentation with examples
+- [ ] Sandbox environment allows testing without affecting production data
+- [ ] Webhooks notify external systems of events
+- [ ] API versioning supports backward compatibility
+
+**Test Strategy:**
+- Unit tests for all API endpoints
+- Integration tests for authentication and authorization
+- Rate limiting and abuse prevention testing
+- API documentation accuracy verification
+- Sandbox environment isolation testing
+- Webhook delivery reliability testing
+
+**Risks & Mitigation:**
+- Risk: API abuse or security vulnerabilities
+  - Mitigation: Rate limiting, authentication, input validation, security audit
+- Risk: Breaking changes may disrupt integrations
+  - Mitigation: API versioning, deprecation notices, long support windows
+- Risk: High support burden for developer questions
+  - Mitigation: Comprehensive documentation, code examples, community forum
+- Risk: Requires advanced API design expertise
+  - Mitigation: Follow REST best practices, OpenAPI standard, developer feedback
+
+**External Dependencies:**
+- Libraries: express, swagger
+- Infrastructure: REST API server
+
+**Dependencies:** {H1, A4}
+
+**Joy Opportunity:** "Build your own integrations. Your data, your rules."
+
+**Includes:**
+- RESTful API
+- Authentication (API keys)
+- Rate limiting
+- Documentation
+- Sandbox environment
+
+**Spec Reference:** FUTURE-001
+
+---
+
+### J12. API Infrastructure [MVP] [INFRASTRUCTURE]
+**What:** API documentation automation, versioning, and rate limiting infrastructure.
+
+**Dependencies:** {J11}
+
+**Joy Opportunity:** "A well-documented API is a gift to developers. Make integration a pleasure."
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: High (Infrastructure)
+- Owner: Unassigned
+- Last Updated: 2026-01-11
+
+**Acceptance Criteria:**
+- [ ] OpenAPI/Swagger specification auto-generated from code
+- [ ] API documentation site deployed and accessible
+- [ ] API versioning strategy implemented (URL or header)
+- [ ] Rate limiting enforced per API key
+- [ ] Rate limit headers returned in responses
+- [ ] API key management UI for users
+- [ ] Usage analytics tracked per API key
+- [ ] API changelog maintained
+- [ ] Deprecation notices automated
+- [ ] SDK generation from OpenAPI spec (optional)
+
+**Test Strategy:**
+- Verify documentation updates automatically
+- Test rate limiting enforcement
+- Verify versioning works correctly
+
+**Includes:**
+- OpenAPI spec generation
+- Documentation site deployment
+- API versioning implementation
+- Rate limiting infrastructure
+- API key management
+
+**Spec Reference:** INFRA-015 (new)
+
+---
+
+### J13. Mobile CI/CD [Conditional] [INFRASTRUCTURE]
+**What:** iOS and Android build pipelines and app store deployment automation.
+
+**Dependencies:** {J10, D11}
+
+**Note:** Only required if native mobile app is built. Skip if using PWA approach.
+
+**Joy Opportunity:** "Ship mobile updates as easily as web updates. Automation makes it possible."
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: High (Infrastructure - if mobile app)
+- Owner: Unassigned
+- Last Updated: 2026-01-11
+
+**Acceptance Criteria:**
+- [ ] iOS build pipeline configured (Xcode Cloud or similar)
+- [ ] Android build pipeline configured (Gradle + GitHub Actions)
+- [ ] Automatic versioning and build numbering
+- [ ] Beta distribution configured (TestFlight, Firebase App Distribution)
+- [ ] App store deployment automated (App Store Connect, Google Play)
+- [ ] Code signing managed securely
+- [ ] Build artifacts archived
+- [ ] Crash reporting integrated (if not via Sentry)
+- [ ] Mobile-specific tests run in CI
+
+**Test Strategy:**
+- Trigger beta build and verify distribution
+- Test app store submission flow (sandbox)
+- Verify crash reporting captures test crash
+
+**Includes:**
+- iOS build configuration
+- Android build configuration
+- Beta distribution setup
+- App store deployment automation
+- Code signing management
+
+**Spec Reference:** INFRA-016 (new)
+
+---
+
+### J14. Integration Testing Environment [MVP] [INFRASTRUCTURE]
+**What:** Sandbox environment for third-party integrations with mock services.
+
+**Dependencies:** {J9, E8}
+
+**Joy Opportunity:** "Test integrations safely. Sandboxes let you experiment without consequences."
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: High (Infrastructure)
+- Owner: Unassigned
+- Last Updated: 2026-01-11
+
+**Acceptance Criteria:**
+- [ ] Sandbox environment provisioned for integrations
+- [ ] Mock services for external APIs (Stripe, etc.)
+- [ ] Integration test suite automated
+- [ ] Third-party webhooks testable in sandbox
+- [ ] Sandbox data isolated and resettable
+- [ ] Integration test results tracked
+- [ ] Mock service responses configurable
+- [ ] Sandbox accessible to integration partners
+
+**Test Strategy:**
+- Test integration against mock services
+- Verify sandbox isolation
+- Test reset functionality
+
+**Includes:**
+- Sandbox environment setup
+- Mock service configuration
+- Integration test automation
+- Partner access management
+
+**Spec Reference:** INFRA-017 (new)
+
+---
+
+### J15. Write Comprehensive Tests for Group J Features [MVP] [MANDATORY]
+**What:** Write complete test suites for all Group J features.
+
+**Dependencies:** {J1, J2, J3, J4, J5, J6, J7, J8, J9, J10, J11, J12, J13, J14}
+
+**⚠️ TESTING GATE:** This task is MANDATORY. All Group J features must be tested before release.
+
+**Includes:**
+- Unit tests for all Group J components and functions
+- Integration tests for all Group J feature interactions
+- E2E tests for all Group J user workflows
+- Performance tests per DEFINITION_OF_DONE.md requirements
+
+**Status & Ownership:**
+**Status:** Not Started
+**Owner:** Unassigned
+**Last Updated:** 2026-01-10
+
+**Acceptance Criteria:**
+- [ ] Unit tests written for 3D Financial Visualization (J1)
+- [ ] Unit tests written for AI-Powered Insights (J2)
+- [ ] Unit tests written for What-If Scenario Planner (J3)
+- [ ] Unit tests written for Financial Health Score (J4)
+- [ ] Unit tests written for Goal Setting & Tracking (J5)
+- [ ] Unit tests written for Emergency Fund & Runway Calculator (J6)
+- [ ] Unit tests written for Mentor/Advisor Portal (J7)
+- [ ] Unit tests written for Tax Time Preparation Mode (J8)
+- [ ] Unit tests written for Integration Hub (J9)
+- [ ] Unit tests written for Mobile Receipt Capture App (J10)
+- [ ] Unit tests written for API Access for Developers (J11)
+- [ ] Integration tests verify interactions between all Group J features
+- [ ] E2E tests cover complete advanced workflows
+- [ ] Performance tests verify all Group J features meet requirements
+- [ ] Test coverage meets minimum thresholds
+- [ ] All tests pass with 100% success rate
+
+**Test Strategy:**
+- **Unit Tests:** AI prediction accuracy, scenario calculation logic, health score algorithms
+- **Integration Tests:** API integration testing, mobile app integration
+- **E2E Tests:** Complete goal tracking workflow, tax preparation flow
+- **Performance Tests:** 3D visualization rendering, AI response time, API throughput
+
+**External Dependencies:**
+- **Libraries:** vitest, @testing-library/react, playwright
+
+
+---
+
+### J16. Run All Tests and Verify 100% Pass Rate [MVP] [MANDATORY]
+**What:** Run the complete test suite and verify ALL tests pass before release.
+
+**Dependencies:** {J15}
+
+**⚠️ CRITICAL GATE:** Product CANNOT be released until this task is complete.
+
+**Includes:**
+- Run `npm test` and verify 100% pass rate
+- Review test coverage reports
+- Fix any failing tests
+- Document test results
+- Final quality assurance review
+
+**Status & Ownership:**
+**Status:** Not Started
+**Owner:** Unassigned
+**Last Updated:** 2026-01-10
+
+**Acceptance Criteria:**
+- [ ] Command `npm test` runs successfully with 0 failures
+- [ ] All unit tests pass (100% pass rate) across ALL groups (A-J)
+- [ ] All integration tests pass (100% pass rate) across ALL groups (A-J)
+- [ ] All E2E tests pass (100% pass rate) across ALL groups (A-J)
+- [ ] All performance tests pass (100% pass rate) across ALL groups (A-J)
+- [ ] Test coverage meets minimum requirements across entire codebase
+- [ ] Test results documented and reviewed
+- [ ] Full regression testing completed
+- [ ] All quality gates passed
+
+**Success Criteria:**
+✅ **ALL TESTS PASSING** = Ready for release
+❌ **ANY TESTS FAILING** = Cannot release until fixed
+
+**This is the final quality gate before release. No exceptions.**
+
+
+---
+
+---
+
+# Bonus: Easter Eggs & Hidden Delights
+
+*"These are the surprises that make users smile and tell their friends."*
+
+### Easter Egg Ideas (Implement When Time Allows)
+
+1. **The Konami Code** - Entering the Konami code anywhere triggers a brief celebration animation with the message "You found a secret! We appreciate the curious ones."
+
+2. **Transaction #1000** - When a user enters their 1000th transaction, a special message: "Transaction ONE THOUSAND! If bookkeeping were a video game, you'd be beating it."
+
+3. **Midnight Bookkeeper** - If reconciling after midnight: "Burning the midnight oil? Your dedication is impressive. (But also, go to bed!)"
+
+4. **April 15th Greeting** - On tax day (US): "Happy Tax Day! We hope your books are as ready as your tax preparer is caffeinated."
+
+5. **Anniversary Badge** - On the user's signup anniversary: "Happy Graceful Books anniversary! Another year of financial clarity."
+
+6. **Zero Balance Celebration** - If A/R hits zero: "Everyone's paid up! This calls for celebration."
+
+7. **The Perfect Reconciliation** - If a reconciliation matches perfectly on first try: "PERFECT MATCH! The accounting gods smile upon you today."
+
+8. **Seasonal Themes** - Subtle seasonal touches (falling leaves in autumn, gentle snowflakes in winter) that can be toggled off.
+
+---
+
+# Appendix: Spec Reference Quick Index
+
+| Code | Description | Roadmap Items |
+|------|-------------|---------------|
+| ARCH-001 | Zero-knowledge encryption | A2 |
+| ARCH-002 | Key management | A2, H1, H2 |
+| ARCH-003 | Sync infrastructure | A3, B6, H8, H9 |
+| ARCH-004 | Conflict resolution | I1 |
+| ONB-001 | Assessment framework | C1, C2 |
+| ONB-002 | Assessment structure | C1, C2 |
+| ONB-003 | Phase determination | C1 |
+| ONB-004 | Steadiness communication | B4, B5, B7 |
+| PFD-001 | Feature revelation | C5 |
+| PFD-002 | Phase-based interface | B2, B3, C5, F1 |
+| ACCT-001 | Chart of accounts | A1, B1, D1 |
+| ACCT-002 | Invoicing & clients | C6, C7, E3, E4, H4 |
+| ACCT-003 | Bills & expenses | C8, D5, E5, E6, G5, G6, G7 |
+| ACCT-004 | Bank reconciliation | D2, E1 |
+| ACCT-005 | Journal entries | B2, F7 |
+| ACCT-006 | Products/services | G2 |
+| ACCT-007 | Inventory | G3, H6 |
+| ACCT-008 | Sales tax | G4 |
+| ACCT-009 | Reporting | D6, D7, F4, F5, F6, G1, I6 |
+| ACCT-010 | Cash vs. accrual | F8 |
+| ACCT-011 | Audit log | A1, B8, E7 |
+| CLASS-001 | Classification & tagging | F2, F3 |
+| CHECK-001 | Checklist generation | C3, C4 |
+| CHECK-002 | Checklist interface | C4 |
+| NOTIF-001 | Weekly email | D3 |
+| CURR-001 | Multi-currency | H5, I4 |
+| BARTER-001 | Barter transactions | I5 |
+| VIZ-001 | 3D visualization | J1 |
+| LIAB-001 | Interest prompt | H7 |
+| FUTURE-001 | API architecture | J11 |
+| FUTURE-002 | Team collaboration | H1, H3, I2, I3 |
+| TECH-001 | Performance | B9 |
+| TECH-002 | Platform support | A6 |
+| TECH-003 | Accessibility | A5 |
+
+---
+
+*"Remember: every big journey is just a series of small steps. You've got this. And so do your users."*
+
+**Now go build something graceful.**

@@ -280,3 +280,9 @@ export interface JournalEntryStatistics {
   entries_from_templates: number;
 }
 
+/**
+ * TODO: Integration test stub - add standard journal entry templates
+ * Extended set of standard journal entry templates
+ */
+export const STANDARD_JOURNAL_ENTRY_TEMPLATES_EXTENDED: JournalEntryTemplate[] = []
+

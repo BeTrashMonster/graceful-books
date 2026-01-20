@@ -312,7 +312,7 @@ describe('ExchangeRateService', () => {
       );
 
       // Should only include rates within range
-      expect(history.every(r => r.effective_date >= startDate && r.effective_date <= endDate)).toBe(true);
+      expect(history.every((r: any) => r.effective_date >= startDate && r.effective_date <= endDate)).toBe(true);
     });
   });
 

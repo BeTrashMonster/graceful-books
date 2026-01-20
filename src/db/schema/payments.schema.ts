@@ -100,7 +100,7 @@ export const createDefaultPayment = (
     gateway_transaction_id: null,
     amount,
     currency,
-    status: 'PENDING',
+    status: 'pending',
     customer_email: customerEmail,
     customer_name: null,
     payment_method_type: null,

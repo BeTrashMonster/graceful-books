@@ -149,7 +149,7 @@ describe('Contacts Store - Vendor Management', () => {
     it('should create a vendor with encryption', async () => {
       const vendor = createMockVendor()
       const context: EncryptionContext = {
-        encryptionService: mockEncryptionService,
+        encryptionService: mockEncryptionService as any,
       }
 
       vi.mocked(db.contacts.add).mockImplementation((entity: any) => {
@@ -175,7 +175,7 @@ describe('Contacts Store - Vendor Management', () => {
     it('should encrypt vendor address as JSON', async () => {
       const vendor = createMockVendor()
       const context: EncryptionContext = {
-        encryptionService: mockEncryptionService,
+        encryptionService: mockEncryptionService as any,
       }
 
       vi.mocked(db.contacts.add).mockResolvedValue('vendor-123')
@@ -254,7 +254,7 @@ describe('Contacts Store - Vendor Management', () => {
     it('should mark encrypted fields in metadata', async () => {
       const vendor = createMockVendor()
       const context: EncryptionContext = {
-        encryptionService: mockEncryptionService,
+        encryptionService: mockEncryptionService as any,
       }
 
       vi.mocked(db.contacts.add).mockImplementation((entity: any) => {
@@ -353,7 +353,7 @@ describe('Contacts Store - Vendor Management', () => {
       vi.mocked(db.contacts.get).mockResolvedValue(mockEntity)
 
       const context: EncryptionContext = {
-        encryptionService: mockEncryptionService,
+        encryptionService: mockEncryptionService as any,
       }
 
       const result = await getContact('vendor-123', context)
@@ -423,7 +423,7 @@ describe('Contacts Store - Vendor Management', () => {
       vi.mocked(db.contacts.put).mockResolvedValue('vendor-123')
 
       const context: EncryptionContext = {
-        encryptionService: mockEncryptionService,
+        encryptionService: mockEncryptionService as any,
       }
 
       await updateContact('vendor-123', { name: 'New Name' }, context)
@@ -565,7 +565,7 @@ describe('Contacts Store - Vendor Management', () => {
 
       expect(result.success).toBe(true)
       if (result.success) {
-        expect(result.data).toHaveLength(2)
+        expect((result as any).data).toHaveLength(2)
         expect(result.data[0].name).toBe('Vendor 1')
       }
     })
@@ -604,7 +604,7 @@ describe('Contacts Store - Vendor Management', () => {
 
       expect(result.success).toBe(true)
       if (result.success) {
-        expect(result.data).toHaveLength(1)
+        expect((result as any).data).toHaveLength(1)
         expect(result.data[0].isActive).toBe(true)
       }
     })
@@ -673,7 +673,7 @@ describe('Contacts Store - Vendor Management', () => {
       ]
 
       const context: EncryptionContext = {
-        encryptionService: mockEncryptionService,
+        encryptionService: mockEncryptionService as any,
       }
 
       vi.mocked(db.contacts.add).mockResolvedValue('vendor-id')

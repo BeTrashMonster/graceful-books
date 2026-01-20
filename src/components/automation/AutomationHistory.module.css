@@ -1,0 +1,331 @@
+/**
+ * Automation History Styles
+ *
+ * WCAG 2.1 AA Compliant:
+ * - Table structure accessible to screen readers
+ * - Color contrast ≥ 4.5:1
+ * - Responsive table with mobile view
+ * - Status indicators with icons + text
+ */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Metrics Card */
+.metricsCard {
+  margin-bottom: 2rem;
+}
+
+.metricsTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+}
+
+.metricItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
+  background-color: var(--color-background-tertiary);
+  border-radius: 0.5rem;
+}
+
+.metricValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-primary-600);
+  margin-bottom: 0.25rem;
+}
+
+.metricLabel {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filterLabel {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.filterSelect {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border-primary);
+  border-radius: 0.375rem;
+  background-color: var(--color-background-primary);
+  color: var(--color-text-primary);
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filterSelect:hover {
+  border-color: var(--color-primary-500);
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px var(--color-primary-200);
+}
+
+/* Table */
+.tableContainer {
+  background-color: var(--color-background-primary);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background-color: var(--color-background-tertiary);
+}
+
+.table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  border-bottom: 2px solid var(--color-border-secondary);
+}
+
+.table tbody tr {
+  border-bottom: 1px solid var(--color-border-tertiary);
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-background-secondary);
+}
+
+.table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.table td {
+  padding: 1rem;
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+}
+
+/* Type Chip */
+.typeChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  background-color: var(--color-background-tertiary);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Transaction Info */
+.transactionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.transactionDescription {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.transactionAmount {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Status Badge */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.statusAccepted {
+  background-color: var(--color-success-100);
+  color: var(--color-success-800);
+  border: 1px solid var(--color-success-300);
+}
+
+.statusRejected {
+  background-color: var(--color-neutral-100);
+  color: var(--color-neutral-800);
+  border: 1px solid var(--color-neutral-300);
+}
+
+.statusCorrected {
+  background-color: var(--color-info-100);
+  color: var(--color-info-800);
+  border: 1px solid var(--color-info-300);
+}
+
+.statusPending {
+  display: inline-flex;
+  padding: 0.25rem 0.625rem;
+  background-color: var(--color-background-tertiary);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+}
+
+/* Empty State */
+.emptyState {
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.emptyText {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.6;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Load More */
+.loadMore {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+/* Responsive - Mobile Table */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .metricsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .metricValue {
+    font-size: 1.5rem;
+  }
+
+  .filters {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .filterGroup {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filterSelect {
+    width: 100%;
+  }
+
+  /* Stack table vertically on mobile */
+  .table thead {
+    display: none;
+  }
+
+  .table tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 0.5rem;
+  }
+
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-border-tertiary);
+  }
+
+  .table td:last-child {
+    border-bottom: none;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    margin-right: 1rem;
+  }
+
+  .transactionInfo {
+    align-items: flex-end;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .filterSelect,
+  .table tbody tr {
+    transition: none;
+  }
+}

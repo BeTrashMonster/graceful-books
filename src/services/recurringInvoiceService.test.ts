@@ -24,7 +24,7 @@ describe('Recurring Invoice Generation Service', () => {
   describe('generateRRuleString', () => {
     it('should generate daily recurrence rule', () => {
       const rule: RecurrenceRule = {
-        frequency: 'DAILY',
+        frequency: 'daily',
         interval: 1,
         endCondition: { type: 'NEVER' },
         rruleString: '',
@@ -39,7 +39,7 @@ describe('Recurring Invoice Generation Service', () => {
 
     it('should generate weekly recurrence rule with specific day', () => {
       const rule: RecurrenceRule = {
-        frequency: 'WEEKLY',
+        frequency: 'weekly',
         dayOfWeek: 1, // Monday
         interval: 1,
         endCondition: { type: 'NEVER' },
@@ -72,7 +72,7 @@ describe('Recurring Invoice Generation Service', () => {
 
     it('should generate monthly recurrence rule with specific day', () => {
       const rule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         dayOfMonth: 15,
         interval: 1,
         endCondition: { type: 'NEVER' },
@@ -121,7 +121,7 @@ describe('Recurring Invoice Generation Service', () => {
 
     it('should handle AFTER_N_OCCURRENCES end condition', () => {
       const rule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         dayOfMonth: 1,
         interval: 1,
         endCondition: { type: 'AFTER_N_OCCURRENCES', occurrences: 12 },
@@ -137,7 +137,7 @@ describe('Recurring Invoice Generation Service', () => {
     it('should handle ON_DATE end condition', () => {
       const endDate = new Date('2026-12-31').getTime();
       const rule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         dayOfMonth: 1,
         interval: 1,
         endCondition: { type: 'ON_DATE', endDate },
@@ -154,7 +154,7 @@ describe('Recurring Invoice Generation Service', () => {
   describe('calculateNextGenerationDate', () => {
     it('should calculate next monthly date', () => {
       const rule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         dayOfMonth: 15,
         interval: 1,
         endCondition: { type: 'NEVER' },
@@ -173,7 +173,7 @@ describe('Recurring Invoice Generation Service', () => {
 
     it('should return null when all occurrences exhausted', () => {
       const rule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         dayOfMonth: 1,
         interval: 1,
         endCondition: { type: 'AFTER_N_OCCURRENCES', occurrences: 5 },
@@ -189,7 +189,7 @@ describe('Recurring Invoice Generation Service', () => {
     it('should return null when end date reached', () => {
       const endDate = new Date('2026-06-01').getTime();
       const rule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         dayOfMonth: 1,
         interval: 1,
         endCondition: { type: 'ON_DATE', endDate },
@@ -264,7 +264,7 @@ describe('Recurring Invoice Generation Service', () => {
   describe('End-of-Month Recurrence Scenarios', () => {
     it('should generate correct dates for monthly billing starting on Jan 31', () => {
       const rule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         dayOfMonth: 31,
         interval: 1,
         endCondition: { type: 'AFTER_N_OCCURRENCES', occurrences: 6 },
@@ -357,7 +357,7 @@ describe('Recurring Invoice Generation Service', () => {
   describe('Edge Cases', () => {
     it('should handle timezone differences in date calculations', () => {
       const rule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         dayOfMonth: 1,
         interval: 1,
         endCondition: { type: 'NEVER' },
@@ -372,7 +372,7 @@ describe('Recurring Invoice Generation Service', () => {
 
     it('should handle very large intervals', () => {
       const rule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         dayOfMonth: 1,
         interval: 12, // Every 12 months (annual but using monthly freq)
         endCondition: { type: 'AFTER_N_OCCURRENCES', occurrences: 5 },
@@ -387,7 +387,7 @@ describe('Recurring Invoice Generation Service', () => {
 
     it('should handle start date in the past', () => {
       const rule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         dayOfMonth: 1,
         interval: 1,
         endCondition: { type: 'NEVER' },
@@ -406,7 +406,7 @@ describe('Recurring Invoice Generation Service', () => {
     it('should handle daylight saving time transitions', () => {
       // March 2026 DST transition in US
       const rule: RecurrenceRule = {
-        frequency: 'WEEKLY',
+        frequency: 'weekly',
         dayOfWeek: 0, // Sunday
         interval: 1,
         endCondition: { type: 'NEVER' },
@@ -452,7 +452,7 @@ describe('Recurring Invoice Generation Service', () => {
   describe('Performance Tests', () => {
     it('should handle generating dates for long-running recurring invoices', () => {
       const rule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         dayOfMonth: 1,
         interval: 1,
         endCondition: { type: 'AFTER_N_OCCURRENCES', occurrences: 100 },
@@ -475,7 +475,7 @@ describe('Recurring Invoice Generation Service', () => {
 
     it('should handle bulk processing of multiple recurring invoices', () => {
       const rules: RecurrenceRule[] = Array(50).fill({
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         dayOfMonth: 1,
         interval: 1,
         endCondition: { type: 'AFTER_N_OCCURRENCES', occurrences: 12 },

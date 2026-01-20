@@ -87,11 +87,11 @@ describe('Key Management', () => {
       const result = await deriveKey(mockMasterKey, 'admin');
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
-      expect(result.data?.permissionLevel).toBe('admin');
-      expect(result.data?.masterKeyId).toBe(mockMasterKey.id);
-      expect(result.data?.keyMaterial).toBeInstanceOf(Uint8Array);
-      expect(result.data?.keyMaterial.length).toBe(32);
+      expect((result as any).data).toBeDefined();
+      expect((result as any).data.permissionLevel).toBe('admin');
+      expect((result as any).data.masterKeyId).toBe(mockMasterKey.id);
+      expect((result as any).data.keyMaterial).toBeInstanceOf(Uint8Array);
+      expect((result as any).data.keyMaterial.length).toBe(32);
     });
 
     it('should derive unique keys for different permission levels', async () => {
@@ -100,7 +100,7 @@ describe('Key Management', () => {
 
       expect(adminResult.success).toBe(true);
       expect(userResult.success).toBe(true);
-      expect(adminResult.data?.id).not.toBe(userResult.data?.id);
+      expect((adminResult as any).data.id).not.toBe(userResult.data?.id);
     });
 
     it('should set creation timestamp', async () => {
@@ -109,8 +109,8 @@ describe('Key Management', () => {
       const after = Date.now();
 
       expect(result.success).toBe(true);
-      expect(result.data?.createdAt).toBeGreaterThanOrEqual(before);
-      expect(result.data?.createdAt).toBeLessThanOrEqual(after);
+      expect((result as any).data.createdAt).toBeGreaterThanOrEqual(before);
+      expect((result as any).data.createdAt).toBeLessThanOrEqual(after);
     });
 
     it('should support optional expiration', async () => {
@@ -118,7 +118,7 @@ describe('Key Management', () => {
       const result = await deriveKey(mockMasterKey, 'consultant', expiresAt);
 
       expect(result.success).toBe(true);
-      expect(result.data?.expiresAt).toBe(expiresAt);
+      expect((result as any).data.expiresAt).toBe(expiresAt);
     });
 
     it('should derive keys for all permission levels', async () => {
@@ -127,7 +127,7 @@ describe('Key Management', () => {
       for (const level of levels) {
         const result = await deriveKey(mockMasterKey, level);
         expect(result.success).toBe(true);
-        expect(result.data?.permissionLevel).toBe(level);
+        expect((result as any).data.permissionLevel).toBe(level);
       }
     });
 
@@ -138,7 +138,7 @@ describe('Key Management', () => {
       expect(result1.success).toBe(true);
       expect(result2.success).toBe(true);
       // Keys should have different IDs due to random salt
-      expect(result1.data?.id).not.toBe(result2.data?.id);
+      expect((result1 as any).data.id).not.toBe(result2.data?.id);
     });
   });
 
@@ -147,13 +147,13 @@ describe('Key Management', () => {
       const result = await deriveAllKeys(mockMasterKey);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeInstanceOf(Map);
-      expect(result.data?.size).toBe(5);
-      expect(result.data?.has('admin')).toBe(true);
-      expect(result.data?.has('manager')).toBe(true);
-      expect(result.data?.has('accountant')).toBe(true);
-      expect(result.data?.has('user')).toBe(true);
-      expect(result.data?.has('consultant')).toBe(true);
+      expect((result as any).data).toBeInstanceOf(Map);
+      expect((result as any).data.size).toBe(5);
+      expect((result as any).data.has('admin')).toBe(true);
+      expect((result as any).data.has('manager')).toBe(true);
+      expect((result as any).data.has('accountant')).toBe(true);
+      expect((result as any).data.has('user')).toBe(true);
+      expect((result as any).data.has('consultant')).toBe(true);
     });
 
     it('should set expiration for all keys', async () => {
@@ -186,11 +186,11 @@ describe('Key Management', () => {
       const result = await createEncryptionContext(mockMasterKey, sessionId);
 
       expect(result.success).toBe(true);
-      expect(result.data?.masterKey).toBe(mockMasterKey);
-      expect(result.data?.derivedKeys).toBeInstanceOf(Map);
-      expect(result.data?.derivedKeys.size).toBe(5);
-      expect(result.data?.sessionId).toBe(sessionId);
-      expect(result.data?.sessionStartedAt).toBeTypeOf('number');
+      expect((result as any).data.masterKey).toBe(mockMasterKey);
+      expect((result as any).data.derivedKeys).toBeInstanceOf(Map);
+      expect((result as any).data.derivedKeys.size).toBe(5);
+      expect((result as any).data.sessionId).toBe(sessionId);
+      expect((result as any).data.sessionStartedAt).toBeTypeOf('number');
     });
 
     it('should set session start timestamp', async () => {
@@ -199,8 +199,8 @@ describe('Key Management', () => {
       const after = Date.now();
 
       expect(result.success).toBe(true);
-      expect(result.data?.sessionStartedAt).toBeGreaterThanOrEqual(before);
-      expect(result.data?.sessionStartedAt).toBeLessThanOrEqual(after);
+      expect((result as any).data.sessionStartedAt).toBeGreaterThanOrEqual(before);
+      expect((result as any).data.sessionStartedAt).toBeLessThanOrEqual(after);
     });
   });
 
@@ -235,7 +235,7 @@ describe('Key Management', () => {
       const result = getKeyForPermission(context, 'admin');
 
       expect(result.success).toBe(true);
-      expect(result.data?.permissionLevel).toBe('admin');
+      expect((result as any).data.permissionLevel).toBe('admin');
     });
 
     it('should return error for invalid permission level', () => {
@@ -245,7 +245,7 @@ describe('Key Management', () => {
       const result = getKeyForPermission(context, 'consultant');
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('No key found');
+      expect((result as any).error).toContain('No key found');
     });
 
     it('should check key expiration', () => {
@@ -263,17 +263,17 @@ describe('Key Management', () => {
       const result = getKeyForPermission(context, 'user');
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('expired');
+      expect((result as any).error).toContain('expired');
       expect(result.errorCode).toBe('KEY_EXPIRED');
     });
 
     it('should return all permission levels', () => {
       const levels: PermissionLevel[] = ['admin', 'manager', 'accountant', 'user', 'consultant'];
 
-      levels.forEach(level => {
+      levels.forEach((level: any) => {
         const result = getKeyForPermission(context, level);
         expect(result.success).toBe(true);
-        expect(result.data?.permissionLevel).toBe(level);
+        expect((result as any).data.permissionLevel).toBe(level);
       });
     });
   });
@@ -346,9 +346,9 @@ describe('Key Management', () => {
       const result = await rotateKeys(oldContext, newMasterKey, request);
 
       expect(result.success).toBe(true);
-      expect(result.data?.newMasterKeyId).toBe(newMasterKey.id);
-      expect(result.data?.newDerivedKeyIds).toHaveLength(5);
-      expect(result.data?.durationMs).toBeTypeOf('number');
+      expect((result as any).data.newMasterKeyId).toBe(newMasterKey.id);
+      expect((result as any).data.newDerivedKeyIds).toHaveLength(5);
+      expect((result as any).data.durationMs).toBeTypeOf('number');
     });
 
     it('should complete rotation within reasonable time', async () => {
@@ -361,7 +361,7 @@ describe('Key Management', () => {
       const result = await rotateKeys(oldContext, newMasterKey, request);
 
       expect(result.success).toBe(true);
-      expect(result.data?.durationMs).toBeLessThan(5000); // Should be fast in tests
+      expect((result as any).data.durationMs).toBeLessThan(5000); // Should be fast in tests
     });
 
     it('should reject rotation with mismatched old key ID', async () => {
@@ -374,7 +374,7 @@ describe('Key Management', () => {
       const result = await rotateKeys(oldContext, newMasterKey, request);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('mismatch');
+      expect((result as any).error).toContain('mismatch');
       expect(result.errorCode).toBe('INVALID_KEY');
     });
 
@@ -448,14 +448,14 @@ describe('Key Management', () => {
       const result = await reencryptData(oldContext, newContext, encryptedData, 'manager');
 
       expect(result.success).toBe(true);
-      expect(result.data).toHaveLength(2);
+      expect((result as any).data).toHaveLength(2);
     });
 
     it('should handle empty data array', async () => {
       const result = await reencryptData(oldContext, newContext, [], 'admin');
 
       expect(result.success).toBe(true);
-      expect(result.data).toHaveLength(0);
+      expect((result as any).data).toHaveLength(0);
     });
 
     it('should work with different permission levels', async () => {
@@ -620,7 +620,7 @@ describe('Key Management', () => {
       const result = await exportKeysForBackup(context, backupKey);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeTypeOf('string');
+      expect((result as any).data).toBeTypeOf('string');
     });
 
     it('should create valid JSON backup', async () => {

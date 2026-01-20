@@ -1,0 +1,253 @@
+/* ColumnMapper Component Styles */
+
+.container {
+  margin: 2rem 0;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.header h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.description {
+  margin: 0;
+  color: var(--color-text-secondary, #6b7280);
+  font-size: 0.875rem;
+}
+
+.filterRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: var(--color-background, #f9fafb);
+  border-radius: 4px;
+}
+
+.filterLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.filterLabel input[type="checkbox"] {
+  width: 1.125rem;
+  height: 1.125rem;
+  cursor: pointer;
+}
+
+.filterLabel input[type="checkbox"]:focus {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+.mappingCount {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  font-weight: 500;
+}
+
+.warning {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #fffbeb;
+  border: 1px solid #fbbf24;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  color: #92400e;
+}
+
+.warningIcon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.warningList {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.5rem;
+}
+
+.warningList li {
+  margin: 0.25rem 0;
+}
+
+.tableContainer {
+  overflow-x: auto;
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: 4px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface, #ffffff);
+}
+
+.table thead {
+  background: var(--color-background, #f9fafb);
+}
+
+.table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #1a1a1a);
+  border-bottom: 2px solid var(--color-border, #d1d5db);
+}
+
+.table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.csvColumn {
+  color: var(--color-text-primary, #1a1a1a);
+  font-size: 0.875rem;
+}
+
+.fieldSelect {
+  min-width: 200px;
+}
+
+.select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #1a1a1a);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.confidenceCell {
+  text-align: center;
+}
+
+.confidenceBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.highConfidence {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.mediumConfidence {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.lowConfidence {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.noConfidence {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.emptyState {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.emptyState p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.helpText {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #eff6ff;
+  border-left: 4px solid var(--color-primary, #3b82f6);
+  border-radius: 4px;
+}
+
+.helpText h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.helpText ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.helpText li {
+  margin: 0.5rem 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .filterRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .table {
+    font-size: 0.875rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.5rem;
+  }
+
+  .fieldSelect {
+    min-width: 150px;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .select {
+    transition: none;
+  }
+}

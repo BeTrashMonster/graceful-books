@@ -191,7 +191,7 @@ export class SyncQueue {
    * Mark an item as in progress
    */
   markInProgress(itemId: string): void {
-    const item = this.queue.find(i => i.id === itemId);
+    const item = this.queue.find(i => i!.id === itemId);
     if (item) {
       item.status = SyncQueueStatus.IN_PROGRESS;
       item.updated_at = Date.now();
@@ -203,7 +203,7 @@ export class SyncQueue {
    * Mark an item as completed
    */
   markCompleted(itemId: string): void {
-    const item = this.queue.find(i => i.id === itemId);
+    const item = this.queue.find(i => i!.id === itemId);
     if (item) {
       item.status = SyncQueueStatus.COMPLETED;
       item.completed_at = Date.now();
@@ -216,7 +216,7 @@ export class SyncQueue {
    * Mark an item as failed
    */
   markFailed(itemId: string, error: string): void {
-    const item = this.queue.find(i => i.id === itemId);
+    const item = this.queue.find(i => i!.id === itemId);
     if (item) {
       item.retry_count += 1;
       item.last_error = error;
@@ -238,7 +238,7 @@ export class SyncQueue {
    * Retry a failed item
    */
   retry(itemId: string): void {
-    const item = this.queue.find(i => i.id === itemId);
+    const item = this.queue.find(i => i!.id === itemId);
     if (item && item.status === SyncQueueStatus.FAILED) {
       item.status = SyncQueueStatus.PENDING;
       item.retry_count = 0;
@@ -335,7 +335,7 @@ export class SyncQueue {
    * Get item by ID
    */
   getItem(itemId: string): SyncQueueItem | undefined {
-    return this.queue.find(i => i.id === itemId);
+    return this.queue.find(i => i!.id === itemId);
   }
 
   /**

@@ -380,7 +380,7 @@ describe('AccountForm Component', () => {
       const nameInput = screen.getByLabelText(/account name/i)
       // Use queryByRole to find the submit button more reliably
       const buttons = screen.getAllByRole('button')
-      const submitButton = buttons.find(btn => btn.textContent?.includes('Account'))
+      const submitButton = buttons.find((btn: any) => btn.textContent?.includes('Account'))
       const cancelButton = screen.getByRole('button', { name: /cancel/i })
 
       expect(nameInput).toBeDisabled()
@@ -406,11 +406,11 @@ describe('AccountForm Component', () => {
       await user.selectOptions(typeSelect, 'asset')
 
       const parentSelect = screen.getByLabelText(/parent account/i) as HTMLSelectElement
-      const options = Array.from(parentSelect.options).map(o => o.textContent)
+      const options = Array.from(parentSelect.options).map((o: any) => o.textContent)
 
       // Should only show asset parent, not liability parent
-      expect(options.some(o => o?.includes('Assets'))).toBe(true)
-      expect(options.some(o => o?.includes('Liabilities'))).toBe(false)
+      expect(options.some((o: any) => o?.includes('Assets'))).toBe(true)
+      expect(options.some((o: any) => o?.includes('Liabilities'))).toBe(false)
     })
 
     it('should disable type select in edit mode', () => {
@@ -441,7 +441,7 @@ describe('AccountForm Component', () => {
       )
 
       const parentSelect = screen.getByLabelText(/parent account/i) as HTMLSelectElement
-      const options = Array.from(parentSelect.options).map(o => o.value)
+      const options = Array.from(parentSelect.options).map((o: any) => o.value)
 
       expect(options.includes(mockAccount.id)).toBe(false)
     })
@@ -521,16 +521,16 @@ describe('AccountForm Component', () => {
 
       const typeSelect = screen.getByLabelText(/account type/i) as HTMLSelectElement
 
-      const options = Array.from(typeSelect.options).map(o => o.textContent)
+      const options = Array.from(typeSelect.options).map((o: any) => o.textContent)
 
-      expect(options.some(o => o?.includes('Asset'))).toBe(true)
-      expect(options.some(o => o?.includes('Liability'))).toBe(true)
-      expect(options.some(o => o?.includes('Equity'))).toBe(true)
-      expect(options.some(o => o?.includes('Income'))).toBe(true)
-      expect(options.some(o => o?.includes('Expense'))).toBe(true)
-      expect(options.some(o => o?.includes('Cost of Goods Sold'))).toBe(true)
-      expect(options.some(o => o?.includes('Other Income'))).toBe(true)
-      expect(options.some(o => o?.includes('Other Expense'))).toBe(true)
+      expect(options.some((o: any) => o?.includes('Asset'))).toBe(true)
+      expect(options.some((o: any) => o?.includes('Liability'))).toBe(true)
+      expect(options.some((o: any) => o?.includes('Equity'))).toBe(true)
+      expect(options.some((o: any) => o?.includes('Income'))).toBe(true)
+      expect(options.some((o: any) => o?.includes('Expense'))).toBe(true)
+      expect(options.some((o: any) => o?.includes('Cost of Goods Sold'))).toBe(true)
+      expect(options.some((o: any) => o?.includes('Other Income'))).toBe(true)
+      expect(options.some((o: any) => o?.includes('Other Expense'))).toBe(true)
     })
   })
 })

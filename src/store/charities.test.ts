@@ -70,7 +70,7 @@ describe('Charities Store', () => {
     });
 
     it('should filter charities by category', async () => {
-      const educationCharities = await getCharitiesByFilter('EDUCATION' as CharityCategory);
+      const educationCharities = await getCharitiesByFilter('EDUCATION');
 
       expect(Array.isArray(educationCharities)).toBe(true);
 
@@ -82,7 +82,7 @@ describe('Charities Store', () => {
 
     it('should return empty array for category with no charities', async () => {
       // Assuming ARTS_CULTURE might have fewer or no charities
-      const charities = await getCharitiesByFilter('ARTS_CULTURE' as CharityCategory);
+      const charities = await getCharitiesByFilter('ARTS_CULTURE');
 
       expect(Array.isArray(charities)).toBe(true);
     });

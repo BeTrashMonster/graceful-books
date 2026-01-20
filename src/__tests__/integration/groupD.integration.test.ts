@@ -264,14 +264,14 @@ describe('Group D Integration Tests', () => {
       })
 
       expect(balanceSheet.success).toBe(true)
-      expect(balanceSheet.data).toBeDefined()
-      expect(balanceSheet.data?.assets).toBeDefined()
-      expect(balanceSheet.data?.liabilities).toBeDefined()
-      expect(balanceSheet.data?.equity).toBeDefined()
+      expect((balanceSheet as any).data).toBeDefined()
+      expect((balanceSheet as any).data.assets).toBeDefined()
+      expect((balanceSheet as any).data.liabilities).toBeDefined()
+      expect((balanceSheet as any).data.equity).toBeDefined()
 
       // Verify balance sheet balances
-      expect(balanceSheet.data?.totalAssets).toBeGreaterThanOrEqual(0)
-      expect(balanceSheet.data?.totalLiabilitiesAndEquity).toBeGreaterThanOrEqual(0)
+      expect((balanceSheet as any).data.totalAssets).toBeGreaterThanOrEqual(0)
+      expect((balanceSheet as any).data.totalLiabilitiesAndEquity).toBeGreaterThanOrEqual(0)
 
       // STEP 5: Verify audit trail was created
       const auditLogsResult = await queryAuditLogs({
@@ -652,7 +652,7 @@ describe('Group D Integration Tests', () => {
       expect(vendor1ExpenseList[0]!.memo).toContain('Office Supply Co')
 
       // STEP 6: Verify 1099-eligible vendor
-      const eligible1099Vendors = vendorsResult.filter(v => v.is1099Eligible === true)
+      const eligible1099Vendors = vendorsResult.filter((v: any) => v.is1099Eligible === true)
       expect(eligible1099Vendors.length).toBe(1)
       expect(eligible1099Vendors[0]?.name).toBe('Tech Supplies Inc')
 
@@ -1067,7 +1067,7 @@ describe('Group D Integration Tests', () => {
 
       // STEP 6: Verify audit logs are immutable (no soft delete timestamp)
       const allAuditLogs = await db.auditLogs.toArray()
-      allAuditLogs.forEach(log => {
+      allAuditLogs.forEach((log: any) => {
         // Audit logs are immutable and don't have deletedAt field
         expect(log.id).toBeDefined()
       })
@@ -1181,7 +1181,7 @@ describe('Group D Integration Tests', () => {
       })
 
       expect(balanceSheet.success).toBe(true)
-      expect(balanceSheet.data?.totalAssets).toBeGreaterThanOrEqual(0)
+      expect((balanceSheet as any).data.totalAssets).toBeGreaterThanOrEqual(0)
 
       // STEP 6: Verify audit trail exists for all operations
       const auditLogs = await queryAuditLogs({ companyId: testCompanyId })

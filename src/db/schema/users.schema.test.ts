@@ -374,7 +374,7 @@ describe('Users Schema', () => {
         'user+tag@example.org',
       ];
 
-      validEmails.forEach(email => {
+      validEmails.forEach((email: any) => {
         const user = {
           email,
           name: 'Test',
@@ -491,7 +491,7 @@ describe('Users Schema', () => {
     it('should accept valid 3-letter currency codes', () => {
       const validCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD'];
 
-      validCurrencies.forEach(currency => {
+      validCurrencies.forEach((currency: any) => {
         const company = { name: 'Test', currency };
         const errors = validateCompany(company);
         expect(errors).toEqual([]);

@@ -52,7 +52,7 @@ describe('CoaWizardService', () => {
       const customizations = initializeCustomizationsFromTemplate('freelancer')
 
       // Default accounts should be included
-      const defaultAccounts = customizations.filter(c => c.isIncluded)
+      const defaultAccounts = customizations.filter((c: any) => c.isIncluded)
       expect(defaultAccounts.length).toBeGreaterThan(0)
     })
 
@@ -134,7 +134,7 @@ describe('CoaWizardService', () => {
       const counts = getAccountCountsByType(wizardData)
 
       // All counts should be zero
-      expect(Object.values(counts).every(count => count === 0)).toBe(true)
+      expect(Object.values(counts).every((count: any) => count === 0)).toBe(true)
     })
   })
 
@@ -181,7 +181,7 @@ describe('CoaWizardService', () => {
     it('should reject wizard with no accounts', () => {
       const customizations = initializeCustomizationsFromTemplate('freelancer')
       // Exclude all accounts
-      const allExcluded = customizations.map(c => ({
+      const allExcluded = customizations.map((c: any) => ({
         ...c,
         isIncluded: false,
       }))
@@ -264,7 +264,7 @@ describe('CoaWizardService', () => {
       const summary = getWizardSummary(wizardData)
 
       // General template might not have all account types
-      const hasZeroCounts = summary.breakdown.some(item => item.count === 0)
+      const hasZeroCounts = summary.breakdown.some((item: any) => item.count === 0)
       expect(hasZeroCounts).toBe(false)
     })
 

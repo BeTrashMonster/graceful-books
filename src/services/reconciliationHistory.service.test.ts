@@ -457,7 +457,7 @@ describe('ReconciliationHistory Service', () => {
 
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data).toHaveLength(2);
+          expect((result as any).data).toHaveLength(2);
           expect(result.data.map((p) => p.vendor_name)).toContain('vendor a');
           expect(result.data.map((p) => p.vendor_name)).toContain('vendor b');
         }
@@ -468,7 +468,7 @@ describe('ReconciliationHistory Service', () => {
 
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data).toEqual([]);
+          expect((result as any).data).toEqual([]);
         }
       });
     });
@@ -501,7 +501,7 @@ describe('ReconciliationHistory Service', () => {
 
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data).toBeNull();
+          expect((result as any).data).toBeNull();
         }
       });
     });
@@ -899,7 +899,7 @@ describe('ReconciliationHistory Service', () => {
 
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data).toHaveLength(2);
+          expect((result as any).data).toHaveLength(2);
           expect(result.data[0].account_id).toBe('test-account');
         }
       });
@@ -966,7 +966,7 @@ describe('ReconciliationHistory Service', () => {
 
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data).toHaveLength(1);
+          expect((result as any).data).toHaveLength(1);
           expect(result.data[0].account_id).toBe('test-account');
         }
       });
@@ -1008,7 +1008,7 @@ describe('ReconciliationHistory Service', () => {
 
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data).toHaveLength(10);
+          expect((result as any).data).toHaveLength(10);
         }
       });
 
@@ -1071,7 +1071,7 @@ describe('ReconciliationHistory Service', () => {
 
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data).toHaveLength(1);
+          expect((result as any).data).toHaveLength(1);
         }
       });
     });
@@ -1253,7 +1253,7 @@ describe('ReconciliationHistory Service', () => {
 
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data).toHaveLength(1);
+          expect((result as any).data).toHaveLength(1);
           expect(result.data[0].flag).toBe('WARNING');
           expect(result.data[0].age_days).toBeGreaterThanOrEqual(45);
         }
@@ -1270,7 +1270,7 @@ describe('ReconciliationHistory Service', () => {
 
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data).toHaveLength(1);
+          expect((result as any).data).toHaveLength(1);
           expect(result.data[0].flag).toBe('ATTENTION');
         }
       });
@@ -1286,7 +1286,7 @@ describe('ReconciliationHistory Service', () => {
 
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data).toHaveLength(1);
+          expect((result as any).data).toHaveLength(1);
           expect(result.data[0].flag).toBe('URGENT');
         }
       });
@@ -1302,7 +1302,7 @@ describe('ReconciliationHistory Service', () => {
 
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data).toHaveLength(0);
+          expect((result as any).data).toHaveLength(0);
         }
       });
 
@@ -1321,7 +1321,7 @@ describe('ReconciliationHistory Service', () => {
 
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data).toHaveLength(3);
+          expect((result as any).data).toHaveLength(3);
           expect(result.data[0].age_days).toBeGreaterThan(result.data[1].age_days);
           expect(result.data[1].age_days).toBeGreaterThan(result.data[2].age_days);
         }

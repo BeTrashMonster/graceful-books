@@ -50,11 +50,11 @@ describe('Key Derivation Module', () => {
       const result = await deriveMasterKey(passphrase);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
-      expect(result.data?.keyMaterial).toBeInstanceOf(Uint8Array);
-      expect(result.data?.keyMaterial.length).toBe(32); // 256 bits
-      expect(result.data?.id).toBeDefined();
-      expect(result.data?.createdAt).toBeDefined();
+      expect((result as any).data).toBeDefined();
+      expect((result as any).data.keyMaterial).toBeInstanceOf(Uint8Array);
+      expect((result as any).data.keyMaterial.length).toBe(32); // 256 bits
+      expect((result as any).data.id).toBeDefined();
+      expect((result as any).data.createdAt).toBeDefined();
     });
 
     it('should include derivation params in result', async () => {
@@ -62,12 +62,12 @@ describe('Key Derivation Module', () => {
       const result = await deriveMasterKey(passphrase);
 
       expect(result.success).toBe(true);
-      expect(result.data?.derivationParams).toBeDefined();
-      expect(result.data?.derivationParams.memoryCost).toBeGreaterThanOrEqual(65536);
-      expect(result.data?.derivationParams.timeCost).toBeGreaterThanOrEqual(3);
-      expect(result.data?.derivationParams.parallelism).toBeGreaterThan(0);
-      expect(result.data?.derivationParams.salt).toBeInstanceOf(Uint8Array);
-      expect(result.data?.derivationParams.keyLength).toBe(32);
+      expect((result as any).data.derivationParams).toBeDefined();
+      expect((result as any).data.derivationParams.memoryCost).toBeGreaterThanOrEqual(65536);
+      expect((result as any).data.derivationParams.timeCost).toBeGreaterThanOrEqual(3);
+      expect((result as any).data.derivationParams.parallelism).toBeGreaterThan(0);
+      expect((result as any).data.derivationParams.salt).toBeInstanceOf(Uint8Array);
+      expect((result as any).data.derivationParams.keyLength).toBe(32);
     });
 
     it('should fail with empty passphrase', async () => {
@@ -75,7 +75,7 @@ describe('Key Derivation Module', () => {
 
       expect(result.success).toBe(false);
       expect(result.errorCode).toBe('WEAK_PASSPHRASE');
-      expect(result.error).toContain('cannot be empty');
+      expect((result as any).error).toContain('cannot be empty');
     });
 
     it('should use provided salt', async () => {
@@ -84,7 +84,7 @@ describe('Key Derivation Module', () => {
       const result = await deriveMasterKey(passphrase, salt);
 
       expect(result.success).toBe(true);
-      expect(result.data?.derivationParams.salt).toEqual(salt);
+      expect((result as any).data.derivationParams.salt).toEqual(salt);
     });
 
     it('should accept custom derivation params', async () => {
@@ -98,9 +98,9 @@ describe('Key Derivation Module', () => {
       const result = await deriveMasterKey(passphrase, undefined, customParams);
 
       expect(result.success).toBe(true);
-      expect(result.data?.derivationParams.memoryCost).toBe(65536);
-      expect(result.data?.derivationParams.timeCost).toBe(3);
-      expect(result.data?.derivationParams.parallelism).toBe(2);
+      expect((result as any).data.derivationParams.memoryCost).toBe(65536);
+      expect((result as any).data.derivationParams.timeCost).toBe(3);
+      expect((result as any).data.derivationParams.parallelism).toBe(2);
     });
 
     it('should fail with insufficient memory cost', async () => {
@@ -113,7 +113,7 @@ describe('Key Derivation Module', () => {
 
       expect(result.success).toBe(false);
       expect(result.errorCode).toBe('INVALID_KEY');
-      expect(result.error).toContain('Memory cost');
+      expect((result as any).error).toContain('Memory cost');
     });
 
     it('should fail with insufficient time cost', async () => {
@@ -126,7 +126,7 @@ describe('Key Derivation Module', () => {
 
       expect(result.success).toBe(false);
       expect(result.errorCode).toBe('INVALID_KEY');
-      expect(result.error).toContain('Time cost');
+      expect((result as any).error).toContain('Time cost');
     });
 
     it('should fail with wrong key length', async () => {
@@ -139,7 +139,7 @@ describe('Key Derivation Module', () => {
 
       expect(result.success).toBe(false);
       expect(result.errorCode).toBe('INVALID_KEY');
-      expect(result.error).toContain('Key length');
+      expect((result as any).error).toContain('Key length');
     });
 
     it('should generate deterministic key with same passphrase and salt', async () => {
@@ -151,8 +151,8 @@ describe('Key Derivation Module', () => {
 
       expect(result1.success).toBe(true);
       expect(result2.success).toBe(true);
-      expect(result1.data?.keyMaterial).toEqual(result2.data?.keyMaterial);
-      expect(result1.data?.id).toBe(result2.data?.id);
+      expect((result1 as any).data.keyMaterial).toEqual(result2.data?.keyMaterial);
+      expect((result1 as any).data.id).toBe(result2.data?.id);
     });
 
     it('should generate different keys with different salts', async () => {
@@ -165,8 +165,8 @@ describe('Key Derivation Module', () => {
 
       expect(result1.success).toBe(true);
       expect(result2.success).toBe(true);
-      expect(result1.data?.keyMaterial).not.toEqual(result2.data?.keyMaterial);
-      expect(result1.data?.id).not.toBe(result2.data?.id);
+      expect((result1 as any).data.keyMaterial).not.toEqual(result2.data?.keyMaterial);
+      expect((result1 as any).data.id).not.toBe(result2.data?.id);
     });
 
     it('should generate different keys with different passphrases', async () => {
@@ -177,8 +177,8 @@ describe('Key Derivation Module', () => {
 
       expect(result1.success).toBe(true);
       expect(result2.success).toBe(true);
-      expect(result1.data?.keyMaterial).not.toEqual(result2.data?.keyMaterial);
-      expect(result1.data?.id).not.toBe(result2.data?.id);
+      expect((result1 as any).data.keyMaterial).not.toEqual(result2.data?.keyMaterial);
+      expect((result1 as any).data.id).not.toBe(result2.data?.id);
     });
 
     it('should handle Unicode passphrases', async () => {
@@ -186,7 +186,7 @@ describe('Key Derivation Module', () => {
       const result = await deriveMasterKey(passphrase);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
+      expect((result as any).data).toBeDefined();
     });
 
     it('should handle very long passphrases', async () => {
@@ -194,7 +194,7 @@ describe('Key Derivation Module', () => {
       const result = await deriveMasterKey(passphrase);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
+      expect((result as any).data).toBeDefined();
     });
   });
 
@@ -204,33 +204,33 @@ describe('Key Derivation Module', () => {
       const originalResult = await deriveMasterKey(passphrase);
 
       expect(originalResult.success).toBe(true);
-      expect(originalResult.data).toBeDefined();
+      expect((originalResult as any).data).toBeDefined();
 
       const rederivedResult = await rederiveMasterKey(
         passphrase,
-        originalResult.data!.derivationParams
+        (originalResult as any).data.derivationParams
       );
 
       expect(rederivedResult.success).toBe(true);
-      expect(rederivedResult.data?.keyMaterial).toEqual(
+      expect((rederivedResult as any).data.keyMaterial).toEqual(
         originalResult.data?.keyMaterial
       );
-      expect(rederivedResult.data?.id).toBe(originalResult.data?.id);
+      expect((rederivedResult as any).data.id).toBe(originalResult.data?.id);
     });
 
     it('should fail with wrong passphrase', async () => {
       const originalResult = await deriveMasterKey('correct passphrase');
 
       expect(originalResult.success).toBe(true);
-      expect(originalResult.data).toBeDefined();
+      expect((originalResult as any).data).toBeDefined();
 
       const rederivedResult = await rederiveMasterKey(
         'wrong passphrase',
-        originalResult.data!.derivationParams
+        (originalResult as any).data.derivationParams
       );
 
       expect(rederivedResult.success).toBe(true); // Derivation succeeds
-      expect(rederivedResult.data?.id).not.toBe(originalResult.data?.id); // But key is different
+      expect((rederivedResult as any).data.id).not.toBe(originalResult.data?.id); // But key is different
     });
   });
 
@@ -240,7 +240,7 @@ describe('Key Derivation Module', () => {
       const keyResult = await deriveMasterKey(passphrase);
 
       expect(keyResult.success).toBe(true);
-      expect(keyResult.data).toBeDefined();
+      expect((keyResult as any).data).toBeDefined();
 
       const isValid = await verifyPassphrase(passphrase, keyResult.data!);
       expect(isValid).toBe(true);
@@ -253,7 +253,7 @@ describe('Key Derivation Module', () => {
       const keyResult = await deriveMasterKey(correctPassphrase);
 
       expect(keyResult.success).toBe(true);
-      expect(keyResult.data).toBeDefined();
+      expect((keyResult as any).data).toBeDefined();
 
       const isValid = await verifyPassphrase(wrongPassphrase, keyResult.data!);
       expect(isValid).toBe(false);
@@ -264,7 +264,7 @@ describe('Key Derivation Module', () => {
       const keyResult = await deriveMasterKey(passphrase);
 
       expect(keyResult.success).toBe(true);
-      expect(keyResult.data).toBeDefined();
+      expect((keyResult as any).data).toBeDefined();
 
       const isValid = await verifyPassphrase('', keyResult.data!);
       expect(isValid).toBe(false);
@@ -275,7 +275,7 @@ describe('Key Derivation Module', () => {
       const keyResult = await deriveMasterKey(passphrase);
 
       expect(keyResult.success).toBe(true);
-      expect(keyResult.data).toBeDefined();
+      expect((keyResult as any).data).toBeDefined();
 
       // Time verification with correct passphrase
       const start1 = performance.now();
@@ -351,7 +351,7 @@ describe('Key Derivation Module', () => {
       const result = await deriveMasterKey(passphrase);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
+      expect((result as any).data).toBeDefined();
 
       const key = result.data!;
       const keyMaterialCopy = new Uint8Array(key.keyMaterial);
@@ -380,9 +380,9 @@ describe('Key Derivation Module', () => {
       const result = await deriveMasterKey(passphrase);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
+      expect((result as any).data).toBeDefined();
 
-      const keyMaterial = result.data!.keyMaterial;
+      const keyMaterial = (result as any).data.keyMaterial;
 
       // Check that key material is not all zeros
       const allZeros = Array.from(keyMaterial).every((byte) => byte === 0);
@@ -409,8 +409,8 @@ describe('Key Derivation Module', () => {
       expect(result2.success).toBe(true);
 
       // Different salts should produce different keys
-      expect(result1.data?.id).not.toBe(result2.data?.id);
-      expect(result1.data?.keyMaterial).not.toEqual(result2.data?.keyMaterial);
+      expect((result1 as any).data.id).not.toBe(result2.data?.id);
+      expect((result1 as any).data.keyMaterial).not.toEqual(result2.data?.keyMaterial);
     });
 
     it('should meet minimum security requirements', async () => {
@@ -418,9 +418,9 @@ describe('Key Derivation Module', () => {
       const result = await deriveMasterKey(passphrase);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
+      expect((result as any).data).toBeDefined();
 
-      const params = result.data!.derivationParams;
+      const params = (result as any).data.derivationParams;
 
       // Verify minimum security parameters
       expect(params.memoryCost).toBeGreaterThanOrEqual(65536); // 64 MB
@@ -436,7 +436,7 @@ describe('Key Derivation Module', () => {
       const result = await deriveMasterKey(passphrase);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
+      expect((result as any).data).toBeDefined();
     });
 
     it('should handle passphrases with whitespace', async () => {
@@ -444,7 +444,7 @@ describe('Key Derivation Module', () => {
       const result = await deriveMasterKey(passphrase);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
+      expect((result as any).data).toBeDefined();
     });
 
     it('should handle passphrases with newlines and tabs', async () => {
@@ -452,7 +452,7 @@ describe('Key Derivation Module', () => {
       const result = await deriveMasterKey(passphrase);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
+      expect((result as any).data).toBeDefined();
     });
 
     it('should handle numeric passphrases', async () => {
@@ -460,7 +460,7 @@ describe('Key Derivation Module', () => {
       const result = await deriveMasterKey(passphrase);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
+      expect((result as any).data).toBeDefined();
     });
 
     it('should treat similar passphrases as different', async () => {
@@ -474,7 +474,7 @@ describe('Key Derivation Module', () => {
 
       expect(result1.success).toBe(true);
       expect(result2.success).toBe(true);
-      expect(result1.data?.id).not.toBe(result2.data?.id);
+      expect((result1 as any).data.id).not.toBe(result2.data?.id);
     });
   });
 });

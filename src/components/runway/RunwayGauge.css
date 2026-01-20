@@ -1,0 +1,119 @@
+/**
+ * Runway Gauge Styles
+ * WCAG 2.1 AA Compliant
+ */
+
+.runway-gauge {
+  margin: 2rem 0;
+}
+
+.gauge-container {
+  position: relative;
+  width: 100%;
+}
+
+.gauge-track {
+  position: relative;
+  height: 32px;
+  background-color: #e0e0e0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.gauge-fill {
+  height: 100%;
+  border-radius: 16px 0 0 16px;
+  transition: width 0.5s ease, background-color 0.3s ease;
+}
+
+.gauge-fill-healthy {
+  background-color: #008000; /* WCAG AA: 4.5:1 on white */
+}
+
+.gauge-fill-warning {
+  background-color: #ff8c00; /* WCAG AA: 4.5:1 on white */
+}
+
+.gauge-fill-critical {
+  background-color: #cc0000; /* WCAG AA: 4.5:1 on white */
+}
+
+.gauge-target-marker {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  pointer-events: none;
+}
+
+.marker-line {
+  width: 2px;
+  height: 100%;
+  background-color: #1a1a1a;
+}
+
+.marker-label {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  white-space: nowrap;
+}
+
+.gauge-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.scale-label {
+  font-size: 0.75rem;
+  color: #4a4a4a;
+}
+
+.gauge-health-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.gauge-health-indicator.healthy {
+  background-color: #e6f7e6;
+  color: #006400;
+}
+
+.gauge-health-indicator.warning {
+  background-color: #fff4e6;
+  color: #996300;
+}
+
+.gauge-health-indicator.critical {
+  background-color: #ffe6e6;
+  color: #990000;
+}
+
+.health-icon {
+  font-size: 1.25rem;
+}
+
+.health-label {
+  text-transform: capitalize;
+}
+
+/* Screen reader table */
+.runway-gauge .sr-only table {
+  border-collapse: collapse;
+}
+
+.runway-gauge .sr-only th,
+.runway-gauge .sr-only td {
+  padding: 0.5rem;
+  text-align: left;
+}

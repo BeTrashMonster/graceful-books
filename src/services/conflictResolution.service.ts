@@ -469,9 +469,9 @@ export function calculateMetrics(
   }
 
   const resolutionTimes = resolutions
-    .filter(r => r.resolvedAt && conflicts.find(c => c.id === r.conflictId)?.detectedAt)
+    .filter(r => r.resolvedAt && conflicts.find(c => c!.id === r.conflictId)?.detectedAt)
     .map(r => {
-      const conflict = conflicts.find(c => c.id === r.conflictId);
+      const conflict = conflicts.find(c => c!.id === r.conflictId);
       return r.resolvedAt - (conflict?.detectedAt || 0);
     });
 

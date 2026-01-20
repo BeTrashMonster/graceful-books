@@ -78,7 +78,7 @@ describe('LineItemInput', () => {
     )
 
     const select = screen.getByLabelText('Account') as HTMLSelectElement
-    const options = Array.from(select.options).map(opt => opt.textContent)
+    const options = Array.from(select.options).map((opt: any) => opt.textContent)
 
     expect(options).toContain('1000 - Cash')
     expect(options).toContain('Revenue')

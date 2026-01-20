@@ -21,13 +21,13 @@ describe('helpContent', () => {
         'accounting-method',
       ];
 
-      keyAreas.forEach(id => {
+      keyAreas.forEach((id: any) => {
         expect(helpContent[id]).toBeDefined();
       });
     });
 
     it('should have all required fields for each content item', () => {
-      Object.values(helpContent).forEach(content => {
+      Object.values(helpContent).forEach((content: any) => {
         expect(content.id).toBeTruthy();
         expect(content.title).toBeTruthy();
         expect(content.content).toBeTruthy();
@@ -38,7 +38,7 @@ describe('helpContent', () => {
     });
 
     it('should have concise tooltip content', () => {
-      Object.values(helpContent).forEach(content => {
+      Object.values(helpContent).forEach((content: any) => {
         // Tooltips should be relatively short (under 300 chars ideally)
         expect(content.content.length).toBeLessThan(500);
       });
@@ -77,7 +77,7 @@ describe('helpContent', () => {
     it('should return all content for transaction area', () => {
       const content = getHelpContentByArea('transaction');
       expect(content.length).toBeGreaterThan(0);
-      content.forEach(c => {
+      content.forEach((c: any) => {
         expect(c.id.startsWith('transaction')).toBe(true);
       });
     });
@@ -85,7 +85,7 @@ describe('helpContent', () => {
     it('should return all content for account area', () => {
       const content = getHelpContentByArea('account');
       expect(content.length).toBeGreaterThan(0);
-      content.forEach(c => {
+      content.forEach((c: any) => {
         expect(c.id.startsWith('account')).toBe(true);
       });
     });
@@ -97,7 +97,7 @@ describe('helpContent', () => {
 
     it('should return only matching area content', () => {
       const balanceSheetContent = getHelpContentByArea('balance-sheet');
-      balanceSheetContent.forEach(c => {
+      balanceSheetContent.forEach((c: any) => {
         expect(c.id.startsWith('balance-sheet')).toBe(true);
       });
     });
@@ -107,13 +107,13 @@ describe('helpContent', () => {
     it('should find content by title', () => {
       const results = searchHelpContent('debit');
       expect(results.length).toBeGreaterThan(0);
-      expect(results.some(r => r.title.toLowerCase().includes('debit'))).toBe(true);
+      expect(results.some((r: any) => r.title.toLowerCase().includes('debit'))).toBe(true);
     });
 
     it('should find content by content text', () => {
       const results = searchHelpContent('seesaw');
       expect(results.length).toBeGreaterThan(0);
-      expect(results.some(r => r.content.toLowerCase().includes('seesaw'))).toBe(true);
+      expect(results.some((r: any) => r.content.toLowerCase().includes('seesaw'))).toBe(true);
     });
 
     it('should be case-insensitive', () => {
@@ -136,7 +136,7 @@ describe('helpContent', () => {
   describe('content organization', () => {
     it('should organize content by feature area', () => {
       const allIds = Object.keys(helpContent);
-      const areas = new Set(allIds.map(id => id.split('-')[0]));
+      const areas = new Set(allIds.map((id: any) => id.split('-')[0]));
       expect(areas.size).toBeGreaterThan(3); // Multiple areas
     });
 
@@ -168,7 +168,7 @@ describe('helpContent', () => {
     });
 
     it('should provide actionable guidance', () => {
-      Object.values(helpContent).forEach(content => {
+      Object.values(helpContent).forEach((content: any) => {
         expect(content.content.length).toBeGreaterThan(10);
         // Should be informative and helpful (not just contain specific keywords)
         expect(content.content).toBeTruthy();
@@ -182,7 +182,7 @@ describe('helpContent', () => {
     });
 
     it('should avoid jargon in tooltips', () => {
-      Object.values(helpContent).forEach(content => {
+      Object.values(helpContent).forEach((content: any) => {
         const text = content.content.toLowerCase();
         // Should minimize complex terminology without explanation
         if (text.includes('accrual') || text.includes('depreciation')) {

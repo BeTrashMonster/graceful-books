@@ -424,3 +424,12 @@ export function analyzeSyncOperation<T extends CRDTEntity>(
     entities_deleted: deleted,
   };
 }
+
+/**
+ * TODO: Integration test stub - implement Hybrid Logical Clock
+ * Generates a Hybrid Logical Clock timestamp for ordering events
+ */
+export function generateHLC(): number {
+  // Stub implementation - returns current timestamp
+  return Date.now();
+}

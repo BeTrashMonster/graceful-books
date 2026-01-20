@@ -141,6 +141,58 @@ import type {
   Comment,
   Mention,
 } from './schema/comments.schema';
+import {
+  subscriptionsSchema,
+  advisorClientsSchema,
+  advisorTeamMembersSchema,
+  paymentMethodsSchema,
+  billingInvoicesSchema,
+  stripeWebhookEventsSchema,
+  charityDistributionsSchema,
+} from './schema/billing.schema';
+import type {
+  Subscription,
+  AdvisorClient,
+  AdvisorTeamMember,
+  PaymentMethod,
+  BillingInvoice,
+  StripeWebhookEvent,
+  CharityDistribution,
+} from '../types/billing.types';
+import {
+  emailQueueSchema,
+  emailLogsSchema,
+  emailNotificationPreferencesSchema,
+} from './schema/emailQueue.schema';
+import type {
+  EmailQueueEntity,
+  EmailLogEntity,
+  EmailNotificationPreferencesEntity,
+} from './schema/emailQueue.schema';
+import { charitiesSchema } from './schema/charity.schema';
+import type { Charity } from '../types/database.types';
+import {
+  financialGoalsSchema,
+  goalProgressSnapshotsSchema,
+} from './schema/goals.schema';
+import type {
+  FinancialGoal,
+  GoalProgressSnapshot,
+} from '../types/goals.types';
+import {
+  taxDocumentsSchema,
+  taxCategoryStatusSchema,
+  taxPrepSessionsSchema,
+  taxAdvisorAccessSchema,
+  taxPackagesSchema,
+} from './schema/tax.schema';
+import type {
+  TaxDocument,
+  TaxCategoryStatus,
+  TaxPrepSession,
+  TaxAdvisorAccess,
+  TaxPackage,
+} from '../types/tax.types';
 
 /**
  * TreasureChest Database Class
@@ -193,6 +245,24 @@ export class TreasureChestDB extends Dexie {
   conflict_notifications!: Table<ConflictNotification, string>;
   comments!: Table<Comment, string>;
   mentions!: Table<Mention, string>;
+  subscriptions!: Table<Subscription, string>;
+  advisorClients!: Table<AdvisorClient, string>;
+  advisorTeamMembers!: Table<AdvisorTeamMember, string>;
+  paymentMethods!: Table<PaymentMethod, string>;
+  billingInvoices!: Table<BillingInvoice, string>;
+  stripeWebhookEvents!: Table<StripeWebhookEvent, string>;
+  charityDistributions!: Table<CharityDistribution, string>;
+  emailQueue!: Table<EmailQueueEntity, string>;
+  emailLogs!: Table<EmailLogEntity, string>;
+  emailNotificationPreferences!: Table<EmailNotificationPreferencesEntity, string>;
+  charities!: Table<Charity, string>;
+  financialGoals!: Table<FinancialGoal, string>;
+  goalProgressSnapshots!: Table<GoalProgressSnapshot, string>;
+  taxDocuments!: Table<TaxDocument, string>;
+  taxCategoryStatus!: Table<TaxCategoryStatus, string>;
+  taxPrepSessions!: Table<TaxPrepSession, string>;
+  taxAdvisorAccess!: Table<TaxAdvisorAccess, string>;
+  taxPackages!: Table<TaxPackage, string>;
 
   constructor() {
     super('TreasureChest');
@@ -627,6 +697,239 @@ export class TreasureChestDB extends Dexie {
       conflict_notifications: conflictNotificationsSchema,
       comments: commentsSchema,
       mentions: mentionsSchema,
+    });
+
+    // Version 15: Add Billing Infrastructure tables (IC2)
+    this.version(15).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+      recentActivity: recentActivitySchema,
+      conflict_history: conflictHistorySchema,
+      conflict_notifications: conflictNotificationsSchema,
+      comments: commentsSchema,
+      mentions: mentionsSchema,
+      emailQueue: emailQueueSchema,
+      emailLogs: emailLogsSchema,
+      emailNotificationPreferences: emailNotificationPreferencesSchema,
+      subscriptions: subscriptionsSchema,
+      advisorClients: advisorClientsSchema,
+      advisorTeamMembers: advisorTeamMembersSchema,
+      paymentMethods: paymentMethodsSchema,
+      billingInvoices: billingInvoicesSchema,
+      stripeWebhookEvents: stripeWebhookEventsSchema,
+      charityDistributions: charityDistributionsSchema,
+    });
+
+    // Version 16: Add J5 Financial Goals Tracking tables
+    this.version(16).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+      recentActivity: recentActivitySchema,
+      conflict_history: conflictHistorySchema,
+      conflict_notifications: conflictNotificationsSchema,
+      comments: commentsSchema,
+      mentions: mentionsSchema,
+      emailQueue: emailQueueSchema,
+      emailLogs: emailLogsSchema,
+      emailNotificationPreferences: emailNotificationPreferencesSchema,
+      subscriptions: subscriptionsSchema,
+      advisorClients: advisorClientsSchema,
+      advisorTeamMembers: advisorTeamMembersSchema,
+      paymentMethods: paymentMethodsSchema,
+      billingInvoices: billingInvoicesSchema,
+      stripeWebhookEvents: stripeWebhookEventsSchema,
+      charityDistributions: charityDistributionsSchema,
+      charities: charitiesSchema,
+      financialGoals: financialGoalsSchema,
+      goalProgressSnapshots: goalProgressSnapshotsSchema,
+    });
+
+    // Version 17: Add J8 Tax Preparation Mode tables
+    this.version(17).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+      recentActivity: recentActivitySchema,
+      conflict_history: conflictHistorySchema,
+      conflict_notifications: conflictNotificationsSchema,
+      comments: commentsSchema,
+      mentions: mentionsSchema,
+      emailQueue: emailQueueSchema,
+      emailLogs: emailLogsSchema,
+      emailNotificationPreferences: emailNotificationPreferencesSchema,
+      subscriptions: subscriptionsSchema,
+      advisorClients: advisorClientsSchema,
+      advisorTeamMembers: advisorTeamMembersSchema,
+      paymentMethods: paymentMethodsSchema,
+      billingInvoices: billingInvoicesSchema,
+      stripeWebhookEvents: stripeWebhookEventsSchema,
+      charityDistributions: charityDistributionsSchema,
+      charities: charitiesSchema,
+      financialGoals: financialGoalsSchema,
+      goalProgressSnapshots: goalProgressSnapshotsSchema,
+      taxDocuments: taxDocumentsSchema,
+      taxCategoryStatus: taxCategoryStatusSchema,
+      taxPrepSessions: taxPrepSessionsSchema,
+      taxAdvisorAccess: taxAdvisorAccessSchema,
+      taxPackages: taxPackagesSchema,
+    });
+
+    // Version 14: Add IC4 Email Queue and Logs tables
+    this.version(14).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+      recentActivity: recentActivitySchema,
+      conflict_history: conflictHistorySchema,
+      conflict_notifications: conflictNotificationsSchema,
+      comments: commentsSchema,
+      mentions: mentionsSchema,
+      emailQueue: emailQueueSchema,
+      emailLogs: emailLogsSchema,
+      emailNotificationPreferences: emailNotificationPreferencesSchema,
+      charities: charitiesSchema,
     });
 
     // Add hooks for automatic audit logging

@@ -435,7 +435,7 @@ describe('PDF Export Service', () => {
       const result = await exportProfitLossToPDF(report)
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('PDF generation failed')
+      expect((result as any).error).toBe('PDF generation failed')
     })
 
     it('should include other income section when present', async () => {

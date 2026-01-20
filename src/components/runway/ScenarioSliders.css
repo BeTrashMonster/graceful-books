@@ -1,0 +1,283 @@
+/**
+ * Scenario Sliders Styles
+ * WCAG 2.1 AA Compliant with keyboard-accessible sliders
+ */
+
+.scenario-sliders {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.section-description {
+  margin: 0 0 2rem 0;
+  color: #4a4a4a;
+  font-size: 1rem;
+}
+
+.slider-container {
+  margin-bottom: 2rem;
+}
+
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.slider-label {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 1rem;
+}
+
+.slider-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0066cc;
+}
+
+.slider-track-container {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem;
+  align-items: center;
+}
+
+.slider-min,
+.slider-max {
+  font-size: 0.75rem;
+  color: #4a4a4a;
+  min-width: 80px;
+}
+
+.slider-max {
+  text-align: right;
+}
+
+.slider-input {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+/* Webkit (Chrome, Safari, Edge) */
+.slider-input::-webkit-slider-track {
+  width: 100%;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+}
+
+.slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0066cc;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slider-input:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.3);
+}
+
+/* Firefox */
+.slider-input::-moz-range-track {
+  width: 100%;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  border: none;
+}
+
+.slider-input::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0066cc;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slider-input:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.3);
+}
+
+/* Different colors for revenue vs expense sliders */
+.slider-input.revenue::-webkit-slider-thumb {
+  background: #008000;
+}
+
+.slider-input.revenue::-moz-range-thumb {
+  background: #008000;
+}
+
+.slider-input.expense::-webkit-slider-thumb {
+  background: #cc6600;
+}
+
+.slider-input.expense::-moz-range-thumb {
+  background: #cc6600;
+}
+
+.slider-change {
+  min-height: 24px;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.change-positive {
+  color: #008000;
+  font-weight: 600;
+}
+
+.change-negative {
+  color: #cc0000;
+  font-weight: 600;
+}
+
+.scenario-results {
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.result-item {
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+}
+
+.result-item.runway {
+  border-left-width: 4px;
+}
+
+.result-item.runway.impact-positive {
+  border-left-color: #008000;
+}
+
+.result-item.runway.impact-negative {
+  border-left-color: #cc0000;
+}
+
+.result-item.runway.impact-neutral {
+  border-left-color: #0066cc;
+}
+
+.result-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #4a4a4a;
+  margin-bottom: 0.5rem;
+}
+
+.result-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.25rem;
+}
+
+.result-change {
+  display: block;
+  font-size: 0.75rem;
+  color: #4a4a4a;
+}
+
+.impact-message {
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.impact-message.impact-positive {
+  background-color: #e6f7e6;
+  border-left: 4px solid #008000;
+}
+
+.impact-message.impact-negative {
+  background-color: #ffe6e6;
+  border-left: 4px solid #cc0000;
+}
+
+.impact-message.impact-neutral {
+  background-color: #e6f2ff;
+  border-left: 4px solid #0066cc;
+}
+
+.impact-icon {
+  font-size: 1.25rem;
+}
+
+.impact-text {
+  margin: 0;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.slider-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.slider-actions .btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.keyboard-help {
+  padding: 1rem;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  border-left: 4px solid #666;
+  margin-bottom: 1rem;
+}
+
+.keyboard-help p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #1a1a1a;
+}
+
+@media (max-width: 768px) {
+  .slider-track-container {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .slider-min,
+  .slider-max {
+    text-align: left;
+  }
+
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+}

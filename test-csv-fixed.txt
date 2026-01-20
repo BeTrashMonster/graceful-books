@@ -1,0 +1,60 @@
+
+> graceful-books@0.1.0 test
+> vitest src/services/csv/csvImporter.service.test.ts src/services/csv/csvValidator.service.test.ts
+
+
+[1m[46m RUN [49m[22m [36mv4.0.17 [39m[90mC:/Users/Admin/graceful_books[39m
+
+ [32m✓[39m src/services/csv/csvValidator.service.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+ [31m❯[39m src/services/csv/csvImporter.service.test.ts [2m([22m[2m23 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 134[2mms[22m[39m
+       [32m✓[39m should parse simple CSV content[32m 79[2mms[22m[39m
+       [32m✓[39m should handle quoted fields with commas[32m 2[2mms[22m[39m
+       [32m✓[39m should handle escaped quotes[32m 2[2mms[22m[39m
+       [32m✓[39m should handle newlines in quoted fields[32m 2[2mms[22m[39m
+       [32m✓[39m should return preview of first 10 rows[32m 3[2mms[22m[39m
+       [32m✓[39m should handle empty file[32m 2[2mms[22m[39m
+       [32m✓[39m should handle files with only headers[32m 2[2mms[22m[39m
+       [32m✓[39m should map exact matches with high confidence[32m 2[2mms[22m[39m
+       [32m✓[39m should map case-insensitive matches[32m 1[2mms[22m[39m
+       [32m✓[39m should map common aliases[32m 1[2mms[22m[39m
+       [32m✓[39m should identify unmapped columns[32m 1[2mms[22m[39m
+       [32m✓[39m should identify unmapped required fields[32m 1[2mms[22m[39m
+       [32m✓[39m should provide alternative suggestions[32m 1[2mms[22m[39m
+       [32m✓[39m should calculate overall confidence[32m 1[2mms[22m[39m
+       [32m✓[39m should recognize invoice number aliases[32m 1[2mms[22m[39m
+       [32m✓[39m should recognize customer aliases[32m 1[2mms[22m[39m
+       [32m✓[39m should recognize vendor aliases[32m 1[2mms[22m[39m
+       [32m✓[39m should recognize email aliases[32m 1[2mms[22m[39m
+       [32m✓[39m should convert suggestions to column mappings[32m 1[2mms[22m[39m
+       [32m✓[39m should validate in dry-run mode[32m 2[2mms[22m[39m
+[31m       [31m×[31m should return validation errors in dry-run mode[39m[32m 20[2mms[22m[39m
+       [32m✓[39m should return all fields for transactions[32m 1[2mms[22m[39m
+       [32m✓[39m should return all fields for invoices[32m 1[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/services/csv/csvImporter.service.test.ts[2m > [22mCSVImporterService[2m > [22mimportCSV[2m > [22mshould return validation errors in dry-run mode
+[31m[1mAssertionError[22m: expected true to be false // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+[36m [2m❯[22m src/services/csv/csvImporter.service.test.ts:[2m236:30[22m[39m
+    [90m234| [39m
+    [90m235| [39m      [35mconst[39m result [33m=[39m [35mawait[39m service[33m.[39m[34mimportCSV[39m(config[33m,[39m rows)[33m;[39m
+    [90m236| [39m      [34mexpect[39m(result[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m237| [39m      [34mexpect[39m(result[33m.[39mvalidation[33m.[39mvalid)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m238| [39m      [34mexpect[39m(result[33m.[39mvalidation[33m.[39merrors[33m.[39mlength)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m42 passed[39m[22m[90m (43)[39m
+[2m   Start at [22m 18:06:56
+[2m   Duration [22m 13.57s[2m (transform 588ms, setup 7.72s, import 539ms, tests 194ms, environment 15.69s)[22m
+

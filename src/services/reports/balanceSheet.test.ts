@@ -207,11 +207,11 @@ describe('Balance Sheet Calculation Service', () => {
       }
 
       expect(result.success).toBe(true)
-      expect(result.data).toBeDefined()
-      expect(result.data!.assets.lines).toHaveLength(0)
-      expect(result.data!.liabilities.lines).toHaveLength(0)
-      expect(result.data!.equity.lines).toHaveLength(0)
-      expect(result.data!.isBalanced).toBe(true)
+      expect((result as any).data).toBeDefined()
+      expect((result as any).data.assets.lines).toHaveLength(0)
+      expect((result as any).data.liabilities.lines).toHaveLength(0)
+      expect((result as any).data.equity.lines).toHaveLength(0)
+      expect((result as any).data.isBalanced).toBe(true)
     })
 
     it('should generate balanced balance sheet with transactions', async () => {
@@ -287,7 +287,7 @@ describe('Balance Sheet Calculation Service', () => {
       })
 
       expect(result.success).toBe(true)
-      expect(result.data).toBeDefined()
+      expect((result as any).data).toBeDefined()
 
       const data = result.data!
 
@@ -342,13 +342,13 @@ describe('Balance Sheet Calculation Service', () => {
       expect(result.success).toBe(true)
 
       // AR should not be included
-      const arLine = result.data!.assets.lines.find(
+      const arLine = (result as any).data.assets.lines.find(
         (line) => line.accountId === arAccount.id
       )
       expect(arLine).toBeUndefined()
 
       // Cash should be included
-      const cashLine = result.data!.assets.lines.find(
+      const cashLine = (result as any).data.assets.lines.find(
         (line) => line.accountId === cashAccount.id
       )
       expect(cashLine).toBeDefined()
@@ -391,7 +391,7 @@ describe('Balance Sheet Calculation Service', () => {
       expect(result.success).toBe(true)
 
       // AR should be included even with zero balance
-      const arLine = result.data!.assets.lines.find(
+      const arLine = (result as any).data.assets.lines.find(
         (line) => line.accountId === arAccount.id
       )
       expect(arLine).toBeDefined()
@@ -443,13 +443,13 @@ describe('Balance Sheet Calculation Service', () => {
       expect(result.success).toBe(true)
 
       // Should have parent and sub-accounts
-      const parentLine = result.data!.assets.lines.find(
+      const parentLine = (result as any).data.assets.lines.find(
         (line) => line.accountId === bankAccount.id
       )
       expect(parentLine).toBeDefined()
       expect(parentLine!.level).toBe(0)
 
-      const checkingLine = result.data!.assets.lines.find(
+      const checkingLine = (result as any).data.assets.lines.find(
         (line) => line.accountId === checkingAccount.id
       )
       expect(checkingLine).toBeDefined()

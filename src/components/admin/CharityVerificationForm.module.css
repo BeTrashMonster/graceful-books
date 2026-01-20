@@ -1,0 +1,267 @@
+/**
+ * CharityVerificationForm Component Styles
+ * WCAG 2.1 AA compliant with accessible form elements
+ */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.formBody {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.section:last-of-type {
+  border-bottom: none;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stepNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background-color: var(--color-primary, #3b82f6);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.sectionDescription {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #111827);
+  margin-bottom: 0.5rem;
+}
+
+.required {
+  color: var(--color-error, #ef4444);
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-text-primary, #111827);
+  background-color: white;
+  border: 2px solid var(--color-border, #d1d5db);
+  border-radius: 0.5rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.inputError {
+  border-color: var(--color-error, #ef4444);
+}
+
+.inputError:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.helpText {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin-top: 0.25rem;
+}
+
+.errorMessage {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-error, #ef4444);
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.verificationSteps {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0 0;
+}
+
+.verificationSteps li {
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background-color: var(--color-background, #f9fafb);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.verificationSteps strong {
+  color: var(--color-primary, #3b82f6);
+}
+
+.link {
+  color: var(--color-primary, #3b82f6);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.link:hover {
+  color: var(--color-primary-dark, #2563eb);
+}
+
+.link:focus {
+  outline: 3px solid var(--color-focus, #93c5fd);
+  outline-offset: 2px;
+  border-radius: 0.125rem;
+}
+
+.submitError {
+  padding: 1rem;
+  background-color: #fef2f2;
+  border: 2px solid var(--color-error, #ef4444);
+  border-radius: 0.5rem;
+  color: #991b1b;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  background-color: var(--color-background, #f9fafb);
+}
+
+.cancelButton,
+.submitButton {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.cancelButton {
+  background-color: white;
+  color: var(--color-text-primary, #111827);
+  border-color: var(--color-border, #d1d5db);
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: var(--color-background-hover, #f3f4f6);
+  border-color: var(--color-border-hover, #9ca3af);
+}
+
+.cancelButton:focus {
+  outline: 3px solid var(--color-focus, #93c5fd);
+  outline-offset: 2px;
+}
+
+.submitButton {
+  background-color: var(--color-primary, #3b82f6);
+  color: white;
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: var(--color-primary-dark, #2563eb);
+  border-color: var(--color-primary-dark, #2563eb);
+}
+
+.submitButton:focus {
+  outline: 3px solid var(--color-focus, #93c5fd);
+  outline-offset: 2px;
+}
+
+.submitButton:disabled,
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .formBody {
+    padding: 1rem;
+  }
+
+  .formActions {
+    padding: 1rem;
+    flex-direction: column-reverse;
+  }
+
+  .cancelButton,
+  .submitButton {
+    width: 100%;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .input,
+  .textarea,
+  .select {
+    border-width: 3px;
+  }
+
+  .submitButton,
+  .cancelButton {
+    border-width: 3px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .textarea,
+  .select,
+  .cancelButton,
+  .submitButton {
+    transition: none;
+  }
+}

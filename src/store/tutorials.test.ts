@@ -67,7 +67,7 @@ describe('Tutorial Store', () => {
       const result = await getTutorialProgress(testUserId, mockTutorial.id);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeNull();
+      expect((result as any).data).toBeNull();
     });
 
     it('should return progress when it exists', async () => {
@@ -77,10 +77,10 @@ describe('Tutorial Store', () => {
       const result = await getTutorialProgress(testUserId, mockTutorial.id);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
-      expect(result.data?.user_id).toBe(testUserId);
-      expect(result.data?.tutorial_id).toBe(mockTutorial.id);
-      expect(result.data?.status).toBe('IN_PROGRESS');
+      expect((result as any).data).toBeDefined();
+      expect((result as any).data.user_id).toBe(testUserId);
+      expect((result as any).data.tutorial_id).toBe(mockTutorial.id);
+      expect((result as any).data.status).toBe('IN_PROGRESS');
     });
   });
 
@@ -89,7 +89,7 @@ describe('Tutorial Store', () => {
       const result = await startTutorial(testUserId, mockTutorial);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
+      expect((result as any).data).toBeDefined();
       expect(result.data.user_id).toBe(testUserId);
       expect(result.data.tutorial_id).toBe(mockTutorial.id);
       expect(result.data.status).toBe('IN_PROGRESS');
@@ -131,7 +131,7 @@ describe('Tutorial Store', () => {
       const result = await updateTutorialStep(testUserId, 'nonexistent', 1);
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
   });
 
@@ -167,7 +167,7 @@ describe('Tutorial Store', () => {
       const result = await completeTutorial(testUserId, 'nonexistent');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
   });
 
@@ -210,7 +210,7 @@ describe('Tutorial Store', () => {
 
       // Verify it's deleted
       const progressResult = await getTutorialProgress(testUserId, mockTutorial.id);
-      expect(progressResult.data).toBeNull();
+      expect((progressResult as any).data).toBeNull();
     });
 
     it('should succeed when no progress exists', async () => {
@@ -225,7 +225,7 @@ describe('Tutorial Store', () => {
       const result = await shouldShowTutorial(testUserId, mockTutorial.id);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBe(true);
+      expect((result as any).data).toBe(true);
     });
 
     it('should return false when dismissed', async () => {
@@ -234,7 +234,7 @@ describe('Tutorial Store', () => {
       const result = await shouldShowTutorial(testUserId, mockTutorial.id);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBe(false);
+      expect((result as any).data).toBe(false);
     });
 
     it('should return false when completed', async () => {
@@ -244,7 +244,7 @@ describe('Tutorial Store', () => {
       const result = await shouldShowTutorial(testUserId, mockTutorial.id);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBe(false);
+      expect((result as any).data).toBe(false);
     });
 
     it('should return true when in progress', async () => {
@@ -253,7 +253,7 @@ describe('Tutorial Store', () => {
       const result = await shouldShowTutorial(testUserId, mockTutorial.id);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBe(true);
+      expect((result as any).data).toBe(true);
     });
 
     it('should return true when skipped (can retry)', async () => {
@@ -262,7 +262,7 @@ describe('Tutorial Store', () => {
       const result = await shouldShowTutorial(testUserId, mockTutorial.id);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBe(true);
+      expect((result as any).data).toBe(true);
     });
   });
 
@@ -276,13 +276,13 @@ describe('Tutorial Store', () => {
       const result = await getTutorialStats(testUserId, tutorials);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
-      expect(result.data!.total).toBe(1);
-      expect(result.data!.inProgress).toBe(1);
-      expect(result.data!.completed).toBe(0);
-      expect(result.data!.skipped).toBe(0);
-      expect(result.data!.dismissed).toBe(0);
-      expect(result.data!.completionRate).toBe(0);
+      expect((result as any).data).toBeDefined();
+      expect((result as any).data.total).toBe(1);
+      expect((result as any).data.inProgress).toBe(1);
+      expect((result as any).data.completed).toBe(0);
+      expect((result as any).data.skipped).toBe(0);
+      expect((result as any).data.dismissed).toBe(0);
+      expect((result as any).data.completionRate).toBe(0);
     });
 
     it('should calculate completion rate correctly', async () => {
@@ -299,8 +299,8 @@ describe('Tutorial Store', () => {
       const result = await getTutorialStats(testUserId, tutorials);
 
       expect(result.success).toBe(true);
-      expect(result.data!.completed).toBe(1);
-      expect(result.data!.completionRate).toBe(50); // 1 out of 2
+      expect((result as any).data.completed).toBe(1);
+      expect((result as any).data.completionRate).toBe(50); // 1 out of 2
     });
 
     it('should return available tutorials', async () => {
@@ -316,8 +316,8 @@ describe('Tutorial Store', () => {
       const result = await getTutorialStats(testUserId, tutorials);
 
       expect(result.success).toBe(true);
-      expect(result.data!.available).toHaveLength(1);
-      expect(result.data!.available[0].id).toBe('test-tutorial-2');
+      expect((result as any).data.available).toHaveLength(1);
+      expect((result as any).data.available[0].id).toBe('test-tutorial-2');
     });
   });
 
@@ -326,7 +326,7 @@ describe('Tutorial Store', () => {
       const result = await getEarnedBadges(testUserId);
 
       expect(result.success).toBe(true);
-      expect(result.data).toEqual([]);
+      expect((result as any).data).toEqual([]);
     });
 
     it('should return earned badges', async () => {
@@ -344,7 +344,7 @@ describe('Tutorial Store', () => {
       const result = await getEarnedBadges(testUserId);
 
       expect(result.success).toBe(true);
-      expect(result.data).toHaveLength(1);
+      expect((result as any).data).toHaveLength(1);
       expect(result.data[0]).toEqual(badge);
     });
 
@@ -377,7 +377,7 @@ describe('Tutorial Store', () => {
       const result = await getEarnedBadges(testUserId);
 
       expect(result.success).toBe(true);
-      expect(result.data).toHaveLength(2);
+      expect((result as any).data).toHaveLength(2);
       // Most recent first
       expect(result.data[0].id).toBe('badge-2');
       expect(result.data[1].id).toBe('badge-1');

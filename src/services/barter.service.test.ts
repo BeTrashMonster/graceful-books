@@ -347,7 +347,7 @@ describe('BarterService', () => {
       const validation = service.validateBarterTransaction(request);
 
       expect(validation.is_valid).toBe(true);
-      expect(validation.warnings.some(w => w.includes('documenting'))).toBe(true);
+      expect(validation.warnings.some((w: any) => w.includes('documenting'))).toBe(true);
     });
 
     it('should warn about 1099-B reporting for large transactions', () => {
@@ -371,7 +371,7 @@ describe('BarterService', () => {
       const validation = service.validateBarterTransaction(request);
 
       expect(validation.is_valid).toBe(true);
-      expect(validation.warnings.some(w => w.includes('1099-B'))).toBe(true);
+      expect(validation.warnings.some((w: any) => w.includes('1099-B'))).toBe(true);
     });
   });
 
@@ -521,7 +521,7 @@ describe('BarterService', () => {
       });
 
       expect(results.length).toBe(2);
-      expect(results.every(txn => txn.type === 'BARTER')).toBe(true);
+      expect(results.every((txn: any) => txn.type === 'BARTER')).toBe(true);
     });
 
     it('should filter by 1099-reportable status', async () => {

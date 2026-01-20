@@ -130,7 +130,7 @@ export async function createPaymentIntent(
         deviceId
       ),
       customer_name: customerName || null,
-      status: 'PENDING',
+      status: 'pending',
     };
 
     // Validate

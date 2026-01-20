@@ -439,11 +439,11 @@ describe('AccountTree Component', () => {
     it('should be keyboard navigable', () => {
       render(<AccountTree nodes={mockTreeNodes} onSelect={vi.fn()} />)
 
-      const clickableNodes = screen.getAllByRole('treeitem').filter(node =>
+      const clickableNodes = screen.getAllByRole('treeitem').filter((node: any) =>
         node.querySelector('[tabindex="0"]')
       )
 
-      clickableNodes.forEach(node => {
+      clickableNodes.forEach((node: any) => {
         const clickableElement = node.querySelector('[tabindex="0"]')
         expect(clickableElement).toHaveAttribute('tabindex', '0')
       })

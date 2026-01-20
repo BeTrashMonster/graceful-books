@@ -341,7 +341,7 @@ export class JournalEntriesService {
 
     const now = Date.now();
     await this.db.transactions.update(entryId, {
-      approval_status: 'PENDING',
+      approval_status: 'pending',
       submitted_at: now,
       submitted_by: userId,
       updated_at: now,

@@ -226,7 +226,7 @@ describe('CurrencyService', () => {
       const currencies = await service.getActiveCurrencies(companyId);
 
       expect(currencies).toHaveLength(3);
-      expect(currencies.every(c => c.is_active)).toBe(true);
+      expect(currencies.every((c: any) => c.is_active)).toBe(true);
     });
 
     it('should exclude inactive currencies', async () => {

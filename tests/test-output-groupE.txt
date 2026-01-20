@@ -1,0 +1,125 @@
+
+> graceful-books@0.1.0 test
+> vitest src/__tests__/integration/groupE.integration.test.ts --run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/Admin/graceful_books[39m
+
+[90mstdout[2m | src/__tests__/integration/groupE.integration.test.ts[2m > [22m[2mGroup E Integration Tests[2m > [22m[2mE1 + E7: Reconciliation with Audit Logging[2m > [22m[2mshould log audit entries when learning from reconciliation matches[22m[39m
+[ReconciliationHistory] Created reconciliation pattern { patternId: [32m'jjRFl8JNuQfkvH8V-wghY'[39m, vendorName: [32m'coffee shop'[39m }
+
+[90mstdout[2m | src/__tests__/integration/groupE.integration.test.ts[2m > [22m[2mGroup E Integration Tests[2m > [22m[2mE1 + E7: Reconciliation with Audit Logging[2m > [22m[2mshould log audit entries when learning from reconciliation matches[22m[39m
+[ReconciliationHistory] Updated reconciliation pattern {
+  patternId: [32m'jjRFl8JNuQfkvH8V-wghY'[39m,
+  changedFields: [
+    [32m'description_patterns'[39m,
+    [32m'typical_amount_range'[39m,
+    [32m'typical_day_of_month'[39m,
+    [32m'confidence'[39m,
+    [32m'last_matched_at'[39m,
+    [32m'match_count'[39m
+  ]
+}
+
+[90mstdout[2m | src/__tests__/integration/groupE.integration.test.ts[2m > [22m[2mGroup E Integration Tests[2m > [22m[2mE1 + E7: Reconciliation with Audit Logging[2m > [22m[2mshould track reconciliation streaks and log milestones[22m[39m
+[ReconciliationHistory] Created reconciliation pattern { patternId: [32m'NhEXLfbFFXH8S60wzWrKQ'[39m, vendorName: [32m'statement'[39m }
+
+[90mstdout[2m | src/__tests__/integration/groupE.integration.test.ts[2m > [22m[2mGroup E Integration Tests[2m > [22m[2mE1 + E7: Reconciliation with Audit Logging[2m > [22m[2mshould track reconciliation streaks and log milestones[22m[39m
+[ReconciliationHistory] Updated reconciliation pattern {
+  patternId: [32m'NhEXLfbFFXH8S60wzWrKQ'[39m,
+  changedFields: [
+    [32m'description_patterns'[39m,
+    [32m'typical_amount_range'[39m,
+    [32m'typical_day_of_month'[39m,
+    [32m'confidence'[39m,
+    [32m'last_matched_at'[39m,
+    [32m'match_count'[39m
+  ]
+}
+
+[90mstdout[2m | src/__tests__/integration/groupE.integration.test.ts[2m > [22m[2mGroup E Integration Tests[2m > [22m[2mE1 + E7: Reconciliation with Audit Logging[2m > [22m[2mshould track reconciliation streaks and log milestones[22m[39m
+[ReconciliationHistory] Updated reconciliation pattern {
+  patternId: [32m'NhEXLfbFFXH8S60wzWrKQ'[39m,
+  changedFields: [
+    [32m'description_patterns'[39m,
+    [32m'typical_amount_range'[39m,
+    [32m'typical_day_of_month'[39m,
+    [32m'confidence'[39m,
+    [32m'last_matched_at'[39m,
+    [32m'match_count'[39m
+  ]
+}
+
+[90mstdout[2m | src/__tests__/integration/groupE.integration.test.ts[2m > [22m[2mGroup E Integration Tests[2m > [22m[2mE1 + E7: Reconciliation with Audit Logging[2m > [22m[2mshould track reconciliation streaks and log milestones[22m[39m
+[ReconciliationHistory] Updated reconciliation pattern {
+  patternId: [32m'NhEXLfbFFXH8S60wzWrKQ'[39m,
+  changedFields: [
+    [32m'description_patterns'[39m,
+    [32m'typical_amount_range'[39m,
+    [32m'typical_day_of_month'[39m,
+    [32m'confidence'[39m,
+    [32m'last_matched_at'[39m,
+    [32m'match_count'[39m
+  ]
+}
+
+[90mstdout[2m | src/__tests__/integration/groupE.integration.test.ts[2m > [22m[2mGroup E Integration Tests[2m > [22m[2mE1 + E7: Reconciliation with Audit Logging[2m > [22m[2mshould track reconciliation streaks and log milestones[22m[39m
+[ReconciliationHistory] Updated reconciliation pattern {
+  patternId: [32m'NhEXLfbFFXH8S60wzWrKQ'[39m,
+  changedFields: [
+    [32m'description_patterns'[39m,
+    [32m'typical_amount_range'[39m,
+    [32m'typical_day_of_month'[39m,
+    [32m'confidence'[39m,
+    [32m'last_matched_at'[39m,
+    [32m'match_count'[39m
+  ]
+}
+
+[90mstdout[2m | src/__tests__/integration/groupE.integration.test.ts[2m > [22m[2mGroup E Integration Tests[2m > [22m[2mE1 + E7: Reconciliation with Audit Logging[2m > [22m[2mshould track reconciliation streaks and log milestones[22m[39m
+[ReconciliationHistory] Updated reconciliation pattern {
+  patternId: [32m'NhEXLfbFFXH8S60wzWrKQ'[39m,
+  changedFields: [
+    [32m'description_patterns'[39m,
+    [32m'typical_amount_range'[39m,
+    [32m'typical_day_of_month'[39m,
+    [32m'confidence'[39m,
+    [32m'last_matched_at'[39m,
+    [32m'match_count'[39m
+  ]
+}
+
+[90mstdout[2m | src/__tests__/integration/groupE.integration.test.ts[2m > [22m[2mGroup E Integration Tests[2m > [22m[2mE2 + E5: Recurring Transactions with Categorization[2m > [22m[2mshould create recurring transactions and auto-categorize them[22m[39m
+[CategorizationService] Initializing categorization service { companyId: [32m'zLilVu99LtQPfqI9aOWAU'[39m }
+
+[90mstdout[2m | src/__tests__/integration/groupE.integration.test.ts[2m > [22m[2mGroup E Integration Tests[2m > [22m[2mE2 + E5: Recurring Transactions with Categorization[2m > [22m[2mshould create recurring transactions and auto-categorize them[22m[39m
+[CategorizationService] Loaded categories into cache { count: [33m0[39m }
+[CategorizationService] Loaded rules into cache { count: [33m0[39m }
+[CategorizationService] No trained model found 
+[CategorizationService] Categorization service initialized successfully 
+
+[90mstdout[2m | src/__tests__/integration/groupE.integration.test.ts[2m > [22m[2mGroup E Integration Tests[2m > [22m[2mFull Group E Workflow Integration[2m > [22m[2mshould handle a complete accounting workflow using all Group E features[22m[39m
+[ReconciliationHistory] Created reconciliation pattern { patternId: [32m'KEBJmgN56eJfGBWxSk_2u'[39m, vendorName: [32m'rent payment'[39m }
+
+[90mstdout[2m | src/__tests__/integration/groupE.integration.test.ts[2m > [22m[2mGroup E Integration Tests[2m > [22m[2mFull Group E Workflow Integration[2m > [22m[2mshould handle a complete accounting workflow using all Group E features[22m[39m
+[ReconciliationHistory] Updated reconciliation pattern {
+  patternId: [32m'KEBJmgN56eJfGBWxSk_2u'[39m,
+  changedFields: [
+    [32m'description_patterns'[39m,
+    [32m'typical_amount_range'[39m,
+    [32m'typical_day_of_month'[39m,
+    [32m'confidence'[39m,
+    [32m'last_matched_at'[39m,
+    [32m'match_count'[39m
+  ]
+}
+
+ [33m❯[39m src/__tests__/integration/groupE.integration.test.ts [2m ([22m[2m6 tests[22m [2m|[22m [31m1 failed[39m[2m)[22m[33m 611[2mms[22m[39m
+[31m   [33m❯[31m src/__tests__/integration/groupE.integration.test.ts[2m > [22mGroup E Integration Tests[2m > [22mE2 + E5: Recurring Transactions with Categorization[2m > [22mshould create recurring transactions and auto-categorize them[39m
+[31m     → expected false to be true // Object.is equality[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m5 passed[39m[22m[90m (6)[39m
+[2m   Start at [22m 19:37:54
+[2m   Duration [22m 33.99s[2m (transform 2.43s, setup 9.10s, collect 5.06s, tests 611ms, environment 10.23s, prepare 5.13s)[22m
+

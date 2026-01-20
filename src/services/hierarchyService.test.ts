@@ -291,7 +291,7 @@ describe('Hierarchy Service', () => {
       const children = await HierarchyService.getChildren(parent.id);
 
       expect(children).toHaveLength(2);
-      expect(children.map(c => c.id)).toEqual(['child-1', 'child-2']);
+      expect(children.map((c: any) => c.id)).toEqual(['child-1', 'child-2']);
     });
 
     it('should return empty array if no children', async () => {
@@ -406,7 +406,7 @@ describe('Hierarchy Service', () => {
       const descendants = await HierarchyService.getDescendants(parent.id);
 
       expect(descendants.length).toBeGreaterThanOrEqual(2);
-      const ids = descendants.map(d => d.id);
+      const ids = descendants.map((d: any) => d.id);
       expect(ids).toContain('child-1');
       expect(ids).toContain('child-2');
     });
@@ -884,7 +884,7 @@ describe('Hierarchy Service', () => {
       const roots = await HierarchyService.getRootContacts(mockCompanyId);
 
       expect(roots).toHaveLength(2);
-      expect(roots.map(r => r.id)).toEqual(['r1', 'r2']);
+      expect(roots.map((r: any) => r.id)).toEqual(['r1', 'r2']);
     });
 
     it('should filter by company ID', async () => {
@@ -1035,7 +1035,7 @@ describe('Hierarchy Service', () => {
       );
 
       mockContacts.set(parent.id, parent);
-      children.forEach(c => mockContacts.set(c.id, c));
+      children.forEach((c: any) => mockContacts.set(c.id, c));
 
       const mockWhere = vi.fn().mockReturnValue({
         equals: vi.fn().mockReturnValue({

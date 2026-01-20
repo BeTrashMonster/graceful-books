@@ -1,0 +1,68 @@
+/**
+ * Flow Animation Styles
+ *
+ * Styles for animated transaction flows with:
+ * - Reduced motion support
+ * - Smooth transitions
+ * - Visibility controls
+ */
+
+.flow-animation {
+  pointer-events: none;
+}
+
+.flow-animation-path {
+  transition: opacity 0.3s ease;
+}
+
+/* Reduced motion: no transitions */
+@media (prefers-reduced-motion: reduce) {
+  .flow-animation-path {
+    transition: none;
+  }
+}
+
+.flow-animation-particle {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Disable particle animation in reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .flow-animation-particle {
+    display: none;
+  }
+
+  .flow-animation-particle animate {
+    display: none;
+  }
+}
+
+.flow-animation-label,
+.flow-animation-amount {
+  pointer-events: none;
+  user-select: none;
+}
+
+.flow-animation-label {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.flow-animation-amount {
+  opacity: 0.8;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .flow-animation-path {
+    stroke-width: 3;
+  }
+
+  .flow-animation-particle {
+    r: 7;
+  }
+}
+
+/* Animation queue container */
+.flow-animation-queue {
+  /* Container for managing multiple animations */
+}

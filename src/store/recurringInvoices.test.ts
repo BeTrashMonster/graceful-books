@@ -55,7 +55,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const recurrenceRule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         dayOfMonth: 1,
         interval: 1,
         endCondition: {
@@ -102,7 +102,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const recurrenceRule: RecurrenceRule = {
-        frequency: 'WEEKLY',
+        frequency: 'weekly',
         dayOfWeek: 1,
         interval: 1,
         endCondition: { type: 'AFTER_N_OCCURRENCES', occurrences: 10 },
@@ -123,7 +123,7 @@ describe('Recurring Invoices Data Access Layer', () => {
         {
           companyId: 'company-1',
           userId: 'user-1',
-          encryptionService: mockEncryptionService,
+          encryptionService: mockEncryptionService as any,
         }
       );
 
@@ -153,7 +153,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const invalidRule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         dayOfMonth: 35, // Invalid day
         interval: 0, // Invalid interval
         endCondition: { type: 'NEVER' },
@@ -197,7 +197,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const recurrenceRule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         interval: 1,
         endCondition: { type: 'NEVER' },
         rruleString: '',
@@ -236,7 +236,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const recurrenceRule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         interval: 1,
         endCondition: { type: 'NEVER' },
         rruleString: '',
@@ -255,7 +255,7 @@ describe('Recurring Invoices Data Access Layer', () => {
         {
           companyId: 'company-1',
           userId: 'user-1',
-          encryptionService: mockEncryptionService,
+          encryptionService: mockEncryptionService as any,
         }
       );
 
@@ -267,7 +267,7 @@ describe('Recurring Invoices Data Access Layer', () => {
         {
           companyId: 'company-1',
           userId: 'user-1',
-          encryptionService: mockEncryptionService,
+          encryptionService: mockEncryptionService as any,
         }
       );
 
@@ -301,7 +301,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const recurrenceRule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         interval: 1,
         endCondition: { type: 'NEVER' },
         rruleString: '',
@@ -343,7 +343,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const recurrenceRule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         interval: 1,
         endCondition: { type: 'NEVER' },
         rruleString: '',
@@ -389,7 +389,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const recurrenceRule: RecurrenceRule = {
-        frequency: 'MONTHLY',
+        frequency: 'monthly',
         interval: 1,
         endCondition: { type: 'NEVER' },
         rruleString: '',
@@ -455,7 +455,7 @@ describe('Recurring Invoices Data Access Layer', () => {
           },
         ],
         recurrenceRule: {
-          frequency: 'MONTHLY',
+          frequency: 'monthly',
           interval: 1,
           endCondition: { type: 'NEVER' },
           rruleString: '',
@@ -489,7 +489,7 @@ describe('Recurring Invoices Data Access Layer', () => {
           },
         ],
         recurrenceRule: {
-          frequency: 'MONTHLY',
+          frequency: 'monthly',
           interval: 1,
           endCondition: { type: 'NEVER' },
           rruleString: '',
@@ -525,7 +525,7 @@ describe('Recurring Invoices Data Access Layer', () => {
           },
         ],
         recurrenceRule: {
-          frequency: 'MONTHLY',
+          frequency: 'monthly',
           interval: 1,
           endCondition: { type: 'NEVER' },
           rruleString: '',
@@ -561,7 +561,7 @@ describe('Recurring Invoices Data Access Layer', () => {
           },
         ],
         recurrenceRule: {
-          frequency: 'MONTHLY',
+          frequency: 'monthly',
           interval: 1,
           endCondition: { type: 'NEVER' },
           rruleString: '',
@@ -584,7 +584,7 @@ describe('Recurring Invoices Data Access Layer', () => {
           },
         ],
         recurrenceRule: {
-          frequency: 'MONTHLY',
+          frequency: 'monthly',
           interval: 1,
           endCondition: { type: 'NEVER' },
           rruleString: '',
@@ -598,7 +598,7 @@ describe('Recurring Invoices Data Access Layer', () => {
 
       const activeResult = await getRecurringInvoices({
         company_id: 'company-1',
-        status: 'ACTIVE',
+        status: 'active',
       });
 
       expect(activeResult.success).toBe(true);
@@ -628,7 +628,7 @@ describe('Recurring Invoices Data Access Layer', () => {
           },
         ],
         recurrenceRule: {
-          frequency: 'MONTHLY',
+          frequency: 'monthly',
           interval: 1,
           endCondition: { type: 'NEVER' },
           rruleString: '',
@@ -662,7 +662,7 @@ describe('Recurring Invoices Data Access Layer', () => {
           },
         ],
         recurrenceRule: {
-          frequency: 'MONTHLY',
+          frequency: 'monthly',
           interval: 1,
           endCondition: { type: 'NEVER' },
           rruleString: '',

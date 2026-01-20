@@ -339,7 +339,7 @@ describe('useHelp', () => {
 
       const terms = ['assets', 'liabilities', 'equity', 'revenue'];
 
-      terms.forEach(term => {
+      terms.forEach((term: any) => {
         act(() => {
           result.current.showDefinition(term);
         });
@@ -353,7 +353,7 @@ describe('useHelp', () => {
 
       const contentIds = ['transaction-debit-credit', 'account-type', 'accounting-method'];
 
-      contentIds.forEach(id => {
+      contentIds.forEach((id: any) => {
         act(() => {
           result.current.showContent(id);
         });

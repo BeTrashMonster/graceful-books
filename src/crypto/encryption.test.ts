@@ -49,12 +49,12 @@ describe('Encryption Module', () => {
       const result = await encrypt(plaintext, testKey);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
-      expect(result.data?.ciphertext).toBeInstanceOf(Uint8Array);
-      expect(result.data?.iv).toBeInstanceOf(Uint8Array);
-      expect(result.data?.authTag).toBeInstanceOf(Uint8Array);
-      expect(result.data?.keyId).toBe('test-key-id');
-      expect(result.data?.algorithm).toBe('AES-256-GCM');
+      expect((result as any).data).toBeDefined();
+      expect((result as any).data.ciphertext).toBeInstanceOf(Uint8Array);
+      expect((result as any).data.iv).toBeInstanceOf(Uint8Array);
+      expect((result as any).data.authTag).toBeInstanceOf(Uint8Array);
+      expect((result as any).data.keyId).toBe('test-key-id');
+      expect((result as any).data.algorithm).toBe('AES-256-GCM');
     });
 
     it('should encrypt Uint8Array successfully', async () => {
@@ -62,7 +62,7 @@ describe('Encryption Module', () => {
       const result = await encrypt(plaintext, testKey);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
+      expect((result as any).data).toBeDefined();
     });
 
     it('should generate unique IV for each encryption', async () => {
@@ -87,15 +87,15 @@ describe('Encryption Module', () => {
       const afterTime = Date.now();
 
       expect(result.success).toBe(true);
-      expect(result.data?.encryptedAt).toBeGreaterThanOrEqual(beforeTime);
-      expect(result.data?.encryptedAt).toBeLessThanOrEqual(afterTime);
+      expect((result as any).data.encryptedAt).toBeGreaterThanOrEqual(beforeTime);
+      expect((result as any).data.encryptedAt).toBeLessThanOrEqual(afterTime);
     });
 
     it('should handle empty string', async () => {
       const result = await encrypt('', testKey);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
+      expect((result as any).data).toBeDefined();
     });
 
     it('should handle large data', async () => {
@@ -103,7 +103,7 @@ describe('Encryption Module', () => {
       const result = await encrypt(largeText, testKey);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
+      expect((result as any).data).toBeDefined();
     });
   });
 
@@ -113,12 +113,12 @@ describe('Encryption Module', () => {
       const encryptResult = await encrypt(plaintext, testKey);
 
       expect(encryptResult.success).toBe(true);
-      expect(encryptResult.data).toBeDefined();
+      expect((encryptResult as any).data).toBeDefined();
 
-      const decryptResult = await decrypt(encryptResult.data!, testKey);
+      const decryptResult = await decrypt((encryptResult as any).data, testKey);
 
       expect(decryptResult.success).toBe(true);
-      expect(decryptResult.data).toBe(plaintext);
+      expect((decryptResult as any).data).toBe(plaintext);
     });
 
     it('should fail with wrong key ID', async () => {
@@ -126,10 +126,10 @@ describe('Encryption Module', () => {
       const encryptResult = await encrypt(plaintext, testKey);
 
       expect(encryptResult.success).toBe(true);
-      expect(encryptResult.data).toBeDefined();
+      expect((encryptResult as any).data).toBeDefined();
 
       const wrongKey = { ...testKey, id: 'wrong-key-id' };
-      const decryptResult = await decrypt(encryptResult.data!, wrongKey);
+      const decryptResult = await decrypt((encryptResult as any).data, wrongKey);
 
       expect(decryptResult.success).toBe(false);
       expect(decryptResult.errorCode).toBe('INVALID_KEY');
@@ -141,7 +141,7 @@ describe('Encryption Module', () => {
       const encryptResult = await encrypt(plaintext, testKey);
 
       expect(encryptResult.success).toBe(true);
-      expect(encryptResult.data).toBeDefined();
+      expect((encryptResult as any).data).toBeDefined();
 
       const tamperedData = {
         ...encryptResult.data!,
@@ -159,14 +159,14 @@ describe('Encryption Module', () => {
       const encryptResult = await encrypt(plaintext, testKey);
 
       expect(encryptResult.success).toBe(true);
-      expect(encryptResult.data).toBeDefined();
+      expect((encryptResult as any).data).toBeDefined();
 
       const expiredKey = {
         ...testKey,
         expiresAt: Date.now() - 1000, // Expired 1 second ago
       };
 
-      const decryptResult = await decrypt(encryptResult.data!, expiredKey);
+      const decryptResult = await decrypt((encryptResult as any).data, expiredKey);
 
       expect(decryptResult.success).toBe(false);
       expect(decryptResult.errorCode).toBe('KEY_EXPIRED');
@@ -177,7 +177,7 @@ describe('Encryption Module', () => {
       const encryptResult = await encrypt(plaintext, testKey);
 
       expect(encryptResult.success).toBe(true);
-      expect(encryptResult.data).toBeDefined();
+      expect((encryptResult as any).data).toBeDefined();
 
       // Tamper with ciphertext
       const tamperedData = { ...encryptResult.data! };
@@ -196,7 +196,7 @@ describe('Encryption Module', () => {
       const encryptResult = await encrypt(plaintext, testKey);
 
       expect(encryptResult.success).toBe(true);
-      expect(encryptResult.data).toBeDefined();
+      expect((encryptResult as any).data).toBeDefined();
 
       // Tamper with auth tag
       const tamperedData = { ...encryptResult.data! };
@@ -213,10 +213,10 @@ describe('Encryption Module', () => {
     it('should handle Unicode characters', async () => {
       const plaintext = '👋 Hello 世界 🌍';
       const encryptResult = await encrypt(plaintext, testKey);
-      const decryptResult = await decrypt(encryptResult.data!, testKey);
+      const decryptResult = await decrypt((encryptResult as any).data, testKey);
 
       expect(decryptResult.success).toBe(true);
-      expect(decryptResult.data).toBe(plaintext);
+      expect((decryptResult as any).data).toBe(plaintext);
     });
   });
 
@@ -224,10 +224,10 @@ describe('Encryption Module', () => {
     it('should decrypt to Uint8Array', async () => {
       const originalBytes = new Uint8Array([1, 2, 3, 4, 5]);
       const encryptResult = await encrypt(originalBytes, testKey);
-      const decryptResult = await decryptToBytes(encryptResult.data!, testKey);
+      const decryptResult = await decryptToBytes((encryptResult as any).data, testKey);
 
       expect(decryptResult.success).toBe(true);
-      expect(decryptResult.data).toEqual(originalBytes);
+      expect((decryptResult as any).data).toEqual(originalBytes);
     });
 
     it('should fail with wrong key ID', async () => {
@@ -235,7 +235,7 @@ describe('Encryption Module', () => {
       const encryptResult = await encrypt(plaintext, testKey);
 
       const wrongKey = { ...testKey, id: 'wrong-key-id' };
-      const decryptResult = await decryptToBytes(encryptResult.data!, wrongKey);
+      const decryptResult = await decryptToBytes((encryptResult as any).data, wrongKey);
 
       expect(decryptResult.success).toBe(false);
       expect(decryptResult.errorCode).toBe('INVALID_KEY');
@@ -248,9 +248,9 @@ describe('Encryption Module', () => {
       const encryptResult = await encrypt(plaintext, testKey);
 
       expect(encryptResult.success).toBe(true);
-      expect(encryptResult.data).toBeDefined();
+      expect((encryptResult as any).data).toBeDefined();
 
-      const serialized = serializeEncryptedData(encryptResult.data!);
+      const serialized = serializeEncryptedData((encryptResult as any).data);
 
       expect(typeof serialized.ciphertext).toBe('string');
       expect(typeof serialized.iv).toBe('string');
@@ -268,12 +268,12 @@ describe('Encryption Module', () => {
       const plaintext = 'Test message';
       const encryptResult = await encrypt(plaintext, testKey);
 
-      const serialized = serializeEncryptedData(encryptResult.data!);
+      const serialized = serializeEncryptedData((encryptResult as any).data);
       const deserialized = deserializeEncryptedData(serialized);
       const decryptResult = await decrypt(deserialized, testKey);
 
       expect(decryptResult.success).toBe(true);
-      expect(decryptResult.data).toBe(plaintext);
+      expect((decryptResult as any).data).toBe(plaintext);
     });
   });
 
@@ -283,12 +283,12 @@ describe('Encryption Module', () => {
       const encryptResult = await encryptObject(obj, testKey);
 
       expect(encryptResult.success).toBe(true);
-      expect(encryptResult.data).toBeDefined();
+      expect((encryptResult as any).data).toBeDefined();
 
-      const decryptResult = await decryptObject(encryptResult.data!, testKey);
+      const decryptResult = await decryptObject((encryptResult as any).data, testKey);
 
       expect(decryptResult.success).toBe(true);
-      expect(decryptResult.data).toEqual(obj);
+      expect((decryptResult as any).data).toEqual(obj);
     });
 
     it('should handle nested objects', async () => {
@@ -298,19 +298,19 @@ describe('Encryption Module', () => {
       };
 
       const encryptResult = await encryptObject(obj, testKey);
-      const decryptResult = await decryptObject(encryptResult.data!, testKey);
+      const decryptResult = await decryptObject((encryptResult as any).data, testKey);
 
       expect(decryptResult.success).toBe(true);
-      expect(decryptResult.data).toEqual(obj);
+      expect((decryptResult as any).data).toEqual(obj);
     });
 
     it('should handle arrays', async () => {
       const arr = [1, 2, 3, 'four', { five: 5 }];
       const encryptResult = await encryptObject(arr, testKey);
-      const decryptResult = await decryptObject(encryptResult.data!, testKey);
+      const decryptResult = await decryptObject((encryptResult as any).data, testKey);
 
       expect(decryptResult.success).toBe(true);
-      expect(decryptResult.data).toEqual(arr);
+      expect((decryptResult as any).data).toEqual(arr);
     });
   });
 
@@ -342,16 +342,16 @@ describe('Encryption Module', () => {
       );
 
       expect(reencryptResult.success).toBe(true);
-      expect(reencryptResult.data?.keyId).toBe('new-key-id');
+      expect((reencryptResult as any).data.keyId).toBe('new-key-id');
 
       // Verify new encryption can be decrypted with new key
-      const decryptResult = await decrypt(reencryptResult.data!, newKey);
+      const decryptResult = await decrypt((reencryptResult as any).data, newKey);
 
       expect(decryptResult.success).toBe(true);
-      expect(decryptResult.data).toBe(plaintext);
+      expect((decryptResult as any).data).toBe(plaintext);
 
       // Verify old key can no longer decrypt
-      const oldDecryptResult = await decrypt(reencryptResult.data!, oldKey);
+      const oldDecryptResult = await decrypt((reencryptResult as any).data, oldKey);
       expect(oldDecryptResult.success).toBe(false);
     });
 
@@ -423,7 +423,7 @@ describe('Encryption Module', () => {
       const plaintext = 'Test data';
       const encryptResult = await encrypt(plaintext, testKey);
 
-      const isValid = await verifyIntegrity(encryptResult.data!, testKey);
+      const isValid = await verifyIntegrity((encryptResult as any).data, testKey);
       expect(isValid).toBe(true);
     });
 
@@ -445,7 +445,7 @@ describe('Encryption Module', () => {
       const encryptResult = await encrypt(plaintext, testKey);
 
       const wrongKey = { ...testKey, id: 'wrong-id' };
-      const isValid = await verifyIntegrity(encryptResult.data!, wrongKey);
+      const isValid = await verifyIntegrity((encryptResult as any).data, wrongKey);
       expect(isValid).toBe(false);
     });
   });
@@ -454,10 +454,10 @@ describe('Encryption Module', () => {
     it('should handle very long strings', async () => {
       const longString = 'A'.repeat(100000);
       const encryptResult = await encrypt(longString, testKey);
-      const decryptResult = await decrypt(encryptResult.data!, testKey);
+      const decryptResult = await decrypt((encryptResult as any).data, testKey);
 
       expect(decryptResult.success).toBe(true);
-      expect(decryptResult.data).toBe(longString);
+      expect((decryptResult as any).data).toBe(longString);
     });
 
     it('should handle binary data with all byte values', async () => {
@@ -467,19 +467,19 @@ describe('Encryption Module', () => {
       }
 
       const encryptResult = await encrypt(allBytes, testKey);
-      const decryptResult = await decryptToBytes(encryptResult.data!, testKey);
+      const decryptResult = await decryptToBytes((encryptResult as any).data, testKey);
 
       expect(decryptResult.success).toBe(true);
-      expect(decryptResult.data).toEqual(allBytes);
+      expect((decryptResult as any).data).toEqual(allBytes);
     });
 
     it('should handle special characters', async () => {
       const special = '!@#$%^&*()_+-=[]{}|;:\'",.<>?/`~';
       const encryptResult = await encrypt(special, testKey);
-      const decryptResult = await decrypt(encryptResult.data!, testKey);
+      const decryptResult = await decrypt((encryptResult as any).data, testKey);
 
       expect(decryptResult.success).toBe(true);
-      expect(decryptResult.data).toBe(special);
+      expect((decryptResult as any).data).toBe(special);
     });
   });
 });

@@ -1,0 +1,71 @@
+/**
+ * Financial Flow Canvas Styles
+ *
+ * Styles for the main canvas component with:
+ * - Responsive layout
+ * - Accessibility features
+ * - Print styles
+ */
+
+.financial-flow-canvas {
+  display: block;
+  background: #fafafa;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.grid-lines {
+  pointer-events: none;
+}
+
+.equation-label {
+  pointer-events: none;
+  user-select: none;
+}
+
+.connection-guides {
+  pointer-events: none;
+}
+
+.legend text {
+  user-select: none;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .financial-flow-canvas {
+    border: 2px solid #000;
+  }
+
+  .grid-lines {
+    opacity: 0.3;
+  }
+
+  .connection-guides {
+    opacity: 0.3;
+  }
+}
+
+/* Print styles */
+@media print {
+  .financial-flow-canvas {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .grid-lines {
+    opacity: 0.2;
+  }
+
+  /* Hide animations in print */
+  .flow-animation-particle {
+    display: none;
+  }
+}
+
+/* Responsive sizing */
+@media (max-width: 768px) {
+  .legend {
+    font-size: 10px;
+  }
+}

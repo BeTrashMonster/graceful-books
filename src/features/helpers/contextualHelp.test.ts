@@ -31,7 +31,7 @@ describe('contextualHelp', () => {
       };
       const help = getContextualHelp(context);
       expect(help.relatedDefinitions).toBeDefined();
-      expect(help.relatedDefinitions?.some(d => d.term.includes('Account'))).toBe(true);
+      expect(help.relatedDefinitions?.some((d: any) => d.term.includes('Account'))).toBe(true);
     });
 
     it('should return help for balance sheet', () => {
@@ -40,7 +40,7 @@ describe('contextualHelp', () => {
       };
       const help = getContextualHelp(context);
       expect(help.relatedDefinitions).toBeDefined();
-      expect(help.relatedDefinitions?.some(d => d.term.includes('Balance Sheet'))).toBe(true);
+      expect(help.relatedDefinitions?.some((d: any) => d.term.includes('Balance Sheet'))).toBe(true);
     });
 
     it('should return help for profit & loss', () => {
@@ -49,7 +49,7 @@ describe('contextualHelp', () => {
       };
       const help = getContextualHelp(context);
       expect(help.relatedDefinitions).toBeDefined();
-      expect(help.relatedDefinitions?.some(d => d.term.includes('Profit'))).toBe(true);
+      expect(help.relatedDefinitions?.some((d: any) => d.term.includes('Profit'))).toBe(true);
     });
 
     it('should return help for cash flow', () => {
@@ -58,7 +58,7 @@ describe('contextualHelp', () => {
       };
       const help = getContextualHelp(context);
       expect(help.relatedDefinitions).toBeDefined();
-      expect(help.relatedDefinitions?.some(d => d.term.includes('Cash'))).toBe(true);
+      expect(help.relatedDefinitions?.some((d: any) => d.term.includes('Cash'))).toBe(true);
     });
 
     it('should return quick tip for specific field', () => {
@@ -152,13 +152,13 @@ describe('contextualHelp', () => {
     it('should return beginner topics by default', () => {
       const topics = getSuggestedTopics();
       expect(topics.length).toBeGreaterThan(0);
-      expect(topics.some(t => t.term.includes('Double-Entry'))).toBe(true);
+      expect(topics.some((t: any) => t.term.includes('Double-Entry'))).toBe(true);
     });
 
     it('should return beginner topics for beginners', () => {
       const topics = getSuggestedTopics('beginner');
       expect(topics.length).toBeGreaterThan(0);
-      expect(topics.some(t => t.term.includes('Debit'))).toBe(true);
+      expect(topics.some((t: any) => t.term.includes('Debit'))).toBe(true);
     });
 
     it('should return more topics for intermediate users', () => {
@@ -178,14 +178,14 @@ describe('contextualHelp', () => {
       const intermediate = getSuggestedTopics('intermediate');
       const advanced = getSuggestedTopics('advanced');
 
-      [beginner, intermediate, advanced].forEach(topics => {
-        expect(topics.some(t => t.term.includes('Double-Entry'))).toBe(true);
+      [beginner, intermediate, advanced].forEach((topics: any) => {
+        expect(topics.some((t: any) => t.term.includes('Double-Entry'))).toBe(true);
       });
     });
 
     it('should return valid definitions', () => {
       const topics = getSuggestedTopics('intermediate');
-      topics.forEach(topic => {
+      topics.forEach((topic: any) => {
         expect(topic.term).toBeTruthy();
         expect(topic.shortDescription).toBeTruthy();
         expect(topic.longDescription).toBeTruthy();
@@ -231,7 +231,7 @@ describe('contextualHelp', () => {
         page: 'transactions',
       };
       const help = getContextualHelp(context);
-      expect(help.relatedDefinitions?.some(d =>
+      expect(help.relatedDefinitions?.some((d: any) =>
         d.term.includes('Double-Entry') || d.term.includes('Debit')
       )).toBe(true);
     });
@@ -243,8 +243,8 @@ describe('contextualHelp', () => {
       const bsHelp = getContextualHelp(balanceSheet);
       const plHelp = getContextualHelp(profitLoss);
 
-      expect(bsHelp.relatedDefinitions?.some(d => d.term.includes('Balance'))).toBe(true);
-      expect(plHelp.relatedDefinitions?.some(d => d.term.includes('Profit'))).toBe(true);
+      expect(bsHelp.relatedDefinitions?.some((d: any) => d.term.includes('Balance'))).toBe(true);
+      expect(plHelp.relatedDefinitions?.some((d: any) => d.term.includes('Profit'))).toBe(true);
     });
 
     it('should provide settings help', () => {

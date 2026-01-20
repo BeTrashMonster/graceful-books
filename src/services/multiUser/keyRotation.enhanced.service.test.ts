@@ -134,10 +134,10 @@ describe('KeyRotationService', () => {
       );
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
-      expect(result.data?.companyId).toBe('company-123');
-      expect(result.data?.status).toBe(RotationStatus.PENDING);
-      expect(result.data?.initiatedBy).toBe('admin-user-789');
+      expect((result as any).data).toBeDefined();
+      expect((result as any).data.companyId).toBe('company-123');
+      expect((result as any).data.status).toBe(RotationStatus.PENDING);
+      expect((result as any).data.initiatedBy).toBe('admin-user-789');
     });
 
     it('should prevent concurrent rotations for the same company', async () => {
@@ -160,7 +160,7 @@ describe('KeyRotationService', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('already in progress');
+      expect((result as any).error).toContain('already in progress');
     });
 
     it('should include revoked user ID if provided', async () => {
@@ -172,7 +172,7 @@ describe('KeyRotationService', () => {
         'admin-user-789'
       );
 
-      expect(result.data?.revokedUserId).toBe('user-456');
+      expect((result as any).data.revokedUserId).toBe('user-456');
     });
   });
 
@@ -186,7 +186,7 @@ describe('KeyRotationService', () => {
         'admin-user-789'
       );
 
-      const jobId = initResult.data!.id;
+      const jobId = (initResult as any).data.id;
       const status = service.getJobStatus(jobId);
 
       expect(status).toBeDefined();
@@ -350,7 +350,7 @@ describe('KeyRotationService', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('not found');
+      expect((result as any).error).toContain('not found');
     });
   });
 
@@ -406,7 +406,7 @@ describe('KeyRotationService', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('not found');
+      expect((result as any).error).toContain('not found');
     });
   });
 
@@ -540,7 +540,7 @@ describe('KeyRotationService', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+      expect((result as any).error).toBeDefined();
     });
 
     it('should handle errors during rotation initiation', async () => {

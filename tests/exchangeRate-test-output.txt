@@ -1,0 +1,47 @@
+
+> graceful-books@0.1.0 test
+> vitest src/services/exchangeRate.service.test.ts
+
+
+[1m[46m RUN [49m[22m [36mv4.0.17 [39m[90mC:/Users/Admin/graceful_books[39m
+
+ [31m❯[39m src/services/exchangeRate.service.test.ts [2m([22m[2m33 tests[22m[2m | [22m[31m12 failed[39m[2m)[22m[32m 67[2mms[22m[39m
+[31m       [31m×[31m should create a new exchange rate[39m[32m 18[2mms[22m[39m
+[31m       [31m×[31m should create inverse rate automatically[39m[32m 3[2mms[22m[39m
+       [32m✓[39m should throw error for invalid rate[32m 7[2mms[22m[39m
+       [32m✓[39m should throw error for same currency conversion[32m 1[2mms[22m[39m
+[31m       [31m×[31m should accept notes[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should retrieve rate by ID[39m[32m 1[2mms[22m[39m
+       [32m✓[39m should return null for non-existent rate[32m 1[2mms[22m[39m
+[31m       [31m×[31m should return null for deleted rate[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should return most recent rate on or before date[39m[32m 1[2mms[22m[39m
+       [32m✓[39m should return null if no rate exists before date[32m 2[2mms[22m[39m
+       [32m✓[39m should return system rate for same currency[32m 2[2mms[22m[39m
+[31m       [31m×[31m should return the most recent rate[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should return all rates for currency pair[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should filter by date range[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should update rate value[39m[32m 1[2mms[22m[39m
+       [32m✓[39m should throw error for non-existent rate[32m 1[2mms[22m[39m
+[31m       [31m×[31m should soft delete exchange rate[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should validate correct exchange rate[39m[32m 2[2mms[22m[39m
+       [32m✓[39m should catch missing required fields[32m 1[2mms[22m[39m
+       [32m✓[39m should warn about unusual rates[32m 1[2mms[22m[39m
+       [32m✓[39m should calculate correct inverse[32m 1[2mms[22m[39m
+       [32m✓[39m should handle Decimal input[32m 0[2mms[22m[39m
+       [32m✓[39m should throw error for zero rate[32m 1[2mms[22m[39m
+       [32m✓[39m should calculate cross rate correctly[32m 1[2mms[22m[39m
+       [32m✓[39m should handle Decimal inputs[32m 0[2mms[22m[39m
+       [32m✓[39m should format rate with default precision[32m 1[2mms[22m[39m
+       [32m✓[39m should format rate with custom precision[32m 0[2mms[22m[39m
+       [32m✓[39m should handle Decimal input[32m 0[2mms[22m[39m
+       [32m✓[39m should calculate average of multiple rates[32m 1[2mms[22m[39m
+       [32m✓[39m should throw error for empty array[32m 1[2mms[22m[39m
+       [32m✓[39m should calculate weighted average correctly[32m 1[2mms[22m[39m
+       [32m✓[39m should throw error for mismatched array lengths[32m 1[2mms[22m[39m
+       [32m✓[39m should throw error for zero total weight[32m 1[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m12 failed[39m[22m[2m | [22m[1m[32m21 passed[39m[22m[90m (33)[39m
+[2m   Start at [22m 18:03:36
+[2m   Duration [22m 9.47s[2m (transform 369ms, setup 3.33s, import 293ms, tests 67ms, environment 4.73s)[22m
+

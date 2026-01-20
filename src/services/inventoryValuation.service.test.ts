@@ -177,9 +177,11 @@ describe('InventoryValuationService', () => {
 
       // COGS = (100 * $10) + (20 * $20) = $1000 + $400 = $1400
       expect(result.cogsCalculation.cogsAmount).toBe('1400.00');
+      expect(result.cogsCalculation.layersUsed).toBeDefined();
       expect(result.cogsCalculation.layersUsed).toHaveLength(2);
-      expect(result.cogsCalculation.layersUsed?.[0].quantityUsed).toBe('100.0000');
-      expect(result.cogsCalculation.layersUsed?.[1].quantityUsed).toBe('20.0000');
+      const layers = result.cogsCalculation.layersUsed!;
+      expect(layers[0].quantityUsed).toBe('100.0000');
+      expect(layers[1].quantityUsed).toBe('20.0000');
 
       // Remaining inventory: 30 units @ $20 = $600
       expect(result.cogsCalculation.newQuantity).toBe('30.0000');
@@ -212,9 +214,11 @@ describe('InventoryValuationService', () => {
 
       // COGS = (50 * $20) + (70 * $10) = $1000 + $700 = $1700
       expect(result.cogsCalculation.cogsAmount).toBe('1700.00');
+      expect(result.cogsCalculation.layersUsed).toBeDefined();
       expect(result.cogsCalculation.layersUsed).toHaveLength(2);
-      expect(result.cogsCalculation.layersUsed?.[0].quantityUsed).toBe('50.0000');
-      expect(result.cogsCalculation.layersUsed?.[1].quantityUsed).toBe('70.0000');
+      const layers = result.cogsCalculation.layersUsed!;
+      expect(layers[0].quantityUsed).toBe('50.0000');
+      expect(layers[1].quantityUsed).toBe('70.0000');
 
       // Remaining inventory: 30 units @ $10 = $300
       expect(result.cogsCalculation.newQuantity).toBe('30.0000');

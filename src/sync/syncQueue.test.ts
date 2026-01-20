@@ -148,7 +148,7 @@ describe('SyncQueue', () => {
 
       queue.markCompleted(item.id);
 
-      const completed = queue.getAll().filter(i => i.status === SyncQueueStatus.COMPLETED);
+      const completed = queue.getAll().filter((i: any) => i.status === SyncQueueStatus.COMPLETED);
       expect(completed).toHaveLength(1);
       expect(completed[0]?.completed_at).toBeGreaterThan(0);
     });

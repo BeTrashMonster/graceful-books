@@ -256,7 +256,7 @@ describe('JournalEntriesService', () => {
 
       const pendingEntries = await service.getJournalEntries({
         company_id: companyId,
-        approval_status: 'PENDING',
+        approval_status: 'pending',
       });
 
       expect(draftEntries).toHaveLength(1);

@@ -89,7 +89,7 @@ describe('ReportScheduler Service', () => {
       const result = await createReportSchedule(mockCompanyId, mockUserId, invalidInput);
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('VALIDATION_ERROR');
+      expect((result as any).error.code).toBe('VALIDATION_ERROR');
     });
 
     it('should validate email addresses', async () => {
@@ -108,7 +108,7 @@ describe('ReportScheduler Service', () => {
       const result = await createReportSchedule(mockCompanyId, mockUserId, input);
 
       expect(result.success).toBe(false);
-      expect(result.error?.message).toContain('Invalid email');
+      expect((result as any).error.message).toContain('Invalid email');
     });
   });
 
@@ -202,7 +202,7 @@ describe('ReportScheduler Service', () => {
       const result = await updateReportSchedule('nonexistent', { enabled: false });
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
   });
 

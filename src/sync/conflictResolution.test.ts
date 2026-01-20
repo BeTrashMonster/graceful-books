@@ -125,9 +125,9 @@ describe('Conflict Resolution', () => {
       const result = mergeEntities_Batch(local, remote, ConflictStrategy.AUTO);
 
       expect(result.merged).toHaveLength(3);
-      expect(result.merged.find(e => e.id === 'entity-1')).toBeDefined();
-      expect(result.merged.find(e => e.id === 'entity-2')).toBeDefined();
-      expect(result.merged.find(e => e.id === 'entity-3')).toBeDefined();
+      expect(result.merged.find((e: any) => e!.id === 'entity-1')).toBeDefined();
+      expect(result.merged.find((e: any) => e!.id === 'entity-2')).toBeDefined();
+      expect(result.merged.find((e: any) => e!.id === 'entity-3')).toBeDefined();
     });
 
     it('should track statistics', () => {
@@ -258,8 +258,8 @@ describe('Conflict Resolution', () => {
       const toSync = getEntitiesToSync(entities, 2000);
 
       expect(toSync).toHaveLength(2);
-      expect(toSync.find(e => e.id === 'entity-1')).toBeDefined();
-      expect(toSync.find(e => e.id === 'entity-3')).toBeDefined();
+      expect(toSync.find((e: any) => e!.id === 'entity-1')).toBeDefined();
+      expect(toSync.find((e: any) => e!.id === 'entity-3')).toBeDefined();
     });
   });
 });

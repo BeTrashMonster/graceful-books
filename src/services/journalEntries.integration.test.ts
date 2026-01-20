@@ -426,7 +426,7 @@ describe('Journal Entries Integration Tests', () => {
       // Filter by status
       const pendingEntries = await service.getJournalEntries({
         company_id: companyId,
-        approval_status: 'PENDING' as JournalEntryApprovalStatus,
+        approval_status: 'pending' as JournalEntryApprovalStatus,
       });
       expect(pendingEntries).toHaveLength(0); // Was approved
 

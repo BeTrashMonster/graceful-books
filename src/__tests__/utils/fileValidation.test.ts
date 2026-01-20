@@ -57,20 +57,20 @@ describe('FileValidator', () => {
     it('should reject null file', () => {
       const result = FileValidator.validateNotEmpty(null as unknown as File);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('No file was selected');
+      expect((result as any).error).toContain('No file was selected');
     });
 
     it('should reject undefined file', () => {
       const result = FileValidator.validateNotEmpty(undefined as unknown as File);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('No file was selected');
+      expect((result as any).error).toContain('No file was selected');
     });
 
     it('should reject empty file (0 bytes)', () => {
       const emptyFile = createMockFile(new Uint8Array(0), 'empty.pdf');
       const result = FileValidator.validateNotEmpty(emptyFile);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('appears to be empty');
+      expect((result as any).error).toContain('appears to be empty');
     });
 
     it('should accept non-empty file', () => {
@@ -105,8 +105,8 @@ describe('FileValidator', () => {
       const file = createMockFile(content, 'large.pdf');
       const result = FileValidator.validateFileSize(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('exceeds our 10MB limit');
-      expect(result.error).toContain('11.0MB');
+      expect((result as any).error).toContain('exceeds our 10MB limit');
+      expect((result as any).error).toContain('11.0MB');
     });
 
     it('should provide helpful error message for large files', () => {
@@ -115,7 +115,7 @@ describe('FileValidator', () => {
       const file = createMockFile(content, 'huge.pdf');
       const result = FileValidator.validateFileSize(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('contact support');
+      expect((result as any).error).toContain('contact support');
     });
   });
 
@@ -133,7 +133,7 @@ describe('FileValidator', () => {
       const fakeBytes = new Uint8Array([0x00, 0x01, 0x02, 0x03]);
       const result = FileValidator.validatePDF(fakeBytes);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain("doesn't appear to be a valid PDF");
+      expect((result as any).error).toContain("doesn't appear to be a valid PDF");
     });
 
     it('should reject file with partial PDF magic number', () => {
@@ -164,7 +164,7 @@ describe('FileValidator', () => {
       const fakeBytes = new Uint8Array([0x00, 0x50, 0x4e, 0x47]);
       const result = FileValidator.validatePNG(fakeBytes);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain("doesn't appear to be a valid PNG");
+      expect((result as any).error).toContain("doesn't appear to be a valid PNG");
     });
   });
 
@@ -182,7 +182,7 @@ describe('FileValidator', () => {
       const fakeBytes = new Uint8Array([0xff, 0xd8, 0x00]);
       const result = FileValidator.validateJPG(fakeBytes);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain("doesn't appear to be a valid JPEG");
+      expect((result as any).error).toContain("doesn't appear to be a valid JPEG");
     });
   });
 
@@ -219,14 +219,14 @@ describe('FileValidator', () => {
       const file = createMockFile('', 'empty.csv', 'text/csv');
       const result = await FileValidator.validateCSV(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('appears to be empty');
+      expect((result as any).error).toContain('appears to be empty');
     });
 
     it('should reject CSV with only whitespace', async () => {
       const file = createMockFile('   \n\n  \t  ', 'whitespace.csv', 'text/csv');
       const result = await FileValidator.validateCSV(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('appears to be empty');
+      expect((result as any).error).toContain('appears to be empty');
     });
 
     it('should reject CSV with only header row (no data)', async () => {
@@ -234,7 +234,7 @@ describe('FileValidator', () => {
       const file = createMockFile(csvContent, 'header-only.csv', 'text/csv');
       const result = await FileValidator.validateCSV(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('at least a header row and one transaction');
+      expect((result as any).error).toContain('at least a header row and one transaction');
     });
 
     it('should reject CSV with dangerous control characters', async () => {
@@ -244,7 +244,7 @@ describe('FileValidator', () => {
       const file = createMockFile(csvContent, 'malicious.csv', 'text/csv');
       const result = await FileValidator.validateCSV(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('unexpected characters');
+      expect((result as any).error).toContain('unexpected characters');
     });
 
     it('should reject CSV with bell character', async () => {
@@ -254,7 +254,7 @@ describe('FileValidator', () => {
       const file = createMockFile(csvContent, 'bell.csv', 'text/csv');
       const result = await FileValidator.validateCSV(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('unexpected characters');
+      expect((result as any).error).toContain('unexpected characters');
     });
 
     it('should allow normal whitespace characters (tab, newline, CR)', async () => {
@@ -273,7 +273,7 @@ Value2`;
       const result = await FileValidator.validateCSV(file);
       expect(result.valid).toBe(false);
       // Rejected because no delimiter is detected
-      expect(result.error).toContain('commas, semicolons, or tabs');
+      expect((result as any).error).toContain('commas, semicolons, or tabs');
     });
 
     it('should reject CSV without recognizable delimiter', async () => {
@@ -283,7 +283,7 @@ Value2`;
       const file = createMockFile(csvContent, 'no-delimiter.csv', 'text/csv');
       const result = await FileValidator.validateCSV(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('commas, semicolons, or tabs');
+      expect((result as any).error).toContain('commas, semicolons, or tabs');
     });
 
     it('should accept CSV with quoted fields containing delimiters', async () => {
@@ -320,7 +320,7 @@ Value2`;
       const file = createMockFile(wrongMagic, 'fake.pdf');
       const result = await FileValidator.validate(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain("doesn't appear to be a valid PDF");
+      expect((result as any).error).toContain("doesn't appear to be a valid PDF");
     });
 
     it('should reject unsupported file types', async () => {
@@ -328,7 +328,7 @@ Value2`;
       const file = createMockFile(content, 'document.docx');
       const result = await FileValidator.validate(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('PDF or CSV');
+      expect((result as any).error).toContain('PDF or CSV');
       expect(result.fileType).toBe('unknown');
     });
 
@@ -342,14 +342,14 @@ Value2`;
       const file = createMockFile(largePDF, 'large.pdf');
       const result = await FileValidator.validate(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('exceeds');
+      expect((result as any).error).toContain('exceeds');
     });
 
     it('should check empty before size', async () => {
       const emptyFile = createMockFile(new Uint8Array(0), 'empty.pdf');
       const result = await FileValidator.validate(emptyFile);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('empty');
+      expect((result as any).error).toContain('empty');
     });
   });
 
@@ -376,7 +376,7 @@ Value2`;
       const file = createFileWithMagic(pngMagic, 'statement.png', 100);
       const result = await validateStatementFile(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('Images are not supported');
+      expect((result as any).error).toContain('Images are not supported');
     });
 
     it('should reject JPG images even if valid', async () => {
@@ -384,7 +384,7 @@ Value2`;
       const file = createFileWithMagic(jpgMagic, 'statement.jpg', 100);
       const result = await validateStatementFile(file);
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('Images are not supported');
+      expect((result as any).error).toContain('Images are not supported');
     });
   });
 
@@ -420,9 +420,9 @@ Value2`;
       const result = await FileValidator.validate(emptyFile);
 
       // Should not use technical jargon
-      expect(result.error).not.toMatch(/invalid|error|fail/i);
+      expect((result as any).error).not.toMatch(/invalid|error|fail/i);
       // Should use friendly language
-      expect(result.error).toMatch(/please|appears|select/i);
+      expect((result as any).error).toMatch(/please|appears|select/i);
     });
 
     it('should provide helpful next steps in errors', async () => {
@@ -431,7 +431,7 @@ Value2`;
       const result = await FileValidator.validate(file);
 
       // Should suggest what to do
-      expect(result.error).toMatch(/try|please|contact support/i);
+      expect((result as any).error).toMatch(/try|please|contact support/i);
     });
   });
 

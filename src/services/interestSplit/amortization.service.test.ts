@@ -29,7 +29,7 @@ describe('AmortizationService', () => {
         principal_amount: '10000.00',
         interest_rate: '6.0', // 6% annual
         term_months: 12,
-        payment_frequency: 'MONTHLY',
+        payment_frequency: 'monthly',
         first_payment_date: new Date('2024-02-01').getTime(),
         calculation_method: 'AMORTIZED',
       };

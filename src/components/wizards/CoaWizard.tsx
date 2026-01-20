@@ -423,7 +423,7 @@ const CustomizeAccountsStep: React.FC<CustomizeAccountsStepProps> = ({
   onUpdateCustomAccounts: _onUpdateCustomAccounts,
 }) => {
   // This is a simplified version - full implementation in separate component
-  const template = INDUSTRY_TEMPLATES.find(t => t.id === templateId)
+  const template = INDUSTRY_TEMPLATES.find(t => t!.id === templateId)
 
   if (!template) return null
 
@@ -452,7 +452,7 @@ interface ReviewStepProps {
 }
 
 const ReviewStep: React.FC<ReviewStepProps> = ({ wizardData, onEdit: _onEdit }) => {
-  const template = INDUSTRY_TEMPLATES.find(t => t.id === wizardData.selectedTemplateId)
+  const template = INDUSTRY_TEMPLATES.find(t => t!.id === wizardData.selectedTemplateId)
 
   if (!template) return null
 

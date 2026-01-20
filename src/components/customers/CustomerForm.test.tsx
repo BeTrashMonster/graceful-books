@@ -416,7 +416,7 @@ describe('CustomerForm Component', () => {
 
       expect(nameInput).toBeDisabled()
       expect(cancelButton).toBeDisabled()
-      buttons.forEach(button => {
+      buttons.forEach((button: any) => {
         expect(button).toBeDisabled()
       })
     })

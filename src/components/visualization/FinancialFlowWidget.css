@@ -1,0 +1,483 @@
+/**
+ * Financial Flow Widget Styles
+ *
+ * Styles for both compact and expanded modes with:
+ * - WCAG 2.1 AA compliance
+ * - Responsive design
+ * - Keyboard focus indicators
+ * - Reduced motion support
+ */
+
+/* =============================================================================
+   Compact Widget Mode (200x150px)
+   ============================================================================= */
+
+.financial-flow-widget-compact {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 200px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 900;
+  overflow: hidden;
+}
+
+.financial-flow-widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.financial-flow-widget-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.financial-flow-widget-expand-btn {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.financial-flow-widget-expand-btn:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.financial-flow-widget-expand-btn:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* =============================================================================
+   Expanded Full-Screen Mode
+   ============================================================================= */
+
+.financial-flow-widget-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Reduced motion: no fade animation */
+@media (prefers-reduced-motion: reduce) {
+  .financial-flow-widget-overlay {
+    animation: none;
+  }
+}
+
+.financial-flow-widget-expanded {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 1400px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.financial-flow-widget-expanded-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 2px solid #e5e7eb;
+  background: #f9fafb;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.financial-flow-widget-expanded-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.financial-flow-widget-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.financial-flow-widget-control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.financial-flow-widget-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.financial-flow-widget-select,
+.financial-flow-widget-date-input {
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #111827;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.financial-flow-widget-select:hover,
+.financial-flow-widget-date-input:hover {
+  border-color: #9ca3af;
+}
+
+.financial-flow-widget-select:focus,
+.financial-flow-widget-date-input:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-color: #3b82f6;
+}
+
+.financial-flow-widget-toggle-table-btn {
+  padding: 6px 12px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.financial-flow-widget-toggle-table-btn:hover {
+  background: #2563eb;
+}
+
+.financial-flow-widget-toggle-table-btn:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.financial-flow-widget-toggle-table-btn[aria-pressed="true"] {
+  background: #1e40af;
+}
+
+.financial-flow-widget-close-btn {
+  background: none;
+  border: none;
+  font-size: 32px;
+  line-height: 1;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.financial-flow-widget-close-btn:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.financial-flow-widget-close-btn:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.financial-flow-widget-content {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.financial-flow-widget-footer {
+  padding: 12px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.financial-flow-widget-status {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.barter-active-indicator {
+  color: #ea580c;
+  font-weight: 600;
+}
+
+/* =============================================================================
+   Data Table View
+   ============================================================================= */
+
+.financial-flow-widget-data-table {
+  width: 100%;
+  max-width: 1200px;
+  overflow-y: auto;
+}
+
+.financial-flow-widget-section-title {
+  margin: 32px 0 16px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.financial-flow-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.financial-flow-table caption {
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.financial-flow-table thead {
+  background: #f3f4f6;
+  border-bottom: 2px solid #d1d5db;
+}
+
+.financial-flow-table th,
+.financial-flow-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.financial-flow-table th {
+  font-weight: 600;
+  color: #111827;
+}
+
+.financial-flow-table td {
+  color: #374151;
+}
+
+.financial-flow-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.health-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.health-badge-healthy {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.health-badge-caution {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.health-badge-concern {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.sub-accounts-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+}
+
+.sub-accounts-list li {
+  padding: 2px 0;
+}
+
+.text-muted {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-barter {
+  background: #fed7aa;
+  color: #9a3412;
+}
+
+.badge-cash {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badge-accrual {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* Screen reader only */
+.sr-only {
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+/* =============================================================================
+   Responsive Design
+   ============================================================================= */
+
+@media (max-width: 1440px) {
+  .financial-flow-widget-expanded {
+    max-width: 100%;
+    height: 100vh;
+    border-radius: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .financial-flow-widget-compact {
+    width: 180px;
+    top: 70px;
+    right: 10px;
+  }
+
+  .financial-flow-widget-expanded-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .financial-flow-widget-controls {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .financial-flow-widget-control-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .financial-flow-table {
+    font-size: 12px;
+  }
+
+  .financial-flow-table th,
+  .financial-flow-table td {
+    padding: 8px 12px;
+  }
+}
+
+/* =============================================================================
+   High Contrast Mode
+   ============================================================================= */
+
+@media (prefers-contrast: high) {
+  .financial-flow-widget-compact,
+  .financial-flow-widget-expanded {
+    border-width: 2px;
+  }
+
+  .financial-flow-widget-select,
+  .financial-flow-widget-date-input {
+    border-width: 2px;
+  }
+
+  .financial-flow-table th,
+  .financial-flow-table td {
+    border-bottom-width: 2px;
+  }
+}
+
+/* =============================================================================
+   Print Styles
+   ============================================================================= */
+
+@media print {
+  .financial-flow-widget-compact {
+    display: none;
+  }
+
+  .financial-flow-widget-overlay {
+    position: static;
+    background: white;
+  }
+
+  .financial-flow-widget-expanded {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .financial-flow-widget-expanded-header,
+  .financial-flow-widget-footer {
+    border-color: #000;
+  }
+
+  .financial-flow-widget-controls {
+    display: none;
+  }
+
+  .financial-flow-table {
+    page-break-inside: avoid;
+  }
+}

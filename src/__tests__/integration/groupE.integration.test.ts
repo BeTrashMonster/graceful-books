@@ -127,9 +127,9 @@ describe('Group E Integration Tests', () => {
       });
 
       expect(auditResult.success).toBe(true);
-      expect(auditResult.data).toHaveLength(1);
-      expect(auditResult.data![0].action).toBe('create');
-      expect(auditResult.data![0].userId).toBe(testUserId);
+      expect((auditResult as any).data).toHaveLength(1);
+      expect((auditResult as any).data[0].action).toBe('create');
+      expect((auditResult as any).data[0].userId).toBe(testUserId);
     });
 
     it('should track reconciliation streaks and log milestones', async () => {
@@ -140,7 +140,7 @@ describe('Group E Integration Tests', () => {
       );
 
       expect(streakResult.success).toBe(true);
-      expect(streakResult.data?.currentStreak).toBe(0);
+      expect((streakResult as any).data.currentStreak).toBe(0);
 
       // Perform several reconciliations
       for (let i = 0; i < 5; i++) {
@@ -169,7 +169,7 @@ describe('Group E Integration Tests', () => {
       );
 
       expect(updatedStreakResult.success).toBe(true);
-      expect(updatedStreakResult.data?.currentStreak).toBeGreaterThan(0);
+      expect((updatedStreakResult as any).data.currentStreak).toBeGreaterThan(0);
 
       // Verify audit logs for each reconciliation (E7)
       const auditResult = await queryAuditLogs({
@@ -178,7 +178,7 @@ describe('Group E Integration Tests', () => {
       });
 
       expect(auditResult.success).toBe(true);
-      expect(auditResult.data).toHaveLength(5);
+      expect((auditResult as any).data).toHaveLength(5);
     });
   });
 
@@ -220,7 +220,7 @@ describe('Group E Integration Tests', () => {
       );
 
       expect(upcomingResult.success).toBe(true);
-      expect(upcomingResult.data).toHaveLength(3); // 3 monthly recurrences in 90 days
+      expect((upcomingResult as any).data).toHaveLength(3); // 3 monthly recurrences in 90 days
 
       // Create actual transaction from recurrence
       const transaction = createTestTransaction(testCompanyId, testAccountId);
@@ -247,8 +247,8 @@ describe('Group E Integration Tests', () => {
       );
 
       expect(suggestionsResult.success).toBe(true);
-      expect(suggestionsResult.data).toBeDefined();
-      expect(suggestionsResult.data!.some(s => s.categoryId === category.id)).toBe(true);
+      expect((suggestionsResult as any).data).toBeDefined();
+      expect((suggestionsResult as any).data.some((s: any) => s.categoryId === category.id)).toBe(true);
     });
   });
 
@@ -308,8 +308,8 @@ describe('Group E Integration Tests', () => {
       );
 
       expect(invoiceResult.success).toBe(true);
-      expect(invoiceResult.data).toBeDefined();
-      expect(invoiceResult.data!.total).toBe(500);
+      expect((invoiceResult as any).data).toBeDefined();
+      expect((invoiceResult as any).data.total).toBe(500);
 
       // Verify audit logs captured template creation and invoice generation (E7)
       const templateAuditResult = await queryAuditLogs({
@@ -318,7 +318,7 @@ describe('Group E Integration Tests', () => {
       });
 
       expect(templateAuditResult.success).toBe(true);
-      expect(templateAuditResult.data!.length).toBeGreaterThan(0);
+      expect((templateAuditResult as any).data.length).toBeGreaterThan(0);
 
       const invoiceAuditResult = await queryAuditLogs({
         companyId: testCompanyId,
@@ -326,8 +326,8 @@ describe('Group E Integration Tests', () => {
       });
 
       expect(invoiceAuditResult.success).toBe(true);
-      expect(invoiceAuditResult.data!.length).toBeGreaterThan(0);
-      expect(invoiceAuditResult.data![0].action).toBe('create');
+      expect((invoiceAuditResult as any).data.length).toBeGreaterThan(0);
+      expect((invoiceAuditResult as any).data[0].action).toBe('create');
     });
   });
 
@@ -398,9 +398,9 @@ describe('Group E Integration Tests', () => {
       });
 
       expect(billAuditResult.success).toBe(true);
-      expect(billAuditResult.data!.length).toBeGreaterThan(0);
-      expect(billAuditResult.data![0].action).toBe('create');
-      expect(billAuditResult.data![0].entityId).toBe(bill.id);
+      expect((billAuditResult as any).data.length).toBeGreaterThan(0);
+      expect((billAuditResult as any).data[0].action).toBe('create');
+      expect((billAuditResult as any).data[0].entityId).toBe(bill.id);
 
       // Update bill status
       await db.bills.update(bill.id, { status: 'paid' });
@@ -413,7 +413,7 @@ describe('Group E Integration Tests', () => {
       });
 
       expect(updatedAuditResult.success).toBe(true);
-      expect(updatedAuditResult.data!.some(log => log.entityId === bill.id)).toBe(true);
+      expect((updatedAuditResult as any).data.some((log: any) => log.entityId === bill.id)).toBe(true);
     });
   });
 
@@ -525,14 +525,14 @@ describe('Group E Integration Tests', () => {
       });
 
       expect(allAuditLogs.success).toBe(true);
-      expect(allAuditLogs.data!.length).toBeGreaterThan(0);
+      expect((allAuditLogs as any).data.length).toBeGreaterThan(0);
 
       // Verify we have logs for:
       // - Invoice template creation
       // - Recurring invoice setup
       // - Transaction categorization
       // - Reconciliation pattern learning
-      const entityTypes = new Set(allAuditLogs.data!.map(log => log.entityType));
+      const entityTypes = new Set((allAuditLogs as any).data.map((log: any) => log.entityType));
       expect(entityTypes.has('invoice_template')).toBe(true);
       expect(entityTypes.has('recurring_invoice')).toBe(true);
       expect(entityTypes.has('transaction')).toBe(true);
@@ -545,7 +545,7 @@ describe('Group E Integration Tests', () => {
         new Date(Date.now() + 90 * 86400000)
       );
       expect(upcomingRecurrences.success).toBe(true);
-      expect(upcomingRecurrences.data!.length).toBeGreaterThan(0);
+      expect((upcomingRecurrences as any).data.length).toBeGreaterThan(0);
     });
   });
 });

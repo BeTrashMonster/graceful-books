@@ -127,7 +127,7 @@ describe('CommentsService', () => {
       type: 'INCOME',
       amount: '100.00',
       balance: '100.00',
-      status: 'PENDING',
+      status: 'pending',
       reconciled: false,
       account_id: 'account-001',
       category_id: null,

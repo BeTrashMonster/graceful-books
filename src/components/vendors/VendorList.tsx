@@ -230,7 +230,7 @@ export const VendorList: FC<VendorListProps> = ({
   // Get parent name for child accounts
   const getParentName = (parentId?: string | null): string | undefined => {
     if (!parentId) return undefined
-    const parent = vendors.find(v => v.id === parentId)
+    const parent = vendors.find(v => v!.id === parentId)
     return parent?.name
   }
 

@@ -134,7 +134,7 @@ function generateBankStatementCSV(transactions: Array<{
   amount: number;
 }>): string {
   const header = 'Date,Description,Amount';
-  const rows = transactions.map(tx =>
+  const rows = transactions.map((tx: any) =>
     `${tx.date},${tx.description},${tx.amount.toFixed(2)}`
   );
   return [header, ...rows].join('\n');
@@ -190,9 +190,9 @@ function generateMatchingStatement(
   transactions: JournalEntry[],
   accountId: string
 ): Array<{ date: string; description: string; amount: number }> {
-  return transactions.map(tx => {
+  return transactions.map((tx: any) => {
     const txDate = tx.date instanceof Date ? tx.date : new Date(tx.date);
-    const line = tx.lines.find(l => l.accountId === accountId);
+    const line = tx.lines.find((l: any) => l.accountId === accountId);
     const amount = line ? (line.debit - line.credit) / 100 : 0; // Convert from cents to dollars
 
     return {
@@ -417,7 +417,7 @@ describe('Reconciliation E2E Integration Tests', () => {
 
       // Find corresponding system transaction
       const matchedIds = JSON.parse(reconWithMatches.matched_transactions);
-      const unmatchedSysTx = transactions.find(tx => !matchedIds.includes(tx.id));
+      const unmatchedSysTx = transactions.find((tx: any) => !matchedIds.includes(tx.id));
 
       expect(unmatchedSysTx).toBeDefined();
 
@@ -470,7 +470,7 @@ describe('Reconciliation E2E Integration Tests', () => {
       const initialSummary = getReconciliationSummary(reconWithMatches);
 
       // Remove first match
-      const firstMatchedStmt = statement.transactions.find(tx => tx.matched);
+      const firstMatchedStmt = statement.transactions.find((tx: any) => tx.matched);
       expect(firstMatchedStmt).toBeDefined();
 
       reconWithMatches = removeMatch(reconWithMatches, firstMatchedStmt!.id);
@@ -484,7 +484,7 @@ describe('Reconciliation E2E Integration Tests', () => {
 
       // Re-match with different transaction
       const unmatchedIds = JSON.parse(reconWithMatches.matched_transactions);
-      const differentSysTx = transactions.find(tx => !unmatchedIds.includes(tx.id));
+      const differentSysTx = transactions.find((tx: any) => !unmatchedIds.includes(tx.id));
 
       if (differentSysTx) {
         reconWithMatches = addManualMatch(
@@ -559,7 +559,7 @@ describe('Reconciliation E2E Integration Tests', () => {
           const statementTx = statement.transactions.find(
             tx => tx.id === match.statementTransactionId
           );
-          const systemTx = transactions.find(tx => tx.id === match.systemTransactionId);
+          const systemTx = transactions.find((tx: any) => tx!.id === match.systemTransactionId);
 
           if (statementTx && systemTx) {
             await learnFromMatch(

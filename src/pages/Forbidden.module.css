@@ -1,0 +1,113 @@
+/**
+ * Forbidden (403) Page Styles
+ * WCAG 2.1 AA compliant with proper color contrast and focus indicators
+ */
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: var(--color-background, #f9fafb);
+}
+
+.content {
+  text-align: center;
+  max-width: 32rem;
+}
+
+.errorCode {
+  font-size: 6rem;
+  font-weight: 700;
+  color: var(--color-error, #dc2626);
+  margin: 0;
+  line-height: 1;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 1rem 0;
+}
+
+.message {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 1.5rem 0 2rem;
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.primaryButton,
+.secondaryButton {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.primaryButton {
+  background-color: var(--color-primary, #3b82f6);
+  color: white;
+  border: 2px solid var(--color-primary, #3b82f6);
+}
+
+.primaryButton:hover {
+  background-color: var(--color-primary-dark, #2563eb);
+  border-color: var(--color-primary-dark, #2563eb);
+}
+
+.primaryButton:focus {
+  outline: 3px solid var(--color-focus, #93c5fd);
+  outline-offset: 2px;
+}
+
+.secondaryButton {
+  background-color: transparent;
+  color: var(--color-text-primary, #111827);
+  border: 2px solid var(--color-border, #d1d5db);
+}
+
+.secondaryButton:hover {
+  background-color: var(--color-background-hover, #f3f4f6);
+  border-color: var(--color-border-hover, #9ca3af);
+}
+
+.secondaryButton:focus {
+  outline: 3px solid var(--color-focus, #93c5fd);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .errorCode {
+    color: #b91c1c;
+  }
+
+  .primaryButton {
+    border-width: 3px;
+  }
+
+  .secondaryButton {
+    border-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .primaryButton,
+  .secondaryButton {
+    transition: none;
+  }
+}

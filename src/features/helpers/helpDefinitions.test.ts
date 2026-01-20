@@ -28,14 +28,14 @@ describe('helpDefinitions', () => {
         'accrual-vs-cash',
       ];
 
-      requiredTerms.forEach(termId => {
+      requiredTerms.forEach((termId: any) => {
         expect(helpDefinitions[termId]).toBeDefined();
         expect(helpDefinitions[termId]!.term).toBeTruthy();
       });
     });
 
     it('should have all required fields for each definition', () => {
-      Object.values(helpDefinitions).forEach(def => {
+      Object.values(helpDefinitions).forEach((def: any) => {
         expect(def.term).toBeTruthy();
         expect(def.shortDescription).toBeTruthy();
         expect(def.longDescription).toBeTruthy();
@@ -94,19 +94,19 @@ describe('helpDefinitions', () => {
     it('should find definitions by term name', () => {
       const results = searchHelpDefinitions('balance');
       expect(results.length).toBeGreaterThan(0);
-      expect(results.some(r => r.term.toLowerCase().includes('balance'))).toBe(true);
+      expect(results.some((r: any) => r.term.toLowerCase().includes('balance'))).toBe(true);
     });
 
     it('should find definitions by short description', () => {
       const results = searchHelpDefinitions('money coming in');
       expect(results.length).toBeGreaterThan(0);
-      expect(results.some(r => r.shortDescription.toLowerCase().includes('money coming in'))).toBe(true);
+      expect(results.some((r: any) => r.shortDescription.toLowerCase().includes('money coming in'))).toBe(true);
     });
 
     it('should find definitions by long description content', () => {
       const results = searchHelpDefinitions('seesaw');
       expect(results.length).toBeGreaterThan(0);
-      expect(results.some(r => r.longDescription.toLowerCase().includes('seesaw'))).toBe(true);
+      expect(results.some((r: any) => r.longDescription.toLowerCase().includes('seesaw'))).toBe(true);
     });
 
     it('should be case-insensitive', () => {
@@ -159,7 +159,7 @@ describe('helpDefinitions', () => {
 
   describe('content quality', () => {
     it('should use judgment-free language', () => {
-      Object.values(helpDefinitions).forEach(def => {
+      Object.values(helpDefinitions).forEach((def: any) => {
         const fullText = `${def.term} ${def.shortDescription} ${def.longDescription}`.toLowerCase();
         // Should avoid judgmental terms
         expect(fullText).not.toContain('stupid');
@@ -181,7 +181,7 @@ describe('helpDefinitions', () => {
     });
 
     it('should explain why concepts matter', () => {
-      Object.values(helpDefinitions).forEach(def => {
+      Object.values(helpDefinitions).forEach((def: any) => {
         expect(def.whyItMatters.length).toBeGreaterThan(20);
         expect(def.whyItMatters).toMatch(/\w+/);
       });

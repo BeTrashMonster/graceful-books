@@ -51,7 +51,7 @@ describe('Tags Store', () => {
 
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data).toBeDefined();
+        expect((result as any).data).toBeDefined();
         expect(result.data.name).toBe('urgent');
         expect(result.data.color).toBe('#EF4444');
         expect(result.data.usage_count).toBe(0);
@@ -500,7 +500,7 @@ describe('Tags Store', () => {
       );
 
       const removeResult = await removeTagFromEntity(
-        tagResult.data!.id,
+        (tagResult as any).data.id,
         EntityType.ACCOUNT,
         entityId
       );
@@ -649,8 +649,8 @@ describe('Tags Store', () => {
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.length).toBe(2);
-        expect(result.data).toContain(entityId1);
-        expect(result.data).toContain(entityId2);
+        expect((result as any).data).toContain(entityId1);
+        expect((result as any).data).toContain(entityId2);
       }
     });
 

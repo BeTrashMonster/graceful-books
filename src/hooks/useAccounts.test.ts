@@ -365,7 +365,7 @@ describe('useAccounts Hook', () => {
 
       expect(response.success).toBe(true)
       if (response.success) {
-        expect(response.data).toHaveLength(3)
+        expect((response as any).data).toHaveLength(3)
       }
       expect(accountStore.getAccountsHierarchy).toHaveBeenCalledWith(mockCompanyId)
     })

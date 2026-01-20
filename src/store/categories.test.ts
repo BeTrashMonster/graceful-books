@@ -53,7 +53,7 @@ describe('Categories Store', () => {
 
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data).toBeDefined();
+        expect((result as any).data).toBeDefined();
         expect(result.data.name).toBe('Test Category');
         expect(result.data.type).toBe(CategoryType.INCOME);
         expect(result.data.color).toBe('#10B981');

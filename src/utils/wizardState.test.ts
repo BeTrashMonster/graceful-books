@@ -219,7 +219,7 @@ describe('wizardState utilities', () => {
       expect(state.currentStepId).toBe('1')
       expect(state.steps[0].status).toBe('active')
       expect(state.steps[1].status).toBe('pending')
-      expect(state.data).toEqual({})
+      expect((state as any).data).toEqual({})
     })
 
     it('should set start and modified timestamps', () => {
@@ -336,10 +336,10 @@ describe('wizardState utilities', () => {
       ])
 
       const state1 = updateWizardData(initialState, { field1: 'value1' })
-      expect(state1.data).toEqual({ field1: 'value1' })
+      expect((state1 as any).data).toEqual({ field1: 'value1' })
 
       const state2 = updateWizardData(state1, { field2: 'value2' })
-      expect(state2.data).toEqual({ field1: 'value1', field2: 'value2' })
+      expect((state2 as any).data).toEqual({ field1: 'value1', field2: 'value2' })
     })
 
     it('should overwrite existing fields', () => {
@@ -350,7 +350,7 @@ describe('wizardState utilities', () => {
       const state1 = updateWizardData(initialState, { field1: 'value1' })
       const state2 = updateWizardData(state1, { field1: 'value2' })
 
-      expect(state2.data).toEqual({ field1: 'value2' })
+      expect((state2 as any).data).toEqual({ field1: 'value2' })
     })
 
     it('should update lastModifiedAt timestamp', () => {

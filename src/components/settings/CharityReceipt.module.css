@@ -1,0 +1,465 @@
+/**
+ * CharityReceipt Styles
+ *
+ * WCAG 2.1 AA compliant styles with print/PDF optimization
+ */
+
+.container {
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Controls (hidden when printing) */
+.controls {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--color-background-secondary, #f9f9f9);
+  border-radius: 8px;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+  margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #666);
+  margin: 0;
+}
+
+.yearSelector {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #1a1a1a);
+  margin-bottom: 0.5rem;
+}
+
+.select {
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 2px solid var(--color-border, #d1d5db);
+  border-radius: 6px;
+  background: white;
+  color: var(--color-text-primary, #1a1a1a);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  min-width: 150px;
+}
+
+.select:hover:not(:disabled) {
+  border-color: var(--color-border-hover, #9ca3af);
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.printButton {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  background: var(--color-primary, #3b82f6);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.printButton:hover {
+  background: var(--color-primary-hover, #2563eb);
+}
+
+.printButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Messages */
+.errorMessage {
+  padding: 1rem 1.5rem;
+  background: #fef2f2;
+  color: #991b1b;
+  border-left: 4px solid #dc2626;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem;
+  color: var(--color-text-secondary, #666);
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--color-border, #d1d5db);
+  border-top-color: var(--color-primary, #3b82f6);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Receipt */
+.receipt {
+  background: white;
+  padding: 3rem;
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.receiptHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--color-border, #d1d5db);
+  margin-bottom: 2rem;
+}
+
+.logoSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  background: var(--color-primary, #3b82f6);
+  color: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.receiptTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1a1a1a);
+  margin: 0 0 0.25rem 0;
+}
+
+.receiptSubtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #666);
+  margin: 0;
+}
+
+.dateSection {
+  text-align: right;
+}
+
+.receiptDate,
+.receiptYear {
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #1a1a1a);
+  margin: 0 0 0.5rem 0;
+}
+
+/* Sections */
+.section {
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border-light, #e5e7eb);
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.infoItem {
+  display: flex;
+  gap: 1rem;
+}
+
+.infoLabel {
+  font-weight: 600;
+  color: var(--color-text-secondary, #666);
+  min-width: 120px;
+}
+
+.infoValue {
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+/* Contribution Details */
+.contributionDetails {
+  background: var(--color-background-secondary, #f9f9f9);
+  padding: 1.5rem;
+  border-radius: 6px;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border-light, #e5e7eb);
+}
+
+.detailRow:last-child {
+  border-bottom: none;
+}
+
+.totalRow {
+  padding-top: 1rem;
+  border-top: 2px solid var(--color-border, #d1d5db);
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+.detailLabel {
+  color: var(--color-text-secondary, #666);
+}
+
+.detailValue {
+  color: var(--color-text-primary, #1a1a1a);
+  font-weight: 500;
+}
+
+/* Tax Notice */
+.taxNotice {
+  background: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  padding: 1.5rem;
+  border-radius: 6px;
+}
+
+.taxText {
+  font-size: 0.875rem;
+  color: #78350f;
+  margin: 0 0 1rem 0;
+  line-height: 1.6;
+}
+
+.taxText:last-child {
+  margin-bottom: 0;
+}
+
+/* Footer */
+.receiptFooter {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--color-border, #d1d5db);
+}
+
+.footerSection {
+  margin-bottom: 1.5rem;
+}
+
+.footerSection:last-child {
+  margin-bottom: 0;
+}
+
+.footerTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+  margin: 0 0 0.5rem 0;
+}
+
+.footerText {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #666);
+  margin: 0 0 0.25rem 0;
+}
+
+.disclaimer {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary, #9ca3af);
+  font-style: italic;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* No Contribution State */
+.noContribution {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--color-background-secondary, #f9f9f9);
+  border-radius: 8px;
+}
+
+.noContributionTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+  margin: 0 0 1rem 0;
+}
+
+.noContributionText {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #666);
+  margin: 0 0 0.75rem 0;
+}
+
+.noContributionSubtext {
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary, #9ca3af);
+  margin: 0;
+}
+
+/* Print Styles */
+@media print {
+  .container {
+    padding: 0;
+    max-width: none;
+  }
+
+  /* Hide controls when printing */
+  .controls,
+  .printButton {
+    display: none !important;
+  }
+
+  /* Optimize receipt for printing */
+  .receipt {
+    border: none;
+    box-shadow: none;
+    padding: 1in;
+    margin: 0;
+  }
+
+  /* Ensure black text for printing */
+  * {
+    color: #000 !important;
+  }
+
+  /* Preserve essential borders */
+  .receiptHeader {
+    border-bottom-color: #000;
+  }
+
+  .sectionTitle {
+    border-bottom-color: #000;
+  }
+
+  .detailRow {
+    border-bottom-color: #ccc;
+  }
+
+  .totalRow {
+    border-top-color: #000;
+  }
+
+  .receiptFooter {
+    border-top-color: #000;
+  }
+
+  /* Simplify backgrounds for printing */
+  .contributionDetails,
+  .taxNotice {
+    background: #f5f5f5 !important;
+    border-color: #000;
+  }
+
+  /* Page breaks */
+  .section {
+    page-break-inside: avoid;
+  }
+
+  .receiptHeader {
+    page-break-after: avoid;
+  }
+
+  .receiptFooter {
+    page-break-before: avoid;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .receipt {
+    padding: 2rem 1.5rem;
+  }
+
+  .receiptHeader {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .dateSection {
+    text-align: left;
+  }
+
+  .infoItem {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .infoLabel {
+    min-width: auto;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .receipt {
+    border: 2px solid currentColor;
+  }
+
+  .section {
+    border: 1px solid currentColor;
+    padding: 1rem;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+
+  * {
+    transition: none !important;
+  }
+}

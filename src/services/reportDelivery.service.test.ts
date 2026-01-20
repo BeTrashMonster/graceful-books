@@ -210,7 +210,7 @@ describe('ReportDelivery Service', () => {
       const result = await retryDelivery('delivery-123');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('QUOTA_EXCEEDED');
+      expect((result as any).error.code).toBe('QUOTA_EXCEEDED');
     });
   });
 });

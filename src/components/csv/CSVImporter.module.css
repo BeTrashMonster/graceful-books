@@ -1,0 +1,371 @@
+/* CSVImporter Component Styles */
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: var(--color-surface, #ffffff);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Progress Bar */
+.progressBar {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--color-border, #e5e7eb);
+}
+
+.progressSteps {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.progressSteps::before {
+  content: '';
+  position: absolute;
+  top: 1.25rem;
+  left: 2rem;
+  right: 2rem;
+  height: 2px;
+  background: var(--color-border, #e5e7eb);
+  z-index: 0;
+}
+
+.progressStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.stepNumber {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-surface, #ffffff);
+  border: 2px solid var(--color-border, #d1d5db);
+  color: var(--color-text-secondary, #6b7280);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.progressStep.active .stepNumber {
+  border-color: var(--color-primary, #3b82f6);
+  background: var(--color-primary, #3b82f6);
+  color: #ffffff;
+}
+
+.progressStep.completed .stepNumber {
+  border-color: #10b981;
+  background: #10b981;
+  color: #ffffff;
+}
+
+.stepLabel {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  font-weight: 500;
+}
+
+.progressStep.active .stepLabel {
+  color: var(--color-primary, #3b82f6);
+  font-weight: 600;
+}
+
+.progressStep.completed .stepLabel {
+  color: #10b981;
+}
+
+/* Error Message */
+.error {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  color: #991b1b;
+  margin-bottom: 2rem;
+}
+
+.errorIcon {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* Upload Step */
+.uploadStep {
+  text-align: center;
+}
+
+.uploadStep h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.description {
+  margin: 0 0 2rem 0;
+  color: var(--color-text-secondary, #6b7280);
+  font-size: 1rem;
+}
+
+.uploadArea {
+  margin-bottom: 2rem;
+}
+
+.uploadLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 2rem;
+  border: 2px dashed var(--color-border, #d1d5db);
+  border-radius: 8px;
+  background: var(--color-background, #f9fafb);
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.uploadLabel:hover {
+  border-color: var(--color-primary, #3b82f6);
+  background: #eff6ff;
+}
+
+.uploadLabel:focus-within {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.uploadIcon {
+  font-size: 3rem;
+}
+
+.uploadText {
+  font-size: 1rem;
+  color: var(--color-text-primary, #1a1a1a);
+  font-weight: 500;
+}
+
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Mapping Step */
+.mappingStep {
+  /* Styles handled by ColumnMapper component */
+}
+
+/* Preview Step */
+.previewStep {
+  /* Styles handled by ImportPreview component */
+}
+
+/* Importing Step */
+.importingStep {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.spinnerCircle {
+  width: 4rem;
+  height: 4rem;
+  border: 4px solid var(--color-border, #e5e7eb);
+  border-top-color: var(--color-primary, #3b82f6);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner p {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+/* Complete Step */
+.completeStep {
+  text-align: center;
+}
+
+.success {
+  padding: 2rem;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.successIcon {
+  display: inline-block;
+  width: 4rem;
+  height: 4rem;
+  background: #10b981;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 2.5rem;
+  line-height: 4rem;
+  margin-bottom: 1rem;
+}
+
+.success h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #065f46;
+}
+
+.resultText {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: #065f46;
+}
+
+.resultText strong {
+  font-weight: 700;
+}
+
+.skippedText {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #047857;
+}
+
+.skippedText strong {
+  font-weight: 600;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.primaryButton,
+.secondaryButton {
+  padding: 0.75rem 2rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.primaryButton {
+  background: var(--color-primary, #3b82f6);
+  color: #ffffff;
+  border: none;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: var(--color-primary-dark, #2563eb);
+}
+
+.primaryButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+.primaryButton:disabled {
+  background: var(--color-border, #d1d5db);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.secondaryButton {
+  background: transparent;
+  color: var(--color-text-primary, #1a1a1a);
+  border: 1px solid var(--color-border, #d1d5db);
+}
+
+.secondaryButton:hover {
+  background: var(--color-background, #f9fafb);
+}
+
+.secondaryButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(209, 213, 219, 0.5);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .progressSteps {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .progressSteps::before {
+    display: none;
+  }
+
+  .progressStep {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .uploadLabel,
+  .primaryButton,
+  .secondaryButton {
+    transition: none;
+  }
+
+  .spinnerCircle {
+    animation: none;
+  }
+}

@@ -72,7 +72,7 @@ describe('Categorization Store', () => {
       const result = await initializeSystemRules(companyId)
 
       expect(result.success).toBe(true)
-      expect(result.data).toBeGreaterThan(0)
+      expect((result as any).data).toBeGreaterThan(0)
 
       // Verify rules were created
       const rules = await db.categorizationRules
@@ -129,9 +129,9 @@ describe('Categorization Store', () => {
       })
 
       expect(result.success).toBe(true)
-      expect(result.data).toBeDefined()
-      expect(result.data?.pattern).toBe('facebook')
-      expect(result.data?.is_system).toBe(false)
+      expect((result as any).data).toBeDefined()
+      expect((result as any).data.pattern).toBe('facebook')
+      expect((result as any).data.is_system).toBe(false)
     })
 
     it('should validate custom rule before creation', async () => {
@@ -147,7 +147,7 @@ describe('Categorization Store', () => {
       })
 
       expect(result.success).toBe(false)
-      expect(result.error).toContain('Validation failed')
+      expect((result as any).error).toContain('Validation failed')
     })
 
     it('should validate regex patterns', async () => {
@@ -165,7 +165,7 @@ describe('Categorization Store', () => {
       })
 
       expect(result.success).toBe(false)
-      expect(result.error).toContain('valid regular expression')
+      expect((result as any).error).toContain('valid regular expression')
     })
 
     it('should update a custom rule', async () => {
@@ -184,14 +184,14 @@ describe('Categorization Store', () => {
 
       expect(created.success).toBe(true)
 
-      const result = await updateRule(created.data!.id, {
+      const result = await updateRule((created as any).data.id, {
         pattern: 'facebook ads',
         priority: 150,
       })
 
       expect(result.success).toBe(true)
-      expect(result.data?.pattern).toBe('facebook ads')
-      expect(result.data?.priority).toBe(150)
+      expect((result as any).data.pattern).toBe('facebook ads')
+      expect((result as any).data.priority).toBe(150)
     })
 
     it('should not allow updating system rules', async () => {
@@ -210,7 +210,7 @@ describe('Categorization Store', () => {
       })
 
       expect(result.success).toBe(false)
-      expect(result.error).toContain('Cannot modify system-defined rules')
+      expect((result as any).error).toContain('Cannot modify system-defined rules')
     })
 
     it('should delete a custom rule', async () => {
@@ -229,12 +229,12 @@ describe('Categorization Store', () => {
 
       expect(created.success).toBe(true)
 
-      const result = await deleteRule(created.data!.id)
+      const result = await deleteRule((created as any).data.id)
 
       expect(result.success).toBe(true)
 
       // Verify deletion
-      const deleted = await db.categorizationRules.get(created.data!.id)
+      const deleted = await db.categorizationRules.get((created as any).data.id)
       expect(deleted).toBeUndefined()
     })
 
@@ -252,7 +252,7 @@ describe('Categorization Store', () => {
       const result = await deleteRule(systemRule!.id)
 
       expect(result.success).toBe(false)
-      expect(result.error).toContain('Cannot delete system-defined rules')
+      expect((result as any).error).toContain('Cannot delete system-defined rules')
     })
 
     it('should get rules sorted by priority', async () => {
@@ -284,10 +284,10 @@ describe('Categorization Store', () => {
       const result = await getRulesByCompany(companyId)
 
       expect(result.success).toBe(true)
-      expect(result.data).toHaveLength(2)
+      expect((result as any).data).toHaveLength(2)
 
       // Should be sorted by priority descending
-      expect(result.data![0].priority).toBeGreaterThan(result.data![1].priority)
+      expect((result as any).data[0].priority).toBeGreaterThan((result as any).data[1].priority)
     })
 
     it('should filter inactive rules by default', async () => {
@@ -318,8 +318,8 @@ describe('Categorization Store', () => {
       const activeOnly = await getRulesByCompany(companyId, false)
       const all = await getRulesByCompany(companyId, true)
 
-      expect(activeOnly.data).toHaveLength(1)
-      expect(all.data).toHaveLength(2)
+      expect((activeOnly as any).data).toHaveLength(1)
+      expect((all as any).data).toHaveLength(2)
     })
   })
 
@@ -338,11 +338,11 @@ describe('Categorization Store', () => {
       const result = await recordSuggestion(companyId, 'txn-123', suggestion)
 
       expect(result.success).toBe(true)
-      expect(result.data?.transaction_id).toBe('txn-123')
-      expect(result.data?.suggested_category_id).toBe(marketingCategory.id)
-      expect(result.data?.confidence).toBe(0.85)
-      expect(result.data?.source).toBe('ml')
-      expect(result.data?.was_accepted).toBeNull()
+      expect((result as any).data.transaction_id).toBe('txn-123')
+      expect((result as any).data.suggested_category_id).toBe(marketingCategory.id)
+      expect((result as any).data.confidence).toBe(0.85)
+      expect((result as any).data.source).toBe('ml')
+      expect((result as any).data.was_accepted).toBeNull()
     })
 
     it('should retrieve suggestion history for a transaction', async () => {
@@ -361,15 +361,15 @@ describe('Categorization Store', () => {
       const result = await getSuggestionHistory('txn-123')
 
       expect(result.success).toBe(true)
-      expect(result.data).not.toBeNull()
-      expect(result.data?.transaction_id).toBe('txn-123')
+      expect((result as any).data).not.toBeNull()
+      expect((result as any).data.transaction_id).toBe('txn-123')
     })
 
     it('should return null for transaction with no history', async () => {
       const result = await getSuggestionHistory('non-existent-txn')
 
       expect(result.success).toBe(true)
-      expect(result.data).toBeNull()
+      expect((result as any).data).toBeNull()
     })
   })
 
@@ -407,7 +407,7 @@ describe('Categorization Store', () => {
       const result = await getTrainingData(companyId)
 
       expect(result.success).toBe(true)
-      expect(result.data).toHaveLength(2)
+      expect((result as any).data).toHaveLength(2)
     })
 
     it('should get training data statistics by category', async () => {
@@ -448,10 +448,10 @@ describe('Categorization Store', () => {
       const result = await getTrainingDataStats(companyId)
 
       expect(result.success).toBe(true)
-      expect(result.data).toHaveLength(2)
+      expect((result as any).data).toHaveLength(2)
 
-      const marketingStats = result.data!.find((s) => s.categoryId === marketingCategory.id)
-      const softwareStats = result.data!.find((s) => s.categoryId === softwareCategory.id)
+      const marketingStats = (result as any).data.find((s) => s.categoryId === marketingCategory.id)
+      const softwareStats = (result as any).data.find((s) => s.categoryId === softwareCategory.id)
 
       expect(marketingStats?.count).toBe(5)
       expect(marketingStats?.correctionCount).toBe(2)
@@ -482,7 +482,7 @@ describe('Categorization Store', () => {
       const result = await clearTrainingData(companyId)
 
       expect(result.success).toBe(true)
-      expect(result.data).toBe(5)
+      expect((result as any).data).toBe(5)
 
       // Verify data was cleared
       const remaining = await db.trainingData.where('company_id').equals(companyId).toArray()
@@ -505,7 +505,7 @@ describe('Categorization Store', () => {
       })
 
       expect(result.success).toBe(false)
-      expect(result.error).toBeDefined()
+      expect((result as any).error).toBeDefined()
     })
 
     it('should handle non-existent rule updates', async () => {
@@ -514,14 +514,14 @@ describe('Categorization Store', () => {
       })
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('Rule not found')
+      expect((result as any).error).toBe('Rule not found')
     })
 
     it('should handle non-existent rule deletions', async () => {
       const result = await deleteRule('non-existent-id')
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('Rule not found')
+      expect((result as any).error).toBe('Rule not found')
     })
   })
 })

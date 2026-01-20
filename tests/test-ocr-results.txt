@@ -1,0 +1,1759 @@
+
+> graceful-books@0.1.0 test
+> vitest src/services/ocr/receiptOCR.service.test.ts src/components/receipts/OCRCapture.test.tsx src/components/receipts/OCRReview.test.tsx --run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/Admin/graceful_books[39m
+
+ [32m✓[39m src/components/receipts/OCRCapture.test.tsx [2m ([22m[2m13 tests[22m[2m)[22m[33m 458[2mms[22m[39m
+ [33m❯[39m src/components/receipts/OCRReview.test.tsx [2m ([22m[2m22 tests[22m [2m|[22m [31m3 failed[39m[2m)[22m[33m 961[2mms[22m[39m
+[31m   [33m❯[31m src/components/receipts/OCRReview.test.tsx[2m > [22mOCRReview[2m > [22mshould allow editing amount[39m
+[31m     → Unable to find an element with the display value: 50.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"_ocrReview_7fecfa"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_header_7fecfa"[31m
+      [36m>[31m
+        [36m<h2>[31m
+          [0mI'm 95% sure this is correct![0m
+        [36m</h2>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"_instruction_7fecfa"[31m
+        [36m>[31m
+          [0mLook good? Make any tweaks needed and hit confirm![0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_stats_7fecfa"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_stat_7fecfa"[31m
+        [36m>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"_statLabel_7fecfa"[31m
+          [36m>[31m
+            [0mOverall Confidence[0m
+          [36m</span>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"_statValue_7fecfa"[31m
+            [33mstyle[31m=[32m"color: rgb(76, 175, 80);"[31m
+          [36m>[31m
+            [0m95[0m
+            [0m%[0m
+          [36m</span>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_stat_7fecfa"[31m
+        [36m>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"_statLabel_7fecfa"[31m
+          [36m>[31m
+            [0mProcessing Time[0m
+          [36m</span>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"_statValue_7fecfa"[31m
+          [36m>[31m
+            [0mDone in 1.5 seconds![0m
+          [36m</span>[31m
+        [36m</div>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_fields_7fecfa"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_field_7fecfa"[31m
+        [36m>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"_fieldLabel_7fecfa"[31m
+          [36m>[31m
+            [36m<span>[31m
+              [0mAmount[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_confidence_7fecfa"[31m
+              [33mstyle[31m=[32m"color: rgb(76, 175, 80);"[31m
+            [36m>[31m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[31m
+          [36m</label>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_inputGroup_7fecfa"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_currencySymbol_7fecfa"[31m
+            [36m>[31m
+              [0m$[0m
+            [36m</span>[31m
+            [36m<input[31m
+              [33maria-label[31m=[32m"Receipt amount"[31m
+              [33mclass[31m=[32m"_input_7fecfa"[31m
+              [33mmin[31m=[32m"0"[31m
+              [33mstep[31m=[32m"0.01"[31m
+              [33mtype[31m=[32m"number"[31m
+              [33mvalue[31m=[32m"50"[31m
+            [36m/>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_field_7fecfa"[31m
+        [36m>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"_fieldLabel_7fecfa"[31m
+          [36m>[31m
+            [36m<span>[31m
+              [0mVendor[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_confidence_7fecfa"[31m
+              [33mstyle[31m=[32m"color: rgb(76, 175, 80);"[31m
+            [36m>[31m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[31m
+          [36m</label>[31m
+          [36m<input[31m
+            [33maria-label[31m=[32m"Vendor name"[31m
+            [33mclass[31m=[32m"_input_7fecfa"[31m
+            [33mplaceholder[31m=[32m"Merchant name"[31m
+            [33mtype[31m=[32m"text"[31m
+            [33mvalue[31m=[32m"Office Depot"[31m
+          [36m/>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_field_7fecfa"[31m
+        [36m>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"_fieldLabel_7fecfa"[31m
+          [36m>[31m
+            [36m<span>[31m
+              [0mDate[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_confidence_7fecfa"[31m
+              [33mstyle[31m=[32m"color: rgb(76, 175, 80);"[31m
+            [36m>[31m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[31m
+          [36m</label>[31m
+          [36m<input[31m
+            [33maria-label[31m=[32m"Transaction date"[31m
+            [33mclass[31m=[32m"_input_7fecfa"[31m
+            [33mtype[31m=[32m"date"[31m
+            [33mvalue[31m=[32m"2024-01-17"[31m
+          [36m/>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_field_7fecfa"[31m
+        [36m>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"_fieldLabel_7fecfa"[31m
+          [36m>[31m
+            [36m<span>[31m
+              [0mTax[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_confidence_7fecfa"[31m
+            [36m>[31m
+              [0mOptional[0m
+            [36m</span>[31m
+          [36m</label>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_inputGroup_7fecfa"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_currencySymbol_7fecfa"[31m
+            [36m>[31m
+              [0m$[0m
+            [36m</span>[31m
+            [36m<input[31m
+              [33maria-label[31m=[32m"Tax amount"[31m
+              [33mclass[31m=[32m"_input_7fecfa"[31m
+              [33mmin[31m=[32m"0"[31m
+              [33mstep[31m=[32m"0.01"[31m
+              [33mtype[31m=[32m"number"[31m
+              [33mvalue[31m=[32m"3.8"[31m
+            [36m/>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_field_7fecfa"[31m
+        [36m>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"_fieldLabel_7fecfa"[31m
+          [36m>[31m
+            [36m<span>[31m
+              [0mReceipt Number[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_confidence_7fecfa"[31m
+            [36m>[31m
+              [0mOptional[0m
+            [36m</span>[31m
+          [36m</label>[31m
+          [36m<input[31m
+            [33maria-label[31m=[32m"Receipt number"[31m
+            [33mclass[31m=[32m"_input_7fecfa"[31m
+            [33mtype[31m=[32m"text"[31m
+            [33mvalue[31m=[32m"123456"[31m
+          [36m/>[31m
+        [36m</div>[31m
+      [36m</div>[31m
+      [36m<details[31m
+        [33mclass[31m=[32m"_rawTextDetails_7fecfa"[31m
+      [36m>[31m
+        [36m<summary[31m
+          [33mclass[31m=[32m"_rawTextSummary_7fecfa"[31m
+        [36m>[31m
+          [0mView Raw OCR Text[0m
+        [36m</summary>[31m
+        [36m<pre[31m
+          [33mclass[31m=[32m"_rawText_7fecfa"[31m
+        [36m>[31m
+          [0mOFFICE DEPOT
+123 Main St
+Total: $47.50
+Date: 01/17/2024[0m
+        [36m</pre>[31m
+      [36m</details>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_actions_7fecfa"[31m
+      [36m>[31m
+        [36m<button[31m
+          [33mclass[31m=[32m"_confirmButton_7fecfa"[31m
+        [36m>[31m
+          [0mConfirm Changes[0m
+        [36m</button>[31m
+      [36m</div>[31m
+      [36m<p[31m
+        [33mclass[31m=[32m"_learningNote_7fecfa"[31m
+      [36m>[31m
+        [0mYour corrections will help improve future OCR accuracy![0m
+      [36m</p>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[31m   [33m❯[31m src/components/receipts/OCRReview.test.tsx[2m > [22mOCRReview[2m > [22mshould call onConfirm with edited data[39m
+[31m     → Found multiple elements with the text: /confirm/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<p[31m
+  [33mclass[31m=[32m"_instruction_7fecfa"[31m
+[36m>[31m
+  [0mLook good? Make any tweaks needed and hit confirm![0m
+[36m</p>[31m
+
+Ignored nodes: comments, script, style
+[36m<button[31m
+  [33mclass[31m=[32m"_confirmButton_7fecfa"[31m
+[36m>[31m
+  [0mConfirm Changes[0m
+[36m</button>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"_ocrReview_7fecfa"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_header_7fecfa"[31m
+      [36m>[31m
+        [36m<h2>[31m
+          [0mI'm 95% sure this is correct![0m
+        [36m</h2>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"_instruction_7fecfa"[31m
+        [36m>[31m
+          [0mLook good? Make any tweaks needed and hit confirm![0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_stats_7fecfa"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_stat_7fecfa"[31m
+        [36m>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"_statLabel_7fecfa"[31m
+          [36m>[31m
+            [0mOverall Confidence[0m
+          [36m</span>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"_statValue_7fecfa"[31m
+            [33mstyle[31m=[32m"color: rgb(76, 175, 80);"[31m
+          [36m>[31m
+            [0m95[0m
+            [0m%[0m
+          [36m</span>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_stat_7fecfa"[31m
+        [36m>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"_statLabel_7fecfa"[31m
+          [36m>[31m
+            [0mProcessing Time[0m
+          [36m</span>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"_statValue_7fecfa"[31m
+          [36m>[31m
+            [0mDone in 1.5 seconds![0m
+          [36m</span>[31m
+        [36m</div>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_fields_7fecfa"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_field_7fecfa"[31m
+        [36m>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"_fieldLabel_7fecfa"[31m
+          [36m>[31m
+            [36m<span>[31m
+              [0mAmount[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_confidence_7fecfa"[31m
+              [33mstyle[31m=[32m"color: rgb(76, 175, 80);"[31m
+            [36m>[31m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[31m
+          [36m</label>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_inputGroup_7fecfa"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_currencySymbol_7fecfa"[31m
+            [36m>[31m
+              [0m$[0m
+            [36m</span>[31m
+            [36m<input[31m
+              [33maria-label[31m=[32m"Receipt amount"[31m
+              [33mclass[31m=[32m"_input_7fecfa"[31m
+              [33mmin[31m=[32m"0"[31m
+              [33mstep[31m=[32m"0.01"[31m
+              [33mtype[31m=[32m"number"[31m
+              [33mvalue[31m=[32m"50"[31m
+            [36m/>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_field_7fecfa"[31m
+        [36m>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"_fieldLabel_7fecfa"[31m
+          [36m>[31m
+            [36m<span>[31m
+              [0mVendor[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_confidence_7fecfa"[31m
+              [33mstyle[31m=[32m"color: rgb(76, 175, 80);"[31m
+            [36m>[31m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[31m
+          [36m</label>[31m
+          [36m<input[31m
+            [33maria-label[31m=[32m"Vendor name"[31m
+            [33mclass[31m=[32m"_input_7fecfa"[31m
+            [33mplaceholder[31m=[32m"Merchant name"[31m
+            [33mtype[31m=[32m"text"[31m
+            [33mvalue[31m=[32m"Office Depot"[31m
+          [36m/>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_field_7fecfa"[31m
+        [36m>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"_fieldLabel_7fecfa"[31m
+          [36m>[31m
+            [36m<span>[31m
+              [0mDate[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_confidence_7fecfa"[31m
+              [33mstyle[31m=[32m"color: rgb(76, 175, 80);"[31m
+            [36m>[31m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[31m
+          [36m</label>[31m
+          [36m<input[31m
+            [33maria-label[31m=[32m"Transaction date"[31m
+            [33mclass[31m=[32m"_input_7fecfa"[31m
+            [33mtype[31m=[32m"date"[31m
+            [33mvalue[31m=[32m"2024-01-17"[31m
+          [36m/>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_field_7fecfa"[31m
+        [36m>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"_fieldLabel_7fecfa"[31m
+          [36m>[31m
+            [36m<span>[31m
+              [0mTax[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_confidence_7fecfa"[31m
+            [36m>[31m
+              [0mOptional[0m
+            [36m</span>[31m
+          [36m</label>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_inputGroup_7fecfa"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_currencySymbol_7fecfa"[31m
+            [36m>[31m
+              [0m$[0m
+            [36m</span>[31m
+            [36m<input[31m
+              [33maria-label[31m=[32m"Tax amount"[31m
+              [33mclass[31m=[32m"_input_7fecfa"[31m
+              [33mmin[31m=[32m"0"[31m
+              [33mstep[31m=[32m"0.01"[31m
+              [33mtype[31m=[32m"number"[31m
+              [33mvalue[31m=[32m"3.8"[31m
+            [36m/>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_field_7fecfa"[31m
+        [36m>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"_fieldLabel_7fecfa"[31m
+          [36m>[31m
+            [36m<span>[31m
+              [0mReceipt Number[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_confidence_7fecfa"[31m
+            [36m>[31m
+              [0mOptional[0m
+            [36m</span>[31m
+          [36m</label>[31m
+          [36m<input[31m
+            [33maria-label[31m=[32m"Receipt number"[31m
+            [33mclass[31m=[32m"_input_7fecfa"[31m
+            [33mtype[31m=[32m"text"[31m
+            [33mvalue[31m=[32m"123456"[31m
+          [36m/>[31m
+        [36m</div>[31m
+      [36m</div>[31m
+      [36m<details[31m
+        [33mclass[31m=[32m"_rawTextDetails_7fecfa"[31m
+      [36m>[31m
+        [36m<summary[31m
+          [33mclass[31m=[32m"_rawTextSummary_7fecfa"[31m
+        [36m>[31m
+          [0mView Raw OCR Text[0m
+        [36m</summary>[31m
+        [36m<pre[31m
+          [33mclass[31m=[32m"_rawText_7fecfa"[31m
+        [36m>[31m
+          [0mOFFICE DEPOT
+123 Main St
+Total: $47.50
+Date: 01/17/2024[0m
+        [36m</pre>[31m
+      [36m</details>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_actions_7fecfa"[31m
+      [36m>[31m
+        [36m<button[31m
+          [33mclass[31m=[32m"_confirmButton_7fecfa"[31m
+        [36m>[31m
+          [0mConfirm Changes[0m
+        [36m</button>[31m
+      [36m</div>[31m
+      [36m<p[31m
+        [33mclass[31m=[32m"_learningNote_7fecfa"[31m
+      [36m>[31m
+        [0mYour corrections will help improve future OCR accuracy![0m
+      [36m</p>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[31m   [33m❯[31m src/components/receipts/OCRReview.test.tsx[2m > [22mOCRReview[2m > [22mshould disable confirm button when required fields missing[39m
+[31m     → Found multiple elements with the text: /confirm/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<p[31m
+  [33mclass[31m=[32m"_instruction_7fecfa"[31m
+[36m>[31m
+  [0mLook good? Make any tweaks needed and hit confirm![0m
+[36m</p>[31m
+
+Ignored nodes: comments, script, style
+[36m<button[31m
+  [33mclass[31m=[32m"_confirmButton_7fecfa"[31m
+  [33mdisabled[31m=[32m""[31m
+[36m>[31m
+  [0mConfirm[0m
+[36m</button>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"_ocrReview_7fecfa"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_header_7fecfa"[31m
+      [36m>[31m
+        [36m<h2>[31m
+          [0mI'm 95% sure this is correct![0m
+        [36m</h2>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"_instruction_7fecfa"[31m
+        [36m>[31m
+          [0mLook good? Make any tweaks needed and hit confirm![0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_stats_7fecfa"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_stat_7fecfa"[31m
+        [36m>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"_statLabel_7fecfa"[31m
+          [36m>[31m
+            [0mOverall Confidence[0m
+          [36m</span>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"_statValue_7fecfa"[31m
+            [33mstyle[31m=[32m"color: rgb(76, 175, 80);"[31m
+          [36m>[31m
+            [0m95[0m
+            [0m%[0m
+          [36m</span>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_stat_7fecfa"[31m
+        [36m>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"_statLabel_7fecfa"[31m
+          [36m>[31m
+            [0mProcessing Time[0m
+          [36m</span>[31m
+          [36m<span[31m
+            [33mclass[31m=[32m"_statValue_7fecfa"[31m
+          [36m>[31m
+            [0mDone in 1.5 seconds![0m
+          [36m</span>[31m
+        [36m</div>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_fields_7fecfa"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_field_7fecfa"[31m
+        [36m>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"_fieldLabel_7fecfa"[31m
+          [36m>[31m
+            [36m<span>[31m
+              [0mAmount[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_confidence_7fecfa"[31m
+              [33mstyle[31m=[32m"color: rgb(76, 175, 80);"[31m
+            [36m>[31m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[31m
+          [36m</label>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_inputGroup_7fecfa"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_currencySymbol_7fecfa"[31m
+            [36m>[31m
+              [0m$[0m
+            [36m</span>[31m
+            [36m<input[31m
+              [33maria-label[31m=[32m"Receipt amount"[31m
+              [33mclass[31m=[32m"_input_7fecfa"[31m
+              [33mmin[31m=[32m"0"[31m
+              [33mstep[31m=[32m"0.01"[31m
+              [33mtype[31m=[32m"number"[31m
+              [33mvalue[31m=[32m""[31m
+            [36m/>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_field_7fecfa"[31m
+        [36m>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"_fieldLabel_7fecfa"[31m
+          [36m>[31m
+            [36m<span>[31m
+              [0mVendor[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_confidence_7fecfa"[31m
+              [33mstyle[31m=[32m"color: rgb(76, 175, 80);"[31m
+            [36m>[31m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[31m
+          [36m</label>[31m
+          [36m<input[31m
+            [33maria-label[31m=[32m"Vendor name"[31m
+            [33mclass[31m=[32m"_input_7fecfa"[31m
+            [33mplaceholder[31m=[32m"Merchant name"[31m
+            [33mtype[31m=[32m"text"[31m
+            [33mvalue[31m=[32m"Office Depot"[31m
+          [36m/>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_field_7fecfa"[31m
+        [36m>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"_fieldLabel_7fecfa"[31m
+          [36m>[31m
+            [36m<span>[31m
+              [0mDate[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_confidence_7fecfa"[31m
+              [33mstyle[31m=[32m"color: rgb(76, 175, 80);"[31m
+            [36m>[31m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[31m
+          [36m</label>[31m
+          [36m<input[31m
+            [33maria-label[31m=[32m"Transaction date"[31m
+            [33mclass[31m=[32m"_input_7fecfa"[31m
+            [33mtype[31m=[32m"date"[31m
+            [33mvalue[31m=[32m"2024-01-17"[31m
+          [36m/>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_field_7fecfa"[31m
+        [36m>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"_fieldLabel_7fecfa"[31m
+          [36m>[31m
+            [36m<span>[31m
+              [0mTax[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_confidence_7fecfa"[31m
+            [36m>[31m
+              [0mOptional[0m
+            [36m</span>[31m
+          [36m</label>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"_inputGroup_7fecfa"[31m
+          [36m>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_currencySymbol_7fecfa"[31m
+            [36m>[31m
+              [0m$[0m
+            [36m</span>[31m
+            [36m<input[31m
+              [33maria-label[31m=[32m"Tax amount"[31m
+              [33mclass[31m=[32m"_input_7fecfa"[31m
+              [33mmin[31m=[32m"0"[31m
+              [33mstep[31m=[32m"0.01"[31m
+              [33mtype[31m=[32m"number"[31m
+              [33mvalue[31m=[32m"3.8"[31m
+            [36m/>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"_field_7fecfa"[31m
+        [36m>[31m
+          [36m<label[31m
+            [33mclass[31m=[32m"_fieldLabel_7fecfa"[31m
+          [36m>[31m
+            [36m<span>[31m
+              [0mReceipt Number[0m
+            [36m</span>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"_confidence_7fecfa"[31m
+            [36m>[31m
+              [0mOptional[0m
+            [36m</span>[31m
+          [36m</label>[31m
+          [36m<input[31m
+            [33maria-label[31m=[32m"Receipt number"[31m
+            [33mclass[31m=[32m"_input_7fecfa"[31m
+            [33mtype[31m=[32m"text"[31m
+            [33mvalue[31m=[32m"123456"[31m
+          [36m/>[31m
+        [36m</div>[31m
+      [36m</div>[31m
+      [36m<details[31m
+        [33mclass[31m=[32m"_rawTextDetails_7fecfa"[31m
+      [36m>[31m
+        [36m<summary[31m
+          [33mclass[31m=[32m"_rawTextSummary_7fecfa"[31m
+        [36m>[31m
+          [0mView Raw OCR Text[0m
+        [36m</summary>[31m
+        [36m<pre[31m
+          [33mclass[31m=[32m"_rawText_7fecfa"[31m
+        [36m>[31m
+          [0mOFFICE DEPOT
+123 Main St
+Total: $47.50
+Date: 01/17/2024[0m
+        [36m</pre>[31m
+      [36m</details>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"_actions_7fecfa"[31m
+      [36m>[31m
+        [36m<button[31m
+          [33mclass[31m=[32m"_confirmButton_7fecfa"[31m
+          [33mdisabled[31m=[32m""[31m
+        [36m>[31m
+          [0mConfirm[0m
+        [36m</button>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+ [33m❯[39m src/services/ocr/receiptOCR.service.test.ts [2m ([22m[2m41 tests[22m [2m|[22m [31m22 failed[39m[2m)[22m[33m 60450[2mms[22m[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractAmount[2m > [22mshould extract amount with "total" label[39m
+[31m     → String.prototype.matchAll called with a non-global RegExp argument[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractAmount[2m > [22mshould extract amount with dollar sign[39m
+[31m     → String.prototype.matchAll called with a non-global RegExp argument[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractAmount[2m > [22mshould handle comma decimal separator[39m
+[31m     → String.prototype.matchAll called with a non-global RegExp argument[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractAmount[2m > [22mshould return null for no amount found[39m
+[31m     → String.prototype.matchAll called with a non-global RegExp argument[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractAmount[2m > [22mshould prefer labeled amounts over standalone amounts[39m
+[31m     → String.prototype.matchAll called with a non-global RegExp argument[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractAmount[2m > [22mshould handle multiple total amounts[39m
+[31m     → String.prototype.matchAll called with a non-global RegExp argument[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractDate[2m > [22mshould extract MM/DD/YYYY format[39m
+[31m     → expected null to be an instance of Date[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractDate[2m > [22mshould handle abbreviated month names[39m
+[31m     → expected undefined to be 11 // Object.is equality[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractVendor[2m > [22mshould trim whitespace from vendor name[39m
+[31m     → expected '123 Main St' to be 'STORE NAME' // Object.is equality[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22massessImageQuality[2m > [22mshould accept valid image data URL[39m
+[31m     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22massessImageQuality[2m > [22mshould detect size issues[39m
+[31m     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22massessImageQuality[2m > [22mshould reject invalid image format[39m
+[31m     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22massessImageQuality[2m > [22mshould provide recommendations[39m
+[31m     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mprocessReceiptImage[2m > [22mshould process valid receipt image[39m
+[31m     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mprocessReceiptImage[2m > [22mshould extract structured data from receipt[39m
+[31m     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mprocessReceiptImage[2m > [22mshould process image within 10 seconds[39m
+[31m     → Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mprocessReceiptImage[2m > [22mshould set needsReview flag for low confidence[39m
+[31m     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mprocessReceiptImage[2m > [22mshould handle preprocessing option[39m
+[31m     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mpreprocessImage[2m > [22mshould return preprocessed image data[39m
+[31m     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mEdge Cases[2m > [22mshould handle receipts with unusual formatting[39m
+[31m     → String.prototype.matchAll called with a non-global RegExp argument[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mEdge Cases[2m > [22mshould handle receipts with multiple prices[39m
+[31m     → String.prototype.matchAll called with a non-global RegExp argument[39m
+[31m   [33m❯[31m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mEdge Cases[2m > [22mshould handle receipts with tax separately listed[39m
+[31m     → String.prototype.matchAll called with a non-global RegExp argument[39m
+
+[31m⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 25 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/receipts/OCRReview.test.tsx[2m > [22mOCRReview[2m > [22mshould allow editing amount
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the display value: 50.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"_ocrReview_7fecfa"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_header_7fecfa"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0mI'm 95% sure this is correct![0m
+        [36m</h2>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"_instruction_7fecfa"[39m
+        [36m>[39m
+          [0mLook good? Make any tweaks needed and hit confirm![0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_stats_7fecfa"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_stat_7fecfa"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"_statLabel_7fecfa"[39m
+          [36m>[39m
+            [0mOverall Confidence[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"_statValue_7fecfa"[39m
+            [33mstyle[39m=[32m"color: rgb(76, 175, 80);"[39m
+          [36m>[39m
+            [0m95[0m
+            [0m%[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_stat_7fecfa"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"_statLabel_7fecfa"[39m
+          [36m>[39m
+            [0mProcessing Time[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"_statValue_7fecfa"[39m
+          [36m>[39m
+            [0mDone in 1.5 seconds![0m
+          [36m</span>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_fields_7fecfa"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_field_7fecfa"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_fieldLabel_7fecfa"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mAmount[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_confidence_7fecfa"[39m
+              [33mstyle[39m=[32m"color: rgb(76, 175, 80);"[39m
+            [36m>[39m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"_inputGroup_7fecfa"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_currencySymbol_7fecfa"[39m
+            [36m>[39m
+              [0m$[0m
+            [36m</span>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Receipt amount"[39m
+              [33mclass[39m=[32m"_input_7fecfa"[39m
+              [33mmin[39m=[32m"0"[39m
+              [33mstep[39m=[32m"0.01"[39m
+              [33mtype[39m=[32m"number"[39m
+              [33mvalue[39m=[32m"50"[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_field_7fecfa"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_fieldLabel_7fecfa"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mVendor[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_confidence_7fecfa"[39m
+              [33mstyle[39m=[32m"color: rgb(76, 175, 80);"[39m
+            [36m>[39m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<input[39m
+            [33maria-label[39m=[32m"Vendor name"[39m
+            [33mclass[39m=[32m"_input_7fecfa"[39m
+            [33mplaceholder[39m=[32m"Merchant name"[39m
+            [33mtype[39m=[32m"text"[39m
+            [33mvalue[39m=[32m"Office Depot"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_field_7fecfa"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_fieldLabel_7fecfa"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mDate[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_confidence_7fecfa"[39m
+              [33mstyle[39m=[32m"color: rgb(76, 175, 80);"[39m
+            [36m>[39m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<input[39m
+            [33maria-label[39m=[32m"Transaction date"[39m
+            [33mclass[39m=[32m"_input_7fecfa"[39m
+            [33mtype[39m=[32m"date"[39m
+            [33mvalue[39m=[32m"2024-01-17"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_field_7fecfa"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_fieldLabel_7fecfa"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mTax[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_confidence_7fecfa"[39m
+            [36m>[39m
+              [0mOptional[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"_inputGroup_7fecfa"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_currencySymbol_7fecfa"[39m
+            [36m>[39m
+              [0m$[0m
+            [36m</span>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Tax amount"[39m
+              [33mclass[39m=[32m"_input_7fecfa"[39m
+              [33mmin[39m=[32m"0"[39m
+              [33mstep[39m=[32m"0.01"[39m
+              [33mtype[39m=[32m"number"[39m
+              [33mvalue[39m=[32m"3.8"[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_field_7fecfa"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_fieldLabel_7fecfa"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mReceipt Number[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_confidence_7fecfa"[39m
+            [36m>[39m
+              [0mOptional[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<input[39m
+            [33maria-label[39m=[32m"Receipt number"[39m
+            [33mclass[39m=[32m"_input_7fecfa"[39m
+            [33mtype[39m=[32m"text"[39m
+            [33mvalue[39m=[32m"123456"[39m
+          [36m/>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<details[39m
+        [33mclass[39m=[32m"_rawTextDetails_7fecfa"[39m
+      [36m>[39m
+        [36m<summary[39m
+          [33mclass[39m=[32m"_rawTextSummary_7fecfa"[39m
+        [36m>[39m
+          [0mView Raw OCR Text[0m
+        [36m</summary>[39m
+        [36m<pre[39m
+          [33mclass[39m=[32m"_rawText_7fecfa"[39m
+        [36m>[39m
+          [0mOFFICE DEPOT
+123 Main St
+Total: $47.50
+Date: 01/17/2024[0m
+        [36m</pre>[39m
+      [36m</details>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_actions_7fecfa"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"_confirmButton_7fecfa"[39m
+        [36m>[39m
+          [0mConfirm Changes[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"_learningNote_7fecfa"[39m
+      [36m>[39m
+        [0mYour corrections will help improve future OCR accuracy![0m
+      [36m</p>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/receipts/OCRReview.test.tsx:[2m72:19[22m[39m
+    [90m 70| [39m    fireEvent[33m.[39m[34mchange[39m(amountInput[33m,[39m { target[33m:[39m { value[33m:[39m [32m'50.00'[39m } })[33m;[39m
+    [90m 71| [39m
+    [90m 72| [39m    [34mexpect[39m(screen[33m.[39m[34mgetByDisplayValue[39m([32m'50'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                  [31m^[39m
+    [90m 73| [39m  })[33m;[39m
+    [90m 74| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/receipts/OCRReview.test.tsx[2m > [22mOCRReview[2m > [22mshould call onConfirm with edited data
+[31m[1mTestingLibraryElementError[22m[39m: Found multiple elements with the text: /confirm/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<p[39m
+  [33mclass[39m=[32m"_instruction_7fecfa"[39m
+[36m>[39m
+  [0mLook good? Make any tweaks needed and hit confirm![0m
+[36m</p>[39m
+
+Ignored nodes: comments, script, style
+[36m<button[39m
+  [33mclass[39m=[32m"_confirmButton_7fecfa"[39m
+[36m>[39m
+  [0mConfirm Changes[0m
+[36m</button>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"_ocrReview_7fecfa"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_header_7fecfa"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0mI'm 95% sure this is correct![0m
+        [36m</h2>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"_instruction_7fecfa"[39m
+        [36m>[39m
+          [0mLook good? Make any tweaks needed and hit confirm![0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_stats_7fecfa"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_stat_7fecfa"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"_statLabel_7fecfa"[39m
+          [36m>[39m
+            [0mOverall Confidence[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"_statValue_7fecfa"[39m
+            [33mstyle[39m=[32m"color: rgb(76, 175, 80);"[39m
+          [36m>[39m
+            [0m95[0m
+            [0m%[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_stat_7fecfa"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"_statLabel_7fecfa"[39m
+          [36m>[39m
+            [0mProcessing Time[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"_statValue_7fecfa"[39m
+          [36m>[39m
+            [0mDone in 1.5 seconds![0m
+          [36m</span>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_fields_7fecfa"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_field_7fecfa"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_fieldLabel_7fecfa"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mAmount[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_confidence_7fecfa"[39m
+              [33mstyle[39m=[32m"color: rgb(76, 175, 80);"[39m
+            [36m>[39m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"_inputGroup_7fecfa"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_currencySymbol_7fecfa"[39m
+            [36m>[39m
+              [0m$[0m
+            [36m</span>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Receipt amount"[39m
+              [33mclass[39m=[32m"_input_7fecfa"[39m
+              [33mmin[39m=[32m"0"[39m
+              [33mstep[39m=[32m"0.01"[39m
+              [33mtype[39m=[32m"number"[39m
+              [33mvalue[39m=[32m"50"[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_field_7fecfa"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_fieldLabel_7fecfa"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mVendor[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_confidence_7fecfa"[39m
+              [33mstyle[39m=[32m"color: rgb(76, 175, 80);"[39m
+            [36m>[39m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<input[39m
+            [33maria-label[39m=[32m"Vendor name"[39m
+            [33mclass[39m=[32m"_input_7fecfa"[39m
+            [33mplaceholder[39m=[32m"Merchant name"[39m
+            [33mtype[39m=[32m"text"[39m
+            [33mvalue[39m=[32m"Office Depot"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_field_7fecfa"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_fieldLabel_7fecfa"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mDate[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_confidence_7fecfa"[39m
+              [33mstyle[39m=[32m"color: rgb(76, 175, 80);"[39m
+            [36m>[39m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<input[39m
+            [33maria-label[39m=[32m"Transaction date"[39m
+            [33mclass[39m=[32m"_input_7fecfa"[39m
+            [33mtype[39m=[32m"date"[39m
+            [33mvalue[39m=[32m"2024-01-17"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_field_7fecfa"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_fieldLabel_7fecfa"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mTax[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_confidence_7fecfa"[39m
+            [36m>[39m
+              [0mOptional[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"_inputGroup_7fecfa"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_currencySymbol_7fecfa"[39m
+            [36m>[39m
+              [0m$[0m
+            [36m</span>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Tax amount"[39m
+              [33mclass[39m=[32m"_input_7fecfa"[39m
+              [33mmin[39m=[32m"0"[39m
+              [33mstep[39m=[32m"0.01"[39m
+              [33mtype[39m=[32m"number"[39m
+              [33mvalue[39m=[32m"3.8"[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_field_7fecfa"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_fieldLabel_7fecfa"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mReceipt Number[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_confidence_7fecfa"[39m
+            [36m>[39m
+              [0mOptional[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<input[39m
+            [33maria-label[39m=[32m"Receipt number"[39m
+            [33mclass[39m=[32m"_input_7fecfa"[39m
+            [33mtype[39m=[32m"text"[39m
+            [33mvalue[39m=[32m"123456"[39m
+          [36m/>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<details[39m
+        [33mclass[39m=[32m"_rawTextDetails_7fecfa"[39m
+      [36m>[39m
+        [36m<summary[39m
+          [33mclass[39m=[32m"_rawTextSummary_7fecfa"[39m
+        [36m>[39m
+          [0mView Raw OCR Text[0m
+        [36m</summary>[39m
+        [36m<pre[39m
+          [33mclass[39m=[32m"_rawText_7fecfa"[39m
+        [36m>[39m
+          [0mOFFICE DEPOT
+123 Main St
+Total: $47.50
+Date: 01/17/2024[0m
+        [36m</pre>[39m
+      [36m</details>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_actions_7fecfa"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"_confirmButton_7fecfa"[39m
+        [36m>[39m
+          [0mConfirm Changes[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"_learningNote_7fecfa"[39m
+      [36m>[39m
+        [0mYour corrections will help improve future OCR accuracy![0m
+      [36m</p>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/receipts/OCRReview.test.tsx:[2m120:34[22m[39m
+    [90m118| [39m    fireEvent[33m.[39m[34mchange[39m(amountInput[33m,[39m { target[33m:[39m { value[33m:[39m [32m'50.00'[39m } })[33m;[39m
+    [90m119| [39m
+    [90m120| [39m    [35mconst[39m confirmButton [33m=[39m screen[33m.[39m[34mgetByText[39m([36m/confirm/i[39m)[33m;[39m
+    [90m   | [39m                                 [31m^[39m
+    [90m121| [39m    fireEvent[33m.[39m[34mclick[39m(confirmButton)[33m;[39m
+    [90m122| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/components/receipts/OCRReview.test.tsx[2m > [22mOCRReview[2m > [22mshould disable confirm button when required fields missing
+[31m[1mTestingLibraryElementError[22m[39m: Found multiple elements with the text: /confirm/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<p[39m
+  [33mclass[39m=[32m"_instruction_7fecfa"[39m
+[36m>[39m
+  [0mLook good? Make any tweaks needed and hit confirm![0m
+[36m</p>[39m
+
+Ignored nodes: comments, script, style
+[36m<button[39m
+  [33mclass[39m=[32m"_confirmButton_7fecfa"[39m
+  [33mdisabled[39m=[32m""[39m
+[36m>[39m
+  [0mConfirm[0m
+[36m</button>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"_ocrReview_7fecfa"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_header_7fecfa"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0mI'm 95% sure this is correct![0m
+        [36m</h2>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"_instruction_7fecfa"[39m
+        [36m>[39m
+          [0mLook good? Make any tweaks needed and hit confirm![0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_stats_7fecfa"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_stat_7fecfa"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"_statLabel_7fecfa"[39m
+          [36m>[39m
+            [0mOverall Confidence[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"_statValue_7fecfa"[39m
+            [33mstyle[39m=[32m"color: rgb(76, 175, 80);"[39m
+          [36m>[39m
+            [0m95[0m
+            [0m%[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_stat_7fecfa"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"_statLabel_7fecfa"[39m
+          [36m>[39m
+            [0mProcessing Time[0m
+          [36m</span>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"_statValue_7fecfa"[39m
+          [36m>[39m
+            [0mDone in 1.5 seconds![0m
+          [36m</span>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_fields_7fecfa"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_field_7fecfa"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_fieldLabel_7fecfa"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mAmount[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_confidence_7fecfa"[39m
+              [33mstyle[39m=[32m"color: rgb(76, 175, 80);"[39m
+            [36m>[39m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"_inputGroup_7fecfa"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_currencySymbol_7fecfa"[39m
+            [36m>[39m
+              [0m$[0m
+            [36m</span>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Receipt amount"[39m
+              [33mclass[39m=[32m"_input_7fecfa"[39m
+              [33mmin[39m=[32m"0"[39m
+              [33mstep[39m=[32m"0.01"[39m
+              [33mtype[39m=[32m"number"[39m
+              [33mvalue[39m=[32m""[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_field_7fecfa"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_fieldLabel_7fecfa"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mVendor[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_confidence_7fecfa"[39m
+              [33mstyle[39m=[32m"color: rgb(76, 175, 80);"[39m
+            [36m>[39m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<input[39m
+            [33maria-label[39m=[32m"Vendor name"[39m
+            [33mclass[39m=[32m"_input_7fecfa"[39m
+            [33mplaceholder[39m=[32m"Merchant name"[39m
+            [33mtype[39m=[32m"text"[39m
+            [33mvalue[39m=[32m"Office Depot"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_field_7fecfa"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_fieldLabel_7fecfa"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mDate[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_confidence_7fecfa"[39m
+              [33mstyle[39m=[32m"color: rgb(76, 175, 80);"[39m
+            [36m>[39m
+              [0mHigh[0m
+              [0m confidence[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<input[39m
+            [33maria-label[39m=[32m"Transaction date"[39m
+            [33mclass[39m=[32m"_input_7fecfa"[39m
+            [33mtype[39m=[32m"date"[39m
+            [33mvalue[39m=[32m"2024-01-17"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_field_7fecfa"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_fieldLabel_7fecfa"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mTax[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_confidence_7fecfa"[39m
+            [36m>[39m
+              [0mOptional[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"_inputGroup_7fecfa"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_currencySymbol_7fecfa"[39m
+            [36m>[39m
+              [0m$[0m
+            [36m</span>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Tax amount"[39m
+              [33mclass[39m=[32m"_input_7fecfa"[39m
+              [33mmin[39m=[32m"0"[39m
+              [33mstep[39m=[32m"0.01"[39m
+              [33mtype[39m=[32m"number"[39m
+              [33mvalue[39m=[32m"3.8"[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_field_7fecfa"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_fieldLabel_7fecfa"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mReceipt Number[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_confidence_7fecfa"[39m
+            [36m>[39m
+              [0mOptional[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<input[39m
+            [33maria-label[39m=[32m"Receipt number"[39m
+            [33mclass[39m=[32m"_input_7fecfa"[39m
+            [33mtype[39m=[32m"text"[39m
+            [33mvalue[39m=[32m"123456"[39m
+          [36m/>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<details[39m
+        [33mclass[39m=[32m"_rawTextDetails_7fecfa"[39m
+      [36m>[39m
+        [36m<summary[39m
+          [33mclass[39m=[32m"_rawTextSummary_7fecfa"[39m
+        [36m>[39m
+          [0mView Raw OCR Text[0m
+        [36m</summary>[39m
+        [36m<pre[39m
+          [33mclass[39m=[32m"_rawText_7fecfa"[39m
+        [36m>[39m
+          [0mOFFICE DEPOT
+123 Main St
+Total: $47.50
+Date: 01/17/2024[0m
+        [36m</pre>[39m
+      [36m</details>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_actions_7fecfa"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"_confirmButton_7fecfa"[39m
+          [33mdisabled[39m=[32m""[39m
+        [36m>[39m
+          [0mConfirm[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/receipts/OCRReview.test.tsx:[2m157:34[22m[39m
+    [90m155| [39m    )[33m;[39m
+    [90m156| [39m
+    [90m157| [39m    [35mconst[39m confirmButton [33m=[39m screen[33m.[39m[34mgetByText[39m([36m/confirm/i[39m)[33m;[39m
+    [90m   | [39m                                 [31m^[39m
+    [90m158| [39m    [34mexpect[39m(confirmButton)[33m.[39m[34mtoBeDisabled[39m()[33m;[39m
+    [90m159| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractAmount[2m > [22mshould extract amount with "total" label
+[31m[1mTypeError[22m: String.prototype.matchAll called with a non-global RegExp argument[39m
+[36m [2m❯[22m ReceiptOCRService.extractAmount src/services/ocr/receiptOCR.service.ts:[2m148:28[22m[39m
+    [90m146| [39m    [35mfor[39m ([35mlet[39m i [33m=[39m [34m0[39m[33m;[39m i [33m<[39m patterns[33m.[39mlength[33m;[39m i[33m++[39m) {
+    [90m147| [39m      [35mconst[39m pattern [33m=[39m patterns[i][33m;[39m
+    [90m148| [39m      [35mconst[39m matches [33m=[39m text[33m.[39m[34mmatchAll[39m(pattern)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m149| [39m
+    [90m150| [39m      [35mfor[39m ([35mconst[39m match [35mof[39m matches) {
+[90m [2m❯[22m src/services/ocr/receiptOCR.service.test.ts:[2m57:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractAmount[2m > [22mshould extract amount with dollar sign
+[31m[1mTypeError[22m: String.prototype.matchAll called with a non-global RegExp argument[39m
+[36m [2m❯[22m ReceiptOCRService.extractAmount src/services/ocr/receiptOCR.service.ts:[2m148:28[22m[39m
+    [90m146| [39m    [35mfor[39m ([35mlet[39m i [33m=[39m [34m0[39m[33m;[39m i [33m<[39m patterns[33m.[39mlength[33m;[39m i[33m++[39m) {
+    [90m147| [39m      [35mconst[39m pattern [33m=[39m patterns[i][33m;[39m
+    [90m148| [39m      [35mconst[39m matches [33m=[39m text[33m.[39m[34mmatchAll[39m(pattern)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m149| [39m
+    [90m150| [39m      [35mfor[39m ([35mconst[39m match [35mof[39m matches) {
+[90m [2m❯[22m src/services/ocr/receiptOCR.service.test.ts:[2m65:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractAmount[2m > [22mshould handle comma decimal separator
+[31m[1mTypeError[22m: String.prototype.matchAll called with a non-global RegExp argument[39m
+[36m [2m❯[22m ReceiptOCRService.extractAmount src/services/ocr/receiptOCR.service.ts:[2m148:28[22m[39m
+    [90m146| [39m    [35mfor[39m ([35mlet[39m i [33m=[39m [34m0[39m[33m;[39m i [33m<[39m patterns[33m.[39mlength[33m;[39m i[33m++[39m) {
+    [90m147| [39m      [35mconst[39m pattern [33m=[39m patterns[i][33m;[39m
+    [90m148| [39m      [35mconst[39m matches [33m=[39m text[33m.[39m[34mmatchAll[39m(pattern)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m149| [39m
+    [90m150| [39m      [35mfor[39m ([35mconst[39m match [35mof[39m matches) {
+[90m [2m❯[22m src/services/ocr/receiptOCR.service.test.ts:[2m73:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractAmount[2m > [22mshould return null for no amount found
+[31m[1mTypeError[22m: String.prototype.matchAll called with a non-global RegExp argument[39m
+[36m [2m❯[22m ReceiptOCRService.extractAmount src/services/ocr/receiptOCR.service.ts:[2m148:28[22m[39m
+    [90m146| [39m    [35mfor[39m ([35mlet[39m i [33m=[39m [34m0[39m[33m;[39m i [33m<[39m patterns[33m.[39mlength[33m;[39m i[33m++[39m) {
+    [90m147| [39m      [35mconst[39m pattern [33m=[39m patterns[i][33m;[39m
+    [90m148| [39m      [35mconst[39m matches [33m=[39m text[33m.[39m[34mmatchAll[39m(pattern)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m149| [39m
+    [90m150| [39m      [35mfor[39m ([35mconst[39m match [35mof[39m matches) {
+[90m [2m❯[22m src/services/ocr/receiptOCR.service.test.ts:[2m80:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractAmount[2m > [22mshould prefer labeled amounts over standalone amounts
+[31m[1mTypeError[22m: String.prototype.matchAll called with a non-global RegExp argument[39m
+[36m [2m❯[22m ReceiptOCRService.extractAmount src/services/ocr/receiptOCR.service.ts:[2m148:28[22m[39m
+    [90m146| [39m    [35mfor[39m ([35mlet[39m i [33m=[39m [34m0[39m[33m;[39m i [33m<[39m patterns[33m.[39mlength[33m;[39m i[33m++[39m) {
+    [90m147| [39m      [35mconst[39m pattern [33m=[39m patterns[i][33m;[39m
+    [90m148| [39m      [35mconst[39m matches [33m=[39m text[33m.[39m[34mmatchAll[39m(pattern)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m149| [39m
+    [90m150| [39m      [35mfor[39m ([35mconst[39m match [35mof[39m matches) {
+[90m [2m❯[22m src/services/ocr/receiptOCR.service.test.ts:[2m88:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractAmount[2m > [22mshould handle multiple total amounts
+[31m[1mTypeError[22m: String.prototype.matchAll called with a non-global RegExp argument[39m
+[36m [2m❯[22m ReceiptOCRService.extractAmount src/services/ocr/receiptOCR.service.ts:[2m148:28[22m[39m
+    [90m146| [39m    [35mfor[39m ([35mlet[39m i [33m=[39m [34m0[39m[33m;[39m i [33m<[39m patterns[33m.[39mlength[33m;[39m i[33m++[39m) {
+    [90m147| [39m      [35mconst[39m pattern [33m=[39m patterns[i][33m;[39m
+    [90m148| [39m      [35mconst[39m matches [33m=[39m text[33m.[39m[34mmatchAll[39m(pattern)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m149| [39m
+    [90m150| [39m      [35mfor[39m ([35mconst[39m match [35mof[39m matches) {
+[90m [2m❯[22m src/services/ocr/receiptOCR.service.test.ts:[2m96:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractDate[2m > [22mshould extract MM/DD/YYYY format
+[31m[1mAssertionError[22m: expected null to be an instance of Date[39m
+[36m [2m❯[22m src/services/ocr/receiptOCR.service.test.ts:[2m107:28[22m[39m
+    [90m105| [39m      [35mconst[39m result [33m=[39m service[33m.[39m[34mextractDate[39m(text)[33m;[39m
+    [90m106| [39m
+    [90m107| [39m      [34mexpect[39m(result[33m.[39mvalue)[33m.[39m[34mtoBeInstanceOf[39m([33mDate[39m)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m108| [39m      [34mexpect[39m(result[33m.[39mvalue[33m?.[39m[34mgetMonth[39m())[33m.[39m[34mtoBe[39m([34m11[39m)[33m;[39m [90m// December (0-indexe[39m…
+    [90m109| [39m      [34mexpect[39m(result[33m.[39mvalue[33m?.[39m[34mgetDate[39m())[33m.[39m[34mtoBe[39m([34m15[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractDate[2m > [22mshould handle abbreviated month names
+[31m[1mAssertionError[22m: expected undefined to be 11 // Object.is equality[39m
+
+[32m- Expected:[39m 
+11
+
+[31m+ Received:[39m 
+undefined
+
+[36m [2m❯[22m src/services/ocr/receiptOCR.service.test.ts:[2m174:40[22m[39m
+    [90m172| [39m      [35mconst[39m result [33m=[39m service[33m.[39m[34mextractDate[39m(text)[33m;[39m
+    [90m173| [39m
+    [90m174| [39m      [34mexpect[39m(result[33m.[39mvalue[33m?.[39m[34mgetMonth[39m())[33m.[39m[34mtoBe[39m([34m11[39m)[33m;[39m [90m// December[39m
+    [90m   | [39m                                       [31m^[39m
+    [90m175| [39m    })[33m;[39m
+    [90m176| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mextractVendor[2m > [22mshould trim whitespace from vendor name
+[31m[1mAssertionError[22m: expected '123 Main St' to be 'STORE NAME' // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- STORE NAME[39m
+[31m+ 123 Main St[39m
+
+[36m [2m❯[22m src/services/ocr/receiptOCR.service.test.ts:[2m206:28[22m[39m
+    [90m204| [39m      [35mconst[39m result [33m=[39m service[33m.[39m[34mextractVendor[39m(text)[33m;[39m
+    [90m205| [39m
+    [90m206| [39m      [34mexpect[39m(result[33m.[39mvalue)[33m.[39m[34mtoBe[39m([32m'STORE NAME'[39m)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m207| [39m    })[33m;[39m
+    [90m208| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22massessImageQuality[2m > [22mshould accept valid image data URL
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22massessImageQuality[2m > [22mshould detect size issues
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22massessImageQuality[2m > [22mshould reject invalid image format
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22massessImageQuality[2m > [22mshould provide recommendations
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mprocessReceiptImage[2m > [22mshould process valid receipt image
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mprocessReceiptImage[2m > [22mshould extract structured data from receipt
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mprocessReceiptImage[2m > [22mshould set needsReview flag for low confidence
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mprocessReceiptImage[2m > [22mshould handle preprocessing option
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mpreprocessImage[2m > [22mshould return preprocessed image data
+[31m[1mError[22m: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mprocessReceiptImage[2m > [22mshould process image within 10 seconds
+[31m[1mError[22m: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mEdge Cases[2m > [22mshould handle receipts with unusual formatting
+[31m[1mTypeError[22m: String.prototype.matchAll called with a non-global RegExp argument[39m
+[36m [2m❯[22m ReceiptOCRService.extractAmount src/services/ocr/receiptOCR.service.ts:[2m148:28[22m[39m
+    [90m146| [39m    [35mfor[39m ([35mlet[39m i [33m=[39m [34m0[39m[33m;[39m i [33m<[39m patterns[33m.[39mlength[33m;[39m i[33m++[39m) {
+    [90m147| [39m      [35mconst[39m pattern [33m=[39m patterns[i][33m;[39m
+    [90m148| [39m      [35mconst[39m matches [33m=[39m text[33m.[39m[34mmatchAll[39m(pattern)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m149| [39m
+    [90m150| [39m      [35mfor[39m ([35mconst[39m match [35mof[39m matches) {
+[90m [2m❯[22m src/services/ocr/receiptOCR.service.test.ts:[2m483:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mEdge Cases[2m > [22mshould handle receipts with multiple prices
+[31m[1mTypeError[22m: String.prototype.matchAll called with a non-global RegExp argument[39m
+[36m [2m❯[22m ReceiptOCRService.extractAmount src/services/ocr/receiptOCR.service.ts:[2m148:28[22m[39m
+    [90m146| [39m    [35mfor[39m ([35mlet[39m i [33m=[39m [34m0[39m[33m;[39m i [33m<[39m patterns[33m.[39mlength[33m;[39m i[33m++[39m) {
+    [90m147| [39m      [35mconst[39m pattern [33m=[39m patterns[i][33m;[39m
+    [90m148| [39m      [35mconst[39m matches [33m=[39m text[33m.[39m[34mmatchAll[39m(pattern)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m149| [39m
+    [90m150| [39m      [35mfor[39m ([35mconst[39m match [35mof[39m matches) {
+[90m [2m❯[22m src/services/ocr/receiptOCR.service.test.ts:[2m500:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/25]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/ocr/receiptOCR.service.test.ts[2m > [22mReceiptOCRService[2m > [22mEdge Cases[2m > [22mshould handle receipts with tax separately listed
+[31m[1mTypeError[22m: String.prototype.matchAll called with a non-global RegExp argument[39m
+[36m [2m❯[22m ReceiptOCRService.extractAmount src/services/ocr/receiptOCR.service.ts:[2m148:28[22m[39m
+    [90m146| [39m    [35mfor[39m ([35mlet[39m i [33m=[39m [34m0[39m[33m;[39m i [33m<[39m patterns[33m.[39mlength[33m;[39m i[33m++[39m) {
+    [90m147| [39m      [35mconst[39m pattern [33m=[39m patterns[i][33m;[39m
+    [90m148| [39m      [35mconst[39m matches [33m=[39m text[33m.[39m[34mmatchAll[39m(pattern)[33m;[39m
+    [90m   | [39m                           [31m^[39m
+    [90m149| [39m
+    [90m150| [39m      [35mfor[39m ([35mconst[39m match [35mof[39m matches) {
+[90m [2m❯[22m src/services/ocr/receiptOCR.service.test.ts:[2m511:30[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/25]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[31m25 failed[39m[22m[2m | [22m[1m[32m51 passed[39m[22m[90m (76)[39m
+[2m   Start at [22m 17:26:11
+[2m   Duration [22m 93.62s[2m (transform 1.61s, setup 21.99s, collect 2.95s, tests 61.87s, environment 41.74s, prepare 23.22s)[22m
+

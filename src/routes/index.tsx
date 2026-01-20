@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from './ProtectedRoute'
+import { AdminRoute } from './AdminRoute'
 import { PageLoader } from '../components/loading/PageLoader'
 import { MainLayout } from '../components/layouts/MainLayout'
 
@@ -21,6 +22,8 @@ const Assessment = lazy(() => import('../pages/onboarding/Assessment'))
 const Setup = lazy(() => import('../pages/onboarding/Setup'))
 const Reconciliation = lazy(() => import('../pages/Reconciliation'))
 const NotFound = lazy(() => import('../pages/NotFound'))
+const Forbidden = lazy(() => import('../pages/Forbidden'))
+const AdminCharities = lazy(() => import('../pages/admin/AdminCharities'))
 
 export function AppRoutes() {
   return (
@@ -49,10 +52,16 @@ export function AppRoutes() {
           <Route path="/settings" element={<Settings />} />
         </Route>
 
+        {/* Admin-only routes with layout */}
+        <Route element={<AdminRoute><ProtectedRoute><MainLayout /></ProtectedRoute></AdminRoute>}>
+          <Route path="/admin/charities" element={<AdminCharities />} />
+        </Route>
+
         {/* Root redirect */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-        {/* 404 */}
+        {/* Error pages */}
+        <Route path="/forbidden" element={<Forbidden />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

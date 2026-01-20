@@ -1,0 +1,221 @@
+/**
+ * Flow Node Styles
+ *
+ * Styles for the FlowNode component with:
+ * - WCAG 2.1 AA color contrast
+ * - Keyboard focus indicators
+ * - Hover states
+ * - Reduced motion support
+ */
+
+.flow-node {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  outline: none;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .flow-node {
+    transition: none;
+  }
+}
+
+.flow-node:hover {
+  transform: scale(1.05);
+}
+
+.flow-node:focus {
+  outline: none;
+}
+
+.flow-node:focus .flow-node-focus-ring {
+  display: block !important;
+  stroke: #3b82f6;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Reduced motion: no pulse animation */
+@media (prefers-reduced-motion: reduce) {
+  .flow-node:focus .flow-node-focus-ring {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+.flow-node-circle {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+  transition: filter 0.2s ease;
+}
+
+.flow-node:hover .flow-node-circle {
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.15));
+}
+
+.flow-node-health-ring {
+  opacity: 0.8;
+}
+
+.flow-node-label,
+.flow-node-balance {
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Popover styles */
+.flow-node-popover {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  min-width: 250px;
+  max-width: 350px;
+  max-height: 400px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.flow-node-popover-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.flow-node-popover-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.flow-node-popover-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.flow-node-popover-close:hover {
+  background-color: #e5e7eb;
+  color: #111827;
+}
+
+.flow-node-popover-close:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.flow-node-popover-content {
+  padding: 8px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.flow-node-popover-empty {
+  padding: 16px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.flow-node-popover-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.flow-node-popover-item {
+  margin-bottom: 4px;
+}
+
+.flow-node-popover-item-button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .flow-node-popover-item-button {
+    transition: none;
+  }
+}
+
+.flow-node-popover-item-button:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  transform: translateX(4px);
+}
+
+.flow-node-popover-item-button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  background: #eff6ff;
+  border-color: #3b82f6;
+}
+
+.flow-node-popover-item.focused .flow-node-popover-item-button {
+  background: #eff6ff;
+  border-color: #3b82f6;
+}
+
+.flow-node-popover-item-name {
+  color: #111827;
+  font-weight: 500;
+  flex: 1;
+  margin-right: 12px;
+}
+
+.flow-node-popover-item-balance {
+  color: #6b7280;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .flow-node-popover {
+    border-width: 2px;
+  }
+
+  .flow-node-popover-item-button {
+    border-width: 2px;
+  }
+
+  .flow-node-popover-item-button:focus {
+    outline-width: 3px;
+  }
+}

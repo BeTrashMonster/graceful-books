@@ -1,0 +1,176 @@
+
+> graceful-books@0.1.0 test
+> vitest src/services/currency.service.test.ts
+
+
+[1m[46m RUN [49m[22m [36mv4.0.17 [39m[90mC:/Users/Admin/graceful_books[39m
+
+ [31m❯[39m src/services/currency.service.test.ts [2m([22m[2m35 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[32m 70[2mms[22m[39m
+       [32m✓[39m should create a new currency with USD configuration[32m 6[2mms[22m[39m
+       [32m✓[39m should create EUR currency with correct configuration[32m 1[2mms[22m[39m
+       [32m✓[39m should create JPY currency with zero decimal places[32m 1[2mms[22m[39m
+[31m       [31m×[31m should throw error if currency already exists[39m[32m 20[2mms[22m[39m
+[31m       [31m×[31m should throw error if base currency already exists[39m[32m 5[2mms[22m[39m
+       [32m✓[39m should retrieve currency by ID[32m 1[2mms[22m[39m
+       [32m✓[39m should return null for non-existent currency[32m 1[2mms[22m[39m
+       [32m✓[39m should return null for deleted currency[32m 1[2mms[22m[39m
+[31m       [31m×[31m should retrieve currency by company and code[39m[32m 5[2mms[22m[39m
+       [32m✓[39m should return null if currency not found[32m 1[2mms[22m[39m
+       [32m✓[39m should return all active currencies for company[32m 3[2mms[22m[39m
+       [32m✓[39m should exclude inactive currencies[32m 1[2mms[22m[39m
+[31m       [31m×[31m should return the base currency[39m[32m 1[2mms[22m[39m
+       [32m✓[39m should return null if no base currency exists[32m 0[2mms[22m[39m
+[31m       [31m×[31m should update currency fields[39m[32m 1[2mms[22m[39m
+       [32m✓[39m should throw error for non-existent currency[32m 2[2mms[22m[39m
+       [32m✓[39m should prevent changing immutable fields[32m 1[2mms[22m[39m
+       [32m✓[39m should deactivate a non-base currency[32m 1[2mms[22m[39m
+       [32m✓[39m should throw error when deactivating base currency[32m 0[2mms[22m[39m
+       [32m✓[39m should validate a correct currency[32m 0[2mms[22m[39m
+       [32m✓[39m should catch missing required fields[32m 0[2mms[22m[39m
+       [32m✓[39m should format USD amount correctly[32m 1[2mms[22m[39m
+       [32m✓[39m should format EUR amount with European separators[32m 0[2mms[22m[39m
+       [32m✓[39m should format JPY amount without decimals[32m 0[2mms[22m[39m
+       [32m✓[39m should handle Decimal input[32m 0[2mms[22m[39m
+       [32m✓[39m should respect custom precision[32m 0[2mms[22m[39m
+       [32m✓[39m should show currency code when requested[32m 1[2mms[22m[39m
+       [32m✓[39m should parse USD amount[32m 1[2mms[22m[39m
+       [32m✓[39m should parse EUR amount with European format[32m 1[2mms[22m[39m
+       [32m✓[39m should return null for invalid input[32m 1[2mms[22m[39m
+       [32m✓[39m should return array of currency codes[32m 2[2mms[22m[39m
+       [32m✓[39m should return true for supported currencies[32m 1[2mms[22m[39m
+       [32m✓[39m should return false for unsupported currencies[32m 0[2mms[22m[39m
+       [32m✓[39m should return currency names[32m 1[2mms[22m[39m
+       [32m✓[39m should return currency symbols[32m 1[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 5 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/services/currency.service.test.ts[2m > [22mCurrencyService[2m > [22mcreateCurrency[2m > [22mshould throw error if currency already exists
+[31m[1mAssertionError[22m: promise resolved "{ id: 'jfOcXbFkgvqrtnQIlc_fb', …(15) }" instead of rejecting[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Error {[39m
+[32m-   "message": "rejected promise",[39m
+[31m+ {[39m
+[31m+   "code": "USD",[39m
+[31m+   "company_id": "test-company-id",[39m
+[31m+   "created_at": 1768787841010,[39m
+[31m+   "decimal_places": 2,[39m
+[31m+   "decimal_separator": ".",[39m
+[31m+   "deleted_at": null,[39m
+[31m+   "id": "jfOcXbFkgvqrtnQIlc_fb",[39m
+[31m+   "is_active": true,[39m
+[31m+   "is_base_currency": false,[39m
+[31m+   "locale": "en-US",[39m
+[31m+   "name": "encrypted_United States Dollar",[39m
+[31m+   "symbol": "$",[39m
+[31m+   "symbol_position": "before",[39m
+[31m+   "thousands_separator": ",",[39m
+[31m+   "updated_at": 1768787841010,[39m
+[31m+   "version_vector": {},[39m
+[2m  }[22m
+
+[36m [2m❯[22m src/services/currency.service.test.ts:[2m147:7[22m[39m
+    [90m145| [39m      [35mawait[39m [34mexpect[39m(
+    [90m146| [39m        service[33m.[39m[34mcreateCurrency[39m(companyId[33m,[39m [32m'USD'[39m[33m,[39m [35mfalse[39m)
+    [90m147| [39m      )[33m.[39mrejects[33m.[39m[34mtoThrow[39m([32m'Currency USD already exists'[39m)[33m;[39m
+    [90m   | [39m      [31m^[39m
+    [90m148| [39m    })[33m;[39m
+    [90m149| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/currency.service.test.ts[2m > [22mCurrencyService[2m > [22mcreateCurrency[2m > [22mshould throw error if base currency already exists
+[31m[1mAssertionError[22m: promise resolved "{ id: 'jbT_vlOxoFvcHLU32qzZY', …(15) }" instead of rejecting[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Error {[39m
+[32m-   "message": "rejected promise",[39m
+[31m+ {[39m
+[31m+   "code": "EUR",[39m
+[31m+   "company_id": "test-company-id",[39m
+[31m+   "created_at": 1768787841030,[39m
+[31m+   "decimal_places": 2,[39m
+[31m+   "decimal_separator": ",",[39m
+[31m+   "deleted_at": null,[39m
+[31m+   "id": "jbT_vlOxoFvcHLU32qzZY",[39m
+[31m+   "is_active": true,[39m
+[31m+   "is_base_currency": true,[39m
+[31m+   "locale": "de-DE",[39m
+[31m+   "name": "encrypted_Euro",[39m
+[31m+   "symbol": "€",[39m
+[31m+   "symbol_position": "before",[39m
+[31m+   "thousands_separator": ".",[39m
+[31m+   "updated_at": 1768787841030,[39m
+[31m+   "version_vector": {},[39m
+[2m  }[22m
+
+[36m [2m❯[22m src/services/currency.service.test.ts:[2m155:7[22m[39m
+    [90m153| [39m      [35mawait[39m [34mexpect[39m(
+    [90m154| [39m        service[33m.[39m[34mcreateCurrency[39m(companyId[33m,[39m [32m'EUR'[39m[33m,[39m [35mtrue[39m)
+    [90m155| [39m      )[33m.[39mrejects[33m.[39m[34mtoThrow[39m([32m'Base currency already exists'[39m)[33m;[39m
+    [90m   | [39m      [31m^[39m
+    [90m156| [39m    })[33m;[39m
+    [90m157| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/currency.service.test.ts[2m > [22mCurrencyService[2m > [22mgetCurrencyByCode[2m > [22mshould retrieve currency by company and code
+[31m[1mAssertionError[22m: expected undefined to be 'USD' // Object.is equality[39m
+
+[32m- Expected:[39m 
+"USD"
+
+[31m+ Received:[39m 
+undefined
+
+[36m [2m❯[22m src/services/currency.service.test.ts:[2m189:31[22m[39m
+    [90m187| [39m
+    [90m188| [39m      [34mexpect[39m(retrieved)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m189| [39m      [34mexpect[39m(retrieved[33m?.[39mcode)[33m.[39m[34mtoBe[39m([32m'USD'[39m)[33m;[39m
+    [90m   | [39m                              [31m^[39m
+    [90m190| [39m      [34mexpect[39m(retrieved[33m?.[39mcompany_id)[33m.[39m[34mtoBe[39m(companyId)[33m;[39m
+    [90m191| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/currency.service.test.ts[2m > [22mCurrencyService[2m > [22mgetBaseCurrency[2m > [22mshould return the base currency
+[31m[1mAssertionError[22m: expected undefined to be 'USD' // Object.is equality[39m
+
+[32m- Expected:[39m 
+"USD"
+
+[31m+ Received:[39m 
+undefined
+
+[36m [2m❯[22m src/services/currency.service.test.ts:[2m231:26[22m[39m
+    [90m229| [39m
+    [90m230| [39m      [34mexpect[39m(base)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m231| [39m      [34mexpect[39m(base[33m?.[39mcode)[33m.[39m[34mtoBe[39m([32m'USD'[39m)[33m;[39m
+    [90m   | [39m                         [31m^[39m
+    [90m232| [39m      [34mexpect[39m(base[33m?.[39mis_base_currency)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m233| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/currency.service.test.ts[2m > [22mCurrencyService[2m > [22mupdateCurrency[2m > [22mshould update currency fields
+[31m[1mAssertionError[22m: expected 1768787841050 to be greater than 1768787841050[39m
+[36m [2m❯[22m src/services/currency.service.test.ts:[2m250:34[22m[39m
+    [90m248| [39m
+    [90m249| [39m      [34mexpect[39m(updated[33m.[39mdecimal_places)[33m.[39m[34mtoBe[39m([34m4[39m)[33m;[39m
+    [90m250| [39m      [34mexpect[39m(updated[33m.[39mupdated_at)[33m.[39m[34mtoBeGreaterThan[39m(currency[33m.[39mupdated_at)[33m;[39m
+    [90m   | [39m                                 [31m^[39m
+    [90m251| [39m    })[33m;[39m
+    [90m252| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m30 passed[39m[22m[90m (35)[39m
+[2m   Start at [22m 17:57:13
+[2m   Duration [22m 7.63s[2m (transform 260ms, setup 2.44s, import 229ms, tests 70ms, environment 4.00s)[22m
+

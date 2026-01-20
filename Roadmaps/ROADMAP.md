@@ -779,10 +779,1242 @@ See `Roadmaps/archive/` for detailed completion reports:
 
 *"Dream big. These features push the boundaries of what accounting software can be."*
 
-## Group J - Moonshots (Requires Group I + ALL Group I Tests Passing)
+---
 
-### J1. 3D Financial Visualization (Nice)
-**What:** Interactive 3D representation of money flow.
+## Infrastructure Capstone - Foundation for Group J
+
+*"Build the bridge. These infrastructure pieces unlock the moonshots."*
+
+**Purpose:** Complete remaining Group I UI components, build critical infrastructure for Group J features (billing, admin panel, email service), and synchronize documentation with the evolved roadmap vision.
+
+**Status:** Not Started
+**Dependencies:** Group I core features complete (I1-I8 backends done)
+**Blocks:** Group J cannot begin until this section is 100% complete
+
+---
+
+### IC-0. Group I Backend Validation [GATE] [MANDATORY]
+**What:** Verify that Group I backend implementations (I1 CRDT, I2 Activity Feed) are 100% complete and operational before beginning Infrastructure Capstone work.
+
+**User Story:** As a project manager, I need to confirm all Group I backends are functional so that IC1 (UI components) can build on a solid foundation without blockers.
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: BLOCKER (IC1 cannot start until this passes)
+- Owner: TBD
+- Last Updated: 2026-01-19
+
+**Design Philosophy:**
+
+IC1 builds UI components on top of I1 (CRDT) and I2 (Activity Feed) backend services. If these backends are incomplete or have failing tests, IC1 development will be blocked or require rework. This validation gate ensures the foundation is solid before UI work begins.
+
+**What Needs Validation:**
+
+**I1 (CRDT Conflict Resolution) Backend:**
+- ConflictResolutionService implemented and operational
+- CRDT merge algorithms working (LWW, manual merge, auto-merge)
+- Conflict detection triggers on concurrent edits
+- Conflict storage schema complete (conflicts table, resolution history)
+- All I1 backend tests passing (100% pass rate)
+
+**I2 (Activity Feed & Communication) Backend:**
+- CommentsService implemented and operational
+- Mentions service working (@username detection, notification trigger)
+- Activity feed event tracking (transaction created, invoice sent, etc.)
+- Notification schema complete (notifications table, preferences)
+- All I2 backend tests passing (100% pass rate)
+
+**Acceptance Criteria:**
+
+**I1 CRDT Backend Validation:**
+- [ ] Run all I1 unit tests: `npm test -- src/services/conflictResolution.service.test.ts`
+- [ ] Verify 100% pass rate (0 failures)
+- [ ] Manually test conflict creation (edit same transaction on 2 devices)
+- [ ] Verify conflict appears in conflicts table
+- [ ] Verify merge strategies execute without errors (LWW, manual, auto)
+- [ ] Check conflicts table schema matches I1 spec
+- [ ] Verify conflict resolution updates entity and logs resolution
+
+**I2 Activity Feed Backend Validation:**
+- [ ] Run all I2 unit tests: `npm test -- src/services/comments.service.test.ts src/services/mentions.service.test.ts`
+- [ ] Verify 100% pass rate (0 failures)
+- [ ] Manually test comment creation on transaction
+- [ ] Verify comment appears in comments table
+- [ ] Test @mention detection (comment with "@username")
+- [ ] Verify notification created for mentioned user
+- [ ] Check comments/notifications schema matches I2 spec
+
+**Integration Validation:**
+- [ ] I1 + I2 integration: Comment on conflicted transaction (should work)
+- [ ] Verify no console errors in browser when using CRDT/comments features
+- [ ] Verify services can be imported: `import { ConflictResolutionService } from '@/services/conflictResolution.service'`
+
+**Documentation Validation:**
+- [ ] I1 backend code includes JSDoc comments for all public methods
+- [ ] I2 backend code includes JSDoc comments for all public methods
+- [ ] README or implementation summary exists for I1 (found: Roadmaps/archive/I1_CRDT_IMPLEMENTATION_SUMMARY.md)
+- [ ] README or implementation summary exists for I2 (found: Roadmaps/archive/I2_ACTIVITY_FEED_IMPLEMENTATION_SUMMARY.md)
+
+**Gate Pass Criteria:**
+- **ALL I1 backend tests passing (100%)**
+- **ALL I2 backend tests passing (100%)**
+- **Manual smoke tests successful (conflict creation, comment creation, @mention)**
+- **No blocking bugs or missing schema tables**
+
+**If Gate Fails:**
+- Do NOT proceed to IC1
+- Create bug tickets for failing tests
+- Fix all I1/I2 backend issues
+- Re-run IC-0 validation
+- Only proceed when 100% pass rate achieved
+
+**Test Strategy:**
+- Automated: Run vitest test suites for conflictResolution.service and comments/mentions services
+- Manual: Open app, create conflict on 2 devices, verify conflict appears
+- Manual: Add comment with @mention, verify notification appears
+- Integration: Test cross-feature scenarios (comment on conflicted transaction)
+
+**Expected Duration:** 30 minutes - 2 hours (depending on issues found)
+
+**Risks & Mitigation:**
+- Risk: I1/I2 backends incomplete (tests failing)
+  - Mitigation: Fix all failing tests before proceeding to IC1
+- Risk: Schema tables missing (app crashes when accessing CRDT/comments)
+  - Mitigation: Run migrations, verify tables exist in IndexedDB
+- Risk: Services not exported correctly (import errors)
+  - Mitigation: Fix export statements, verify imports work
+
+**Joy Opportunity:** "Group I backend is rock solid! We're ready to build the UI on this strong foundation."
+
+**Delight Detail:**
+- When all tests pass: "100% pass rate! Your backend is production-ready. Let's build the UI!"
+- When gate passes: Confetti animation "IC-0 validated! Infrastructure Capstone cleared for takeoff 🚀"
+
+**Includes:**
+- I1 backend test execution and validation
+- I2 backend test execution and validation
+- Manual smoke testing for CRDT and comments
+- Integration testing across I1 + I2
+- Documentation completeness check
+- Gate pass/fail decision
+
+**Spec Reference:** IC-000 (new)
+
+---
+
+### IC1. Complete Group I UI Components [MVP] [MANDATORY]
+**What:** Finish the user-facing interfaces for I1 (CRDT) and I2 (Activity Feed) so Group J features can build on top of them.
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Critical (Blocks J7 Advisor Portal)
+- Owner: TBD
+- Last Updated: 2026-01-19
+
+**Design Philosophy:**
+
+Groups I1 and I2 have complete backend infrastructure (services, schemas, CRDT support) but are missing the UI layer. Group J features - especially J7 (Advisor Portal) - depend on these interfaces for collaboration and conflict resolution.
+
+**What Needs Building:**
+
+**I1 (CRDT) UI Components:**
+- Conflict notification badge (shows unresolved conflicts count)
+- Conflict resolution modal (side-by-side diff view, merge strategy selection)
+- Conflict history drawer (90-day audit trail)
+- Steadiness-style messaging ("We found 2 versions of this transaction. Which should we keep?")
+
+**I2 (Activity Feed) UI Components:**
+- Comment thread component (nested replies, threading support)
+- Notification bell (unread count, priority indicators)
+- Mention input (@username autocomplete with fuzzy search)
+- Notification preferences panel (per-type opt-in/out, digest settings)
+- Activity feed widget (recent comments, @mentions, updates)
+
+**Acceptance Criteria:**
+
+- [ ] ConflictNotificationBadge component created and integrated into header
+- [ ] ConflictResolutionModal component displays side-by-side entity diff
+- [ ] Merge strategy selection UI (Auto/Manual radio, Apply/Discard buttons)
+- [ ] Conflict history accessible via "View All Conflicts" link
+- [ ] CommentThread component renders nested replies with indentation
+- [ ] Comment CRUD operations (create, edit, delete) work in UI
+- [ ] NotificationBell component shows unread count
+- [ ] Notification panel displays grouped notifications by priority
+- [ ] MentionInput autocompletes @username with fuzzy search
+- [ ] Notification preferences UI allows per-type opt-in/out
+- [ ] Activity feed widget displays recent activity (last 20 items)
+- [ ] All components follow Steadiness communication style
+- [ ] All components are WCAG 2.1 AA compliant
+- [ ] Components integrate with existing CRDT/comment services
+- [ ] E2E tests written for conflict resolution workflow
+- [ ] E2E tests written for comment thread workflow
+- [ ] E2E tests written for @mention workflow
+
+**Test Strategy:**
+- Unit tests for each component (rendering, interactions, edge cases)
+- Integration tests with backend services (ConflictResolutionService, CommentsService)
+- E2E tests for complete workflows (user resolves conflict, user comments on transaction)
+- Accessibility testing (keyboard navigation, screen reader compatibility)
+
+**Risks & Mitigation:**
+- Risk: Complex state management for nested comment threads
+  - Mitigation: Use recursive rendering, React Context for thread state
+- Risk: Real-time updates may cause UI flickering
+  - Mitigation: Optimistic updates with Dexie liveQuery, debounced refresh
+- Risk: Accessibility challenges with nested UI
+  - Mitigation: Proper ARIA labels, keyboard navigation testing, focus management
+
+**External Dependencies:**
+- Libraries: @tiptap/react (rich text editor for comments), fuse.js (mention autocomplete)
+- Infrastructure: None
+
+**Dependencies:** {I1, I2}
+
+**Joy Opportunity:** "Your teammate commented on that transaction. Click to see what they said - collaboration feels natural."
+
+**Delight Detail:**
+- First @mention: Gentle tooltip "Type @ to mention a teammate"
+- First comment: Celebration "Great collaboration! Comments help keep everyone aligned."
+- Conflict auto-resolved: "We automatically merged these changes - no action needed!"
+- When user manually resolves first conflict: "Nice choice! You're getting the hang of this."
+
+**Includes:**
+- ConflictNotificationBadge component
+- ConflictResolutionModal component (side-by-side diff, merge strategy UI)
+- ConflictHistory drawer component
+- CommentThread component (nested replies, threading)
+- Comment CRUD UI (create, edit, delete)
+- NotificationBell component (unread count, priority indicators)
+- Notification panel (grouped by priority)
+- MentionInput component (@username autocomplete with fuzzy search)
+- Notification preferences panel (per-type opt-in/out, digest settings)
+- Activity feed widget (recent 20 items)
+- Steadiness communication style throughout
+- WCAG 2.1 AA compliance
+- Integration with I1/I2 backend services
+- E2E tests for all workflows
+
+**Spec Reference:** IC-001 (new)
+
+---
+
+### IC2. Billing Infrastructure - Stripe Integration [MVP] [INFRASTRUCTURE]
+**What:** Build the subscription billing system for J7 (Advisor Portal) advisor plans with client-based pricing tiers.
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Critical (Blocks J7 Advisor Portal)
+- Owner: TBD
+- Last Updated: 2026-01-19
+
+**Design Philosophy:**
+
+J7 (Advisor Portal) introduces a **revenue stream** through advisor subscriptions. Advisors pay based on client count ($50 per 50 clients) and user count ($2.50/user after 5). This requires robust billing infrastructure that handles:
+- Tier-based pricing (client count → price)
+- Usage-based billing (additional users)
+- Automatic billing adjustments (when clients added/removed)
+- Client billing transfer (when client joins advisor's plan, client stops paying)
+- Charity contribution ($5/month included in all plans)
+
+**What Needs Building:**
+
+**Stripe Integration:**
+- Stripe account setup and API key configuration
+- Product/Price creation in Stripe for advisor plans
+- Subscription creation and management
+- Payment method collection and storage
+- Invoice generation and payment processing
+- Webhook handling (subscription updates, payment success/failure)
+
+**Billing Calculation Engine:**
+- Client count → pricing tier calculation (0-3 = $0, 4-50 = $50, 51-100 = $100, etc.)
+- User count → user charge calculation (0-5 = $0, 6+ = $2.50 each)
+- Charity contribution addition ($5/month to all paid plans)
+- Total monthly cost calculation and display
+
+**Client Billing Transfer:**
+- When advisor adds client: Stop client's individual billing, start on advisor's plan
+- When advisor removes client: Prompt client (pay individually $40/month or archive)
+- Automatic proration for mid-month changes
+
+**Subscription Management:**
+- Plan upgrade/downgrade (tier changes when client count crosses thresholds)
+- Automatic billing adjustment when clients added/removed
+- Cancel subscription workflow
+- Reactivate subscription workflow
+- Billing history and invoice access
+
+**Acceptance Criteria:**
+
+- [ ] Stripe API integrated with secure key storage (environment variables)
+- [ ] Stripe Products created: Starter (free), Professional (tiered), Enterprise (custom)
+- [ ] Stripe Prices created: Client blocks ($50/50), Additional users ($2.50 each), Charity ($5)
+- [ ] Subscription creation API endpoint (creates Stripe subscription for advisor)
+- [ ] Payment method collection UI (Stripe Elements for card entry)
+- [ ] Payment method storage (Stripe PaymentMethod attached to Customer)
+- [ ] Billing calculation service: clientCount + userCount → monthly total
+- [ ] Tier logic: 0-3 clients = $0, 4-50 = $50, 51-100 = $100, 101-150 = $150, etc.
+- [ ] User overage logic: 0-5 users = $0, 6+ = $2.50 × (userCount - 5)
+- [ ] Charity contribution: Add $5 to all paid plans
+- [ ] Client billing transfer: When advisor adds client, client's individual subscription canceled
+- [ ] Client billing transfer: When advisor removes client, client prompted (pay $40/month or archive)
+- [ ] Automatic proration for mid-month client additions/removals
+- [ ] Subscription update API endpoint (handles tier changes, user count changes)
+- [ ] Plan upgrade workflow (client count crosses threshold → automatic tier change)
+- [ ] Plan downgrade workflow (client count decreases → tier downgrade, credit applied)
+- [ ] Cancel subscription workflow (advisor cancels → all clients prompted)
+- [ ] Reactivate subscription workflow (advisor can restart after cancellation)
+- [ ] Billing history UI (list of past invoices with download links)
+- [ ] Invoice access (Stripe-hosted invoice page)
+- [ ] Webhook endpoint created and secured (signature verification)
+- [ ] Webhook handling: `customer.subscription.updated` (sync subscription status)
+- [ ] Webhook handling: `invoice.payment_succeeded` (confirm payment)
+- [ ] Webhook handling: `invoice.payment_failed` (notify advisor, retry logic)
+- [ ] Webhook handling: `customer.subscription.deleted` (handle cancellation)
+- [ ] Error handling for Stripe API failures (network issues, invalid cards, etc.)
+- [ ] Test mode configuration for development (Stripe test keys)
+- [ ] Production mode configuration with live keys
+- [ ] Comprehensive test suite (unit tests for calculation logic, integration tests with Stripe test mode)
+
+**Test Strategy:**
+- Unit tests for billing calculation logic (client count scenarios, user count scenarios)
+- Integration tests with Stripe test mode (create subscription, update subscription, cancel)
+- Webhook simulation tests (trigger each webhook type, verify handling)
+- E2E tests for complete billing workflows (advisor signs up → adds client → billing adjusts → advisor removes client → client prompted)
+- Error scenario testing (payment failure, network timeout, invalid card)
+
+**Risks & Mitigation:**
+- Risk: Stripe API changes may break integration
+  - Mitigation: Pin Stripe SDK version, monitor API changelog, test in sandbox before production
+- Risk: Complex pricing logic may have edge case bugs
+  - Mitigation: Comprehensive unit tests, manual QA of all tier transitions, soft launch with monitoring
+- Risk: Webhook delivery may fail or be delayed
+  - Mitigation: Retry logic, idempotency keys, webhook event log for auditing
+- Risk: Client billing transfer may create orphaned subscriptions
+  - Mitigation: Automatic cleanup job, billing audit dashboard, transaction logs
+- Risk: PCI compliance requirements for handling payments
+  - Mitigation: Use Stripe Elements (no card data touches our servers), Stripe handles PCI compliance
+
+**External Dependencies:**
+- Services: Stripe API (subscription management, payment processing)
+- Libraries: stripe (official Node.js SDK)
+- Infrastructure: Webhook endpoint (publicly accessible URL for Stripe callbacks)
+
+**Dependencies:** {H1 (Multi-user for advisor team members)}
+
+**Joy Opportunity:** "Your first client just joined your plan! Billing is automatic - focus on serving your clients, not managing subscriptions."
+
+**Delight Detail:**
+- First subscription: "Welcome to Graceful Books Advisor Program! Your first 3 clients are free."
+- Client count milestone: "You just hit 50 clients! You're making a real impact."
+- Automatic tier upgrade: "Good news: We adjusted your plan as you grew. New rate: $100/month for up to 100 clients."
+- Payment success: "Payment received - thank you! Your subscription is active through [date]."
+- When advisor adds 4th client: "You've outgrown the free tier! Your plan is now $50/month for up to 50 clients."
+
+**Includes:**
+- Stripe API integration
+- Stripe Products and Prices configuration
+- Subscription creation and management APIs
+- Payment method collection UI (Stripe Elements)
+- Billing calculation service (tier logic, user overage, charity)
+- Client billing transfer automation
+- Automatic proration for mid-month changes
+- Subscription update APIs (tier changes, user count)
+- Plan upgrade/downgrade workflows
+- Cancel and reactivate subscription workflows
+- Billing history UI
+- Invoice access (Stripe-hosted)
+- Webhook endpoint with signature verification
+- Webhook handlers (subscription updated, payment succeeded/failed, subscription deleted)
+- Error handling for Stripe API failures
+- Test mode and production mode configuration
+- Comprehensive test suite
+
+**Spec Reference:** IC-002 (new)
+
+---
+
+### IC2.5. Charity Payment Distribution System [MVP] [INFRASTRUCTURE]
+**What:** Process and distribute the $5/month charity contributions from user subscriptions to selected charities.
+
+**User Story:** As the platform admin, I need a system to track charity contributions and send payments to charities so that user contributions actually reach their selected charities.
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: High (Required for revenue integrity)
+- Owner: Platform Admin
+- Last Updated: 2026-01-19
+
+**Design Philosophy:**
+
+Every Graceful Books subscription includes a $5/month contribution to the user's selected charity. This contribution must actually reach the charity for the business model to maintain integrity. This task defines the process for tracking and distributing charity payments.
+
+**What Needs Building:**
+
+**Charity Contribution Tracking:**
+- Database view/query: Total contributions per charity per month
+- Monthly contribution report (charity name, EIN, total amount, contributor count)
+- Historical contribution tracking (lifetime contributions per charity)
+
+**Payment Distribution Process:**
+- Admin-initiated payment distribution (manual process, not automated)
+- Monthly distribution workflow (generate report → review → send payments)
+- Payment method: ACH/check/wire transfer (determined by charity preference)
+- Payment tracking (date sent, amount, payment method, charity confirmation)
+
+**Reporting:**
+- Monthly contribution summary for admin (how much to distribute to which charities)
+- Annual contribution summary for users (tax receipt: "You contributed $60 to [Charity Name] in 2026")
+- Charity impact dashboard (total contributions per charity, growth over time)
+
+**Acceptance Criteria:**
+
+**Contribution Tracking:**
+- [ ] Database query: Calculate total $5 contributions per charity per month
+- [ ] Monthly contribution report generated (charity name, EIN, total amount, # of contributors)
+- [ ] Historical contribution tracking stored (date, charity_id, total_amount, contributor_count)
+- [ ] Contribution audit trail (which users contributed to which charity each month)
+
+**Payment Distribution Workflow:**
+- [ ] Admin dashboard: Monthly distribution task appears (1st of each month)
+- [ ] Contribution report downloadable as CSV (charity name, EIN, total, count, payment address)
+- [ ] Admin marks payment as "Sent" (date, amount, method: ACH/check/wire)
+- [ ] Payment confirmation tracking (charity confirms receipt → status: "Confirmed")
+- [ ] Unpaid contributions flagged (if payment not marked sent within 15 days)
+
+**User Annual Summary:**
+- [ ] Annual contribution summary generated for each user (total $5 × months active)
+- [ ] User can download annual contribution receipt (for potential tax deduction)
+- [ ] Receipt includes: User name, charity name, EIN, total contributed, year
+
+**Charity Impact Dashboard:**
+- [ ] Admin dashboard shows total contributions per charity (lifetime)
+- [ ] Monthly growth chart (contributions over time)
+- [ ] Top charities by contributor count
+- [ ] Average contribution per charity per month
+
+**Security & Integrity:**
+- [ ] Contribution amounts cannot be manually edited (calculated from subscription data only)
+- [ ] Payment audit log (who sent payment, when, to which charity)
+- [ ] Contribution reconciliation: Total paid out matches total collected
+
+**Simplicity Note:**
+- **NO automated charity payouts** - Admin reviews monthly report and sends payments manually
+- **NO Stripe Connect integration** - Simple ACH/check distribution
+- Rationale: Low transaction volume (dozens of charities, not thousands), manual review ensures quality
+
+**Test Strategy:**
+- Unit tests for contribution calculation (verify $5 × active_users = total)
+- Integration tests for report generation (verify CSV contains correct data)
+- Manual QA of payment workflow (admin marks as sent, status updates correctly)
+
+**Risks & Mitigation:**
+- Risk: Admin forgets to distribute payments monthly
+  - Mitigation: Automated reminder email ("Distribution due: $X to Y charities")
+- Risk: Charity payment address changes (payment sent to wrong account)
+  - Mitigation: Charity profile includes payment details, admin verifies before sending
+- Risk: User disputes charity contribution (didn't receive credit)
+  - Mitigation: User can download annual receipt, audit trail proves contribution
+
+**External Dependencies:**
+- Bank: ACH transfer capability for charity payments
+- Accounting system: Track charity payments as expenses
+
+**Dependencies:** {IC2 (Billing), IC3 (Charity Management)}
+
+**Joy Opportunity:** "This month, Graceful Books users contributed $5,000 to 15 charities. You're part of something bigger."
+
+**Delight Detail:**
+- Monthly admin notification: "Time to distribute $X to charities - you're changing lives!"
+- Annual user summary: "Your $60 helped [Charity Name] provide [impact metric] in 2026. Thank you."
+- Charity milestone: "[Charity Name] just received their 100th month of contributions from Graceful Books!"
+
+**Includes:**
+- Monthly contribution calculation (per charity, per user)
+- Monthly distribution report (CSV export with charity name, EIN, total, payment address)
+- Admin payment tracking (mark as sent, payment method, confirmation status)
+- User annual contribution receipt (downloadable PDF)
+- Charity impact dashboard (lifetime contributions, monthly growth chart)
+- Payment audit log (who sent, when, to whom)
+- Contribution reconciliation (verify totals match)
+- Automated admin reminder (monthly distribution task)
+
+**Spec Reference:** IC-002.5 (new)
+
+---
+
+### IC3. Admin Panel - Charity Management [MVP] [INFRASTRUCTURE]
+**What:** Platform admin interface for curating the list of approved charities that users and advisors can select for their $5/month contribution.
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: High (Required for J7 Advisor Portal)
+- Owner: TBD
+- Last Updated: 2026-01-19
+
+**Design Philosophy:**
+
+Graceful Books includes a $5/month charitable contribution in every subscription ($40 individual, $50 advisor plans). Users and advisors select from a **curated list of verified charities** maintained by the platform admin (you).
+
+This ensures:
+- Charitable contributions go to legitimate organizations
+- Quality control over charity selection
+- Platform can verify 501(c)(3) status and financial transparency
+- Users trust that their $5 is going to a real charity
+
+**What Needs Building:**
+
+**Admin Role & Permissions:**
+- Admin user role (platform owner only)
+- Admin-only routes and navigation
+- Permission checks on admin endpoints
+
+**Charity Management Interface:**
+- Charity list view (table with name, category, status)
+- Add new charity form (name, EIN, website, description, category)
+- Edit charity form (update details)
+- Remove charity (soft delete - mark inactive)
+- Charity verification workflow (pending → verified) - **5-Step Process Below**
+
+**Charity Verification Process (5 Steps):**
+
+When admin adds a new charity, it goes through a manual verification workflow:
+
+**Step 1: Initial Submission**
+- Admin fills out "Add Charity" form with: Name, EIN, Website, Description, Category
+- Status automatically set to "Pending"
+- Charity appears in admin list with "Pending Verification" badge
+
+**Step 2: EIN Format Validation (Automated)**
+- System validates EIN format (XX-XXXXXXX, 9 digits with hyphen)
+- Invalid EIN → Form error: "Please enter a valid EIN (format: 12-3456789)"
+- Valid EIN → Proceeds to Step 3
+
+**Step 3: IRS 501(c)(3) Status Verification (Manual)**
+- Admin opens IRS Tax Exempt Organization Search: https://apps.irs.gov/app/eos/
+- Search for organization by EIN or name
+- Verify organization appears in IRS database with 501(c)(3) status
+- Verify organization is "Active" (not revoked)
+- Copy deductibility status code (e.g., "PC - Public Charity")
+- Admin adds verification note: "Verified via IRS EOS on [date]. Status: Active PC."
+
+**Step 4: Website & Mission Verification (Manual)**
+- Admin visits charity's website (URL from form)
+- Verify website is legitimate (HTTPS, professional design, contact info, recent updates)
+- Verify mission statement matches form description
+- Check for financial transparency (annual reports, 990 forms published)
+- Red flags: No HTTPS, no contact info, outdated content, suspicious donation requests
+- Admin adds note: "Website verified [date]. Mission aligns. Transparency: Good."
+
+**Step 5: Final Approval**
+- Admin clicks "Verify Charity" button in charity detail view
+- Confirmation modal: "Are you sure you want to verify [Charity Name]? Users will be able to select this charity."
+- Admin confirms → Status changes from "Pending" to "Verified"
+- Charity now appears in user/advisor charity selection dropdown
+- Audit log entry: "Admin [email] verified [Charity Name] on [date]"
+
+**Rejection Workflow:**
+- If verification fails (fake EIN, suspicious website, mission mismatch), admin clicks "Reject"
+- Status changes to "Rejected"
+- Rejected charities do not appear in user dropdowns
+- Admin can add rejection reason note for future reference
+
+**Charity Data Model:**
+- Name, EIN (Tax ID), website URL, logo URL
+- Description (mission statement)
+- Category (Education, Environment, Health, Poverty, Animals, Arts, etc.)
+- Status (Pending, Verified, Inactive)
+- Created date, updated date
+- Created by (admin user ID)
+
+**User/Advisor Charity Selection:**
+- Dropdown showing only "Verified" charities
+- Grouped by category
+- Search functionality
+- Display charity logo and description on hover/click
+
+**Acceptance Criteria:**
+
+- [ ] Admin role created in user schema (role: 'admin')
+- [ ] Admin permission checks on charity management endpoints
+- [ ] Admin-only navigation section (visible only to admin users)
+- [ ] Charity schema created (name, EIN, website, logo, description, category, status, timestamps)
+- [ ] Charity CRUD endpoints (create, read, update, soft delete)
+- [ ] Charity list view UI (table with sorting, filtering by category/status)
+- [ ] Add charity form (all fields, validation for EIN format, URL format)
+- [ ] Edit charity form (update existing charity details)
+- [ ] Remove charity action (soft delete → status: 'Inactive')
+- [ ] Charity verification workflow (status: Pending → Verified requires admin approval)
+- [ ] Charity search functionality (by name, EIN, category)
+- [ ] User charity selection dropdown (shows only Verified charities)
+- [ ] Charity dropdown grouped by category
+- [ ] Charity logo display in dropdown (icon or thumbnail)
+- [ ] Charity description tooltip/popover on hover
+- [ ] Default charity preselected (e.g., "Graceful Books Community Fund")
+- [ ] Audit logging for admin actions (who added/edited/removed which charity, when)
+- [ ] Admin dashboard showing charity statistics (total verified, pending, inactive)
+- [ ] Seed script for initial charity list (10-15 well-known charities across categories)
+
+**Test Strategy:**
+- Unit tests for charity CRUD operations
+- Integration tests for admin permission checks (non-admin cannot access)
+- E2E tests for complete charity management workflow (admin adds → verifies → user selects)
+- Security testing (verify non-admin users blocked from endpoints)
+
+**Risks & Mitigation:**
+- Risk: Unauthorized access to admin panel
+  - Mitigation: Role-based access control, permission checks on all endpoints, audit logging
+- Risk: Fake charities added by compromised admin account
+  - Mitigation: Manual EIN verification process, audit trail, owner-only admin role (no delegation)
+- Risk: Users confused by charity selection
+  - Mitigation: Clear categories, descriptions, default selection, search functionality
+
+**External Dependencies:**
+- Libraries: None
+- Infrastructure: Admin-only route protection
+
+**Dependencies:** {A4 (User schema for admin role)}
+
+**Joy Opportunity:** "You've selected [Charity Name] to receive your $5/month. Every month, you're making a difference."
+
+**Delight Detail:**
+- When user selects charity for first time: "Thank you for choosing [Charity Name]. Your $5/month helps them [mission statement snippet]."
+- Annual summary: "This year, you contributed $60 to [Charity Name]. You're part of their story."
+- Charity milestone: "[Charity Name] just reached $10,000 in contributions from Graceful Books users!"
+- Charity update: "[Charity Name] shared an update: [impact story snippet]"
+
+**Includes:**
+- Admin user role and permissions
+- Admin-only navigation and routes
+- Charity schema (name, EIN, website, logo, description, category, status)
+- Charity CRUD endpoints (create, read, update, soft delete)
+- Charity list view UI (table, sorting, filtering)
+- Add/edit charity forms
+- Charity verification workflow (pending → verified)
+- Charity search functionality
+- User charity selection dropdown (grouped by category, logo display, description tooltip)
+- Default charity preselection
+- Audit logging for admin actions
+- Admin dashboard with charity statistics
+- Seed script for initial charity list (10-15 charities)
+
+**Spec Reference:** IC-003 (new)
+
+---
+
+### IC4. Email Service Integration [MVP] [INFRASTRUCTURE]
+**What:** Production-grade email delivery system for transactional emails (advisor invitations, notifications, tax season access grants).
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: High (Required for J7, J8)
+- Owner: TBD
+- Last Updated: 2026-01-19
+
+**Design Philosophy:**
+
+Group J features (especially J7 Advisor Portal and J8 Tax Prep Mode) require email delivery for:
+- **J7:** Advisor invitations, client billing transfer notifications, advisor removal notifications, scenario push-to-client emails
+- **J8:** Tax season access grant notifications, tax prep completion emails
+
+Currently, the notification schema supports email, but there's no actual email delivery service integrated. This task builds production-ready email infrastructure.
+
+**What Needs Building:**
+
+**Email Service Provider Selection:**
+- Choose provider (recommendation: SendGrid, Postmark, or AWS SES)
+- Set up account and API keys
+- Configure sender domain and DNS records (SPF, DKIM, DMARC)
+- Verify domain ownership
+
+**Email Template System:**
+- HTML email templates with responsive design
+- Plain text fallbacks for accessibility
+- Template variables for dynamic content
+- Branded header/footer with Graceful Books logo
+
+**Email Delivery Service:**
+- Service wrapper around provider API
+- Queue system for async delivery
+- Retry logic (3 attempts with exponential backoff)
+- Delivery status tracking (queued, sent, delivered, bounced, failed)
+- Unsubscribe handling (per-email-type preferences)
+
+**Required Email Templates:**
+1. Advisor invitation (J7)
+2. Client billing transfer notification (J7)
+3. Advisor removed client notification (J7)
+4. Scenario pushed to client (J3 + J7)
+5. Tax season access granted (J8)
+6. Tax prep completion summary (J8)
+7. Welcome email (onboarding)
+8. Password reset
+9. Email verification
+
+**Email Template Content (Detailed Specifications):**
+
+**SECURITY NOTE:** Per security expert recommendation, all emails must be **notification-only** with NO financial data in email body. Users must log in to view details.
+
+**Template 1: Advisor Invitation (J7)**
+- **Subject:** `{{advisorName}} invited you to connect your Graceful Books account`
+- **Body:**
+  ```
+  Hi {{clientFirstName}},
+
+  {{advisorName}} ({{advisorFirm}}) has invited you to connect your Graceful Books account to their advisor portal.
+
+  This will allow {{advisorName}} to:
+  - View your financial reports (read-only access)
+  - Help you with bookkeeping and tax preparation
+  - Your billing will transfer to their plan (no charge to you)
+
+  You remain in control: You can revoke access at any time.
+
+  [View Invitation & Accept] {{invitationUrl}}
+
+  Questions? Email us at support@gracefulbooks.com
+
+  - The Graceful Books Team
+  ```
+- **CTA Button:** "View Invitation & Accept" → Links to invitation acceptance page (user must log in)
+- **Variables:** `{{clientFirstName}}`, `{{advisorName}}`, `{{advisorFirm}}`, `{{invitationUrl}}`
+
+**Template 2: Client Billing Transfer Notification (J7)**
+- **Subject:** `Your Graceful Books billing has been transferred to {{advisorName}}`
+- **Body:**
+  ```
+  Hi {{clientFirstName}},
+
+  Good news: {{advisorName}} is now covering your Graceful Books subscription.
+
+  What changed:
+  - Your individual billing ($40/month) has been paused
+  - {{advisorName}} now pays for your account as part of their advisor plan
+  - You keep full access to all your data and features
+  - You can still invite team members and manage your books
+
+  No action needed. Everything continues as normal.
+
+  [View Account Details] {{accountUrl}}
+
+  Questions? Email {{advisorEmail}} or support@gracefulbooks.com
+
+  - The Graceful Books Team
+  ```
+- **CTA Button:** "View Account Details" → Links to account settings (no financial data in email)
+- **Variables:** `{{clientFirstName}}`, `{{advisorName}}`, `{{accountUrl}}`, `{{advisorEmail}}`
+
+**Template 3: Advisor Removed Client Notification (J7)**
+- **Subject:** `Your Graceful Books billing has been transferred back to you`
+- **Body:**
+  ```
+  Hi {{clientFirstName}},
+
+  {{advisorName}} has transferred billing for your Graceful Books account back to you.
+
+  What happens next:
+  1. Log in to choose your billing option:
+     - Pay individually ($40/month) to keep full access
+     - Archive your account (free, read-only access)
+
+  2. You have 14 days to decide (grace period - no charge)
+
+  Your data is safe: All your financial records remain secure and accessible.
+
+  [Choose Billing Option] {{billingChoiceUrl}}
+
+  Questions? Email support@gracefulbooks.com
+
+  - The Graceful Books Team
+  ```
+- **CTA Button:** "Choose Billing Option" → Links to billing choice page (must log in)
+- **Variables:** `{{clientFirstName}}`, `{{advisorName}}`, `{{billingChoiceUrl}}`
+
+**Template 4: Scenario Pushed to Client (J3 + J7)**
+- **Subject:** `{{advisorName}} shared a financial scenario with you`
+- **Body:**
+  ```
+  Hi {{clientFirstName}},
+
+  {{advisorName}} has shared a financial scenario analysis with you in Graceful Books.
+
+  Scenario: "{{scenarioName}}"
+
+  {{advisorName}} added a note:
+  "{{advisorNote}}"
+
+  [View Scenario] {{scenarioUrl}}
+
+  This scenario shows projected financials based on assumptions. Log in to see the full analysis.
+
+  - The Graceful Books Team
+  ```
+- **CTA Button:** "View Scenario" → Links to scenario page (must log in to see numbers)
+- **Variables:** `{{clientFirstName}}`, `{{advisorName}}`, `{{scenarioName}}`, `{{advisorNote}}`, `{{scenarioUrl}}`
+
+**Template 5: Tax Season Access Granted (J8)**
+- **Subject:** `{{advisorName}} granted you access to Tax Prep Mode`
+- **Body:**
+  ```
+  Hi {{clientFirstName}},
+
+  {{advisorName}} has granted you access to Tax Prep Mode for tax year {{taxYear}}.
+
+  You can now:
+  - Generate tax reports (P&L, Balance Sheet, Transaction Summary)
+  - Download your tax document checklist
+  - Export your data package for your tax preparer
+
+  Access ends: {{accessExpiresDate}}
+
+  [Open Tax Prep Mode] {{taxPrepUrl}}
+
+  Questions about tax prep? Contact {{advisorEmail}}
+
+  - The Graceful Books Team
+  ```
+- **CTA Button:** "Open Tax Prep Mode" → Links to Tax Prep Mode (must log in)
+- **Variables:** `{{clientFirstName}}`, `{{advisorName}}`, `{{taxYear}}`, `{{accessExpiresDate}}`, `{{taxPrepUrl}}`, `{{advisorEmail}}`
+
+**Template 6: Tax Prep Completion Summary (J8)**
+- **Subject:** `Your {{taxYear}} tax prep package is ready`
+- **Body:**
+  ```
+  Hi {{firstName}},
+
+  Great work! Your tax preparation package for {{taxYear}} is ready to download.
+
+  What's included:
+  - Income reports (complete transaction history)
+  - Expense reports (categorized by tax category)
+  - Deduction checklist (your completed review)
+  - Export package (ZIP file with all data)
+
+  [Download Tax Package] {{downloadUrl}}
+
+  Next step: Share this package with your tax preparer or accountant.
+
+  Need help? Email support@gracefulbooks.com
+
+  - The Graceful Books Team
+  ```
+- **CTA Button:** "Download Tax Package" → Links to download page (must log in)
+- **Variables:** `{{firstName}}`, `{{taxYear}}`, `{{downloadUrl}}`
+
+**Template 7: Welcome Email (Onboarding)**
+- **Subject:** `Welcome to Graceful Books, {{firstName}}!`
+- **Body:**
+  ```
+  Hi {{firstName}},
+
+  Welcome to Graceful Books - accounting software that feels like a friend, not a chore.
+
+  You're in control: Your financial data is encrypted with zero-knowledge architecture. We can't see your data, even if we wanted to.
+
+  What's next:
+  1. Complete your business profile
+  2. Connect your bank (or upload transactions manually)
+  3. Start recording income and expenses
+
+  Need help? We've got you:
+  - Guided tutorials (built into the app)
+  - Video walkthroughs (gracefulbooks.com/help)
+  - Support team (support@gracefulbooks.com)
+
+  [Get Started] {{dashboardUrl}}
+
+  P.S. - Your $5/month supports {{charityName}}. You're already making a difference.
+
+  - The Graceful Books Team
+  ```
+- **CTA Button:** "Get Started" → Links to dashboard
+- **Variables:** `{{firstName}}`, `{{dashboardUrl}}`, `{{charityName}}`
+
+**Template 8: Password Reset**
+- **Subject:** `Reset your Graceful Books password`
+- **Body:**
+  ```
+  Hi {{firstName}},
+
+  We received a request to reset your Graceful Books password.
+
+  [Reset Password] {{resetUrl}}
+
+  This link expires in 1 hour.
+
+  Didn't request a reset? Ignore this email - your password is still secure.
+
+  Security tip: Never share your password or master passphrase with anyone (including Graceful Books support).
+
+  Questions? Email security@gracefulbooks.com
+
+  - The Graceful Books Team
+  ```
+- **CTA Button:** "Reset Password" → Links to password reset page
+- **Variables:** `{{firstName}}`, `{{resetUrl}}`
+- **No unsubscribe link** (critical security email)
+
+**Template 9: Email Verification**
+- **Subject:** `Verify your email address for Graceful Books`
+- **Body:**
+  ```
+  Hi {{firstName}},
+
+  Welcome to Graceful Books! Let's verify your email address to secure your account.
+
+  [Verify Email Address] {{verificationUrl}}
+
+  This link expires in 24 hours.
+
+  Why verify?
+  - Protect your account from unauthorized access
+  - Enable password reset if you ever need it
+  - Receive important account notifications
+
+  Didn't create an account? Email security@gracefulbooks.com immediately.
+
+  - The Graceful Books Team
+  ```
+- **CTA Button:** "Verify Email Address" → Links to verification page
+- **Variables:** `{{firstName}}`, `{{verificationUrl}}`
+- **No unsubscribe link** (critical account security email)
+
+**Template Design Guidelines:**
+- **Header:** Graceful Books logo (centered), brand colors (calming blue/green)
+- **Footer:** Links to Help Center, Contact Support, Privacy Policy, Terms of Service
+- **Typography:** Sans-serif font (Arial, Helvetica), 16px body text, 24px headings
+- **Responsive:** Mobile-friendly (single column layout, large tap targets for buttons)
+- **Accessibility:** Plain text fallback, sufficient color contrast, alt text for images
+- **CTA Buttons:** Primary color (#4A90E2), white text, min 44px height (touch target size)
+
+**Acceptance Criteria:**
+
+- [ ] Email service provider selected and account created
+- [ ] Sender domain configured (e.g., noreply@gracefulbooks.com)
+- [ ] DNS records configured (SPF, DKIM, DMARC) and verified
+- [ ] Email service wrapper created (EmailService class)
+- [ ] Email delivery queue implemented (async, non-blocking)
+- [ ] Retry logic implemented (3 attempts with exponential backoff: 1min, 5min, 15min)
+- [ ] Delivery status tracking (queued, sent, delivered, bounced, failed)
+- [ ] Webhook handling for delivery events (provider callbacks for status updates)
+- [ ] HTML email template system created (Handlebars or similar)
+- [ ] Plain text fallback generation (strip HTML, preserve links)
+- [ ] Responsive email template design (works on mobile, desktop, all email clients)
+- [ ] Branded header/footer with Graceful Books logo and colors
+- [ ] Template variable interpolation ({{firstName}}, {{actionUrl}}, etc.)
+- [ ] Advisor invitation email template created
+- [ ] Client billing transfer notification template created
+- [ ] Advisor removed client notification template created
+- [ ] Scenario pushed to client template created (J3)
+- [ ] Tax season access granted template created (J8)
+- [ ] Tax prep completion template created (J8)
+- [ ] Welcome email template created
+- [ ] Password reset email template created
+- [ ] Email verification template created
+- [ ] Unsubscribe handling (per-email-type preferences stored in user preferences)
+- [ ] Unsubscribe link in all transactional emails (except critical: password reset, billing)
+- [ ] Email preview functionality (test send to admin email)
+- [ ] Rate limiting (respect provider limits, throttle if needed)
+- [ ] Error handling (network failures, API errors, invalid recipients)
+- [ ] Logging (all email sends logged with recipient, template, status)
+- [ ] Test mode configuration (capture emails in log instead of sending, for development)
+- [ ] Production mode configuration (actual delivery)
+- [ ] Integration with notification system (NotificationsService triggers email delivery)
+
+**Test Strategy:**
+- Unit tests for email service wrapper (delivery, retry logic, status tracking)
+- Integration tests with provider test/sandbox mode (send test email, verify delivery)
+- Template rendering tests (variable interpolation, HTML/plain text generation)
+- E2E tests for complete email workflows (user triggers action → email sent → delivery confirmed)
+- Deliverability testing (spam score check, inbox placement)
+
+**Risks & Mitigation:**
+- Risk: Emails marked as spam
+  - Mitigation: Proper domain authentication (SPF, DKIM, DMARC), sender reputation monitoring, avoid spam triggers
+- Risk: Provider API failures
+  - Mitigation: Retry logic, fallback provider option, graceful degradation (log error, alert admin)
+- Risk: Email deliverability issues (bounces, invalid addresses)
+  - Mitigation: Email validation before sending, handle bounces, update user records
+- Risk: Template rendering bugs (broken links, missing variables)
+  - Mitigation: Template tests, preview functionality, variable validation
+
+**External Dependencies:**
+- Services: Email provider API (SendGrid/Postmark/AWS SES)
+- Libraries: Provider SDK (e.g., @sendgrid/mail, postmark, @aws-sdk/client-ses)
+- Infrastructure: DNS configuration for sender domain, webhook endpoint for delivery events
+
+**Dependencies:** {None - can be built independently}
+
+**Joy Opportunity:** "Your accountant just accepted your invitation! Check your email for next steps."
+
+**Delight Detail:**
+- First email sent: "Email on the way! Check your inbox (and spam folder, just in case)."
+- Email delivered: "Email delivered to [recipient] successfully."
+- Advisor invitation accepted: "Great news! [Advisor Name] accepted your invitation. They can now see your books."
+- Tax prep completion: Subject line: "✓ Your 2025 Tax Package is Ready!" (emoji in subject for delight)
+
+**Includes:**
+- Email service provider setup (account, API keys, domain configuration)
+- DNS records configuration (SPF, DKIM, DMARC)
+- Email delivery service wrapper (EmailService class)
+- Async delivery queue
+- Retry logic (3 attempts, exponential backoff)
+- Delivery status tracking
+- Webhook handling for delivery events
+- HTML email template system
+- Plain text fallback generation
+- Responsive email template design
+- Branded header/footer
+- Template variable interpolation
+- 9 email templates (advisor invitation, billing transfer, advisor removal, scenario push, tax access, tax completion, welcome, password reset, email verification)
+- Unsubscribe handling and per-type preferences
+- Email preview functionality
+- Rate limiting
+- Error handling and logging
+- Test mode and production mode configuration
+- Integration with NotificationsService
+
+**Spec Reference:** IC-004 (new)
+
+---
+
+### IC5. OpenSpec Documentation Synchronization [MVP] [MANDATORY]
+**What:** Update all OpenSpec specification files to match the evolved Group J roadmap vision, ensuring agents implement the CORRECT features.
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Critical (Blocks agent deployment for Group J)
+- Owner: TBD
+- Last Updated: 2026-01-19
+
+**Design Philosophy:**
+
+During the Group J reimagining process, we made **fundamental changes** to the moonshot features:
+- J1: 3D → 2D widget
+- J2: AI insights → Smart automation assistant (research-driven pivot)
+- J4: Health score → Key metrics reports (removed gamification)
+- J6: Simple calculator → Comprehensive runway tool (75+ criteria)
+- J7: Basic portal → Full billing model (pricing tiers, team management)
+- J9: API integrations → CSV import/export (architecture shift)
+- Removed: J10-J13 (mobile app, public API, related infrastructure)
+
+The OpenSpec files still describe the OLD features. If agents read these specs, they will implement the WRONG things, wasting time and creating rework.
+
+**This task ensures documentation matches reality BEFORE agents start building.**
+
+**What Needs Updating:**
+
+**Proposal File:**
+- `openspec/changes/moonshot-features/proposal.md`
+  - Rewrite to match current ROADMAP.md Group J (J1-J12)
+  - Remove references to removed features (old J10-J13)
+  - Add new features (J10 CSV Testing, J11/J12 testing gates)
+  - Update feature descriptions to match evolved vision
+
+**Spec Files (Rewrite Required):**
+- `openspec/changes/moonshot-features/specs/VIZ-001/spec.md` → Update for 2D Financial Flow Widget
+- `openspec/changes/moonshot-features/specs/AI-001/spec.md` → Update for Smart Automation Assistant
+- `openspec/changes/moonshot-features/specs/HEALTH-001/spec.md` → Rename/update to METRICS-001 (Key Metrics Reports)
+- `openspec/changes/moonshot-features/specs/RUNWAY-001/spec.md` → Update for expanded Emergency Fund & Runway Calculator
+- `openspec/changes/moonshot-features/specs/MENTOR-001/spec.md` → Update for Advisor Portal with billing model
+- `openspec/changes/moonshot-features/specs/TAX-001/spec.md` → Update for Tax Time Preparation Mode
+- `openspec/changes/moonshot-features/specs/INTEG-001/spec.md` → Replace with CSV-001 (CSV Import/Export)
+
+**Spec Files (Remove):**
+- `openspec/changes/moonshot-features/specs/MOBILE-001/` → DELETE (feature removed)
+- `openspec/changes/moonshot-features/specs/FUTURE-001/` → DELETE (public API removed)
+
+**New Spec Files (Create):**
+- `openspec/changes/moonshot-features/specs/CSV-001/spec.md` → CSV Import/Export
+- `openspec/changes/moonshot-features/specs/SCENARIO-001/spec.md` → What-If Scenario Planner (if doesn't exist)
+- `openspec/changes/moonshot-features/specs/GOALS-001/spec.md` → Goal Setting & Tracking (if doesn't exist)
+
+**Tasks File:**
+- `openspec/changes/moonshot-features/tasks.md` → Update to match current J1-J12 task list
+
+**Acceptance Criteria:**
+
+- [ ] proposal.md rewritten to match current Group J (J1-J12)
+- [ ] proposal.md describes evolved feature vision (2D widget, smart automation, etc.)
+- [ ] proposal.md removes all references to removed features
+- [ ] VIZ-001 spec updated for 2D Financial Flow Widget (not 3D)
+- [ ] VIZ-001 includes: 2D canvas, animation queue, node-based visualization, ecosystem toggle
+- [ ] AI-001 spec updated for Smart Automation Assistant (not generic insights)
+- [ ] AI-001 includes: smart categorization, reconciliation matching, anomaly flagging, 100% local processing
+- [ ] HEALTH-001 renamed to METRICS-001 and rewritten for Key Metrics Reports
+- [ ] METRICS-001 removes: 0-100 score, gamification, unsolicited recommendations
+- [ ] METRICS-001 includes: liquidity/profitability/efficiency/leverage reports, accountant-controlled sharing
+- [ ] RUNWAY-001 spec updated for expanded scope (75+ acceptance criteria)
+- [ ] RUNWAY-001 includes: revenue flexibility, dual-slider interface, net burn calculation, date range selector
+- [ ] MENTOR-001 spec updated for Advisor Portal with billing model
+- [ ] MENTOR-001 includes: pricing tiers (Starter/Professional/Enterprise), team management, client lifecycle, charity selection
+- [ ] TAX-001 spec updated for Tax Time Preparation Mode
+- [ ] TAX-001 includes: 6-step workflow, business structure selection, calm tone, J7 integration
+- [ ] INTEG-001 spec deleted and replaced with CSV-001
+- [ ] CSV-001 spec created with: client-side processing, smart detection, templates, duplicate detection, zero-knowledge compatibility
+- [ ] MOBILE-001 spec directory deleted (feature removed)
+- [ ] FUTURE-001 spec deleted (public API removed)
+- [ ] SCENARIO-001 spec created (if missing)
+- [ ] GOALS-001 spec created (if missing)
+- [ ] tasks.md updated to match current J1-J12 task structure
+- [ ] All spec files follow consistent format (What, Why, Design Philosophy, Acceptance Criteria, etc.)
+- [ ] All spec files reference correct dependencies
+- [ ] All spec files include zero-knowledge architecture compatibility notes where relevant
+- [ ] Git commit created: "docs: Synchronize OpenSpec files with evolved Group J roadmap vision"
+
+**Test Strategy:**
+- Manual review of all updated spec files
+- Cross-reference with ROADMAP.md Group J section (lines 782-3516)
+- Verify no references to removed features remain
+- Verify all new features have corresponding specs
+
+**Risks & Mitigation:**
+- Risk: Specs may drift out of sync again during implementation
+  - Mitigation: Make spec updates part of Definition of Done for each feature
+- Risk: Agents may still find cached old specs
+  - Mitigation: Clear .claude cache after updates, verify agents read updated files
+- Risk: Incomplete specs may confuse agents
+  - Mitigation: Follow consistent spec format, include all acceptance criteria from ROADMAP.md
+
+**External Dependencies:**
+- None
+
+**Dependencies:** {None - pure documentation task}
+
+**Joy Opportunity:** "Documentation in sync = agents build the right thing the first time. No wasted effort, no rework."
+
+**Includes:**
+- proposal.md rewrite
+- VIZ-001, AI-001, METRICS-001 (renamed), RUNWAY-001, MENTOR-001, TAX-001 spec updates
+- CSV-001 spec creation (replacement for INTEG-001)
+- SCENARIO-001, GOALS-001 spec creation (if missing)
+- MOBILE-001, FUTURE-001 spec deletion
+- tasks.md update
+- Git commit with clear message
+
+**Spec Reference:** IC-005 (new)
+
+---
+
+### IC6. Infrastructure Capstone - Final Validation [MVP] [MANDATORY]
+**What:** Verify ALL Infrastructure Capstone tasks complete, Group I UI components functional, billing/admin/email systems operational, and OpenSpec files synchronized.
+
+**Status & Ownership:**
+- Status: Not Started
+- Priority: Critical (Final gate before Group J)
+- Owner: TBD
+- Last Updated: 2026-01-19
+
+**Dependencies:** {IC1, IC2, IC3, IC4, IC5}
+
+**⚠️ CRITICAL GATE:** Group J CANNOT BEGIN until this validation passes.
+
+**Validation Checklist:**
+
+**IC1 (Group I UI Components):**
+- [ ] ConflictNotificationBadge visible in header, shows unresolved count
+- [ ] Click badge → ConflictResolutionModal opens with side-by-side diff
+- [ ] Conflict resolution works (user selects merge strategy, applies)
+- [ ] CommentThread renders on transaction detail page
+- [ ] User can create comment, comment saves and displays
+- [ ] @mention autocomplete works (type @ → dropdown with users)
+- [ ] NotificationBell shows unread count
+- [ ] Click bell → notification panel opens with recent activity
+- [ ] E2E test passes: "User resolves CRDT conflict"
+- [ ] E2E test passes: "User comments on transaction with @mention"
+
+**IC2 (Billing Infrastructure):**
+- [ ] Stripe integration configured (test mode)
+- [ ] Create test advisor subscription: 4 clients, 8 users → Total $57.50
+- [ ] Add 47th client → Automatic tier upgrade to $100
+- [ ] Remove client → Automatic proration and tier downgrade
+- [ ] Client billing transfer works (client subscription canceled when added to advisor)
+- [ ] Webhook handling verified (test webhook delivery)
+- [ ] Billing history UI displays past invoices
+
+**IC3 (Admin Panel):**
+- [ ] Login as admin → Admin navigation section visible
+- [ ] Navigate to Charity Management → List view displays
+- [ ] Add new charity → Form validates, charity added with "Pending" status
+- [ ] Verify charity → Status changes to "Verified"
+- [ ] Login as regular user → Charity dropdown shows only "Verified" charities
+- [ ] Select charity → Charity saved to user preferences
+
+**IC4 (Email Service):**
+- [ ] Send test email: Advisor invitation → Email delivers successfully
+- [ ] Send test email: Client billing transfer → Email delivers with correct variables
+- [ ] Send test email: Tax season access granted → Email delivers
+- [ ] Check spam score → Passing (< 5.0)
+- [ ] Verify delivery status tracking → Status updates in database
+
+**IC5 (OpenSpec Sync):**
+- [ ] Read `openspec/changes/moonshot-features/proposal.md` → Matches current Group J
+- [ ] Read `VIZ-001/spec.md` → Describes 2D widget (not 3D)
+- [ ] Read `AI-001/spec.md` → Describes Smart Automation Assistant
+- [ ] Read `CSV-001/spec.md` → Describes CSV Import/Export (not API integrations)
+- [ ] Search for `MOBILE-001` → Not found (removed)
+- [ ] Search for `FUTURE-001` → Not found (removed)
+
+**Performance Validation:**
+- [ ] Page load time < 2 seconds (measured with Lighthouse, average of 3 runs)
+- [ ] IC1 conflict resolution modal opens < 500ms (from click to visible)
+- [ ] IC2 billing calculation completes < 1 second (for 100 clients, 10 users)
+- [ ] IC4 email queuing completes < 100ms (email added to queue immediately)
+- [ ] Dashboard with all IC features renders < 3 seconds (cold load)
+- [ ] No memory leaks detected (Chrome DevTools Memory Profiler, 10-minute session)
+- [ ] All API endpoints respond < 1 second (95th percentile)
+
+**Security Validation:**
+- [ ] IC2 Stripe webhook signature validation working (test with invalid signature → rejected)
+- [ ] IC3 admin endpoints return 403 for non-admin users (test with regular user token)
+- [ ] IC3 CSRF protection enabled on all admin forms (verify CSRF token required)
+- [ ] IC4 email templates sanitize user input (test with `<script>alert('XSS')</script>` in advisor name → escaped)
+- [ ] IC2 billing data NOT logged in plaintext (check server logs for absence of card numbers, amounts)
+- [ ] Session timeout works (idle 30 minutes → auto-logout)
+- [ ] Rate limiting active on auth endpoints (10 failed logins → temporary block)
+- [ ] Penetration test: Non-admin cannot access charity management (manual verification)
+
+**Accessibility Validation (WCAG 2.1 AA):**
+- [ ] IC1 conflict resolution modal keyboard navigable (Tab through all elements, Esc to close)
+- [ ] IC1 screen reader announces conflict notifications ("3 unresolved conflicts" spoken by NVDA)
+- [ ] IC3 admin panel passes WAVE accessibility checker (0 errors, 0 contrast errors)
+- [ ] IC4 email templates have sufficient color contrast (buttons meet 4.5:1 ratio minimum)
+- [ ] All form inputs have visible labels (not just placeholders)
+- [ ] Focus indicators visible on all interactive elements (keyboard navigation shows blue outline)
+- [ ] Error messages associated with form fields via aria-describedby
+
+**Integration Validation:**
+- [ ] End-to-end: Create subscription (IC2) → Calculates charity (IC2.5) → Sends confirmation email (IC4)
+- [ ] End-to-end: Admin verifies charity (IC3) → User sees in dropdown → User selects → Contribution tracked (IC2.5)
+- [ ] End-to-end: User comments with @mention (IC1) → Notification created (I2) → Email sent (IC4)
+- [ ] IC1 + I1: Conflict resolution UI integrates with ConflictResolutionService (backend)
+- [ ] IC2 + H1: Advisor subscription includes team member billing (multi-user feature)
+- [ ] IC4 + IC2: Billing emails send correctly when subscription created (Stripe webhook → email trigger)
+
+**Cross-Browser Validation:**
+- [ ] IC1 UI components render correctly in Chrome (latest)
+- [ ] IC1 UI components render correctly in Firefox (latest)
+- [ ] IC1 UI components render correctly in Safari (latest)
+- [ ] IC1 UI components render correctly in Edge (latest)
+- [ ] IC2 Stripe checkout flow works in all major browsers (card input, submission)
+- [ ] IC3 admin panel functional on tablet devices (iPad, 1024x768 resolution)
+- [ ] IC4 email templates render correctly in Gmail, Outlook, Apple Mail (test send to all 3)
+- [ ] Mobile responsive: Dashboard with IC features usable on iPhone SE (375px width)
+
+**Success Criteria:**
+✅ **ALL CHECKS PASSING** = Green light for Group J
+❌ **ANY CHECK FAILING** = Block Group J until fixed
+
+**This is the bridge to the moonshots. Cross it carefully.**
+
+**Spec Reference:** IC-006 (new)
+
+---
+
+## Group J - Moonshots (Requires Infrastructure Capstone Complete)
+
+### J1. Financial Flow Widget (Nice)
+**What:** A 2D animated node-based visualization showing real-time money flow, accessible as a compact widget or full-screen experience.
 
 **OpenSpec Resources:**
 - Change: `openspec/changes/moonshot-features/`
@@ -792,61 +2024,165 @@ See `Roadmaps/archive/` for detailed completion reports:
 
 **Status & Ownership:**
 - Status: Not Started
-- Priority: Low (Moonshot)
+- Priority: Medium (Signature Feature)
 - Owner: TBD
 
+**Core Concept:**
+The Financial Flow Widget lives in the upper-right corner of the application as an always-visible compact visualization. Users can click to expand it to full-screen for deeper exploration. It displays the user's financial ecosystem as interconnected nodes, with animated flows showing money movement in real-time.
+
+**Primary Nodes (6 Categories):**
+- **Assets** - What the business owns (Cash, AR, Inventory, Equipment)
+- **Liabilities** - What the business owes (AP, Loans, Credit Cards)
+- **Equity** - Owner's stake (Capital, Retained Earnings, Draws)
+- **Revenue** - Money earned from sales and services
+- **COGS** - Cost of Goods Sold (direct costs of products sold)
+- **Expenses** - Operating costs (rent, payroll, utilities, etc.)
+
+**Node Behavior:**
+- Node SIZE indicates balance amount (bigger node = more money in that category)
+- Hover reveals a breakout popover showing sub-accounts with clickable navigation
+- Sub-nodes accessible when expanded: Cash, AR, AP, Inventory, etc.
+- Layout reflects the accounting equation: Assets = Liabilities + Equity
+
+**Animated Flows:**
+Transactions trigger animated flows between nodes showing money movement:
+| Transaction Type | Flow Direction |
+|-----------------|----------------|
+| Cash sale | Revenue → Cash |
+| Invoice created | Revenue → AR |
+| Customer payment | AR → Cash |
+| Bill entered | Expenses → AP |
+| Bill paid | Cash → AP |
+| Buy inventory (cash) | Cash → Inventory |
+| Buy inventory (credit) | AP → Inventory |
+| Sell inventory | Inventory → COGS |
+| Take out loan | Liabilities → Cash |
+| Pay down debt | Cash → Liabilities |
+| Owner investment | Equity → Cash |
+| Owner draw | Cash → Equity (outward) |
+| **Barter transaction** | **Revenue ↔ Expenses** (bidirectional) |
+
+**Barter/Trade Transaction Support (I5 Integration):**
+- **Conditional display**: Barter transactions only appear if user has active barter transactions in their books
+- **If no barter activity**: Barter flows are hidden (dormant feature)
+- **User toggle**: Settings panel includes "Show Barter Transactions" checkbox (default: auto, shows if active)
+- **Visual representation**: Bidirectional arrow (↔) with "Trade" label
+- **Example**: Trade $500 of services for $500 of products → Revenue ↔ Expenses flow with matching amounts
+- **Color differentiation**: Barter flows use distinct color (e.g., orange) to distinguish from cash/accrual
+- **Use case**: Landlords collecting rent in cash only can toggle barter OFF for cleaner visualization
+
+**Visual Differentiation:**
+- **Solid lines**: Actual cash movement
+- **Dashed lines**: Accrual entries (invoices, bills - promises not yet cash)
+- **Color-coded health indicators**: Green (healthy), Yellow (caution), Red (concern)
+- Context matters: Big Revenue = good, Big Expenses = potentially concerning
+
+**Ecosystem Toggle:**
+Two-mode toggle allowing users to choose their view:
+1. **Active Only** (default): Shows only the nodes/features they're currently using
+2. **Full Ecosystem**: Reveals all possible nodes including inactive features (budgeting, barter accounting, debt management, product cost accounting, etc.)
+
+Inactive nodes appear as "locked doors with windows" - visible, inviting, with a subtle shimmer or unlock icon. Not grayed-out or broken-looking, but aspirational opportunities.
+
+**Date Range:**
+- Default: Last 365 days
+- Options: Last 30 days, Last 90 days, Year-to-date, Last year, All time, Custom range
+- Custom range allows specific start/end date selection
+
+**Widget States:**
+1. **Compact** (default): Small widget in upper-right, shows primary nodes with proportional sizing
+2. **Expanded**: Full-screen mode with larger nodes, visible sub-nodes, detailed hover states
+3. **Time-lapse**: Animated playback of a period's transactions flowing through the system
+
+**Color Customization:**
+- Default palette: Purple, Gold, and Green (sophisticated, abundant, trustworthy)
+- Users can customize any color via hex color picker
+- Color assignments: Primary nodes, flow lines, health indicators, background
+- Presets available: Default, High Contrast, Monochrome, Custom
+
 **Acceptance Criteria:**
-- [ ] 3D visualization renders correctly on WebGL-capable browsers
-- [ ] Cash flow is visualized as animated flow between accounts
-- [ ] Balance sheet displays as 3D hierarchical structure
-- [ ] P&L shows revenue/expense flows interactively
-- [ ] Users can rotate, zoom, and interact with visualizations
-- [ ] 2D fallback is automatically provided for incompatible browsers
-- [ ] Screen reader descriptions make visualizations accessible
-- [ ] Performance remains smooth with large datasets
+- [ ] Widget renders in upper-right corner without blocking primary content
+- [ ] Click expands widget to full-screen mode smoothly
+- [ ] Six primary nodes display with sizes proportional to balances
+- [ ] Hover on any node reveals breakout popover with sub-accounts
+- [ ] Clicking sub-account in popover navigates to that section
+- [ ] Transactions trigger animated flows between appropriate nodes
+- [ ] Animation queue prevents visual chaos from rapid transactions
+- [ ] Solid vs dashed lines differentiate cash from accrual entries
+- [ ] Toggle switches between "Active Only" and "Full Ecosystem" views
+- [ ] Inactive feature nodes appear inviting with unlock affordance
+- [ ] Date range selector defaults to Last 365 days with all options working
+- [ ] Custom date range picker functions correctly
+- [ ] Color customization panel accessible with hex picker
+- [ ] Custom colors persist in user preferences
+- [ ] Layout visually reflects accounting equation (Assets = Liabilities + Equity)
+- [ ] Health indicators (color coding) accurately reflect financial status
+- [ ] Screen reader descriptions provide full accessibility
+- [ ] Performance remains smooth with 10K+ transactions
+- [ ] Time-lapse mode animates historical transactions smoothly
+- [ ] **Barter transactions display as bidirectional arrows (↔) with "Trade" label**
+- [ ] **Barter flows only appear if user has active barter transactions (I5 integration)**
+- [ ] **If no barter activity, barter flows are hidden (dormant)**
+- [ ] **Settings panel includes "Show Barter Transactions" toggle (default: auto)**
+- [ ] **Barter flows use distinct color (e.g., orange) to differentiate from cash/accrual**
+- [ ] **User can manually toggle barter display ON/OFF regardless of activity**
 
 **Test Strategy:**
-- Cross-browser WebGL compatibility testing
-- Performance testing with various data volumes
-- Accessibility testing with screen readers
-- Usability testing for 3D interaction paradigms
-- Fallback testing on non-WebGL browsers
+- Unit tests for flow direction logic (all transaction types mapped correctly)
+- Visual regression testing for node sizing calculations
+- Animation performance testing with large transaction volumes (10K+)
+- Accessibility testing with screen readers (NVDA, VoiceOver)
+- Usability testing with non-accountant entrepreneurs
+- Color contrast validation for all palette options
+- Date range calculation accuracy testing
+- Integration testing with real transaction data
 
 **Risks & Mitigation:**
-- Risk: High complexity may lead to bugs and performance issues
-  - Mitigation: Use proven 3D libraries, iterative development, performance profiling
-- Risk: Limited browser support may exclude users
-  - Mitigation: Comprehensive 2D fallback, feature detection
-- Risk: 3D may be gimmicky rather than useful
-  - Mitigation: User research, A/B testing, clear value proposition
-- Risk: Accessibility challenges for visual impairments
-  - Mitigation: Complete screen reader support, keyboard navigation, text alternatives
+- Risk: Animation performance degrades with high transaction volume
+  - Mitigation: Implement animation queue with batching, requestAnimationFrame optimization, Web Workers for calculations
+- Risk: Users misinterpret "bigger = better" for all nodes
+  - Mitigation: Clear health indicator colors, contextual tooltips explaining what healthy looks like
+- Risk: Inactive feature nodes create FOMO or feel incomplete
+  - Mitigation: Design as "coming attractions" not "missing features", warm inviting visual treatment
+- Risk: Flow directions confuse users unfamiliar with double-entry accounting
+  - Mitigation: Optional "explain this flow" tooltips, link to educational content
+- Risk: Color customization creates accessibility issues
+  - Mitigation: Warn when contrast ratios fall below WCAG thresholds, suggest alternatives
 
 **External Dependencies:**
-- Libraries: three.js, d3.js, react-three-fiber
-- Infrastructure: WebGL
+- Libraries: d3.js (force-directed graph), framer-motion (animations)
+- No WebGL required (pure SVG/Canvas 2D)
 
 **Dependencies:** {F4, D6, D7}
 
-**Joy Opportunity:** "See your finances in a whole new dimension. Watch money flow through your business like a river."
+**Joy Opportunity:** "Watch your business breathe. See money flow through your company like a living ecosystem - every sale, every payment, every investment moving in real-time."
 
-**Delight Detail:** Time-lapse mode: watch a year of finances unfold like a beautiful animation.
+**Delight Detail:**
+- Time-lapse mode: Watch a year of finances unfold as a beautiful choreographed flow
+- First expansion celebration: Subtle confetti when user first goes full-screen
+- Milestone animations: Special effects when Revenue node crosses thresholds
+- "Breathing" idle animation: Nodes gently pulse when no transactions are flowing
 
 **Includes:**
-- 3D engine integration
-- Cash flow visualization
-- Balance sheet visualization
-- P&L flow diagram
-- Interactive controls
-- 2D fallback
+- Compact widget component
+- Full-screen expansion mode
+- Six primary nodes with sub-node expansion
+- Animated transaction flows
+- Solid/dashed line differentiation
+- Health indicator system
+- Ecosystem toggle (Active/Full)
+- Date range selector with custom option
+- Color customization panel with hex picker
+- Time-lapse playback mode
 - Accessibility descriptions
+- Educational tooltips
 
 **Spec Reference:** VIZ-001
 
 ---
 
-### J2. AI-Powered Insights (Nice)
-**What:** Intelligent analysis and recommendations.
+### J2. Smart Automation Assistant (Nice)
+**What:** AI that does tedious work for users, not AI that tells users what to think.
 
 **OpenSpec Resources:**
 - Change: `openspec/changes/moonshot-features/`
@@ -856,60 +2192,125 @@ See `Roadmaps/archive/` for detailed completion reports:
 
 **Status & Ownership:**
 - Status: Not Started
-- Priority: Medium (Moonshot)
+- Priority: Medium (Signature Feature)
 - Owner: TBD
 
+**Design Philosophy:**
+Research shows users value AI that removes tedious work, not AI that pushes opinions. G2 Research found chatbot-style "insights" score lowest among AI features (4.78/7), while auto-categorization, expense management, and pattern recognition score highest (5.2-5.46/7). Alert fatigue research shows a 30% drop in user attention for each repeated notification.
+
+This feature focuses on: **"AI works for me"** not **"AI tells me what to think"**
+
+**Core Features:**
+
+1. **Smart Categorization** (Does Work For Them)
+   - Learns from user's categorization patterns over time
+   - Auto-suggests categories for new transactions based on vendor, amount, description
+   - Improves accuracy the more the user corrects it
+   - Never overrides user decisions - suggestions only
+
+2. **Intelligent Reconciliation Matching** (Does Work For Them)
+   - Goes beyond exact-amount matching to find probable matches
+   - Considers timing patterns, vendor history, partial payments
+   - Surfaces "likely matches" for user confirmation
+   - Learns from user accept/reject behavior
+
+3. **Anomaly Flagging** (Catches What They'd Miss)
+   - Quietly flags transactions that don't fit established patterns
+   - Subtle visual indicator (not alarming notifications)
+   - Examples: Duplicate payments, unusual amounts for a vendor, transactions outside normal timing
+   - User can dismiss flags; system learns from dismissals
+   - NO unsolicited commentary on whether anomalies are "good" or "bad"
+
+4. **Cash Flow Projection** (User-Initiated Tool)
+   - Available when user asks for it, not pushed
+   - Projects future cash position based on:
+     - Recurring transactions (detected patterns)
+     - Outstanding invoices and bills
+     - Historical seasonality
+   - Shows confidence ranges, not false precision
+   - User controls assumptions and can adjust
+
+5. **Vendor & Customer Pattern Memory** (Invisible Efficiency)
+   - Remembers typical amounts, categories, and timing per vendor/customer
+   - Pre-fills forms based on history
+   - Detects when a vendor's typical invoice amount changes significantly
+   - Learns payment timing patterns for cash flow accuracy
+
+**What This Feature Does NOT Include:**
+- ~~Natural language "insights" pushed to users~~ (cut - lowest user satisfaction)
+- ~~Proactive trend commentary~~ (cut - becomes noise)
+- ~~"Your expenses are up!" notifications~~ (cut - judgmental, creates anxiety)
+- ~~AI-generated advice or recommendations~~ (cut - users don't trust it for financial decisions)
+- ~~Chatbot interface~~ (cut - scores lowest in research)
+
+**User Control Principles:**
+- All AI features can be disabled individually or entirely
+- AI never takes action without user confirmation
+- User corrections always override AI suggestions
+- No data leaves the device for AI processing (local-first)
+- Clear indication when AI is making a suggestion vs. showing raw data
+
 **Acceptance Criteria:**
-- [ ] Anomaly detection identifies unusual transactions and patterns
-- [ ] Trend analysis surfaces meaningful business insights
-- [ ] Natural language insights are clear, actionable, and non-judgmental
-- [ ] Cash flow forecasting provides reasonable predictions with confidence intervals
-- [ ] Expense pattern recognition learns from user behavior
-- [ ] Users can provide feedback to improve AI accuracy
-- [ ] All AI suggestions include explanations of reasoning
+- [ ] Smart categorization suggests categories with 80%+ accuracy after 100 transactions
+- [ ] Reconciliation matching surfaces probable matches beyond exact amounts
+- [ ] Anomaly flags appear as subtle visual indicators, not notifications
+- [ ] Anomaly detection has <10% false positive rate after learning period
+- [ ] Cash flow projection available on-demand (not pushed)
+- [ ] Cash flow shows confidence ranges for all projections
+- [ ] Vendor/customer patterns pre-fill forms accurately
+- [ ] All AI features can be individually disabled in settings
+- [ ] AI corrections improve model accuracy (learning loop verified)
+- [ ] Zero data transmitted externally for AI processing
+- [ ] Performance remains fast (<200ms for suggestions)
 
 **Test Strategy:**
-- Algorithm validation with known datasets
-- Accuracy measurement for forecasting models
-- User acceptance testing for insight clarity
-- False positive rate monitoring
-- Continuous learning validation
-- Privacy and data security testing
+- Categorization accuracy testing with diverse transaction sets
+- Reconciliation matching precision/recall measurement
+- False positive rate monitoring for anomaly detection
+- User acceptance testing: do users find suggestions helpful or annoying?
+- Learning loop validation: does accuracy improve over time?
+- Privacy verification: confirm no external data transmission
+- Performance benchmarking with large datasets
 
 **Risks & Mitigation:**
-- Risk: Requires advanced AI/ML technology not yet mature
-  - Mitigation: Start with rule-based heuristics, evolve to ML, partner with AI providers
-- Risk: Inaccurate predictions may mislead users
-  - Mitigation: Confidence scores, clear disclaimers, human oversight
-- Risk: High computational costs for AI processing
-  - Mitigation: Cloud-based processing, tiered feature access, optimization
-- Risk: Privacy concerns with AI analyzing financial data
-  - Mitigation: Local processing where possible, clear data usage policies, opt-in approach
+- Risk: Suggestions become annoying despite best intentions
+  - Mitigation: Subtle presentation, easy dismissal, respect for user overrides, granular disable options
+- Risk: Users don't trust AI with financial data
+  - Mitigation: 100% local processing, transparent about what AI does, user always in control
+- Risk: AI suggestions are wrong and create more work
+  - Mitigation: High confidence thresholds, clear "suggestion" vs "fact" distinction, easy correction flow
+- Risk: Learning loop creates filter bubble (only sees what it expects)
+  - Mitigation: Periodic pattern refresh, anomaly detection specifically looks for unexpected
 
 **External Dependencies:**
-- Libraries: tensorflow.js, brain.js
-- Services: OpenAI API, Anthropic Claude API
+- Libraries: tensorflow.js (local inference only)
+- Services: None (all processing local)
 - Infrastructure: None
 
 **Dependencies:** {F1, F4, G1}
 
-**Joy Opportunity:** "I noticed your expenses grew faster than revenue this quarter. Want to dig into why?"
+**Joy Opportunity:** "The tedious parts of bookkeeping just... disappear. You categorize a few transactions, and the system learns. You reconcile a few matches, and it gets smarter. The AI works quietly in the background so you can focus on your business."
 
-**Delight Detail:** Insights are helpful, never judgmental: "Here's something interesting..." not "Warning!"
+**Delight Detail:**
+- Satisfaction of watching accuracy improve over time
+- "Learning progress" indicator shows AI getting smarter from your input
+- Rare, genuine catches: "Heads up - this looks like a duplicate payment to [Vendor]" (only when confidence is high)
 
 **Includes:**
-- Anomaly detection
-- Trend analysis
-- Natural language insights
-- Cash flow forecasting
-- Expense pattern recognition
+- Smart transaction categorization (learns from user)
+- Intelligent reconciliation matching (probable matches)
+- Subtle anomaly flagging (no alarms, no judgment)
+- On-demand cash flow projection (user-initiated)
+- Vendor/customer pattern memory (invisible efficiency)
+- Per-feature disable toggles
+- Local-only processing (zero external data transmission)
 
-**Spec Reference:** AI-001 (from Ideas)
+**Spec Reference:** AI-001 (revised)
 
 ---
 
-### J3. "What-If" Scenario Planner (Nice)
-**What:** Model business decisions before making them.
+### J3. Building the Dream Scenarios (Nice)
+**What:** Professional-grade scenario modeling tool that pulls live book data, allows accountants to model complex what-if decisions, and delivers interactive results to clients.
 
 **OpenSpec Resources:**
 - Change: `openspec/changes/moonshot-features/`
@@ -919,58 +2320,182 @@ See `Roadmaps/archive/` for detailed completion reports:
 
 **Status & Ownership:**
 - Status: Not Started
-- Priority: Low (Moonshot)
+- Priority: Medium (Professional Feature)
 - Owner: TBD
 
+**Design Philosophy:**
+This is an accountant-level tool designed for professionals who regularly field "what if" questions from clients. Instead of exporting to spreadsheets, building manual models, and emailing PDFs back, accountants can model scenarios directly in the software with live book data and push interactive results to clients.
+
+**Not gatekept:** Any user can access this feature if they want it, but it's designed at professional knowledge level and lives in its own dedicated section.
+
+**Core Concept:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  BUILDING THE DREAM SCENARIOS                               │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Current Books (Baseline)     →    Adjustments    →    Projected Result
+│  ─────────────────────────         ────────────        ─────────────────
+│  • P&L snapshot                    • Template or       • Updated P&L
+│  • Balance Sheet                     freeform changes  • Updated Balance Sheet
+│  • Cash position                   • Accounting-aware  • Cash flow impact
+│  • Payroll data                    • Layerable         • Key metrics delta
+│  • Invoicing/AR                                             │
+│  • Products/Services                                        │
+│  • Vendors/AP                                               │
+│                                                             │
+│  [Refresh Baseline]           [Add Adjustment]      [Push to Client]
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**How It Works:**
+
+1. **Pull Baseline from Books**
+   - Snapshot of current financials (P&L, Balance Sheet, Cash)
+   - Operational data (Payroll, Invoicing/AR, Products/Services, Vendors/AP)
+   - Baseline is refresh-able - can update with latest actuals anytime
+   - Clear timestamp showing when baseline was captured
+
+2. **Build Adjustments (Templates + Freeform)**
+
+   **Scenario Templates** (common what-if questions):
+   - Reclassify Employee to Owner
+   - Add New Employee
+   - Remove Employee/Position
+   - Change Compensation
+   - Add Recurring Expense
+   - Remove Recurring Expense
+   - Change Pricing/Revenue
+   - Take on Debt/Loan
+   - Pay Off Debt
+   - Major Equipment Purchase
+   - Lease vs. Buy Analysis
+   - Add New Revenue Stream
+
+   **Freeform Adjustments:**
+   - Direct line-item modifications (like a spreadsheet)
+   - Reference actual accounts from chart of accounts
+   - Create formulas that calculate based on other values
+   - Full flexibility for edge cases templates don't cover
+
+3. **Accounting-Aware Impact Calculation**
+   - System understands double-entry relationships
+   - "Reclassify Employee to Owner" automatically:
+     - Removes salary from Expenses
+     - Removes employer payroll tax obligations
+     - Adds owner distribution line in Equity
+     - Recalculates profit impact
+     - Shows estimated tax liability change
+     - Adjusts cash flow timing
+   - Downstream impacts calculated automatically
+
+4. **Interactive Results View**
+   - Side-by-side: Current | Adjustment | Projected
+   - Visual indicators for positive/negative changes
+   - Key metrics summary (profit change, cash impact, tax estimate)
+   - Drill-down into any line item
+   - Notes/annotations on specific items (accountant can explain)
+
+5. **Push to Client Workflow**
+   - Accountant marks scenario as "Ready for Client"
+   - Customizable email notification composed in-app
+   - Email includes accountant's notes, context, recommendations
+   - Client receives notification with link to interactive view
+   - Client can explore the scenario (read-only or with permitted adjustments)
+   - Client can leave questions/comments for follow-up
+
+**The Worksheet Interface:**
+- Familiar grid layout for accountants (Excel-like comfort)
+- Columns: Account | Current | Adjustment | Projected | Notes
+- Formulas supported (reference other cells, book accounts)
+- Color coding: increases (green), decreases (red), neutral (gray)
+- Expandable sections by account category
+- Print/export option for those who need paper
+
+**Client Experience:**
+- Receives email: "Your scenario is ready to review"
+- Opens dedicated view in their Graceful Books account
+- Sees clean, understandable presentation of the scenario
+- Can toggle between summary view and detailed view
+- Can read accountant's notes explaining the changes
+- Can leave comments/questions
+- Cannot modify the accountant's work (view + comment only, unless granted edit access)
+
 **Acceptance Criteria:**
-- [ ] Users can create multiple named scenarios
-- [ ] Variable adjustments (revenue, expenses, hiring, etc.) are intuitive
-- [ ] Projected financial impact is calculated and displayed clearly
-- [ ] Multiple scenarios can be compared side-by-side
-- [ ] Scenarios can be saved, edited, and deleted
-- [ ] Scenarios can be shared with team members or advisors
-- [ ] Assumptions and calculations are transparent
+- [ ] Baseline pulls accurate snapshot from current books
+- [ ] Baseline can be refreshed with latest book data
+- [ ] At least 10 scenario templates available at launch
+- [ ] Freeform adjustments allow direct line-item modification
+- [ ] Freeform supports formulas referencing accounts and cells
+- [ ] Template adjustments calculate downstream impacts automatically
+- [ ] Side-by-side view shows Current | Adjustment | Projected clearly
+- [ ] Notes can be added to any line item or section
+- [ ] Push-to-client sends customizable email notification
+- [ ] Client receives interactive view (not just PDF)
+- [ ] Client can leave comments on the scenario
+- [ ] Scenarios are saved and can be revisited/edited
+- [ ] Multiple scenarios can exist for one client
+- [ ] Print/export produces clean professional output
+- [ ] All calculations maintain accounting equation balance
 
 **Test Strategy:**
-- Unit tests for scenario calculation engine
-- Integration tests for data persistence and sharing
-- E2E tests for complete scenario planning workflow
-- Accuracy validation for financial projections
-- Usability testing for scenario creation interface
+- Unit tests for adjustment calculation engine
+- Unit tests for each scenario template's downstream impacts
+- Integration tests: baseline pull accuracy matches live books
+- Integration tests: push-to-client email delivery and link
+- E2E tests: full workflow from baseline to client view
+- Calculation validation against manual spreadsheet models
+- Usability testing with professional accountants
+- Client comprehension testing for interactive view
 
 **Risks & Mitigation:**
-- Risk: Complex modeling may require advanced financial knowledge
-  - Mitigation: Templates for common scenarios, educational guidance, simple defaults
-- Risk: Projections may be overly optimistic or pessimistic
-  - Mitigation: Conservative defaults, multiple scenario comparison, clear assumptions
-- Risk: Feature complexity may overwhelm users
-  - Mitigation: Progressive disclosure, wizard-based creation, examples
-- Risk: Requires AI foundation from J2
-  - Mitigation: Build simpler version first, add AI enhancement later
+- Risk: Complex feature may be difficult to build and maintain
+  - Mitigation: Start with 5 core templates, expand based on usage data
+- Risk: Accountants may still prefer their spreadsheets
+  - Mitigation: Make import/export easy, don't force workflow change, prove value
+- Risk: Calculation errors could damage accountant-client trust
+  - Mitigation: Extensive testing, show work/formulas, allow manual override
+- Risk: Client may be overwhelmed by detailed financial view
+  - Mitigation: Default to summary view, detailed view optional, accountant notes provide context
 
 **External Dependencies:**
-- Libraries: decimal.js
-- Infrastructure: None
+- Libraries: decimal.js (precise calculations), handsontable or similar (grid interface)
+- Infrastructure: Email service for notifications
 
-**Dependencies:** {J2, F4}
+**Dependencies:** {F4, H1, J7}
 
-**Joy Opportunity:** "What if you hired an employee? Let's find out... without the commitment."
+**Joy Opportunity:** "Your client asks 'What if I moved Sarah from employee to owner?' Instead of spending an hour in Excel, you model it in minutes with their actual numbers, add your notes, and push them an interactive view. They see exactly what changes and why. That's the kind of service that builds loyalty."
 
-**Delight Detail:** Scenarios can be named: "The Expansion Dream" or "Conservative Growth"
+**Delight Detail:**
+- Scenario names can be personalized: "Sarah's Ownership Transition" or "The Big Expansion"
+- Client sees a polished, professional deliverable - reflects well on the accountant
+- Accountant can save favorite templates for quick reuse
+- "Last refreshed" indicator so everyone knows how current the baseline is
 
 **Includes:**
-- Scenario creation
-- Adjust variables
-- See projected impact
-- Compare scenarios
-- Save and share scenarios
+- Dedicated "Building the Dream Scenarios" section
+- Baseline snapshot from live books (refresh-able)
+- Scenario template library (10+ common what-ifs)
+- Freeform adjustment worksheet (Excel-like)
+- Accounting-aware downstream impact calculation
+- Side-by-side comparison view
+- Notes/annotations system
+- Push-to-client workflow
+- Customizable client notification email
+- Interactive client view with comments
+- Print/export functionality
+- Scenario history and versioning
+
+**Spec Reference:** SCENARIO-001 (revised)
 
 **Spec Reference:** AI-002 (from Ideas)
 
 ---
 
-### J4. Financial Health Score (Nice)
-**What:** Simple 0-100 score representing overall business health.
+### J4. Key Financial Metrics Reports (Nice)
+**What:** Professional reporting tool for accountants to pull meaningful financial metrics, analyze trends, and prepare for client communication.
 
 **OpenSpec Resources:**
 - Change: `openspec/changes/moonshot-features/`
@@ -980,58 +2505,146 @@ See `Roadmaps/archive/` for detailed completion reports:
 
 **Status & Ownership:**
 - Status: Not Started
-- Priority: Medium (Moonshot)
+- Priority: Medium (Professional Feature)
 - Owner: TBD
 
+**Design Philosophy:**
+Most business owners don't care about financial ratios and metrics - they care about "is my business doing okay?" and "what should I do?" The translation from metrics to meaning is the accountant's job. This tool helps accountants prepare for those conversations by giving them the data they need in a clear, professional format.
+
+**Not a score.** Not gamified. Not pushed to users. Just useful data for professionals who know how to interpret it.
+
+**Core Metrics Reports:**
+
+1. **Liquidity Report**
+   - Current Ratio (Current Assets / Current Liabilities)
+   - Quick Ratio (Liquid Assets / Current Liabilities)
+   - Working Capital
+   - Cash Runway (months of operating expenses covered)
+   - Trend over time (monthly/quarterly)
+
+2. **Profitability Report**
+   - Gross Profit Margin
+   - Net Profit Margin
+   - Operating Margin
+   - Revenue per Employee (if payroll data available)
+   - **Barter Revenue (if active)**: Fair market value of barter transactions included in revenue
+   - **Barter Toggle**: User can include/exclude barter from revenue calculations
+   - Trend over time
+
+3. **Efficiency Report**
+   - Accounts Receivable Turnover
+   - Days Sales Outstanding (DSO)
+   - Accounts Payable Turnover
+   - Inventory Turnover (if applicable)
+   - Trend over time
+
+4. **Leverage Report**
+   - Debt-to-Equity Ratio
+   - Debt-to-Assets Ratio
+   - Interest Coverage Ratio
+   - Trend over time
+
+5. **Summary Dashboard** (Accountant View)
+   - All key metrics on one page
+   - Traffic light indicators (green/yellow/red) for quick scanning
+   - Trend arrows (improving/stable/declining)
+   - Customizable date range
+
+**Report Features:**
+
+- **Period Comparison:** This quarter vs. last quarter, YoY, custom ranges
+- **Trend Visualization:** Simple charts showing metric movement over time
+- **Explanations Toggle:** Each metric has a plain-English explanation (helps accountant explain to client)
+- **Notes Field:** Accountant can add their interpretation/context before sharing
+- **Industry Context (Optional):** When available, show typical ranges for the industry (accountant decides whether to include)
+- **Export Options:** PDF, Excel, or shareable link
+
+**Sharing with Clients:**
+
+- Accountant decides if/when to share with client
+- Can share full report or selected metrics only
+- Accountant's notes included to provide context
+- Client sees a clean, understandable presentation
+- No "score" or judgment language - just "here are your numbers"
+
+**What This Feature Does NOT Include:**
+- ~~0-100 health score~~ (reductive and judgmental)
+- ~~"Your score went up!" celebrations~~ (patronizing)
+- ~~Unsolicited recommendations~~ (noise)
+- ~~Auto-push to business owners~~ (they don't want it)
+- ~~Gamification of any kind~~ (this is professional tooling)
+
 **Acceptance Criteria:**
-- [ ] Score calculation produces consistent 0-100 value
-- [ ] Component breakdown shows liquidity, profitability, efficiency, and leverage
-- [ ] Historical trend tracking displays score changes over time
-- [ ] Improvement recommendations are specific and actionable
-- [ ] Industry benchmarking provides context (when data available)
-- [ ] Score updates automatically as financial data changes
-- [ ] Clear explanations help users understand score meaning
+- [ ] Liquidity report calculates all metrics accurately
+- [ ] Profitability report calculates all metrics accurately
+- [ ] Efficiency report calculates all metrics accurately
+- [ ] Leverage report calculates all metrics accurately
+- [ ] Summary dashboard displays all key metrics on one view
+- [ ] Trend visualization shows metric changes over time
+- [ ] Period comparison allows flexible date range selection
+- [ ] Plain-English explanations available for each metric
+- [ ] Accountant can add notes before sharing
+- [ ] Sharing with client works (link or PDF)
+- [ ] Client view is clean and understandable
+- [ ] Export to PDF and Excel functions correctly
+- [ ] Industry benchmarks display when available and selected
+- [ ] **Barter revenue included in profitability calculations (when toggle ON)**
+- [ ] **Barter transactions marked with trade icon (↔) in revenue breakdown**
+- [ ] **Barter toggle only appears if user has active barter transactions (I5 integration)**
+- [ ] **If no barter activity, toggle is hidden (dormant feature)**
+- [ ] **User can exclude barter from revenue metrics via toggle (default: included)**
+- [ ] **Revenue breakdown clearly separates cash revenue, accrual revenue, and barter revenue**
 
 **Test Strategy:**
-- Unit tests for scoring algorithm with known scenarios
-- Validation against financial health principles
-- E2E tests for score display and breakdown
-- Comparison testing with industry standards
-- User comprehension testing
+- Unit tests for each metric calculation (verify against manual calculation)
+- Integration tests for data pull accuracy from books
+- E2E tests for report generation and sharing workflow
+- Validation against accounting standards for ratio calculations
+- Usability testing with professional accountants
+- Client comprehension testing for shared reports
 
 **Risks & Mitigation:**
-- Risk: Simplifying financial health to single score may be misleading
-  - Mitigation: Clear component breakdown, educational content, disclaimers
-- Risk: Algorithm may not account for industry-specific factors
-  - Mitigation: Industry-specific scoring models, customization options
-- Risk: Score volatility may confuse or stress users
-  - Mitigation: Smoothing algorithms, context for changes, positive framing
-- Risk: Lack of industry benchmark data
-  - Mitigation: Start with internal benchmarks, partner for industry data
+- Risk: Metric calculations may differ from accountant's preferred method
+  - Mitigation: Document calculation methodology, allow custom formulas in future
+- Risk: Industry benchmarks may not be relevant or accurate
+  - Mitigation: Make benchmarks optional, clearly source them, let accountant decide
+- Risk: Accountants may already have preferred tools for this
+  - Mitigation: Focus on integration with the books (no manual data entry), easy export
 
 **External Dependencies:**
-- Libraries: None
+- Libraries: chart.js or similar (trend visualization)
 - Infrastructure: None
 
 **Dependencies:** {F4, D6, D7, F5, F6}
 
-**Joy Opportunity:** "Your Financial Health Score is 73. Here's what that means and how to improve."
+**Joy Opportunity:** "Walking into a client meeting prepared. You've got the numbers, you've got the trends, you've added your notes. The conversation is about their business, not fumbling through spreadsheets."
 
-**Delight Detail:** Score improvements celebrated: "Your score went up 5 points this month!"
+**Delight Detail:**
+- One-click report generation (no configuration required for standard reports)
+- "Last generated" timestamp so accountant knows if data is fresh
+- Accountant can save report preferences per client
+- Print-optimized layout for those who like paper in meetings
 
 **Includes:**
-- Score calculation algorithm
-- Component breakdown (liquidity, profitability, etc.)
-- Trend tracking
-- Improvement recommendations
-- Industry benchmarking (if data available)
+- Liquidity metrics report
+- Profitability metrics report
+- Efficiency metrics report
+- Leverage metrics report
+- Summary dashboard (all metrics, one view)
+- Period comparison
+- Trend visualization
+- Plain-English metric explanations
+- Accountant notes field
+- Optional industry benchmarks
+- Client sharing (link or PDF)
+- Export (PDF, Excel)
 
-**Spec Reference:** HEALTH-001 (from Ideas)
+**Spec Reference:** METRICS-001 (revised from HEALTH-001)
 
 ---
 
-### J5. Goal Setting & Tracking (Nice)
-**What:** Set and track financial goals.
+### J5. Financial Goals (Nice)
+**What:** Simple, personal goal tracking for business owners who want to set targets and watch their progress - no spreadsheets required.
 
 **OpenSpec Resources:**
 - Change: `openspec/changes/moonshot-features/`
@@ -1041,56 +2654,137 @@ See `Roadmaps/archive/` for detailed completion reports:
 
 **Status & Ownership:**
 - Status: Not Started
-- Priority: Medium (Moonshot)
+- Priority: Medium (User Feature)
 - Owner: TBD
 
+**Design Philosophy:**
+This is an **inactive feature** users can activate when they're ready. Part of the vision: all financial aspects of running a business in one place, flexible and customizable, no more endless confusing spreadsheets.
+
+Goals are self-set, self-directed, and private. The system tracks quietly and celebrates when you hit them. No judgment, no pressure, no excessive notifications - just a simple way to aim for something and see your progress.
+
+**Finances deserve more joy.** Confetti stays.
+
+**Core Concept:**
+
+Simple goal cards that show:
+```
+┌─────────────────────────────────────────┐
+│  🎯 Q1 Revenue Target                   │
+│                                         │
+│  Target: $50,000                        │
+│  Current: $37,250                       │
+│  ████████████░░░░░░░░  74.5%           │
+│                                         │
+│  $12,750 to go · 47 days remaining     │
+└─────────────────────────────────────────┘
+```
+
+**Goal Types:**
+- **Revenue Target** - Hit a revenue number by a date
+- **Profit Target** - Reach a profit margin or amount
+- **Expense Budget** - Keep expenses under a limit
+- **Savings Target** - Build up cash reserves to a target
+- **Debt Payoff** - Pay down a debt by a date
+- **Custom Goal** - Any metric they want to track
+
+**How It Works:**
+
+1. **Set a Goal**
+   - Choose type or create custom
+   - Set target amount
+   - Set timeframe (monthly, quarterly, annual, or custom end date)
+   - Optional: add a personal note about why this goal matters
+
+2. **Watch Progress**
+   - Progress bar fills as they get closer
+   - Current vs. target always visible
+   - "X to go" and "Y days remaining" for context
+   - Updates automatically from their books (no manual entry)
+
+3. **Hit the Goal**
+   - 🎉 Confetti celebration
+   - Goal moves to "Achieved" section
+   - Option to set a new goal or increase the target
+
+**Notification Philosophy:**
+- **NO milestone spam** (no 25%, 50%, 75% notifications)
+- **ONE notification**: When you hit your goal (celebration!)
+- **Optional gentle reminder**: If enabled, a single "30 days left on your Q1 goal" nudge
+- Users control all notifications in settings
+
+**What This Feature Does NOT Include:**
+- ~~Notifications at every milestone~~ (noise)
+- ~~AI-suggested goals~~ (patronizing)
+- ~~Comparisons to other users~~ (judgmental)
+- ~~Pressure tactics~~ ("You're falling behind!")
+- ~~Complex goal hierarchies~~ (keep it simple)
+
+**Goal Dashboard:**
+- Active goals displayed as simple cards
+- Achieved goals in a separate "wins" section
+- Archive for past goals (history preserved)
+- Clean, motivating, not overwhelming
+
 **Acceptance Criteria:**
-- [ ] Users can create goals for revenue, profit, expense reduction, and custom metrics
-- [ ] Progress visualization shows current status vs. target
-- [ ] Milestone notifications alert users at 25%, 50%, 75%, and 100% completion
-- [ ] Complete goal history is maintained and viewable
-- [ ] Goals can be linked to specific checklist items
+- [ ] Users can create goals for revenue, profit, expenses, savings, debt, and custom metrics
+- [ ] Progress bar updates automatically from book data
+- [ ] Target, current, percentage, and "to go" amounts display clearly
+- [ ] Timeframe countdown shows days remaining
 - [ ] Goal achievement triggers confetti celebration
-- [ ] Goals support time-based targets (monthly, quarterly, annual)
+- [ ] Achieved goals move to "wins" section
+- [ ] Goal history is preserved and viewable
+- [ ] Notifications are limited to achievement (and optional reminder)
+- [ ] Users can edit or delete goals at any time
+- [ ] Feature is inactive by default, user activates when ready
+- [ ] Custom goals allow tracking any numeric metric
 
 **Test Strategy:**
-- Unit tests for goal progress calculation
-- Integration tests for milestone notification delivery
-- E2E tests for complete goal lifecycle
-- Visualization testing for various goal types
-- Celebration animation testing
+- Unit tests for progress calculation from book data
+- Integration tests for automatic progress updates
+- E2E tests for complete goal lifecycle (create → track → achieve)
+- Confetti animation testing
+- Notification delivery testing (achievement only)
+- User comprehension testing
 
 **Risks & Mitigation:**
-- Risk: Users may set unrealistic goals and become discouraged
-  - Mitigation: Guidance on goal setting, suggested targets, celebrate partial progress
-- Risk: Too many notifications may become annoying
-  - Mitigation: Notification preferences, smart frequency controls
-- Risk: Goal tracking may add pressure rather than motivation
-  - Mitigation: Positive framing, optional feature, emphasis on learning
+- Risk: Users may set unrealistic goals and feel bad
+  - Mitigation: No judgment when goals aren't met, easy to adjust, celebrate progress not just completion
+- Risk: Goal tracking adds pressure instead of motivation
+  - Mitigation: Optional feature, calm presentation, no nagging, user fully in control
+- Risk: Progress calculation may not match user's mental model
+  - Mitigation: Show calculation transparently, allow manual adjustment if needed
 
 **External Dependencies:**
 - Libraries: canvas-confetti
 - Infrastructure: None
 
-**Dependencies:** {J4, C4}
+**Dependencies:** {F4, C4}
 
-**Joy Opportunity:** "Set a goal, watch your progress. Celebrate when you hit it!"
+**Joy Opportunity:** "You set a goal. You worked toward it. You hit it. Confetti explodes. That's it - that's the feature. Simple, satisfying, yours."
 
-**CONFETTI MOMENT: Goal achievement = full confetti celebration.
+**CONFETTI MOMENT:** Goal achievement = full confetti celebration. 🎉
+
+**Delight Detail:**
+- "Wins" section becomes a visual record of what you've accomplished
+- Goal cards are designed to feel motivating, not stressful
+- Option to add a personal note: "This one's for the new equipment fund"
+- Confetti colors can match your color preferences from J1
 
 **Includes:**
-- Goal creation (revenue, profit, expense reduction)
-- Progress visualization
-- Milestone notifications
-- Goal history
-- Connect goals to checklist items
+- Goal creation (revenue, profit, expense budget, savings, debt payoff, custom)
+- Progress visualization (bar, percentage, "to go" amount)
+- Timeframe tracking (days remaining)
+- Achievement celebration (confetti)
+- Goal history / "Wins" section
+- Minimal notifications (achievement only + optional reminder)
+- Inactive by default (user activates)
 
-**Spec Reference:** GOAL-001 (from Ideas)
+**Spec Reference:** GOAL-001 (revised)
 
 ---
 
 ### J6. Emergency Fund & Runway Calculator (Nice)
-**What:** Know how long your business can survive.
+**What:** Know how long your business can survive - not to scare you, but to help you plan.
 
 **OpenSpec Resources:**
 - Change: `openspec/changes/moonshot-features/`
@@ -1103,59 +2797,433 @@ See `Roadmaps/archive/` for detailed completion reports:
 - Priority: Medium (Moonshot)
 - Owner: TBD
 
+**Design Philosophy:**
+"How long can my business survive if revenue stops?" is one of the most anxiety-inducing questions an entrepreneur faces. Traditional financial tools either ignore this entirely or present it in terrifying terms ("You're running out of money!").
+
+This feature reframes runway from a scary countdown into **actionable planning information**. It's not about fear - it's about knowing your position so you can make confident decisions.
+
+**Inactive by default.** Users activate this when they're ready to think about it. No unsolicited "your runway is shrinking!" notifications. Just a calm, clear tool available when they need it.
+
+**Core Concept:**
+
+The Runway Dashboard shows three key numbers in a clean, visual format:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  YOUR RUNWAY                                             │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Current Cash: $42,300                                  │
+│  Monthly Burn: $8,200                                   │
+│                                                          │
+│  ┌────────────────────────────────────────────────┐    │
+│  │                                                 │    │
+│  │     5.2 months of runway                       │    │
+│  │                                                 │    │
+│  │     ████████████████░░░░░░░░░░░░  5.2 / 12    │    │
+│  │                                                 │    │
+│  │     Based on last 90 days average burn rate    │    │
+│  └────────────────────────────────────────────────┘    │
+│                                                          │
+│  [Adjust Assumptions]  [Explore Scenarios]              │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**How Runway is Calculated:**
+
+**Three calculation methods** (user can choose or compare):
+
+1. **Simple Average** (default)
+   - Average monthly expenses over last 90 days
+   - Easiest to understand
+   - Good for stable businesses
+
+2. **Trend-Adjusted**
+   - Accounts for increasing or decreasing burn rate trends
+   - Better for growing/scaling businesses
+   - Shows: "Your burn is increasing 8% per month"
+
+3. **Seasonal**
+   - Factors in seasonal patterns if detected
+   - Useful for businesses with predictable cycles
+   - Requires 12+ months of history
+
+**System automatically suggests the most appropriate method based on business patterns.**
+
+**Transparency is key:** Users can see exactly how the number is calculated, click to view the underlying transactions, and adjust assumptions.
+
+**Understanding Your Net Burn:**
+
+Runway isn't just about expenses - it's about the gap between what comes in and what goes out.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  YOUR CASH FLOW PICTURE                                  │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Showing averages from: [Last 365 days ▼]              │
+│  (Options: Last 30 days, Last 90 days, Last 365 days,  │
+│   Year-to-date, Last year, All time, Custom range)      │
+│                                                          │
+│  Monthly Revenue (avg):        $12,400                  │
+│  Monthly Expenses (avg):       $8,200                   │
+│  ─────────────────────────────────────                  │
+│  Net Burn:                     +$4,200 (positive!)      │
+│                                                          │
+│  ✓ You're cash-flow positive - runway is extending     │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+Or for a business burning cash:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  YOUR CASH FLOW PICTURE                                  │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Showing averages from: [Last 365 days ▼]              │
+│                                                          │
+│  Monthly Revenue (avg):        $6,100                   │
+│  Monthly Expenses (avg):       $8,200                   │
+│  ─────────────────────────────────────────────────────  │
+│  Net Burn:                     -$2,100 (burning)        │
+│                                                          │
+│  Current Cash: $42,300                                  │
+│  Runway at current burn: ~20 months                     │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Revenue Flexibility is Critical:**
+
+Just like with expenses, users need to model revenue changes:
+
+**Revenue Breakdown:**
+- See which clients/customers contribute what percentage
+- See which products/services drive revenue
+- Identify concentration risk ("80% from one client")
+- Spot trends (growing, stable, declining)
+
+**Quick Revenue Visibility:**
+```
+┌─────────────────────────────────────────────────────────┐
+│  REVENUE SOURCES                                         │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Acme Corp retainer          $4,000/mo    32%          │
+│  Widget sales                $3,200/mo    26%          │
+│  Consulting projects         $2,800/mo    23%          │
+│  Other clients               $2,400/mo    19%          │
+│                                                          │
+│  ⚠️  High concentration: One client = 32% of revenue    │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Emergency Fund Recommendations:**
+
+Instead of one-size-fits-all advice, recommendations are **contextualized to business type and risk profile**:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  RECOMMENDED RUNWAY TARGET                               │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  For service businesses with recurring revenue:         │
+│  → 3-6 months (lower risk)                              │
+│                                                          │
+│  Your current runway: 5.2 months ✓                      │
+│  You're in a healthy range.                             │
+│                                                          │
+│  Want to sleep even better? Here's how to reach 6:     │
+│  • Reduce monthly burn by $1,200, OR                    │
+│  • Add $7,400 to cash reserves                          │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Business type recommendations:**
+- Service businesses (recurring revenue): 3-6 months
+- Product businesses (inventory risk): 6-9 months
+- Seasonal businesses: 9-12 months
+- High-growth startups: 12-18 months
+- Bootstrapped solopreneurs: 6-12 months
+
+Users can override these if their situation is different. No judgment, just guidance.
+
+**Scenario Modeling (Revenue + Expenses):**
+
+"What if" scenarios cover **both sides** of the equation:
+
+**Revenue Scenarios:**
+- "What if I lost my biggest client?" (automatic - detects top client)
+- "What if I stopped carrying [Product Line]?"
+- "What if I landed a new $X/month retainer?"
+- "What if I raised prices by 10%?"
+- "What if seasonal revenue drops by 30% next quarter?"
+- "What if this project ends and isn't renewed?"
+
+**Expense Scenarios:**
+- "What if I cut this recurring expense?"
+- "What if I hired a part-time assistant?"
+- "What if I delayed this large purchase?"
+- "What if I reduced my owner's draw temporarily?"
+- "What if rent increases by $500/month?"
+
+**Combined Scenarios:**
+- "Lose a client AND cut related expenses"
+- "New revenue stream AND needed new tool"
+- "Raise prices AND invest in marketing"
+
+Each scenario shows the **net burn impact** and resulting **runway change**:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  SCENARIO: Lost Acme Corp Retainer                      │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Current Net Burn:    +$4,200/month (positive)         │
+│  After losing client: -$200/month (burning)            │
+│                                                          │
+│  Current Runway:      Extending indefinitely ✓          │
+│  New Runway:          ~211 months (17.6 years)         │
+│                                                          │
+│  This would hurt, but you'd have time to replace them.  │
+│                                                          │
+│  [Add expense cuts to explore mitigation]               │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Interactive Dual-Slider Interface:**
+
+Side-by-side sliders for revenue and expenses - drag either to see impact:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  EXPLORE YOUR RUNWAY                                     │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Monthly Revenue:                                        │
+│  ◄──────●────────────► $12,400                          │
+│          $0        $20,000                               │
+│                                                          │
+│  Monthly Expenses:                                       │
+│  ◄──────────●────────► $8,200                           │
+│          $0        $20,000                               │
+│  ─────────────────────────────────                      │
+│  Net Burn:  +$4,200/mo                                  │
+│  Runway:    Extending ✓                                 │
+│                                                          │
+│  Try it: What if revenue dropped to $10k?               │
+│  → Drag the revenue slider left and watch runway change │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Smart Scenario Buttons:**
+Based on actual book data, system suggests relevant scenarios:
+
+- "Your biggest client is Acme Corp ($4k/mo). Model losing them?"
+- "Widget sales = 26% of revenue. Model discontinuing?"
+- "Your top expense is rent ($2,400/mo). Model moving?"
+
+One click applies that scenario. Instantly see the runway impact.
+
+**Alerts & Notifications:**
+
+**User-configured thresholds only.** The system never decides when to alert you.
+
+Setup example:
+```
+Notify me when runway falls below: [3] months
+How: [ ] Email  [✓] In-app  [ ] Both
+Frequency: Once when threshold is crossed (not repeatedly)
+```
+
+**Alert tone is calm and helpful:**
+- ✓ "Heads up: Your runway is now at 2.8 months. Would you like to explore some scenarios?"
+- ✗ "WARNING: You're running out of money!"
+
+**What This Feature Does NOT Include:**
+
+- ~~Unsolicited "your runway is shrinking" notifications~~ (anxiety-inducing, noise)
+- ~~Default alerts~~ (user must explicitly opt in)
+- ~~Comparison to other businesses~~ (not helpful, potentially discouraging)
+- ~~Pressure tactics~~ ("You should have 12 months!")
+- ~~Automatic negative framing~~ ("Only 3 months left!")
+- ~~Complex financial modeling~~ (keep it accessible)
+
+**Visual Representation:**
+
+Two visualization options:
+
+1. **Runway Bar** (default)
+   - Simple progress bar showing months of runway
+   - Reference line at user's target (e.g., 6 months)
+   - Color coding: Green (above target), Yellow (near target), Red (below threshold)
+
+2. **Runway Timeline**
+   - Calendar view showing projected cash depletion
+   - Marks the date cash reaches zero based on current burn
+   - Shows major upcoming expenses and expected revenue
+   - Visual "what if" overlay when exploring scenarios
+
+**Both show confidence ranges** - not false precision:
+- "5-6 months" instead of "5.2 months" if volatility is high
+- Explanation: "Your expenses vary quite a bit month to month, so this is an estimate range."
+
+**Educational Content:**
+
+Throughout the feature, plain-English explanations:
+
+- **Burn rate:** "How much cash your business uses each month"
+- **Runway:** "How long your business can operate at current spending before running out of cash"
+- **Emergency fund:** "Cash reserves set aside to cover slow months or unexpected expenses"
+- **Net burn:** "Revenue minus expenses - positive means you're building cash, negative means you're using it"
+
+**Why this matters:** Tooltip explaining why runway awareness helps make better decisions about hiring, investing, pricing, etc.
+
 **Acceptance Criteria:**
-- [ ] Runway calculation accurately projects months of operation based on current burn rate
-- [ ] Emergency fund recommendations are personalized to business type and size
-- [ ] Threshold alerts notify users when runway falls below configurable limits
-- [ ] Scenario modeling allows users to explore runway extension strategies
-- [ ] Visual runway representation is clear and easy to understand
-- [ ] Calculation methodology is transparent and adjustable
-- [ ] Conservative estimates are used to avoid false security
+
+- [ ] Runway calculation uses three methods: Simple Average, Trend-Adjusted, Seasonal
+- [ ] System suggests most appropriate calculation method based on business patterns
+- [ ] Calculation methodology is fully transparent with "show me how" breakdown
+- [ ] Users can click through to see underlying transactions
+- [ ] Users can adjust calculation assumptions (date range, included accounts)
+- [ ] Cash Flow Picture includes date range selector with options: Last 30 days, Last 90 days, Last 365 days (default), Year-to-date, Last year, All time, Custom range
+- [ ] Date range selection updates both revenue and expense averages
+- [ ] Monthly revenue calculation uses same three methods as expenses (Simple, Trend-Adjusted, Seasonal)
+- [ ] Revenue breakdown shows top clients/customers by contribution percentage
+- [ ] Revenue breakdown shows top products/services by contribution percentage
+- [ ] Concentration risk warning displays when any client >25% or product >40% of revenue
+- [ ] Revenue trend indicator shows growing/stable/declining with percentage
+- [ ] Emergency fund recommendations are personalized to business type
+- [ ] Users can override recommended runway target
+- [ ] Business type selection available with common recommendations
+- [ ] Scenario templates include both revenue and expense changes
+- [ ] Revenue-specific scenarios auto-populate from actual book data (top client, top product)
+- [ ] Combined scenarios allow modeling revenue + expense changes together
+- [ ] Scenario modeling allows "what if" exploration with immediate runway impact
+- [ ] Quick scenario templates available (new contract, expense reduction, client loss, etc.)
+- [ ] Interactive dual-sliders adjust revenue/expenses and update runway in real-time
+- [ ] Net burn calculation is transparent: Revenue - Expenses = Net Burn
+- [ ] Positive net burn (cash flow positive) is celebrated appropriately
+- [ ] Runway calculation handles both positive and negative net burn correctly
+- [ ] Revenue volatility is factored into confidence ranges
+- [ ] Users can exclude one-time revenue windfalls from projections
+- [ ] Recurring vs. project revenue can be analyzed separately
+- [ ] Threshold alerts are user-configured only (opt-in, never automatic)
+- [ ] Alert tone is calm and helpful, never alarmist
+- [ ] Alerts trigger only once when crossing threshold (not repeatedly)
+- [ ] Runway bar visualization shows current vs. target clearly
+- [ ] Runway timeline view displays projected depletion date and major cash events
+- [ ] Confidence ranges shown when expense/revenue volatility is high
+- [ ] Color coding (green/yellow/red) respects user-defined thresholds
+- [ ] Plain-English explanations available for all financial terms
+- [ ] Educational content explains why runway awareness matters
+- [ ] Feature is inactive by default, user activates when ready
+- [ ] Smart scenario buttons suggest relevant scenarios from actual book data
+- [ ] All calculations maintain decimal precision
+- [ ] Performance remains fast (<500ms for scenario updates)
 
 **Test Strategy:**
-- Unit tests for runway calculation algorithm
-- Validation against known business scenarios
-- E2E tests for alert delivery
-- Scenario modeling accuracy testing
-- User comprehension testing
+- Unit tests for all three runway calculation methods
+- Unit tests for net burn calculation (revenue - expenses)
+- Validation against known business scenarios (volatile, stable, seasonal, cash-positive, cash-negative)
+- Scenario modeling accuracy testing (slider changes produce correct projections)
+- Revenue breakdown accuracy testing (client/product contribution percentages)
+- Concentration risk detection testing
+- Date range selection accuracy (verify averages match selected period)
+- E2E tests for complete workflow (activate → configure → set threshold → receive alert)
+- E2E tests for revenue and expense scenario modeling
+- Calculation transparency testing (verify breakdown matches actual calculation)
+- User comprehension testing with non-financial entrepreneurs
+- Anxiety assessment (does this feature reduce or increase stress?)
+- Confidence range accuracy validation
+- Dual-slider interaction testing
 
 **Risks & Mitigation:**
-- Risk: Runway calculations may cause anxiety
-  - Mitigation: Positive framing, actionable recommendations, opt-in approach
-- Risk: Volatile expenses may make projections unreliable
-  - Mitigation: Multiple projection methods, confidence ranges, trend smoothing
-- Risk: Users may not understand burn rate concept
-  - Mitigation: Educational content, plain language explanations, examples
-- Risk: Feature may be too advanced for early-stage businesses
-  - Mitigation: Progressive feature revelation, simple default view
+- Risk: Runway calculations may cause anxiety despite best intentions
+  - Mitigation: Inactive by default, calm presentation, focus on actionable scenarios, educational framing
+- Risk: Volatile expenses or revenue make projections unreliable
+  - Mitigation: Multiple calculation methods, confidence ranges, trend smoothing, transparent assumptions, date range flexibility
+- Risk: Users may not understand burn rate, net burn, or runway concepts
+  - Mitigation: Plain English everywhere, visual explanations, examples, "why this matters" context
+- Risk: False precision creates false confidence or unnecessary alarm
+  - Mitigation: Show confidence ranges when appropriate, explain volatility, conservative estimates
+- Risk: Seasonal businesses may get inaccurate projections
+  - Mitigation: Seasonal calculation method, ability to exclude outlier months, manual override options, date range selection
+- Risk: Revenue concentration warnings may discourage users
+  - Mitigation: Frame as "awareness" not "problem", educational context about diversification benefits
 
 **External Dependencies:**
-- Libraries: decimal.js, date-fns
+- Libraries: decimal.js (precise calculations), date-fns (date handling), chart.js (timeline view)
 - Infrastructure: None
 
 **Dependencies:** {F4}
 
-**Joy Opportunity:** "You have 4.2 months of runway. That's peace of mind."
+**Joy Opportunity:** "5.2 months of runway. That number means you can confidently invest in that new tool, take on that big project, or weather a slow season. Knowledge is power."
 
-**Delight Detail:** Runway alerts are helpful, not scary: "Just a heads up - runway is at 2 months. Here are some ideas..."
+**Delight Detail:**
+- First time user activates feature, gentle intro: "Let's figure out your runway together. This won't take long."
+- Scenario modeling is satisfying - drag a slider, watch runway extend
+- Reaching runway target triggers subtle celebration: "You hit your 6-month runway goal! 🎉"
+- "Peace of Mind" indicator when above target for 3+ months straight
+- Export option: "Share with advisor" button creates clean PDF summary
+- Revenue concentration insight feels helpful, not alarming: "Acme Corp is 32% of your revenue - worth being aware of"
 
 **Includes:**
-- Runway calculation
-- Emergency fund recommendations
-- Threshold alerts
-- Scenario modeling for extension
-- Visual runway representation
+- Three runway calculation methods (Simple, Trend-Adjusted, Seasonal)
+- Automatic method suggestion based on business patterns
+- Calculation transparency with full breakdown
+- Click-through to underlying transactions
+- Adjustable assumptions interface
+- Cash Flow Picture with date range selector (Last 30/90/365 days, YTD, Last year, All time, Custom)
+- Net burn calculation (Revenue - Expenses)
+- Monthly revenue and expense averages from selected date range
+- Revenue breakdown by client/customer
+- Revenue breakdown by product/service
+- Concentration risk warnings
+- Revenue and expense trend indicators
+- Business-type personalized emergency fund recommendations
+- Recommended runway target by business type
+- Override option for custom targets
+- Revenue scenario modeling (client loss, product discontinuation, price changes)
+- Expense scenario modeling (cost cuts, new hires, investments)
+- Combined scenario modeling
+- Interactive dual-slider "what if" tool
+- Real-time runway impact display
+- Smart scenario suggestions from actual book data
+- User-configured threshold alerts (opt-in only)
+- Calm, helpful alert messaging
+- Once-per-threshold alert delivery
+- Runway bar visualization
+- Runway timeline view with cash events
+- Confidence ranges for volatile data
+- Color coding based on user thresholds
+- Plain-English term explanations
+- Educational "why this matters" content
+- Inactive by default (user activation)
+- Export/share functionality
 
-**Spec Reference:** RUNWAY-001 (from Ideas)
+**Spec Reference:** RUNWAY-001 (revised)
 
 ---
 
 ### J7. Mentor/Advisor Portal (Nice)
-**What:** Invite accountants or advisors for collaborative access.
+**What:** A professional workspace for the business owner + trusted advisor relationship - designed for accountants, CPAs, fractional CFOs, and bookkeepers who serve multiple clients.
 
 **OpenSpec Resources:**
 - Change: `openspec/changes/moonshot-features/`
 - Proposal: `openspec/changes/moonshot-features/proposal.md`
+
+**J7 Detailed Documentation:**
+- **View-Key Cryptographic Specification:** `docs/J7_VIEW_KEY_CRYPTOGRAPHIC_SPECIFICATION.md` (15 sections, complete security architecture, external audit required before production)
+- **Advisor Onboarding UX Flow:** `docs/J7_ADVISOR_ONBOARDING_UX_FLOW.md` (6-screen wizard with 20 years UX expertise, conversion funnel tracking)
+- **Advisor-Client Data Model:** `docs/J7_ADVISOR_CLIENT_DATA_MODEL.md` (3 new tables with anonymous client IDs, Option B architecture, zero-knowledge compatible)
 - Tasks: `openspec/changes/moonshot-features/tasks.md`
 - Specs: `openspec/changes/moonshot-features/specs/*/spec.md`
 
@@ -1164,53 +3232,607 @@ See `Roadmaps/archive/` for detailed completion reports:
 - Priority: Low (Moonshot)
 - Owner: TBD
 
+**Design Philosophy:**
+
+This is fundamentally different from H1 (Multi-user team collaboration). H1 is for **employees and internal team members** who work for ONE business. J7 is for **external advisors** who work WITH multiple businesses in a professional service capacity.
+
+The relationship is:
+- **Service-based** (advisor provides expertise to client)
+- **Multi-client** (advisors manage many businesses, not just one)
+- **Permission-controlled** (client decides what advisor can see)
+- **Consultative** (advisor guides, suggests, asks questions - doesn't necessarily edit)
+
+**Key differentiator:** Advisors get a **multi-client dashboard** where they can see all their client businesses in one place, switch between them, and manage their advisory relationships at scale.
+
+**Zero-knowledge compatible:** Client grants access by sharing encrypted view-keys for specific data scopes (read-only books, specific reports, document folder, etc.). Advisor never gets the master key.
+
+**The Pricing Model (Critical Feature):**
+
+This is where Graceful Books becomes **advisor-friendly** and creates a powerful distribution channel:
+
+**For Advisors (Accountants, CPAs, Fractional CFOs, Bookkeepers):**
+- **Free advisor account** - no charge to create and manage
+- **3 included client accounts** - use for your own firm, demo purposes, or gift to clients
+- **5 included users** - for your team members (additional users $2.50/user/month)
+- **$50 per 50 clients** after the first 3 (that's $1/client/month)
+- **Assign users to clients** - control which team members see which client books
+- Advisor pays one consolidated bill for all their clients and users
+
+**For Clients under an Advisor's Plan:**
+- **No charge to the client** - as long as they're under their advisor's plan
+- Client gets full Graceful Books access
+- Client can invite their team (using existing H1 multi-user features)
+- If client leaves advisor or advisor removes them, client can opt to pay directly ($40/month individual plan, which includes $5 to charity)
+
+**Why This Matters:**
+
+1. **Advisors control the platform choice** - if an accountant tells their 50 clients "we're using Graceful Books," those clients will use it
+2. **Advisor consolidation** - all client books in one place, one login, consistent interface
+3. **Client acquisition** - advisors become a distribution channel (50 clients = 50 potential users)
+4. **Stickiness** - client stays because their accountant is already set up in the system
+5. **Scalability** - advisor economics work ($50 for 50 clients vs. client-by-client billing)
+
+**Advisor Plan Tiers:**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  ADVISOR PLAN PRICING                                    │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Starter (Free)                                          │
+│  • 3 client accounts included                           │
+│  • 5 user accounts included                             │
+│  • Full multi-client dashboard                          │
+│  • All collaboration features                           │
+│  • Assign users to client books                         │
+│                                                          │
+│  Professional ($50 per 50 clients)                      │
+│  • $50 per 50 clients after first 3 (includes $5 to    │
+│    your selected charity)                               │
+│  • $2.50/user/month after first 5                       │
+│  • Billed monthly in blocks of 50 clients              │
+│  • Example: 75 clients, 8 users = $100 + $7.50         │
+│    = $107.50/month total                                │
+│                                                          │
+│  Enterprise (Custom pricing for 500+ clients)           │
+│  • Volume discounts available                           │
+│  • Dedicated support                                    │
+│  • Custom onboarding for large firms                    │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Client Billing When Not Under Advisor:**
+- Individual client: $40/month (includes $5 to charity selected from available options)
+- Client can choose to pay directly instead of being under advisor plan
+- Advisor can "release" a client from their plan at any time
+
+**Charity Selection:**
+- Platform admin (Graceful Books owner) maintains curated list of available charities
+- Users and advisors select from this approved list
+- Platform admin has full control over adding, updating, or removing charity options
+- Ensures charitable contributions go to verified, reputable organizations
+
+**Multi-Currency Support (Technical Note):**
+- **Platform billing is USD only**: All advisor and client subscriptions are billed in US dollars through Stripe
+- **Client books support multi-currency**: Clients can use H5 Multi-Currency features to track transactions in any currency (EUR, GBP, JPY, etc.)
+- **Advisor sees client's base currency**: When viewing client books, advisor sees transactions in whatever currency the client chose as their base
+- **Billing remains USD**: Regardless of client's operating currency, subscription fees are always in USD
+- **Example**: A Canadian client operating in CAD pays $40 USD/month subscription, tracks transactions in CAD within their books
+
+**Core Concept:**
+
+**From the Business Owner's Perspective:**
+
+Invite your accountant, CPA, fractional CFO, or bookkeeper to see your books and collaborate:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  ADVISORS & COLLABORATORS                                │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Jessica Martinez, CPA                                  │
+│  jessica@martinezaccounting.com                         │
+│  Access: View-Only Books + Reports + Documents         │
+│  Since: Jan 2024                                        │
+│  💰 Billing: Under advisor's plan (no charge to you)    │
+│  [Edit Access] [Revoke Access] [Message]               │
+│                                                          │
+│  ─────────────────────────────────────────────────────  │
+│                                                          │
+│  [+ Invite New Advisor]                                 │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**From the Advisor's Perspective:**
+
+Multi-client dashboard showing all businesses they advise (alphabetized):
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  MY CLIENTS                                              │
+│  Plan: Professional (72 clients) • $100/month           │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  🔵 Acme Consulting LLC        [Open]                   │
+│      Last viewed: 2 hours ago                           │
+│      Unread comments: 2                                 │
+│                                                          │
+│  🟡 Sarah's Design Studio      [Open]                   │
+│      Last viewed: 3 days ago                            │
+│      Unread comments: 5 (needs attention)               │
+│                                                          │
+│  🟢 Widget Makers Inc          [Open]                   │
+│      Last viewed: Yesterday                             │
+│      Unread comments: 0                                 │
+│                                                          │
+│  [... 69 more clients ...]                              │
+│                                                          │
+│  Sorted: [A-Z (default)]  Filter: [All Clients ▼]      │
+│  Search: [____________________]                         │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Invitation & Access Flow:**
+
+1. **Client Initiates**
+   - Business owner clicks "Invite Advisor"
+   - Enters advisor's email and optional personal message
+   - Selects access level (see below)
+   - Option: "I want to be under my advisor's billing plan" (default: yes)
+   - System sends invitation email
+
+2. **Advisor Accepts**
+   - Advisor receives email with invitation link
+   - If new to Graceful Books: Creates advisor account (free - chooses plan based on client count)
+   - If existing user: Invitation appears in their advisor portal
+   - Advisor accepts, client is added to their plan
+   - If over 3 clients, advisor is prompted to upgrade to Professional plan
+
+3. **Access is Active**
+   - Advisor can now view client's books within their multi-client dashboard
+   - Client billing shifts to advisor's plan (client no longer charged individually)
+   - Client can adjust permissions, revoke access, or communicate anytime
+   - All advisor activity is logged in client's audit trail
+
+**Access Levels (Client's Choice):**
+
+**Granular permission control** - client chooses exactly what advisor can see:
+
+**Pre-set Access Packages:**
+
+1. **View-Only Observer**
+   - Can see: Financial reports (P&L, Balance Sheet, Cash Flow)
+   - Cannot see: Individual transactions, client/vendor details, bank accounts
+   - Use case: Board member, investor, business coach who needs high-level view
+
+2. **Full View Access**
+   - Can see: Everything in the books (transactions, reports, contacts, documents)
+   - Cannot do: Edit, delete, create new records
+   - Use case: CPA reviewing for taxes, fractional CFO advising on strategy
+
+3. **Collaborative Partner**
+   - Can see: Everything
+   - Can do: Create/edit transactions, categorize, reconcile, generate reports
+   - Cannot do: Delete records, modify chart of accounts structure, manage users
+   - Use case: Bookkeeping service, accounting firm handling monthly close
+
+4. **Tax Season Package** (Seasonal)
+   - Can see: All transaction detail, reports, tax-relevant documents
+   - Can do: Request missing info, leave notes, export for tax software
+   - Auto-expires: After specified date (e.g., April 30)
+   - Use case: Tax preparer needs access just for filing season
+
+5. **Custom Access**
+   - Client picks exactly what the advisor can see/do
+   - Checkbox interface for each permission type
+   - Use case: Unique advisory relationships
+
+**Permission Granularity:**
+
+Can view:
+- [ ] Financial reports only
+- [ ] Transaction detail
+- [ ] Client/customer information
+- [ ] Vendor/supplier information
+- [ ] Bank account information
+- [ ] Documents & receipts
+- [ ] Comments and notes
+- [ ] Budget/forecast data
+- [ ] Payroll information (if applicable)
+
+Can do:
+- [ ] Leave comments and questions
+- [ ] Create transactions
+- [ ] Edit transactions
+- [ ] Categorize/tag transactions
+- [ ] Upload documents
+- [ ] Reconcile accounts
+- [ ] Generate reports
+- [ ] Export data
+
+**Advisor Team Management:**
+
+**For accounting firms with multiple staff members:**
+
+Advisors can invite team members to their account and assign them to specific clients:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  TEAM MEMBERS                                            │
+│  Users: 8 (5 included + 3 @ $2.50 = $7.50/month)       │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Sarah Chen, Senior Accountant                          │
+│  sarah@yourfirm.com                                     │
+│  Assigned to: 24 clients                                │
+│  [Edit Assignments] [Remove]                            │
+│                                                          │
+│  Marcus Rodriguez, Bookkeeper                           │
+│  marcus@yourfirm.com                                    │
+│  Assigned to: 15 clients                                │
+│  [Edit Assignments] [Remove]                            │
+│                                                          │
+│  [+ Invite Team Member]                                 │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Team Member Assignment:**
+- Advisor (account owner) sees all clients
+- Team members see only clients they're assigned to
+- Advisor controls which team member sees which client books
+- Useful for: Senior accountant handles some clients, bookkeeper handles others
+- Each team member gets their own multi-client dashboard filtered to their assignments
+
+**Client Lifecycle Management:**
+
+Advisor can manage client status and billing:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Acme Consulting LLC                                     │
+│  Under your plan since: Jan 2024                        │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Current status: Active                                 │
+│                                                          │
+│  Your current cost: $107.50/month (75 clients, 8 users)│
+│  Cost per client: ~$1.34/client                         │
+│                                                          │
+│  [Remove from Active Dashboard]                         │
+│  • Client will be asked if they want to:               │
+│    - Pay individually ($40/month) and keep access      │
+│    - Archive their account                             │
+│  • Your new cost: $107.50/month (74 clients, 8 users)  │
+│  • Cost per client: ~$1.35/client                       │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**When advisor removes a client:**
+1. Client receives notification: "Your accountant has transferred billing back to you."
+2. Client is prompted to choose:
+   - **Pay individually** ($40/month) - maintains full access, continues using Graceful Books
+   - **Archive account** - stops using Graceful Books, data remains accessible in read-only mode
+3. Advisor's client count decreases by 1, billing adjusts automatically
+4. Client no longer appears in advisor's active dashboard
+5. Advisor can optionally add a note: "Client relationship ended" or "Client moved to another firm"
+
+**Use cases for client removal:**
+- Client relationship ends (client switches accountants)
+- Client goes out of business
+- Client wants to manage their own books independently
+- Advisor restructuring their practice and reducing client load
+
+**Advisor Multi-Client Dashboard Features:**
+
+**For advisors managing 5, 10, 50+ client businesses:**
+
+1. **Client Switcher**
+   - Alphabetized list (A-Z default sort)
+   - Search by client name for quick access
+   - Color-coded dots for unread activity
+   - Filter options: All Clients, Needs Attention, Recently Active, Inactive
+   - Team members see only their assigned clients in this list
+
+2. **Cross-Client Overview** (Advisor's Home)
+   - Summary cards for each client showing key metrics
+   - Alerts: "Client has unreconciled transactions"
+   - Task list: "3 clients need quarterly review"
+   - Calendar: Upcoming deadlines across all clients
+
+3. **Client-Specific Workspace**
+   - When advisor opens a client, they see that client's books
+   - Clear header showing which client they're viewing
+   - All navigation works within that client's context
+   - **"Back to My Dashboard"** button always visible in top nav
+   - **Client dropdown** in header to quickly switch to any other client without going back to dashboard
+
+4. **Notes & Work Papers**
+   - Advisor can keep private notes about each client (client can't see)
+   - Work papers for tax season, audit prep, advisory projects
+   - Attach files relevant to their work
+   - Organize by client and project
+
+5. **Communication Hub**
+   - See all comments/questions across all clients in one feed
+   - Filter by client, urgency, unanswered
+   - Respond directly from dashboard
+   - Mark as resolved
+
+**Collaboration Features:**
+
+**Advisor → Client Communication:**
+
+Advisor can leave comments on:
+- Specific transactions ("Is this business or personal?")
+- Reports ("Your margins are shrinking - let's talk")
+- Overall books ("Ready to review your Q4 numbers?")
+
+Client gets notification, can respond, creates a conversation thread.
+
+**Document Exchange:**
+
+- Client can share specific documents with advisor (receipts, contracts, tax forms)
+- Advisor can request documents ("Need your W-9 form")
+- Shared folder per advisor (client controls what goes in)
+- All encrypted, all logged
+
+**Advisory Notes:**
+
+Advisor can leave guidance notes:
+- "Consider adjusting estimated tax payments"
+- "This expense should be reclassified"
+- "Great month! Revenue up 15%"
+
+Notes can be:
+- **Suggestions** (advisor recommends, client decides)
+- **Questions** (advisor asks, client answers)
+- **FYI** (advisor informs, no action needed)
+
+Client sees these in their notification center and can respond or take action.
+
+**Future Enhancement (Not in Initial Build):**
+
+**DISC-Based Client Communication Assessment**
+- Brief client survey assessing DISC communication style
+- Results help advisor understand how to best communicate with each client
+- Communication preferences stored per client
+- Advisor sees: "This client prefers: Direct, data-driven communication (D)"
+- Helps advisors tailor their approach to each client's preferences
+
+*This will be added in a future iteration, not part of J7 initial launch.*
+
+**What This Feature Does NOT Include:**
+
+- ~~Advisors editing client books without permission~~ (permission-based always)
+- ~~Advisors seeing all client data by default~~ (client grants access explicitly)
+- ~~Free-for-all messaging~~ (communication is contextual to records/reports)
+- ~~Advisor billing through the platform~~ (out of scope - advisors bill clients however they want for their services)
+- ~~Advisor directory/marketplace~~ (not a matchmaking service, just collaboration tool)
+
+**Advisor Onboarding:**
+
+When an advisor accepts their first client invitation:
+
+1. **Welcome to Advisor Mode**
+   - Brief tour of multi-client dashboard
+   - Explain how access works (client controls, you view/advise)
+   - Show where to find each client's books
+   - Explain billing: Free for 3 clients, $50/50 thereafter
+
+2. **Choose Your Plan**
+   - Starter (Free): Up to 3 clients
+   - Professional ($50/50 clients): 4+ clients
+   - Can upgrade/downgrade anytime as client count changes
+
+3. **Profile Setup**
+   - Professional info: Firm name, credentials (CPA, CFP, etc.), website
+   - This displays to clients when they view advisor details
+   - Optional: Upload professional photo, bio
+
+4. **Notification Preferences**
+   - How often to be notified about client activity
+   - Digest mode: Daily summary vs. real-time alerts
+   - Per-client preferences if managing many
+
+**Client Experience Benefits:**
+
+- **No more emailing spreadsheets back and forth**
+- **Advisor sees live, current data** (no "send me an updated P&L")
+- **Collaboration happens in context** (questions on the actual transaction, not in email)
+- **Control what they see** (privacy maintained, selective sharing)
+- **Easy to revoke** (advisor relationship ends? One click removes access)
+- **Potentially free** (if under advisor's plan, no charge to client)
+
+**Advisor Experience Benefits:**
+
+- **All clients in one place** (no juggling multiple logins or file systems)
+- **Always current data** (no waiting for client to export/email)
+- **Contextual communication** (ask about a transaction right there)
+- **Professional presentation** (looks good to clients)
+- **Scales economically** ($50 for 50 clients vs. per-client SaaS fees)
+- **Consolidation of tools** (one platform for all clients instead of scattered systems)
+
+**Zero-Knowledge Architecture Compatibility:**
+
+How this works with encryption:
+
+1. **Client grants access** by generating a **view-key** for the advisor
+2. **View-key** is scoped to the permissions selected (e.g., "read transactions + reports")
+3. **Advisor receives view-key**, stored encrypted with their password
+4. **Advisor can decrypt and view** only what the view-key permits
+5. **Client revokes access** by invalidating the view-key
+6. **Advisor's copy** of the view-key becomes useless, access lost instantly
+
+Advisor never gets the client's master key. They can't see more than granted. Client maintains full sovereignty.
+
 **Acceptance Criteria:**
-- [ ] Business owners can invite advisors via email
-- [ ] Advisors can choose view-only or collaborative access levels
-- [ ] Document sharing is secure and encrypted
-- [ ] Advisors can leave feedback and comments on records
-- [ ] Access can be granted, modified, or revoked at any time
-- [ ] Advisor activity is tracked in audit log
-- [ ] Professional advisor dashboard shows all client businesses
+
+- [ ] Business owners can invite advisors via email with personal message
+- [ ] Invitation system handles both new and existing Graceful Books users
+- [ ] Advisors receive invitation email with clear call-to-action
+- [ ] Advisor account creation is free (Starter plan: 3 clients included)
+- [ ] Advisor plan selection available: Starter (free, 3 clients, 5 users), Professional ($50/50 clients + $2.50/user), Enterprise (custom)
+- [ ] Advisor can invite team members as users (5 included, $2.50 each additional)
+- [ ] Advisor can assign specific users to specific client books
+- [ ] User permissions are granular (which clients each user can access)
+- [ ] Users see only the clients they're assigned to in their dashboard
+- [ ] Client billing automatically shifts to advisor's plan when accepted
+- [ ] Client sees "Under advisor's plan (no charge to you)" indicator
+- [ ] Advisor dashboard shows current client count, user count, and monthly cost
+- [ ] Billing blocks correctly: 1-3 clients = $0, 4-50 = $50, 51-100 = $100, etc.
+- [ ] User billing calculates correctly: 1-5 users = $0, 6+ = $2.50 per additional user
+- [ ] Client can opt out of advisor plan and pay individually ($40/month)
+- [ ] Advisor can remove client from active dashboard at any time
+- [ ] When advisor removes client, client receives notification about billing transfer
+- [ ] Client is prompted to choose: pay individually ($40/month) or archive account
+- [ ] Advisor's client count and billing automatically decrease when client is removed
+- [ ] Removed client no longer appears in advisor's active dashboard
+- [ ] Advisor can optionally add note when removing client (reason for removal)
+- [ ] Pre-set access packages available: View-Only Observer, Full View, Collaborative Partner, Tax Season, Custom
+- [ ] Granular permission controls allow client to select specific view/edit capabilities
+- [ ] Tax Season package includes auto-expiration date
+- [ ] Access can be modified or revoked by client at any time
+- [ ] Advisor sees multi-client dashboard listing all their client businesses
+- [ ] Client list is alphabetized by default (A-Z)
+- [ ] Search functionality in client list for advisors with many clients
+- [ ] Cross-client overview shows summary of all client statuses and alerts
+- [ ] Unread comment/activity indicators display per client with color coding
+- [ ] Client-specific workspace shows "Back to My Dashboard" button in top nav
+- [ ] Client dropdown in header allows quick switching to any other client
+- [ ] Advisor can leave comments on transactions, reports, and overall books
+- [ ] Client receives notifications when advisor leaves comments
+- [ ] Conversation threads maintain context with original record
+- [ ] Advisor can maintain private notes per client (client cannot see)
+- [ ] Document sharing folder per advisor with client-controlled contents
+- [ ] Advisor can request specific documents from client
+- [ ] Advisory notes can be tagged as Suggestion, Question, or FYI
+- [ ] Advisor profile displays professional credentials and firm info to clients
+- [ ] Advisor notification preferences are configurable (real-time vs. digest)
+- [ ] Per-client notification settings available for advisors with many clients
+- [ ] All advisor activity logged in client's audit trail
+- [ ] View-key architecture maintains zero-knowledge encryption
+- [ ] Access revocation invalidates advisor's view-key immediately
+- [ ] Client can view advisor's last access time and activity summary
+- [ ] Filter options available: All Clients, Needs Attention, Recently Active, Inactive
+- [ ] Communication hub aggregates all client comments/questions in one feed
+- [ ] Platform admin can manage curated list of available charities
+- [ ] Users and advisors select charity from admin-approved list
+- [ ] Platform admin can add, update, or remove charity options at any time
+- [ ] Charity selection dropdown shows only admin-approved organizations
 
 **Test Strategy:**
-- Unit tests for invitation and access control logic
-- Integration tests for document sharing
-- E2E tests for complete advisor collaboration workflow
-- Security testing for access boundaries
-- Multi-client advisor testing
+- Unit tests for permission scoping logic
+- Unit tests for view-key generation and revocation
+- Unit tests for billing calculation (client count to price tiers, user count to user charges)
+- Unit tests for team member assignment logic
+- Integration tests for invitation flow (new user and existing user paths)
+- Integration tests for team member invitation and assignment
+- Integration tests for billing shifts (client to advisor plan and back)
+- Integration tests for document sharing and encryption
+- E2E tests for complete advisor onboarding and client access workflow
+- E2E tests for team member assignment and filtered dashboard views
+- E2E tests for multi-client dashboard navigation and switching
+- E2E tests for plan upgrades as client count and user count increase
+- E2E tests for advisor removing client and billing transfer back to client
+- E2E tests for client choice flow (pay individually vs. archive)
+- Security testing for permission boundaries (verify advisor can't exceed granted access)
+- Security testing for team member isolation (verify team members only see assigned clients)
+- Access revocation testing (confirm immediate loss of access)
+- Comment and communication threading testing
+- Cross-client data isolation testing (ensure no data leakage between clients)
+- Cross-team-member data isolation testing (ensure team members can't see unassigned clients)
+- Audit trail accuracy testing
+- Performance testing with advisors managing 50+ clients
+- Performance testing with advisors managing 200+ clients
+- Performance testing with 10+ team members across 200+ clients
+- Billing accuracy testing across all tier thresholds (clients and users)
 
 **Risks & Mitigation:**
 - Risk: Privacy concerns about third-party access to financial data
-  - Mitigation: Clear permissions, encryption, easy revocation, transparent activity logs
+  - Mitigation: Client-controlled permissions, clear access logs, easy revocation, zero-knowledge view-keys, transparent activity tracking
 - Risk: Advisor confusion with multi-client interface
-  - Mitigation: Clear client switching, separate dashboards, client context indicators
-- Risk: Complex permission model may lead to errors
-  - Mitigation: Simple default permissions, clear role descriptions, extensive testing
-- Risk: Limited advisor adoption
-  - Mitigation: Marketing to accounting professionals, onboarding support, value proposition
+  - Mitigation: Clear client context indicators, dedicated onboarding tour, "Back to My Dashboard" always visible, client switcher in header, alphabetical sorting by default
+- Risk: Complex permission model may lead to access errors
+  - Mitigation: Pre-set packages for common cases, clear permission descriptions, test mode to verify access, extensive boundary testing
+- Risk: Billing complexity may confuse advisors
+  - Mitigation: Clear pricing display, real-time client count, automatic tier calculation, transparent monthly cost preview
+- Risk: Clients may not understand "under advisor plan" concept
+  - Mitigation: Clear messaging: "No charge to you - your advisor covers the cost", FAQ, educational content
+- Risk: Advisors may be reluctant to pay for clients
+  - Mitigation: Economics work in advisor's favor ($1/client vs. $20 if client paid directly), consolidation value, professional presentation
+- Risk: Limited advisor adoption if feature is too complex
+  - Mitigation: Free for first 3 clients (no barrier to entry), simple onboarding, professional presentation, multi-client efficiency benefits
+- Risk: View-key architecture complexity may have bugs
+  - Mitigation: Extensive security testing, cryptography expert review, staged rollout, comprehensive test coverage
 
 **External Dependencies:**
-- Libraries: None
-- Infrastructure: None
+- Libraries: None (uses existing encryption infrastructure)
+- Infrastructure: Billing system integration (Stripe for advisor subscriptions)
 
-**Dependencies:** {H1, I3}
+**Dependencies:** {H1, I2}
 
-**Joy Opportunity:** "Invite your accountant to see your books. Collaboration without file sharing."
+**Joy Opportunity:** "Your accountant texts you: 'Just reviewed your books - everything looks great! Nice work this quarter.' And you didn't have to export a single spreadsheet."
+
+**Delight Detail:**
+- First advisor invitation: Gentle walkthrough explaining what advisor will/won't see
+- Advisor dashboard feels professional and efficient - advisors will appreciate the consolidation
+- When client is added to advisor's plan, client sees: "✓ Now under Jessica's plan - no charge to you!"
+- Advisor billing is transparent: "72 clients • $100/month (saves you $1,340 vs. individual plans)"
+- Client sees "Last reviewed by Jessica Martinez 2 hours ago" - reassuring that advisor is engaged
+- Alphabetized client list makes finding specific clients instant for large practices
 
 **Includes:**
-- Advisor invitation
-- View-only or collaborative roles
-- Secure document sharing
-- Feedback/comments
-- Access control
+- Advisor invitation system via email
+- Access level selection (pre-set packages + custom)
+- Granular permission controls (view/edit per data type)
+- Tax Season access with auto-expiration
+- Advisor plan tiers (Starter free/3 clients/5 users, Professional $50/50 clients + $2.50/user, Enterprise custom)
+- Team member invitation and management (5 users included, $2.50 each additional)
+- Team member assignment to specific client books
+- Filtered multi-client dashboard per team member (shows only assigned clients)
+- Client billing shift to advisor plan
+- Client opt-out to individual billing
+- Advisor can remove client from active dashboard
+- Client notification and choice (pay individually or archive)
+- Automatic billing adjustment when client removed
+- Optional note/reason when removing client
+- Multi-client dashboard for advisors (alphabetized)
+- Client search functionality
+- Cross-client overview with alerts and tasks
+- Client-specific workspace navigation
+- "Back to My Dashboard" top nav button
+- Client dropdown switcher in header
+- Filter options (All, Needs Attention, Recently Active, Inactive)
+- Advisor private notes per client
+- Work papers and file attachment
+- Contextual comments on transactions and reports
+- Document sharing folder per advisor
+- Document request functionality
+- Advisory notes (Suggestion/Question/FYI tagging)
+- Client-advisor conversation threading
+- Advisor professional profile display
+- Notification preferences (real-time/digest, per-client)
+- Activity logging in client audit trail
+- Zero-knowledge view-key access architecture
+- Instant access revocation
+- Last access time display for client
+- Communication hub across all clients
+- Color-coded unread activity indicators
+- Billing dashboard for advisors showing client count and cost
+- Platform admin charity list management
+- User/advisor charity selection from approved list
 
-**Spec Reference:** MENTOR-001 (from Ideas)
+**Spec Reference:** MENTOR-001 (revised)
 
 ---
 
 ### J8. Tax Time Preparation Mode (Nice)
-**What:** Guided workflow to prepare for tax season.
+**What:** A calm, guided workflow that helps entrepreneurs gather everything their tax preparer needs - no panic, no guessing, just a clear checklist.
 
 **OpenSpec Resources:**
 - Change: `openspec/changes/moonshot-features/`
@@ -1223,56 +3845,345 @@ See `Roadmaps/archive/` for detailed completion reports:
 - Priority: Medium (Moonshot)
 - Owner: TBD
 
+**Design Philosophy:**
+
+Tax season is already stressful. This feature doesn't try to replace a tax professional - instead, it helps entrepreneurs **show up to tax season prepared**.
+
+Whether they do their own taxes, use TurboTax, or work with a CPA, this workflow ensures they have:
+1. All required documents organized and ready
+2. Complete financial reports for the year
+3. A tidy export package they can hand to their tax preparer
+4. Confidence that they didn't forget anything
+
+**Not tax advice.** Not a tax filing tool. Just **organized preparation**.
+
+**Inactive by default.** Users activate Tax Prep Mode when they're ready (usually January-March). It stays active until they mark it complete or April 30 passes.
+
+**Core Concept:**
+
+A dedicated Tax Prep Dashboard that activates for the specific tax year:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  TAX PREP MODE: 2025 Tax Year                           │
+│  Progress: ████████████████░░░░░░░░  73% Complete      │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  ✅ Financial Reports                                   │
+│  ✅ Income Documentation                                │
+│  🔄 Expense Documentation (in progress)                │
+│  ⏸  Deduction Checklist (not started)                  │
+│  ⏸  Export Package (ready when you are)                │
+│                                                          │
+│  [View Full Checklist]  [Share with Accountant]        │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**How It Works:**
+
+**Step 1: Activate Tax Prep Mode**
+
+User clicks "Prepare for Taxes" (available in dashboard from January onward):
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  GET READY FOR TAX SEASON                                │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Which tax year are you preparing?                      │
+│  ○ 2025 (most recent)                                   │
+│  ○ 2024 (prior year)                                    │
+│  ○ Other: [____]                                        │
+│                                                          │
+│  What's your business structure?                        │
+│  ○ Sole Proprietor / LLC (Schedule C)                  │
+│  ○ Partnership                                          │
+│  ○ S-Corporation                                        │
+│  ○ C-Corporation                                        │
+│                                                          │
+│  Are you working with a tax professional?               │
+│  ○ Yes - I'll send them an export package              │
+│  ○ No - I'm doing my own taxes                         │
+│                                                          │
+│  [Start Tax Prep]                                       │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+System creates a customized checklist based on business structure.
+
+**Step 2: Financial Reports Section**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  ✅ FINANCIAL REPORTS                                    │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  These are auto-generated from your books:              │
+│                                                          │
+│  ✓ Profit & Loss Statement (2025)                      │
+│  ✓ Balance Sheet (as of Dec 31, 2025)                  │
+│  ✓ Cash Flow Statement (2025)                          │
+│                                                          │
+│  [Preview Reports]  [Download All]                      │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Why this is needed:** Your tax preparer (or tax software) needs these to calculate business income and deductions.
+
+**Step 3: Income Documentation**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  ✅ INCOME DOCUMENTATION                                 │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  ✓ 1099-NEC forms (3 uploaded)                         │
+│    • Client A: $24,000                                  │
+│    • Client B: $18,500                                  │
+│    • Client C: $12,000                                  │
+│                                                          │
+│  ✓ 1099-K (payment processor): $8,400                  │
+│                                                          │
+│  ⚠️  Your total 1099 income: $62,900                   │
+│      Your total revenue recorded: $68,200               │
+│      Difference: $5,300                                 │
+│                                                          │
+│  This is common (you may have other clients who didn't  │
+│  issue 1099s). Just be aware of the difference.         │
+│                                                          │
+│  [Upload Document]  [Mark Section Complete]             │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+System helps reconcile 1099 income against recorded revenue - common source of confusion.
+
+**Step 4: Expense Documentation**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  🔄 EXPENSE DOCUMENTATION                                │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Major expense categories for your review:              │
+│                                                          │
+│  ✓ Office Supplies: $2,340 (12 receipts)              │
+│  ✓ Software & Subscriptions: $4,200 (8 receipts)      │
+│  🔄 Travel: $3,800 (7 receipts, 2 missing)             │
+│  ⏸  Meals & Entertainment: $1,200 (needs review)       │
+│                                                          │
+│  [Review by Category]                                   │
+│                                                          │
+│  Missing receipts?                                      │
+│  • Create a summary note for your records              │
+│  • IRS accepts "lost receipt" explanation if          │
+│    transaction is clearly documented in books          │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+Helps identify gaps in documentation without causing panic.
+
+**Step 5: Deduction Checklist**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  ⏸  DEDUCTION CHECKLIST                                 │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Common deductions for [Sole Proprietor]:              │
+│                                                          │
+│  ✓ Home office (recorded: $3,600)                      │
+│  ✓ Vehicle mileage (recorded: 2,400 miles)            │
+│  ✓ Health insurance premiums (self-employed)           │
+│  ✓ Retirement contributions (SEP-IRA)                  │
+│  ⏸  Equipment purchases over $2,500 (depreciation)     │
+│                                                          │
+│  [Educational Guide: What qualifies?]                   │
+│                                                          │
+│  ⚠️  We're not telling you what to deduct - we're just │
+│      showing common categories to review with your CPA. │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+Educational, not prescriptive. Helps ensure they talk to their CPA about all applicable deductions.
+
+**Step 6: Export Package**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  📦 EXPORT PACKAGE                                       │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Ready to send to your tax preparer:                    │
+│                                                          │
+│  Package includes:                                       │
+│  • Profit & Loss Statement (PDF)                       │
+│  • Balance Sheet (PDF)                                  │
+│  • Cash Flow Statement (PDF)                           │
+│  • Transaction detail export (CSV)                      │
+│  • All income documents (1099s)                         │
+│  • Receipt summary by category                          │
+│  • QuickBooks export (QBO file) - optional             │
+│                                                          │
+│  [Download ZIP]  [Email to Accountant]                 │
+│                                                          │
+│  Or: Share via Advisor Portal (J7)                     │
+│  If your accountant uses Graceful Books, just grant    │
+│  them "Tax Season" access - no files to send!          │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+Clean, professional package ready to hand off.
+
+**Progress Tracking:**
+
+Visual progress bar shows completion:
+- Financial Reports: Auto-generated (instant ✓)
+- Income Documentation: User uploads 1099s
+- Expense Documentation: User reviews and confirms
+- Deduction Checklist: User reviews categories
+- Export Package: Available when previous steps complete
+
+**Integration with J7 (Advisor Portal):**
+
+If user has invited their accountant via J7:
+- User can grant "Tax Season" access (auto-expires April 30)
+- Accountant sees same Tax Prep Dashboard
+- Accountant can request missing documents directly
+- No need to email files back and forth
+
+**What This Feature Does NOT Include:**
+
+- ~~Tax calculation~~ (not a tax software)
+- ~~Tax filing~~ (not TurboTax/H&R Block)
+- ~~Tax advice~~ (no "you should deduct X" recommendations)
+- ~~Tax strategy~~ (that's for CPAs)
+- ~~E-filing~~ (out of scope)
+- ~~Tax form generation~~ (1040, Schedule C, etc. - use tax software for this)
+
+**This is purely about preparation and organization.**
+
+**Educational Content Throughout:**
+
+Every section has "Why this matters" tooltips:
+
+- **1099 reconciliation:** "The IRS gets copies of your 1099s. If your tax return shows different income, they'll ask questions. We help you reconcile so there are no surprises."
+- **Receipt documentation:** "You don't need to submit receipts with your tax return, but you need to keep them for 7 years in case of audit."
+- **Home office deduction:** "If you use part of your home exclusively for business, you may qualify. Talk to your CPA about calculating this correctly."
+
+**Calm, reassuring tone everywhere:**
+- ✓ "Great! This section is complete."
+- ⚠️ "Heads up: You might want to review this with your CPA."
+- 🔄 "In progress - you're doing great."
+
 **Acceptance Criteria:**
+
 - [ ] Tax prep mode can be activated for specific tax year
-- [ ] Documents checklist is comprehensive and business-type appropriate
-- [ ] System identifies missing information with clear guidance
-- [ ] Tax-ready report bundle includes all necessary financial statements
-- [ ] Accountant export package is industry-standard format (CSV, PDF, QBO)
-- [ ] Deduction suggestions are educational with clear disclaimers
-- [ ] Progress indicator shows completion percentage
+- [ ] Business structure selection customizes checklist (Sole Prop, Partnership, S-Corp, C-Corp)
+- [ ] User can specify if working with tax professional or doing own taxes
+- [ ] Financial reports auto-generate for selected tax year
+- [ ] Financial reports include: P&L, Balance Sheet, Cash Flow
+- [ ] Income documentation section allows 1099 upload
+- [ ] System reconciles 1099 income against recorded revenue with clear explanation of differences
+- [ ] Expense documentation displays major categories with receipt counts
+- [ ] Missing receipt identification helps user address gaps
+- [ ] Deduction checklist shows common deductions for business structure
+- [ ] Educational content explains each deduction category without giving advice
+- [ ] Clear disclaimers: "Review with your CPA" messaging throughout
+- [ ] Progress indicator shows completion percentage across all sections
+- [ ] Export package includes all necessary reports (PDF)
+- [ ] Export package includes transaction detail (CSV)
+- [ ] Export package includes QuickBooks export (QBO) as optional
+- [ ] Export package can be downloaded as ZIP
+- [ ] Export package can be emailed to accountant
+- [ ] Integration with J7 Advisor Portal allows "Tax Season" access grant
+- [ ] Advisor with Tax Season access sees same Tax Prep Dashboard
+- [ ] Tax Season access auto-expires after specified date (e.g., April 30)
+- [ ] Educational tooltips explain "why this matters" for each section
+- [ ] Tone is calm and reassuring, not alarmist
+- [ ] Missing documents don't block progress, just flagged for review
+- [ ] User can mark sections complete manually
+- [ ] Tax Prep Mode deactivates after completion or tax deadline passes
 
 **Test Strategy:**
-- Unit tests for completeness checking algorithms
+- Unit tests for 1099 reconciliation logic
+- Unit tests for completeness checking algorithms (per business structure)
 - Integration tests for report bundle generation
-- E2E tests for complete tax prep workflow
-- Export format validation
-- CPA review of feature completeness
+- Integration tests for export package creation (ZIP, email)
+- Integration tests with J7 Advisor Portal (Tax Season access grant)
+- E2E tests for complete tax prep workflow (all business structures)
+- E2E tests for advisor collaboration via Tax Season access
+- Export format validation (CSV, PDF, QBO)
+- CPA review of feature completeness and educational content accuracy
+- User comprehension testing (do users understand what's needed?)
+- Anxiety assessment (does this reduce or increase stress?)
 
 **Risks & Mitigation:**
 - Risk: Tax advice could create legal liability
-  - Mitigation: Educational disclaimers, "consult a tax professional" messaging, no specific advice
+  - Mitigation: Educational disclaimers everywhere, "consult a tax professional" messaging, no specific deduction recommendations, CPA review of all content
 - Risk: Jurisdiction-specific requirements may be missed
-  - Mitigation: Focus on general preparation, jurisdiction selection, CPA partnerships
+  - Mitigation: Focus on federal requirements common across all states, note that state requirements vary, recommend consulting local CPA
 - Risk: Overwhelming complexity for users
-  - Mitigation: Progressive disclosure, wizard-based workflow, help at every step
+  - Mitigation: Progressive disclosure, wizard-based workflow, calm tone, help at every step, can't get "stuck"
 - Risk: Annual feature may not justify development cost
-  - Mitigation: Reusable components, marketing opportunity, user retention value
+  - Mitigation: Reusable checklist system, retention value (users stay for tax season), marketing opportunity, CPA referral channel
+- Risk: Users may expect tax filing capability
+  - Mitigation: Clear messaging upfront: "This prepares you for taxes, it doesn't file them", integration path to tax software via exports
+- Risk: Educational content may become outdated with tax law changes
+  - Mitigation: Annual review cycle, clearly dated content, focus on timeless concepts not specific numbers
 
 **External Dependencies:**
-- Libraries: pdfmake
-- Infrastructure: None
+- Libraries: pdfmake (PDF generation), jszip (ZIP creation)
+- Infrastructure: Email service (optional - for sending export package)
 
-**Dependencies:** {D6, D7, G9, G6}
+**Dependencies:** {D6, D7, G9, G6, J7}
 
-**Joy Opportunity:** "Tax season doesn't have to be scary. We'll get you ready, step by step."
+**Joy Opportunity:** "Tax season doesn't have to be chaos. Check off each section, watch the progress bar fill, and know you're ready. Your accountant will be impressed."
 
-**Delight Detail:** Checklist turns green as items complete. "You're 80% ready for taxes!"
+**Delight Detail:**
+- First activation: Gentle welcome: "Let's get organized for tax season. We'll take it step by step - no rush."
+- Progress bar turns green as sections complete: satisfying visual progress
+- When 100% complete: "🎉 You're ready for tax season! Everything is organized and ready to go."
+- Export package generates with user's business name: "Acme Consulting - 2025 Tax Package.zip" (professional)
+- If working with advisor via J7: One-click "Grant Tax Season Access" button (so easy)
+- Checklist items turn green with satisfying animation when marked complete
 
 **Includes:**
-- Tax prep workflow activation
-- Documents checklist
-- Missing info identification
-- Tax-ready report bundle
-- Accountant export package
-- Deduction suggestions (educational)
+- Tax prep workflow activation for specific tax year
+- Business structure selection (Sole Prop, Partnership, S-Corp, C-Corp)
+- Work-with-CPA vs. DIY indicator
+- Auto-generated financial reports (P&L, Balance Sheet, Cash Flow)
+- Income documentation section with 1099 upload
+- 1099 vs. revenue reconciliation with explanation
+- Expense documentation review by category
+- Missing receipt identification and guidance
+- Deduction checklist customized by business structure
+- Educational content for each deduction category
+- Clear "review with CPA" disclaimers throughout
+- Progress indicator (percentage complete)
+- Export package generation (PDF + CSV + QBO)
+- ZIP download of complete package
+- Email to accountant functionality
+- Integration with J7 Advisor Portal
+- "Tax Season" access grant for advisors
+- Auto-expiration of Tax Season access
+- Educational tooltips ("why this matters")
+- Calm, reassuring tone throughout
+- Manual section completion option
+- Auto-deactivation after tax deadline
 
-**Spec Reference:** TAX-001 (from Ideas)
+**Spec Reference:** TAX-001 (revised)
 
 ---
 
-### J9. Integration Hub - First Integrations (Nice)
-**What:** Connect to external services.
+### J9. CSV Import/Export (Nice)
+**What:** Import transactions from anywhere that exports CSV (Stripe, Square, PayPal, your bank) and export your books for backups or external analysis - all while maintaining zero-knowledge encryption.
 
 **OpenSpec Resources:**
 - Change: `openspec/changes/moonshot-features/`
@@ -1285,299 +4196,472 @@ See `Roadmaps/archive/` for detailed completion reports:
 - Priority: Medium (Moonshot)
 - Owner: TBD
 
+**Design Philosophy:**
+
+Full API integrations are powerful but architecturally complex, especially with zero-knowledge encryption. CSV import/export provides **90% of the value with 10% of the complexity**.
+
+Almost every service exports CSV: Stripe, Square, PayPal, banks, other accounting software. Most entrepreneurs already download these CSVs to review them. Instead of manually re-entering each transaction, **just upload the CSV and map the columns**.
+
+**Core benefits:**
+- Works with ANY service that exports CSV (not limited to what we integrate)
+- Maintains zero-knowledge architecture (processing happens client-side)
+- Works offline (import locally, sync encrypted data later)
+- User controls timing (import when ready, not forced real-time)
+- No OAuth complexity, no webhook infrastructure, no background jobs
+
+**Not as sexy as "automatic integrations," but way more practical for MVP.**
+
+**Core Concept:**
+
+Two main workflows:
+
+**1. CSV Import** - Bring transactions in
+**2. CSV Export** - Take transactions out
+
+Both are dead simple, both happen client-side.
+
+---
+
+**CSV Import Workflow:**
+
+**Step 1: Upload CSV**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  IMPORT TRANSACTIONS FROM CSV                            │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Upload your CSV file:                                  │
+│                                                          │
+│  [Drop CSV file here or click to browse]               │
+│                                                          │
+│  Common sources:                                        │
+│  • Stripe (export from Dashboard → Payments)           │
+│  • Square (export from Transactions)                   │
+│  • PayPal (export from Activity)                       │
+│  • Your bank (download transaction history)            │
+│  • Other accounting software                           │
+│                                                          │
+│  Or use a template:                                     │
+│  [Stripe Template] [Square Template] [Bank Template]   │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+User uploads CSV. System parses it client-side.
+
+**Step 2: Map Columns**
+
+System detects columns, asks user to map them:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  MAP YOUR CSV COLUMNS                                    │
+│  We found 8 columns in your CSV. Map them to your books:│
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  CSV Column              →  Graceful Books Field        │
+│  ─────────────────────────────────────────────────────  │
+│  "Created"               →  [Date ▼]                    │
+│  "Amount"                →  [Amount ▼]                  │
+│  "Description"           →  [Description/Memo ▼]        │
+│  "Customer Email"        →  [Skip ▼]                    │
+│  "Fee"                   →  [Fee ▼]                     │
+│  "Net"                   →  [Skip ▼]                    │
+│  "Status"                →  [Skip ▼]                    │
+│  "Currency"              →  [Currency ▼]                │
+│                                                          │
+│  ✓ Smart detection applied (Stripe format recognized)   │
+│                                                          │
+│  Account Mapping:                                       │
+│  Revenue goes to: [Sales Revenue ▼]                    │
+│  Fees go to: [Payment Processing Fees ▼]               │
+│                                                          │
+│  [Preview Import] [Save as Template]                    │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Smart detection:**
+- Recognizes common CSV formats (Stripe, Square, PayPal)
+- Auto-suggests mappings based on column names
+- User can override any mapping
+- Can save mapping as template for future imports
+
+**Step 3: Preview & Validate**
+
+Before importing, show preview:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  PREVIEW IMPORT                                          │
+│  Ready to import 47 transactions                        │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  ✓ Jan 15, 2026  $125.00  Customer payment             │
+│    → Sales Revenue                                      │
+│                                                          │
+│  ✓ Jan 15, 2026  ($3.90)  Stripe fee                   │
+│    → Payment Processing Fees                            │
+│                                                          │
+│  ✓ Jan 16, 2026  $450.00  Customer payment             │
+│    → Sales Revenue                                      │
+│                                                          │
+│  ⚠️  Jan 17, 2026  $0.00  Invalid amount (skipped)     │
+│                                                          │
+│  [... 43 more transactions ...]                         │
+│                                                          │
+│  Summary:                                               │
+│  • 46 valid transactions will be imported              │
+│  • 1 row has errors (will be skipped)                  │
+│  • Total revenue: $8,450                                │
+│  • Total fees: $287                                     │
+│                                                          │
+│  ⚠️  Duplicate check: 3 transactions may be duplicates  │
+│      (already exist in your books)                      │
+│      [Review Duplicates] [Skip Duplicates] [Import All] │
+│                                                          │
+│  [Import Transactions] [Cancel]                         │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Validation:**
+- Check for required fields (date, amount)
+- Detect invalid data (missing dates, non-numeric amounts)
+- Duplicate detection (compare against existing transactions by date + amount)
+- Show summary before committing
+
+**Step 4: Import Complete**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  ✓ IMPORT COMPLETE                                      │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Successfully imported 46 transactions                  │
+│  Skipped: 1 (errors), 3 (duplicates)                   │
+│                                                          │
+│  What happened:                                         │
+│  • 46 new transactions added to your books             │
+│  • All encrypted and synced                            │
+│  • Tagged as "Imported from CSV"                       │
+│                                                          │
+│  [View Imported Transactions] [Done]                    │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+**CSV Export Workflow:**
+
+Export transactions as CSV for backups, analysis, or migration:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  EXPORT TRANSACTIONS TO CSV                              │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Date Range:                                            │
+│  From: [Jan 1, 2026]  To: [Jan 31, 2026]               │
+│                                                          │
+│  What to export:                                        │
+│  [✓] All transactions                                   │
+│  [ ] Income only                                        │
+│  [ ] Expenses only                                      │
+│  [ ] Specific accounts: [Select accounts...]           │
+│                                                          │
+│  Include:                                               │
+│  [✓] Transaction details (date, amount, memo)          │
+│  [✓] Account information                                │
+│  [✓] Categories/tags                                    │
+│  [✓] Attachments (as separate ZIP)                     │
+│                                                          │
+│  Format:                                                │
+│  [Standard CSV ▼]                                       │
+│  (Options: Standard CSV, Excel-friendly, QuickBooks)    │
+│                                                          │
+│  [Generate Export]                                      │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+Export generates CSV client-side, downloads to user's device.
+
+**Export formats:**
+- **Standard CSV:** Universal format, works anywhere
+- **Excel-friendly:** UTF-8 with BOM, formatted for Excel
+- **QuickBooks format:** Columns mapped to QuickBooks import format
+
+---
+
+**Template Library:**
+
+Save column mappings as templates for reuse:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  IMPORT TEMPLATES                                        │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Your Templates:                                        │
+│                                                          │
+│  📄 Stripe Payments                                     │
+│     Last used: Jan 15, 2026                             │
+│     Maps: Date, Amount, Description, Fee                │
+│     [Use Template] [Edit] [Delete]                      │
+│                                                          │
+│  📄 Chase Business Checking                             │
+│     Last used: Jan 1, 2026                              │
+│     Maps: Date, Amount, Description, Balance            │
+│     [Use Template] [Edit] [Delete]                      │
+│                                                          │
+│  ─────────────────────────────────────────────────────  │
+│                                                          │
+│  Built-in Templates:                                    │
+│                                                          │
+│  📄 Stripe (Standard Export)                            │
+│  📄 Square (Transaction History)                        │
+│  📄 PayPal (Activity Download)                          │
+│  📄 Generic Bank Statement                              │
+│                                                          │
+│  [+ Create New Template]                                │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+Templates remember:
+- Column mappings
+- Account assignments
+- Skip rules
+- Date format preferences
+
+**Duplicate Detection:**
+
+Smart duplicate checking:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  POSSIBLE DUPLICATES DETECTED                            │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  We found 3 transactions that might already exist:      │
+│                                                          │
+│  CSV Import              Existing Transaction           │
+│  ─────────────────────────────────────────────────────  │
+│  Jan 15: $125.00        Jan 15: $125.00                │
+│  Customer payment       Sales Revenue                   │
+│  [✓ Skip] [Import]      [View]                          │
+│                                                          │
+│  Jan 16: $450.00        Jan 16: $450.00                │
+│  Customer payment       Sales Revenue                   │
+│  [✓ Skip] [Import]      [View]                          │
+│                                                          │
+│  Jan 17: $89.00         Jan 17: $89.00                 │
+│  Office supplies        Expenses: Office                │
+│  [ Skip] [✓ Import]     [View] (Different memo)        │
+│                                                          │
+│  [Skip All Duplicates] [Import All] [Review Each]      │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+Matches on:
+- Same date
+- Same amount
+- Similar description (fuzzy matching)
+
+User decides: skip or import anyway.
+
+**What This Feature Does NOT Include:**
+
+- ~~Automatic sync~~ (user manually downloads CSV and imports)
+- ~~Real-time updates~~ (import happens when user wants)
+- ~~Two-way sync~~ (import only, can't push data back to Stripe/Square)
+- ~~API connections~~ (no OAuth, no webhooks)
+- ~~Complex transformations~~ (simple column mapping only)
+
+**Zero-Knowledge Compatible:**
+
+All CSV processing happens **client-side**:
+1. User uploads CSV
+2. Browser parses CSV (JavaScript)
+3. User maps columns (in browser)
+4. Transactions created and encrypted (in browser)
+5. Encrypted transactions sync to server
+
+Server never sees CSV contents. Server never sees unencrypted transactions.
+
 **Acceptance Criteria:**
-- [ ] Integration framework supports OAuth and API key authentication
-- [ ] First integrations (Stripe, Square, PayPal) are fully functional
-- [ ] Data mapping is configurable and validates correctly
-- [ ] Sync scheduling allows manual and automatic synchronization
-- [ ] Error handling provides clear messages and recovery options
-- [ ] Integration status is visible and monitored
-- [ ] User can disconnect integrations cleanly
+
+- [ ] CSV file upload supports drag-and-drop and file picker
+- [ ] CSV parser handles common formats (comma, semicolon, tab-delimited)
+- [ ] CSV parser handles quoted fields with commas
+- [ ] CSV parser handles UTF-8 and common encodings
+- [ ] Column mapping interface shows all detected columns
+- [ ] Column mapping provides dropdowns for field types (Date, Amount, Description, etc.)
+- [ ] Smart detection recognizes Stripe CSV format
+- [ ] Smart detection recognizes Square CSV format
+- [ ] Smart detection recognizes PayPal CSV format
+- [ ] Smart detection recognizes common bank statement formats
+- [ ] User can manually override any column mapping
+- [ ] Account mapping allows selection of revenue and expense accounts
+- [ ] User can save column mapping as template
+- [ ] Template library shows user-created and built-in templates
+- [ ] Preview shows first 10 transactions before import
+- [ ] Preview shows total transaction count and summary totals
+- [ ] Validation checks for required fields (date, amount)
+- [ ] Validation detects invalid dates and shows errors
+- [ ] Validation detects non-numeric amounts and shows errors
+- [ ] Duplicate detection compares against existing transactions
+- [ ] Duplicate detection matches on date + amount + fuzzy description
+- [ ] User can review duplicates and choose to skip or import
+- [ ] Import creates transactions tagged "Imported from CSV"
+- [ ] Import happens entirely client-side (no CSV sent to server)
+- [ ] Imported transactions are encrypted before sync
+- [ ] CSV export allows date range selection
+- [ ] CSV export allows filtering by transaction type or account
+- [ ] CSV export includes transaction details (date, amount, memo, account)
+- [ ] CSV export supports multiple formats (Standard, Excel-friendly, QuickBooks)
+- [ ] CSV export includes attachments as separate ZIP (optional)
+- [ ] CSV export generates file client-side
+- [ ] Error messages are clear and actionable
+- [ ] Progress indicator shows during large imports (500+ transactions)
+- [ ] User can cancel import mid-process
 
 **Test Strategy:**
-- Unit tests for integration framework
-- Integration tests with external service sandboxes
-- E2E tests for complete connection and sync workflows
-- Error scenario testing (API failures, auth issues, rate limits)
-- Data mapping validation testing
+- Unit tests for CSV parser (various formats, encodings, edge cases)
+- Unit tests for column mapping logic
+- Unit tests for smart detection (Stripe, Square, PayPal formats)
+- Unit tests for duplicate detection algorithm
+- Unit tests for validation rules
+- Integration tests for complete import workflow
+- Integration tests for complete export workflow
+- E2E tests with real CSV files from Stripe, Square, PayPal
+- E2E tests with malformed CSVs (missing columns, bad data)
+- Performance testing with large CSVs (10,000+ rows)
+- Client-side encryption verification (ensure CSV never sent unencrypted)
+- Template save/load testing
+- Duplicate detection accuracy testing
 
 **Risks & Mitigation:**
-- Risk: External API changes may break integrations
-  - Mitigation: Version pinning, change monitoring, automated testing, graceful degradation
-- Risk: Complex data mapping may confuse users
-  - Mitigation: Smart defaults, templates, validation with clear errors
-- Risk: Authentication security vulnerabilities
-  - Mitigation: OAuth best practices, secure token storage, security audit
-- Risk: Requires advanced technology integration
-  - Mitigation: Use integration platforms (Zapier API, Merge.dev), focus on most-requested services
+- Risk: CSV format variations may break parser
+  - Mitigation: Support common delimiters, test with real-world CSVs, provide manual override
+- Risk: Users may import same CSV multiple times creating duplicates
+  - Mitigation: Duplicate detection, clear warnings, "last import date" tracking
+- Risk: Large CSV files may freeze browser
+  - Mitigation: Streaming parser, progress indicators, batch processing, 10K row limit with warning
+- Risk: Users may not understand column mapping
+  - Mitigation: Smart detection auto-fills most mappings, built-in templates, preview before import
+- Risk: Date format ambiguity (MM/DD/YYYY vs DD/MM/YYYY)
+  - Mitigation: Auto-detect from CSV, allow manual override, show preview to catch errors
+- Risk: Currency conversion if CSV contains multiple currencies
+  - Mitigation: Out of scope for MVP - show error if multiple currencies detected, require user to filter CSV first
 
 **External Dependencies:**
-- Libraries: axios
-- Services: Stripe API, Square API, PayPal API
-- Infrastructure: OAuth 2.0
+- Libraries: papaparse (CSV parsing), date-fns (date parsing), fuse.js (fuzzy matching for duplicates)
+- Infrastructure: None (all client-side)
 
-**Dependencies:** {A1, A4}
+**Dependencies:** {A1, B2}
 
-**Joy Opportunity:** "Connect your tools. Less copy-paste, more automation."
+**Joy Opportunity:** "Upload your Stripe CSV. Watch 200 transactions import in seconds. No more manual entry for an entire month."
+
+**Delight Detail:**
+- First import celebration: "✓ 187 transactions imported! Saved you ~3 hours of manual entry."
+- Progress bar for large imports with satisfying animation
+- Smart detection: "Looks like a Stripe export! We've mapped the columns for you - check if it looks right."
+- Duplicate prevention: "Good news: These 5 transactions are already in your books. We'll skip them."
+- Export generates filename with business name and date range: "Acme Consulting - Jan 2026 Transactions.csv"
 
 **Includes:**
-- Integration framework
-- First integrations (e.g., Stripe, Square)
-- Data mapping
-- Sync scheduling
-- Error handling
+- CSV file upload (drag-and-drop + file picker)
+- CSV parser (handles common formats and encodings)
+- Column mapping interface with smart detection
+- Account mapping for revenue/expenses
+- Template library (user-created + built-in)
+- Built-in templates (Stripe, Square, PayPal, generic bank)
+- Preview with validation
+- Duplicate detection and review
+- Import execution (client-side)
+- Transaction tagging ("Imported from CSV")
+- CSV export with date range filtering
+- CSV export with account filtering
+- Multiple export formats (Standard, Excel-friendly, QuickBooks)
+- Attachment export (separate ZIP)
+- Error handling and validation
+- Progress indicators for large imports
+- Template save/load functionality
 
-**Spec Reference:** INTEG-001 (from Ideas)
+**Spec Reference:** CSV-001 (new)
 
 ---
 
-### J10. Mobile Receipt Capture App (Nice)
-**What:** Dedicated mobile app for on-the-go receipt capture.
+### J10. CSV Import/Export Testing Environment [MVP] [INFRASTRUCTURE]
+**What:** Sample CSV files and test data for validating CSV import/export functionality from major payment processors and banks.
 
-**OpenSpec Resources:**
-- Change: `openspec/changes/moonshot-features/`
-- Proposal: `openspec/changes/moonshot-features/proposal.md`
-- Tasks: `openspec/changes/moonshot-features/tasks.md`
-- Specs: `openspec/changes/moonshot-features/specs/*/spec.md`
+**Dependencies:** {J9}
+
+**Joy Opportunity:** "Test CSV imports without touching real financial data. Sample files make testing safe and thorough."
 
 **Status & Ownership:**
 - Status: Not Started
-- Priority: Low (Moonshot)
-- Owner: TBD
-
-**Acceptance Criteria:**
-- [ ] Native mobile app works on iOS and Android
-- [ ] Camera integration provides clear receipt capture
-- [ ] Offline capture stores receipts locally and syncs when online
-- [ ] GPS-based mileage tracking calculates distances automatically
-- [ ] Quick expense entry allows minimal-friction data input
-- [ ] Home screen widget enables instant capture
-- [ ] OCR processes receipts for automatic data extraction
-
-**Test Strategy:**
-- Device compatibility testing (iOS/Android, various screen sizes)
-- Camera quality and OCR accuracy testing
-- Offline functionality and sync verification
-- GPS accuracy and battery impact testing
-- Widget functionality testing
-- Cross-platform feature parity testing
-
-**Risks & Mitigation:**
-- Risk: High development cost for native mobile apps
-  - Mitigation: React Native for cross-platform, MVP feature set first, user demand validation
-- Risk: OCR accuracy may be lower on mobile
-  - Mitigation: Cloud processing option, manual override, quality guidelines
-- Risk: Battery drain from GPS tracking
-  - Mitigation: Smart tracking algorithms, user controls, battery monitoring
-- Risk: Requires advanced mobile development expertise
-  - Mitigation: Partner with mobile specialists, use established frameworks, iterative development
-
-**External Dependencies:**
-- Libraries: react-native, expo, react-native-camera
-- Infrastructure: iOS/Android platform APIs
-
-**Dependencies:** {G7, H8}
-
-**Joy Opportunity:** "Snap a receipt at lunch. It'll be categorized by dinner."
-
-**Delight Detail:** Quick-capture widget on phone home screen.
-
-**Includes:**
-- Native mobile app
-- Camera integration
-- Offline capture with sync
-- Mileage tracking with GPS
-- Quick expense entry
-
-**Spec Reference:** MOBILE-001 (from Ideas)
-
----
-
-### J11. API Access for Developers (Nice)
-**What:** Public API for custom integrations.
-
-**OpenSpec Resources:**
-- Change: `openspec/changes/moonshot-features/`
-- Proposal: `openspec/changes/moonshot-features/proposal.md`
-- Tasks: `openspec/changes/moonshot-features/tasks.md`
-- Specs: `openspec/changes/moonshot-features/specs/*/spec.md`
-
-**Status & Ownership:**
-- Status: Not Started
-- Priority: Low (Moonshot)
-- Owner: TBD
-
-**Acceptance Criteria:**
-- [ ] RESTful API follows OpenAPI 3.0 specification
-- [ ] API key authentication is secure and well-documented
-- [ ] Rate limiting protects against abuse (configurable per tier)
-- [ ] Comprehensive API documentation with examples
-- [ ] Sandbox environment allows testing without affecting production data
-- [ ] Webhooks notify external systems of events
-- [ ] API versioning supports backward compatibility
-
-**Test Strategy:**
-- Unit tests for all API endpoints
-- Integration tests for authentication and authorization
-- Rate limiting and abuse prevention testing
-- API documentation accuracy verification
-- Sandbox environment isolation testing
-- Webhook delivery reliability testing
-
-**Risks & Mitigation:**
-- Risk: API abuse or security vulnerabilities
-  - Mitigation: Rate limiting, authentication, input validation, security audit
-- Risk: Breaking changes may disrupt integrations
-  - Mitigation: API versioning, deprecation notices, long support windows
-- Risk: High support burden for developer questions
-  - Mitigation: Comprehensive documentation, code examples, community forum
-- Risk: Requires advanced API design expertise
-  - Mitigation: Follow REST best practices, OpenAPI standard, developer feedback
-
-**External Dependencies:**
-- Libraries: express, swagger
-- Infrastructure: REST API server
-
-**Dependencies:** {H1, A4}
-
-**Joy Opportunity:** "Build your own integrations. Your data, your rules."
-
-**Includes:**
-- RESTful API
-- Authentication (API keys)
-- Rate limiting
-- Documentation
-- Sandbox environment
-
-**Spec Reference:** FUTURE-001
-
----
-
-### J12. API Infrastructure [MVP] [INFRASTRUCTURE]
-**What:** API documentation automation, versioning, and rate limiting infrastructure.
-
-**Dependencies:** {J11}
-
-**Joy Opportunity:** "A well-documented API is a gift to developers. Make integration a pleasure."
-
-**Status & Ownership:**
-- Status: Not Started
-- Priority: High (Infrastructure)
+- Priority: Medium (Infrastructure)
 - Owner: Unassigned
-- Last Updated: 2026-01-11
+- Last Updated: 2026-01-19
+
+**Design Philosophy:**
+
+CSV Import/Export (J9) needs thorough testing with real-world CSV formats from Stripe, Square, PayPal, and various banks. Instead of testing against production data or live API sandboxes, we maintain a library of **sample CSV files** that represent actual export formats.
+
+This allows:
+- Safe testing without real financial data
+- Consistent test results (not dependent on external services)
+- Coverage of edge cases (malformed data, special characters, etc.)
+- Validation of smart detection and column mapping
 
 **Acceptance Criteria:**
-- [ ] OpenAPI/Swagger specification auto-generated from code
-- [ ] API documentation site deployed and accessible
-- [ ] API versioning strategy implemented (URL or header)
-- [ ] Rate limiting enforced per API key
-- [ ] Rate limit headers returned in responses
-- [ ] API key management UI for users
-- [ ] Usage analytics tracked per API key
-- [ ] API changelog maintained
-- [ ] Deprecation notices automated
-- [ ] SDK generation from OpenAPI spec (optional)
+
+- [ ] Sample CSV library created with files from major services
+- [ ] Stripe sample CSV (standard payment export format)
+- [ ] Square sample CSV (transaction history format)
+- [ ] PayPal sample CSV (activity download format)
+- [ ] Generic bank statement CSV samples (3-5 different bank formats)
+- [ ] QuickBooks export format sample
+- [ ] Edge case CSV samples (malformed data, special characters, multiple currencies)
+- [ ] Sample CSVs include realistic transaction data (dates, amounts, descriptions)
+- [ ] Sample CSVs anonymized (no real customer/business data)
+- [ ] Import templates validated against sample CSVs
+- [ ] Smart detection tested against all sample formats
+- [ ] Duplicate detection tested with intentionally duplicated samples
+- [ ] Large CSV sample (1000+ rows) for performance testing
+- [ ] Multi-currency CSV sample for error handling testing
+- [ ] Test documentation explains how to use sample files
+- [ ] Sample files version-controlled and maintained
 
 **Test Strategy:**
-- Verify documentation updates automatically
-- Test rate limiting enforcement
-- Verify versioning works correctly
+- Import each sample CSV and verify correct parsing
+- Verify smart detection correctly identifies each format
+- Test column mapping validation with sample files
+- Performance test with large sample CSV
+- Edge case testing with malformed samples
+- Duplicate detection accuracy with duplicate samples
 
 **Includes:**
-- OpenAPI spec generation
-- Documentation site deployment
-- API versioning implementation
-- Rate limiting infrastructure
-- API key management
+- Sample CSV library (Stripe, Square, PayPal, banks)
+- Edge case sample files
+- Large performance test sample
+- Test documentation
+- Import template validation suite
 
-**Spec Reference:** INFRA-015 (new)
+**Spec Reference:** INFRA-017 (revised)
 
 ---
 
-### J13. Mobile CI/CD [Conditional] [INFRASTRUCTURE]
-**What:** iOS and Android build pipelines and app store deployment automation.
-
-**Dependencies:** {J10, D11}
-
-**Note:** Only required if native mobile app is built. Skip if using PWA approach.
-
-**Joy Opportunity:** "Ship mobile updates as easily as web updates. Automation makes it possible."
-
-**Status & Ownership:**
-- Status: Not Started
-- Priority: High (Infrastructure - if mobile app)
-- Owner: Unassigned
-- Last Updated: 2026-01-11
-
-**Acceptance Criteria:**
-- [ ] iOS build pipeline configured (Xcode Cloud or similar)
-- [ ] Android build pipeline configured (Gradle + GitHub Actions)
-- [ ] Automatic versioning and build numbering
-- [ ] Beta distribution configured (TestFlight, Firebase App Distribution)
-- [ ] App store deployment automated (App Store Connect, Google Play)
-- [ ] Code signing managed securely
-- [ ] Build artifacts archived
-- [ ] Crash reporting integrated (if not via Sentry)
-- [ ] Mobile-specific tests run in CI
-
-**Test Strategy:**
-- Trigger beta build and verify distribution
-- Test app store submission flow (sandbox)
-- Verify crash reporting captures test crash
-
-**Includes:**
-- iOS build configuration
-- Android build configuration
-- Beta distribution setup
-- App store deployment automation
-- Code signing management
-
-**Spec Reference:** INFRA-016 (new)
-
----
-
-### J14. Integration Testing Environment [MVP] [INFRASTRUCTURE]
-**What:** Sandbox environment for third-party integrations with mock services.
-
-**Dependencies:** {J9, E8}
-
-**Joy Opportunity:** "Test integrations safely. Sandboxes let you experiment without consequences."
-
-**Status & Ownership:**
-- Status: Not Started
-- Priority: High (Infrastructure)
-- Owner: Unassigned
-- Last Updated: 2026-01-11
-
-**Acceptance Criteria:**
-- [ ] Sandbox environment provisioned for integrations
-- [ ] Mock services for external APIs (Stripe, etc.)
-- [ ] Integration test suite automated
-- [ ] Third-party webhooks testable in sandbox
-- [ ] Sandbox data isolated and resettable
-- [ ] Integration test results tracked
-- [ ] Mock service responses configurable
-- [ ] Sandbox accessible to integration partners
-
-**Test Strategy:**
-- Test integration against mock services
-- Verify sandbox isolation
-- Test reset functionality
-
-**Includes:**
-- Sandbox environment setup
-- Mock service configuration
-- Integration test automation
-- Partner access management
-
-**Spec Reference:** INFRA-017 (new)
-
----
-
-### J15. Write Comprehensive Tests for Group J Features [MVP] [MANDATORY]
+### J11. Write Comprehensive Tests for Group J Features [MVP] [MANDATORY]
 **What:** Write complete test suites for all Group J features.
 
-**Dependencies:** {J1, J2, J3, J4, J5, J6, J7, J8, J9, J10, J11, J12, J13, J14}
+**Dependencies:** {J1, J2, J3, J4, J5, J6, J7, J8, J9, J10}
 
 **⚠️ TESTING GATE:** This task is MANDATORY. All Group J features must be tested before release.
 
@@ -1590,20 +4674,18 @@ See `Roadmaps/archive/` for detailed completion reports:
 **Status & Ownership:**
 **Status:** Not Started
 **Owner:** Unassigned
-**Last Updated:** 2026-01-10
+**Last Updated:** 2026-01-19
 
 **Acceptance Criteria:**
-- [ ] Unit tests written for 3D Financial Visualization (J1)
-- [ ] Unit tests written for AI-Powered Insights (J2)
+- [ ] Unit tests written for Financial Flow Widget (J1)
+- [ ] Unit tests written for Smart Automation Assistant (J2)
 - [ ] Unit tests written for What-If Scenario Planner (J3)
 - [ ] Unit tests written for Financial Health Score (J4)
 - [ ] Unit tests written for Goal Setting & Tracking (J5)
 - [ ] Unit tests written for Emergency Fund & Runway Calculator (J6)
 - [ ] Unit tests written for Mentor/Advisor Portal (J7)
 - [ ] Unit tests written for Tax Time Preparation Mode (J8)
-- [ ] Unit tests written for Integration Hub (J9)
-- [ ] Unit tests written for Mobile Receipt Capture App (J10)
-- [ ] Unit tests written for API Access for Developers (J11)
+- [ ] Unit tests written for CSV Import/Export (J9)
 - [ ] Integration tests verify interactions between all Group J features
 - [ ] E2E tests cover complete advanced workflows
 - [ ] Performance tests verify all Group J features meet requirements
@@ -1611,10 +4693,10 @@ See `Roadmaps/archive/` for detailed completion reports:
 - [ ] All tests pass with 100% success rate
 
 **Test Strategy:**
-- **Unit Tests:** AI prediction accuracy, scenario calculation logic, health score algorithms
-- **Integration Tests:** API integration testing, mobile app integration
-- **E2E Tests:** Complete goal tracking workflow, tax preparation flow
-- **Performance Tests:** 3D visualization rendering, AI response time, API throughput
+- **Unit Tests:** Widget rendering, AI prediction accuracy, scenario calculation logic, health score algorithms, runway calculations, CSV parsing
+- **Integration Tests:** Advisor portal multi-client workflows, tax prep + advisor collaboration, CSV import with duplicate detection
+- **E2E Tests:** Complete goal tracking workflow, tax preparation flow, advisor onboarding and client management, CSV import end-to-end
+- **Performance Tests:** Widget rendering performance, AI response time, large CSV import (10K+ rows), advisor dashboard with 100+ clients
 
 **External Dependencies:**
 - **Libraries:** vitest, @testing-library/react, playwright
@@ -1622,10 +4704,10 @@ See `Roadmaps/archive/` for detailed completion reports:
 
 ---
 
-### J16. Run All Tests and Verify 100% Pass Rate [MVP] [MANDATORY]
+### J12. Run All Tests and Verify 100% Pass Rate [MVP] [MANDATORY]
 **What:** Run the complete test suite and verify ALL tests pass before release.
 
-**Dependencies:** {J15}
+**Dependencies:** {J11}
 
 **⚠️ CRITICAL GATE:** Product CANNOT be released until this task is complete.
 
@@ -1639,7 +4721,7 @@ See `Roadmaps/archive/` for detailed completion reports:
 **Status & Ownership:**
 **Status:** Not Started
 **Owner:** Unassigned
-**Last Updated:** 2026-01-10
+**Last Updated:** 2026-01-19
 
 **Acceptance Criteria:**
 - [ ] Command `npm test` runs successfully with 0 failures

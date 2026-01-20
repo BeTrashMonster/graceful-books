@@ -333,3 +333,102 @@ export interface ExportResult {
   filename?: string
   error?: string
 }
+
+/**
+ * AR Aging Report Types
+ * TODO: Complete implementation for F5 - A/R Aging Report
+ */
+
+export type ARAgingBucket = 'current' | '1-30' | '31-60' | '61-90' | '90+'
+
+export const ARAgingBucketLabels: Record<ARAgingBucket, { formal: string; friendly: string }> = {
+  'current': { formal: 'Current', friendly: 'Not due yet' },
+  '1-30': { formal: '1-30 days', friendly: 'Just a bit overdue' },
+  '31-60': { formal: '31-60 days', friendly: 'Getting older' },
+  '61-90': { formal: '61-90 days', friendly: 'Needs attention' },
+  '90+': { formal: '90+ days', friendly: 'Time for a friendly nudge' },
+}
+
+export interface ARAgingBucketData {
+  bucket: ARAgingBucket
+  label: string
+  friendlyLabel: string
+  amount: number
+  invoiceCount: number
+  invoices: any[]
+}
+
+export interface CustomerARAging {
+  customerId: string
+  customerName: string
+  totalOwed: number
+  buckets: Record<ARAgingBucket, ARAgingBucketData>
+  oldestInvoiceDate?: number
+  oldestInvoiceDays?: number
+}
+
+export interface FollowUpRecommendation {
+  customerId: string
+  customerName: string
+  urgency: 'low' | 'medium' | 'high' | 'urgent'
+  message: string
+  suggestedAction: string
+  amount: number
+  daysOverdue: number
+}
+
+export interface ARAgingReportOptions {
+  companyId: string
+  asOfDate?: number
+  includeZeroBalances?: boolean
+  sortBy?: 'customer' | 'amount' | 'days'
+  sortOrder?: 'asc' | 'desc'
+}
+
+export interface ARAgingReport {
+  generatedAt: number
+  asOfDate: number
+  companyId: string
+  totalReceivables: number
+  buckets: Record<ARAgingBucket, ARAgingBucketData>
+  customers: CustomerARAging[]
+  recommendations: FollowUpRecommendation[]
+  summary: {
+    totalCustomers: number
+    customersOverdue: number
+    percentOverdue: number
+    averageDaysOverdue: number
+  }
+}
+
+/**
+ * Email Follow-Up Template Types
+ * TODO: Complete implementation for email automation
+ */
+
+export interface EmailFollowUpTemplateContent {
+  subject: string
+  body: string
+  variables: Record<string, string>
+}
+
+export interface EmailFollowUpTemplate {
+  id: string
+  name: string
+  description?: string
+  triggerDays: number
+  content: EmailFollowUpTemplateContent
+  active: boolean
+  createdAt: number
+  updatedAt: number
+}
+
+/**
+ * Balance Sheet Report type
+ * TODO: Extend BalanceSheetData with report-specific metadata
+ */
+export interface BalanceSheetReport extends BalanceSheetData {
+  generatedAt?: number
+  companyId?: string
+  reportPeriod?: ReportPeriod
+}

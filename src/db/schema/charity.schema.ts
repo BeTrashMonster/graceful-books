@@ -9,7 +9,7 @@
  * - CHARITY-001: Charity selection during signup
  */
 
-import type { Charity, CharityCategory } from '../../types/database.types';
+import type { Charity, CharityCategory, CharityStatus } from '../../types/database.types';
 
 /**
  * Dexie.js schema definition for Charities table
@@ -17,9 +17,11 @@ import type { Charity, CharityCategory } from '../../types/database.types';
  * Indexes:
  * - id: Primary key (UUID)
  * - category: For filtering by charity type
+ * - status: For filtering by verification status
  * - active: For querying only active charities
+ * - ein: For EIN lookup
  */
-export const charitiesSchema = 'id, category, active';
+export const charitiesSchema = 'id, category, status, active, ein';
 
 /**
  * Table name constant
@@ -31,17 +33,27 @@ export const CHARITIES_TABLE = 'charities';
  */
 export const createDefaultCharity = (
   name: string,
+  ein: string,
   description: string,
   category: CharityCategory,
   website: string,
+  createdBy?: string,
   logo?: string
 ): Partial<Charity> => {
+  const now = Date.now();
   return {
     name,
+    ein,
     description,
     category,
     website,
     logo: logo || null,
+    status: 'pending',
+    verification_notes: null,
+    rejection_reason: null,
+    created_by: createdBy || null,
+    created_at: now,
+    updated_at: now,
     active: true,
   };
 };
@@ -54,6 +66,15 @@ export const validateCharity = (charity: Partial<Charity>): string[] => {
 
   if (!charity.name || charity.name.trim() === '') {
     errors.push('name is required');
+  }
+
+  if (!charity.ein || charity.ein.trim() === '') {
+    errors.push('EIN is required');
+  }
+
+  // Validate EIN format (XX-XXXXXXX)
+  if (charity.ein && !isValidEIN(charity.ein)) {
+    errors.push('EIN must be in format XX-XXXXXXX (e.g., 12-3456789)');
   }
 
   if (!charity.description || charity.description.trim() === '') {
@@ -86,6 +107,14 @@ const isValidUrl = (url: string): boolean => {
   } catch {
     return false;
   }
+};
+
+/**
+ * Helper: Validate EIN format (XX-XXXXXXX)
+ */
+export const isValidEIN = (ein: string): boolean => {
+  const einRegex = /^\d{2}-\d{7}$/;
+  return einRegex.test(ein);
 };
 
 /**

@@ -1,0 +1,262 @@
+/* CSVExporter Component Styles */
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: var(--color-surface, #ffffff);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.header h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.description {
+  margin: 0;
+  color: var(--color-text-secondary, #6b7280);
+  font-size: 1rem;
+}
+
+.section {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #1a1a1a);
+  font-size: 0.875rem;
+}
+
+.required {
+  color: var(--color-danger, #ef4444);
+}
+
+.select,
+.input {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: 4px;
+  font-size: 1rem;
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #1a1a1a);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.select:focus,
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.customDateRange {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.dateField {
+  display: flex;
+  flex-direction: column;
+}
+
+.fieldHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.fieldActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.linkButton {
+  background: none;
+  border: none;
+  color: var(--color-primary, #3b82f6);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.linkButton:hover {
+  color: var(--color-primary-dark, #2563eb);
+}
+
+.linkButton:focus {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.separator {
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.fieldList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--color-background, #f9fafb);
+  border-radius: 4px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.checkbox input[type="checkbox"] {
+  width: 1.125rem;
+  height: 1.125rem;
+  cursor: pointer;
+}
+
+.checkbox input[type="checkbox"]:focus {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+.hint {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  font-style: italic;
+}
+
+.actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.exportButton {
+  padding: 0.75rem 2rem;
+  background: var(--color-primary, #3b82f6);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.exportButton:hover:not(:disabled) {
+  background: var(--color-primary-dark, #2563eb);
+}
+
+.exportButton:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.exportButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+.exportButton:disabled {
+  background: var(--color-border, #d1d5db);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.success,
+.error {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.success {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+}
+
+.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.icon {
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .customDateRange {
+    grid-template-columns: 1fr;
+  }
+
+  .fieldList {
+    grid-template-columns: 1fr;
+  }
+
+  .fieldHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .select,
+  .input,
+  .linkButton,
+  .exportButton {
+    transition: none;
+  }
+
+  .exportButton:active:not(:disabled) {
+    transform: none;
+  }
+}

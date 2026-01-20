@@ -67,11 +67,11 @@ describe('PortalService', () => {
       const result = await createPortalToken(mockCompanyId, mockInvoiceId, mockEmail);
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
-      expect(result.data?.token).toHaveLength(64);
-      expect(result.data?.email).toBe(mockEmail);
-      expect(result.data?.company_id).toBe(mockCompanyId);
-      expect(result.data?.invoice_id).toBe(mockInvoiceId);
+      expect((result as any).data).toBeDefined();
+      expect((result as any).data.token).toHaveLength(64);
+      expect((result as any).data.email).toBe(mockEmail);
+      expect((result as any).data.company_id).toBe(mockCompanyId);
+      expect((result as any).data.invoice_id).toBe(mockInvoiceId);
     });
 
     it('should set expiration to 90 days from creation', async () => {
@@ -82,7 +82,7 @@ describe('PortalService', () => {
       expect(result.success).toBe(true);
 
       const expectedExpiry = 90 * 24 * 60 * 60 * 1000;
-      const actualExpiry = result.data!.expires_at - result.data!.created_at;
+      const actualExpiry = (result as any).data.expires_at - (result as any).data.created_at;
 
       // Allow for some milliseconds of test execution time
       expect(actualExpiry).toBeGreaterThanOrEqual(expectedExpiry - 1000);
@@ -95,22 +95,22 @@ describe('PortalService', () => {
 
       expect(result1.success).toBe(true);
       expect(result2.success).toBe(true);
-      expect(result1.data?.id).toBe(result2.data?.id);
-      expect(result1.data?.token).toBe(result2.data?.token);
+      expect((result1 as any).data.id).toBe(result2.data?.id);
+      expect((result1 as any).data.token).toBe(result2.data?.token);
     });
 
     it('should fail for non-existent invoice', async () => {
       const result = await createPortalToken(mockCompanyId, 'non-existent-id', mockEmail);
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
 
     it('should fail if invoice belongs to different company', async () => {
       const result = await createPortalToken('different-company-id', mockInvoiceId, mockEmail);
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('PERMISSION_DENIED');
+      expect((result as any).error.code).toBe('PERMISSION_DENIED');
     });
   });
 
@@ -119,36 +119,36 @@ describe('PortalService', () => {
       const createResult = await createPortalToken(mockCompanyId, mockInvoiceId, mockEmail);
       expect(createResult.success).toBe(true);
 
-      const validateResult = await validateToken(createResult.data!.token, mockIp);
+      const validateResult = await validateToken((createResult as any).data.token, mockIp);
 
       expect(validateResult.success).toBe(true);
-      expect(validateResult.data?.token.id).toBe(createResult.data!.id);
-      expect(validateResult.data?.invoice.id).toBe(mockInvoiceId);
+      expect((validateResult as any).data.token.id).toBe((createResult as any).data.id);
+      expect((validateResult as any).data.invoice.id).toBe(mockInvoiceId);
     });
 
     it('should increment access count on validation', async () => {
       const createResult = await createPortalToken(mockCompanyId, mockInvoiceId, mockEmail);
       expect(createResult.success).toBe(true);
 
-      const initialAccessCount = createResult.data!.access_count;
+      const initialAccessCount = (createResult as any).data.access_count;
 
-      await validateToken(createResult.data!.token, mockIp);
-      await validateToken(createResult.data!.token, mockIp);
+      await validateToken((createResult as any).data.token, mockIp);
+      await validateToken((createResult as any).data.token, mockIp);
 
-      const updatedToken = await db.portalTokens.get(createResult.data!.id);
+      const updatedToken = await db.portalTokens.get((createResult as any).data.id);
       expect(updatedToken?.access_count).toBe(initialAccessCount + 2);
     });
 
     it('should update last_accessed_at timestamp', async () => {
       const createResult = await createPortalToken(mockCompanyId, mockInvoiceId, mockEmail);
       expect(createResult.success).toBe(true);
-      expect(createResult.data!.last_accessed_at).toBeNull();
+      expect((createResult as any).data.last_accessed_at).toBeNull();
 
       const before = Date.now();
-      await validateToken(createResult.data!.token, mockIp);
+      await validateToken((createResult as any).data.token, mockIp);
       const after = Date.now();
 
-      const updatedToken = await db.portalTokens.get(createResult.data!.id);
+      const updatedToken = await db.portalTokens.get((createResult as any).data.id);
       expect(updatedToken?.last_accessed_at).toBeGreaterThanOrEqual(before);
       expect(updatedToken?.last_accessed_at).toBeLessThanOrEqual(after);
     });
@@ -157,7 +157,7 @@ describe('PortalService', () => {
       const result = await validateToken('non-existent-token-12345678901234567890123456789012345678901234', mockIp);
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
 
     it('should fail for expired token', async () => {
@@ -165,26 +165,26 @@ describe('PortalService', () => {
       expect(createResult.success).toBe(true);
 
       // Manually expire the token
-      await db.portalTokens.update(createResult.data!.id, {
+      await db.portalTokens.update((createResult as any).data.id, {
         expires_at: Date.now() - 1000, // 1 second ago
       });
 
-      const validateResult = await validateToken(createResult.data!.token, mockIp);
+      const validateResult = await validateToken((createResult as any).data.token, mockIp);
 
       expect(validateResult.success).toBe(false);
-      expect(validateResult.error?.code).toBe('SESSION_INVALID');
+      expect((validateResult as any).error.code).toBe('SESSION_INVALID');
     });
 
     it('should fail for revoked token', async () => {
       const createResult = await createPortalToken(mockCompanyId, mockInvoiceId, mockEmail);
       expect(createResult.success).toBe(true);
 
-      await revokeToken(createResult.data!.id);
+      await revokeToken((createResult as any).data.id);
 
-      const validateResult = await validateToken(createResult.data!.token, mockIp);
+      const validateResult = await validateToken((createResult as any).data.token, mockIp);
 
       expect(validateResult.success).toBe(false);
-      expect(validateResult.error?.code).toBe('SESSION_INVALID');
+      expect((validateResult as any).error.code).toBe('SESSION_INVALID');
     });
 
     it('should enforce rate limiting at 100 requests/hour', async () => {
@@ -195,14 +195,14 @@ describe('PortalService', () => {
 
       // Make 100 requests (should all succeed)
       for (let i = 0; i < 100; i++) {
-        const result = await validateToken(createResult.data!.token, testIp);
+        const result = await validateToken((createResult as any).data.token, testIp);
         expect(result.success).toBe(true);
       }
 
       // 101st request should be rate limited
-      const rateLimitedResult = await validateToken(createResult.data!.token, testIp);
+      const rateLimitedResult = await validateToken((createResult as any).data.token, testIp);
       expect(rateLimitedResult.success).toBe(false);
-      expect(rateLimitedResult.error?.code).toBe('RATE_LIMITED');
+      expect((rateLimitedResult as any).error.code).toBe('RATE_LIMITED');
     });
   });
 
@@ -211,10 +211,10 @@ describe('PortalService', () => {
       const createResult = await createPortalToken(mockCompanyId, mockInvoiceId, mockEmail);
       expect(createResult.success).toBe(true);
 
-      const revokeResult = await revokeToken(createResult.data!.id);
+      const revokeResult = await revokeToken((createResult as any).data.id);
       expect(revokeResult.success).toBe(true);
 
-      const token = await db.portalTokens.get(createResult.data!.id);
+      const token = await db.portalTokens.get((createResult as any).data.id);
       expect(token?.revoked_at).toBeTruthy();
     });
 
@@ -222,8 +222,8 @@ describe('PortalService', () => {
       const createResult = await createPortalToken(mockCompanyId, mockInvoiceId, mockEmail);
       expect(createResult.success).toBe(true);
 
-      await revokeToken(createResult.data!.id);
-      const result = await revokeToken(createResult.data!.id);
+      await revokeToken((createResult as any).data.id);
+      const result = await revokeToken((createResult as any).data.id);
 
       expect(result.success).toBe(true);
     });
@@ -232,7 +232,7 @@ describe('PortalService', () => {
       const result = await revokeToken('non-existent-id');
 
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe('NOT_FOUND');
+      expect((result as any).error.code).toBe('NOT_FOUND');
     });
   });
 
@@ -244,7 +244,7 @@ describe('PortalService', () => {
       const result = await getInvoicePortalTokens(mockCompanyId, mockInvoiceId);
 
       expect(result.success).toBe(true);
-      expect(result.data?.length).toBe(2);
+      expect((result as any).data.length).toBe(2);
     });
 
     it('should not return deleted tokens', async () => {
@@ -252,14 +252,14 @@ describe('PortalService', () => {
       expect(createResult.success).toBe(true);
 
       // Soft delete the token
-      await db.portalTokens.update(createResult.data!.id, {
+      await db.portalTokens.update((createResult as any).data.id, {
         deleted_at: Date.now(),
       });
 
       const result = await getInvoicePortalTokens(mockCompanyId, mockInvoiceId);
 
       expect(result.success).toBe(true);
-      expect(result.data?.length).toBe(0);
+      expect((result as any).data.length).toBe(0);
     });
   });
 
@@ -269,16 +269,16 @@ describe('PortalService', () => {
       expect(createResult.success).toBe(true);
 
       // Manually expire the token
-      await db.portalTokens.update(createResult.data!.id, {
+      await db.portalTokens.update((createResult as any).data.id, {
         expires_at: Date.now() - 1000,
       });
 
       const cleanupResult = await cleanupExpiredTokens();
 
       expect(cleanupResult.success).toBe(true);
-      expect(cleanupResult.data).toBe(1);
+      expect((cleanupResult as any).data).toBe(1);
 
-      const token = await db.portalTokens.get(createResult.data!.id);
+      const token = await db.portalTokens.get((createResult as any).data.id);
       expect(token?.deleted_at).toBeTruthy();
     });
 
@@ -289,9 +289,9 @@ describe('PortalService', () => {
       const cleanupResult = await cleanupExpiredTokens();
 
       expect(cleanupResult.success).toBe(true);
-      expect(cleanupResult.data).toBe(0);
+      expect((cleanupResult as any).data).toBe(0);
 
-      const token = await db.portalTokens.get(createResult.data!.id);
+      const token = await db.portalTokens.get((createResult as any).data.id);
       expect(token?.deleted_at).toBeNull();
     });
   });
@@ -336,7 +336,7 @@ describe('PortalService', () => {
 
       // Make 10 requests
       for (let i = 0; i < 10; i++) {
-        await validateToken(createResult.data!.token, testIp);
+        await validateToken((createResult as any).data.token, testIp);
       }
 
       const status = getRateLimitStatus(testIp);
@@ -353,7 +353,7 @@ describe('PortalService', () => {
 
       // Make 100 requests
       for (let i = 0; i < 100; i++) {
-        await validateToken(createResult.data!.token, testIp);
+        await validateToken((createResult as any).data.token, testIp);
       }
 
       const status = getRateLimitStatus(testIp);

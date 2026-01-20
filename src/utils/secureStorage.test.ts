@@ -232,7 +232,7 @@ describe('SecureLocalStorage', () => {
       const result = await storage.setItem('test-key', 'test-value')
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('NOT_INITIALIZED')
+      expect((result as any).error).toBe('NOT_INITIALIZED')
       expect(result.message).toContain('not initialized')
     })
 
@@ -376,7 +376,7 @@ describe('SecureLocalStorage', () => {
       const result = await storage.migrateFromUnencrypted('old-key', 'new-key')
 
       expect(result.success).toBe(false)
-      expect(result.error).toContain('not initialized')
+      expect((result as any).error).toContain('not initialized')
     })
   })
 
@@ -606,7 +606,7 @@ describe('SecureLocalStorage - Quota Handling', () => {
       const result = await storage.setItem('test-key', 'test-value')
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('QUOTA_EXCEEDED')
+      expect((result as any).error).toBe('QUOTA_EXCEEDED')
       expect(result.message).toContain('storage is full')
     })
 
@@ -617,7 +617,7 @@ describe('SecureLocalStorage - Quota Handling', () => {
       const result = await storage.setItem('test-key', 'test-value')
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('NOT_INITIALIZED')
+      expect((result as any).error).toBe('NOT_INITIALIZED')
     })
 
     it('should try cleanup before failing with quota error', async () => {
@@ -670,7 +670,7 @@ describe('SecureLocalStorage - Quota Handling', () => {
       const result = await storage.setItem('test-key', 'test-value')
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('QUOTA_EXCEEDED')
+      expect((result as any).error).toBe('QUOTA_EXCEEDED')
     })
 
     it('should handle Safari QUOTA_EXCEEDED_ERR error name', async () => {
@@ -686,7 +686,7 @@ describe('SecureLocalStorage - Quota Handling', () => {
       const result = await storage.setItem('test-key', 'test-value')
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('QUOTA_EXCEEDED')
+      expect((result as any).error).toBe('QUOTA_EXCEEDED')
     })
   })
 

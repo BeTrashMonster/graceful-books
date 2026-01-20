@@ -467,7 +467,7 @@ describe('Helper Functions', () => {
       const result = validateConversionMetadata(metadata);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('positive'))).toBe(true);
+      expect(result.errors.some((e: any) => e.includes('positive'))).toBe(true);
     });
   });
 

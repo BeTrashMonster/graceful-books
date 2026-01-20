@@ -369,7 +369,7 @@ describe('Manual Conflict Resolution', () => {
 
     expect(fieldConflicts.length).toBeGreaterThan(0);
 
-    const nameConflict = fieldConflicts.find(fc => fc.fieldName === 'name');
+    const nameConflict = fieldConflicts.find((fc: any) => fc.fieldName === 'name');
     expect(nameConflict).toBeDefined();
     expect(nameConflict?.localValue).toBe('Local Name');
     expect(nameConflict?.remoteValue).toBe('Remote Name');

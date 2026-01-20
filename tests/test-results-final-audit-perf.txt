@@ -1,0 +1,621 @@
+
+> graceful-books@0.1.0 test
+> vitest src/services/auditLogExtended.perf.test.ts --run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/Admin/graceful_books[39m
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[22m[39m
+Setting up large dataset for performance tests...
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[22m[39m
+Seeding 100000 audit log entries...
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[22m[39m
+  Seeded 1000/100000 entries...
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[22m[39m
+  Seeded 11000/100000 entries...
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[22m[39m
+  Seeded 21000/100000 entries...
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[22m[39m
+  Seeded 31000/100000 entries...
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[22m[39m
+  Seeded 41000/100000 entries...
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[22m[39m
+  Seeded 51000/100000 entries...
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[22m[39m
+  Seeded 61000/100000 entries...
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[22m[39m
+  Seeded 71000/100000 entries...
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[22m[39m
+  Seeded 81000/100000 entries...
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[22m[39m
+  Seeded 91000/100000 entries...
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[22m[39m
+Seeding completed in 263.54s
+Large dataset setup complete
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mSearch Performance with 100,000+ Entries[2m > [22m[2mshould search all logs in <200ms[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mSearch Performance with 100,000+ Entries[2m > [22m[2mshould search all logs in <200ms[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6108.633700000006[39m }
+Search completed in 6109.95ms
+Found 100000 logs, returned 100
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mSearch Performance with 100,000+ Entries[2m > [22m[2mshould perform date range search in <200ms[22m[39m
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-12-18T05:19:53.580Z[39m,
+  dateTo: [35m2026-01-17T05:19:53.580Z[39m,
+  limit: [33m100[39m
+}
+[AuditLogExtended] Audit log search completed { total: [33m8201[39m, returned: [33m100[39m, executionTimeMs: [33m888.751500000013[39m }
+Date range search completed in 889.32ms
+Found 8201 logs in date range
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mSearch Performance with 100,000+ Entries[2m > [22m[2mshould perform full-text search in <200ms[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, searchQuery: [32m'transaction'[39m, limit: [33m100[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mSearch Performance with 100,000+ Entries[2m > [22m[2mshould perform full-text search in <200ms[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m14300[39m, returned: [33m100[39m, executionTimeMs: [33m5620.378100000031[39m }
+Full-text search completed in 5620.78ms
+Found 14300 matching logs
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mSearch Performance with 100,000+ Entries[2m > [22m[2mshould perform complex filtered search in <200ms[22m[39m
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  searchQuery: [32m'user'[39m,
+  dateFrom: [35m2025-12-18T05:20:00.093Z[39m,
+  dateTo: [35m2026-01-17T05:20:00.093Z[39m,
+  userIds: [ [32m'user-1'[39m, [32m'user-2'[39m ],
+  entityTypes: [ [32m'TRANSACTION'[39m, [32m'ACCOUNT'[39m ],
+  actions: [ [32m'CREATE'[39m, [32m'UPDATE'[39m ],
+  limit: [33m100[39m
+}
+[AuditLogExtended] Audit log search completed { total: [33m0[39m, returned: [33m0[39m, executionTimeMs: [33m941.7942000000039[39m }
+Complex search completed in 942.25ms
+Found 0 matching logs
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mSearch Performance with 100,000+ Entries[2m > [22m[2mshould handle pagination efficiently[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m0[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m5682.425900000031[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m100[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6903.079499999993[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m200[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m5607.234300000011[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m300[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m5717.403399999952[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m400[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mSearch Performance with 100,000+ Entries[2m > [22m[2mshould handle pagination efficiently[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6506.032699999982[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m500[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6829.634300000034[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m600[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6740.481800000009[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m700[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6673.910800000012[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m800[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6465.3359000000055[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m900[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6665.752899999963[39m }
+Average pagination time: 6379.70ms
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mTimeline Generation Performance[2m > [22m[2mshould generate daily timeline in <200ms[22m[39m
+[AuditLogExtended] Generating audit log timeline {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-12-18T05:21:04.843Z[39m,
+  dateTo: [35m2026-01-17T05:21:04.843Z[39m,
+  groupBy: [32m'day'[39m
+}
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-12-18T05:21:04.843Z[39m,
+  dateTo: [35m2026-01-17T05:21:04.843Z[39m,
+  limit: [33m999999[39m,
+  sortBy: [32m'timestamp'[39m,
+  sortOrder: [32m'desc'[39m
+}
+[AuditLogExtended] Audit log search completed { total: [33m8201[39m, returned: [33m8201[39m, executionTimeMs: [33m923.6884999999893[39m }
+[AuditLogExtended] Timeline generation completed { entryCount: [33m31[39m, totalLogs: [33m8201[39m, executionTimeMs: [33m979.6773999999859[39m }
+Timeline generation completed in 980.66ms
+Generated 31 timeline entries
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mTimeline Generation Performance[2m > [22m[2mshould generate hourly timeline in <200ms[22m[39m
+[AuditLogExtended] Generating audit log timeline {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2026-01-14T05:21:05.824Z[39m,
+  dateTo: [35m2026-01-17T05:21:05.824Z[39m,
+  groupBy: [32m'hour'[39m
+}
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2026-01-14T05:21:05.824Z[39m,
+  dateTo: [35m2026-01-17T05:21:05.824Z[39m,
+  limit: [33m999999[39m,
+  sortBy: [32m'timestamp'[39m,
+  sortOrder: [32m'desc'[39m
+}
+[AuditLogExtended] Audit log search completed { total: [33m783[39m, returned: [33m783[39m, executionTimeMs: [33m96.1868999999715[39m }
+[AuditLogExtended] Timeline generation completed { entryCount: [33m73[39m, totalLogs: [33m783[39m, executionTimeMs: [33m102.68640000000596[39m }
+Hourly timeline generation completed in 102.98ms
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mTimeline Generation Performance[2m > [22m[2mshould generate weekly timeline in <200ms[22m[39m
+[AuditLogExtended] Generating audit log timeline {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-07-17T04:21:05.930Z[39m,
+  dateTo: [35m2026-01-17T05:21:05.930Z[39m,
+  groupBy: [32m'week'[39m
+}
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-07-17T04:21:05.930Z[39m,
+  dateTo: [35m2026-01-17T05:21:05.930Z[39m,
+  limit: [33m999999[39m,
+  sortBy: [32m'timestamp'[39m,
+  sortOrder: [32m'desc'[39m
+}
+[AuditLogExtended] Audit log search completed { total: [33m50430[39m, returned: [33m50430[39m, executionTimeMs: [33m5931.139300000039[39m }
+[AuditLogExtended] Timeline generation completed {
+  entryCount: [33m27[39m,
+  totalLogs: [33m50430[39m,
+  executionTimeMs: [33m6209.048800000048[39m
+}
+Weekly timeline generation completed in 6209.31ms
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mTimeline Generation Performance[2m > [22m[2mshould generate monthly timeline in <200ms[22m[39m
+[AuditLogExtended] Generating audit log timeline {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-01-17T05:21:12.140Z[39m,
+  dateTo: [35m2026-01-17T05:21:12.140Z[39m,
+  groupBy: [32m'month'[39m
+}
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-01-17T05:21:12.140Z[39m,
+  dateTo: [35m2026-01-17T05:21:12.140Z[39m,
+  limit: [33m999999[39m,
+  sortBy: [32m'timestamp'[39m,
+  sortOrder: [32m'desc'[39m
+}
+[AuditLogExtended] Audit log search completed { total: [33m99999[39m, returned: [33m99999[39m, executionTimeMs: [33m14468.448600000003[39m }
+[AuditLogExtended] Timeline generation completed {
+  entryCount: [33m13[39m,
+  totalLogs: [33m99999[39m,
+  executionTimeMs: [33m14709.961399999971[39m
+}
+Monthly timeline generation completed in 14710.21ms
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mExport Performance[2m > [22m[2mshould export 1,000 logs to CSV in reasonable time[22m[39m
+[AuditLogExtended] Starting CSV export { companyId: [32m'test-company'[39m, limit: [33m1000[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m1000[39m, offset: [90mundefined[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m1000[39m, executionTimeMs: [33m7524.749599999981[39m }
+[AuditLogExtended] CSV export completed { recordCount: [33m1000[39m, executionTimeMs: [33m7534.6170000000275[39m }
+CSV export (1,000 logs) completed in 7535.43ms
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mExport Performance[2m > [22m[2mshould export 10,000 logs to CSV in reasonable time[22m[39m
+[AuditLogExtended] Starting CSV export { companyId: [32m'test-company'[39m, limit: [33m10000[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m10000[39m, offset: [90mundefined[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m10000[39m, executionTimeMs: [33m7209.212799999979[39m }
+[AuditLogExtended] CSV export completed { recordCount: [33m10000[39m, executionTimeMs: [33m7352.039499999955[39m }
+CSV export (10,000 logs) completed in 7352.34ms
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mExport Performance[2m > [22m[2mshould export 1,000 logs to PDF data in reasonable time[22m[39m
+[AuditLogExtended] Starting PDF export { companyId: [32m'test-company'[39m, limit: [33m1000[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m1000[39m, offset: [90mundefined[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m1000[39m, executionTimeMs: [33m6340.789600000018[39m }
+[AuditLogExtended] PDF export data prepared { recordCount: [33m1000[39m, executionTimeMs: [33m6529.1157999999705[39m }
+PDF export (1,000 logs) completed in 6532.80ms
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mExport Performance[2m > [22m[2mshould handle filtered export efficiently[22m[39m
+[AuditLogExtended] Starting CSV export {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-12-18T05:21:48.279Z[39m,
+  dateTo: [35m2026-01-17T05:21:48.279Z[39m,
+  userIds: [ [32m'user-1'[39m ],
+  entityTypes: [ [32m'TRANSACTION'[39m ]
+}
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-12-18T05:21:48.279Z[39m,
+  dateTo: [35m2026-01-17T05:21:48.279Z[39m,
+  userIds: [ [32m'user-1'[39m ],
+  entityTypes: [ [32m'TRANSACTION'[39m ],
+  offset: [90mundefined[39m
+}
+[AuditLogExtended] Audit log search completed { total: [33m243[39m, returned: [33m243[39m, executionTimeMs: [33m958.9694999999483[39m }
+[AuditLogExtended] CSV export completed { recordCount: [33m243[39m, executionTimeMs: [33m961.3261000000057[39m }
+Filtered CSV export completed in 961.63ms
+Exported 243 filtered logs
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mStatistics Performance[2m > [22m[2mshould generate statistics in <200ms[22m[39m
+[AuditLogExtended] Generating audit log statistics { companyId: [32m'test-company'[39m, dateFrom: [90mundefined[39m, dateTo: [90mundefined[39m }
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [90mundefined[39m,
+  dateTo: [90mundefined[39m,
+  limit: [33m999999[39m
+}
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100000[39m, executionTimeMs: [33m6896.33520000003[39m }
+[AuditLogExtended] Statistics generation completed { totalLogs: [33m100000[39m, executionTimeMs: [33m7245.940000000002[39m }
+Statistics generation completed in 7246.72ms
+Total logs: 100000
+Unique actions: 8
+Unique entity types: 7
+Unique users: 5
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mStatistics Performance[2m > [22m[2mshould generate date-filtered statistics in <200ms[22m[39m
+[AuditLogExtended] Generating audit log statistics {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-12-18T05:21:56.489Z[39m,
+  dateTo: [35m2026-01-17T05:21:56.489Z[39m
+}
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-12-18T05:21:56.489Z[39m,
+  dateTo: [35m2026-01-17T05:21:56.489Z[39m,
+  limit: [33m999999[39m
+}
+[AuditLogExtended] Audit log search completed { total: [33m8200[39m, returned: [33m8200[39m, executionTimeMs: [33m1005.9946000000346[39m }
+[AuditLogExtended] Statistics generation completed { totalLogs: [33m8200[39m, executionTimeMs: [33m1035.572600000014[39m }
+Filtered statistics generation completed in 1035.83ms
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mConcurrent Operations Performance[2m > [22m[2mshould handle multiple concurrent searches efficiently[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m0[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m100[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m200[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m300[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m400[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m500[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m600[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m700[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m800[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m900[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6421.714299999992[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m13641.415399999998[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m19881.28529999999[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m26834.63149999996[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m35260.96660000004[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m41642.855099999986[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m48372.30480000004[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m55072.62650000001[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m63277.96840000001[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m70254.46519999998[39m }
+10 concurrent searches completed in 70257.13ms
+Average time per search: 7025.71ms
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mConcurrent Operations Performance[2m > [22m[2mshould handle mixed concurrent operations[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m }
+[AuditLogExtended] Generating audit log timeline {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-12-18T05:23:08.013Z[39m,
+  dateTo: [35m2026-01-17T05:23:08.013Z[39m,
+  groupBy: [32m'day'[39m
+}
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [35m2025-12-18T05:23:08.013Z[39m,
+  dateTo: [35m2026-01-17T05:23:08.013Z[39m,
+  limit: [33m999999[39m,
+  sortBy: [32m'timestamp'[39m,
+  sortOrder: [32m'desc'[39m
+}
+[AuditLogExtended] Generating audit log statistics { companyId: [32m'test-company'[39m, dateFrom: [90mundefined[39m, dateTo: [90mundefined[39m }
+[AuditLogExtended] Starting audit log search {
+  companyId: [32m'test-company'[39m,
+  dateFrom: [90mundefined[39m,
+  dateTo: [90mundefined[39m,
+  limit: [33m999999[39m
+}
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7794.4216000000015[39m }
+[AuditLogExtended] Audit log search completed { total: [33m8200[39m, returned: [33m8200[39m, executionTimeMs: [33m8878.68100000004[39m }
+[AuditLogExtended] Timeline generation completed { entryCount: [33m31[39m, totalLogs: [33m8200[39m, executionTimeMs: [33m8891.385500000033[39m }
+[AuditLogExtended] Audit log search completed {
+  total: [33m100000[39m,
+  returned: [33m100000[39m,
+  executionTimeMs: [33m17215.738299999968[39m
+}
+[AuditLogExtended] Statistics generation completed { totalLogs: [33m100000[39m, executionTimeMs: [33m17601.28099999996[39m }
+Mixed concurrent operations completed in 17603.09ms
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mMemory and Resource Management[2m > [22m[2mshould not leak memory during repeated operations[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m0[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6690.536500000046[39m }
+Completed 1/100 iterations
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m100[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8339.722700000042[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m200[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6747.787000000011[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m300[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6929.73060000001[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m400[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m9821.02919999999[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m500[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8673.873999999953[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m600[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7903.342000000062[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m700[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8784.217100000009[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m800[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7528.330599999987[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m900[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8899.01390000002[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m1000[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7786.600199999986[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m1100[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m10498.938400000101[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m1200[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8682.435599999968[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m1300[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7622.282699999982[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m1400[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7139.091000000015[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m1500[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7530.477900000056[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m1600[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m9310.372699999949[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m1700[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8204.674699999974[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m1800[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m10679.389200000092[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m1900[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m10430.481100000092[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m2000[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m45085.46660000004[39m }
+Completed 21/100 iterations
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m2100[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m11396.653799999971[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m2200[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8994.847299999907[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m2300[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7666.62639999995[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m2400[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7557.010699999984[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m2500[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7783.602900000056[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m2600[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8674.934400000027[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m2700[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7201.267699999968[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m2800[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7092.554400000023[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m2900[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7928.759299999918[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m3000[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m10324.539000000106[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m3100[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m3861.7672999999486[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m3200[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m9871.716199999908[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m3300[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m16102.458899999969[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m3400[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m18972.469999999972[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m3500[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m22755.346099999966[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m3600[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m14258.328699999955[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m3700[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m10491.60790000006[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m3800[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mMemory and Resource Management[2m > [22m[2mshould not leak memory during repeated operations[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m12483.164400000009[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m3900[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6845.910200000042[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m4000[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m4435.611200000043[39m }
+Completed 41/100 iterations
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m4100[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8272.801999999909[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m4200[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m14323.524199999985[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m4300[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m13356.45570000005[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m4400[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m9240.834799999953[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m4500[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m16267.294500000076[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m4600[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7801.051900000079[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m4700[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7526.79150000005[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m4800[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7861.810100000002[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m4900[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6362.8420999998925[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m5000[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8651.350899999961[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m5100[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m16787.164800000144[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m5200[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m23333.658999999985[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m5300[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m12616.01829999988[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m5400[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m12372.322300000116[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m5500[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8563.232099999906[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m5600[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8190.569900000002[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m5700[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7507.5148000000045[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m5800[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m9437.287199999904[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m5900[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m9892.76919999998[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m6000[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m15904.683299999917[39m }
+Completed 61/100 iterations
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m6100[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m10723.63180000009[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m6200[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m12896.473200000124[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m6300[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m17345.037199999904[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m6400[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m16246.901100000134[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m6500[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8988.938700000057[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m6600[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6960.018900000025[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m6700[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7199.464200000046[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m6800[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7772.660699999891[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m6900[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7967.149800000014[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m7000[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7824.033999999985[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m7100[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8601.480599999893[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m7200[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8125.755399999907[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m7300[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m11494.052600000054[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m7400[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7862.599799999967[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m7500[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6805.8348999999[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m7600[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7000.016199999955[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m7700[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6011.348699999973[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m7800[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m9155.0830000001[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m7900[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7247.40550000011[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m8000[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7594.064500000095[39m }
+Completed 81/100 iterations
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m8100[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m6898.640399999917[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m8200[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8176.545900000026[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m8300[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m9023.683600000106[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m8400[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m14715.452300000004[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m8500[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m8925.155099999858[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m8600[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m9976.49009999982[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m8700[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m5097.638800000073[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m8800[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m7732.450500000035[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m8900[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[2m > [22m[2mMemory and Resource Management[2m > [22m[2mshould handle large result sets without crashing[22m[39m
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m10000[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m11443.663999999873[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m9000[39m }
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m10000[39m, executionTimeMs: [33m20872.34030000004[39m }
+
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[2m > [22m[2mExtended Audit Log Performance Tests[22m[39m
+Cleaning up large dataset...
+[AuditLogExtended] Audit log search completed { total: [33m100000[39m, returned: [33m100[39m, executionTimeMs: [33m19007.56240000017[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m9100[39m }
+
+(node:409700) PromiseRejectionHandledWarning: Promise rejection was handled asynchronously (rejection id: 3)
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:409700) PromiseRejectionHandledWarning: Promise rejection was handled asynchronously (rejection id: 5)
+[90mstdout[2m | src/services/auditLogExtended.perf.test.ts[22m[39m
+Cleanup complete
+
+[90mstdout[2m | Logger.log (C:\Users\Admin\graceful_books\src\utils\logger.ts:139:19)[22m[39m
+[AuditLogExtended] Audit log search completed { total: [33m0[39m, returned: [33m0[39m, executionTimeMs: [33m8343.196499999845[39m }
+[AuditLogExtended] Starting audit log search { companyId: [32m'test-company'[39m, limit: [33m100[39m, offset: [33m9200[39m }
+
+(node:409700) PromiseRejectionHandledWarning: Promise rejection was handled asynchronously (rejection id: 6)
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 1 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/services/auditLogExtended.perf.test.ts[2m > [22mExtended Audit Log Performance Tests[2m > [22mConcurrent Operations Performance[2m > [22mshould handle multiple concurrent searches efficiently
+[31m[1mAssertionError[22m: expected 70257.12699999998 to be less than 60000[39m
+[36m [2m❯[22m src/services/auditLogExtended.perf.test.ts:[2m459:35[22m[39m
+    [90m457| [39m
+    [90m458| [39m      [34mexpect[39m(results[33m.[39mlength)[33m.[39m[34mtoBe[39m(concurrentSearches)[33m;[39m
+    [90m459| [39m      [34mexpect[39m(endTime [33m-[39m startTime)[33m.[39m[34mtoBeLessThan[39m([34m60000[39m)[33m;[39m
+    [90m   | [39m                                  [31m^[39m
+    [90m460| [39m      [34mexpect[39m(results[33m.[39m[34mevery[39m((r) [33m=>[39m r[33m.[39mlogs[33m.[39mlength [33m===[39m [34m100[39m))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m461| [39m    }[33m,[39m [34m70000[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[1m[7m Unhandled Errors [27m[22m⎯⎯⎯⎯⎯⎯[39m
+[31m[1m
+Vitest caught 5 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.[22m[39m
+
+[31m⎯⎯⎯⎯[1m[7m Unhandled Rejection [27m[22m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: [vitest-worker]: Timeout calling "onTaskUpdate"[39m
+[90m [2m❯[22m Object.onTimeoutError node_modules/vitest/dist/vendor/rpc.joBhAkyK.js:[2m61:15[22m[39m
+[90m [2m❯[22m Timeout._onTimeout node_modules/vitest/dist/vendor/index.8bPxjt7g.js:[2m39:41[22m[39m
+[90m [2m❯[22m listOnTimeout node:internal/timers:[2m605:17[22m[39m
+[90m [2m❯[22m processTimers node:internal/timers:[2m541:7[22m[39m
+
+[31mThis error originated in "[1msrc/services/auditLogExtended.perf.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mshould not leak memory during repeated operations[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯[1m[7m Unhandled Rejection [27m[22m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: [vitest-worker]: Timeout calling "onUnhandledError" with "[vitest-worker]: Timeout calling "onTaskUpdate""[39m
+[90m [2m❯[22m Object.onTimeoutError node_modules/vitest/dist/vendor/rpc.joBhAkyK.js:[2m61:15[22m[39m
+[90m [2m❯[22m Timeout._onTimeout node_modules/vitest/dist/vendor/index.8bPxjt7g.js:[2m39:41[22m[39m
+[90m [2m❯[22m listOnTimeout node:internal/timers:[2m605:17[22m[39m
+[90m [2m❯[22m processTimers node:internal/timers:[2m541:7[22m[39m
+
+[31mThis error originated in "[1msrc/services/auditLogExtended.perf.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mshould handle large result sets without crashing[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯[1m[7m Unhandled Rejection [27m[22m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: [vitest-worker]: Timeout calling "onTaskUpdate"[39m
+[90m [2m❯[22m Object.onTimeoutError node_modules/vitest/dist/vendor/rpc.joBhAkyK.js:[2m61:15[22m[39m
+[90m [2m❯[22m Timeout._onTimeout node_modules/vitest/dist/vendor/index.8bPxjt7g.js:[2m39:41[22m[39m
+[90m [2m❯[22m listOnTimeout node:internal/timers:[2m605:17[22m[39m
+[90m [2m❯[22m processTimers node:internal/timers:[2m541:7[22m[39m
+
+[31mThis error originated in "[1msrc/services/auditLogExtended.perf.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mExtended Audit Log Performance Tests[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯[1m[7m Unhandled Rejection [27m[22m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: [vitest-worker]: Timeout calling "onTaskUpdate"[39m
+[90m [2m❯[22m Object.onTimeoutError node_modules/vitest/dist/vendor/rpc.joBhAkyK.js:[2m61:15[22m[39m
+[90m [2m❯[22m Timeout._onTimeout node_modules/vitest/dist/vendor/index.8bPxjt7g.js:[2m39:41[22m[39m
+[90m [2m❯[22m listOnTimeout node:internal/timers:[2m605:17[22m[39m
+[90m [2m❯[22m processTimers node:internal/timers:[2m541:7[22m[39m
+
+[31mThis error originated in "[1msrc/services/auditLogExtended.perf.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+
+[31m⎯⎯⎯⎯⎯⎯[1m[7m Unhandled Error [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: [vitest-worker]: Timeout calling "onTaskUpdate"[39m
+[90m [2m❯[22m Object.onTimeoutError node_modules/vitest/dist/vendor/rpc.joBhAkyK.js:[2m61:15[22m[39m
+[90m [2m❯[22m Timeout._onTimeout node_modules/vitest/dist/vendor/index.8bPxjt7g.js:[2m39:41[22m[39m
+[90m [2m❯[22m listOnTimeout node:internal/timers:[2m605:17[22m[39m
+[90m [2m❯[22m processTimers node:internal/timers:[2m541:7[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
+
+[2m Test Files [22m [90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m16 passed[39m[22m[90m (19)[39m
+[2m     Errors [22m [1m[31m5 errors[39m[22m
+[2m   Start at [22m 21:14:40
+[2m   Duration [22m 1461.07s[2m (transform 1.94s, setup 11.52s, collect 4.50s, tests 0ms, environment 21.63s, prepare 2.22s)[22m
+

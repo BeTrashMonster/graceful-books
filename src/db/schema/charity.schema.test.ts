@@ -18,7 +18,7 @@ describe('Charity Schema', () => {
         'Test Charity',
         '12-3456789',
         'A test charity description',
-        'EDUCATION' as CharityCategory,
+        'EDUCATION',
         'https://testcharity.org'
       );
 
@@ -35,7 +35,7 @@ describe('Charity Schema', () => {
         'Test Charity',
         '23-4567890',
         'Description',
-        'HEALTH' as CharityCategory,
+        'HEALTH',
         'https://testcharity.org',
         undefined,
         'test-logo'
@@ -51,7 +51,7 @@ describe('Charity Schema', () => {
         'Valid Charity',
         '34-5678901',
         'Valid description',
-        'EDUCATION' as CharityCategory,
+        'EDUCATION',
         'https://validcharity.org'
       );
 
@@ -63,7 +63,7 @@ describe('Charity Schema', () => {
       const charity = {
         name: '',
         description: 'Test description',
-        category: 'EDUCATION' as CharityCategory,
+        category: 'education',
         website: 'https://test.org',
       };
 
@@ -75,7 +75,7 @@ describe('Charity Schema', () => {
       const charity = {
         name: 'Test Charity',
         description: '',
-        category: 'EDUCATION' as CharityCategory,
+        category: 'education',
         website: 'https://test.org',
       };
 
@@ -98,7 +98,7 @@ describe('Charity Schema', () => {
       const charity = {
         name: 'Test Charity',
         description: 'Test description',
-        category: 'EDUCATION' as CharityCategory,
+        category: 'education',
         website: '',
       };
 
@@ -110,7 +110,7 @@ describe('Charity Schema', () => {
       const charity = {
         name: 'Test Charity',
         description: 'Test description',
-        category: 'EDUCATION' as CharityCategory,
+        category: 'education',
         website: 'not-a-valid-url',
       };
 
@@ -134,31 +134,31 @@ describe('Charity Schema', () => {
 
   describe('getCategoryDisplay', () => {
     it('should return correct display name for each category', () => {
-      expect(getCategoryDisplay('EDUCATION' as CharityCategory)).toBe('Education');
-      expect(getCategoryDisplay('ENVIRONMENT' as CharityCategory)).toBe('Environment');
-      expect(getCategoryDisplay('HEALTH' as CharityCategory)).toBe('Health');
-      expect(getCategoryDisplay('POVERTY' as CharityCategory)).toBe('Poverty Relief');
-      expect(getCategoryDisplay('ANIMAL_WELFARE' as CharityCategory)).toBe('Animal Welfare');
-      expect(getCategoryDisplay('HUMAN_RIGHTS' as CharityCategory)).toBe('Human Rights');
-      expect(getCategoryDisplay('DISASTER_RELIEF' as CharityCategory)).toBe('Disaster Relief');
-      expect(getCategoryDisplay('ARTS_CULTURE' as CharityCategory)).toBe('Arts & Culture');
-      expect(getCategoryDisplay('COMMUNITY' as CharityCategory)).toBe('Community Development');
-      expect(getCategoryDisplay('OTHER' as CharityCategory)).toBe('Other');
+      expect(getCategoryDisplay('EDUCATION')).toBe('Education');
+      expect(getCategoryDisplay('ENVIRONMENT')).toBe('Environment');
+      expect(getCategoryDisplay('HEALTH')).toBe('Health');
+      expect(getCategoryDisplay('POVERTY')).toBe('Poverty Relief');
+      expect(getCategoryDisplay('ANIMAL_WELFARE')).toBe('Animal Welfare');
+      expect(getCategoryDisplay('HUMAN_RIGHTS')).toBe('Human Rights');
+      expect(getCategoryDisplay('DISASTER_RELIEF')).toBe('Disaster Relief');
+      expect(getCategoryDisplay('ARTS_CULTURE')).toBe('Arts & Culture');
+      expect(getCategoryDisplay('COMMUNITY')).toBe('Community Development');
+      expect(getCategoryDisplay('OTHER')).toBe('Other');
     });
   });
 
   describe('getCategoryDescription', () => {
     it('should return descriptive text for each category', () => {
-      expect(getCategoryDescription('EDUCATION' as CharityCategory)).toContain('learning');
-      expect(getCategoryDescription('ENVIRONMENT' as CharityCategory)).toContain('natural');
-      expect(getCategoryDescription('HEALTH' as CharityCategory)).toContain('health');
-      expect(getCategoryDescription('POVERTY' as CharityCategory)).toContain('economic');
-      expect(getCategoryDescription('ANIMAL_WELFARE' as CharityCategory)).toContain('animals');
-      expect(getCategoryDescription('HUMAN_RIGHTS' as CharityCategory)).toContain('equality');
-      expect(getCategoryDescription('DISASTER_RELIEF' as CharityCategory)).toContain('disaster');
-      expect(getCategoryDescription('ARTS_CULTURE' as CharityCategory)).toContain('creative');
-      expect(getCategoryDescription('COMMUNITY' as CharityCategory)).toContain('communities');
-      expect(getCategoryDescription('OTHER' as CharityCategory)).toContain('charitable');
+      expect(getCategoryDescription('EDUCATION')).toContain('learning');
+      expect(getCategoryDescription('ENVIRONMENT')).toContain('natural');
+      expect(getCategoryDescription('HEALTH')).toContain('health');
+      expect(getCategoryDescription('POVERTY')).toContain('economic');
+      expect(getCategoryDescription('ANIMAL_WELFARE')).toContain('animals');
+      expect(getCategoryDescription('HUMAN_RIGHTS')).toContain('equality');
+      expect(getCategoryDescription('DISASTER_RELIEF')).toContain('disaster');
+      expect(getCategoryDescription('ARTS_CULTURE')).toContain('creative');
+      expect(getCategoryDescription('COMMUNITY')).toContain('communities');
+      expect(getCategoryDescription('OTHER')).toContain('charitable');
     });
   });
 });

@@ -114,7 +114,7 @@ export async function createRecurringInvoice(
       last_generation_date: null,
       auto_send: autoSend,
       send_reminder_days_before: sendReminderDaysBefore || null,
-      status: 'ACTIVE',
+      status: 'active',
       occurrences_generated: 0,
       payment_terms_days: paymentTermsDays,
       created_at: now,

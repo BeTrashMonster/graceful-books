@@ -69,7 +69,7 @@ describe('HierarchyValidator', () => {
         );
 
         expect(result.valid).toBe(false);
-        expect(result.error).toBe('A contact cannot be its own parent.');
+        expect((result as any).error).toBe('A contact cannot be its own parent.');
       });
     });
 
@@ -101,7 +101,7 @@ describe('HierarchyValidator', () => {
         );
 
         expect(result.valid).toBe(false);
-        expect(result.error).toBe('This would create a circular reference.');
+        expect((result as any).error).toBe('This would create a circular reference.');
       });
     });
 
@@ -136,7 +136,7 @@ describe('HierarchyValidator', () => {
         );
 
         expect(result.valid).toBe(false);
-        expect(result.error).toBe('This would create a circular reference.');
+        expect((result as any).error).toBe('This would create a circular reference.');
       });
 
       it('should reject A → B → C → D → B circular reference', async () => {
@@ -177,7 +177,7 @@ describe('HierarchyValidator', () => {
         );
 
         expect(result.valid).toBe(false);
-        expect(result.error).toBe('This would create a circular reference.');
+        expect((result as any).error).toBe('This would create a circular reference.');
       });
     });
   });
@@ -204,7 +204,7 @@ describe('HierarchyValidator', () => {
       );
 
       expect(result.valid).toBe(true);
-      expect(result.error).toBeUndefined();
+      expect((result as any).error).toBeUndefined();
     });
 
     it('should allow depth 1 (child of root)', async () => {
@@ -228,7 +228,7 @@ describe('HierarchyValidator', () => {
       );
 
       expect(result.valid).toBe(true);
-      expect(result.error).toBeUndefined();
+      expect((result as any).error).toBeUndefined();
     });
 
     it('should allow depth 2 (grandchild)', async () => {
@@ -259,7 +259,7 @@ describe('HierarchyValidator', () => {
       );
 
       expect(result.valid).toBe(true);
-      expect(result.error).toBeUndefined();
+      expect((result as any).error).toBeUndefined();
     });
 
     it('should allow depth 3 (great-grandchild)', async () => {
@@ -297,7 +297,7 @@ describe('HierarchyValidator', () => {
       );
 
       expect(result.valid).toBe(true);
-      expect(result.error).toBeUndefined();
+      expect((result as any).error).toBeUndefined();
     });
 
     it('should reject depth 4 (exceeds maximum)', async () => {
@@ -342,7 +342,7 @@ describe('HierarchyValidator', () => {
       );
 
       expect(result.valid).toBe(false);
-      expect(result.error).toBe('Maximum hierarchy depth (3 levels) exceeded.');
+      expect((result as any).error).toBe('Maximum hierarchy depth (3 levels) exceeded.');
     });
 
     it('should verify MAX_DEPTH constant is 3', () => {
@@ -372,7 +372,7 @@ describe('HierarchyValidator', () => {
       );
 
       expect(result.valid).toBe(true);
-      expect(result.error).toBeUndefined();
+      expect((result as any).error).toBeUndefined();
     });
 
     it('should allow valid parent assignment at depth 2', async () => {
@@ -403,7 +403,7 @@ describe('HierarchyValidator', () => {
       );
 
       expect(result.valid).toBe(true);
-      expect(result.error).toBeUndefined();
+      expect((result as any).error).toBeUndefined();
     });
 
     it('should allow valid parent assignment at depth 3', async () => {
@@ -441,7 +441,7 @@ describe('HierarchyValidator', () => {
       );
 
       expect(result.valid).toBe(true);
-      expect(result.error).toBeUndefined();
+      expect((result as any).error).toBeUndefined();
     });
 
     it('should reject self-reference assignment', async () => {
@@ -455,7 +455,7 @@ describe('HierarchyValidator', () => {
       );
 
       expect(result.valid).toBe(false);
-      expect(result.error).toBe('A contact cannot be its own parent.');
+      expect((result as any).error).toBe('A contact cannot be its own parent.');
     });
 
     it('should reject circular reference assignment', async () => {
@@ -477,7 +477,7 @@ describe('HierarchyValidator', () => {
       );
 
       expect(result.valid).toBe(false);
-      expect(result.error).toBe('This would create a circular reference.');
+      expect((result as any).error).toBe('This would create a circular reference.');
     });
 
     it('should reject assignment exceeding max depth', async () => {
@@ -519,7 +519,7 @@ describe('HierarchyValidator', () => {
       );
 
       expect(result.valid).toBe(false);
-      expect(result.error).toBe('Maximum hierarchy depth (3 levels) exceeded.');
+      expect((result as any).error).toBe('Maximum hierarchy depth (3 levels) exceeded.');
     });
   });
 
@@ -924,7 +924,7 @@ describe('HierarchyValidator', () => {
       );
 
       expect(result.valid).toBe(true);
-      expect(result.error).toBeUndefined();
+      expect((result as any).error).toBeUndefined();
     });
 
     it('should handle promoting standalone to child', async () => {
@@ -946,7 +946,7 @@ describe('HierarchyValidator', () => {
       );
 
       expect(result.valid).toBe(true);
-      expect(result.error).toBeUndefined();
+      expect((result as any).error).toBeUndefined();
     });
 
     it('should handle complex multi-branch hierarchy', async () => {
