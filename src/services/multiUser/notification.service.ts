@@ -18,7 +18,6 @@
  */
 
 import type { User, CompanyUser } from '../../types/database.types';
-import { db } from '../../store/database';
 import { logger } from '../../utils/logger';
 import { generateId } from '../../utils/device';
 
