@@ -235,18 +235,6 @@ describe('CharityDistributionService', () => {
 
   describe('generateMonthlyReport', () => {
     it('should generate complete monthly report', async () => {
-      const _mockContributions = [
-        {
-          charity_id: 'charity-1',
-          charity_name: 'Khan Academy',
-          charity_ein: '12-3456789',
-          total_amount: 1000,
-          contributor_count: 2,
-          payment_address: '123 Main St',
-          website: 'https://khanacademy.org',
-        },
-      ];
-
       vi.mocked(db.subscriptions.filter).mockReturnValue({
         toArray: vi.fn().mockResolvedValue([
           {
@@ -455,7 +443,7 @@ describe('CharityDistributionService', () => {
 
       vi.mocked(db.charityDistributions.update).mockResolvedValue(1);
 
-      const _records = await createDistributionRecords('2026-01');
+      await createDistributionRecords('2026-01');
 
       expect(db.charityDistributions.update).toHaveBeenCalled();
     });

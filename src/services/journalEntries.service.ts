@@ -40,8 +40,6 @@ import type {
 } from '../types/journalEntry.types';
 import {
   validateTransactionBalance,
-  validateTransaction,
-  validateTransactionLineItem,
   generateTransactionNumber,
 } from '../db/schema/transactions.schema';
 

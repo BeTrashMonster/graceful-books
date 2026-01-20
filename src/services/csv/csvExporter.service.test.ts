@@ -80,23 +80,16 @@ describe('CSVExporterService', () => {
 
   describe('CSV formatting', () => {
     it('should escape fields containing commas', () => {
-      const _service = new CSVExporterService();
-      // Test private method via public interface
-      const _data = [{ field: 'value, with comma' }];
-      const _config: CSVExportConfig = {
-        entityType: 'transactions',
-      };
+      // TODO: Test private method via public interface
       // The escapeCSVRow method is private, so we test through convertToCSV indirectly
     });
 
     it('should escape fields containing quotes', () => {
-      const _data = [{ field: 'value "quoted"' }];
-      // Should be escaped as "value ""quoted"""
+      // TODO: Should be escaped as "value ""quoted"""
     });
 
     it('should handle newlines in fields', () => {
-      const _data = [{ field: 'value\nwith\nnewlines' }];
-      // Should be wrapped in quotes
+      // TODO: Should be wrapped in quotes
     });
   });
 
@@ -121,9 +114,8 @@ describe('CSVExporterService', () => {
 
   describe('generateFilename', () => {
     it('should generate filename with current date', () => {
-      // Test filename format: graceful_books_[entityType]_YYYY-MM-DD.csv
-      const _datePattern = /graceful_books_transactions_\d{4}-\d{2}-\d{2}\.csv/;
-      // Filename should match pattern
+      // TODO: Test filename format: graceful_books_[entityType]_YYYY-MM-DD.csv
+      // Filename should match pattern: /graceful_books_transactions_\d{4}-\d{2}-\d{2}\.csv/
     });
 
     it('should include entity type in filename', () => {
