@@ -275,7 +275,7 @@ export class GoalCalculatorService {
   private generateRecommendation(
     goalType: GoalType,
     progressStatus: GoalProgressStatus,
-    paceVsTarget: Decimal,
+    _paceVsTarget: Decimal,
     daysRemaining: number
   ): string | undefined {
     // No recommendation if on track

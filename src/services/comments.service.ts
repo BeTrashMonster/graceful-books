@@ -520,7 +520,7 @@ export class CommentsService {
    */
   private async checkPermissions(
     commentableType: CommentableType,
-    commentableId: string,
+    _commentableId: string,
     action: 'create' | 'read' | 'update' | 'delete'
   ): Promise<void> {
     try {
