@@ -41,9 +41,9 @@ describe('RecentActivityService', () => {
         .toArray();
 
       expect(activities).toHaveLength(1);
-      expect(activities[0].activity_type).toBe('SEARCH');
-      expect(activities[0].entity_type).toBe('TRANSACTION');
-      expect(activities[0].search_query).toBe('office supplies');
+      expect(activities[0]?.activity_type).toBe('SEARCH');
+      expect(activities[0]?.entity_type).toBe('TRANSACTION');
+      expect(activities[0]?.search_query).toBe('office supplies');
     });
 
     it('should store result count in context', async () => {
@@ -51,8 +51,8 @@ describe('RecentActivityService', () => {
 
       const activities = await db.recentActivity.toArray();
       expect(activities).toHaveLength(1);
-      expect(activities[0].context).toBeTruthy();
-      const context = JSON.parse(activities[0].context!);
+      expect(activities[0]?.context).toBeTruthy();
+      const context = JSON.parse(activities[0]?.context ?? '{}');
       expect(context.result_count).toBe(5);
     });
   });
@@ -70,9 +70,9 @@ describe('RecentActivityService', () => {
         .toArray();
 
       expect(activities).toHaveLength(1);
-      expect(activities[0].activity_type).toBe('VIEW');
-      expect(activities[0].entity_id).toBe('inv-001');
-      expect(activities[0].entity_label).toBe('Invoice #1234');
+      expect(activities[0]?.activity_type).toBe('VIEW');
+      expect(activities[0]?.entity_id).toBe('inv-001');
+      expect(activities[0]?.entity_label).toBe('Invoice #1234');
     });
 
     it('should store context data', async () => {
@@ -83,8 +83,8 @@ describe('RecentActivityService', () => {
 
       const activities = await db.recentActivity.toArray();
       expect(activities).toHaveLength(1);
-      expect(activities[0].context).toBeTruthy();
-      const context = JSON.parse(activities[0].context!);
+      expect(activities[0]?.context).toBeTruthy();
+      const context = JSON.parse(activities[0]?.context ?? '{}');
       expect(context.vendor).toBe('ACME Corp');
       expect(context.amount).toBe('250.00');
     });
@@ -100,8 +100,8 @@ describe('RecentActivityService', () => {
         .toArray();
 
       expect(activities).toHaveLength(1);
-      expect(activities[0].activity_type).toBe('EDIT');
-      expect(activities[0].entity_id).toBe('txn-001');
+      expect(activities[0]?.activity_type).toBe('EDIT');
+      expect(activities[0]?.entity_id).toBe('txn-001');
     });
 
     it('should store draft status in context', async () => {
@@ -112,7 +112,7 @@ describe('RecentActivityService', () => {
 
       const activities = await db.recentActivity.toArray();
       expect(activities).toHaveLength(1);
-      const context = JSON.parse(activities[0].context!);
+      const context = JSON.parse(activities[0]?.context ?? '{}');
       expect(context.is_draft).toBe(true);
       expect(context.completion_percentage).toBe(75);
     });
@@ -128,8 +128,8 @@ describe('RecentActivityService', () => {
         .toArray();
 
       expect(activities).toHaveLength(1);
-      expect(activities[0].activity_type).toBe('CREATE');
-      expect(activities[0].entity_id).toBe('contact-001');
+      expect(activities[0]?.activity_type).toBe('CREATE');
+      expect(activities[0]?.entity_id).toBe('contact-001');
     });
   });
 
@@ -145,17 +145,17 @@ describe('RecentActivityService', () => {
       const searches = await service.getRecentSearches();
 
       expect(searches).toHaveLength(3);
-      expect(searches[0].query).toBe('payment'); // Most recent first
-      expect(searches[1].query).toBe('client name');
-      expect(searches[2].query).toBe('office supplies');
+      expect(searches[0]?.query).toBe('payment'); // Most recent first
+      expect(searches[1]?.query).toBe('client name');
+      expect(searches[2]?.query).toBe('office supplies');
     });
 
     it('should filter by entity type', async () => {
       const searches = await service.getRecentSearches('INVOICE');
 
       expect(searches).toHaveLength(1);
-      expect(searches[0].query).toBe('client name');
-      expect(searches[0].entity_type).toBe('INVOICE');
+      expect(searches[0]?.query).toBe('client name');
+      expect(searches[0]?.entity_type).toBe('INVOICE');
     });
 
     it('should limit results', async () => {
@@ -177,7 +177,7 @@ describe('RecentActivityService', () => {
       const views = await service.getRecentViews();
 
       expect(views.length).toBeGreaterThan(0);
-      expect(views[0].label).toBe('Bill #1'); // Most recent first
+      expect(views[0]?.label).toBe('Bill #1'); // Most recent first
     });
 
     it('should deduplicate views of same entity', async () => {
@@ -189,14 +189,14 @@ describe('RecentActivityService', () => {
       // Should only show once (most recent)
       const inv001Views = views.filter((v) => v.entity_id === 'inv-001');
       expect(inv001Views).toHaveLength(1);
-      expect(inv001Views[0].label).toBe('Invoice #1 Updated');
+      expect(inv001Views[0]?.label).toBe('Invoice #1 Updated');
     });
 
     it('should filter by entity type', async () => {
       const views = await service.getRecentViews('BILL');
 
       expect(views).toHaveLength(1);
-      expect(views[0].entity_type).toBe('BILL');
+      expect(views[0]?.entity_type).toBe('BILL');
     });
   });
 
@@ -223,7 +223,7 @@ describe('RecentActivityService', () => {
 
       const inv001Edits = edits.filter((e) => e.entity_id === 'inv-001');
       expect(inv001Edits).toHaveLength(1);
-      expect(inv001Edits[0].label).toBe('Invoice #1 Updated');
+      expect(inv001Edits[0]?.label).toBe('Invoice #1 Updated');
     });
 
     it('should limit to 5 by default', async () => {
@@ -261,7 +261,7 @@ describe('RecentActivityService', () => {
       const suggestions = await service.getRecentEntrySuggestions('TRANSACTION');
 
       expect(suggestions).toHaveLength(2);
-      expect(suggestions[0].preview_data).toBeDefined();
+      expect(suggestions[0]?.preview_data).toBeDefined();
     });
 
     it('should filter by entity type', async () => {
@@ -386,7 +386,7 @@ describe('RecentActivityService', () => {
         .toArray();
 
       expect(remaining).toHaveLength(1);
-      expect(remaining[0].search_query).toBe('recent');
+      expect(remaining[0]?.search_query).toBe('recent');
     });
   });
 });

@@ -146,8 +146,8 @@ describe('MentionsService', () => {
       const mentions = service.parseMentions('Hey @alice, please review this');
 
       expect(mentions).toHaveLength(1);
-      expect(mentions[0].username).toBe('alice');
-      expect(mentions[0].startIndex).toBe(4);
+      expect(mentions[0]?.username).toBe('alice');
+      expect(mentions[0]?.startIndex).toBe(4);
     });
 
     it('should parse multiple @mentions', () => {
@@ -156,36 +156,36 @@ describe('MentionsService', () => {
       );
 
       expect(mentions).toHaveLength(2);
-      expect(mentions[0].username).toBe('alice');
-      expect(mentions[1].username).toBe('bob.jones');
+      expect(mentions[0]?.username).toBe('alice');
+      expect(mentions[1]?.username).toBe('bob.jones');
     });
 
     it('should parse @mentions with dots', () => {
       const mentions = service.parseMentions('Hey @user.name, check this');
 
       expect(mentions).toHaveLength(1);
-      expect(mentions[0].username).toBe('user.name');
+      expect(mentions[0]?.username).toBe('user.name');
     });
 
     it('should parse @mentions with underscores', () => {
       const mentions = service.parseMentions('Hey @charlie_brown, check this');
 
       expect(mentions).toHaveLength(1);
-      expect(mentions[0].username).toBe('charlie_brown');
+      expect(mentions[0]?.username).toBe('charlie_brown');
     });
 
     it('should parse @mentions with hyphens', () => {
       const mentions = service.parseMentions('Hey @user-name, check this');
 
       expect(mentions).toHaveLength(1);
-      expect(mentions[0].username).toBe('user-name');
+      expect(mentions[0]?.username).toBe('user-name');
     });
 
     it('should parse @mentions with mixed special chars', () => {
       const mentions = service.parseMentions('Hey @user.name_test-123, check this');
 
       expect(mentions).toHaveLength(1);
-      expect(mentions[0].username).toBe('user.name_test-123');
+      expect(mentions[0]?.username).toBe('user.name_test-123');
     });
 
     it('should parse @ in email domain (expected behavior)', () => {
@@ -203,22 +203,22 @@ describe('MentionsService', () => {
       const mentions = service.parseMentions('@alice please review');
 
       expect(mentions).toHaveLength(1);
-      expect(mentions[0].username).toBe('alice');
-      expect(mentions[0].startIndex).toBe(0);
+      expect(mentions[0]?.username).toBe('alice');
+      expect(mentions[0]?.startIndex).toBe(0);
     });
 
     it('should handle @mention at end of text', () => {
       const mentions = service.parseMentions('Please review @alice');
 
       expect(mentions).toHaveLength(1);
-      expect(mentions[0].username).toBe('alice');
+      expect(mentions[0]?.username).toBe('alice');
     });
 
     it('should handle multiple spaces around @mention', () => {
       const mentions = service.parseMentions('Hey   @alice   please review');
 
       expect(mentions).toHaveLength(1);
-      expect(mentions[0].username).toBe('alice');
+      expect(mentions[0]?.username).toBe('alice');
     });
 
     it('should remove duplicate @mentions', () => {
@@ -227,7 +227,7 @@ describe('MentionsService', () => {
       );
 
       expect(mentions).toHaveLength(1);
-      expect(mentions[0].username).toBe('alice');
+      expect(mentions[0]?.username).toBe('alice');
     });
 
     it('should handle newlines in text', () => {
@@ -236,8 +236,8 @@ describe('MentionsService', () => {
       );
 
       expect(mentions).toHaveLength(2);
-      expect(mentions[0].username).toBe('alice');
-      expect(mentions[1].username).toBe('bob.jones');
+      expect(mentions[0]?.username).toBe('alice');
+      expect(mentions[1]?.username).toBe('bob.jones');
     });
 
     it('should handle @mention in punctuation', () => {
@@ -280,14 +280,14 @@ describe('MentionsService', () => {
 
       // Verify actual positions
       const firstMention = text.substring(
-        mentions[0].startIndex,
-        mentions[0].endIndex
+        mentions[0]?.startIndex ?? 0,
+        mentions[0]?.endIndex ?? 0
       );
       expect(firstMention).toBe('@alice');
 
       const secondMention = text.substring(
-        mentions[1].startIndex,
-        mentions[1].endIndex
+        mentions[1]?.startIndex ?? 0,
+        mentions[1]?.endIndex ?? 0
       );
       expect(secondMention).toBe('@bob.jones');
     });
@@ -310,9 +310,9 @@ describe('MentionsService', () => {
       );
 
       expect(validated).toHaveLength(1);
-      expect(validated[0].userId).toBe(TEST_USER_ID_1);
-      expect(validated[0].userName).toBe('Alice Smith');
-      expect(validated[0].hasAccess).toBe(true);
+      expect(validated[0]?.userId).toBe(TEST_USER_ID_1);
+      expect(validated[0]?.userName).toBe('Alice Smith');
+      expect(validated[0]?.hasAccess).toBe(true);
     });
 
     it('should be case-insensitive for username matching', async () => {
@@ -328,8 +328,8 @@ describe('MentionsService', () => {
       );
 
       expect(validated).toHaveLength(2);
-      expect(validated[0].userId).toBe(TEST_USER_ID_1);
-      expect(validated[1].userId).toBe(TEST_USER_ID_2);
+      expect(validated[0]?.userId).toBe(TEST_USER_ID_1);
+      expect(validated[1]?.userId).toBe(TEST_USER_ID_2);
     });
 
     it('should check entity access permissions', async () => {
@@ -344,7 +344,7 @@ describe('MentionsService', () => {
       );
 
       expect(validated).toHaveLength(1);
-      expect(validated[0].hasAccess).toBe(true); // Bob has transactions.read
+      expect(validated[0]?.hasAccess).toBe(true); // Bob has transactions.read
     });
 
     it('should detect lack of entity access', async () => {
@@ -360,7 +360,7 @@ describe('MentionsService', () => {
       );
 
       expect(validated).toHaveLength(1);
-      expect(validated[0].hasAccess).toBe(false);
+      expect(validated[0]?.hasAccess).toBe(false);
     });
 
     it('should skip non-existent usernames', async () => {
@@ -376,7 +376,7 @@ describe('MentionsService', () => {
       );
 
       expect(validated).toHaveLength(1); // Only alice
-      expect(validated[0].username).toBe('alice');
+      expect(validated[0]?.username).toBe('alice');
     });
 
     it('should skip inactive company users', async () => {
@@ -445,9 +445,9 @@ describe('MentionsService', () => {
       );
 
       expect(result.mentions).toHaveLength(1);
-      expect(result.mentions[0].mentioned_user_id).toBe(TEST_USER_ID_2);
-      expect(result.mentions[0].mentioning_user_id).toBe(TEST_USER_ID_1);
-      expect(result.mentions[0].comment_id).toBe(COMMENT_ID);
+      expect(result.mentions[0]?.mentioned_user_id).toBe(TEST_USER_ID_2);
+      expect(result.mentions[0]?.mentioning_user_id).toBe(TEST_USER_ID_1);
+      expect(result.mentions[0]?.comment_id).toBe(COMMENT_ID);
       expect(result.errors).toHaveLength(0);
     });
 
@@ -461,7 +461,7 @@ describe('MentionsService', () => {
       );
 
       expect(result.mentions).toHaveLength(1); // alice is the author, so skipped
-      expect(result.mentions[0].mentioned_user_id).toBe(TEST_USER_ID_2);
+      expect(result.mentions[0]?.mentioned_user_id).toBe(TEST_USER_ID_2);
     });
 
     it('should not create self-mentions', async () => {
@@ -568,7 +568,7 @@ describe('MentionsService', () => {
         TEST_TRANSACTION_ID
       );
 
-      const mentionId = result.mentions[0].id;
+      const mentionId = result.mentions[0]?.id ?? '';
       const persisted = await db.mentions.get(mentionId);
 
       expect(persisted).toBeDefined();
@@ -584,7 +584,7 @@ describe('MentionsService', () => {
         TEST_TRANSACTION_ID
       );
 
-      expect(result.mentions[0].notification_sent).toBe(false);
+      expect(result.mentions[0]?.notification_sent).toBe(false);
     });
   });
 
@@ -650,8 +650,8 @@ describe('MentionsService', () => {
       const mentions = await service.getMentionsForUser(TEST_USER_ID_2);
 
       for (let i = 1; i < mentions.length; i++) {
-        expect(mentions[i - 1].created_at).toBeGreaterThanOrEqual(
-          mentions[i].created_at
+        expect(mentions[i - 1]?.created_at ?? 0).toBeGreaterThanOrEqual(
+          mentions[i]?.created_at ?? 0
         );
       }
     });
@@ -704,7 +704,7 @@ describe('MentionsService', () => {
     it('should exclude read mentions from count', async () => {
       // Mark one as read
       const mentions = await service.getMentionsForUser(TEST_USER_ID_2);
-      await service.markMentionAsRead(mentions[0].id);
+      await service.markMentionAsRead(mentions[0]?.id ?? '');
 
       const count = await service.getUnreadMentionCount(TEST_USER_ID_2);
 
@@ -740,7 +740,7 @@ describe('MentionsService', () => {
         TEST_TRANSACTION_ID
       );
 
-      const mentionId = result.mentions[0].id;
+      const mentionId = result.mentions[0]?.id ?? '';
       await service.markMentionAsRead(mentionId);
 
       const mention = await db.mentions.get(mentionId);
@@ -757,14 +757,14 @@ describe('MentionsService', () => {
         TEST_TRANSACTION_ID
       );
 
-      const mentionId = result.mentions[0].id;
+      const mentionId = result.mentions[0]?.id ?? '';
       const originalVersion =
-        result.mentions[0].version_vector[TEST_DEVICE_ID] || 0;
+        result.mentions[0]?.version_vector[TEST_DEVICE_ID] ?? 0;
 
       await service.markMentionAsRead(mentionId);
 
       const mention = await db.mentions.get(mentionId);
-      expect(mention!.version_vector[TEST_DEVICE_ID]).toBe(originalVersion + 1);
+      expect(mention?.version_vector[TEST_DEVICE_ID] ?? 0).toBe(originalVersion + 1);
     });
 
     it('should reject marking non-existent mention', async () => {
@@ -785,7 +785,7 @@ describe('MentionsService', () => {
       const otherService = createMentionsService('other-company-id', TEST_DEVICE_ID);
 
       await expect(
-        otherService.markMentionAsRead(result.mentions[0].id)
+        otherService.markMentionAsRead(result.mentions[0]?.id ?? '')
       ).rejects.toThrow('does not belong to this company');
     });
   });
@@ -842,15 +842,15 @@ describe('MentionsService', () => {
 
     it('should not affect already read mentions', async () => {
       const mentions = await service.getMentionsForUser(TEST_USER_ID_2);
-      await service.markMentionAsRead(mentions[0].id);
+      await service.markMentionAsRead(mentions[0]?.id ?? '');
 
-      const originalReadAt = (await db.mentions.get(mentions[0].id))!.read_at;
+      const originalReadAt = (await db.mentions.get(mentions[0]?.id ?? ''))?.read_at;
 
       await service.markAllMentionsAsRead(TEST_USER_ID_2);
 
-      const mention = await db.mentions.get(mentions[0].id);
+      const mention = await db.mentions.get(mentions[0]?.id ?? '');
       // Should be updated (newer timestamp)
-      expect(mention!.read_at).toBeGreaterThanOrEqual(originalReadAt!);
+      expect(mention?.read_at ?? 0).toBeGreaterThanOrEqual(originalReadAt ?? 0);
     });
   });
 
@@ -873,17 +873,17 @@ describe('MentionsService', () => {
 
       // Mark 2 as read
       const mentions = await service.getMentionsForUser(TEST_USER_ID_2, { limit: 2 });
-      await service.markMentionAsRead(mentions[0].id);
-      await service.markMentionAsRead(mentions[1].id);
+      await service.markMentionAsRead(mentions[0]?.id ?? '');
+      await service.markMentionAsRead(mentions[1]?.id ?? '');
     });
 
     it('should calculate correct mention statistics', async () => {
       const stats = await service.getMentionStats(TEST_USER_ID_2);
 
-      expect(stats.total).toBeGreaterThanOrEqual(5);
-      expect(stats.unread).toBeGreaterThanOrEqual(3);
-      expect(stats.readRate).toBeGreaterThan(0);
-      expect(stats.readRate).toBeLessThan(100);
+      expect(stats?.total ?? 0).toBeGreaterThanOrEqual(5);
+      expect(stats?.unread ?? 0).toBeGreaterThanOrEqual(3);
+      expect(stats?.readRate ?? 0).toBeGreaterThan(0);
+      expect(stats?.readRate ?? 0).toBeLessThan(100);
     });
 
     it('should return 100% read rate when all read', async () => {
@@ -891,8 +891,8 @@ describe('MentionsService', () => {
 
       const stats = await service.getMentionStats(TEST_USER_ID_2);
 
-      expect(stats.readRate).toBe(100);
-      expect(stats.unread).toBe(0);
+      expect(stats?.readRate ?? 0).toBe(100);
+      expect(stats?.unread ?? 0).toBe(0);
     });
 
     it('should return 0% read rate when none read', async () => {
@@ -1012,7 +1012,7 @@ describe('MentionsService', () => {
       const mentions = service.parseMentions(`@${longUsername} test`);
 
       expect(mentions).toHaveLength(1);
-      expect(mentions[0].username).toBe(longUsername);
+      expect(mentions[0]?.username).toBe(longUsername);
     });
 
     it('should handle @mentions in code blocks', async () => {
