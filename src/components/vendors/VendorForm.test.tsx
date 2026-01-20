@@ -37,7 +37,7 @@ vi.mock('../../validators/hierarchyValidator', () => ({
 
 // Mock ParentAccountSelector
 vi.mock('../contacts/ParentAccountSelector', () => ({
-  ParentAccountSelector: ({ value, onChange, disabled }: any) => (
+  ParentAccountSelector: ({ value: _value, onChange, disabled }: any) => (
     <div data-testid="parent-account-selector">
       <button
         onClick={() => onChange('parent-123')}
@@ -341,7 +341,7 @@ describe('VendorForm', () => {
 
       await waitFor(() => {
         const nameInput = screen.getByLabelText(/vendor name/i)
-        const errorMessage = screen.getByText(/we'll need a name/i)
+        const _errorMessage = screen.getByText(/we'll need a name/i)
 
         expect(nameInput).toHaveAccessibleDescription()
       })

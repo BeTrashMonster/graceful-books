@@ -120,6 +120,7 @@ describe('Invoice Template Storage', () => {
       });
 
       expect(result.success).toBe(true);
+      if (!result.success) throw new Error('Expected success');
       expect(result.warnings).toBeDefined();
       expect(result.warnings!.length).toBeGreaterThan(0);
     });

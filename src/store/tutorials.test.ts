@@ -89,7 +89,8 @@ describe('Tutorial Store', () => {
       const result = await startTutorial(testUserId, mockTutorial);
 
       expect(result.success).toBe(true);
-      expect((result as any).data).toBeDefined();
+      if (!result.success) throw new Error('Expected success');
+      expect(result.data).toBeDefined();
       expect(result.data.user_id).toBe(testUserId);
       expect(result.data.tutorial_id).toBe(mockTutorial.id);
       expect(result.data.status).toBe('IN_PROGRESS');
@@ -104,6 +105,7 @@ describe('Tutorial Store', () => {
       const result = await startTutorial(testUserId, mockTutorial);
 
       expect(result.success).toBe(true);
+      if (!result.success) throw new Error('Expected success');
       expect(result.data.attempt_count).toBe(2);
     });
 
@@ -113,6 +115,7 @@ describe('Tutorial Store', () => {
 
       // Should still resume since dismissal doesn't prevent starting
       expect(result.success).toBe(true);
+      if (!result.success) throw new Error('Expected success');
       expect(result.data.status).toBe('IN_PROGRESS');
     });
   });
@@ -124,6 +127,7 @@ describe('Tutorial Store', () => {
       const result = await updateTutorialStep(testUserId, mockTutorial.id, 1);
 
       expect(result.success).toBe(true);
+      if (!result.success) throw new Error('Expected success');
       expect(result.data.current_step).toBe(1);
     });
 
@@ -142,6 +146,7 @@ describe('Tutorial Store', () => {
       const result = await completeTutorial(testUserId, mockTutorial.id);
 
       expect(result.success).toBe(true);
+      if (!result.success) throw new Error('Expected success');
       expect(result.data.status).toBe('COMPLETED');
       expect(result.data.completed_at).toBeDefined();
       expect(result.data.current_step).toBe(mockTutorial.steps.length);
@@ -160,6 +165,7 @@ describe('Tutorial Store', () => {
       const result = await completeTutorial(testUserId, mockTutorial.id, badge);
 
       expect(result.success).toBe(true);
+      if (!result.success) throw new Error('Expected success');
       expect(result.data.badge_data).toEqual(badge);
     });
 
@@ -178,6 +184,7 @@ describe('Tutorial Store', () => {
       const result = await skipTutorial(testUserId, mockTutorial.id, false);
 
       expect(result.success).toBe(true);
+      if (!result.success) throw new Error('Expected success');
       expect(result.data.status).toBe('SKIPPED');
       expect(result.data.dont_show_again).toBe(false);
     });
@@ -188,6 +195,7 @@ describe('Tutorial Store', () => {
       const result = await skipTutorial(testUserId, mockTutorial.id, true);
 
       expect(result.success).toBe(true);
+      if (!result.success) throw new Error('Expected success');
       expect(result.data.status).toBe('DISMISSED');
       expect(result.data.dont_show_again).toBe(true);
     });
@@ -196,6 +204,7 @@ describe('Tutorial Store', () => {
       const result = await skipTutorial(testUserId, mockTutorial.id, false);
 
       expect(result.success).toBe(true);
+      if (!result.success) throw new Error('Expected success');
       expect(result.data.status).toBe('SKIPPED');
     });
   });
