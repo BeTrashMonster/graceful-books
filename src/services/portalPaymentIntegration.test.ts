@@ -142,7 +142,6 @@ describe('Portal and Payment Integration', () => {
       expect(intentResult.success).toBe(true);
 
       // Payment fails (card declined)
-      const payment = await db.payments.get((intentResult as any).data.paymentId);
       await db.payments.update((intentResult as any).data.paymentId, {
         status: 'FAILED',
         error_message: 'Card declined',

@@ -60,7 +60,7 @@ export async function pullBaselineSnapshot(
 
   const transactionsResult = await queryTransactions({ company_id: companyId, deleted_at: null });
   if (!transactionsResult.success) throw new Error('Failed to fetch transactions');
-  const transactions = transactionsResult.data;
+  // TODO: Use transactions data for detailed scenario calculations
 
   // Calculate year-to-date date range
   const year = new Date(asOfDate).getFullYear();
@@ -126,11 +126,6 @@ export async function pullBaselineSnapshot(
   }, new Decimal(0));
 
   // Extract vendor data
-  const apAccount = accounts.find(
-    (acc) => acc.type === 'accounts-payable' || acc.account_code === '2000'
-  );
-  const apBalance = apAccount ? new Decimal(apAccount.balance || 0) : new Decimal(0);
-
   const expenseAccounts = accounts.filter(
     (acc) => acc.type === 'expense' || acc.type === 'cost-of-goods-sold' || acc.type === 'other-expense'
   );

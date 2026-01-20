@@ -166,7 +166,6 @@ describe('MultiUserNotificationService', () => {
       // Set quiet hours to current time
       const now = new Date();
       const currentHour = now.getHours().toString().padStart(2, '0');
-      const currentMinute = now.getMinutes().toString().padStart(2, '0');
 
       await service.updatePreferences('user-456', {
         quietHoursStart: `${currentHour}:00`,

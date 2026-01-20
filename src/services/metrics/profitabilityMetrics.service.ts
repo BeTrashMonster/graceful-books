@@ -338,7 +338,7 @@ export class ProfitabilityMetricsService {
   private async calculateRevenuePerEmployee(
     companyId: string,
     revenue: Decimal,
-    dateRange: { start_date: number; end_date: number }
+    _dateRange: { start_date: number; end_date: number }
   ): Promise<Metric | null> {
     // Check if payroll accounts exist
     const payrollAccounts = await this.db.accounts

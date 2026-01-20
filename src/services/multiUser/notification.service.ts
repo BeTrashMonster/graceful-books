@@ -481,9 +481,9 @@ export class MultiUserNotificationService {
   /**
    * Get user's DISC personality type
    */
-  private async getUserDISCType(userId: string): Promise<DISCType> {
+  private async getUserDISCType(_userId: string): Promise<DISCType> {
     try {
-      const user = await db.users.get(userId);
+      // TODO: Fetch user preferences to get actual DISC type
       // In a real implementation, this would be stored in user preferences
       // For now, default to Steadiness (most supportive)
       return 'S';

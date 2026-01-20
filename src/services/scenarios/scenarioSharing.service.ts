@@ -312,7 +312,7 @@ export async function getScenarioClientView(
 
   // Fetch baseline and calculate projection
   // (This would integrate with scenarioCalculator.service in production)
-  const baselineSnapshot = {} as any; // Placeholder
+  // TODO: Generate actual baseline snapshot from scenarioCalculator
   const projection: ScenarioProjection = {} as any; // Placeholder
 
   // Fetch notes

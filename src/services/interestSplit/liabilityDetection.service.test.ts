@@ -237,23 +237,6 @@ describe('LiabilityDetectionService', () => {
         version_vector: { device1: 1 },
       };
 
-      const lineItems: TransactionLineItem[] = [
-        {
-          id: 'line-1',
-          transaction_id: 'test-txn',
-          account_id: 'expense-account',
-          debit: '100.00',
-          credit: '0',
-          description: 'Supplies',
-          contact_id: null,
-          product_id: null,
-          created_at: Date.now(),
-          updated_at: Date.now(),
-          deleted_at: null,
-          version_vector: { device1: 1 },
-        },
-      ];
-
       const expenseAccount: Account = {
         id: 'expense-account',
         company_id: 'company-1',
