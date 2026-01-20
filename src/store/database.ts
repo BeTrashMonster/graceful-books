@@ -64,6 +64,12 @@ export class GracefulBooksDB extends Dexie {
   reconciliation_patterns!: Table<ReconciliationPattern, string>
   reconciliation_streaks!: Table<ReconciliationStreak, [string, string]>
   reconciliation_records!: Table<ReconciliationRecord, string>
+  invoiceTemplates!: Table<any, string>
+  emailQueue!: Table<any, string>
+  emailLogs!: Table<any, string>
+  emailNotificationPreferences!: Table<any, string>
+  companyUsers!: Table<any, string>
+  sessions!: Table<any, string>
 
   constructor() {
     super('GracefulBooksDB')

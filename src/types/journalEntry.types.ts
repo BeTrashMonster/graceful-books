@@ -207,7 +207,8 @@ export interface ApproveJournalEntryRequest {
 export interface RejectJournalEntryRequest {
   entry_id: string;
   rejected_by: string; // User ID
-  rejection_reason: string;
+  rejection_reason?: string;
+  reason?: string; // Alternative name
 }
 
 /**
@@ -269,6 +270,7 @@ export interface CreateReversingEntryOptions {
   original_entry_id: string;
   reversal_date: number; // Unix timestamp
   reversal_description?: string; // Override description
+  description?: string; // Alternative name
   submit_for_approval: boolean;
 }
 
@@ -285,9 +287,11 @@ export interface JournalEntryStatistics {
   by_status: Record<TransactionStatus, number>;
   by_approval_status: Record<JournalEntryApprovalStatus, number>;
   pending_approval_count: number;
+  pending_approval?: number; // Alternative name
   draft_count: number;
   posted_count: number;
   voided_count: number;
+  approved_this_month?: number;
   total_reversing_entries: number;
   entries_from_templates: number;
 }
