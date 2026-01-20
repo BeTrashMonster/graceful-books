@@ -54,7 +54,7 @@ export class ChecklistIntegrationService {
     };
 
     // Create corresponding checklist item
-    const checklistItem = await this.createChecklistItem(
+    await this.createChecklistItem(
       deferredItem,
       companyId,
       userId,
@@ -73,7 +73,7 @@ export class ChecklistIntegrationService {
   private async createChecklistItem(
     deferredItem: DeferredInterestSplitItem,
     _companyId: string,
-    userId: string,
+    _userId: string,
     _deviceId: string
   ): Promise<ChecklistItem> {
     const now = Date.now();
@@ -124,7 +124,7 @@ export class ChecklistIntegrationService {
   /**
    * Generate how-to-complete instructions
    */
-  private generateHowToComplete(deferredItem: DeferredInterestSplitItem): string {
+  private _generateHowToComplete(_deferredItem: DeferredInterestSplitItem): string {
     return `1. Review the transaction to confirm it's a loan payment\n2. Verify the suggested principal and interest amounts\n3. Adjust amounts if needed\n4. Click "Split Payment" to create the journal entry\n5. The split will automatically reduce your loan balance and record interest expense`;
   }
 
@@ -143,11 +143,9 @@ export class ChecklistIntegrationService {
    * Mark a deferred item as completed
    */
   async completeDeferredItem(
-    deferredItemId: string,
-    checklistItemId: string
+    _deferredItemId: string,
+    _checklistItemId: string
   ): Promise<void> {
-    const now = Date.now();
-
     // TODO: Update deferred item in database
     // Set completed = true, completed_at = now
 
@@ -159,9 +157,9 @@ export class ChecklistIntegrationService {
    * Snooze a deferred item
    */
   async snoozeDeferredItem(
-    deferredItemId: string,
-    checklistItemId: string,
-    snoozeUntil: number
+    _deferredItemId: string,
+    _checklistItemId: string,
+    _snoozeUntil: number
   ): Promise<void> {
     // TODO: Update deferred item in database
     // Set snoozed_until = snoozeUntil
@@ -183,7 +181,7 @@ export class ChecklistIntegrationService {
    * Get deferred item by transaction ID
    */
   async getDeferredItemByTransaction(
-    transactionId: string
+    _transactionId: string
   ): Promise<DeferredInterestSplitItem | null> {
     // TODO: Query from database when table exists
     // For now, return null
@@ -194,8 +192,8 @@ export class ChecklistIntegrationService {
    * Delete a deferred item (when user skips permanently)
    */
   async deleteDeferredItem(
-    deferredItemId: string,
-    checklistItemId: string
+    _deferredItemId: string,
+    _checklistItemId: string
   ): Promise<void> {
     // TODO: Soft delete from database
     // Set deleted_at timestamp

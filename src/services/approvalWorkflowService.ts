@@ -31,7 +31,6 @@ import type {
   ApprovalRequirementType,
 } from '../db/schema/approvalWorkflows.schema';
 import {
-  ApprovalRuleStatus,
   createDefaultApprovalRequest,
   createDefaultApprovalAction,
   createApprovalHistoryEntry,
@@ -40,13 +39,9 @@ import {
 import {
   findMatchingRules,
   buildTransactionContext,
-  type TransactionContext,
-  type RuleMatchResult,
 } from './approvalRuleEngine';
 import { getDeviceId } from '../utils/device';
 import { logger } from '../utils/logger';
-import type { AppError } from '../utils/errors';
-import { ErrorCode } from '../utils/errors';
 
 const workflowLogger = logger.child('ApprovalWorkflowService');
 
@@ -269,7 +264,6 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
       // Create approval request
       const deviceId = getDeviceId();
       const requestId = nanoid();
-      const now = Date.now();
 
       const request: ApprovalRequest = {
         ...createDefaultApprovalRequest(
@@ -832,7 +826,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
   private isLevelComplete(
     level: ApprovalLevel,
     actions: ApprovalAction[],
-    currentApproverId: string
+    _currentApproverId: string
   ): boolean {
     // Get all approvals for this level
     const approvals = actions.filter((action) => action.action_type === 'APPROVE');
