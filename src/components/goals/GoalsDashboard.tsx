@@ -271,7 +271,7 @@ const GoalCardWrapper: React.FC<{
   goal: FinancialGoal;
   onClick: () => void;
   onUpdate?: () => void;
-}> = ({ goal, onClick, onUpdate }) => {
+}> = ({ goal, onClick, onUpdate: _onUpdate }) => {
   const [cardData, setCardData] = useState<any>(null);
 
   useEffect(() => {
