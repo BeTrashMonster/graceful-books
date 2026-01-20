@@ -44,7 +44,9 @@ export function TaxDocumentUpload({ userId, taxYear, categoryId, categoryName, o
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
-        await uploadTaxDocument(userId, taxYear, categoryId, file, notes)
+        if (file) {
+          await uploadTaxDocument(userId, taxYear, categoryId, file, notes)
+        }
       }
       await loadDocuments()
       setNotes('')

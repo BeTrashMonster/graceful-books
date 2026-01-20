@@ -93,7 +93,10 @@ describe('VendorList', () => {
 
       // Click the "Add Vendor" button in empty state
       const buttons = screen.getAllByRole('button', { name: /add vendor/i })
-      await user.click(buttons[0])
+      const firstButton = buttons[0]
+      if (firstButton) {
+        await user.click(firstButton)
+      }
 
       expect(mockOnCreate).toHaveBeenCalledTimes(1)
     })

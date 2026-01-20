@@ -36,7 +36,7 @@ export function BarterEntry({
   error,
 }: BarterEntryProps) {
   const [transactionDate, setTransactionDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
+    new Date().toISOString().split('T')[0] || ''
   );
 
   // Goods received (income side)
