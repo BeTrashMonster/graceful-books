@@ -27,10 +27,10 @@ import { nanoid } from 'nanoid';
  * Amortization Service
  */
 export class AmortizationService {
-  private db: TreasureChestDB;
+  private _db: TreasureChestDB;
 
   constructor(db: TreasureChestDB) {
-    this.db = db;
+    this._db = db;
   }
 
   /**

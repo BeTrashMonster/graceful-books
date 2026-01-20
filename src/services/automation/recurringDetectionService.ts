@@ -12,7 +12,6 @@
  */
 
 import { differenceInDays, format } from 'date-fns'
-import { db } from '../../db/database'
 import type {
   RecurringTransactionMatch,
   RecurringDetectionInput,

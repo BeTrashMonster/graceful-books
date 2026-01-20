@@ -16,7 +16,6 @@
  * - Rule-based approach preferred over chatbot-style AI
  */
 
-import { db } from '../../db/database'
 import type {
   CategorizationSuggestion,
   CategorizationInput,

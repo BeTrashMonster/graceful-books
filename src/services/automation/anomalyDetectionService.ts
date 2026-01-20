@@ -16,7 +16,6 @@
  */
 
 import { differenceInDays } from 'date-fns'
-import { db } from '../../db/database'
 import type {
   TransactionAnomaly,
   AnomalyDetectionInput,

@@ -25,10 +25,10 @@ import type {
  * Checklist Integration Service
  */
 export class ChecklistIntegrationService {
-  private db: TreasureChestDB;
+  private _db: TreasureChestDB;
 
   constructor(db: TreasureChestDB) {
-    this.db = db;
+    this._db = db;
   }
 
   /**
