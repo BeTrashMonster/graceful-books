@@ -34,7 +34,7 @@ describe('Transaction Matching Algorithm', () => {
           date: new Date(date),
           reference: 'TXN-001',
           memo: 'Coffee Shop Purchase',
-          status: 'POSTED',
+          status: 'posted',
           lines: [
             {
               id: 'line1',
@@ -84,7 +84,7 @@ describe('Transaction Matching Algorithm', () => {
           date: new Date(date),
           reference: 'TXN-001',
           memo: 'Coffee Shop',
-          status: 'POSTED',
+          status: 'posted',
           lines: [
             { id: 'line1', accountId: 'expense-acct', debit: 9999, credit: 0, memo: 'Coffee' }, // Different amount
             { id: 'line2', accountId: 'cash-acct', debit: 0, credit: 9999, memo: 'Payment' },
@@ -123,7 +123,7 @@ describe('Transaction Matching Algorithm', () => {
           date: new Date(oneDayLater),
           reference: 'TXN-001',
           memo: 'Restaurant Bill',
-          status: 'POSTED',
+          status: 'posted',
           lines: [
             { id: 'line1', accountId: 'expense-acct', debit: 5000, credit: 0, memo: 'Restaurant' },
             { id: 'line2', accountId: 'cash-acct', debit: 0, credit: 5000, memo: 'Payment' },
@@ -168,7 +168,7 @@ describe('Transaction Matching Algorithm', () => {
           date: new Date(date),
           reference: 'TXN-001',
           memo: 'Payment',
-          status: 'RECONCILED', // Already reconciled
+          status: 'reconciled', // Already reconciled
           lines: [
             { id: 'line1', accountId: 'expense-acct', debit: 10000, credit: 0, memo: 'Payment' },
             { id: 'line2', accountId: 'cash-acct', debit: 0, credit: 10000, memo: 'Payment' },
@@ -205,7 +205,7 @@ describe('Transaction Matching Algorithm', () => {
           date: new Date(date),
           reference: 'TXN-001',
           memo: 'Groceries', // Less similar description
-          status: 'POSTED',
+          status: 'posted',
           lines: [
             { id: 'line1', accountId: 'expense-acct', debit: 7500, credit: 0, memo: 'Groceries' },
             { id: 'line2', accountId: 'cash-acct', debit: 0, credit: 7500, memo: 'Payment' },
@@ -221,7 +221,7 @@ describe('Transaction Matching Algorithm', () => {
           date: new Date(date),
           reference: 'TXN-002',
           memo: 'Grocery Store ABC Purchase', // More similar description
-          status: 'POSTED',
+          status: 'posted',
           lines: [
             { id: 'line3', accountId: 'expense-acct', debit: 7500, credit: 0, memo: 'Groceries' },
             { id: 'line4', accountId: 'cash-acct', debit: 0, credit: 7500, memo: 'Payment' },
@@ -266,7 +266,7 @@ describe('Transaction Matching Algorithm', () => {
           date: new Date(txDate),
           reference: `TXN-${i}`,
           memo: `System Transaction ${i}`,
-          status: 'POSTED',
+          status: 'posted',
           lines: [
             { id: `line${i}-1`, accountId: 'expense-acct', debit: 1000 * i, credit: 0, memo: 'Expense' },
             { id: `line${i}-2`, accountId: 'cash-acct', debit: 0, credit: 1000 * i, memo: 'Payment' },
