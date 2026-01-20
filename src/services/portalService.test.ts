@@ -75,9 +75,7 @@ describe('PortalService', () => {
     });
 
     it('should set expiration to 90 days from creation', async () => {
-      const before = Date.now();
       const result = await createPortalToken(mockCompanyId, mockInvoiceId, mockEmail);
-      const after = Date.now();
 
       expect(result.success).toBe(true);
 

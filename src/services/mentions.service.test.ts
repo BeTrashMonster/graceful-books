@@ -963,7 +963,7 @@ describe('MentionsService', () => {
     it('should handle very long comment text with many mentions', async () => {
       const longText =
         'Hey ' +
-        Array.from({ length: 50 }, (_, i) => `@bob.jones`).join(' ') +
+        Array.from({ length: 50 }, () => `@bob.jones`).join(' ') +
         ' please review';
 
       const result = await service.createMentions(
