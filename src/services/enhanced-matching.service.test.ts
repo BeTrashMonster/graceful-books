@@ -4,7 +4,7 @@
  * Tests for the E1 enhanced auto-matching algorithm
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { enhancedMatchTransactions } from './enhanced-matching.service';
 import { MatchConfidence } from '../types/reconciliation.types';
 import type {

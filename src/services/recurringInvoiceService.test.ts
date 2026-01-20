@@ -5,7 +5,7 @@
  * and edge cases for end-of-month billing.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { RRule } from 'rrule';
 import { addMonths, setDate, lastDayOfMonth } from 'date-fns';
 import {

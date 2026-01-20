@@ -4,7 +4,7 @@
  * Tests for logo file validation, upload, resizing, and optimization
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   validateLogoFile,
   uploadLogo,

@@ -8,7 +8,7 @@
  * - Group I, Item I1: Conflict resolution testing
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   detectConflict,
   detectConflictsBatch,

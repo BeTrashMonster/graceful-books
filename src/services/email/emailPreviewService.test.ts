@@ -4,7 +4,7 @@
  * Tests for complete email generation and preview flow
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   generateEmailPreview,
   generatePreviewsForAllDISCTypes,

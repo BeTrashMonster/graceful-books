@@ -12,7 +12,7 @@
  * Part of D8 task for comprehensive unit test coverage
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   createReconciliation,
   applyMatches,
