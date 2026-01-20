@@ -30,7 +30,7 @@ import type {
 
 // Mock the encryption module
 vi.mock('./encryption', () => ({
-  encrypt: vi.fn((data, key) =>
+  encrypt: vi.fn((_data, key) =>
     Promise.resolve({
       success: true,
       data: {
@@ -43,7 +43,7 @@ vi.mock('./encryption', () => ({
       },
     })
   ),
-  reencrypt: vi.fn((data, oldKey, newKey) =>
+  reencrypt: vi.fn((_data, _oldKey, newKey) =>
     Promise.resolve({
       success: true,
       data: {

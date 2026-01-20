@@ -393,7 +393,7 @@ describe('Lock File Integrity', () => {
         ([key]) => key !== ''
       );
 
-      packages.forEach(([name, pkg]: any) => {
+      packages.forEach(([_name, pkg]: any) => {
         expect(pkg).toHaveProperty('version');
         // Most packages should have integrity hash
         if (pkg.version) {

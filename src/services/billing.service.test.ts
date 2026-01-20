@@ -17,8 +17,6 @@ import {
   addClientToAdvisorPlan,
   acceptClientInvitation,
   removeClientFromAdvisorPlan,
-  addTeamMemberToAdvisor,
-  removeTeamMemberFromAdvisor,
   formatCurrency,
 } from './billing.service';
 

@@ -9,7 +9,6 @@ import {
   getCategoryDisplay,
   getCategoryDescription,
 } from './charity.schema';
-import { CharityCategory } from '../../types/database.types';
 
 describe('Charity Schema', () => {
   describe('createDefaultCharity', () => {

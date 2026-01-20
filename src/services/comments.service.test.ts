@@ -14,8 +14,6 @@ import { db } from '../db/database';
 import {
   CommentsService,
   createCommentsService,
-  type CreateCommentOptions,
-  type UpdateCommentOptions,
 } from './comments.service';
 import {
   CommentableType,
@@ -33,7 +31,6 @@ const TEST_USER_ID = 'user-test-001';
 const TEST_USER_ID_2 = 'user-test-002';
 const TEST_DEVICE_ID = 'device-test-001';
 const TEST_TRANSACTION_ID = 'transaction-test-001';
-const TEST_INVOICE_ID = 'invoice-test-001';
 
 describe('CommentsService', () => {
   let service: CommentsService;

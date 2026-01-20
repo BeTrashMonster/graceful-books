@@ -4,7 +4,6 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { SubscriptionManager } from './SubscriptionManager';
 import { db } from '../../db/database';
 import type { Subscription } from '../../types/billing.types';

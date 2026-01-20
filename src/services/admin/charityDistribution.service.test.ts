@@ -13,11 +13,7 @@ import {
   createDistributionRecords,
   markPaymentSent,
   confirmPayment,
-  getDistributionsForMonth,
   getUnpaidDistributions,
-  getUserAnnualContribution,
-  getCharityImpactStats,
-  getAllCharityImpactStats,
   reconcileContributions,
 } from './charityDistribution.service';
 import type { CharityDistribution } from '../../types/billing.types';
