@@ -259,7 +259,7 @@ describe('Invoice Template Storage', () => {
       });
 
       expect(updateResult.success).toBe(true);
-      expect(updateResult.warnings).toBeDefined();
+      expect((updateResult as any).warnings).toBeDefined();
     });
 
     it('should not update non-existent template', async () => {

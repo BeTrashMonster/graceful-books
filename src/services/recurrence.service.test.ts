@@ -17,8 +17,8 @@ import {
   getDueOccurrences,
   calculateNextOccurrence,
 } from './recurrence.service';
+import { RecurrenceFrequency, RecurrenceEndType } from '../types/recurring.types';
 import type { RecurrenceRule } from '../types/recurring.types';
-import { RecurrenceFrequency, RecurrenceEndType } from '../types/database.types';
 
 describe('recurrence.service', () => {
   describe('createRRule', () => {

@@ -19,7 +19,8 @@ import {
   calculateMetrics,
   validateResolution,
 } from './conflictResolution.service';
-import type { Account, AccountType } from '../types/database.types';
+import { AccountType } from '../types/database.types';
+import type { Account } from '../types/database.types';
 import type {
   CRDTEntity,
   DetectedConflict,

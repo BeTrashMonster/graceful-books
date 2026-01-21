@@ -12,9 +12,9 @@
 
 import { db } from '../db/database';
 import { createDefaultRecentActivity, validateRecentActivity, deduplicateActivities } from '../db/schema/recentActivity.schema';
+import { RecentActivityType } from '../types/recentActivity.types';
 import type {
   RecentActivity,
-  RecentActivityType,
   RecentActivityEntityType,
   CreateRecentActivityOptions,
   GetRecentActivityQuery,

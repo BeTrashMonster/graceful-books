@@ -50,7 +50,7 @@ export async function pushScenarioToClient(
   allowClientEdit: boolean = false
 ): Promise<ScenarioShare> {
   // Fetch scenario
-  const scenario = await db[SCENARIOS_TABLE].get(scenarioId);
+  const scenario = await (db as any)[SCENARIOS_TABLE].get(scenarioId);
   if (!scenario) {
     throw new Error(`Scenario ${scenarioId} not found`);
   }
@@ -64,7 +64,7 @@ export async function pushScenarioToClient(
   }
 
   // Check if already shared with this client
-  const existingShare = await db[SCENARIO_SHARES_TABLE]
+  const existingShare = await (db as any)[SCENARIO_SHARES_TABLE]
     .where(['scenario_id', 'shared_with_user_id'])
     .equals([scenarioId, clientUserId])
     .first();
@@ -82,7 +82,7 @@ export async function pushScenarioToClient(
       updated_at: Date.now(),
     };
 
-    await db[SCENARIO_SHARES_TABLE].put(share);
+    await (db as any)[SCENARIO_SHARES_TABLE].put(share);
   } else {
     // Create new share
     share = {
@@ -101,11 +101,11 @@ export async function pushScenarioToClient(
       deleted_at: null,
     };
 
-    await db[SCENARIO_SHARES_TABLE].add(share);
+    await (db as any)[SCENARIO_SHARES_TABLE].add(share);
   }
 
   // Update scenario status
-  await db[SCENARIOS_TABLE].update(scenarioId, {
+  await (db as any)[SCENARIOS_TABLE].update(scenarioId, {
     status: 'shared',
     client_id: clientUserId,
     updated_at: Date.now(),
@@ -146,7 +146,7 @@ export async function markScenarioViewed(
   scenarioId: string,
   clientUserId: string
 ): Promise<void> {
-  const share = await db[SCENARIO_SHARES_TABLE]
+  const share = await (db as any)[SCENARIO_SHARES_TABLE]
     .where(['scenario_id', 'shared_with_user_id'])
     .equals([scenarioId, clientUserId])
     .first();
@@ -156,7 +156,7 @@ export async function markScenarioViewed(
   }
 
   if (!share.viewed_at) {
-    await db[SCENARIO_SHARES_TABLE].update(share.id, {
+    await (db as any)[SCENARIO_SHARES_TABLE].update(share.id, {
       status: 'viewed',
       viewed_at: Date.now(),
       updated_at: Date.now(),
@@ -190,16 +190,16 @@ export async function addScenarioComment(
     deleted_at: null,
   };
 
-  await db[SCENARIO_COMMENTS_TABLE].add(comment);
+  await (db as any)[SCENARIO_COMMENTS_TABLE].add(comment);
 
   // Update share status to 'commented' if client commented
-  const share = await db[SCENARIO_SHARES_TABLE]
+  const share = await (db as any)[SCENARIO_SHARES_TABLE]
     .where(['scenario_id', 'shared_with_user_id'])
     .equals([scenarioId, userId])
     .first();
 
   if (share && share.status === 'viewed') {
-    await db[SCENARIO_SHARES_TABLE].update(share.id, {
+    await (db as any)[SCENARIO_SHARES_TABLE].update(share.id, {
       status: 'commented',
       responded_at: Date.now(),
       updated_at: Date.now(),
@@ -219,7 +219,7 @@ export async function acceptScenario(
   scenarioId: string,
   clientUserId: string
 ): Promise<void> {
-  const share = await db[SCENARIO_SHARES_TABLE]
+  const share = await (db as any)[SCENARIO_SHARES_TABLE]
     .where(['scenario_id', 'shared_with_user_id'])
     .equals([scenarioId, clientUserId])
     .first();
@@ -228,14 +228,14 @@ export async function acceptScenario(
     throw new Error('Scenario share not found');
   }
 
-  await db[SCENARIO_SHARES_TABLE].update(share.id, {
+  await (db as any)[SCENARIO_SHARES_TABLE].update(share.id, {
     status: 'accepted',
     responded_at: Date.now(),
     updated_at: Date.now(),
   });
 
   // Update scenario status
-  await db[SCENARIOS_TABLE].update(scenarioId, {
+  await (db as any)[SCENARIOS_TABLE].update(scenarioId, {
     status: 'implemented',
     updated_at: Date.now(),
   });
@@ -253,7 +253,7 @@ export async function declineScenario(
   clientUserId: string,
   reason?: string
 ): Promise<void> {
-  const share = await db[SCENARIO_SHARES_TABLE]
+  const share = await (db as any)[SCENARIO_SHARES_TABLE]
     .where(['scenario_id', 'shared_with_user_id'])
     .equals([scenarioId, clientUserId])
     .first();
@@ -262,7 +262,7 @@ export async function declineScenario(
     throw new Error('Scenario share not found');
   }
 
-  await db[SCENARIO_SHARES_TABLE].update(share.id, {
+  await (db as any)[SCENARIO_SHARES_TABLE].update(share.id, {
     status: 'declined',
     responded_at: Date.now(),
     updated_at: Date.now(),
@@ -286,13 +286,13 @@ export async function getScenarioClientView(
   clientUserId: string
 ): Promise<ScenarioClientView> {
   // Fetch scenario
-  const scenario = await db[SCENARIOS_TABLE].get(scenarioId);
+  const scenario = await (db as any)[SCENARIOS_TABLE].get(scenarioId);
   if (!scenario) {
     throw new Error(`Scenario ${scenarioId} not found`);
   }
 
   // Fetch share
-  const share = await db[SCENARIO_SHARES_TABLE]
+  const share = await (db as any)[SCENARIO_SHARES_TABLE]
     .where(['scenario_id', 'shared_with_user_id'])
     .equals([scenarioId, clientUserId])
     .first();
@@ -323,7 +323,7 @@ export async function getScenarioClientView(
     .toArray();
 
   // Fetch comments
-  const comments = await db[SCENARIO_COMMENTS_TABLE]
+  const comments = await (db as any)[SCENARIO_COMMENTS_TABLE]
     .where('scenario_id')
     .equals(scenarioId)
     .and((comment: any) => comment.deleted_at === null)
@@ -384,7 +384,7 @@ export async function getClientScenarios(
   clientUserId: string,
   status?: ScenarioShareStatus
 ): Promise<Array<Scenario & { share_status: ScenarioShareStatus }>> {
-  let query = db[SCENARIO_SHARES_TABLE]
+  let query = (db as any)[SCENARIO_SHARES_TABLE]
     .where('shared_with_user_id')
     .equals(clientUserId);
 
@@ -396,7 +396,7 @@ export async function getClientScenarios(
 
   const scenarios = await Promise.all(
     shares.map(async (share: any) => {
-      const scenario = await db[SCENARIOS_TABLE].get(share.scenario_id);
+      const scenario = await (db as any)[SCENARIOS_TABLE].get(share.scenario_id);
       return scenario
         ? {
             ...scenario,
@@ -427,13 +427,13 @@ export async function getClientResponseSummary(scenarioId: string): Promise<{
   declined: number;
   latest_comments: ScenarioComment[];
 }> {
-  const shares = await db[SCENARIO_SHARES_TABLE]
+  const shares = await (db as any)[SCENARIO_SHARES_TABLE]
     .where('scenario_id')
     .equals(scenarioId)
     .and((share: any) => share.deleted_at === null)
     .toArray();
 
-  const comments = await db[SCENARIO_COMMENTS_TABLE]
+  const comments = await (db as any)[SCENARIO_COMMENTS_TABLE]
     .where('scenario_id')
     .equals(scenarioId)
     .and((comment: any) => comment.deleted_at === null)

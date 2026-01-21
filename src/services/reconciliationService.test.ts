@@ -12,7 +12,8 @@ import {
   completeReconciliation,
   getReconciliationSummary,
 } from './reconciliationService';
-import type { ParsedStatement, TransactionMatch , MatchConfidence } from '../types/reconciliation.types';
+import { MatchConfidence } from '../types/reconciliation.types';
+import type { ParsedStatement, TransactionMatch } from '../types/reconciliation.types';
 import type { JournalEntry } from '../types';
 
 describe('reconciliationService', () => {

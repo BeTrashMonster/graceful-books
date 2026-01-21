@@ -15,12 +15,12 @@ import type {
   TransactionLineItem,
   AccountType,
 } from '../types/database.types';
+import { ApprovalRuleStatus } from '../db/schema/approvalWorkflows.schema';
 import type {
   ApprovalRule,
   ApprovalCondition,
   ApprovalConditionField,
   ApprovalConditionOperator,
-  ApprovalRuleStatus,
 } from '../db/schema/approvalWorkflows.schema';
 import { logger } from '../utils/logger';
 

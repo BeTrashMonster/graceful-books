@@ -272,8 +272,8 @@ export class GoalProgressService {
     switch (goal.type) {
       case 'revenue': {
         // Use J4 profitability metrics to get revenue
-        const profitabilityService = new ProfitabilityMetricsService();
-        const metrics = await profitabilityService.getProfitabilityMetrics({
+        const profitabilityService = new ProfitabilityMetricsService(db);
+        const metrics = await profitabilityService.calculateProfitabilityMetrics({
           company_id: goal.company_id,
           date_range: { start_date: startOfYear, end_date: now },
           include_barter: true,
@@ -285,8 +285,8 @@ export class GoalProgressService {
 
       case 'profit': {
         // Use J4 profitability metrics to get net profit
-        const profitabilityService = new ProfitabilityMetricsService();
-        const metrics = await profitabilityService.getProfitabilityMetrics({
+        const profitabilityService = new ProfitabilityMetricsService(db);
+        const metrics = await profitabilityService.calculateProfitabilityMetrics({
           company_id: goal.company_id,
           date_range: { start_date: startOfYear, end_date: now },
           include_barter: true,

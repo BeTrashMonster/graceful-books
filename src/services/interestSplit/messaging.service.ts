@@ -49,7 +49,7 @@ export class InterestSplitMessagingService {
     const messageSet =
       messageType === 'prompt_message'
         ? messages
-        : this[`get${this.capitalize(messageType.replace(/_/g, ' '))}`]();
+        : (this as any)[`get${this.capitalize(messageType.replace(/_/g, ' '))}`]();
 
     return messageSet[discType];
   }

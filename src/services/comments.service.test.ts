@@ -20,7 +20,8 @@ import {
   CommentStatus,
   type Comment,
 } from '../db/schema/comments.schema';
-import type { CompanyUser, User, TransactionType, TransactionStatus } from '../types/database.types';
+import { TransactionType, TransactionStatus } from '../types/database.types';
+import type { CompanyUser, User } from '../types/database.types';
 
 // ============================================================================
 // Test Setup
@@ -121,10 +122,10 @@ describe('CommentsService', () => {
       transaction_number: 'TXN-001',
       date: Date.now(),
       description: 'Test transaction',
-      type: TransactionType.INCOME,
+      type: TransactionType.PAYMENT,
       amount: '100.00',
       balance: '100.00',
-      status: TransactionStatus.PENDING,
+      status: TransactionStatus.POSTED,
       reconciled: false,
       account_id: 'account-001',
       category_id: null,

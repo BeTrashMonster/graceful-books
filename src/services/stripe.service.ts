@@ -158,8 +158,8 @@ export async function createSubscription(
       stripe_subscription_id: stripeSubscription.id,
       subscription_type: params.subscriptionType,
       status: stripeSubscription.status as SubscriptionStatus,
-      current_period_start: stripeSubscription.current_period_start * 1000,
-      current_period_end: stripeSubscription.current_period_end * 1000,
+      current_period_start: (stripeSubscription as any).current_period_start * 1000,
+      current_period_end: (stripeSubscription as any).current_period_end * 1000,
       cancel_at_period_end: stripeSubscription.cancel_at_period_end,
       canceled_at: stripeSubscription.canceled_at
         ? stripeSubscription.canceled_at * 1000
@@ -512,8 +512,8 @@ async function handleSubscriptionUpdated(
 
   await db.subscriptions.update(subscription.id, {
     status: stripeSubscription.status as SubscriptionStatus,
-    current_period_start: stripeSubscription.current_period_start * 1000,
-    current_period_end: stripeSubscription.current_period_end * 1000,
+    current_period_start: (stripeSubscription as any).current_period_start * 1000,
+    current_period_end: (stripeSubscription as any).current_period_end * 1000,
     cancel_at_period_end: stripeSubscription.cancel_at_period_end,
     canceled_at: stripeSubscription.canceled_at
       ? stripeSubscription.canceled_at * 1000
@@ -571,7 +571,7 @@ async function handleInvoicePaymentSucceeded(
   } else {
     const subscription = await db.subscriptions
       .where('stripe_subscription_id')
-      .equals(invoice.subscription as string)
+      .equals((invoice as any).subscription as string)
       .first();
 
     if (!subscription) {
@@ -614,7 +614,7 @@ async function handleInvoicePaymentFailed(
 ): Promise<void> {
   const subscription = await db.subscriptions
     .where('stripe_subscription_id')
-    .equals(invoice.subscription as string)
+    .equals((invoice as any).subscription as string)
     .first();
 
   if (!subscription) {

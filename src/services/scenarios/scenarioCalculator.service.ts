@@ -79,7 +79,7 @@ export async function pullBaselineSnapshot(
 
   // Calculate cash balance (sum of all Cash & Bank accounts)
   const cashAccounts = accounts.filter(
-    (acc) => acc.type === 'bank' || acc.account_name.toLowerCase().includes('cash')
+    (acc) => acc.type === 'bank' || acc.name.toLowerCase().includes('cash')
   );
   const cashBalance = cashAccounts.reduce((sum, acc) => {
     return sum.plus(new Decimal(acc.balance || 0));
@@ -88,9 +88,9 @@ export async function pullBaselineSnapshot(
   // Extract payroll data (simplified for MVP)
   const payrollExpenseAccounts = accounts.filter(
     (acc) => acc.type === 'expense' &&
-    (acc.account_name.toLowerCase().includes('salary') ||
-     acc.account_name.toLowerCase().includes('wages') ||
-     acc.account_name.toLowerCase().includes('payroll'))
+    (acc.name.toLowerCase().includes('salary') ||
+     acc.name.toLowerCase().includes('wages') ||
+     acc.name.toLowerCase().includes('payroll'))
   );
 
   const totalMonthlyPayroll = payrollExpenseAccounts.reduce((sum, acc) => {
@@ -100,9 +100,9 @@ export async function pullBaselineSnapshot(
   // Extract payroll tax data
   const payrollTaxAccounts = accounts.filter(
     (acc) => acc.type === 'expense' &&
-    (acc.account_name.toLowerCase().includes('payroll tax') ||
-     acc.account_name.toLowerCase().includes('fica') ||
-     acc.account_name.toLowerCase().includes('unemployment'))
+    (acc.name.toLowerCase().includes('payroll tax') ||
+     acc.name.toLowerCase().includes('fica') ||
+     acc.name.toLowerCase().includes('unemployment'))
   );
 
   const totalMonthlyEmployerTaxes = payrollTaxAccounts.reduce((sum, acc) => {
@@ -111,7 +111,7 @@ export async function pullBaselineSnapshot(
 
   // Extract invoicing data (simplified - would integrate with invoices table in production)
   const arAccount = accounts.find(
-    (acc) => acc.type === 'accounts-receivable' || acc.account_code === '1200'
+    (acc) => acc.type === 'accounts-receivable' || acc.accountNumber === '1200'
   );
   const arBalance = arAccount ? new Decimal(arAccount.balance || 0) : new Decimal(0);
 

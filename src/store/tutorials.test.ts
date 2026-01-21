@@ -353,7 +353,7 @@ describe('Tutorial Store', () => {
 
       expect(result.success).toBe(true);
       expect((result as any).data).toHaveLength(1);
-      expect(result.data[0]).toEqual(badge);
+      expect((result as any).data[0]).toEqual(badge);
     });
 
     it('should sort badges by earned date', async () => {
@@ -387,8 +387,8 @@ describe('Tutorial Store', () => {
       expect(result.success).toBe(true);
       expect((result as any).data).toHaveLength(2);
       // Most recent first
-      expect(result.data[0].id).toBe('badge-2');
-      expect(result.data[1].id).toBe('badge-1');
+      expect((result as any).data[0].id).toBe('badge-2');
+      expect((result as any).data[1].id).toBe('badge-1');
     });
   });
 });

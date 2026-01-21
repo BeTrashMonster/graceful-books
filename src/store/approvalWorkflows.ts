@@ -15,15 +15,13 @@ import { db } from '../db/database';
 import { getDeviceId } from '../utils/device';
 import { incrementVersionVector } from '../db/crdt';
 import { logger } from '../utils/logger';
+import { ApprovalRuleStatus, ApprovalRequestStatus, DelegationStatus } from '../db/schema/approvalWorkflows.schema';
 import type {
   ApprovalRule,
   ApprovalRequest,
   ApprovalAction,
   ApprovalDelegation,
   ApprovalHistory,
-  ApprovalRuleStatus,
-  ApprovalRequestStatus,
-  DelegationStatus,
 } from '../db/schema/approvalWorkflows.schema';
 import {
   createDefaultApprovalRule,

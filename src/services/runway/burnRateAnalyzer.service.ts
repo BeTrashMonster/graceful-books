@@ -332,12 +332,12 @@ export async function analyzeRevenueBreakdown(
     .toArray()
 
   // Get contacts
-  const contactIds = [...new Set(invoices.map((inv) => inv.contactId))]
+  const contactIds = [...new Set(invoices.map((inv) => inv.customer_id))]
   const contacts = await db.contacts.where('id').anyOf(contactIds).toArray()
   const contactMap = new Map(contacts.map((c) => [c.id, c]))
 
   for (const invoice of invoices) {
-    const contact = contactMap.get(invoice.contactId)
+    const contact = contactMap.get(invoice.customer_id)
     if (!contact) continue
 
     const invDate = new Date(invoice.invoice_date)
