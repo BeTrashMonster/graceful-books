@@ -25,10 +25,9 @@ import {
   getAuditLogStatistics,
   deleteOldAuditLogs,
 } from './auditLogExtended';
+import { AuditAction, AuditEntityType } from '../types/database.types';
 import type {
   AuditLog,
-  AuditAction,
-  AuditEntityType,
 } from '../types/database.types';
 import { db } from '../store/database';
 
@@ -62,18 +61,18 @@ async function seedTestData(count: number, companyId: string = 'test-company') {
   const logs: Partial<AuditLog>[] = [];
 
   const actions: AuditAction[] = [
-    'CREATE',
-    'UPDATE',
-    'DELETE',
-    'RESTORE',
-    'LOGIN',
-    'LOGOUT',
+    AuditAction.CREATE,
+    AuditAction.UPDATE,
+    AuditAction.DELETE,
+    AuditAction.RESTORE,
+    AuditAction.LOGIN,
+    AuditAction.LOGOUT,
   ];
   const entityTypes: AuditEntityType[] = [
-    'ACCOUNT',
-    'TRANSACTION',
-    'CONTACT',
-    'PRODUCT',
+    AuditEntityType.ACCOUNT,
+    AuditEntityType.TRANSACTION,
+    AuditEntityType.CONTACT,
+    AuditEntityType.PRODUCT,
   ];
   const users = ['user-1', 'user-2', 'user-3'];
 
@@ -173,7 +172,7 @@ describe('Extended Audit Log Service', () => {
 
       const result = await searchAuditLogs({
         companyId: 'test-company',
-        entityTypes: ['TRANSACTION', 'ACCOUNT'],
+        entityTypes: [AuditEntityType.TRANSACTION, AuditEntityType.ACCOUNT],
       });
 
       expect(
@@ -189,7 +188,7 @@ describe('Extended Audit Log Service', () => {
 
       const result = await searchAuditLogs({
         companyId: 'test-company',
-        actions: ['CREATE', 'UPDATE'],
+        actions: [AuditAction.CREATE, AuditAction.UPDATE],
       });
 
       expect(result.logs.every((log) => ['CREATE', 'UPDATE'].includes(log.action))).toBe(true);
@@ -208,8 +207,8 @@ describe('Extended Audit Log Service', () => {
         dateFrom: weekAgo,
         dateTo: now,
         userIds: ['user-1'],
-        entityTypes: ['TRANSACTION'],
-        actions: ['CREATE'],
+        entityTypes: [AuditEntityType.TRANSACTION],
+        actions: [AuditAction.CREATE],
       });
 
       expect(result.logs.every((log) => log.userId === 'user-1')).toBe(true);
@@ -316,7 +315,7 @@ describe('Extended Audit Log Service', () => {
       await seedTestData(100);
 
       const result = await getAuditLogsByEntityType('test-company', [
-        'TRANSACTION',
+        AuditEntityType.TRANSACTION,
       ]);
 
       expect(result.logs.every((log) => log.entityType === 'TRANSACTION')).toBe(true);
@@ -609,8 +608,8 @@ describe('Extended Audit Log Service', () => {
         dateFrom: weekAgo,
         dateTo: now,
         userIds: ['user-1', 'user-2'],
-        entityTypes: ['TRANSACTION', 'ACCOUNT'],
-        actions: ['CREATE', 'UPDATE'],
+        entityTypes: [AuditEntityType.TRANSACTION, AuditEntityType.ACCOUNT],
+        actions: [AuditAction.CREATE, AuditAction.UPDATE],
       });
       const endTime = performance.now();
 

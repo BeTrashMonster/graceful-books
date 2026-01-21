@@ -165,15 +165,15 @@ interface StatusBadgeProps {
 
 function StatusBadge({ status }: StatusBadgeProps) {
   const statusConfig: Record<CharityStatus, { label: string; className: string }> = {
-    PENDING: { label: 'Pending', className: styles.statusPending },
-    VERIFIED: { label: 'Verified', className: styles.statusVerified },
-    REJECTED: { label: 'Rejected', className: styles.statusRejected },
-    INACTIVE: { label: 'Inactive', className: styles.statusInactive },
+    PENDING: { label: 'Pending', className: styles.statusPending || '' },
+    VERIFIED: { label: 'Verified', className: styles.statusVerified || '' },
+    REJECTED: { label: 'Rejected', className: styles.statusRejected || '' },
+    INACTIVE: { label: 'Inactive', className: styles.statusInactive || '' },
   };
 
   const config = statusConfig[status];
 
-  return <span className={`${styles.statusBadge} ${config.className}`}>{config.label}</span>;
+  return <span className={`${styles.statusBadge} ${config?.className}`}>{config?.label}</span>;
 }
 
 interface CharityDetailModalProps {

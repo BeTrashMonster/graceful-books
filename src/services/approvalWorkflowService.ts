@@ -265,7 +265,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
       const deviceId = getDeviceId();
       const requestId = nanoid();
 
-      const request: ApprovalRequest = {
+      const request = {
         ...createDefaultApprovalRequest(
           companyId,
           transaction.id,
@@ -279,7 +279,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
         metadata: options.metadata || {},
       };
 
-      const createdRequest = await this.db.createRequest(request);
+      const createdRequest = await this.db.createRequest(request as ApprovalRequest);
 
       // Record history
       await this.recordHistory(
@@ -383,7 +383,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
       // Create approval action
       const deviceId = getDeviceId();
       const actionId = nanoid();
-      const action: ApprovalAction = {
+      const action = {
         ...createDefaultApprovalAction(
           request.company_id,
           approvalRequestId,
@@ -395,7 +395,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
         id: actionId,
         comments: options.comments || null,
         ip_address: options.ipAddress || null,
-      };
+      } as ApprovalAction;
 
       await this.db.createAction(action);
 
@@ -537,7 +537,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
       // Create rejection action
       const deviceId = getDeviceId();
       const actionId = nanoid();
-      const action: ApprovalAction = {
+      const action = {
         ...createDefaultApprovalAction(
           request.company_id,
           approvalRequestId,
@@ -549,7 +549,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
         id: actionId,
         comments: options.comments || null,
         ip_address: options.ipAddress || null,
-      };
+      } as ApprovalAction;
 
       await this.db.createAction(action);
 
@@ -626,7 +626,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
       // Create recall action
       const deviceId = getDeviceId();
       const actionId = nanoid();
-      const action: ApprovalAction = {
+      const action = {
         ...createDefaultApprovalAction(
           request.company_id,
           approvalRequestId,
@@ -637,7 +637,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
         ),
         id: actionId,
         comments: reason,
-      };
+      } as ApprovalAction;
 
       await this.db.createAction(action);
 
@@ -870,7 +870,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
     eventData: Record<string, unknown>
   ): Promise<void> {
     const historyId = nanoid();
-    const history: ApprovalHistory = {
+    const history = {
       ...createApprovalHistoryEntry(
         companyId,
         approvalRequestId,
@@ -883,7 +883,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
         eventData
       ),
       id: historyId,
-    };
+    } as ApprovalHistory;
 
     await this.db.createHistory(history);
   }

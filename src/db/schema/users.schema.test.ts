@@ -22,7 +22,8 @@ import {
   hasHigherOrEqualRole,
   generateDeviceFingerprint,
 } from './users.schema';
-import type { UserRole, Session, CompanyUser } from '../../types/database.types';
+import { UserRole } from '../../types/database.types';
+import type { Session, CompanyUser } from '../../types/database.types';
 
 describe('Users Schema', () => {
   describe('createDefaultUser', () => {
@@ -133,7 +134,7 @@ describe('Users Schema', () => {
     it('should create company user with correct role', () => {
       const companyId = 'company-1';
       const userId = 'user-1';
-      const role: UserRole = 'ADMIN';
+      const role: UserRole = UserRole.ADMIN;
       const deviceId = 'device-1';
 
       const companyUser = createDefaultCompanyUser(companyId, userId, role, deviceId);
@@ -717,7 +718,7 @@ describe('Users Schema', () => {
     });
 
     it('should handle complete hierarchy', () => {
-      const roles: UserRole[] = ['OWNER', 'ADMIN', 'ACCOUNTANT', 'BOOKKEEPER', 'VIEWER'];
+      const roles: UserRole[] = [UserRole.OWNER, UserRole.ADMIN, UserRole.ACCOUNTANT, UserRole.BOOKKEEPER, UserRole.VIEWER];
 
       for (let i = 0; i < roles.length; i++) {
         for (let j = 0; j < roles.length; j++) {

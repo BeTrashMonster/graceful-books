@@ -85,10 +85,10 @@ export function ColumnMapper({
 
   // Get confidence level text and class
   const getConfidenceInfo = (confidence: number): { level: string; className: string } => {
-    if (confidence >= 0.9) return { level: 'High confidence', className: styles.highConfidence };
-    if (confidence >= 0.7) return { level: 'Medium confidence', className: styles.mediumConfidence };
-    if (confidence >= 0.5) return { level: 'Low confidence', className: styles.lowConfidence };
-    return { level: 'No match', className: styles.noConfidence };
+    if (confidence >= 0.9) return { level: 'High confidence', className: styles.highConfidence || '' };
+    if (confidence >= 0.7) return { level: 'Medium confidence', className: styles.mediumConfidence || '' };
+    if (confidence >= 0.5) return { level: 'Low confidence', className: styles.lowConfidence || '' };
+    return { level: 'No match', className: styles.noConfidence || '' };
   };
 
   // Filter headers if showing only unmapped

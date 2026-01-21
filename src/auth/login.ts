@@ -179,7 +179,7 @@ export async function login(
     return {
       success: false,
       error: sanitized.userMessage,
-      errorCode: sanitized.errorCode,
+      errorCode: 'UNKNOWN_ERROR',
       // Include detailed error only in development mode
       ...(isDevMode() && { debugInfo: (error as Error).message }),
     };

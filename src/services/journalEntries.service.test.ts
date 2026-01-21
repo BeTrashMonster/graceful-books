@@ -126,11 +126,17 @@ describe('JournalEntriesService', () => {
             account_id: accountId1,
             debit: '100.00',
             credit: '0.00',
+            description: null,
+            contact_id: null,
+            product_id: null,
           },
           {
             account_id: accountId2,
             debit: '0.00',
             credit: '100.00',
+            description: null,
+            contact_id: null,
+            product_id: null,
           },
         ],
       };
@@ -157,11 +163,17 @@ describe('JournalEntriesService', () => {
             account_id: accountId1,
             debit: '100.00',
             credit: '0.00',
+            description: null,
+            contact_id: null,
+            product_id: null,
           },
           {
             account_id: accountId2,
             debit: '0.00',
             credit: '50.00', // Not balanced!
+            description: null,
+            contact_id: null,
+            product_id: null,
           },
         ],
       };
@@ -177,8 +189,8 @@ describe('JournalEntriesService', () => {
         transaction_date: Date.now(),
         description: 'Entry 1',
         line_items: [
-          { account_id: accountId1, debit: '50.00', credit: '0.00' },
-          { account_id: accountId2, debit: '0.00', credit: '50.00' },
+          { account_id: accountId1, debit: '50.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: accountId2, debit: '0.00', credit: '50.00', description: null, contact_id: null, product_id: null },
         ],
       };
 
@@ -196,8 +208,8 @@ describe('JournalEntriesService', () => {
         transaction_date: Date.now(),
         description: 'Entry for approval',
         line_items: [
-          { account_id: accountId1, debit: '100.00', credit: '0.00' },
-          { account_id: accountId2, debit: '0.00', credit: '100.00' },
+          { account_id: accountId1, debit: '100.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: accountId2, debit: '0.00', credit: '100.00', description: null, contact_id: null, product_id: null },
         ],
         submit_for_approval: true,
       };
@@ -219,6 +231,9 @@ describe('JournalEntriesService', () => {
             account_id: accountId1,
             debit: '100.00',
             credit: '50.00', // Both debit and credit!
+            description: null,
+            contact_id: null,
+            product_id: null,
           },
         ],
       };
@@ -235,8 +250,8 @@ describe('JournalEntriesService', () => {
         transaction_date: Date.now(),
         description: 'Draft entry',
         line_items: [
-          { account_id: accountId1, debit: '100.00', credit: '0.00' },
-          { account_id: accountId2, debit: '0.00', credit: '100.00' },
+          { account_id: accountId1, debit: '100.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: accountId2, debit: '0.00', credit: '100.00', description: null, contact_id: null, product_id: null },
         ],
       };
 
@@ -274,8 +289,8 @@ describe('JournalEntriesService', () => {
         transaction_date: Date.now(),
         description: 'Current entry',
         line_items: [
-          { account_id: accountId1, debit: '100.00', credit: '0.00' },
-          { account_id: accountId2, debit: '0.00', credit: '100.00' },
+          { account_id: accountId1, debit: '100.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: accountId2, debit: '0.00', credit: '100.00', description: null, contact_id: null, product_id: null },
         ],
       };
 
@@ -305,8 +320,8 @@ describe('JournalEntriesService', () => {
         transaction_date: Date.now(),
         description: 'Original description',
         line_items: [
-          { account_id: accountId1, debit: '100.00', credit: '0.00' },
-          { account_id: accountId2, debit: '0.00', credit: '100.00' },
+          { account_id: accountId1, debit: '100.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: accountId2, debit: '0.00', credit: '100.00', description: null, contact_id: null, product_id: null },
         ],
       };
 
@@ -332,8 +347,8 @@ describe('JournalEntriesService', () => {
         transaction_date: Date.now(),
         description: 'Entry to update',
         line_items: [
-          { account_id: accountId1, debit: '100.00', credit: '0.00' },
-          { account_id: accountId2, debit: '0.00', credit: '100.00' },
+          { account_id: accountId1, debit: '100.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: accountId2, debit: '0.00', credit: '100.00', description: null, contact_id: null, product_id: null },
         ],
       };
 
@@ -343,8 +358,8 @@ describe('JournalEntriesService', () => {
         created.entry.id,
         {
           line_items: [
-            { account_id: accountId1, debit: '200.00', credit: '0.00' },
-            { account_id: accountId2, debit: '0.00', credit: '200.00' },
+            { account_id: accountId1, debit: '200.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+            { account_id: accountId2, debit: '0.00', credit: '200.00', description: null, contact_id: null, product_id: null },
           ],
         },
         deviceId
@@ -361,8 +376,8 @@ describe('JournalEntriesService', () => {
         transaction_date: Date.now(),
         description: 'Entry to update',
         line_items: [
-          { account_id: accountId1, debit: '100.00', credit: '0.00' },
-          { account_id: accountId2, debit: '0.00', credit: '100.00' },
+          { account_id: accountId1, debit: '100.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: accountId2, debit: '0.00', credit: '100.00', description: null, contact_id: null, product_id: null },
         ],
       };
 
@@ -373,8 +388,8 @@ describe('JournalEntriesService', () => {
           created.entry.id,
           {
             line_items: [
-              { account_id: accountId1, debit: '200.00', credit: '0.00' },
-              { account_id: accountId2, debit: '0.00', credit: '100.00' }, // Unbalanced!
+              { account_id: accountId1, debit: '200.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+              { account_id: accountId2, debit: '0.00', credit: '100.00', description: null, contact_id: null, product_id: null }, // Unbalanced!
             ],
           },
           deviceId
@@ -390,8 +405,8 @@ describe('JournalEntriesService', () => {
         transaction_date: Date.now(),
         description: 'Entry to approve',
         line_items: [
-          { account_id: accountId1, debit: '100.00', credit: '0.00' },
-          { account_id: accountId2, debit: '0.00', credit: '100.00' },
+          { account_id: accountId1, debit: '100.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: accountId2, debit: '0.00', credit: '100.00', description: null, contact_id: null, product_id: null },
         ],
       };
 
@@ -411,8 +426,8 @@ describe('JournalEntriesService', () => {
         transaction_date: Date.now(),
         description: 'Entry to approve',
         line_items: [
-          { account_id: accountId1, debit: '100.00', credit: '0.00' },
-          { account_id: accountId2, debit: '0.00', credit: '100.00' },
+          { account_id: accountId1, debit: '100.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: accountId2, debit: '0.00', credit: '100.00', description: null, contact_id: null, product_id: null },
         ],
         submit_for_approval: true,
       };
@@ -437,8 +452,8 @@ describe('JournalEntriesService', () => {
         transaction_date: Date.now(),
         description: 'Entry to reject',
         line_items: [
-          { account_id: accountId1, debit: '100.00', credit: '0.00' },
-          { account_id: accountId2, debit: '0.00', credit: '100.00' },
+          { account_id: accountId1, debit: '100.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: accountId2, debit: '0.00', credit: '100.00', description: null, contact_id: null, product_id: null },
         ],
         submit_for_approval: true,
       };
@@ -470,8 +485,8 @@ describe('JournalEntriesService', () => {
         transaction_date: Date.now(),
         description: 'Original entry',
         line_items: [
-          { account_id: accountId1, debit: '100.00', credit: '0.00', description: 'Debit side' },
-          { account_id: accountId2, debit: '0.00', credit: '100.00', description: 'Credit side' },
+          { account_id: accountId1, debit: '100.00', credit: '0.00', description: 'Debit side', contact_id: null, product_id: null },
+          { account_id: accountId2, debit: '0.00', credit: '100.00', description: 'Credit side', contact_id: null, product_id: null },
         ],
       };
 
@@ -505,8 +520,8 @@ describe('JournalEntriesService', () => {
         transaction_date: Date.now(),
         description: 'Entry to void',
         line_items: [
-          { account_id: accountId1, debit: '100.00', credit: '0.00' },
-          { account_id: accountId2, debit: '0.00', credit: '100.00' },
+          { account_id: accountId1, debit: '100.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: accountId2, debit: '0.00', credit: '100.00', description: null, contact_id: null, product_id: null },
         ],
         submit_for_approval: true,
       };
@@ -605,8 +620,8 @@ describe('JournalEntriesService', () => {
         transaction_date: Date.now(),
         description: 'Draft',
         line_items: [
-          { account_id: accountId1, debit: '100.00', credit: '0.00' },
-          { account_id: accountId2, debit: '0.00', credit: '100.00' },
+          { account_id: accountId1, debit: '100.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: accountId2, debit: '0.00', credit: '100.00', description: null, contact_id: null, product_id: null },
         ],
       };
 
@@ -651,8 +666,8 @@ describe('JournalEntriesService', () => {
         transaction_date: Date.now(),
         description: 'Precision test',
         line_items: [
-          { account_id: accountId1, debit: '10.33', credit: '0.00' },
-          { account_id: accountId2, debit: '0.00', credit: '10.33' },
+          { account_id: accountId1, debit: '10.33', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: accountId2, debit: '0.00', credit: '10.33', description: null, contact_id: null, product_id: null },
         ],
       };
 
@@ -668,8 +683,8 @@ describe('JournalEntriesService', () => {
         transaction_date: Date.now(),
         description: 'Rounding test',
         line_items: [
-          { account_id: accountId1, debit: '10.005', credit: '0.00' },
-          { account_id: accountId2, debit: '0.00', credit: '10.00' },
+          { account_id: accountId1, debit: '10.005', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: accountId2, debit: '0.00', credit: '10.00', description: null, contact_id: null, product_id: null },
         ],
       };
 

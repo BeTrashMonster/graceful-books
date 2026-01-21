@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import clsx from 'clsx'
 import { createCommentsService } from '../../services/comments.service'
-import type { Comment, CommentableType } from '../../db/schema/comments.schema'
+import type { Comment } from '../../db/schema/comments.schema'
+import { CommentableType } from '../../db/schema/comments.schema'
 import { db } from '../../db/database'
 import styles from './ActivityFeed.module.css'
 
@@ -178,10 +179,10 @@ export function ActivityFeed({
   // Filter options
   const filterOptions: Array<{ value: CommentableType | 'ALL'; label: string }> = [
     { value: 'ALL', label: 'All Activity' },
-    { value: 'TRANSACTION', label: 'Transactions' },
-    { value: 'INVOICE', label: 'Invoices' },
-    { value: 'BILL', label: 'Bills' },
-    { value: 'JOURNAL_ENTRY', label: 'Journal Entries' },
+    { value: CommentableType.TRANSACTION, label: 'Transactions' },
+    { value: CommentableType.INVOICE, label: 'Invoices' },
+    { value: CommentableType.BILL, label: 'Bills' },
+    { value: CommentableType.JOURNAL_ENTRY, label: 'Journal Entries' },
   ]
 
   return (

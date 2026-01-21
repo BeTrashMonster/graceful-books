@@ -303,7 +303,7 @@ describe('Group E Integration Tests', () => {
         customerId: customer.id,
         frequency: 'monthly',
         interval: 1,
-        startDate: new Date(),
+        startDate: new Date().getTime(),
         autoSend: false,
       });
 
@@ -457,7 +457,7 @@ describe('Group E Integration Tests', () => {
         customerId: customer.id,
         frequency: 'monthly',
         interval: 1,
-        startDate: new Date(),
+        startDate: new Date().getTime(),
         autoSend: false,
       });
       expect(recurringInvoice.success).toBe(true);

@@ -248,7 +248,7 @@ export const LoanAmortizationSchedule = ({
         })}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .loan-amortization-schedule {
           display: flex;
           flex-direction: column;

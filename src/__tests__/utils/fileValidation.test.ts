@@ -30,7 +30,7 @@ function createMockFile(
   type: string = 'application/octet-stream'
 ): File {
   const blob = content instanceof Uint8Array
-    ? new Blob([content], { type })
+    ? new Blob([content as BlobPart], { type })
     : new Blob([content], { type });
   return new File([blob], filename, { type });
 }

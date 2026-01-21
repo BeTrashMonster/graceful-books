@@ -150,6 +150,8 @@ describe('Contacts Store - Vendor Management', () => {
       const vendor = createMockVendor()
       const context: EncryptionContext = {
         encryptionService: mockEncryptionService as any,
+        companyId: 'company-123',
+        userId: 'user-1',
       }
 
       vi.mocked(db.contacts.add).mockImplementation((entity: any) => Promise.resolve('vendor-123') as any)
@@ -172,6 +174,8 @@ describe('Contacts Store - Vendor Management', () => {
       const vendor = createMockVendor()
       const context: EncryptionContext = {
         encryptionService: mockEncryptionService as any,
+        companyId: 'company-123',
+        userId: 'user-1',
       }
 
       vi.mocked(db.contacts.add).mockResolvedValue('vendor-123')
@@ -251,6 +255,8 @@ describe('Contacts Store - Vendor Management', () => {
       const vendor = createMockVendor()
       const context: EncryptionContext = {
         encryptionService: mockEncryptionService as any,
+        companyId: 'company-123',
+        userId: 'user-1',
       }
 
       vi.mocked(db.contacts.add).mockImplementation((entity: any) => Promise.resolve('vendor-123') as any)
@@ -339,6 +345,8 @@ describe('Contacts Store - Vendor Management', () => {
 
       const context: EncryptionContext = {
         encryptionService: mockEncryptionService as any,
+        companyId: 'company-123',
+        userId: 'user-1',
       }
 
       const result = await getContact('vendor-123', context)
@@ -409,6 +417,8 @@ describe('Contacts Store - Vendor Management', () => {
 
       const context: EncryptionContext = {
         encryptionService: mockEncryptionService as any,
+        companyId: 'company-123',
+        userId: 'user-1',
       }
 
       await updateContact('vendor-123', { name: 'New Name' }, context)
@@ -659,6 +669,8 @@ describe('Contacts Store - Vendor Management', () => {
 
       const context: EncryptionContext = {
         encryptionService: mockEncryptionService as any,
+        companyId: 'company-123',
+        userId: 'user-1',
       }
 
       vi.mocked(db.contacts.add).mockResolvedValue('vendor-id')

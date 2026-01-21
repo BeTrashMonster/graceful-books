@@ -19,10 +19,9 @@ import {
   exportAuditLogsToPDF,
   getAuditLogStatistics,
 } from './auditLogExtended';
+import { AuditAction, AuditEntityType } from '../types/database.types';
 import type {
   AuditLog,
-  AuditAction,
-  AuditEntityType,
 } from '../types/database.types';
 import { db } from '../store/database';
 
@@ -57,23 +56,23 @@ async function seedLargeDataset(count: number, companyId: string = 'test-company
   const startTime = performance.now();
 
   const actions: AuditAction[] = [
-    'CREATE',
-    'UPDATE',
-    'DELETE',
-    'RESTORE',
-    'LOGIN',
-    'LOGOUT',
-    'EXPORT',
-    'IMPORT',
+    AuditAction.CREATE,
+    AuditAction.UPDATE,
+    AuditAction.DELETE,
+    AuditAction.RESTORE,
+    AuditAction.LOGIN,
+    AuditAction.LOGOUT,
+    AuditAction.EXPORT,
+    AuditAction.IMPORT,
   ];
   const entityTypes: AuditEntityType[] = [
-    'ACCOUNT',
-    'TRANSACTION',
-    'CONTACT',
-    'PRODUCT',
-    'USER',
-    'COMPANY',
-    'SESSION',
+    AuditEntityType.ACCOUNT,
+    AuditEntityType.TRANSACTION,
+    AuditEntityType.CONTACT,
+    AuditEntityType.PRODUCT,
+    AuditEntityType.USER,
+    AuditEntityType.COMPANY,
+    AuditEntityType.SESSION,
   ];
   const users = ['user-1', 'user-2', 'user-3', 'user-4', 'user-5'];
 
@@ -196,8 +195,8 @@ describe('Extended Audit Log Performance Tests', () => {
         dateFrom: monthAgo,
         dateTo: now,
         userIds: ['user-1', 'user-2'],
-        entityTypes: ['TRANSACTION', 'ACCOUNT'],
-        actions: ['CREATE', 'UPDATE'],
+        entityTypes: [AuditEntityType.TRANSACTION, AuditEntityType.ACCOUNT],
+        actions: [AuditAction.CREATE, AuditAction.UPDATE],
         limit: 100,
       });
       const endTime = performance.now();
@@ -380,7 +379,7 @@ describe('Extended Audit Log Performance Tests', () => {
         dateFrom: monthAgo,
         dateTo: now,
         userIds: ['user-1'],
-        entityTypes: ['TRANSACTION'],
+        entityTypes: [AuditEntityType.TRANSACTION],
       });
       const endTime = performance.now();
 

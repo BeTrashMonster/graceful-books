@@ -169,7 +169,7 @@ export function CommentComposer({
           id: user.id,
           name: user.name,
           email: user.email,
-          username: user.email.split('@')[0],
+          username: user.email.split('@')[0] || '',
         }))
         .slice(0, 5) // Limit to 5 suggestions
 

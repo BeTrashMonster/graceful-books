@@ -286,7 +286,7 @@ export const InterestSplitSettings = ({
         </div>
       </Card>
 
-      <style jsx>{`
+      <style>{`
         .interest-split-settings {
           max-width: 800px;
         }

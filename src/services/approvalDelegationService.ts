@@ -206,7 +206,7 @@ export class ApprovalDelegationService implements IApprovalDelegationService {
       // Create delegation
       const deviceId = getDeviceId();
       const delegationId = nanoid();
-      const delegation: ApprovalDelegation = {
+      const delegation = {
         ...createDefaultApprovalDelegation(
           companyId,
           delegatorUserId,
@@ -221,7 +221,7 @@ export class ApprovalDelegationService implements IApprovalDelegationService {
         end_date: options.endDate || null,
         notes: options.notes || null,
         max_uses: options.maxUses || null,
-      };
+      } as ApprovalDelegation;
 
       const created = await this.db.createDelegation(delegation);
 

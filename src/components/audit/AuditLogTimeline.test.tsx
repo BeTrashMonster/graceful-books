@@ -49,7 +49,7 @@ describe('AuditLogTimeline Component', () => {
             ip_address: '192.168.1.1',
             device_id: 'device-1',
             user_agent: 'Browser',
-            timestamp: Date.now(),
+            timestamp: new Date(),
             created_at: Date.now(),
             updated_at: Date.now(),
             deleted_at: null,

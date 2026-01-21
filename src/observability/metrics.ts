@@ -252,7 +252,7 @@ export class SyncLatencyTracker {
     }
 
     const index = Math.ceil((percentile / 100) * recentLatencies.length) - 1;
-    return recentLatencies[Math.max(0, index)];
+    return recentLatencies[Math.max(0, index)] ?? 0;
   }
 
   /**

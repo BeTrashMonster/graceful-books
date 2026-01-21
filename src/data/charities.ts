@@ -197,7 +197,7 @@ export function getCategoriesWithCounts(): Array<{ category: CharityCategory; co
   return Object.entries(counts)
     .filter(([, count]) => count > 0)
     .map(([category, count]) => ({
-      category: category,
+      category: category as CharityCategory,
       count,
     }));
 }

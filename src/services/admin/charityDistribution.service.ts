@@ -558,8 +558,8 @@ export async function getCharityImpactStats(
       charity_name: charity.name,
       lifetime_contributions,
       total_contributors,
-      first_contribution_date: sortedDates[0],
-      latest_contribution_date: sortedDates[sortedDates.length - 1],
+      first_contribution_date: sortedDates[0] ?? null,
+      latest_contribution_date: sortedDates[sortedDates.length - 1] ?? null,
       monthly_growth,
     };
   } catch (error) {

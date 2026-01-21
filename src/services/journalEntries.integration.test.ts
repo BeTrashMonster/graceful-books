@@ -119,12 +119,16 @@ describe('Journal Entries Integration Tests', () => {
             debit: '1000.00',
             credit: '0.00',
             description: 'Office supplies',
+            contact_id: null,
+            product_id: null,
           },
           {
             account_id: cashAccountId,
             debit: '0.00',
             credit: '1000.00',
             description: 'Cash payment',
+            contact_id: null,
+            product_id: null,
           },
         ],
       };
@@ -172,8 +176,8 @@ describe('Journal Entries Integration Tests', () => {
         transaction_date: Date.now(),
         description: 'Entry to reject',
         line_items: [
-          { account_id: expenseAccountId, debit: '500.00', credit: '0.00' },
-          { account_id: cashAccountId, debit: '0.00', credit: '500.00' },
+          { account_id: expenseAccountId, debit: '500.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: cashAccountId, debit: '0.00', credit: '500.00', description: null, contact_id: null, product_id: null },
         ],
         submit_for_approval: true,
       };
@@ -201,8 +205,8 @@ describe('Journal Entries Integration Tests', () => {
         entry.entry.id,
         {
           line_items: [
-            { account_id: expenseAccountId, debit: '600.00', credit: '0.00' },
-            { account_id: cashAccountId, debit: '0.00', credit: '600.00' },
+            { account_id: expenseAccountId, debit: '600.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+            { account_id: cashAccountId, debit: '0.00', credit: '600.00', description: null, contact_id: null, product_id: null },
           ],
         },
         deviceId1
@@ -229,12 +233,16 @@ describe('Journal Entries Integration Tests', () => {
             debit: '750.00',
             credit: '0.00',
             description: 'Utility expense accrued',
+            contact_id: null,
+            product_id: null,
           },
           {
             account_id: 'account-accrued-liabilities',
             debit: '0.00',
             credit: '750.00',
             description: 'Accrued liability',
+            contact_id: null,
+            product_id: null,
           },
         ],
       };
@@ -284,8 +292,8 @@ describe('Journal Entries Integration Tests', () => {
         transaction_date: Date.now(),
         description: 'Entry to void',
         line_items: [
-          { account_id: expenseAccountId, debit: '1000.00', credit: '0.00' },
-          { account_id: cashAccountId, debit: '0.00', credit: '1000.00' },
+          { account_id: expenseAccountId, debit: '1000.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+          { account_id: cashAccountId, debit: '0.00', credit: '1000.00', description: null, contact_id: null, product_id: null },
         ],
       };
 
@@ -393,8 +401,8 @@ describe('Journal Entries Integration Tests', () => {
             transaction_date: lastWeek,
             description: 'Old draft',
             line_items: [
-              { account_id: expenseAccountId, debit: '100.00', credit: '0.00' },
-              { account_id: cashAccountId, debit: '0.00', credit: '100.00' },
+              { account_id: expenseAccountId, debit: '100.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+              { account_id: cashAccountId, debit: '0.00', credit: '100.00', description: null, contact_id: null, product_id: null },
             ],
           },
           deviceId1,
@@ -406,8 +414,8 @@ describe('Journal Entries Integration Tests', () => {
             transaction_date: now,
             description: 'Recent pending',
             line_items: [
-              { account_id: expenseAccountId, debit: '200.00', credit: '0.00' },
-              { account_id: cashAccountId, debit: '0.00', credit: '200.00' },
+              { account_id: expenseAccountId, debit: '200.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+              { account_id: cashAccountId, debit: '0.00', credit: '200.00', description: null, contact_id: null, product_id: null },
             ],
             submit_for_approval: true,
           },
@@ -452,8 +460,8 @@ describe('Journal Entries Integration Tests', () => {
             description: 'Monthly rent payment',
             reference: 'RENT-2024-01',
             line_items: [
-              { account_id: expenseAccountId, debit: '1500.00', credit: '0.00' },
-              { account_id: cashAccountId, debit: '0.00', credit: '1500.00' },
+              { account_id: expenseAccountId, debit: '1500.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+              { account_id: cashAccountId, debit: '0.00', credit: '1500.00', description: null, contact_id: null, product_id: null },
             ],
           },
           deviceId1,
@@ -466,8 +474,8 @@ describe('Journal Entries Integration Tests', () => {
             description: 'Office supplies',
             reference: 'SUPPLIES-001',
             line_items: [
-              { account_id: expenseAccountId, debit: '250.00', credit: '0.00' },
-              { account_id: cashAccountId, debit: '0.00', credit: '250.00' },
+              { account_id: expenseAccountId, debit: '250.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+              { account_id: cashAccountId, debit: '0.00', credit: '250.00', description: null, contact_id: null, product_id: null },
             ],
           },
           deviceId1,
@@ -499,8 +507,8 @@ describe('Journal Entries Integration Tests', () => {
           transaction_date: Date.now(),
           description: 'Draft entry',
           line_items: [
-            { account_id: expenseAccountId, debit: '100.00', credit: '0.00' },
-            { account_id: cashAccountId, debit: '0.00', credit: '100.00' },
+            { account_id: expenseAccountId, debit: '100.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+            { account_id: cashAccountId, debit: '0.00', credit: '100.00', description: null, contact_id: null, product_id: null },
           ],
         },
         deviceId1,
@@ -513,8 +521,8 @@ describe('Journal Entries Integration Tests', () => {
           transaction_date: Date.now(),
           description: 'Pending entry',
           line_items: [
-            { account_id: expenseAccountId, debit: '200.00', credit: '0.00' },
-            { account_id: cashAccountId, debit: '0.00', credit: '200.00' },
+            { account_id: expenseAccountId, debit: '200.00', credit: '0.00', description: null, contact_id: null, product_id: null },
+            { account_id: cashAccountId, debit: '0.00', credit: '200.00', description: null, contact_id: null, product_id: null },
           ],
           submit_for_approval: true,
         },

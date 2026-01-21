@@ -129,7 +129,7 @@ export async function encrypt(
     return {
       success: false,
       error: sanitized.userMessage,
-      errorCode: sanitized.errorCode,
+      errorCode: 'UNKNOWN_ERROR',
       // Include original error only in development
       ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
@@ -209,7 +209,7 @@ export async function decrypt(
     return {
       success: false,
       error: sanitized.userMessage,
-      errorCode: sanitized.errorCode,
+      errorCode: 'UNKNOWN_ERROR',
       // Include original error only in development
       ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
@@ -259,7 +259,7 @@ export async function decryptToBytes(
     return {
       success: false,
       error: sanitized.userMessage,
-      errorCode: sanitized.errorCode,
+      errorCode: 'UNKNOWN_ERROR',
       // Include original error only in development
       ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
@@ -474,7 +474,7 @@ export async function encryptObject<T>(
     return {
       success: false,
       error: sanitized.userMessage,
-      errorCode: sanitized.errorCode,
+      errorCode: 'UNKNOWN_ERROR',
       ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
   }
@@ -525,7 +525,7 @@ export async function decryptObject<T>(
     return {
       success: false,
       error: sanitized.userMessage,
-      errorCode: sanitized.errorCode,
+      errorCode: 'UNKNOWN_ERROR',
       ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
   }
@@ -599,7 +599,7 @@ export async function reencrypt(
     return {
       success: false,
       error: sanitized.userMessage,
-      errorCode: sanitized.errorCode,
+      errorCode: 'UNKNOWN_ERROR',
       ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
   }

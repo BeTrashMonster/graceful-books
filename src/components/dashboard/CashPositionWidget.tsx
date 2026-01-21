@@ -172,7 +172,7 @@ export function CashPositionWidget({ data, isLoading = false, className }: CashP
                   width={50}
                 />
                 <Tooltip
-                  formatter={(value: number) => formatCurrency(value)}
+                  formatter={(value: number) => formatCurrency(value) as any}
                   labelFormatter={(label) => {
                     const date = new Date(label);
                     return date.toLocaleDateString();

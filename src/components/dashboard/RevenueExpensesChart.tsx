@@ -211,7 +211,7 @@ export function RevenueExpensesChart({
               formatter={(value: number, name: string) => [
                 formatCurrency(value),
                 name === 'revenue' ? 'Revenue' : 'Expenses',
-              ]}
+              ] as any}
               labelFormatter={(label) => formatDate(label)}
               contentStyle={{
                 backgroundColor: 'var(--color-surface)',

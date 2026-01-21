@@ -356,7 +356,7 @@ export const InterestSplitPrompt = ({
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .interest-split-prompt {
           display: flex;
           flex-direction: column;

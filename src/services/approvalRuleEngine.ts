@@ -121,7 +121,7 @@ function getFieldValue(
       return context.productIds.filter((id) => id !== null);
 
     case 'METADATA':
-      return context.metadata;
+      return context.metadata as string | number | string[];
 
     default:
       ruleLogger.warn('Unknown condition field', { field });
@@ -361,7 +361,7 @@ export function findMatchingRules(
     requiresApproval: matchedRules.length > 0,
     matchedRules,
     evaluationResults,
-    highestPriorityRule,
+    highestPriorityRule: highestPriorityRule ?? null,
   };
 }
 

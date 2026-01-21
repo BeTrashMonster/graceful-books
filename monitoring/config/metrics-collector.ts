@@ -70,8 +70,8 @@ export class MetricsCollector {
     return {
       count: values.length,
       sum: values.reduce((a, b) => a + b, 0),
-      min: sorted[0],
-      max: sorted[sorted.length - 1],
+      min: sorted[0]!,
+      max: sorted[sorted.length - 1]!,
       avg: values.reduce((a, b) => a + b, 0) / values.length,
       p50: this.percentile(sorted, 50),
       p95: this.percentile(sorted, 95),
@@ -90,7 +90,7 @@ export class MetricsCollector {
       return null;
     }
 
-    return values[values.length - 1];
+    return values[values.length - 1] ?? null;
   }
 
   /**
@@ -98,7 +98,7 @@ export class MetricsCollector {
    */
   getMetricNames(): string[] {
     return Array.from(new Set(
-      Array.from(this.metrics.keys()).map(key => key.split(':')[0])
+      Array.from(this.metrics.keys()).map(key => key.split(':')[0]!)
     ));
   }
 
@@ -114,7 +114,7 @@ export class MetricsCollector {
    */
   private percentile(sortedValues: number[], p: number): number {
     const index = Math.ceil((p / 100) * sortedValues.length) - 1;
-    return sortedValues[Math.max(0, index)];
+    return sortedValues[Math.max(0, index)]!;
   }
 
   /**
