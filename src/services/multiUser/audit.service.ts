@@ -549,12 +549,18 @@ export class MultiUserAuditService {
 
       if (filters.startDate) {
         const startDate = filters.startDate;
-        results = results.filter((log) => log.timestamp >= startDate);
+        results = results.filter((log) => {
+          const ts = log.timestamp instanceof Date ? log.timestamp.getTime() : log.timestamp;
+          return ts >= startDate;
+        });
       }
 
       if (filters.endDate) {
         const endDate = filters.endDate;
-        results = results.filter((log) => log.timestamp <= endDate);
+        results = results.filter((log) => {
+          const ts = log.timestamp instanceof Date ? log.timestamp.getTime() : log.timestamp;
+          return ts <= endDate;
+        });
       }
 
       if (filters.resourceType) {
@@ -592,10 +598,15 @@ export class MultiUserAuditService {
     endDate: number
   ): Promise<AuditStatistics> {
     try {
+      const start = startDate;
+      const end = endDate;
       const logs = await db.auditLogs
         .where('company_id')
         .equals(companyId)
-        .and((log) => log.timestamp >= startDate && log.timestamp <= endDate)
+        .and((log) => {
+          const ts = log.timestamp instanceof Date ? log.timestamp.getTime() : log.timestamp;
+          return ts >= start && ts <= end;
+        })
         .toArray();
 
       const eventsByType: Record<string, number> = {};
@@ -735,10 +746,15 @@ export class MultiUserAuditService {
     endDate: number
   ): Promise<string> {
     try {
+      const start = startDate;
+      const end = endDate;
       const logs = await db.auditLogs
         .where('company_id')
         .equals(companyId)
-        .and((log) => log.timestamp >= startDate && log.timestamp <= endDate)
+        .and((log) => {
+          const ts = log.timestamp instanceof Date ? log.timestamp.getTime() : log.timestamp;
+          return ts >= start && ts <= end;
+        })
         .toArray();
 
       // Generate CSV

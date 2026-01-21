@@ -153,8 +153,8 @@ describe('Extended Audit Log Service', () => {
       expect(result.executionTimeMs).toBeLessThan(200);
       const startTime = threeDaysAgo.getTime();
       const endTime = now.getTime();
-      expect(result.logs.every((log) => log.timestamp >= startTime)).toBe(true);
-      expect(result.logs.every((log) => log.timestamp <= endTime)).toBe(true);
+      expect(result.logs.every((log) => (log.timestamp instanceof Date ? log.timestamp.getTime() : log.timestamp) >= startTime)).toBe(true);
+      expect(result.logs.every((log) => (log.timestamp instanceof Date ? log.timestamp.getTime() : log.timestamp) <= endTime)).toBe(true);
     });
 
     it('should filter by user IDs', async () => {
@@ -297,8 +297,8 @@ describe('Extended Audit Log Service', () => {
 
       const weekAgoTime = weekAgo.getTime();
       const nowTime = now.getTime();
-      expect(result.logs.every((log) => log.timestamp >= weekAgoTime)).toBe(true);
-      expect(result.logs.every((log) => log.timestamp <= nowTime)).toBe(true);
+      expect(result.logs.every((log) => (log.timestamp instanceof Date ? log.timestamp.getTime() : log.timestamp) >= weekAgoTime)).toBe(true);
+      expect(result.logs.every((log) => (log.timestamp instanceof Date ? log.timestamp.getTime() : log.timestamp) <= nowTime)).toBe(true);
       expect(result.executionTimeMs).toBeLessThan(200);
     });
   });
