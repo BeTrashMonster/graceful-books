@@ -231,7 +231,7 @@ export async function updateSubscription(
         await stripe.subscriptions.update(subscription.stripe_subscription_id, {
           items: [
             {
-              id: stripeSubscription.items.data[0].id,
+              id: stripeSubscription.items.data[0]!.id,
               price: newPriceId,
             },
           ],

@@ -566,7 +566,7 @@ describe('Contacts Store - Vendor Management', () => {
       expect(result.success).toBe(true)
       if (result.success) {
         expect((result as any).data).toHaveLength(2)
-        expect(result.data[0].name).toBe('Vendor 1')
+        expect(result.data[0]!.name).toBe('Vendor 1')
       }
     })
 
@@ -605,7 +605,7 @@ describe('Contacts Store - Vendor Management', () => {
       expect(result.success).toBe(true)
       if (result.success) {
         expect((result as any).data).toHaveLength(1)
-        expect(result.data[0].isActive).toBe(true)
+        expect(result.data[0]!.isActive).toBe(true)
       }
     })
 

@@ -61,8 +61,8 @@ describe('Transaction Matching Algorithm', () => {
       const matches = matchTransactions(statementTxs, systemTxs);
 
       expect(matches).toHaveLength(1);
-      expect(matches[0].confidence).toBe('EXACT');
-      expect(matches[0].score).toBeGreaterThanOrEqual(90);
+      expect(matches[0]!.confidence).toBe('EXACT');
+      expect(matches[0]!.score).toBeGreaterThanOrEqual(90);
     });
 
     it('should not match transactions with different amounts', () => {
@@ -145,7 +145,7 @@ describe('Transaction Matching Algorithm', () => {
       // Should match with HIGH confidence (date close, amount matches)
       expect(matches.length).toBeGreaterThanOrEqual(0);
       if (matches.length > 0) {
-        expect(matches[0].confidence).toMatch(/HIGH|MEDIUM/);
+        expect(matches[0]!.confidence).toMatch(/HIGH|MEDIUM/);
       }
     });
 
@@ -238,7 +238,7 @@ describe('Transaction Matching Algorithm', () => {
       // Should select the better match (sys2)
       expect(matches).toHaveLength(1);
       if (matches.length > 0) {
-        expect(matches[0].systemTransactionId).toBe('sys2');
+        expect(matches[0]!.systemTransactionId).toBe('sys2');
       }
     });
 

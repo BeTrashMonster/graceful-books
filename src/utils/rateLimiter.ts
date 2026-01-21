@@ -181,7 +181,7 @@ export class RateLimiter {
     return {
       allowed: true,
       remaining: config.maxOperations - timestamps.length,
-      resetsAt: timestamps[0] + config.windowMs,
+      resetsAt: timestamps[0]! + config.windowMs,
     };
   }
 
@@ -253,7 +253,7 @@ export class RateLimiter {
     timestamps = timestamps.filter((ts) => ts > windowStart);
 
     const remaining = Math.max(0, config.maxOperations - timestamps.length);
-    const resetsAt = timestamps.length > 0 ? timestamps[0] + config.windowMs : null;
+    const resetsAt = timestamps.length > 0 ? timestamps[0]! + config.windowMs : null;
 
     return {
       remaining,

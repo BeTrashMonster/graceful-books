@@ -190,9 +190,9 @@ describe('wizardState utilities', () => {
       ]
 
       const updated = updateStepStatus(steps, '2', 'active')
-      expect(updated[1].status).toBe('active')
-      expect(updated[0].status).toBe('completed')
-      expect(updated[2].status).toBe('pending')
+      expect(updated[1]!.status).toBe('active')
+      expect(updated[0]!.status).toBe('completed')
+      expect(updated[2]!.status).toBe('pending')
     })
 
     it('should not modify other steps', () => {
@@ -217,8 +217,8 @@ describe('wizardState utilities', () => {
 
       expect(state.wizardId).toBe(wizardId)
       expect(state.currentStepId).toBe('1')
-      expect(state.steps[0].status).toBe('active')
-      expect(state.steps[1].status).toBe('pending')
+      expect(state.steps[0]!.status).toBe('active')
+      expect(state.steps[1]!.status).toBe('pending')
       expect((state as any).data).toEqual({})
     })
 
@@ -243,9 +243,9 @@ describe('wizardState utilities', () => {
       const nextState = navigateToNextStep(initialState)
 
       expect(nextState.currentStepId).toBe('2')
-      expect(nextState.steps[0].status).toBe('completed')
-      expect(nextState.steps[1].status).toBe('active')
-      expect(nextState.steps[2].status).toBe('pending')
+      expect(nextState.steps[0]!.status).toBe('completed')
+      expect(nextState.steps[1]!.status).toBe('active')
+      expect(nextState.steps[2]!.status).toBe('pending')
     })
 
     it('should mark wizard as complete when on last step', () => {
@@ -287,8 +287,8 @@ describe('wizardState utilities', () => {
       const prevState = navigateToPreviousStep(nextState)
 
       expect(prevState.currentStepId).toBe('1')
-      expect(prevState.steps[0].status).toBe('active')
-      expect(prevState.steps[1].status).toBe('pending')
+      expect(prevState.steps[0]!.status).toBe('active')
+      expect(prevState.steps[1]!.status).toBe('pending')
     })
 
     it('should stay on first step when going back from first step', () => {
@@ -315,7 +315,7 @@ describe('wizardState utilities', () => {
       const jumpedState = navigateToStep(initialState, '3')
 
       expect(jumpedState.currentStepId).toBe('3')
-      expect(jumpedState.steps[2].status).toBe('active')
+      expect(jumpedState.steps[2]!.status).toBe('active')
     })
 
     it('should return unchanged state for invalid step ID', () => {

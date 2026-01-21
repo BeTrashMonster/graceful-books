@@ -123,10 +123,10 @@ describe('EmailQueueProcessor', () => {
 
       const sorted = processor['sortByPriority'](emails as any);
 
-      expect(sorted[0].id).toBe('2'); // URGENT
-      expect(sorted[1].id).toBe('4'); // HIGH
-      expect(sorted[2].id).toBe('3'); // NORMAL
-      expect(sorted[3].id).toBe('1'); // LOW
+      expect(sorted[0]!.id).toBe('2'); // URGENT
+      expect(sorted[1]!.id).toBe('4'); // HIGH
+      expect(sorted[2]!.id).toBe('3'); // NORMAL
+      expect(sorted[3]!.id).toBe('1'); // LOW
     });
   });
 

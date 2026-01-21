@@ -604,7 +604,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       expect(activeResult.success).toBe(true);
       if (activeResult.success) {
         expect(activeResult.data.length).toBe(1);
-        expect(activeResult.data[0].status).toBe('ACTIVE');
+        expect(activeResult.data[0]!.status).toBe('ACTIVE');
       }
     });
   });
@@ -712,8 +712,8 @@ describe('Recurring Invoices Data Access Layer', () => {
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.length).toBe(2);
-        expect(result.data[0].invoice_id).toBe('invoice-1');
-        expect(result.data[1].invoice_id).toBe('invoice-2');
+        expect(result.data[0]!.invoice_id).toBe('invoice-1');
+        expect(result.data[1]!.invoice_id).toBe('invoice-2');
       }
     });
   });

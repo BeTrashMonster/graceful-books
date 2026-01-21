@@ -36,8 +36,8 @@ describe('CSV Parser', () => {
       expect(statement).toBeDefined();
       expect(statement.format).toBe('csv');
       expect(statement.transactions).toHaveLength(3);
-      expect(statement.transactions[0].description).toBe('Coffee Shop Purchase');
-      expect(statement.transactions[0].amount).toBe(-1250); // -12.50 in cents
+      expect(statement.transactions[0]!.description).toBe('Coffee Shop Purchase');
+      expect(statement.transactions[0]!.amount).toBe(-1250); // -12.50 in cents
     });
 
     it('should parse CSV with separate debit/credit columns', async () => {
@@ -50,8 +50,8 @@ describe('CSV Parser', () => {
       const statement = await parseCSVStatement(file);
 
       expect(statement.transactions).toHaveLength(2);
-      expect(statement.transactions[0].amount).toBe(-1250); // Debit is negative
-      expect(statement.transactions[1].amount).toBe(250000); // Credit is positive
+      expect(statement.transactions[0]!.amount).toBe(-1250); // Debit is negative
+      expect(statement.transactions[1]!.amount).toBe(250000); // Credit is positive
     });
 
     it('should handle different date formats', async () => {
@@ -64,7 +64,7 @@ describe('CSV Parser', () => {
       const statement = await parseCSVStatement(file);
 
       expect(statement.transactions).toHaveLength(2);
-      const firstDate = new Date(statement.transactions[0].date);
+      const firstDate = new Date(statement.transactions[0]!.date);
       expect(firstDate.getMonth()).toBe(0); // January
       expect(firstDate.getDate()).toBe(15);
     });
@@ -95,9 +95,9 @@ describe('CSV Parser', () => {
 
       const statement = await parseCSVStatement(file);
 
-      expect(statement.transactions[0].description).toBe('Transaction 1');
-      expect(statement.transactions[1].description).toBe('Transaction 2');
-      expect(statement.transactions[2].description).toBe('Transaction 3');
+      expect(statement.transactions[0]!.description).toBe('Transaction 1');
+      expect(statement.transactions[1]!.description).toBe('Transaction 2');
+      expect(statement.transactions[2]!.description).toBe('Transaction 3');
     });
 
     it('should handle currency symbols and commas in amounts', async () => {
@@ -109,8 +109,8 @@ describe('CSV Parser', () => {
 
       const statement = await parseCSVStatement(file);
 
-      expect(statement.transactions[0].amount).toBe(125000); // 1250.00 in cents
-      expect(statement.transactions[1].amount).toBe(1250); // 12.50 in cents
+      expect(statement.transactions[0]!.amount).toBe(125000); // 1250.00 in cents
+      expect(statement.transactions[1]!.amount).toBe(1250); // 12.50 in cents
     });
 
     it('should throw error for empty CSV', async () => {
@@ -196,7 +196,7 @@ Value2`;
 
       const statement = await parseCSVStatement(file);
 
-      expect(statement.transactions[0].amount).toBe(-2500); // (25.00) = -25.00
+      expect(statement.transactions[0]!.amount).toBe(-2500); // (25.00) = -25.00
     });
 
     it('should handle very large transaction counts efficiently', async () => {

@@ -374,7 +374,7 @@ describe('Email Preferences Store', () => {
       const deliveries = await getRecentEmailDeliveries(testUserId);
 
       expect(deliveries).toHaveLength(5);
-      expect(deliveries[0].user_id).toBe(testUserId);
+      expect(deliveries[0]!.user_id).toBe(testUserId);
     });
 
     it('should respect limit parameter', async () => {

@@ -93,7 +93,7 @@ export function constantTimeEqualBytes(a: Uint8Array, b: Uint8Array): boolean {
   // Any difference will set bits in `result`
   let result = 0;
   for (let i = 0; i < maxLength; i++) {
-    result |= paddedA[i] ^ paddedB[i];
+    result |= paddedA[i]! ^ paddedB[i]!;
   }
 
   // Also compare original lengths
