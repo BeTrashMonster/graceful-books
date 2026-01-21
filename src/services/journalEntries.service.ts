@@ -543,6 +543,12 @@ export class JournalEntriesService {
         company_id: companyId,
         transaction_date: transactionDate,
         description: template.description,
+        reference: null,
+        memo: null,
+        attachments: [],
+        submit_for_approval: false,
+        is_reversing: false,
+        reverses_entry_id: null,
         line_items: lineItems,
         template_id: template.id,
         auto_reverse_date: template.auto_reverse

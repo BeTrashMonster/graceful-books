@@ -553,7 +553,7 @@ function calculateNextRun(schedule: ReportScheduleEntity): Date {
 
   // Set time from schedule
   const [hours, minutes] = schedule.time_of_day.split(':').map(Number);
-  nextRun.setHours(hours, minutes, 0, 0);
+  nextRun.setHours(hours!, minutes!, 0, 0);
 
   return nextRun;
 }
