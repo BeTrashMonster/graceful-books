@@ -23,6 +23,11 @@ import type { EmailFollowUpTemplate, EmailFollowUpTemplateContent } from '../../
 export type DISCProfile = 'D' | 'I' | 'S' | 'C'
 
 /**
+ * Follow-up template type
+ */
+export type FollowUpTemplateType = 'polite-reminder' | 'formal-notice' | 'urgent-follow-up'
+
+/**
  * Template variables for personalization
  */
 export interface TemplateVariables {
@@ -316,7 +321,7 @@ This is a business matter that requires immediate resolution. Please treat it wi
  * @returns Complete email template with variables substituted
  */
 export function getFollowUpTemplate(
-  templateType: EmailFollowUpTemplate,
+  templateType: FollowUpTemplateType,
   discProfile: DISCProfile,
   variables: TemplateVariables
 ): EmailFollowUpTemplateContent {
@@ -369,7 +374,7 @@ export function getFollowUpTemplate(
  * @returns Template with placeholder variables
  */
 export function getTemplatePreview(
-  templateType: EmailFollowUpTemplate,
+  templateType: FollowUpTemplateType,
   discProfile: DISCProfile
 ): { subject: string; body: string } {
   let templateSet: DISCTemplateContent
@@ -395,7 +400,7 @@ export function getTemplatePreview(
  * @returns Array of all template types with previews
  */
 export function getAllTemplatesForProfile(discProfile: DISCProfile): Array<{
-  templateType: EmailFollowUpTemplate
+  templateType: FollowUpTemplateType
   subject: string
   body: string
 }> {

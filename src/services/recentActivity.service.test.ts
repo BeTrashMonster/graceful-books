@@ -10,7 +10,7 @@ import {
   RecentActivityService,
   createRecentActivityService,
 } from './recentActivity.service';
-import type { _RecentActivityType, RecentActivityEntityType } from '../types/recentActivity.types';
+import { RecentActivityEntityType } from '../types/recentActivity.types';
 
 describe('RecentActivityService', () => {
   const userId = 'user-123';
@@ -33,7 +33,7 @@ describe('RecentActivityService', () => {
 
   describe('trackSearch', () => {
     it('should track a search activity', async () => {
-      await service.trackSearch('TRANSACTION', 'office supplies');
+      await service.trackSearch(RecentActivityEntityType.TRANSACTION, 'office supplies');
 
       const activities = await db.recentActivity
         .where('[user_id+company_id]')
@@ -47,7 +47,7 @@ describe('RecentActivityService', () => {
     });
 
     it('should store result count in context', async () => {
-      await service.trackSearch('INVOICE', 'test', 5);
+      await service.trackSearch(RecentActivityEntityType.INVOICE, 'test', 5);
 
       const activities = await db.recentActivity.toArray();
       expect(activities).toHaveLength(1);
@@ -59,7 +59,7 @@ describe('RecentActivityService', () => {
 
   describe('trackView', () => {
     it('should track a view activity', async () => {
-      await service.trackView('INVOICE', 'inv-001', 'Invoice #1234', {
+      await service.trackView(RecentActivityEntityType.INVOICE, 'inv-001', 'Invoice #1234', {
         amount: '100.00',
         status: 'SENT',
       });
@@ -76,7 +76,7 @@ describe('RecentActivityService', () => {
     });
 
     it('should store context data', async () => {
-      await service.trackView('BILL', 'bill-001', 'Bill #5678', {
+      await service.trackView(RecentActivityEntityType.BILL, 'bill-001', 'Bill #5678', {
         vendor: 'ACME Corp',
         amount: '250.00',
       });
@@ -92,7 +92,7 @@ describe('RecentActivityService', () => {
 
   describe('trackEdit', () => {
     it('should track an edit activity', async () => {
-      await service.trackEdit('TRANSACTION', 'txn-001', 'Expense - Office Supplies');
+      await service.trackEdit(RecentActivityEntityType.TRANSACTION, 'txn-001', 'Expense - Office Supplies');
 
       const activities = await db.recentActivity
         .where('[user_id+company_id]')
@@ -105,7 +105,7 @@ describe('RecentActivityService', () => {
     });
 
     it('should store draft status in context', async () => {
-      await service.trackEdit('INVOICE', 'inv-002', 'Invoice #5000', {
+      await service.trackEdit(RecentActivityEntityType.INVOICE, 'inv-002', 'Invoice #5000', {
         is_draft: true,
         completion_percentage: 75,
       });
@@ -120,7 +120,7 @@ describe('RecentActivityService', () => {
 
   describe('trackCreate', () => {
     it('should track a create activity', async () => {
-      await service.trackCreate('CONTACT', 'contact-001', 'New Customer');
+      await service.trackCreate(RecentActivityEntityType.CONTACT, 'contact-001', 'New Customer');
 
       const activities = await db.recentActivity
         .where('[user_id+company_id]')
@@ -136,9 +136,9 @@ describe('RecentActivityService', () => {
   describe('getRecentSearches', () => {
     beforeEach(async () => {
       // Add some search activities
-      await service.trackSearch('TRANSACTION', 'office supplies');
-      await service.trackSearch('INVOICE', 'client name');
-      await service.trackSearch('GLOBAL', 'payment');
+      await service.trackSearch(RecentActivityEntityType.TRANSACTION, 'office supplies');
+      await service.trackSearch(RecentActivityEntityType.INVOICE, 'client name');
+      await service.trackSearch(RecentActivityEntityType.GLOBAL, 'payment');
     });
 
     it('should return recent searches', async () => {
@@ -151,7 +151,7 @@ describe('RecentActivityService', () => {
     });
 
     it('should filter by entity type', async () => {
-      const searches = await service.getRecentSearches('INVOICE');
+      const searches = await service.getRecentSearches(RecentActivityEntityType.INVOICE);
 
       expect(searches).toHaveLength(1);
       expect(searches[0]?.query).toBe('client name');
@@ -168,9 +168,9 @@ describe('RecentActivityService', () => {
   describe('getRecentViews', () => {
     beforeEach(async () => {
       // Add some view activities
-      await service.trackView('INVOICE', 'inv-001', 'Invoice #1');
-      await service.trackView('INVOICE', 'inv-002', 'Invoice #2');
-      await service.trackView('BILL', 'bill-001', 'Bill #1');
+      await service.trackView(RecentActivityEntityType.INVOICE, 'inv-001', 'Invoice #1');
+      await service.trackView(RecentActivityEntityType.INVOICE, 'inv-002', 'Invoice #2');
+      await service.trackView(RecentActivityEntityType.BILL, 'bill-001', 'Bill #1');
     });
 
     it('should return recent views', async () => {
@@ -182,9 +182,9 @@ describe('RecentActivityService', () => {
 
     it('should deduplicate views of same entity', async () => {
       // View same invoice twice
-      await service.trackView('INVOICE', 'inv-001', 'Invoice #1 Updated');
+      await service.trackView(RecentActivityEntityType.INVOICE, 'inv-001', 'Invoice #1 Updated');
 
-      const views = await service.getRecentViews('INVOICE');
+      const views = await service.getRecentViews(RecentActivityEntityType.INVOICE);
 
       // Should only show once (most recent)
       const inv001Views = views.filter((v) => v.entity_id === 'inv-001');
@@ -193,7 +193,7 @@ describe('RecentActivityService', () => {
     });
 
     it('should filter by entity type', async () => {
-      const views = await service.getRecentViews('BILL');
+      const views = await service.getRecentViews(RecentActivityEntityType.BILL);
 
       expect(views).toHaveLength(1);
       expect(views[0]?.entity_type).toBe('BILL');
@@ -203,9 +203,9 @@ describe('RecentActivityService', () => {
   describe('getRecentEdits', () => {
     beforeEach(async () => {
       // Add edit and create activities
-      await service.trackEdit('INVOICE', 'inv-001', 'Invoice #1', { is_draft: true });
-      await service.trackCreate('TRANSACTION', 'txn-001', 'New Expense');
-      await service.trackEdit('BILL', 'bill-001', 'Bill #1');
+      await service.trackEdit(RecentActivityEntityType.INVOICE, 'inv-001', 'Invoice #1', { is_draft: true });
+      await service.trackCreate(RecentActivityEntityType.TRANSACTION, 'txn-001', 'New Expense');
+      await service.trackEdit(RecentActivityEntityType.BILL, 'bill-001', 'Bill #1');
     });
 
     it('should return recent edits and creates', async () => {
@@ -217,7 +217,7 @@ describe('RecentActivityService', () => {
 
     it('should deduplicate edits', async () => {
       // Edit same invoice again
-      await service.trackEdit('INVOICE', 'inv-001', 'Invoice #1 Updated');
+      await service.trackEdit(RecentActivityEntityType.INVOICE, 'inv-001', 'Invoice #1 Updated');
 
       const edits = await service.getRecentEdits();
 
@@ -229,7 +229,7 @@ describe('RecentActivityService', () => {
     it('should limit to 5 by default', async () => {
       // Add more edits
       for (let i = 0; i < 10; i++) {
-        await service.trackEdit('TRANSACTION', `txn-${i}`, `Transaction ${i}`);
+        await service.trackEdit(RecentActivityEntityType.TRANSACTION, `txn-${i}`, `Transaction ${i}`);
       }
 
       const edits = await service.getRecentEdits();
@@ -241,14 +241,14 @@ describe('RecentActivityService', () => {
   describe('getRecentEntrySuggestions', () => {
     beforeEach(async () => {
       // Add some expense entries
-      await service.trackCreate('TRANSACTION', 'exp-001', 'Office Supplies', {
+      await service.trackCreate(RecentActivityEntityType.TRANSACTION, 'exp-001', 'Office Supplies', {
         preview_data: {
           description: 'Pens and paper',
           amount: '45.23',
           vendor: 'Office Depot',
         },
       });
-      await service.trackCreate('TRANSACTION', 'exp-002', 'Gas', {
+      await service.trackCreate(RecentActivityEntityType.TRANSACTION, 'exp-002', 'Gas', {
         preview_data: {
           description: 'Fuel for delivery',
           amount: '65.00',
@@ -258,7 +258,7 @@ describe('RecentActivityService', () => {
     });
 
     it('should return entry suggestions', async () => {
-      const suggestions = await service.getRecentEntrySuggestions('TRANSACTION');
+      const suggestions = await service.getRecentEntrySuggestions(RecentActivityEntityType.TRANSACTION);
 
       expect(suggestions).toHaveLength(2);
       expect(suggestions[0]?.preview_data).toBeDefined();
@@ -266,9 +266,9 @@ describe('RecentActivityService', () => {
 
     it('should filter by entity type', async () => {
       // Add an invoice
-      await service.trackCreate('INVOICE', 'inv-001', 'Invoice #1');
+      await service.trackCreate(RecentActivityEntityType.INVOICE, 'inv-001', 'Invoice #1');
 
-      const suggestions = await service.getRecentEntrySuggestions('TRANSACTION');
+      const suggestions = await service.getRecentEntrySuggestions(RecentActivityEntityType.TRANSACTION);
 
       expect(suggestions.every((s) => s.entity_type === 'TRANSACTION')).toBe(true);
     });
@@ -277,9 +277,9 @@ describe('RecentActivityService', () => {
   describe('clearHistory', () => {
     beforeEach(async () => {
       // Add various activities
-      await service.trackSearch('TRANSACTION', 'test');
-      await service.trackView('INVOICE', 'inv-001', 'Invoice #1');
-      await service.trackEdit('BILL', 'bill-001', 'Bill #1');
+      await service.trackSearch(RecentActivityEntityType.TRANSACTION, 'test');
+      await service.trackView(RecentActivityEntityType.INVOICE, 'inv-001', 'Invoice #1');
+      await service.trackEdit(RecentActivityEntityType.BILL, 'bill-001', 'Bill #1');
     });
 
     it('should clear all history', async () => {
@@ -328,12 +328,12 @@ describe('RecentActivityService', () => {
 
   describe('getActivitySummary', () => {
     beforeEach(async () => {
-      await service.trackSearch('TRANSACTION', 'test1');
-      await service.trackSearch('INVOICE', 'test2');
-      await service.trackView('INVOICE', 'inv-001', 'Invoice #1');
-      await service.trackView('INVOICE', 'inv-002', 'Invoice #2');
-      await service.trackEdit('TRANSACTION', 'txn-001', 'Transaction #1');
-      await service.trackCreate('CONTACT', 'contact-001', 'Contact #1');
+      await service.trackSearch(RecentActivityEntityType.TRANSACTION, 'test1');
+      await service.trackSearch(RecentActivityEntityType.INVOICE, 'test2');
+      await service.trackView(RecentActivityEntityType.INVOICE, 'inv-001', 'Invoice #1');
+      await service.trackView(RecentActivityEntityType.INVOICE, 'inv-002', 'Invoice #2');
+      await service.trackEdit(RecentActivityEntityType.TRANSACTION, 'txn-001', 'Transaction #1');
+      await service.trackCreate(RecentActivityEntityType.CONTACT, 'contact-001', 'Contact #1');
     });
 
     it('should return activity summary', async () => {
@@ -372,7 +372,7 @@ describe('RecentActivityService', () => {
       });
 
       // Create a recent activity
-      await service.trackSearch('TRANSACTION', 'recent');
+      await service.trackSearch(RecentActivityEntityType.TRANSACTION, 'recent');
 
       const deletedCount = await service.cleanupOldActivities();
 

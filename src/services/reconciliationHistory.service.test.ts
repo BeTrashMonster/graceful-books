@@ -151,9 +151,9 @@ describe('ReconciliationHistory Service', () => {
     await db.accounts?.clear();
 
     // Mock audit log functions
-    vi.spyOn(auditLogs, 'logCreate').mockResolvedValue(undefined);
-    vi.spyOn(auditLogs, 'logUpdate').mockResolvedValue(undefined);
-    vi.spyOn(auditLogs, 'logDelete').mockResolvedValue(undefined);
+    vi.spyOn(auditLogs, 'logCreate').mockResolvedValue(undefined as any);
+    vi.spyOn(auditLogs, 'logUpdate').mockResolvedValue(undefined as any);
+    vi.spyOn(auditLogs, 'logDelete').mockResolvedValue(undefined as any);
   });
 
   afterEach(() => {
@@ -1245,7 +1245,7 @@ describe('ReconciliationHistory Service', () => {
         const oldDate = Date.now() - 45 * 24 * 60 * 60 * 1000; // 45 days ago
 
         await db.transactions?.add(
-          createTestJournalEntry('tx-1', oldDate, 5000, 'Old transaction')
+          createTestJournalEntry('tx-1', oldDate, 5000, 'Old transaction') as any
         );
 
         const result = await getUnreconciledTransactions('test-company', 'test-account');
@@ -1262,7 +1262,7 @@ describe('ReconciliationHistory Service', () => {
         const oldDate = Date.now() - 75 * 24 * 60 * 60 * 1000; // 75 days ago
 
         await db.transactions?.add(
-          createTestJournalEntry('tx-1', oldDate, 5000, 'Very old transaction')
+          createTestJournalEntry('tx-1', oldDate, 5000, 'Very old transaction') as any
         );
 
         const result = await getUnreconciledTransactions('test-company', 'test-account');
@@ -1278,7 +1278,7 @@ describe('ReconciliationHistory Service', () => {
         const oldDate = Date.now() - 120 * 24 * 60 * 60 * 1000; // 120 days ago
 
         await db.transactions?.add(
-          createTestJournalEntry('tx-1', oldDate, 5000, 'Ancient transaction')
+          createTestJournalEntry('tx-1', oldDate, 5000, 'Ancient transaction') as any
         );
 
         const result = await getUnreconciledTransactions('test-company', 'test-account');
@@ -1294,7 +1294,7 @@ describe('ReconciliationHistory Service', () => {
         const recentDate = Date.now() - 15 * 24 * 60 * 60 * 1000; // 15 days ago
 
         await db.transactions?.add(
-          createTestJournalEntry('tx-1', recentDate, 5000, 'Recent transaction')
+          createTestJournalEntry('tx-1', recentDate, 5000, 'Recent transaction') as any
         );
 
         const result = await getUnreconciledTransactions('test-company', 'test-account');
@@ -1307,13 +1307,13 @@ describe('ReconciliationHistory Service', () => {
 
       it('should sort by age (oldest first)', async () => {
         await db.transactions?.add(
-          createTestJournalEntry('tx-1', Date.now() - 45 * 24 * 60 * 60 * 1000, 5000)
+          createTestJournalEntry('tx-1', Date.now() - 45 * 24 * 60 * 60 * 1000, 5000) as any
         );
         await db.transactions?.add(
-          createTestJournalEntry('tx-2', Date.now() - 90 * 24 * 60 * 60 * 1000, 5000)
+          createTestJournalEntry('tx-2', Date.now() - 90 * 24 * 60 * 60 * 1000, 5000) as any
         );
         await db.transactions?.add(
-          createTestJournalEntry('tx-3', Date.now() - 60 * 24 * 60 * 60 * 1000, 5000)
+          createTestJournalEntry('tx-3', Date.now() - 60 * 24 * 60 * 60 * 1000, 5000) as any
         );
 
         const result = await getUnreconciledTransactions('test-company', 'test-account');
@@ -1355,11 +1355,11 @@ describe('ReconciliationHistory Service', () => {
         // Add old transactions to both accounts
         const tx1 = createTestJournalEntry('tx-1', Date.now() - 45 * 24 * 60 * 60 * 1000, 5000);
         if (tx1.lines[0]) tx1.lines[0].accountId = 'account-1';
-        await db.transactions?.add(tx1);
+        await db.transactions?.add(tx1 as any);
 
         const tx2 = createTestJournalEntry('tx-2', Date.now() - 75 * 24 * 60 * 60 * 1000, 3000);
         if (tx2.lines[0]) tx2.lines[0].accountId = 'account-2';
-        await db.transactions?.add(tx2);
+        await db.transactions?.add(tx2 as any);
 
         const result = await getUnreconciledDashboard('test-company');
 
@@ -1375,11 +1375,11 @@ describe('ReconciliationHistory Service', () => {
       it('should track oldest transaction age', async () => {
         const tx1 = createTestJournalEntry('tx-1', Date.now() - 45 * 24 * 60 * 60 * 1000, 5000);
         if (tx1.lines[0]) tx1.lines[0].accountId = 'account-1';
-        await db.transactions?.add(tx1);
+        await db.transactions?.add(tx1 as any);
 
         const tx2 = createTestJournalEntry('tx-2', Date.now() - 120 * 24 * 60 * 60 * 1000, 3000);
         if (tx2.lines[0]) tx2.lines[0].accountId = 'account-2';
-        await db.transactions?.add(tx2);
+        await db.transactions?.add(tx2 as any);
 
         const result = await getUnreconciledDashboard('test-company');
 
@@ -1405,8 +1405,8 @@ describe('ReconciliationHistory Service', () => {
         );
         if (tx2.lines[0]) tx2.lines[0].accountId = 'account-2';
 
-        await db.transactions?.add(tx1);
-        await db.transactions?.add(tx2);
+        await db.transactions?.add(tx1 as any);
+        await db.transactions?.add(tx2 as any);
 
         const result = await getUnreconciledDashboard('test-company');
 
@@ -1735,7 +1735,7 @@ describe('ReconciliationHistory Service', () => {
         const oldDate = Date.now() - 60 * 24 * 60 * 60 * 1000; // 60 days ago
         const oldTx = createTestJournalEntry('tx-old', oldDate, -5000, 'Check #1234');
 
-        await db.transactions?.add(oldTx);
+        await db.transactions?.add(oldTx as any);
 
         const result = await suggestDiscrepancyResolutions(
           'test-company',
