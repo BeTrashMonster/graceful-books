@@ -49,6 +49,7 @@
     "driver.js": "^1.4.0",
     "fuse.js": "^7.1.0",
     "fuzzball": "^2.2.3",
+    "jszip": "^3.10.1",
     "nanoid": "^5.0.4",
     "nodemailer": "^7.0.12",
     "papaparse": "^5.5.3",

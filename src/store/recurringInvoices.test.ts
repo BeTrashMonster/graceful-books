@@ -21,7 +21,8 @@ import {
   recordGeneratedInvoice,
   getGeneratedInvoices,
 } from './recurringInvoices';
-import type { RecurrenceRule, InvoiceLineItem } from '../db/schema';
+import type { RecurrenceRule } from '../db/schema/recurringInvoices.schema';
+import type { InvoiceLineItem } from '../types/index';
 
 // Mock encryption service
 const mockEncryptionService: EncryptionService = {
