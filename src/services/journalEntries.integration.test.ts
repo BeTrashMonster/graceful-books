@@ -68,7 +68,7 @@ describe('Journal Entries Integration Tests', () => {
           return 0;
         },
       },
-      transaction_line_items: {
+      transactionLineItems: {
         bulkAdd: async (items: any[]) => {
           lineItemsStore.push(...items);
         },

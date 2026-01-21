@@ -296,8 +296,82 @@ export interface JournalEntryStatistics {
 }
 
 /**
- * TODO: Integration test stub - add standard journal entry templates
  * Extended set of standard journal entry templates
  */
-export const STANDARD_JOURNAL_ENTRY_TEMPLATES_EXTENDED: JournalEntryTemplate[] = []
+export const STANDARD_JOURNAL_ENTRY_TEMPLATES_EXTENDED: JournalEntryTemplate[] = [
+  {
+    id: 'depreciation-monthly',
+    company_id: 'system',
+    name: 'Monthly Depreciation',
+    description: 'Record monthly depreciation of fixed assets',
+    is_active: true,
+    line_items: [
+      {
+        id: 'depreciation-monthly-1',
+        template_id: 'depreciation-monthly',
+        line_number: 1,
+        account_id: '', // Variable - set when using template
+        debit: null, // Variable amount
+        credit: null,
+        is_debit: true,
+        description: 'Depreciation Expense',
+        is_variable_amount: true,
+      },
+      {
+        id: 'depreciation-monthly-2',
+        template_id: 'depreciation-monthly',
+        line_number: 2,
+        account_id: '', // Variable - set when using template
+        debit: null,
+        credit: null, // Variable amount
+        is_debit: false,
+        description: 'Accumulated Depreciation',
+        is_variable_amount: true,
+      },
+    ],
+    auto_reverse: false,
+    reverse_days: 0,
+    created_at: Date.now(),
+    updated_at: Date.now(),
+    created_by: 'system',
+    updated_by: 'system',
+  },
+  {
+    id: 'accrued-expense',
+    company_id: 'system',
+    name: 'Accrued Expense',
+    description: 'Record expenses incurred but not yet paid',
+    is_active: true,
+    line_items: [
+      {
+        id: 'accrued-expense-1',
+        template_id: 'accrued-expense',
+        line_number: 1,
+        account_id: '', // Variable - set when using template
+        debit: null, // Variable amount
+        credit: null,
+        is_debit: true,
+        description: 'Expense Account',
+        is_variable_amount: true,
+      },
+      {
+        id: 'accrued-expense-2',
+        template_id: 'accrued-expense',
+        line_number: 2,
+        account_id: '', // Variable - set when using template
+        debit: null,
+        credit: null, // Variable amount
+        is_debit: false,
+        description: 'Accrued Expenses Payable',
+        is_variable_amount: true,
+      },
+    ],
+    auto_reverse: true,
+    reverse_days: 30,
+    created_at: Date.now(),
+    updated_at: Date.now(),
+    created_by: 'system',
+    updated_by: 'system',
+  },
+]
 
