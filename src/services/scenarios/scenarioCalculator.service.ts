@@ -864,10 +864,10 @@ export function calculateProjection(
   adjustments: ScenarioAdjustment[]
 ): ScenarioProjection {
   // Start with baseline values
-  const baselineRevenue = baseline.profit_loss.sections.find(s => s.type === 'income')?.total || 0;
+  const baselineRevenue = baseline.profit_loss.sections!.find(s => s.type === 'income')?.total || 0;
   const baselineExpenses =
-    (baseline.profit_loss.sections.find(s => s.type === 'expense')?.total || 0) +
-    (baseline.profit_loss.sections.find(s => s.type === 'cost-of-goods-sold')?.total || 0);
+    (baseline.profit_loss.sections!.find(s => s.type === 'expense')?.total || 0) +
+    (baseline.profit_loss.sections!.find(s => s.type === 'cost-of-goods-sold')?.total || 0);
   const baselineProfit = baselineRevenue - baselineExpenses;
   const baselineCash = baseline.cash_balance;
 

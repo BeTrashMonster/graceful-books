@@ -212,7 +212,7 @@ export class EmailQueueProcessor {
    */
   private calculateNextRetry(retryCount: number): number {
     const delays = [1, 5, 15]; // minutes
-    const delayMinutes = delays[Math.min(retryCount - 1, delays.length - 1)];
+    const delayMinutes = delays[Math.min(retryCount - 1, delays.length - 1)]!;
     return Date.now() + delayMinutes * 60 * 1000;
   }
 

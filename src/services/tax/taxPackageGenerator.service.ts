@@ -130,7 +130,7 @@ function generateTransactionCSV(transactions: Transaction[]): string {
   const rows = [headers.join(',')]
 
   for (const transaction of transactions) {
-    for (const line of transaction.lines) {
+    for (const line of transaction.lines!) {
       const row = [
         format(new Date(transaction.date), 'yyyy-MM-dd'),
         `"${transaction.description.replace(/"/g, '""')}"`,

@@ -236,7 +236,7 @@ export class InterestSplitMessagingService {
       },
     };
 
-    return qualifiers[confidence]?.[discType] || qualifiers.MEDIUM[discType];
+    return qualifiers[confidence]?.[discType] || qualifiers.MEDIUM![discType];
   }
 
   /**
