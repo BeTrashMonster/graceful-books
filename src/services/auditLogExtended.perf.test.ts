@@ -99,7 +99,7 @@ async function seedLargeDataset(count: number, companyId: string = 'test-company
       );
     }
 
-    await db.auditLogs.bulkAdd(logs as AuditLog[]);
+    await db.auditLogs.bulkAdd(logs as any);
     totalCreated += batchCount;
 
     if (batch % 10 === 0) {

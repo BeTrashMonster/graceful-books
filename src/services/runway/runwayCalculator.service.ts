@@ -181,7 +181,7 @@ async function getMonthlyData(
   for (const [monthKey, data] of monthlyData.entries()) {
     const [year, month] = monthKey.split('-').map(Number)
     result.push({
-      month: new Date(year, month - 1, 1),
+      month: new Date(year!, month! - 1, 1),
       revenue: data.revenue.toNumber(),
       expenses: data.expenses.toNumber(),
     })

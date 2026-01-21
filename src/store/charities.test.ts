@@ -10,6 +10,7 @@ import {
   searchCharities,
   getCharitiesGroupedByCategory,
 } from './charities';
+import { CharityCategory } from '../types/database.types';
 
 describe('Charities Store', () => {
   describe('getAllCharities', () => {
@@ -69,7 +70,7 @@ describe('Charities Store', () => {
     });
 
     it('should filter charities by category', async () => {
-      const educationCharities = await getCharitiesByFilter('EDUCATION');
+      const educationCharities = await getCharitiesByFilter(CharityCategory.EDUCATION);
 
       expect(Array.isArray(educationCharities)).toBe(true);
 
@@ -81,7 +82,7 @@ describe('Charities Store', () => {
 
     it('should return empty array for category with no charities', async () => {
       // Assuming ARTS_CULTURE might have fewer or no charities
-      const charities = await getCharitiesByFilter('ARTS_CULTURE');
+      const charities = await getCharitiesByFilter(CharityCategory.ARTS_CULTURE);
 
       expect(Array.isArray(charities)).toBe(true);
     });

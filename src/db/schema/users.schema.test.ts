@@ -721,7 +721,7 @@ describe('Users Schema', () => {
 
       for (let i = 0; i < roles.length; i++) {
         for (let j = 0; j < roles.length; j++) {
-          const result = hasHigherOrEqualRole(roles[i], roles[j]);
+          const result = hasHigherOrEqualRole(roles[i]!, roles[j]!);
           expect(result).toBe(i <= j);
         }
       }

@@ -99,7 +99,7 @@ export class CSVValidatorService {
     for (let i = 0; i < rows.length; i++) {
       const rowNumber = i + 2; // +2 because row 1 is headers, and we're 0-indexed
       const row = rows[i];
-      const rowErrors = this.validateRow(row, columnMappings || [], rules, rowNumber, headers);
+      const rowErrors = this.validateRow(row, (columnMappings || []) as string[], rules, rowNumber, headers);
 
       if (rowErrors.length > 0) {
         errors.push(...rowErrors);

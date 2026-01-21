@@ -277,8 +277,8 @@ describe('A/R Aging Report Service', () => {
 
       // Customer Three: 3000, Customer One: 2250, Customer Two: 2000, Customer Four: 1250
       const amounts = report.customerAging.map((c) => c.totalOutstanding)
-      expect(amounts[0]).toBeGreaterThan(amounts[1])
-      expect(amounts[1]).toBeGreaterThan(amounts[2])
+      expect(amounts[0]!).toBeGreaterThan(amounts[1]!)
+      expect(amounts[1]!).toBeGreaterThan(amounts[2]!)
     })
 
     it('should generate follow-up recommendations for overdue invoices', async () => {
