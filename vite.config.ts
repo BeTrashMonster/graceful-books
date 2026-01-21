@@ -154,6 +154,14 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
     css: true,
+    // Exclude E2E tests from unit test suite (run with Playwright instead)
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/e2e/**', // E2E tests run with Playwright, not Vitest
+      '**/*.spec.ts', // .spec.ts files are E2E tests
+      '**/*.spec.tsx', // .spec.tsx files are E2E tests
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
