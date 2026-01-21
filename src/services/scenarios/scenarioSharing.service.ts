@@ -326,7 +326,7 @@ export async function getScenarioClientView(
   const comments = await db[SCENARIO_COMMENTS_TABLE]
     .where('scenario_id')
     .equals(scenarioId)
-    .and((comment) => comment.deleted_at === null)
+    .and((comment: any) => comment.deleted_at === null)
     .sortBy('created_at');
 
   // Build summary
@@ -389,13 +389,13 @@ export async function getClientScenarios(
     .equals(clientUserId);
 
   if (status) {
-    query = query.and((share) => share.status === status);
+    query = query.and((share: any) => share.status === status);
   }
 
   const shares = await query.toArray();
 
   const scenarios = await Promise.all(
-    shares.map(async (share) => {
+    shares.map(async (share: any) => {
       const scenario = await db[SCENARIOS_TABLE].get(share.scenario_id);
       return scenario
         ? {
@@ -406,7 +406,7 @@ export async function getClientScenarios(
     })
   );
 
-  return scenarios.filter((s) => s !== null) as Array<
+  return scenarios.filter((s: any) => s !== null) as Array<
     Scenario & { share_status: ScenarioShareStatus }
   >;
 }
@@ -430,13 +430,13 @@ export async function getClientResponseSummary(scenarioId: string): Promise<{
   const shares = await db[SCENARIO_SHARES_TABLE]
     .where('scenario_id')
     .equals(scenarioId)
-    .and((share) => share.deleted_at === null)
+    .and((share: any) => share.deleted_at === null)
     .toArray();
 
   const comments = await db[SCENARIO_COMMENTS_TABLE]
     .where('scenario_id')
     .equals(scenarioId)
-    .and((comment) => comment.deleted_at === null)
+    .and((comment: any) => comment.deleted_at === null)
     .reverse()
     .limit(5)
     .toArray();
@@ -444,11 +444,11 @@ export async function getClientResponseSummary(scenarioId: string): Promise<{
   const summary = {
     shares,
     total_shares: shares.length,
-    pending: shares.filter((s) => s.status === 'pending').length,
-    viewed: shares.filter((s) => s.status === 'viewed').length,
-    commented: shares.filter((s) => s.status === 'commented').length,
-    accepted: shares.filter((s) => s.status === 'accepted').length,
-    declined: shares.filter((s) => s.status === 'declined').length,
+    pending: shares.filter((s: any) => s.status === 'pending').length,
+    viewed: shares.filter((s: any) => s.status === 'viewed').length,
+    commented: shares.filter((s: any) => s.status === 'commented').length,
+    accepted: shares.filter((s: any) => s.status === 'accepted').length,
+    declined: shares.filter((s: any) => s.status === 'declined').length,
     latest_comments: comments,
   };
 

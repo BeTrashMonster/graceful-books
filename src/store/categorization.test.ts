@@ -450,8 +450,8 @@ describe('Categorization Store', () => {
       expect(result.success).toBe(true)
       expect((result as any).data).toHaveLength(2)
 
-      const marketingStats = (result as any).data.find((s) => s.categoryId === marketingCategory.id)
-      const softwareStats = (result as any).data.find((s) => s.categoryId === softwareCategory.id)
+      const marketingStats = (result as any).data.find((s: any) => s.categoryId === marketingCategory.id)
+      const softwareStats = (result as any).data.find((s: any) => s.categoryId === softwareCategory.id)
 
       expect(marketingStats?.count).toBe(5)
       expect(marketingStats?.correctionCount).toBe(2)

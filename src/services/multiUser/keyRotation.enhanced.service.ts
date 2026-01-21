@@ -275,11 +275,11 @@ export class KeyRotationService {
   private async countEntitiesForReEncryption(companyId: string): Promise<EntityTypeCount> {
     try {
       const [accounts, transactions, transactionLines, contacts, users] = await Promise.all([
-        db.accounts.where('company_id').equals(companyId).and((a) => !a.deleted_at).count(),
-        db.transactions.where('company_id').equals(companyId).and((t) => !t.deleted_at).count(),
-        db.transactionLines.where('company_id').equals(companyId).and((tl) => !tl.deleted_at).count(),
-        db.contacts.where('company_id').equals(companyId).and((c) => !c.deleted_at).count(),
-        db.users.where('email').notEqual('').and((u) => !u.deleted_at).count(), // All users
+        db.accounts.where('company_id').equals(companyId).and((a: any) => !a.deleted_at).count(),
+        db.transactions.where('company_id').equals(companyId).and((t: any) => !t.deleted_at).count(),
+        db.transactionLines.where('company_id').equals(companyId).and((tl: any) => !tl.deleted_at).count(),
+        db.contacts.where('company_id').equals(companyId).and((c: any) => !c.deleted_at).count(),
+        db.users.where('email').notEqual('').and((u: any) => !u.deleted_at).count(), // All users
       ]);
 
       return {
@@ -422,13 +422,13 @@ export class KeyRotationService {
     const lines = await db.transactionLines
       .where('company_id')
       .equals(job.companyId)
-      .and((tl) => !tl.deleted_at)
+      .and((tl: any) => !tl.deleted_at)
       .toArray();
 
     for (let i = 0; i < lines.length; i += this.BATCH_SIZE) {
       const batch = lines.slice(i, i + this.BATCH_SIZE);
 
-      const updates = batch.map((line) => ({
+      const updates = batch.map((line: any) => ({
         ...line,
         updated_at: Date.now(),
         version_vector: incrementVersionVector(line.version_vector),

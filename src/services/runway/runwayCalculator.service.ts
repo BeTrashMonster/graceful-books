@@ -153,7 +153,7 @@ async function getMonthlyData(
     const monthData = monthlyData.get(monthKey)!
 
     // Get account types for each line
-    const accountIds = transaction.lines.map((line) => line.accountId)
+    const accountIds = transaction.lines.map((line: any) => line.accountId)
     const accounts = await db.accounts.where('id').anyOf(accountIds).toArray()
     const accountMap = new Map(accounts.map((acc) => [acc.id, acc]))
 

@@ -154,7 +154,7 @@ export class JournalEntriesService {
     const lineItems = await this.db.transaction_line_items
       .where('transaction_id')
       .equals(entryId)
-      .and((item) => item.deleted_at === null)
+      .and((item: TransactionLineItem) => item.deleted_at === null)
       .toArray();
 
     const balanceResult = validateTransactionBalance(lineItems);
@@ -178,7 +178,7 @@ export class JournalEntriesService {
     let query = this.db.transactions
       .where('company_id')
       .equals(filters.company_id)
-      .and((entry) => entry.type === 'JOURNAL_ENTRY' && entry.deleted_at === null);
+      .and((entry: Transaction) => entry.type === 'JOURNAL_ENTRY' && entry.deleted_at === null);
 
     const entries = await query.toArray();
 
@@ -187,34 +187,34 @@ export class JournalEntriesService {
 
     if (filters.approval_status) {
       filteredEntries = filteredEntries.filter(
-        (e) => (e as JournalEntry).approval_status === filters.approval_status
+        (e: Transaction) => (e as JournalEntry).approval_status === filters.approval_status
       );
     }
 
     if (filters.date_from) {
-      filteredEntries = filteredEntries.filter((e) => e.transaction_date >= filters.date_from!);
+      filteredEntries = filteredEntries.filter((e: Transaction) => e.transaction_date >= filters.date_from!);
     }
 
     if (filters.date_to) {
-      filteredEntries = filteredEntries.filter((e) => e.transaction_date <= filters.date_to!);
+      filteredEntries = filteredEntries.filter((e: Transaction) => e.transaction_date <= filters.date_to!);
     }
 
     if (filters.is_reversing !== undefined) {
       filteredEntries = filteredEntries.filter(
-        (e) => (e as JournalEntry).is_reversing === filters.is_reversing
+        (e: Transaction) => (e as JournalEntry).is_reversing === filters.is_reversing
       );
     }
 
     if (filters.template_id) {
       filteredEntries = filteredEntries.filter(
-        (e) => (e as JournalEntry).template_id === filters.template_id
+        (e: Transaction) => (e as JournalEntry).template_id === filters.template_id
       );
     }
 
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       filteredEntries = filteredEntries.filter(
-        (e) =>
+        (e: Transaction) =>
           e.description?.toLowerCase().includes(searchLower) ||
           e.reference?.toLowerCase().includes(searchLower) ||
           e.transaction_number.toLowerCase().includes(searchLower)
@@ -560,7 +560,7 @@ export class JournalEntriesService {
     const entries = await this.db.transactions
       .where('company_id')
       .equals(companyId)
-      .and((e) => e.type === 'JOURNAL_ENTRY' && e.deleted_at === null)
+      .and((e: Transaction) => e.type === 'JOURNAL_ENTRY' && e.deleted_at === null)
       .toArray();
 
     const journalEntries = entries as JournalEntry[];
@@ -687,7 +687,7 @@ export class JournalEntriesService {
       .where('company_id')
       .equals(companyId)
       .and(
-        (e) =>
+        (e: Transaction) =>
           e.type === 'JOURNAL_ENTRY' &&
           e.transaction_date >= startOfYear &&
           e.transaction_date <= endOfYear

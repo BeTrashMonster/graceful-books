@@ -342,13 +342,13 @@ describe('Balance Sheet Calculation Service', () => {
 
       // AR should not be included
       const arLine = (result as any).data.assets.lines.find(
-        (line) => line.accountId === arAccount.id
+        (line: any) => line.accountId === arAccount.id
       )
       expect(arLine).toBeUndefined()
 
       // Cash should be included
       const cashLine = (result as any).data.assets.lines.find(
-        (line) => line.accountId === cashAccount.id
+        (line: any) => line.accountId === cashAccount.id
       )
       expect(cashLine).toBeDefined()
       expect(cashLine!.balance).toBe(10000)
@@ -391,7 +391,7 @@ describe('Balance Sheet Calculation Service', () => {
 
       // AR should be included even with zero balance
       const arLine = (result as any).data.assets.lines.find(
-        (line) => line.accountId === arAccount.id
+        (line: any) => line.accountId === arAccount.id
       )
       expect(arLine).toBeDefined()
       expect(arLine!.balance).toBe(0)
@@ -443,13 +443,13 @@ describe('Balance Sheet Calculation Service', () => {
 
       // Should have parent and sub-accounts
       const parentLine = (result as any).data.assets.lines.find(
-        (line) => line.accountId === bankAccount.id
+        (line: any) => line.accountId === bankAccount.id
       )
       expect(parentLine).toBeDefined()
       expect(parentLine!.level).toBe(0)
 
       const checkingLine = (result as any).data.assets.lines.find(
-        (line) => line.accountId === checkingAccount.id
+        (line: any) => line.accountId === checkingAccount.id
       )
       expect(checkingLine).toBeDefined()
       expect(checkingLine!.level).toBe(1)

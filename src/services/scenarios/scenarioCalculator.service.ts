@@ -550,7 +550,7 @@ function calculateChangePricing(
   params: Record<string, unknown>,
   _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
-  const currentRevenue = baseline.profit_loss.sections.find(s => s.type === 'income')?.total || 0;
+  const currentRevenue = baseline.profit_loss.sections.find((s: any) => s.type === 'income')?.total || 0;
   const priceChangePercentage = Number(params.price_change_percentage || 0);
   const customerRetentionRate = Number(params.customer_retention_rate || 100) / 100;
 

@@ -125,7 +125,7 @@ export async function analyzeBurnRate(
     const monthKey = `${txDate.getFullYear()}-${String(txDate.getMonth() + 1).padStart(2, '0')}`
 
     // Get account details for each line
-    const accountIds = transaction.lines.map((line) => line.accountId)
+    const accountIds = transaction.lines.map((line: any) => line.accountId)
     const accounts = await db.accounts.where('id').anyOf(accountIds).toArray()
     const accountMap = new Map(accounts.map((acc) => [acc.id, acc]))
 
@@ -287,7 +287,7 @@ export async function analyzeRevenueBreakdown(
     const monthKey = `${txDate.getFullYear()}-${String(txDate.getMonth() + 1).padStart(2, '0')}`
 
     // Get account details
-    const accountIds = transaction.lines.map((line) => line.accountId)
+    const accountIds = transaction.lines.map((line: any) => line.accountId)
     const accounts = await db.accounts.where('id').anyOf(accountIds).toArray()
     const accountMap = new Map(accounts.map((acc) => [acc.id, acc]))
 
