@@ -8,7 +8,6 @@ import type { TreasureChestDB } from '../../db/database';
 import type {
   CashFlowMetrics,
   CashFlowMetricsRequest,
-  Metric,
 } from '../../types/metrics.types';
 
 export class CashFlowMetricsService {

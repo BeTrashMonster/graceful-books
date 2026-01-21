@@ -297,7 +297,7 @@ describe('RecentActivityService', () => {
     });
 
     it('should clear by activity type', async () => {
-      const count = await service.clearHistory({ activity_type: 'SEARCH' });
+      const count = await service.clearHistory({ activity_type: RecentActivityType.SEARCH });
 
       expect(count).toBe(1);
 
@@ -311,7 +311,7 @@ describe('RecentActivityService', () => {
     });
 
     it('should clear by entity type', async () => {
-      const count = await service.clearHistory({ entity_type: 'INVOICE' });
+      const count = await service.clearHistory({ entity_type: RecentActivityEntityType.INVOICE });
 
       expect(count).toBe(1);
     });
@@ -358,8 +358,8 @@ describe('RecentActivityService', () => {
         id: 'old-activity',
         user_id: userId,
         company_id: companyId,
-        activity_type: 'SEARCH',
-        entity_type: 'TRANSACTION',
+        activity_type: RecentActivityType.SEARCH,
+        entity_type: RecentActivityEntityType.TRANSACTION,
         entity_id: null,
         entity_label: 'Old search',
         search_query: 'old',

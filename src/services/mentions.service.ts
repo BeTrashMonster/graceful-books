@@ -86,9 +86,9 @@ export class MentionsService {
     let match;
     while ((match = mentionRegex.exec(text)) !== null) {
       mentions.push({
-        username: match[1],
+        username: match[1]!,
         startIndex: match.index,
-        endIndex: match.index + match[0].length,
+        endIndex: match.index + match[0]!.length,
       });
     }
 

@@ -121,10 +121,10 @@ describe('CommentsService', () => {
       transaction_number: 'TXN-001',
       date: Date.now(),
       description: 'Test transaction',
-      type: 'INCOME',
+      type: TransactionType.INCOME,
       amount: '100.00',
       balance: '100.00',
-      status: 'pending',
+      status: TransactionStatus.PENDING,
       reconciled: false,
       account_id: 'account-001',
       category_id: null,
@@ -532,10 +532,10 @@ describe('CommentsService', () => {
       );
 
       // Navigate to deepest level
-      let current! = threads[0];
+      let current = threads[0]!;
       let depth = 0;
-      while (current!.replies.length > 0) {
-        current! = current!.replies[0];
+      while (current.replies.length > 0) {
+        current = current.replies[0]!;
         depth++;
       }
 

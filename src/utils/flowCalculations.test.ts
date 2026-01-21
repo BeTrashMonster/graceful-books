@@ -20,7 +20,7 @@ import {
   getNodeColor,
   getHealthColor,
 } from './flowCalculations'
-import type { Account, JournalEntry, AccountType } from '../types'
+import type { Account, JournalEntry } from '../types'
 
 describe('flowCalculations', () => {
   describe('mapAccountTypeToFlowNode', () => {

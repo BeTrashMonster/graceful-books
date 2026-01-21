@@ -74,15 +74,15 @@ export class CSVExporterService {
 
     switch (entityType) {
       case 'transactions':
-        return this.fetchTransactions(startDate, endDate);
+        return this.fetchTransactions(startDate, endDate) as Promise<Record<string, unknown>[]>;
       case 'invoices':
-        return this.fetchInvoices(startDate, endDate);
+        return this.fetchInvoices(startDate, endDate) as Promise<Record<string, unknown>[]>;
       case 'bills':
-        return this.fetchBills(startDate, endDate);
+        return this.fetchBills(startDate, endDate) as Promise<Record<string, unknown>[]>;
       case 'contacts':
-        return this.fetchContacts();
+        return this.fetchContacts() as Promise<Record<string, unknown>[]>;
       case 'products':
-        return this.fetchProducts();
+        return this.fetchProducts() as Promise<Record<string, unknown>[]>;
       default:
         throw new Error(`Unsupported entity type: ${entityType}`);
     }

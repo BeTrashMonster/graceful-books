@@ -173,7 +173,7 @@ describe('CoaWizardService - Additional Comprehensive Tests', () => {
           error: {
             code: 'DUPLICATE',
             message: `Account ${40 + i} already exists`,
-          },
+          } as any,
         })),
       })
 

@@ -63,7 +63,7 @@ const createMockDatabase = (): TreasureChestDB => {
       update: vi.fn(async (id: string, updates: Partial<Transaction>) => {
         const index = transactionsStore.findIndex((t) => t.id === id);
         if (index !== -1) {
-          transactionsStore[index] = { ...transactionsStore[index], ...updates };
+          transactionsStore[index] = { ...transactionsStore[index]!, ...updates } as Transaction;
           return 1;
         }
         return 0;

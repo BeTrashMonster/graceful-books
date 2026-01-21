@@ -5,7 +5,7 @@
  * Professional scenario modeling for accountants
  */
 
-import type { Account, JournalEntry } from './database.types';
+import type { Account } from './database.types';
 import type { BalanceSheetReport, ProfitLossReport } from './reports.types';
 
 /**

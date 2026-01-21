@@ -94,7 +94,7 @@ export class RecurringDetectionService {
       }
 
       // Analyze transaction intervals
-      const intervals = this.calculateIntervals([...historical, input])
+      const intervals = this.calculateIntervals([...historical.map(t => ({ date: t.date })), { date: input.transactionDate }])
       if (intervals.length < minOccurrences - 1) {
         return null
       }

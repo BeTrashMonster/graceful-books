@@ -7,7 +7,7 @@
  */
 
 import React, { useState } from 'react'
-import type { EmergencyFundRecommendation, BusinessType } from '../../types/runway.types'
+import type { BusinessType } from '../../types/runway.types'
 import { calculateActionPlan } from '../../services/runway/scenarioModeler.service'
 import './EmergencyFundRecommendations.css'
 

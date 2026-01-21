@@ -25,9 +25,7 @@ import type {
   ApprovalRequest,
   ApprovalAction,
   ApprovalHistory,
-  ApprovalActionType,
   ApprovalLevel,
-  ApprovalRequirementType,
 } from '../db/schema/approvalWorkflows.schema';
 import { ApprovalRequestStatus } from '../db/schema/approvalWorkflows.schema';
 import {

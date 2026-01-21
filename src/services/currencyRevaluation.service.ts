@@ -27,7 +27,6 @@ import type {
   CurrencyCode,
   CurrencyRevaluationRequest,
   CurrencyRevaluationResult,
-  CurrencyGainLoss,
 } from '../types/currency.types';
 import type { IExchangeRateService } from './exchangeRate.service';
 import type { ICurrencyGainLossService } from './currencyGainLoss.service';

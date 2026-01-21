@@ -17,7 +17,6 @@ import type {
   AmortizationScheduleEntry,
   GenerateScheduleRequest,
   LoanPaymentFrequency,
-  InterestCalculationMethod,
   UpdateLoanBalanceRequest,
 } from '../../types/loanAmortization.types';
 import { nanoid } from 'nanoid';

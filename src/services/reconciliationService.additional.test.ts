@@ -27,7 +27,6 @@ import {
 import type {
   ParsedStatement,
   TransactionMatch,
-  Reconciliation,
   StatementTransaction,
 } from '../types/reconciliation.types';
 import type { JournalEntry } from '../types';
@@ -167,7 +166,7 @@ describe('ReconciliationService - Additional Comprehensive Tests', () => {
         {
           statementTransactionId: 'stmt-1',
           systemTransactionId: 'txn-1',
-          confidence: 'EXACT',
+          confidence: MatchConfidence.EXACT,
           score: 95,
           reasons: ['Exact match'],
         },
@@ -264,21 +263,21 @@ describe('ReconciliationService - Additional Comprehensive Tests', () => {
         {
           statementTransactionId: 'stmt-1',
           systemTransactionId: 'txn-1',
-          confidence: 'EXACT',
+          confidence: MatchConfidence.EXACT,
           score: 95,
           reasons: [],
         },
         {
           statementTransactionId: 'stmt-2',
           systemTransactionId: 'txn-2',
-          confidence: 'HIGH',
+          confidence: MatchConfidence.HIGH,
           score: 85,
           reasons: [],
         },
         {
           statementTransactionId: 'stmt-3',
           systemTransactionId: 'txn-3',
-          confidence: 'MEDIUM',
+          confidence: MatchConfidence.MEDIUM,
           score: 70,
           reasons: [],
         },
@@ -632,21 +631,21 @@ describe('ReconciliationService - Additional Comprehensive Tests', () => {
         {
           statementTransactionId: 'stmt-1',
           systemTransactionId: 'txn-1',
-          confidence: 'EXACT',
+          confidence: MatchConfidence.EXACT,
           score: 95,
           reasons: [],
         },
         {
           statementTransactionId: 'stmt-2',
           systemTransactionId: 'txn-2',
-          confidence: 'HIGH',
+          confidence: MatchConfidence.HIGH,
           score: 85,
           reasons: [],
         },
         {
           statementTransactionId: 'stmt-3',
           systemTransactionId: 'txn-3',
-          confidence: 'MEDIUM',
+          confidence: MatchConfidence.MEDIUM,
           score: 70,
           reasons: [],
         },

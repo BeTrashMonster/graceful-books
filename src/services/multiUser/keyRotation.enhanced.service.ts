@@ -16,11 +16,8 @@
 
 import type {
   MasterKey,
-  DerivedKey,
   KeyRotationRequest,
-  KeyRotationResult,
   EncryptionContext,
-  PermissionLevel,
   CryptoResult,
 } from '../../crypto/types';
 import type { CompanyUser, Session, User, VersionVector } from '../../types/database.types';

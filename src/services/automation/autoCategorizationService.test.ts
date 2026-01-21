@@ -16,7 +16,7 @@ import {
   AutoCategorizationService,
   createAutoCategorizationService,
 } from './autoCategorizationService'
-import type { CategorizationInput, LearnedPattern } from '../../types/automation.types'
+import type { CategorizationInput } from '../../types/automation.types'
 
 describe('AutoCategorizationService', () => {
   let service: AutoCategorizationService

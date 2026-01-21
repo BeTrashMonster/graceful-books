@@ -12,7 +12,7 @@ import {
   completeReconciliation,
   getReconciliationSummary,
 } from './reconciliationService';
-import type { ParsedStatement, TransactionMatch, Reconciliation } from '../types/reconciliation.types';
+import type { ParsedStatement, TransactionMatch } from '../types/reconciliation.types';
 import type { JournalEntry } from '../types';
 
 describe('reconciliationService', () => {
@@ -83,7 +83,7 @@ describe('reconciliationService', () => {
         {
           statementTransactionId: 'stmt-1',
           systemTransactionId: 'txn-1',
-          confidence: 'EXACT',
+          confidence: MatchConfidence.EXACT,
           score: 95,
           reasons: ['Exact match'],
         },
@@ -125,14 +125,14 @@ describe('reconciliationService', () => {
         {
           statementTransactionId: 'stmt-1',
           systemTransactionId: 'txn-1',
-          confidence: 'EXACT',
+          confidence: MatchConfidence.EXACT,
           score: 95,
           reasons: [],
         },
         {
           statementTransactionId: 'stmt-2',
           systemTransactionId: 'txn-2',
-          confidence: 'HIGH',
+          confidence: MatchConfidence.HIGH,
           score: 85,
           reasons: [],
         },
@@ -335,14 +335,14 @@ describe('reconciliationService', () => {
         {
           statementTransactionId: 'stmt-1',
           systemTransactionId: 'txn-1',
-          confidence: 'EXACT',
+          confidence: MatchConfidence.EXACT,
           score: 95,
           reasons: [],
         },
         {
           statementTransactionId: 'stmt-2',
           systemTransactionId: 'txn-2',
-          confidence: 'HIGH',
+          confidence: MatchConfidence.HIGH,
           score: 85,
           reasons: [],
         },

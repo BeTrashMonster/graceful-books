@@ -11,10 +11,7 @@
 
 import type { TreasureChestDB } from '../../db/database';
 import type {
-  Transaction,
   TransactionLineItem,
-  Account,
-  AccountType,
 } from '../../types/database.types';
 import type {
   LiabilityPaymentDetection,
@@ -138,8 +135,8 @@ export class LiabilityDetectionService {
       if (scheduleMatch.matches) {
         factors.amount_matches_schedule = true;
         score += 20;
-        suggestedPrincipal = scheduleMatch.principal;
-        suggestedInterest = scheduleMatch.interest;
+        suggestedPrincipal = scheduleMatch.principal || null;
+        suggestedInterest = scheduleMatch.interest || null;
       }
     }
 

@@ -15,7 +15,7 @@
  * - F5: Email follow-up templates for overdue invoices
  */
 
-import type { EmailFollowUpTemplate, EmailFollowUpTemplateContent } from '../../types/reports.types'
+import type { EmailFollowUpTemplateContent } from '../../types/reports.types'
 
 /**
  * DISC profile type
@@ -362,7 +362,7 @@ export function getFollowUpTemplate(
     templateId: templateType,
     subject,
     body,
-    variables,
+    variables: variables as unknown as Record<string, string>,
   }
 }
 

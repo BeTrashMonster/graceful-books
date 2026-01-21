@@ -13,8 +13,6 @@
 import type {
   Transaction,
   TransactionLineItem,
-  TransactionType,
-  AccountType,
 } from '../types/database.types';
 import type {
   ApprovalRule,

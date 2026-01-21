@@ -11,8 +11,6 @@ import type {
   BillingTier,
   AdvisorClient,
   AdvisorTeamMember,
-  RelationshipStatus,
-  TeamMemberStatus,
 } from '../types/billing.types';
 import { PRICING } from '../types/billing.types';
 import { logger } from '../utils/logger';

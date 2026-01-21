@@ -27,7 +27,7 @@ import type {
   ARAgingBucket,
 } from '../../types/reports.types'
 import { ARAgingBucketLabels } from '../../types/reports.types'
-import type { Invoice, Contact } from '../../types'
+import type { Contact } from '../../types'
 import { db } from '../../db/database'
 
 // Configure Decimal.js for currency precision

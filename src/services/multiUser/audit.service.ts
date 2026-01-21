@@ -13,7 +13,7 @@
  * Per ARCH-001: Audit logs are immutable and retained for 7 years
  */
 
-import type { AuditLog, VersionVector } from '../../types/database.types';
+import type { AuditLog } from '../../types/database.types';
 import { db } from '../../store/database';
 import { logger } from '../../utils/logger';
 import { getDeviceId } from '../../utils/device';

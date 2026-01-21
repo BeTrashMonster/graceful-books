@@ -12,7 +12,7 @@ import { Card } from '../ui/Card';
 import { Button } from '../core/Button';
 import { Loading } from '../feedback/Loading';
 import { ErrorMessage } from '../feedback/ErrorMessage';
-import type { Subscription, BillingCalculation } from '../../types/billing.types';
+import type { BillingCalculation } from '../../types/billing.types';
 import {
   calculateAdvisorMonthlyCost,
   formatCurrency,

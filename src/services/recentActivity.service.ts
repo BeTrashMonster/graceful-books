@@ -63,7 +63,7 @@ export class RecentActivityService {
       const options: CreateRecentActivityOptions = {
         user_id: this.userId,
         company_id: this.companyId,
-        activity_type: 'SEARCH',
+        activity_type: RecentActivityType.SEARCH,
         entity_type: entityType,
         entity_label: `Search: ${query}`,
         search_query: query,
@@ -95,7 +95,7 @@ export class RecentActivityService {
       const options: CreateRecentActivityOptions = {
         user_id: this.userId,
         company_id: this.companyId,
-        activity_type: 'VIEW',
+        activity_type: RecentActivityType.VIEW,
         entity_type: entityType,
         entity_id: entityId,
         entity_label: label,
@@ -127,7 +127,7 @@ export class RecentActivityService {
       const options: CreateRecentActivityOptions = {
         user_id: this.userId,
         company_id: this.companyId,
-        activity_type: 'EDIT',
+        activity_type: RecentActivityType.EDIT,
         entity_type: entityType,
         entity_id: entityId,
         entity_label: label,
@@ -159,7 +159,7 @@ export class RecentActivityService {
       const options: CreateRecentActivityOptions = {
         user_id: this.userId,
         company_id: this.companyId,
-        activity_type: 'CREATE',
+        activity_type: RecentActivityType.CREATE,
         entity_type: entityType,
         entity_id: entityId,
         entity_label: label,
@@ -189,7 +189,7 @@ export class RecentActivityService {
       const query: GetRecentActivityQuery = {
         user_id: this.userId,
         company_id: this.companyId,
-        activity_type: 'SEARCH',
+        activity_type: RecentActivityType.SEARCH,
         entity_type: entityType,
         limit,
       };
@@ -220,7 +220,7 @@ export class RecentActivityService {
       const query: GetRecentActivityQuery = {
         user_id: this.userId,
         company_id: this.companyId,
-        activity_type: 'VIEW',
+        activity_type: RecentActivityType.VIEW,
         entity_type: entityType,
         limit,
       };
@@ -250,7 +250,7 @@ export class RecentActivityService {
       const query: GetRecentActivityQuery = {
         user_id: this.userId,
         company_id: this.companyId,
-        activity_type: ['EDIT', 'CREATE'],
+        activity_type: [RecentActivityType.EDIT, RecentActivityType.CREATE],
         limit,
       };
 
@@ -286,7 +286,7 @@ export class RecentActivityService {
       const query: GetRecentActivityQuery = {
         user_id: this.userId,
         company_id: this.companyId,
-        activity_type: ['CREATE', 'EDIT'],
+        activity_type: [RecentActivityType.CREATE, RecentActivityType.EDIT],
         entity_type: entityType,
         limit,
       };
@@ -319,7 +319,7 @@ export class RecentActivityService {
       const query: GetRecentActivityQuery = {
         user_id: this.userId,
         company_id: this.companyId,
-        activity_type: ['VIEW', 'EDIT'],
+        activity_type: [RecentActivityType.VIEW, RecentActivityType.EDIT],
         limit: 50, // Get more for grouping
       };
 

@@ -25,7 +25,6 @@ import type {
   CurrencyCode,
   CurrencyGainLoss,
   CurrencyConversionMetadata,
-  ExchangeRate,
 } from '../types/currency.types';
 import { GainLossType } from '../types/currency.types';
 import type { IExchangeRateService } from './exchangeRate.service';

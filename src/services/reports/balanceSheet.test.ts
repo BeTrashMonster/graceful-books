@@ -14,7 +14,7 @@ import {
   calculateAccountBalance,
   getBalanceSheetEducation,
 } from './balanceSheet'
-import type { Account, JournalEntry } from '../../types'
+import type { Account } from '../../types'
 
 describe('Balance Sheet Calculation Service', () => {
   const testCompanyId = 'test-company-001'
@@ -53,12 +53,14 @@ describe('Balance Sheet Calculation Service', () => {
         status: 'posted',
         lines: [
           {
+            id: 'line-cash',
             accountId: cashAccount.id,
             debit: 1000,
             credit: 0,
             memo: 'Cash received',
           },
           {
+            id: 'line-revenue',
             accountId: revenueAccount.id,
             debit: 0,
             credit: 1000,
@@ -95,12 +97,14 @@ describe('Balance Sheet Calculation Service', () => {
         status: 'posted',
         lines: [
           {
+            id: 'line-cash',
             accountId: cashAccount.id,
             debit: 5000,
             credit: 0,
             memo: 'Cash received',
           },
           {
+            id: 'line-loan',
             accountId: loanAccount.id,
             debit: 0,
             credit: 5000,
@@ -133,12 +137,14 @@ describe('Balance Sheet Calculation Service', () => {
         status: 'posted',
         lines: [
           {
+            id: 'line-cash',
             accountId: cashAccount.id,
             debit: 1000,
             credit: 0,
             memo: 'Cash received',
           },
           {
+            id: 'line-revenue',
             accountId: revenueAccount.id,
             debit: 0,
             credit: 1000,
@@ -158,12 +164,14 @@ describe('Balance Sheet Calculation Service', () => {
         status: 'posted',
         lines: [
           {
+            id: 'line-cash',
             accountId: cashAccount.id,
             debit: 2000,
             credit: 0,
             memo: 'Cash received',
           },
           {
+            id: 'line-revenue',
             accountId: revenueAccount.id,
             debit: 0,
             credit: 2000,
@@ -242,8 +250,8 @@ describe('Balance Sheet Calculation Service', () => {
         memo: 'Initial investment',
         status: 'posted',
         lines: [
-          { accountId: cashAccount.id, debit: 10000, credit: 0, memo: 'Cash' },
-          { accountId: equityAccount.id, debit: 0, credit: 10000, memo: 'Investment' },
+          { id: 'line-cash', accountId:cashAccount.id, debit: 10000, credit: 0, memo: 'Cash' },
+          { id: 'line-equity', accountId:equityAccount.id, debit: 0, credit: 10000, memo: 'Investment' },
         ],
         attachments: [],
         createdBy: testUserId,
@@ -257,8 +265,8 @@ describe('Balance Sheet Calculation Service', () => {
         memo: 'Bank loan',
         status: 'posted',
         lines: [
-          { accountId: cashAccount.id, debit: 5000, credit: 0, memo: 'Cash' },
-          { accountId: loanAccount.id, debit: 0, credit: 5000, memo: 'Loan' },
+          { id: 'line-cash', accountId:cashAccount.id, debit: 5000, credit: 0, memo: 'Cash' },
+          { id: 'line-loan', accountId:loanAccount.id, debit: 0, credit: 5000, memo: 'Loan' },
         ],
         attachments: [],
         createdBy: testUserId,
@@ -272,8 +280,8 @@ describe('Balance Sheet Calculation Service', () => {
         memo: 'Sale on account',
         status: 'posted',
         lines: [
-          { accountId: arAccount.id, debit: 3000, credit: 0, memo: 'AR' },
-          { accountId: revenueAccount.id, debit: 0, credit: 3000, memo: 'Revenue' },
+          { id: 'line-ar', accountId:arAccount.id, debit: 3000, credit: 0, memo: 'AR' },
+          { id: 'line-revenue', accountId:revenueAccount.id, debit: 0, credit: 3000, memo: 'Revenue' },
         ],
         attachments: [],
         createdBy: testUserId,
@@ -325,8 +333,8 @@ describe('Balance Sheet Calculation Service', () => {
         memo: 'Initial investment',
         status: 'posted',
         lines: [
-          { accountId: cashAccount.id, debit: 10000, credit: 0, memo: 'Cash' },
-          { accountId: equityAccount.id, debit: 0, credit: 10000, memo: 'Investment' },
+          { id: 'line-cash', accountId:cashAccount.id, debit: 10000, credit: 0, memo: 'Cash' },
+          { id: 'line-equity', accountId:equityAccount.id, debit: 0, credit: 10000, memo: 'Investment' },
         ],
         attachments: [],
         createdBy: testUserId,
@@ -374,8 +382,8 @@ describe('Balance Sheet Calculation Service', () => {
         memo: 'Initial investment',
         status: 'posted',
         lines: [
-          { accountId: cashAccount.id, debit: 10000, credit: 0, memo: 'Cash' },
-          { accountId: equityAccount.id, debit: 0, credit: 10000, memo: 'Investment' },
+          { id: 'line-cash', accountId:cashAccount.id, debit: 10000, credit: 0, memo: 'Cash' },
+          { id: 'line-equity', accountId:equityAccount.id, debit: 0, credit: 10000, memo: 'Investment' },
         ],
         attachments: [],
         createdBy: testUserId,
@@ -425,9 +433,9 @@ describe('Balance Sheet Calculation Service', () => {
         memo: 'Initial investment',
         status: 'posted',
         lines: [
-          { accountId: checkingAccount.id, debit: 5000, credit: 0, memo: 'Checking' },
-          { accountId: savingsAccount.id, debit: 3000, credit: 0, memo: 'Savings' },
-          { accountId: equityAccount.id, debit: 0, credit: 8000, memo: 'Investment' },
+          { id: 'line-checking', accountId:checkingAccount.id, debit: 5000, credit: 0, memo: 'Checking' },
+          { id: 'line-savings', accountId:savingsAccount.id, debit: 3000, credit: 0, memo: 'Savings' },
+          { id: 'line-equity', accountId:equityAccount.id, debit: 0, credit: 8000, memo: 'Investment' },
         ],
         attachments: [],
         createdBy: testUserId,

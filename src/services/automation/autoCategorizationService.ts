@@ -23,7 +23,6 @@ import type {
   VendorStatistics,
   AutomationSettings,
   ConfidenceLevel,
-  SuggestionSource,
 } from '../../types/automation.types'
 import { logger } from '../../utils/logger'
 

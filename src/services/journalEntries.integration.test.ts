@@ -16,7 +16,6 @@ import { JournalEntriesService } from './journalEntries.service';
 import type { Database } from '../db/database';
 import type {
   CreateJournalEntryRequest,
-  JournalEntryApprovalStatus,
 } from '../types/journalEntry.types';
 import { STANDARD_JOURNAL_ENTRY_TEMPLATES_EXTENDED } from '../types/journalEntry.types';
 
@@ -433,13 +432,13 @@ describe('Journal Entries Integration Tests', () => {
       // Filter by status
       const pendingEntries = await service.getJournalEntries({
         company_id: companyId,
-        approval_status: 'pending' as JournalEntryApprovalStatus,
+        approval_status: [JournalEntryApprovalStatus.PENDING],
       });
       expect(pendingEntries).toHaveLength(0); // Was approved
 
       const approvedEntries = await service.getJournalEntries({
         company_id: companyId,
-        approval_status: 'APPROVED' as JournalEntryApprovalStatus,
+        approval_status: [JournalEntryApprovalStatus.APPROVED],
       });
       expect(approvedEntries).toHaveLength(1);
 

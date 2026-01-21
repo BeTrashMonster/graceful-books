@@ -26,7 +26,6 @@ import type {
   JournalEntry,
   JournalEntryLineItem,
   JournalEntryTemplate,
-  JournalEntryApprovalStatus,
   CreateJournalEntryRequest,
   UpdateJournalEntryRequest,
   ApproveJournalEntryRequest,
@@ -533,6 +532,8 @@ export class JournalEntriesService {
         debit: templateItem.is_debit ? amount : '0.00',
         credit: templateItem.is_debit ? '0.00' : amount,
         description: templateItem.description,
+        contact_id: null,
+        product_id: null,
       };
     });
 
@@ -546,7 +547,7 @@ export class JournalEntriesService {
         template_id: template.id,
         auto_reverse_date: template.auto_reverse
           ? transactionDate + (template.reverse_days || 30) * 24 * 60 * 60 * 1000
-          : undefined,
+          : null,
       },
       deviceId,
       userId

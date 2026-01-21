@@ -20,7 +20,6 @@ import type {
   SmartScenarioSuggestion,
   RevenueScenario,
   ExpenseScenario,
-  ScenarioType,
   RevenueBreakdown,
   BurnRateAnalysis,
 } from '../../types/runway.types'

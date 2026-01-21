@@ -17,10 +17,8 @@ import type {
   EmailServiceConfig,
   EmailSendResult,
   EmailProvider,
-  EmailErrorCode,
   EmailTemplateVariables,
   EmailContent,
-  EmailServiceError,
 } from '../../types/ic4-email.types';
 import { EmailDeliveryStatus as StatusEnum, EmailErrorCode as ErrorCodeEnum } from '../../types/ic4-email.types';
 

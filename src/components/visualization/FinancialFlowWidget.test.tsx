@@ -48,8 +48,8 @@ describe('FinancialFlowWidget', () => {
       memo: 'Regular sale',
       status: 'posted',
       lines: [
-        { accountId: 'acc1', debit: 1000, credit: 0, memo: '' },
-        { accountId: 'acc2', debit: 0, credit: 1000, memo: '' },
+        { id: 'line1', accountId: 'acc1', debit: 1000, credit: 0, memo: '' },
+        { id: 'line2', accountId: 'acc2', debit: 0, credit: 1000, memo: '' },
       ],
       createdBy: 'u1',
       createdAt: new Date(),

@@ -14,7 +14,6 @@ import type {
   AutoMappingResult,
   MappingSuggestion,
   DuplicateDetectionResult,
-  DuplicateMatch,
 } from '../../types/csv.types';
 import { csvValidatorService } from './csvValidator.service';
 
@@ -51,7 +50,7 @@ export class CSVImporterService {
 
       return {
         success: true,
-        headers,
+        headers: headers || [],
         rows,
         totalRows: rows.length,
         preview,
@@ -320,7 +319,7 @@ export class CSVImporterService {
       }
 
       // Validate rows
-      const validation = csvValidatorService.validateRows(dataRows, columnMap, config.entityType, headers);
+      const validation = csvValidatorService.validateRows(dataRows, columnMap, config.entityType, headers || []);
 
       if (!validation.valid && config.mode === 'import') {
         return {

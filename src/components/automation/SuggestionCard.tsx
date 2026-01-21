@@ -19,9 +19,6 @@ import clsx from 'clsx'
 import { Card, CardBody, CardFooter } from '../ui/Card'
 import { Button } from '../core/Button'
 import type {
-  CategorizationSuggestion,
-  RecurringTransactionMatch,
-  TransactionAnomaly,
   AutomationSuggestion,
 } from '../../types/automation.types'
 import styles from './SuggestionCard.module.css'

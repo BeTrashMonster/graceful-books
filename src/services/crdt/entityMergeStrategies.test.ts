@@ -15,7 +15,7 @@ import {
   getMergeStrategy,
   applyFieldStrategy,
 } from './entityMergeStrategies';
-import type { Account, Transaction, Contact, Product } from '../../types/database.types';
+import type { Account, Transaction } from '../../types/database.types';
 import type { CRDTEntity } from '../../types/crdt.types';
 
 // ============================================================================
@@ -28,7 +28,7 @@ function createMockAccount(overrides: Partial<Account> = {}): Account & CRDTEnti
     company_id: 'company-1',
     account_number: '1000',
     name: 'Cash',
-    type: 'ASSET' as const,
+    type: AccountType.ASSET,
     parent_id: null,
     balance: '1000.00',
     description: 'Cash account',
@@ -47,8 +47,8 @@ function createMockTransaction(overrides: Partial<Transaction> = {}): Transactio
     company_id: 'company-1',
     transaction_number: 'T-001',
     transaction_date: Date.now(),
-    type: 'JOURNAL_ENTRY' as const,
-    status: 'DRAFT' as const,
+    type: TransactionType.JOURNAL_ENTRY,
+    status: TransactionStatus.DRAFT,
     description: 'Test transaction',
     reference: null,
     memo: null,
@@ -128,12 +128,12 @@ describe('Account Merge Strategy', () => {
 describe('Transaction Merge Strategy', () => {
   it('should keep POSTED status sticky', () => {
     const local = createMockTransaction({
-      status: 'POSTED' as const,
+      status: TransactionStatus.POSTED,
       updated_at: Date.now() - 1000,
     });
 
     const remote = createMockTransaction({
-      status: 'DRAFT' as const,
+      status: TransactionStatus.DRAFT,
       updated_at: Date.now(),
     });
 
@@ -163,12 +163,12 @@ describe('Transaction Merge Strategy', () => {
 
   it('should prefer RECONCILED over POSTED', () => {
     const local = createMockTransaction({
-      status: 'RECONCILED' as const,
+      status: TransactionStatus.RECONCILED,
       updated_at: Date.now() - 1000,
     });
 
     const remote = createMockTransaction({
-      status: 'POSTED' as const,
+      status: TransactionStatus.POSTED,
       updated_at: Date.now(),
     });
 

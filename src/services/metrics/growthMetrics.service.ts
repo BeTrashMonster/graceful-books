@@ -8,7 +8,6 @@ import type { TreasureChestDB } from '../../db/database';
 import type {
   GrowthMetrics,
   GrowthMetricsRequest,
-  Metric,
 } from '../../types/metrics.types';
 
 export class GrowthMetricsService {

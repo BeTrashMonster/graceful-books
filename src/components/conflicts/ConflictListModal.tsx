@@ -16,7 +16,6 @@ import {
 import type {
   ConflictHistoryEntry,
   DetectedConflict,
-  CRDTEntity,
   ManualResolutionDecision,
 } from '../../types/crdt.types'
 import styles from './ConflictListModal.module.css'

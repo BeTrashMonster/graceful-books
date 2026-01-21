@@ -25,8 +25,6 @@ import type {
   TemplateCalculationResult,
   ScenarioTemplateKey,
   FormulaParseResult,
-  ScenarioWorksheetRow,
-  ScenarioComparisonData,
 } from '../../types/scenarios.types';
 import type { Account, JournalEntry } from '../../types/database.types';
 import type { DateRange } from '../../types/reports.types';
@@ -977,6 +975,7 @@ export function parseFormula(
     return {
       is_valid: false,
       error_message: 'Formula must start with =',
+      references: [],
     };
   }
 
@@ -1016,6 +1015,7 @@ export function parseFormula(
     return {
       is_valid: false,
       error_message: error instanceof Error ? error.message : 'Invalid formula',
+      references: [],
     };
   }
 }

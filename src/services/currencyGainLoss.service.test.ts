@@ -15,7 +15,7 @@ import Decimal from 'decimal.js';
 import { CurrencyGainLossService } from './currencyGainLoss.service';
 import type { ICurrencyGainLossService } from './currencyGainLoss.service';
 import type { IExchangeRateService } from './exchangeRate.service';
-import type { CurrencyConversionMetadata, ExchangeRate } from '../types/currency.types';
+import type { CurrencyConversionMetadata } from '../types/currency.types';
 import { GainLossType, ExchangeRateSource } from '../types/currency.types';
 
 // Configure Decimal.js

@@ -13,8 +13,6 @@ import type { TreasureChestDB } from '../../db/database';
 import type {
   LiabilityPaymentDetection,
   DeferredInterestSplitItem,
-  InterestSplitPrompt,
-  InterestSplitDecision,
 } from '../../types/loanAmortization.types';
 import type {
   ChecklistItem,

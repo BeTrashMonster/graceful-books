@@ -10,7 +10,6 @@ import { useState, useEffect } from 'react';
 import type {
   CreateBarterTransactionRequest,
   BarterTransactionValidationResult,
-  FMVBasis,
 } from '../../types/barter.types';
 import type { Account, Contact } from '../../types/database.types';
 import { Input } from '../forms/Input';

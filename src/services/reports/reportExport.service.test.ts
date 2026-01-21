@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { exportReport, exportResultToBuffer, getExportMimeType } from './reportExport.service';
-import type { BalanceSheetData, ProfitLossReport } from '../../types/reports.types';
+import type { BalanceSheetData } from '../../types/reports.types';
 
 describe('ReportExport Service', () => {
   describe('exportReport', () => {

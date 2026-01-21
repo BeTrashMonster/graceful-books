@@ -19,7 +19,6 @@ import { ErrorMessage } from '../feedback/ErrorMessage';
 import type {
   LiabilityPaymentDetection,
   SplitPaymentRequest,
-  SplitPaymentResult,
   DISCType,
   InterestSplitDecision,
 } from '../../types/loanAmortization.types';

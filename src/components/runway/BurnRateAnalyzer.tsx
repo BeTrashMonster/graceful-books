@@ -6,7 +6,7 @@
  */
 
 import React from 'react'
-import type { BurnRateAnalysis, ExpenseCategory } from '../../types/runway.types'
+import type { BurnRateAnalysis } from '../../types/runway.types'
 import './BurnRateAnalyzer.css'
 
 interface BurnRateAnalyzerProps {

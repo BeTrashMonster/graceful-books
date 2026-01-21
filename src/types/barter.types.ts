@@ -15,7 +15,6 @@ import type {
   Transaction,
   TransactionLineItem,
   TransactionStatus,
-  VersionVector,
 } from './database.types';
 
 // =============================================================================

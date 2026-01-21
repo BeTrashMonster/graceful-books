@@ -538,7 +538,7 @@ describe('CategorizationService', () => {
         await db.trainingData.add({
           id: crypto.randomUUID(),
           company_id: companyId,
-          vendorName: trainingVendors[i % trainingVendors.length],
+          vendorName: trainingVendors[i % trainingVendors.length]!,
           description: `Marketing campaign ${i}`,
           amount: 100.0 + i * 10,
           categoryId: marketingCategory.id,

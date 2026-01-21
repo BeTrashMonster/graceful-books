@@ -33,11 +33,8 @@ import {
   suggestDiscrepancyResolutions,
 } from './reconciliationHistory.service';
 import type {
-  ReconciliationPattern,
   ReconciliationRecord,
   StatementTransaction,
-  UnreconciledFlag,
-  DiscrepancyPattern,
 } from '../types/reconciliation.types';
 import type { JournalEntry } from '../types';
 import type { EncryptionContext, EncryptionService } from '../store/types';

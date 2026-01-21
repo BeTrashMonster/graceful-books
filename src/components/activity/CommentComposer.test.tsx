@@ -115,7 +115,7 @@ describe('CommentComposer', () => {
 
   it('should display submitting state', async () => {
     const user = userEvent.setup()
-    const handleSubmit = vi.fn((_content: string, _mentionedUserIds: string[]) => new Promise(() => {})) // Never resolves
+    const handleSubmit = vi.fn((_content: string, _mentionedUserIds: string[]) => new Promise<void>(() => {})) // Never resolves
 
     render(<CommentComposer {...defaultProps} onSubmit={handleSubmit} />)
 

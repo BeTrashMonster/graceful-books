@@ -59,7 +59,7 @@ const createMockDatabase = (): Database => {
       update: vi.fn(async (id: string, updates: Partial<Transaction>) => {
         const index = transactionsStore.findIndex((t) => t.id === id);
         if (index !== -1) {
-          transactionsStore[index] = { ...transactionsStore[index], ...updates };
+          transactionsStore[index] = { ...transactionsStore[index]!, ...updates } as Transaction;
           return 1;
         }
         return 0;
@@ -92,7 +92,7 @@ const createMockDatabase = (): Database => {
       update: vi.fn(async (id: string, updates: Partial<TransactionLineItem>) => {
         const index = lineItemsStore.findIndex((item) => item.id === id);
         if (index !== -1) {
-          lineItemsStore[index] = { ...lineItemsStore[index], ...updates };
+          lineItemsStore[index] = { ...lineItemsStore[index]!, ...updates } as TransactionLineItem;
           return 1;
         }
         return 0;
@@ -266,12 +266,12 @@ describe('JournalEntriesService', () => {
 
       const draftEntries = await service.getJournalEntries({
         company_id: companyId,
-        approval_status: 'DRAFT',
+        approval_status: [JournalEntryApprovalStatus.DRAFT],
       });
 
       const pendingEntries = await service.getJournalEntries({
         company_id: companyId,
-        approval_status: 'pending',
+        approval_status: [JournalEntryApprovalStatus.PENDING],
       });
 
       expect(draftEntries).toHaveLength(1);
@@ -566,7 +566,7 @@ describe('JournalEntriesService', () => {
         description: 'Record monthly depreciation',
         category: 'DEPRECIATION' as JournalEntryTemplateCategory,
         is_system: true,
-        company_id: null,
+        company_id: '',
         line_items: [
           {
             line_number: 1,

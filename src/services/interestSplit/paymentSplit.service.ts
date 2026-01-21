@@ -16,15 +16,13 @@ import type {
   SplitPaymentRequest,
   SplitPaymentResult,
   SplitValidationResult,
-  SplitValidationRules,
   LoanAccount,
 } from '../../types/loanAmortization.types';
 import type {
   JournalEntry,
   JournalEntryLineItem,
-  CreateJournalEntryRequest,
 } from '../../types/journalEntry.types';
-import type { Account, AccountType } from '../../types/database.types';
+import type { Account } from '../../types/database.types';
 import { TransactionType, TransactionStatus } from '../../types/database.types';
 
 /**

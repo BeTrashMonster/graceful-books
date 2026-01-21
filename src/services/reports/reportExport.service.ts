@@ -15,7 +15,7 @@ import type {
   PDFExportOptions,
   ExportResult,
 } from '../../types/reports.types';
-import type { SchedulableReportType, ReportParameters } from '../../types/scheduledReports.types';
+import type { SchedulableReportType } from '../../types/scheduledReports.types';
 import { generateBalanceSheetPDF, exportProfitLossToPDF } from './pdfExport';
 import { logger } from '../../utils/logger';
 import { AppError, ErrorCode } from '../../utils/errors';

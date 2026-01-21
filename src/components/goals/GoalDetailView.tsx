@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { goalProgressService } from '../../services/goals';
-import type { FinancialGoal, GoalProgressSnapshot, GoalCardData } from '../../types/goals.types';
+import type { GoalProgressSnapshot, GoalCardData } from '../../types/goals.types';
 import { GoalCard } from './GoalCard';
 import styles from './GoalDetailView.module.css';
 

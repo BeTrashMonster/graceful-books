@@ -14,7 +14,7 @@ import {
   getCategoryStatus,
   setCategoryStatus,
 } from '../../services/tax/taxDocumentManager.service'
-import type { TaxYear, TaxDocumentCategory } from '../../types/tax.types'
+import type { TaxYear } from '../../types/tax.types'
 import './TaxDocumentChecklist.css'
 
 interface TaxDocumentChecklistProps {

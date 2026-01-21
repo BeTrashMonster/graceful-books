@@ -25,7 +25,6 @@ import type {
   DetectedConflict,
   ManualResolutionDecision,
   ResolutionStrategy,
-  ConflictSeverity,
 } from '../types/crdt.types';
 
 // ============================================================================
@@ -38,7 +37,7 @@ function createMockAccount(overrides: Partial<Account> = {}): Account & CRDTEnti
     company_id: 'company-1',
     account_number: '1000',
     name: 'Cash',
-    type: 'ASSET' as const,
+    type: AccountType.ASSET,
     parent_id: null,
     balance: '1000.00',
     description: 'Cash account',

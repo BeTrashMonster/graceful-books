@@ -14,7 +14,6 @@ import type {
   LiquidityMetricsRequest,
   Metric,
   MetricDataPoint,
-  TrendDirection,
 } from '../../types/metrics.types';
 import { AccountType } from '../../types/database.types';
 

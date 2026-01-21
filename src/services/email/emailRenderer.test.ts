@@ -11,7 +11,7 @@ import {
   renderEmailToPlainText,
   generateEmailPreviewHTML,
 } from './emailRenderer';
-import type { EmailContent, EmailSection, EmailSectionItem } from '../../types/email.types';
+import type { EmailContent } from '../../types/email.types';
 
 /**
  * Create mock email content

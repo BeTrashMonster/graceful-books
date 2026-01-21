@@ -25,7 +25,6 @@ import { runwayCalculatorService } from '../runway/runwayCalculator.service';
 import type {
   FinancialGoal,
   GoalType,
-  GoalStatus,
   CreateGoalRequest,
   UpdateGoalRequest,
   UpdateGoalProgressRequest,

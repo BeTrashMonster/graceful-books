@@ -10,7 +10,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import type { Charity, CharityStatus, CharityCategory } from '../../types/database.types';
+import type { Charity, CharityStatus } from '../../types/database.types';
 import {
   getAllCharities,
   addVerificationNote,

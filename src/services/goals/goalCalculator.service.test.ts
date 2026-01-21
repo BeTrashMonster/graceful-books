@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { GoalCalculatorService } from './goalCalculator.service';
-import type { FinancialGoal, GoalType } from '../../types/goals.types';
+import type { FinancialGoal } from '../../types/goals.types';
 import { createDefaultFinancialGoal } from '../../db/schema/goals.schema';
 
 describe('GoalCalculatorService', () => {

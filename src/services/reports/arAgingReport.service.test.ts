@@ -508,6 +508,7 @@ describe('A/R Aging Report Service', () => {
             oldestInvoiceDate: null,
             oldestDueDate: null,
             hasOverdueInvoices: true,
+            urgencyLevel: 'medium',
           },
         ],
         followUpRecommendations: [],
