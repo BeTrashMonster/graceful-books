@@ -299,64 +299,64 @@ export function generateSmartSuggestions(
   const suggestions: SmartScenarioSuggestion[] = []
 
   // Suggest modeling loss of top client if they represent significant revenue
-  if (revenueBreakdown.topClient!s.length > 0) {
-    const topClient! = revenueBreakdown.topClient!s[0]
-    if (topClient!.percentage > 15) {
+  if (revenueBreakdown.topClients.length > 0) {
+    const topClient = revenueBreakdown.topClients[0]!
+    if (topClient.percentage > 15) {
       suggestions.push({
         id: `suggestion-top-client`,
-        title: `What if you lost ${topClient!.name}?`,
-        description: `Model the impact of losing your biggest client (${topClient!.percentage.toFixed(0)}% of revenue).`,
+        title: `What if you lost ${topClient.name}?`,
+        description: `Model the impact of losing your biggest client (${topClient.percentage.toFixed(0)}% of revenue).`,
         scenarioType: 'client-loss',
-        priority: topClient!.percentage > 30 ? 'high' : 'medium',
-        reason: `High concentration: ${topClient!.name} represents ${topClient!.percentage.toFixed(0)}% of revenue`,
+        priority: topClient.percentage > 30 ? 'high' : 'medium',
+        reason: `High concentration: ${topClient.name} represents ${topClient.percentage.toFixed(0)}% of revenue`,
         revenueChange: {
           type: 'client-loss',
-          amount: topClient!.monthlyAmount,
-          description: `Lost ${topClient!.name} retainer`,
-          clientId: topClient!.id,
-          clientName: topClient!.name,
+          amount: topClient.monthlyAmount,
+          description: `Lost ${topClient.name} retainer`,
+          clientId: topClient.id,
+          clientName: topClient.name,
         },
       })
     }
   }
 
   // Suggest modeling discontinuing top product if it's significant
-  if (revenueBreakdown.topProduct!s.length > 0) {
-    const topProduct! = revenueBreakdown.topProduct!s[0]
-    if (topProduct!.percentage > 20) {
+  if (revenueBreakdown.topProducts.length > 0) {
+    const topProduct = revenueBreakdown.topProducts[0]!
+    if (topProduct.percentage > 20) {
       suggestions.push({
         id: `suggestion-top-product`,
-        title: `What if you stopped offering ${topProduct!.name}?`,
-        description: `Model the impact of discontinuing your top revenue source (${topProduct!.percentage.toFixed(0)}% of revenue).`,
+        title: `What if you stopped offering ${topProduct.name}?`,
+        description: `Model the impact of discontinuing your top revenue source (${topProduct.percentage.toFixed(0)}% of revenue).`,
         scenarioType: 'product-discontinue',
         priority: 'medium',
-        reason: `${topProduct!.name} represents ${topProduct!.percentage.toFixed(0)}% of revenue`,
+        reason: `${topProduct.name} represents ${topProduct.percentage.toFixed(0)}% of revenue`,
         revenueChange: {
           type: 'decrease',
-          amount: topProduct!.monthlyAmount,
-          description: `Discontinued ${topProduct!.name}`,
+          amount: topProduct.monthlyAmount,
+          description: `Discontinued ${topProduct.name}`,
         },
       })
     }
   }
 
   // Suggest modeling cutting top expense
-  if (burnRateAnalysis.topExpense!Categories.length > 0) {
-    const topExpense! = burnRateAnalysis.topExpense!Categories[0]
-    if (topExpense!.percentage > 15) {
+  if (burnRateAnalysis.topExpenseCategories.length > 0) {
+    const topExpense = burnRateAnalysis.topExpenseCategories[0]!
+    if (topExpense.percentage > 15) {
       suggestions.push({
         id: `suggestion-top-expense`,
-        title: `What if you reduced ${topExpense!.name}?`,
-        description: `Your top expense is ${topExpense!.name} (${topExpense!.percentage.toFixed(0)}% of spending). Model reducing it.`,
+        title: `What if you reduced ${topExpense.name}?`,
+        description: `Your top expense is ${topExpense.name} (${topExpense.percentage.toFixed(0)}% of spending). Model reducing it.`,
         scenarioType: 'expense-decrease',
         priority: 'medium',
-        reason: `${topExpense!.name} is your largest expense at ${topExpense!.percentage.toFixed(0)}% of burn`,
+        reason: `${topExpense.name} is your largest expense at ${topExpense.percentage.toFixed(0)}% of burn`,
         expenseChange: {
           type: 'cut-expense',
-          amount: topExpense!.monthlyAmount * 0.25, // Suggest 25% reduction
-          description: `Reduce ${topExpense!.name} by 25%`,
-          categoryId: topExpense!.id,
-          categoryName: topExpense!.name,
+          amount: topExpense.monthlyAmount * 0.25, // Suggest 25% reduction
+          description: `Reduce ${topExpense.name} by 25%`,
+          categoryId: topExpense.id,
+          categoryName: topExpense.name,
         },
       })
     }
