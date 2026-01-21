@@ -605,7 +605,7 @@ describe('JournalEntriesService', () => {
       const reversingEntryId = await service.createReversingEntry(
         {
           original_entry_id: original.entry.id,
-          reverse_date: Date.now(),
+          reversal_date: Date.now(),
         },
         deviceId,
         userId

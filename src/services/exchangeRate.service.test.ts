@@ -64,11 +64,11 @@ class MockDatabase {
               const [f1, f2, f3] = field;
               const [v1, v2, v3] = value;
               if (f3) {
-                baseFilters.push((r: any) => r[f1] === v1 && r[f2] === v2 && r[f3] === v3);
+                baseFilters.push((r: any) => r[f1!] === v1 && r[f2!] === v2 && r[f3!] === v3);
               } else if (f2) {
-                baseFilters.push((r: any) => r[f1] === v1 && r[f2] === v2);
+                baseFilters.push((r: any) => r[f1!] === v1 && r[f2!] === v2);
               } else {
-                baseFilters.push((r: any) => r[f1] === v1);
+                baseFilters.push((r: any) => r[f1!] === v1);
               }
             } else {
               baseFilters.push((r: any) => r[field as keyof ExchangeRate] === value);

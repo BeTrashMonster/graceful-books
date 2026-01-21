@@ -154,7 +154,7 @@ describe('Contacts Store - Vendor Management', () => {
         userId: 'user-1',
       }
 
-      vi.mocked(db.contacts.add).mockImplementation((entity: any) => Promise.resolve('vendor-123') as any)
+      vi.mocked(db.contacts.add).mockImplementation((_entity: any) => Promise.resolve('vendor-123') as any)
 
       const result = await createContact(vendor, context)
 
@@ -259,7 +259,7 @@ describe('Contacts Store - Vendor Management', () => {
         userId: 'user-1',
       }
 
-      vi.mocked(db.contacts.add).mockImplementation((entity: any) => Promise.resolve('vendor-123') as any)
+      vi.mocked(db.contacts.add).mockImplementation((_entity: any) => Promise.resolve('vendor-123') as any)
 
       await createContact(vendor, context)
 

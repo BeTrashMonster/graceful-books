@@ -12,7 +12,6 @@ import type {
 } from '../../types/reconciliation.types';
 import { DEFAULT_MATCHING_OPTIONS, MatchConfidence } from '../../types/reconciliation.types';
 import type { JournalEntry } from '../../types';
-import { TransactionStatus } from '../../types/database.types';
 import { logger } from '../logger';
 
 /**

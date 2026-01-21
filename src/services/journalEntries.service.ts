@@ -441,7 +441,7 @@ export class JournalEntriesService {
       const reversingEntryId = await this.createReversingEntry(
         {
           original_entry_id: request.entry_id,
-          reverse_date: now,
+          reversal_date: now,
           description: `Void: ${entry.description || ''}`,
           auto_created: true,
         },

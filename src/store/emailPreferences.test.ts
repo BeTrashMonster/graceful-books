@@ -488,7 +488,7 @@ describe('Email Preferences Store', () => {
       const deviceId = Object.keys(final!.version_vector)[0];
 
       // Version should have incremented 3 times (plus initial creation)
-      expect(final!.version_vector[deviceId]).toBeGreaterThan(1);
+      expect(final!.version_vector[deviceId!]).toBeGreaterThan(1);
     });
   });
 

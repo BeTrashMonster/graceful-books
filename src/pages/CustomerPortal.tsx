@@ -19,7 +19,6 @@ import { createPaymentIntent, confirmPayment } from '../services/paymentGateway'
 import type { Invoice } from '../db/schema/invoices.schema';
 import type { InvoiceLineItem } from '../db/schema/invoices.schema';
 import type { PortalToken } from '../db/schema/portalTokens.schema';
-import { ErrorCode } from '../utils/errors';
 import styles from './CustomerPortal.module.css';
 
 /**

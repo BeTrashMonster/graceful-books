@@ -17,7 +17,7 @@ import type { Database } from '../db/database';
 import type {
   CreateJournalEntryRequest,
 } from '../types/journalEntry.types';
-import { STANDARD_JOURNAL_ENTRY_TEMPLATES_EXTENDED , JournalEntryApprovalStatus } from '../types/journalEntry.types';
+import { STANDARD_JOURNAL_ENTRY_TEMPLATES_EXTENDED } from '../types/journalEntry.types';
 
 describe('Journal Entries Integration Tests', () => {
   let service: JournalEntriesService;
@@ -281,7 +281,7 @@ describe('Journal Entries Integration Tests', () => {
       const reversingEntryId = await service.createReversingEntry(
         {
           original_entry_id: original.entry.id,
-          reverse_date: Date.now(),
+          reversal_date: Date.now(),
           description: 'Reverse accrued expense',
         },
         deviceId1,

@@ -12,7 +12,6 @@ import {
   formatTemplateVariables,
   type DISCProfile,
   type TemplateVariables,
-  type FollowUpTemplateType,
 } from './followUpTemplates.service'
 
 describe('Email Follow-Up Templates Service', () => {
