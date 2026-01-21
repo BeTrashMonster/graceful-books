@@ -96,7 +96,7 @@ test.describe('Multi-User Team Collaboration', () => {
     );
   });
 
-  test('H1: Different roles have appropriate access', async ({ page, context }) => {
+  test('H1: Different roles have appropriate access', async ({ page: _page, context }) => {
     // Test as Manager
     const managerPage = await context.newPage();
     await managerPage.goto('/login');

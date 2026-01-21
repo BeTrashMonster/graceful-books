@@ -10,6 +10,7 @@
  */
 
 import { test, expect, Page } from '@playwright/test'
+import fs from 'fs'
 
 test.describe('F6 - A/P Aging Report', () => {
   let page: Page
@@ -224,7 +225,6 @@ test.describe('F6 - A/P Aging Report', () => {
     // Verify CSV content structure
     const path = await download.path()
     if (path) {
-      const fs = require('fs')
       const content = fs.readFileSync(path, 'utf-8')
 
       // Check for expected headers
@@ -249,7 +249,7 @@ test.describe('F6 - A/P Aging Report', () => {
 
   test('should update report when date filter changes', async () => {
     // Get current total outstanding
-    const originalTotal = await page
+    const _originalTotal = await page
       .locator('[data-testid="total-outstanding"]')
       .textContent()
 

@@ -5,7 +5,7 @@
  * These tests validate the infrastructure configuration and deployment
  */
 
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 describe('Infrastructure Configuration Tests', () => {
   describe('Cloudflare Configuration', () => {
@@ -162,7 +162,7 @@ describe('Infrastructure Configuration Tests', () => {
       const responses = await Promise.all(requests);
 
       // At least some should be rate limited (429)
-      const rateLimited = responses.filter((r) => r.status === 429);
+      const _rateLimited = responses.filter((r) => r.status === 429);
 
       // Depending on configuration, this may or may not trigger
       // This is a sanity check
@@ -252,7 +252,7 @@ describe('Terraform Configuration Tests', () => {
 describe('Secrets Management Tests', () => {
   it('should not expose secrets in logs or output', () => {
     // Verify no secrets are logged
-    const sensitivePatterns = [
+    const _sensitivePatterns = [
       /cloudflare.*token/i,
       /turso.*token/i,
       /api.*key/i,

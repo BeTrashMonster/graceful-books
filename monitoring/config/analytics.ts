@@ -168,10 +168,10 @@ export class AnalyticsClient {
  * Middleware to automatically track request metrics
  */
 export function withAnalytics(
-  handler: (request: Request, env: any, ctx: ExecutionContext) => Promise<Response>,
+  handler: (request: Request, env: Record<string, unknown>, ctx: ExecutionContext) => Promise<Response>,
   analyticsDataset: AnalyticsEngineDataset | null
 ) {
-  return async (request: Request, env: any, ctx: ExecutionContext): Promise<Response> => {
+  return async (request: Request, env: Record<string, unknown>, ctx: ExecutionContext): Promise<Response> => {
     const startTime = Date.now();
     const url = new URL(request.url);
     const analytics = new AnalyticsClient(analyticsDataset, env.ENVIRONMENT || 'production');

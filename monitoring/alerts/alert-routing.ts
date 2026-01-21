@@ -18,7 +18,7 @@ export interface Alert {
   source: string;
   timestamp: number;
   tags?: Record<string, string>;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface AlertRoute {
@@ -31,7 +31,7 @@ export interface AlertRoute {
 export interface AlertCondition {
   field: string;
   operator: 'equals' | 'contains' | 'greater_than' | 'less_than' | 'matches';
-  value: any;
+  value: unknown;
 }
 
 export interface ThrottleConfig {
@@ -129,12 +129,12 @@ export class AlertRouter {
   /**
    * Get field value from alert
    */
-  private getFieldValue(alert: Alert, field: string): any {
+  private getFieldValue(alert: Alert, field: string): unknown {
     const parts = field.split('.');
-    let value: any = alert;
+    let value: unknown = alert;
 
     for (const part of parts) {
-      value = value?.[part];
+      value = (value as Record<string, unknown>)?.[part];
     }
 
     return value;
@@ -506,7 +506,7 @@ export function createAlert(
   message: string,
   severity: AlertSeverity,
   source: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): Alert {
   return {
     id: `alert-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,

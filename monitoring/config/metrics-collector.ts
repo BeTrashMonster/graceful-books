@@ -380,11 +380,11 @@ export class MetricsManager {
   /**
    * Export metrics for reporting
    */
-  exportMetrics(): Record<string, any> {
+  exportMetrics(): Record<string, unknown> {
     const summary = this.getSummary();
     const metricNames = this.collector.getMetricNames();
 
-    const metrics: Record<string, any> = {
+    const metrics: Record<string, unknown> = {
       summary,
       details: {},
     };
