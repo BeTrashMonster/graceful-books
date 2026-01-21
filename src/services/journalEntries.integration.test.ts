@@ -17,7 +17,7 @@ import type { Database } from '../db/database';
 import type {
   CreateJournalEntryRequest,
 } from '../types/journalEntry.types';
-import { STANDARD_JOURNAL_ENTRY_TEMPLATES_EXTENDED } from '../types/journalEntry.types';
+import { STANDARD_JOURNAL_ENTRY_TEMPLATES_EXTENDED , JournalEntryApprovalStatus } from '../types/journalEntry.types';
 
 describe('Journal Entries Integration Tests', () => {
   let service: JournalEntriesService;

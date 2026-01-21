@@ -18,7 +18,7 @@ import type {
   EmailAttachment,
   ScheduleResult,
 } from '../types/scheduledReports.types';
-import type { ScheduledReportDeliveryEntity } from '../db/schema/scheduledReports.schema';
+import type { ScheduledReportDeliveryEntity , ReportScheduleEntity } from '../db/schema/scheduledReports.schema';
 import { createDeliveryRecord } from '../db/schema/scheduledReports.schema';
 import { exportReport, exportResultToBuffer, getExportMimeType } from './reports/reportExport.service';
 import { format } from 'date-fns';

@@ -15,7 +15,7 @@ import {
   getMergeStrategy,
   applyFieldStrategy,
 } from './entityMergeStrategies';
-import type { Account, Transaction } from '../../types/database.types';
+import type { Account, Transaction , AccountType, TransactionType, TransactionStatus } from '../../types/database.types';
 import type { CRDTEntity } from '../../types/crdt.types';
 
 // ============================================================================

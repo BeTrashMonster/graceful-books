@@ -10,7 +10,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { LiabilityDetectionService } from './liabilityDetection.service';
 import type { TreasureChestDB } from '../../db/database';
-import type { Transaction, TransactionLineItem, Account } from '../../types/database.types';
+import type { Transaction, TransactionLineItem, Account , TransactionType, TransactionStatus, AccountType } from '../../types/database.types';
 
 // Mock database
 const createMockDb = () => {

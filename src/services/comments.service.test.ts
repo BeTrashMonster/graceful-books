@@ -20,7 +20,7 @@ import {
   CommentStatus,
   type Comment,
 } from '../db/schema/comments.schema';
-import type { CompanyUser, User } from '../types/database.types';
+import type { CompanyUser, User, TransactionType, TransactionStatus } from '../types/database.types';
 
 // ============================================================================
 // Test Setup

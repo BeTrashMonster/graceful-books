@@ -313,35 +313,35 @@ export class KeyRotationService {
 
     // Re-encrypt accounts
     if (counts.accounts > 0) {
-      await this.reEncryptAccounts(job, oldContext, newContext);
+      await this.reEncryptAccounts(job, _oldContext, _newContext);
       processedCount += counts.accounts;
       this.updateProgress(job, processedCount);
     }
 
     // Re-encrypt transactions
     if (counts.transactions > 0) {
-      await this.reEncryptTransactions(job, oldContext, newContext);
+      await this.reEncryptTransactions(job, _oldContext, _newContext);
       processedCount += counts.transactions;
       this.updateProgress(job, processedCount);
     }
 
     // Re-encrypt transaction lines
     if (counts.transactionLines > 0) {
-      await this.reEncryptTransactionLines(job, oldContext, newContext);
+      await this.reEncryptTransactionLines(job, _oldContext, _newContext);
       processedCount += counts.transactionLines;
       this.updateProgress(job, processedCount);
     }
 
     // Re-encrypt contacts
     if (counts.contacts > 0) {
-      await this.reEncryptContacts(job, oldContext, newContext);
+      await this.reEncryptContacts(job, _oldContext, _newContext);
       processedCount += counts.contacts;
       this.updateProgress(job, processedCount);
     }
 
     // Re-encrypt users
     if (counts.users > 0) {
-      await this.reEncryptUsers(job, oldContext, newContext);
+      await this.reEncryptUsers(job, _oldContext, _newContext);
       processedCount += counts.users;
       this.updateProgress(job, processedCount);
     }

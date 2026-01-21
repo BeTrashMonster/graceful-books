@@ -30,7 +30,7 @@ import type {
   StatementTransaction,
 } from '../types/reconciliation.types';
 import type { JournalEntry } from '../types';
-import { ReconciliationStatus } from '../types/reconciliation.types';
+import { ReconciliationStatus , MatchConfidence } from '../types/reconciliation.types';
 
 describe('ReconciliationService - Additional Comprehensive Tests', () => {
   const baseDate = new Date('2024-01-15');

@@ -10,7 +10,7 @@ import {
   RecentActivityService,
   createRecentActivityService,
 } from './recentActivity.service';
-import { RecentActivityEntityType } from '../types/recentActivity.types';
+import { RecentActivityEntityType , RecentActivityType } from '../types/recentActivity.types';
 
 describe('RecentActivityService', () => {
   const userId = 'user-123';

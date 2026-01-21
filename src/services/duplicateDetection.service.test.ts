@@ -11,6 +11,7 @@ import {
   createDuplicateDetectionService,
 } from './duplicateDetection.service';
 import type { DuplicateCheckInput } from './duplicateDetection.service';
+import { ContactType, ContactAccountType } from '../types/database.types';
 
 describe('DuplicateDetectionService', () => {
   const companyId = 'company-123';

@@ -189,40 +189,40 @@ export function calculateTemplateAdjustment(
 ): TemplateCalculationResult {
   switch (templateKey) {
     case 'reclassify-employee-to-owner':
-      return calculateReclassifyEmployeeToOwner(params, baseline);
+      return calculateReclassifyEmployeeToOwner(params, _baseline);
 
     case 'add-new-employee':
-      return calculateAddNewEmployee(params, baseline);
+      return calculateAddNewEmployee(params, _baseline);
 
     case 'remove-employee':
-      return calculateRemoveEmployee(params, baseline);
+      return calculateRemoveEmployee(params, _baseline);
 
     case 'change-compensation':
-      return calculateChangeCompensation(params, baseline);
+      return calculateChangeCompensation(params, _baseline);
 
     case 'add-recurring-expense':
-      return calculateAddRecurringExpense(params, baseline);
+      return calculateAddRecurringExpense(params, _baseline);
 
     case 'remove-recurring-expense':
-      return calculateRemoveRecurringExpense(params, baseline);
+      return calculateRemoveRecurringExpense(params, _baseline);
 
     case 'change-pricing':
-      return calculateChangePricing(params, baseline);
+      return calculateChangePricing(params, _baseline);
 
     case 'take-on-debt':
-      return calculateTakeOnDebt(params, baseline);
+      return calculateTakeOnDebt(params, _baseline);
 
     case 'pay-off-debt':
-      return calculatePayOffDebt(params, baseline);
+      return calculatePayOffDebt(params, _baseline);
 
     case 'major-equipment-purchase':
-      return calculateEquipmentPurchase(params, baseline);
+      return calculateEquipmentPurchase(params, _baseline);
 
     case 'lease-vs-buy':
-      return calculateLeaseVsBuy(params, baseline);
+      return calculateLeaseVsBuy(params, _baseline);
 
     case 'add-revenue-stream':
-      return calculateAddRevenueStream(params, baseline);
+      return calculateAddRevenueStream(params, _baseline);
 
     default:
       throw new Error(`Unknown template key: ${templateKey}`);
@@ -548,7 +548,7 @@ function calculateChangePricing(
   params: Record<string, unknown>,
   _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
-  const currentRevenue = baseline.profit_loss.sections.find((s: any) => s.type === 'income')?.total || 0;
+  const currentRevenue = _baseline.profit_loss.sections.find((s: any) => s.type === 'income')?.total || 0;
   const priceChangePercentage = Number(params.price_change_percentage || 0);
   const customerRetentionRate = Number(params.customer_retention_rate || 100) / 100;
 

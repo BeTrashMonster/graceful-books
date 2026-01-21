@@ -21,6 +21,7 @@ import type {
   CreateJournalEntryRequest,
   JournalEntryTemplate,
   JournalEntryTemplateCategory,
+  JournalEntryApprovalStatus,
 } from '../types/journalEntry.types';
 import type { Transaction, TransactionLineItem } from '../types/database.types';
 
