@@ -90,7 +90,7 @@ export function TaxDocumentUpload({ userId, taxYear, categoryId, categoryName, o
               <li key={doc.id}>
                 <span className="doc-name">{doc.fileName}</span>
                 {doc.notes && <span className="doc-notes">{doc.notes}</span>}
-                <Button variant="secondary" size="small" onClick={() => handleDelete(doc.id)}>Delete</Button>
+                <Button variant="secondary" size="sm" onClick={() => handleDelete(doc.id)}>Delete</Button>
               </li>
             ))}
           </ul>

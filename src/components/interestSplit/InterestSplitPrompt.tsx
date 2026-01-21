@@ -229,7 +229,7 @@ export const InterestSplitPrompt = ({
             </div>
 
             <Button
-              variant="link"
+              variant="ghost"
               size="sm"
               onClick={() => setManualMode(true)}
               disabled={isLoading}
@@ -270,7 +270,7 @@ export const InterestSplitPrompt = ({
             )}
 
             <Button
-              variant="link"
+              variant="ghost"
               size="sm"
               onClick={() => {
                 setManualMode(false);

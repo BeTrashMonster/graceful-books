@@ -108,7 +108,7 @@ function InvoiceItem({ invoice }: InvoiceItemProps): JSX.Element {
             <Button
               onClick={handleDownloadPDF}
               variant="secondary"
-              size="small"
+              size="sm"
             >
               Download PDF
             </Button>
@@ -117,7 +117,7 @@ function InvoiceItem({ invoice }: InvoiceItemProps): JSX.Element {
             <Button
               onClick={handleViewInvoice}
               variant="secondary"
-              size="small"
+              size="sm"
             >
               View Invoice
             </Button>

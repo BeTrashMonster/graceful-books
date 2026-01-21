@@ -190,7 +190,7 @@ function PaymentMethodItem({
             onClick={() => onSetDefault(paymentMethod.id)}
             disabled={loading}
             variant="secondary"
-            size="small"
+            size="sm"
           >
             Set as Default
           </Button>
@@ -199,7 +199,7 @@ function PaymentMethodItem({
           onClick={() => onRemove(paymentMethod.id)}
           disabled={loading}
           variant="secondary"
-          size="small"
+          size="sm"
         >
           Remove
         </Button>

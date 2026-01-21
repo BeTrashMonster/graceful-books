@@ -323,7 +323,7 @@ export function SubscriptionManager({
               disabled={loading}
               variant="primary"
             >
-              {loading ? <Loading size="small" /> : 'Reactivate Subscription'}
+              {loading ? <Loading size="sm" /> : 'Reactivate Subscription'}
             </Button>
           )}
 
@@ -333,7 +333,7 @@ export function SubscriptionManager({
               disabled={loading}
               variant="secondary"
             >
-              {loading ? <Loading size="small" /> : 'Cancel Subscription'}
+              {loading ? <Loading size="sm" /> : 'Cancel Subscription'}
             </Button>
           )}
         </div>
