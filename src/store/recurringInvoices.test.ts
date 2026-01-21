@@ -22,7 +22,7 @@ import {
   getGeneratedInvoices,
 } from './recurringInvoices';
 import type { RecurrenceRule } from '../db/schema/recurringInvoices.schema';
-import type { InvoiceLineItem } from '../types/index';
+import type { InvoiceLineItem } from '../db/schema/invoices.schema';
 
 // Mock encryption service
 const mockEncryptionService: EncryptionService = {
@@ -56,7 +56,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const recurrenceRule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         dayOfMonth: 1,
         interval: 1,
         endCondition: {
@@ -103,7 +103,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const recurrenceRule: RecurrenceRule = {
-        frequency: 'weekly',
+        frequency: 'WEEKLY',
         dayOfWeek: 1,
         interval: 1,
         endCondition: { type: 'AFTER_N_OCCURRENCES', occurrences: 10 },
@@ -154,7 +154,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const invalidRule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         dayOfMonth: 35, // Invalid day
         interval: 0, // Invalid interval
         endCondition: { type: 'NEVER' },
@@ -198,7 +198,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const recurrenceRule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         endCondition: { type: 'NEVER' },
         rruleString: '',
@@ -237,7 +237,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const recurrenceRule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         endCondition: { type: 'NEVER' },
         rruleString: '',
@@ -302,7 +302,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const recurrenceRule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         endCondition: { type: 'NEVER' },
         rruleString: '',
@@ -344,7 +344,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const recurrenceRule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         endCondition: { type: 'NEVER' },
         rruleString: '',
@@ -390,7 +390,7 @@ describe('Recurring Invoices Data Access Layer', () => {
       ];
 
       const recurrenceRule: RecurrenceRule = {
-        frequency: 'monthly',
+        frequency: 'MONTHLY',
         interval: 1,
         endCondition: { type: 'NEVER' },
         rruleString: '',

@@ -43,7 +43,7 @@ describe('AuditLogTimeline Component', () => {
             entityType: AuditEntityType.TRANSACTION,
             entityId: 'entity-1',
             action: AuditAction.CREATE,
-            beforeValues: null,
+            beforeValues: undefined,
             afterValues: '{"amount": 100}',
             changedFields: ['amount'],
             ipAddress: '192.168.1.1',

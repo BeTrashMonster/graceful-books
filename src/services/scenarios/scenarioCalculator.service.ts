@@ -79,7 +79,7 @@ export async function pullBaselineSnapshot(
   });
 
   if (!balanceSheetResult.success) throw new Error('Failed to generate balance sheet');
-  const balanceSheet = balanceSheetResult.data;
+  const balanceSheet = balanceSheetResult.data as any as BalanceSheetReport;
 
   // Calculate cash balance (sum of all Cash & Bank accounts)
   const cashAccounts = accounts.filter(
@@ -552,7 +552,7 @@ function calculateChangePricing(
   params: Record<string, unknown>,
   _baseline: ScenarioBaseline
 ): TemplateCalculationResult {
-  const currentRevenue = _baseline.profit_loss.sections.find((s: any) => s.type === 'income')?.total || 0;
+  const currentRevenue = _baseline.profit_loss.sections?.find((s: any) => s.type === 'income')?.total || 0;
   const priceChangePercentage = Number(params.price_change_percentage || 0);
   const customerRetentionRate = Number(params.customer_retention_rate || 100) / 100;
 

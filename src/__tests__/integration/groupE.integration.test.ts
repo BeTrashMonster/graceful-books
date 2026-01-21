@@ -304,7 +304,7 @@ describe('Group E Integration Tests', () => {
         templateName: 'Monthly Service Invoice',
         lineItems: template.line_items,
         recurrenceRule: {
-          frequency: 'monthly',
+          frequency: 'MONTHLY',
           interval: 1,
         },
         startDate: new Date().getTime(),
@@ -449,7 +449,7 @@ describe('Group E Integration Tests', () => {
         id: nanoid(),
         companyId: testCompanyId,
         name: 'Consulting Services',
-        lineItems: [{ description: 'Consulting', quantity: 10, rate: 150, amount: 1500 }],
+        lineItems: [{ id: nanoid(), description: 'Consulting', quantity: 10, unitPrice: '150.00', accountId: 'account-1', total: '1500.00' }],
         subtotal: 1500,
         total: 1500,
         created: new Date(),
@@ -463,7 +463,7 @@ describe('Group E Integration Tests', () => {
         templateName: 'Consulting Services',
         lineItems: template.lineItems,
         recurrenceRule: {
-          frequency: 'monthly',
+          frequency: 'MONTHLY',
           interval: 1,
         },
         startDate: new Date().getTime(),
