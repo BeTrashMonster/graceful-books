@@ -184,9 +184,9 @@ export class JournalEntriesService {
     // Apply filters
     let filteredEntries = entries;
 
-    if (filters.approval_status) {
+    if (filters.approval_status && filters.approval_status.length > 0) {
       filteredEntries = filteredEntries.filter(
-        (e: Transaction) => (e as JournalEntry).approval_status === filters.approval_status
+        (e: Transaction) => filters.approval_status!.includes((e as JournalEntry).approval_status)
       );
     }
 
@@ -234,7 +234,7 @@ export class JournalEntriesService {
    */
   async updateJournalEntry(
     entryId: string,
-    request: UpdateJournalEntryRequest,
+    request: Omit<UpdateJournalEntryRequest, 'entry_id'>,
     deviceId: string
   ): Promise<JournalEntryWithLineItems> {
     const entry = await this.db.transactions.get(entryId);
@@ -570,15 +570,19 @@ export class JournalEntriesService {
     const monthAgo = now - 30 * 24 * 60 * 60 * 1000;
 
     return {
+      company_id: companyId,
       total_entries: journalEntries.length,
-      pending_approval: journalEntries.filter((e) => e.approval_status === 'PENDING').length,
+      by_status: {} as Record<TransactionStatus, number>,
+      by_approval_status: {} as Record<JournalEntryApprovalStatus, number>,
+      pending_approval_count: journalEntries.filter((e) => e.approval_status === 'PENDING').length,
+      draft_count: journalEntries.filter((e) => e.status === 'DRAFT').length,
+      posted_count: journalEntries.filter((e) => e.status === 'POSTED').length,
+      voided_count: journalEntries.filter((e) => e.status === 'VOID').length,
       approved_this_month: journalEntries.filter(
         (e) => e.approval_status === 'APPROVED' && e.approved_at && e.approved_at >= monthAgo
       ).length,
-      voided_this_month: journalEntries.filter(
-        (e) => e.approval_status === 'VOID' && e.updated_at >= monthAgo
-      ).length,
-      average_entries_per_month: 0, // TODO: Calculate based on date range
+      total_reversing_entries: journalEntries.filter((e) => e.is_reversing_entry).length,
+      entries_from_templates: journalEntries.filter((e) => e.template_id).length,
     };
   }
 
@@ -639,7 +643,9 @@ export class JournalEntriesService {
         is_valid: errors.length === 0,
         errors,
         warnings,
-        balance_check: balanceCheck,
+        total_debits: balanceCheck.totalDebits,
+        total_credits: balanceCheck.totalCredits,
+        balance_difference: balanceCheck.difference,
       };
     }
 
@@ -647,12 +653,9 @@ export class JournalEntriesService {
       is_valid: false,
       errors,
       warnings,
-      balance_check: {
-        isBalanced: false,
-        totalDebits: '0.00',
-        totalCredits: '0.00',
-        difference: '0.00',
-      },
+      total_debits: '0.00',
+      total_credits: '0.00',
+      balance_difference: '0.00',
     };
   }
 

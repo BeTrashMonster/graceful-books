@@ -11,10 +11,6 @@ import {
   getDateRangeFromPreset,
   suggestCalculationMethod,
 } from './runwayCalculator.service'
-import type {
-  RunwayCalculationMethod,
-  RunwayDateRangePreset,
-} from '../../types/runway.types'
 import { db } from '../../db/database'
 
 // Mock database

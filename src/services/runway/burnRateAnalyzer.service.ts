@@ -24,6 +24,8 @@ import type {
   ConcentrationRisk,
 } from '../../types/runway.types'
 import { db } from '../../db/database'
+import { AccountType } from '../../types/database.types'
+import type { InvoiceStatus } from '../../types'
 
 // Configure Decimal.js for currency precision
 Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_UP })
@@ -135,9 +137,9 @@ export async function analyzeBurnRate(
 
       // Only process expense accounts
       if (
-        account.type !== 'expense' &&
-        account.type !== 'cost-of-goods-sold' &&
-        account.type !== 'other-expense'
+        account.type !== AccountType.EXPENSE &&
+        account.type !== AccountType.COGS &&
+        account.type !== AccountType.OTHER_EXPENSE
       ) {
         continue
       }
@@ -296,7 +298,7 @@ export async function analyzeRevenueBreakdown(
       if (!account) continue
 
       // Only process income accounts
-      if (account.type !== 'income' && account.type !== 'other-income') {
+      if (account.type !== AccountType.INCOME && account.type !== AccountType.OTHER_INCOME) {
         continue
       }
 
@@ -327,7 +329,8 @@ export async function analyzeRevenueBreakdown(
     .equals(companyId)
     .and((inv) => {
       const invDate = new Date(inv.invoice_date)
-      return invDate >= dateRange.startDate && invDate <= dateRange.endDate && inv.status !== 'void'
+      const status: InvoiceStatus = inv.status as InvoiceStatus
+      return invDate >= dateRange.startDate && invDate <= dateRange.endDate && status !== 'void'
     })
     .toArray()
 

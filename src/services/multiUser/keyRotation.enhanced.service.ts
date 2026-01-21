@@ -20,7 +20,6 @@ import type {
   EncryptionContext,
   CryptoResult,
 } from '../../crypto/types';
-import type { CompanyUser, Session, User, VersionVector } from '../../types/database.types';
 import { deriveAllKeys, createEncryptionContext } from '../../crypto/keyManagement';
 import { db } from '../../store/database';
 import { logger } from '../../utils/logger';
@@ -486,9 +485,8 @@ export class KeyRotationService {
     if (company) {
       await db.companies.update(company.id, {
         // master_key_id: newMasterKeyId, // Uncomment when schema includes this field
-        updated_at: Date.now(),
-        versionVector: incrementVersionVector(company.versionVector),
-      });
+        version_vector: incrementVersionVector(company.version_vector),
+      } as any);
     }
   }
 

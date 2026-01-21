@@ -151,8 +151,10 @@ describe('Extended Audit Log Service', () => {
       });
 
       expect(result.executionTimeMs).toBeLessThan(200);
-      expect(result.logs.every((log) => log.timestamp >= threeDaysAgo.getTime())).toBe(true);
-      expect(result.logs.every((log) => log.timestamp <= now.getTime())).toBe(true);
+      const startTime = threeDaysAgo.getTime();
+      const endTime = now.getTime();
+      expect(result.logs.every((log) => log.timestamp >= startTime)).toBe(true);
+      expect(result.logs.every((log) => log.timestamp <= endTime)).toBe(true);
     });
 
     it('should filter by user IDs', async () => {
@@ -293,8 +295,10 @@ describe('Extended Audit Log Service', () => {
         now
       );
 
-      expect(result.logs.every((log) => log.timestamp >= weekAgo.getTime())).toBe(true);
-      expect(result.logs.every((log) => log.timestamp <= now.getTime())).toBe(true);
+      const weekAgoTime = weekAgo.getTime();
+      const nowTime = now.getTime();
+      expect(result.logs.every((log) => log.timestamp >= weekAgoTime)).toBe(true);
+      expect(result.logs.every((log) => log.timestamp <= nowTime)).toBe(true);
       expect(result.executionTimeMs).toBeLessThan(200);
     });
   });
@@ -342,8 +346,8 @@ describe('Extended Audit Log Service', () => {
       expect(result.totalLogs).toBeGreaterThan(0);
       expect(result.executionTimeMs).toBeLessThan(250); // Relaxed for CI environments
 
-      // Verify entry! structure
-      const entry! = result.entries[0];
+      // Verify entry structure
+      const entry = result.entries[0];
       expect(entry!).toHaveProperty('timestamp');
       expect(entry!).toHaveProperty('date');
       expect(entry!).toHaveProperty('count');
@@ -395,7 +399,7 @@ describe('Extended Audit Log Service', () => {
         'day'
       );
 
-      const entry! = result.entries[0];
+      const entry = result.entries[0];
       expect(entry!.actions.length).toBeGreaterThan(0);
       expect(entry!.entityTypes.length).toBeGreaterThan(0);
 

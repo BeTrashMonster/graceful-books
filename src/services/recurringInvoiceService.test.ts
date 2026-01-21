@@ -7,7 +7,6 @@
 
 import { describe, it, expect } from 'vitest';
 import { RRule } from 'rrule';
-import { addMonths, setDate, lastDayOfMonth } from 'date-fns';
 import {
   generateRRuleString,
   calculateNextGenerationDate,

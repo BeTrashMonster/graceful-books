@@ -116,8 +116,6 @@ function createMockContext(discType: 'D' | 'I' | 'S' | 'C'): EmailGenerationCont
         'progress-update',
       ],
       maxTasksToShow: 5,
-      discProfileId: null,
-      useDiscAdaptation: true,
       lastSentAt: null,
       nextScheduledAt: null,
       unsubscribedAt: null,

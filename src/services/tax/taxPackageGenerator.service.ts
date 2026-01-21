@@ -44,8 +44,11 @@ export async function generateTaxPackage(
   const endDate = new Date(`${taxYear}-12-31`)
 
   const plReport = await generateProfitLossReport({
-    startDate,
-    endDate,
+    companyId: companyId,
+    dateRange: {
+      startDate: startDate,
+      endDate: endDate,
+    },
     accountingMethod: 'accrual', // Default to accrual for tax purposes
   })
 

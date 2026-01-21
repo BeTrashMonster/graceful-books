@@ -41,8 +41,6 @@ function createTestContext(): EmailGenerationContext {
       timezone: 'America/New_York',
       includeSections: ['checklist-summary', 'quick-tips'],
       maxTasksToShow: 5,
-      discProfileId: null,
-      useDiscAdaptation: true,
       lastSentAt: null,
       nextScheduledAt: null,
       unsubscribedAt: null,

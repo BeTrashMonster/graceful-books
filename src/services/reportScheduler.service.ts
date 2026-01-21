@@ -11,7 +11,6 @@ import { RRule, Frequency } from 'rrule';
 import { db } from '../db/database';
 import { nanoid } from 'nanoid';
 import { logger } from '../utils/logger';
-import { AppError, ErrorCode } from '../utils/errors';
 import type {
   ReportSchedule,
   CreateScheduleInput,

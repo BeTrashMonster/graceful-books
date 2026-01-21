@@ -10,7 +10,6 @@
  * - Shows completion status for drafts
  */
 
-import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { getRelativeTimeString, getEntityTypeIcon, getEntityTypeDisplayName } from '../../db/schema/recentActivity.schema';
 import type { RecentEditEntry } from '../../types/recentActivity.types';

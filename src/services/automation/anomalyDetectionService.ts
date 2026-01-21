@@ -225,7 +225,7 @@ export class AnomalyDetectionService {
     const similar = await this.findSimilarTransactions(input, duplicateThreshold)
 
     if (similar.length > 0) {
-      const mostSimilar! = similar[0]
+      const mostSimilar = similar[0]
       const daysBetween = Math.abs(
         differenceInDays(new Date(input.transactionDate), new Date(mostSimilar!.date))
       )

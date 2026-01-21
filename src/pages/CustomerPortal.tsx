@@ -59,10 +59,9 @@ export default function CustomerPortal() {
 
       if (!result.success) {
         setState('invalid');
+        // Use the error message from the service, which already handles rate limiting
         setErrorMessage(
-          result.error?.code === ErrorCode.RATE_LIMITED
-            ? "We've noticed a few attempts. For your security, please wait a moment."
-            : 'This portal link is invalid or has expired. Please request a new one from the sender.'
+          result.error?.message || 'This portal link is invalid or has expired. Please request a new one from the sender.'
         );
         return;
       }

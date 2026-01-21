@@ -301,8 +301,12 @@ describe('Group E Integration Tests', () => {
         companyId: testCompanyId,
         templateId: template.id,
         customerId: customer.id,
-        frequency: 'monthly',
-        interval: 1,
+        templateName: 'Monthly Service Invoice',
+        lineItems: template.line_items,
+        recurrenceRule: {
+          frequency: 'monthly',
+          interval: 1,
+        },
         startDate: new Date().getTime(),
         autoSend: false,
       });
@@ -455,8 +459,12 @@ describe('Group E Integration Tests', () => {
         companyId: testCompanyId,
         templateId: template.id,
         customerId: customer.id,
-        frequency: 'monthly',
-        interval: 1,
+        templateName: 'Consulting Services',
+        lineItems: template.lineItems,
+        recurrenceRule: {
+          frequency: 'monthly',
+          interval: 1,
+        },
         startDate: new Date().getTime(),
         autoSend: false,
       });

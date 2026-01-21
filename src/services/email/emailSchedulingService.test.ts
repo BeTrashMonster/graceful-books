@@ -50,8 +50,6 @@ function createMockContext(discType: 'D' | 'I' | 'S' | 'C' = 'S'): EmailGenerati
       timezone: 'America/Los_Angeles',
       includeSections: ['checklist-summary', 'quick-tips'],
       maxTasksToShow: 5,
-      discProfileId: null,
-      useDiscAdaptation: true,
       lastSentAt: null,
       nextScheduledAt: null,
       unsubscribedAt: null,

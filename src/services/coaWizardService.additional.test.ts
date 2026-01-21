@@ -53,7 +53,6 @@ describe('CoaWizardService - Additional Comprehensive Tests', () => {
       const mockEncryptionContext: EncryptionContext = {
         companyId: 'company-1',
         userId: 'user-1',
-        encryptionKey: 'test-key',
       }
 
       vi.mocked(accountsStore.batchCreateAccounts).mockResolvedValue({
@@ -101,7 +100,6 @@ describe('CoaWizardService - Additional Comprehensive Tests', () => {
       const mockEncryptionContext: EncryptionContext = {
         companyId: 'company-1',
         userId: 'user-1',
-        encryptionKey: 'invalid-key',
       }
 
       vi.mocked(accountsStore.batchCreateAccounts).mockRejectedValue(
@@ -414,7 +412,7 @@ describe('CoaWizardService - Additional Comprehensive Tests', () => {
 
       await createAccountsFromWizard('company-1', wizardData)
 
-      const callArgs! = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
+      const callArgs = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
       const accountsToCreate = callArgs![0]
 
       const customizedAccount = accountsToCreate.find(
@@ -447,7 +445,7 @@ describe('CoaWizardService - Additional Comprehensive Tests', () => {
 
       await createAccountsFromWizard('company-1', wizardData)
 
-      const callArgs! = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
+      const callArgs = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
       const accountsToCreate = callArgs![0]
 
       // Should have customized account
@@ -573,7 +571,7 @@ describe('CoaWizardService - Additional Comprehensive Tests', () => {
 
       await createAccountsFromWizard('company-1', wizardData)
 
-      const callArgs! = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
+      const callArgs = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
       const accountsToCreate = callArgs![0]
 
       // Check for duplicate account numbers
@@ -600,7 +598,7 @@ describe('CoaWizardService - Additional Comprehensive Tests', () => {
 
       await createAccountsFromWizard(companyId, wizardData)
 
-      const callArgs! = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
+      const callArgs = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
       const accountsToCreate = callArgs![0]
 
       // All accounts should have the correct company ID
@@ -623,7 +621,7 @@ describe('CoaWizardService - Additional Comprehensive Tests', () => {
 
       await createAccountsFromWizard('company-1', wizardData)
 
-      const callArgs! = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
+      const callArgs = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
       const accountsToCreate = callArgs![0]
 
       // All accounts should be active

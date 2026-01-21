@@ -26,7 +26,7 @@ import type {
   ScenarioTemplateKey,
   FormulaParseResult,
 } from '../../types/scenarios.types';
-import type { Account, JournalEntry } from '../../types/database.types';
+import { AccountType } from '../../types/database.types';
 import type { DateRange } from '../../types/reports.types';
 
 // Configure Decimal.js for currency precision
@@ -79,7 +79,7 @@ export async function pullBaselineSnapshot(
 
   // Calculate cash balance (sum of all Cash & Bank accounts)
   const cashAccounts = accounts.filter(
-    (acc) => acc.type === 'bank' || acc.name.toLowerCase().includes('cash')
+    (acc) => acc.type === ('ASSET' as any) && (acc.subType === ('bank' as any) || acc.name.toLowerCase().includes('cash'))
   );
   const cashBalance = cashAccounts.reduce((sum, acc) => {
     return sum.plus(new Decimal(acc.balance || 0));
@@ -87,7 +87,7 @@ export async function pullBaselineSnapshot(
 
   // Extract payroll data (simplified for MVP)
   const payrollExpenseAccounts = accounts.filter(
-    (acc) => acc.type === 'expense' &&
+    (acc) => acc.type === ('EXPENSE' as any) &&
     (acc.name.toLowerCase().includes('salary') ||
      acc.name.toLowerCase().includes('wages') ||
      acc.name.toLowerCase().includes('payroll'))
@@ -99,7 +99,7 @@ export async function pullBaselineSnapshot(
 
   // Extract payroll tax data
   const payrollTaxAccounts = accounts.filter(
-    (acc) => acc.type === 'expense' &&
+    (acc) => acc.type === ('EXPENSE' as any) &&
     (acc.name.toLowerCase().includes('payroll tax') ||
      acc.name.toLowerCase().includes('fica') ||
      acc.name.toLowerCase().includes('unemployment'))
@@ -111,13 +111,13 @@ export async function pullBaselineSnapshot(
 
   // Extract invoicing data (simplified - would integrate with invoices table in production)
   const arAccount = accounts.find(
-    (acc) => acc.type === 'accounts-receivable' || acc.accountNumber === '1200'
+    (acc) => (acc.type === ('ASSET' as any) && acc.subType === ('accounts-receivable' as any)) || acc.accountNumber === '1200'
   );
   const arBalance = arAccount ? new Decimal(arAccount.balance || 0) : new Decimal(0);
 
   // Extract revenue data
   const revenueAccounts = accounts.filter(
-    (acc) => acc.type === 'income' || acc.type === 'other-income'
+    (acc) => acc.type === ('INCOME' as any) || acc.type === ('OTHER_INCOME' as any)
   );
   const totalRevenue = revenueAccounts.reduce((sum, acc) => {
     return sum.plus(new Decimal(acc.balance || 0));

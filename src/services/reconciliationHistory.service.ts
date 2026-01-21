@@ -843,7 +843,7 @@ export async function getUnreconciledDashboard(
     const accounts = await db.accounts
       .where('companyId')
       .equals(companyId)
-      .and((acc) => acc.type === 'ASSET' && acc.isActive && !acc.deletedAt)
+      .and((acc) => acc.type === ('ASSET' as any) && acc.isActive && !acc.deletedAt)
       .toArray();
 
     const dashboard: UnreconciledDashboard = {

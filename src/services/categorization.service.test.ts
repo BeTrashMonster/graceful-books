@@ -374,7 +374,7 @@ describe('CategorizationService', () => {
       ]
 
       for (let i = 0; i < trainingExamples.length; i++) {
-        const example! = trainingExamples[i]
+        const example = trainingExamples[i]
         await db.trainingData.add({
           id: crypto.randomUUID(),
           company_id: companyId,

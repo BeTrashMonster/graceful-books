@@ -188,7 +188,9 @@ export class MultiUserAuditService {
         entity_type: (metadata.targetResource || 'SYSTEM') as any,
         entity_id: metadata.targetResourceId || '',
         action: eventType as any,
-        changes: metadata.changes ? JSON.stringify(metadata.changes) : null,
+        before_value: null,
+        after_value: metadata.changes ? JSON.stringify(metadata.changes) : null,
+        changed_fields: metadata.changes ? Object.keys(metadata.changes) : [],
         ip_address: metadata.ipAddress || null,
         device_id: metadata.deviceId || deviceId,
         user_agent: metadata.userAgent || null,
@@ -546,11 +548,13 @@ export class MultiUserAuditService {
       }
 
       if (filters.startDate) {
-        results = results.filter((log) => log.timestamp >= filters.startDate!);
+        const startDate = filters.startDate;
+        results = results.filter((log) => log.timestamp >= startDate);
       }
 
       if (filters.endDate) {
-        results = results.filter((log) => log.timestamp <= filters.endDate!);
+        const endDate = filters.endDate;
+        results = results.filter((log) => log.timestamp <= endDate);
       }
 
       if (filters.resourceType) {

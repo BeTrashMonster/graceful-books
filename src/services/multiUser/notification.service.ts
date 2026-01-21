@@ -17,7 +17,6 @@
  * - C (Conscientiousness): Analytical, detailed, precise
  */
 
-import type { User, CompanyUser } from '../../types/database.types';
 import { logger } from '../../utils/logger';
 import { generateId } from '../../utils/device';
 

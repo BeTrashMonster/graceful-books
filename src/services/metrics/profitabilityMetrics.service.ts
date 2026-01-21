@@ -361,10 +361,6 @@ export class ProfitabilityMetricsService {
     // This is a rough estimate - actual employee count would require separate tracking
     const employeeCount = 1; // Simplified for now
 
-    if (employeeCount === 0) {
-      return null;
-    }
-
     const revenuePerEmployee = revenue.div(employeeCount);
     const value = revenuePerEmployee.toFixed(2);
 

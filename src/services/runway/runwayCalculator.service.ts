@@ -28,6 +28,7 @@ import type {
   RunwayTrendDataPoint,
 } from '../../types/runway.types'
 import { db } from '../../db/database'
+import { AccountType } from '../../types/database.types'
 
 // Configure Decimal.js for currency precision
 Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_UP })
@@ -107,14 +108,14 @@ export async function calculateAvailableCash(companyId: string): Promise<number>
 
     // Add cash and current assets
     if (
-      account.type === 'asset' &&
+      account.type === AccountType.ASSET &&
       (account.subType === 'current-asset' || account.name.toLowerCase().includes('cash'))
     ) {
       availableCash = availableCash.plus(balance)
     }
 
     // Subtract current liabilities due within 90 days
-    if (account.type === 'liability' && account.subType === 'current-liability') {
+    if (account.type === AccountType.LIABILITY && account.subType === 'current-liability') {
       availableCash = availableCash.minus(balance)
     }
   }
@@ -163,12 +164,12 @@ async function getMonthlyData(
 
       const amount = new Decimal(line.credit).minus(line.debit)
 
-      if (account.type === 'income' || account.type === 'other-income') {
+      if (account.type === AccountType.INCOME || account.type === AccountType.OTHER_INCOME) {
         monthData.revenue = monthData.revenue.plus(amount)
       } else if (
-        account.type === 'expense' ||
-        account.type === 'cost-of-goods-sold' ||
-        account.type === 'other-expense'
+        account.type === AccountType.EXPENSE ||
+        account.type === AccountType.COGS ||
+        account.type === AccountType.OTHER_EXPENSE
       ) {
         monthData.expenses = monthData.expenses.plus(amount.abs())
       }
