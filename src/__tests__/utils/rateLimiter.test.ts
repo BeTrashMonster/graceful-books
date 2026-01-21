@@ -452,6 +452,7 @@ describe('formatWaitTime', () => {
 describe('singleton rateLimiter', () => {
   beforeEach(() => {
     rateLimiter.clear();
+    rateLimiter.setEnabled(true); // Re-enable rate limiting for singleton tests
   });
 
   it('should be a RateLimiter instance', () => {

@@ -25,21 +25,19 @@ Object.defineProperty(window, 'matchMedia', {
 })
 
 // Mock rate limiter to always allow requests in tests
-vi.mock('../utils/rateLimiter', () => ({
-  rateLimiter: {
-    async check() {
-      return {
-        allowed: true,
-        waitTimeMs: 0,
-      }
-    },
-  },
-  CRYPTO_RATE_LIMITS: {
-    keyDerivation: { maxRequests: 5, windowMs: 60000 },
-    encryption: { maxRequests: 100, windowMs: 60000 },
-    decryption: { maxRequests: 100, windowMs: 60000 },
-  },
-}))
+// Use importOriginal to preserve RateLimiter class for unit tests
+vi.mock('../utils/rateLimiter', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../utils/rateLimiter')>()
+
+  // Create a real RateLimiter instance for tests, but with rate limiting disabled
+  const testLimiter = new actual.RateLimiter()
+  testLimiter.setEnabled(false) // Disable rate limiting for all tests except rate limiter's own tests
+
+  return {
+    ...actual, // Preserve RateLimiter class and other exports
+    rateLimiter: testLimiter,
+  }
+})
 
 // Mock argon2-browser for crypto tests
 // Provides a working argon2 implementation in the test environment
