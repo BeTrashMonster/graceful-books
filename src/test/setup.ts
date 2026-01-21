@@ -24,6 +24,74 @@ Object.defineProperty(window, 'matchMedia', {
   }),
 })
 
+// Mock rate limiter to always allow requests in tests
+vi.mock('../utils/rateLimiter', () => ({
+  rateLimiter: {
+    async check() {
+      return {
+        allowed: true,
+        waitTimeMs: 0,
+      }
+    },
+  },
+  CRYPTO_RATE_LIMITS: {
+    keyDerivation: { maxRequests: 5, windowMs: 60000 },
+    encryption: { maxRequests: 100, windowMs: 60000 },
+    decryption: { maxRequests: 100, windowMs: 60000 },
+  },
+}))
+
+// Mock argon2-browser for crypto tests
+// Provides a working argon2 implementation in the test environment
+if (typeof window !== 'undefined') {
+  (window as any).argon2 = {
+    ArgonType: {
+      Argon2d: 0,
+      Argon2i: 1,
+      Argon2id: 2,
+    },
+    async hash(options: {
+      pass: string
+      salt: Uint8Array
+      time: number
+      mem: number
+      parallelism: number
+      hashLen: number
+      type: number
+    }) {
+      // Use Web Crypto API to simulate argon2
+      const encoder = new TextEncoder()
+      const passBuffer = encoder.encode(options.pass)
+
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        passBuffer,
+        'PBKDF2',
+        false,
+        ['deriveBits']
+      )
+
+      const derivedBits = await crypto.subtle.deriveBits(
+        {
+          name: 'PBKDF2',
+          salt: options.salt,
+          iterations: options.time * 100000,
+          hash: 'SHA-256',
+        },
+        keyMaterial,
+        options.hashLen * 8
+      )
+
+      return {
+        hash: new Uint8Array(derivedBits),
+        hashHex: Array.from(new Uint8Array(derivedBits))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join(''),
+      }
+    },
+  }
+}
+
 // Mock brain.js (neural network library)
 // This allows tests to run without native compilation dependencies
 vi.mock('brain.js', () => {

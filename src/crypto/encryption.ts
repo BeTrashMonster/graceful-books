@@ -38,6 +38,7 @@ import {
   sanitizeError,
   logSecurityError,
   isDevMode,
+  SecurityErrorCode,
 } from '../utils/errorSanitizer';
 
 /**
@@ -129,7 +130,7 @@ export async function encrypt(
     return {
       success: false,
       error: sanitized.userMessage,
-      errorCode: 'UNKNOWN_ERROR',
+      errorCode: SecurityErrorCode.CRYPTO_FAILED,
       // Include original error only in development
       ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
@@ -209,7 +210,7 @@ export async function decrypt(
     return {
       success: false,
       error: sanitized.userMessage,
-      errorCode: 'UNKNOWN_ERROR',
+      errorCode: SecurityErrorCode.CRYPTO_FAILED,
       // Include original error only in development
       ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
@@ -259,7 +260,7 @@ export async function decryptToBytes(
     return {
       success: false,
       error: sanitized.userMessage,
-      errorCode: 'UNKNOWN_ERROR',
+      errorCode: SecurityErrorCode.CRYPTO_FAILED,
       // Include original error only in development
       ...(isDevMode() && { debugInfo: (error as Error).message }),
     };
