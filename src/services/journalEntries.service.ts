@@ -36,6 +36,7 @@ import type {
   CreateReversingEntryOptions,
   JournalEntryValidationResult,
   JournalEntryStatistics,
+  JournalEntryApprovalStatus,
 } from '../types/journalEntry.types';
 import {
   validateTransactionBalance,

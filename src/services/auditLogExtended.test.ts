@@ -535,8 +535,8 @@ describe('Extended Audit Log Service', () => {
 
       // Add old logs
       await db.auditLogs.bulkAdd([
-        createTestAuditLog({ timestamp: old, created_at: old }) as AuditLogEntity,
-        createTestAuditLog({ timestamp: old, created_at: old }) as AuditLogEntity,
+        createTestAuditLog({ timestamp: old, created_at: old }) as AuditLog,
+        createTestAuditLog({ timestamp: old, created_at: old }) as AuditLog,
       ]);
 
       // Add recent logs
