@@ -67,7 +67,7 @@ describe('PaymentSplitService', () => {
 
       // Mock account lookups
       vi.spyOn(service as any, 'getLoanAccount').mockResolvedValue(mockLoanAccount);
-      vi.mocked(mockDb.accounts!.get).mockImplementation(async (id: string) => {
+      vi.mocked(mockDb.accounts!.get).mockImplementation((async (id: string) => {
         if (id === 'liability-account-1') {
           return {
             id: 'liability-account-1',
@@ -102,7 +102,7 @@ describe('PaymentSplitService', () => {
           } as any;
         }
         return undefined;
-      });
+      }) as any);
 
       const request: SplitPaymentRequest = {
         transaction_id: 'txn-1',
@@ -131,14 +131,14 @@ describe('PaymentSplitService', () => {
         current_balance: '10000.00',
       });
 
-      vi.mocked(mockDb.accounts!.get).mockImplementation(async (id: string) => {
+      vi.mocked(mockDb.accounts!.get).mockImplementation((async (id: string) => {
         if (id === 'liability-account-1') {
           return { type: 'LIABILITY' } as any;
         } else if (id === 'interest-expense-1') {
           return { type: 'EXPENSE' } as any;
         }
         return undefined;
-      });
+      }) as any);
 
       const request: SplitPaymentRequest = {
         transaction_id: 'txn-1',
@@ -209,14 +209,14 @@ describe('PaymentSplitService', () => {
         current_balance: '10000.00',
       });
 
-      vi.mocked(mockDb.accounts!.get).mockImplementation(async (id: string) => {
+      vi.mocked(mockDb.accounts!.get).mockImplementation((async (id: string) => {
         if (id === 'liability-account-1') {
           return { type: 'LIABILITY' } as any;
         } else if (id === 'interest-expense-1') {
           return { type: 'EXPENSE' } as any;
         }
         return undefined;
-      });
+      }) as any);
 
       const request: SplitPaymentRequest = {
         transaction_id: 'txn-1',
@@ -245,14 +245,14 @@ describe('PaymentSplitService', () => {
         current_balance: '10000.00', // Lower than principal of 14500
       });
 
-      vi.mocked(mockDb.accounts!.get).mockImplementation(async (id: string) => {
+      vi.mocked(mockDb.accounts!.get).mockImplementation((async (id: string) => {
         if (id === 'liability-account-1') {
           return { type: 'LIABILITY' } as any;
         } else if (id === 'interest-expense-1') {
           return { type: 'EXPENSE' } as any;
         }
         return undefined;
-      });
+      }) as any);
 
       const request: SplitPaymentRequest = {
         transaction_id: 'txn-1',

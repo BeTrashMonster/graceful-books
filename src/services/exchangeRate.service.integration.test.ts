@@ -269,9 +269,9 @@ describe('ExchangeRateService - Integration Tests', () => {
         Date.now() - 86400000,  // 1 day ago
       ];
 
-      await service.createExchangeRate(companyId, 'USD', 'EUR', '0.90', dates[0]);
-      await service.createExchangeRate(companyId, 'USD', 'EUR', '0.91', dates[1]);
-      await service.createExchangeRate(companyId, 'USD', 'EUR', '0.92', dates[2]);
+      await service.createExchangeRate(companyId, 'USD', 'EUR', '0.90', dates[0]!);
+      await service.createExchangeRate(companyId, 'USD', 'EUR', '0.91', dates[1]!);
+      await service.createExchangeRate(companyId, 'USD', 'EUR', '0.92', dates[2]!);
 
       const history = await service.getExchangeRateHistory(
         companyId,

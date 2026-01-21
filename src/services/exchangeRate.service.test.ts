@@ -12,7 +12,8 @@ import {
   calculateAverageRate,
   calculateWeightedAverageRate
 } from './exchangeRate.service';
-import type { ExchangeRate, ExchangeRateSource } from '../types/currency.types';
+import type { ExchangeRate } from '../types/currency.types';
+import { ExchangeRateSource } from '../types/currency.types';
 
 // Mock encryption service
 class MockEncryptionService {
@@ -116,7 +117,7 @@ describe('ExchangeRateService', () => {
         'EUR',
         '0.85',
         Date.now(),
-        'MANUAL'
+        ExchangeRateSource.MANUAL
       );
 
       expect(rate).toBeDefined();
@@ -173,7 +174,7 @@ describe('ExchangeRateService', () => {
         'EUR',
         '0.85',
         Date.now(),
-        'MANUAL',
+        ExchangeRateSource.MANUAL,
         'Manual rate from bank statement'
       );
 
