@@ -16,13 +16,17 @@ const defaultConfig: EmailServiceConfig = {
   apiKey: process.env.VITE_EMAIL_API_KEY || '',
   fromEmail: process.env.VITE_EMAIL_FROM || 'noreply@gracefulbooks.com',
   fromName: 'Graceful Books',
+  testMode: true,
+  maxEmailsPerMinute: 10,
+  maxEmailsPerHour: 100,
   defaultMaxRetries: 3,
+  retryDelayMinutes: [1, 5, 15],
 };
 
 // Singleton instance
 let emailServiceInstance: EmailService | null = null;
 
-function getEmailService(): EmailService {
+function _getEmailService(): EmailService {
   if (!emailServiceInstance) {
     emailServiceInstance = new EmailService(defaultConfig);
   }
@@ -43,7 +47,7 @@ export async function queueEmail(params: {
 }): Promise<void> {
   // TODO: In production, this should properly extract companyId and userId
   // from the context or session. For now, using placeholder values.
-  const emailService = getEmailService();
+  // const emailService = getEmailService(); // Will be used when implementing actual email sending
 
   // For now, just log the email (since we don't have proper context)
   console.log('Email queued:', {

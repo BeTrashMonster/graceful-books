@@ -597,9 +597,9 @@ describe('ParentAccountSelector', () => {
           // Execute the query in the background (this will trigger console.error)
           queryFn().catch(() => {}) // Ignore the error, it's logged inside
           // Return default value immediately (as useLiveQuery does while loading)
-          return defaultValue
+          return _defaultValue
         }
-        return defaultValue
+        return _defaultValue
       })
 
       // Mock HierarchyService to throw error

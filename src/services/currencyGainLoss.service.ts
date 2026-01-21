@@ -104,7 +104,7 @@ export class CurrencyGainLossService implements ICurrencyGainLossService {
   constructor(
     private exchangeRateService: IExchangeRateService,
     private companyId: string,
-    private db: any // Dexie database instance
+    _db: any // Dexie database instance - unused for now
   ) {}
 
   /**

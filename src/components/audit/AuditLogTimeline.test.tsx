@@ -50,9 +50,10 @@ describe('AuditLogTimeline Component', () => {
             deviceId: 'device-1',
             userAgent: 'Browser',
             timestamp: new Date(),
-            created_at: Date.now(),
-            updated_at: Date.now(),
-            deleted_at: null,
+            _encrypted: {
+              beforeValues: false,
+              afterValues: false,
+            },
           },
         ],
       },

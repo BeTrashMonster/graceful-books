@@ -485,7 +485,7 @@ export class KeyRotationService {
     if (company) {
       await db.companies.update(company.id, {
         // master_key_id: newMasterKeyId, // Uncomment when schema includes this field
-        version_vector: incrementVersionVector(company.version_vector),
+        version_vector: incrementVersionVector(company.versionVector),
       } as any);
     }
   }

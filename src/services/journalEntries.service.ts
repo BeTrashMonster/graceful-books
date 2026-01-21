@@ -15,7 +15,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import type { Database } from '../db/database';
+import Database from '../db/database';
 import type {
   Transaction,
   TransactionLineItem,
@@ -47,9 +47,9 @@ import {
  * Journal Entries Service Class
  */
 export class JournalEntriesService {
-  private db: Database;
+  private db: typeof Database;
 
-  constructor(db: Database) {
+  constructor(db: typeof Database) {
     this.db = db;
   }
 
@@ -588,7 +588,7 @@ export class JournalEntriesService {
       approved_this_month: journalEntries.filter(
         (e) => e.approval_status === 'APPROVED' && e.approved_at && e.approved_at >= monthAgo
       ).length,
-      total_reversing_entries: journalEntries.filter((e) => e.is_reversing_entry).length,
+      total_reversing_entries: journalEntries.filter((e) => e.is_reversing).length,
       entries_from_templates: journalEntries.filter((e) => e.template_id).length,
     };
   }
@@ -733,6 +733,6 @@ export class JournalEntriesService {
 /**
  * Create journal entries service instance
  */
-export const createJournalEntriesService = (db: Database): JournalEntriesService => {
+export const createJournalEntriesService = (db: typeof Database): JournalEntriesService => {
   return new JournalEntriesService(db);
 };

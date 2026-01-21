@@ -181,7 +181,7 @@ describe('recurrence.service', () => {
 
     it('should handle bi-weekly occurrences', () => {
       const rule: RecurrenceRule = {
-        frequency: 'BIWEEKLY',
+        frequency: RecurrenceFrequency.BI_WEEKLY,
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
         endType: RecurrenceEndType.NEVER,

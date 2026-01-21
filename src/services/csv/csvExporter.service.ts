@@ -185,7 +185,7 @@ export class CSVExporterService {
     const { selectedFields, includeHeaders = true } = config;
 
     // Determine which fields to include
-    const fields = selectedFields || Object.keys(data[0]);
+    const fields = selectedFields || Object.keys(data[0]!);
 
     // Build CSV content
     const lines: string[] = [];

@@ -471,7 +471,5 @@ export interface EmailFollowUpTemplate {
  * TODO: Extend BalanceSheetData with report-specific metadata
  */
 export interface BalanceSheetReport extends BalanceSheetData {
-  generatedAt?: number
-  companyId?: string
   reportPeriod?: ReportPeriod
 }

@@ -486,7 +486,7 @@ export class MultiUserNotificationService {
       // For now, default to Steadiness (most supportive)
       return 'S';
     } catch (error) {
-      log.error('Failed to get user DISC type', { userId, error });
+      log.error('Failed to get user DISC type', { userId: _userId, error });
       return 'S'; // Default to Steadiness
     }
   }

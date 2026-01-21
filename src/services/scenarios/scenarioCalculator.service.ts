@@ -79,7 +79,7 @@ export async function pullBaselineSnapshot(
   });
 
   if (!balanceSheetResult.success) throw new Error('Failed to generate balance sheet');
-  const balanceSheet = balanceSheetResult.data as any as BalanceSheetReport;
+  const balanceSheet = balanceSheetResult.data as any;
 
   // Calculate cash balance (sum of all Cash & Bank accounts)
   const cashAccounts = accounts.filter(

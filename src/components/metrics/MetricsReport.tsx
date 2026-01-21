@@ -668,7 +668,7 @@ interface ValuationPanelProps extends PanelProps {
   metrics: ValuationMetrics;
 }
 
-function ValuationPanel({ metrics, showExplanations, showBenchmarks, onDrillDown }: ValuationPanelProps) {
+function ValuationPanel({ metrics: _metrics }: ValuationPanelProps) {
   return (
     <div>
       <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>Valuation Multiples</h2>

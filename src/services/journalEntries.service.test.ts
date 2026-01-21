@@ -16,16 +16,15 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { JournalEntriesService } from './journalEntries.service';
-import type { Database } from '../db/database';
+import Database from '../db/database';
 import type {
   CreateJournalEntryRequest,
   JournalEntryTemplate,
-  JournalEntryApprovalStatus,
 } from '../types/journalEntry.types';
 import type { Transaction, TransactionLineItem } from '../types/database.types';
 
 // Mock database
-const createMockDatabase = (): Database => {
+const createMockDatabase = (): typeof Database => {
   const transactionsStore: Transaction[] = [];
   const lineItemsStore: TransactionLineItem[] = [];
 
@@ -103,7 +102,7 @@ const createMockDatabase = (): Database => {
 
 describe('JournalEntriesService', () => {
   let service: JournalEntriesService;
-  let mockDb: Database;
+  let mockDb: typeof Database;
   const deviceId = 'test-device-123';
   const userId = 'test-user-123';
   const companyId = 'test-company-123';
@@ -313,12 +312,12 @@ describe('JournalEntriesService', () => {
 
       const draftEntries = await service.getJournalEntries({
         company_id: companyId,
-        approval_status: [JournalEntryApprovalStatus.DRAFT],
+        approval_status: ['DRAFT'],
       });
 
       const pendingEntries = await service.getJournalEntries({
         company_id: companyId,
-        approval_status: [JournalEntryApprovalStatus.PENDING],
+        approval_status: ['PENDING'],
       });
 
       expect(draftEntries).toHaveLength(1);
@@ -604,6 +603,7 @@ describe('JournalEntriesService', () => {
         {
           original_entry_id: original.entry.id,
           reversal_date: Date.now(),
+          submit_for_approval: false,
         },
         deviceId,
         userId

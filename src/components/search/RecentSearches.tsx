@@ -177,7 +177,7 @@ export function RecentSearches({
               role="option"
               aria-selected={index === focusedIndex}
               className={clsx(styles.item, {
-                [styles.focused]: index === focusedIndex,
+                [styles.focused as string]: index === focusedIndex,
               })}
             >
               <button

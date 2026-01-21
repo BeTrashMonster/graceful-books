@@ -13,16 +13,15 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { JournalEntriesService } from './journalEntries.service';
-import type { Database } from '../db/database';
+import Database from '../db/database';
 import type {
   CreateJournalEntryRequest,
-  JournalEntryApprovalStatus,
 } from '../types/journalEntry.types';
 import { STANDARD_JOURNAL_ENTRY_TEMPLATES_EXTENDED } from '../types/journalEntry.types';
 
 describe('Journal Entries Integration Tests', () => {
   let service: JournalEntriesService;
-  let mockDb: Database;
+  let mockDb: typeof Database;
 
   const deviceId1 = 'device-user1';
   const deviceId2 = 'device-approver';
@@ -284,6 +283,7 @@ describe('Journal Entries Integration Tests', () => {
           original_entry_id: original.entry.id,
           reversal_date: Date.now(),
           description: 'Reverse accrued expense',
+          submit_for_approval: false,
         },
         deviceId1,
         userId1

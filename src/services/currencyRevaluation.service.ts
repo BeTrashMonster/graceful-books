@@ -131,9 +131,9 @@ export interface ICurrencyRevaluationService {
 export class CurrencyRevaluationService implements ICurrencyRevaluationService {
   constructor(
     private exchangeRateService: IExchangeRateService,
-    private gainLossService: ICurrencyGainLossService,
+    _gainLossService: ICurrencyGainLossService, // unused for now
     private companyId: string,
-    private db: any // Dexie database instance
+    _db: any // Dexie database instance - unused for now
   ) {}
 
   /**

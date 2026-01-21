@@ -83,7 +83,7 @@ export async function generateTaxPackage(
   const taxDocuments = await getTaxDocuments(userId, taxYear)
   for (const doc of taxDocuments) {
     // Extract base64 data from data URL
-    const base64Data = doc.fileData.split(',')[1]
+    const base64Data = doc.fileData.split(',')[1] || ''
     const categoryFolder = documentsFolder.folder(doc.categoryId)
     if (categoryFolder) {
       categoryFolder.file(doc.fileName, base64Data, { base64: true })
@@ -140,7 +140,7 @@ function generateTransactionCSV(transactions: Transaction[]): string {
     for (const line of transaction.lines!) {
       const row = [
         format(new Date(transaction.date), 'yyyy-MM-dd'),
-        `"${transaction.description.replace(/"/g, '""')}"`,
+        `"${(transaction.description || '').replace(/"/g, '""')}"`,
         transaction.type,
         transaction.status,
         line.accountId,

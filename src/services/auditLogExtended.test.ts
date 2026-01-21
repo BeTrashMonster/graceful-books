@@ -29,6 +29,7 @@ import { AuditAction, AuditEntityType } from '../types/database.types';
 import type {
   AuditLog,
 } from '../types/database.types';
+import type { AuditLogEntity } from '../store/types';
 import { db } from '../store/database';
 
 // Test helpers
@@ -535,8 +536,8 @@ describe('Extended Audit Log Service', () => {
 
       // Add old logs
       await db.auditLogs.bulkAdd([
-        createTestAuditLog({ timestamp: old, created_at: old }) as AuditLog,
-        createTestAuditLog({ timestamp: old, created_at: old }) as AuditLog,
+        createTestAuditLog({ timestamp: old, created_at: old }) as unknown as AuditLogEntity,
+        createTestAuditLog({ timestamp: old, created_at: old }) as unknown as AuditLogEntity,
       ]);
 
       // Add recent logs

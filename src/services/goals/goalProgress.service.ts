@@ -316,7 +316,7 @@ export class GoalProgressService {
           dateRange
         );
 
-        return calculation.months_of_runway.toString();
+        return calculation.months_of_runway?.toString() ?? '0';
       }
 
       case 'savings': {

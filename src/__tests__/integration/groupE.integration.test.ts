@@ -302,10 +302,14 @@ describe('Group E Integration Tests', () => {
         templateId: template.id,
         customerId: customer.id,
         templateName: 'Monthly Service Invoice',
-        lineItems: template.line_items,
+        lineItems: template.lineItems as any,
         recurrenceRule: {
           frequency: 'MONTHLY',
           interval: 1,
+          endCondition: {
+            type: 'NEVER',
+          },
+          rruleString: 'FREQ=MONTHLY;INTERVAL=1',
         },
         startDate: new Date().getTime(),
         autoSend: false,
@@ -465,6 +469,10 @@ describe('Group E Integration Tests', () => {
         recurrenceRule: {
           frequency: 'MONTHLY',
           interval: 1,
+          endCondition: {
+            type: 'NEVER',
+          },
+          rruleString: 'FREQ=MONTHLY;INTERVAL=1',
         },
         startDate: new Date().getTime(),
         autoSend: false,
