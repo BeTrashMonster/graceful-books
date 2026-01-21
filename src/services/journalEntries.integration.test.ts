@@ -267,10 +267,10 @@ describe('Journal Entries Integration Tests', () => {
       expect(reversing.is_balanced).toBe(true);
 
       // Verify debits and credits are swapped
-      expect(reversing.line_items[0].credit).toBe('750.00'); // Was debit
-      expect(reversing.line_items[0].debit).toBe('0.00');
-      expect(reversing.line_items[1].debit).toBe('750.00'); // Was credit
-      expect(reversing.line_items[1].credit).toBe('0.00');
+      expect(reversing.line_items[0]!.credit).toBe('750.00'); // Was debit
+      expect(reversing.line_items[0]!.debit).toBe('0.00');
+      expect(reversing.line_items[1]!.debit).toBe('750.00'); // Was credit
+      expect(reversing.line_items[1]!.credit).toBe('0.00');
 
       // Original entry should reference reversing entry
       const updatedOriginal = await service.getJournalEntryWithLineItems(original.entry.id);
@@ -347,8 +347,8 @@ describe('Journal Entries Integration Tests', () => {
       expect(entry.entry.description).toBe(depreciationTemplate.description);
       expect(entry.is_balanced).toBe(true);
       expect(entry.line_items).toHaveLength(2);
-      expect(entry.line_items[0].debit).toBe('833.33');
-      expect(entry.line_items[1].credit).toBe('833.33');
+      expect(entry.line_items[0]!.debit).toBe('833.33');
+      expect(entry.line_items[1]!.credit).toBe('833.33');
     });
 
     it('should create auto-reversing accrual entry from template', async () => {
@@ -480,7 +480,7 @@ describe('Journal Entries Integration Tests', () => {
         search: 'rent',
       });
       expect(rentEntries).toHaveLength(1);
-      expect(rentEntries[0].entry.description).toContain('rent');
+      expect(rentEntries[0]!.entry.description).toContain('rent');
 
       const suppliesEntries = await service.getJournalEntries({
         company_id: companyId,

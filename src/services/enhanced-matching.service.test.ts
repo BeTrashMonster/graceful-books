@@ -80,7 +80,7 @@ describe('Enhanced Matching Service', () => {
       const result = await enhancedMatchTransactions(statementTxs, systemTxs);
 
       expect(result.matches).toHaveLength(1);
-      expect(result.matches[0].confidence).toBeOneOf([
+      expect(result.matches[0]!.confidence).toBeOneOf([
         MatchConfidence.EXACT,
         MatchConfidence.HIGH,
       ]);
@@ -116,7 +116,7 @@ describe('Enhanced Matching Service', () => {
       });
 
       expect(result.matches).toHaveLength(1);
-      expect(result.matches[0].confidence).toBeOneOf([
+      expect(result.matches[0]!.confidence).toBeOneOf([
         MatchConfidence.HIGH,
         MatchConfidence.MEDIUM,
       ]);
@@ -230,7 +230,7 @@ describe('Enhanced Matching Service', () => {
 
       expect(result.matches).toHaveLength(1);
       // Pattern learning should boost confidence (at least MEDIUM or better)
-      expect(result.matches[0].confidence).toBeOneOf([
+      expect(result.matches[0]!.confidence).toBeOneOf([
         MatchConfidence.EXACT,
         MatchConfidence.HIGH,
         MatchConfidence.MEDIUM,

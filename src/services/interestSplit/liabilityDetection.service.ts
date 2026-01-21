@@ -109,7 +109,7 @@ export class LiabilityDetectionService {
 
       // Use the first liability account as suggestion
       const liabilityAccount = await this.db.accounts.get(
-        liabilityLineItems[0].account_id
+        liabilityLineItems[0]!.account_id
       );
       if (liabilityAccount) {
         suggestedLoanAccountId = liabilityAccount.id;
@@ -287,7 +287,7 @@ export class LiabilityDetectionService {
 
     let regularIntervals = 0;
     for (let i = 1; i < dates.length; i++) {
-      const daysDiff = (dates[i] - dates[i - 1]) / (24 * 60 * 60 * 1000);
+      const daysDiff = (dates[i]! - dates[i - 1]!) / (24 * 60 * 60 * 1000);
       // Check if roughly monthly (25-35 days)
       if (daysDiff >= 25 && daysDiff <= 35) {
         regularIntervals++;

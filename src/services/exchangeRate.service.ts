@@ -848,8 +848,8 @@ export function calculateWeightedAverageRate(
   let totalWeight = new Decimal(0);
 
   for (let i = 0; i < rates.length; i++) {
-    weightedSum = weightedSum.plus(rates[i].mul(weights[i]));
-    totalWeight = totalWeight.plus(weights[i]);
+    weightedSum = weightedSum.plus(rates[i]!.mul(weights[i]!));
+    totalWeight = totalWeight.plus(weights[i]!);
   }
 
   if (totalWeight.isZero()) {

@@ -137,7 +137,7 @@ export class MentionsService {
 
       users.forEach((user) => {
         // Extract username from email (before @)
-        const username = user.email.split('@')[0].toLowerCase();
+        const username = (user.email.split('@')[0] || '').toLowerCase();
         const companyUser = companyUsers.find((cu) => cu.user_id === user.id);
 
         if (companyUser) {

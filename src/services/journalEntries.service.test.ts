@@ -260,9 +260,9 @@ describe('JournalEntriesService', () => {
       });
 
       expect(draftEntries).toHaveLength(1);
-      expect(draftEntries[0].entry.description).toBe('Draft entry');
+      expect(draftEntries[0]!.entry.description).toBe('Draft entry');
       expect(pendingEntries).toHaveLength(1);
-      expect(pendingEntries[0].entry.description).toBe('Pending entry');
+      expect(pendingEntries[0]!.entry.description).toBe('Pending entry');
     });
 
     it('should filter journal entries by date range', async () => {
@@ -488,10 +488,10 @@ describe('JournalEntriesService', () => {
       const reversing = await service.getJournalEntryWithLineItems(reversingEntryId);
 
       // Check that debits and credits are swapped
-      expect(reversing.line_items[0].credit).toBe('100.00'); // Was debit in original
-      expect(reversing.line_items[0].debit).toBe('0.00');
-      expect(reversing.line_items[1].debit).toBe('100.00'); // Was credit in original
-      expect(reversing.line_items[1].credit).toBe('0.00');
+      expect(reversing.line_items[0]!.credit).toBe('100.00'); // Was debit in original
+      expect(reversing.line_items[0]!.debit).toBe('0.00');
+      expect(reversing.line_items[1]!.debit).toBe('100.00'); // Was credit in original
+      expect(reversing.line_items[1]!.credit).toBe('0.00');
 
       expect(reversing.entry.is_reversing).toBe(true);
       expect(reversing.entry.reverses_entry_id).toBe(original.entry.id);
@@ -591,8 +591,8 @@ describe('JournalEntriesService', () => {
       expect(result.entry.template_id).toBe(template.id);
       expect(result.is_balanced).toBe(true);
       expect(result.line_items).toHaveLength(2);
-      expect(result.line_items[0].debit).toBe('500.00');
-      expect(result.line_items[1].credit).toBe('500.00');
+      expect(result.line_items[0]!.debit).toBe('500.00');
+      expect(result.line_items[1]!.credit).toBe('500.00');
     });
   });
 

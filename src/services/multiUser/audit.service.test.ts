@@ -420,7 +420,7 @@ describe('MultiUserAuditService', () => {
       const result = await service.queryLogs(filters);
 
       expect(result.events).toHaveLength(1);
-      expect(result.events[0].action).toBe(AuditEventType.USER_INVITED);
+      expect(result.events[0]!.action).toBe(AuditEventType.USER_INVITED);
     });
 
     it('should query logs with multiple event types', async () => {

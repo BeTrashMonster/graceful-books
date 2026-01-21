@@ -282,8 +282,8 @@ describe('ExchangeRateService - Integration Tests', () => {
       );
 
       expect(history).toHaveLength(2); // Should get rates from dates[1] and dates[2]
-      expect(history[0].effective_date).toBe(dates[1]);
-      expect(history[1].effective_date).toBe(dates[2]);
+      expect(history[0]!.effective_date).toBe(dates[1]);
+      expect(history[1]!.effective_date).toBe(dates[2]);
     });
   });
 
