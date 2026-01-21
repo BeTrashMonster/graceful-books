@@ -53,8 +53,8 @@ export async function generateTaxPackage(
   reportsFolder.file('Profit_Loss_Statement.pdf', plPDF)
 
   // 2. Generate Balance Sheet
-  const balanceSheet = await generateBalanceSheet(endDate)
-  const bsPDF = await generateBalanceSheetPDF(balanceSheet, companyName)
+  const balanceSheet = await generateBalanceSheet(endDate as any)
+  const bsPDF = await generateBalanceSheetPDF(balanceSheet as any, companyName)
   reportsFolder.file('Balance_Sheet.pdf', bsPDF)
 
   // 3. Generate Transaction CSV

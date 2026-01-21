@@ -379,7 +379,7 @@ export class CSVImporterService {
         }
 
         // Import row
-        await this.importRow(row, (columnMap || []) as string[], config.entityType);
+        await this.importRow(row as any, columnMap as any, config.entityType as any);
         imported++;
       }
 

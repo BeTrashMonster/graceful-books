@@ -364,7 +364,7 @@ describe('Extended Audit Log Service', () => {
         logs.push(createTestAuditLog({ timestamp: timestamp.getTime() }));
       }
 
-      await db.auditLogs.bulkAdd(logs as AuditLog[]);
+      await db.auditLogs.bulkAdd(logs as any);
 
       const startOfDay = new Date(now);
       startOfDay.setHours(0, 0, 0, 0);
@@ -655,7 +655,7 @@ describe('Extended Audit Log Service', () => {
   describe('Security and Data Integrity', () => {
     it('should not allow modification of audit logs', async () => {
       const log = createTestAuditLog();
-      await db.auditLogs.add(log as AuditLog);
+      await db.auditLogs.add(log as any);
 
       // Attempt to modify (should not be allowed by schema, but test anyway)
       const result = await searchAuditLogs({

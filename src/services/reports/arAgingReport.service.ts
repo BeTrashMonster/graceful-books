@@ -221,7 +221,7 @@ export async function generateARAgingReport(
     .toArray()
 
   const customerMap = new Map<string, Contact>()
-  customers.forEach((c) => customerMap.set(c.id, c))
+  customers.forEach((c) => customerMap.set(c.id, c as any))
 
   // Get company name
   const company = await db.companies.get(companyId)

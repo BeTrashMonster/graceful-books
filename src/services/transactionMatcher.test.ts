@@ -459,7 +459,7 @@ describe('transactionMatcher', () => {
         },
       ];
 
-      const stats = getMatchStatistics(matches);
+      const stats = getMatchStatistics(matches as any);
 
       expect(stats.total).toBe(4);
       expect(stats.exact).toBe(1);

@@ -112,7 +112,7 @@ export async function getUnresolvedConflicts(): Promise<ConflictHistoryEntry[]> 
   return db
     .table('conflict_history')
     .where('resolvedAt')
-    .equals(null)
+    .equals(null as any)
     .reverse()
     .sortBy('detectedAt');
 }

@@ -199,7 +199,7 @@ export class MultiUserAuditService {
       };
 
       // Note: AuditLog doesn't have version_vector as it's immutable
-      const id = await db.auditLogs.add(auditLog as AuditLog);
+      const id = await db.auditLogs.add(auditLog as any);
 
       log.debug('Audit event logged', {
         eventType,
