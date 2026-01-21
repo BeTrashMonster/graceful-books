@@ -20,8 +20,8 @@ import type {
   Transaction,
   TransactionLineItem,
   TransactionStatus,
-  TransactionType,
 } from '../types/database.types';
+import { TransactionType } from '../types/database.types';
 import type {
   JournalEntry,
   JournalEntryLineItem,
@@ -70,7 +70,7 @@ export class JournalEntriesService {
     // Generate transaction number
     const year = new Date(request.transaction_date).getFullYear();
     const sequence = await this.getNextJournalEntrySequence(request.company_id, year);
-    const transactionNumber = generateTransactionNumber('JOURNAL_ENTRY', year, sequence);
+    const transactionNumber = generateTransactionNumber(TransactionType.JOURNAL_ENTRY, year, sequence);
 
     const now = Date.now();
     const entryId = uuidv4();
@@ -489,9 +489,13 @@ export class JournalEntriesService {
         description: options.description || `Reversing entry for ${originalEntry.entry.transaction_number}`,
         reference: originalEntry.entry.reference,
         memo: `Reverses ${originalEntry.entry.transaction_number}`,
+        attachments: [],
         line_items: reversedLineItems,
+        submit_for_approval: false,
         is_reversing: true,
         reverses_entry_id: options.original_entry_id,
+        auto_reverse_date: null,
+        template_id: null,
       },
       deviceId,
       userId

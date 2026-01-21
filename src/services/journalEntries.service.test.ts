@@ -315,6 +315,7 @@ describe('JournalEntriesService', () => {
       const updated = await service.updateJournalEntry(
         created.entry.id,
         {
+          entry_id: created.entry.id,
           description: 'Updated description',
           memo: 'Added memo',
         },
@@ -419,7 +420,7 @@ describe('JournalEntriesService', () => {
       const created = await service.createJournalEntry(request, deviceId, userId);
 
       await service.approveJournalEntry(
-        { entry_id: created.entry.id, approved_by: 'approver-123' },
+        { entry_id: created.entry.id, approved_by: 'approver-123', post_immediately: false },
         deviceId
       );
 
@@ -514,7 +515,7 @@ describe('JournalEntriesService', () => {
 
       // Approve it first
       await service.approveJournalEntry(
-        { entry_id: created.entry.id, approved_by: 'approver-123' },
+        { entry_id: created.entry.id, approved_by: 'approver-123', post_immediately: false },
         deviceId
       );
 
@@ -620,7 +621,7 @@ describe('JournalEntriesService', () => {
 
       // Approve one
       await service.approveJournalEntry(
-        { entry_id: pending.entry.id, approved_by: 'approver' },
+        { entry_id: pending.entry.id, approved_by: 'approver', post_immediately: false },
         deviceId
       );
 

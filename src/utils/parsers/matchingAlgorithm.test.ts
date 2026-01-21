@@ -11,6 +11,7 @@ import {
   calculateMatchStats,
 } from './matchingAlgorithm';
 import type { StatementTransaction } from '../../types/reconciliation.types';
+import { MatchConfidence } from '../../types/reconciliation.types';
 import type { JournalEntry } from '../../types';
 
 describe('Transaction Matching Algorithm', () => {
@@ -290,11 +291,11 @@ describe('Transaction Matching Algorithm', () => {
 
   describe('getConfidenceDescription', () => {
     it('should return correct descriptions for each confidence level', () => {
-      expect(getConfidenceDescription('EXACT')).toContain('Perfect match');
-      expect(getConfidenceDescription('HIGH')).toContain('Very likely');
-      expect(getConfidenceDescription('MEDIUM')).toContain('Possible');
-      expect(getConfidenceDescription('LOW')).toContain('Uncertain');
-      expect(getConfidenceDescription('MANUAL')).toContain('Manually');
+      expect(getConfidenceDescription(MatchConfidence.EXACT)).toContain('Perfect match');
+      expect(getConfidenceDescription(MatchConfidence.HIGH)).toContain('Very likely');
+      expect(getConfidenceDescription(MatchConfidence.MEDIUM)).toContain('Possible');
+      expect(getConfidenceDescription(MatchConfidence.LOW)).toContain('Uncertain');
+      expect(getConfidenceDescription(MatchConfidence.MANUAL)).toContain('Manually');
     });
   });
 
@@ -304,21 +305,21 @@ describe('Transaction Matching Algorithm', () => {
         {
           statementTransactionId: '1',
           systemTransactionId: 'sys1',
-          confidence: 'EXACT' as const,
+          confidence: MatchConfidence.EXACT,
           score: 100,
           reasons: [],
         },
         {
           statementTransactionId: '2',
           systemTransactionId: 'sys2',
-          confidence: 'HIGH' as const,
+          confidence: MatchConfidence.HIGH,
           score: 85,
           reasons: [],
         },
         {
           statementTransactionId: '3',
           systemTransactionId: 'sys3',
-          confidence: 'MEDIUM' as const,
+          confidence: MatchConfidence.MEDIUM,
           score: 65,
           reasons: [],
         },

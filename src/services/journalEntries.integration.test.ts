@@ -244,7 +244,7 @@ describe('Journal Entries Integration Tests', () => {
       // Approve original
       await service.submitForApproval(original.entry.id, userId1, deviceId1);
       await service.approveJournalEntry(
-        { entry_id: original.entry.id, approved_by: approverId },
+        { entry_id: original.entry.id, approved_by: approverId, post_immediately: false },
         deviceId2
       );
 
@@ -292,7 +292,7 @@ describe('Journal Entries Integration Tests', () => {
       const entry = await service.createJournalEntry(request, deviceId1, userId1);
       await service.submitForApproval(entry.entry.id, userId1, deviceId1);
       await service.approveJournalEntry(
-        { entry_id: entry.entry.id, approved_by: approverId },
+        { entry_id: entry.entry.id, approved_by: approverId, post_immediately: false },
         deviceId2
       );
 
@@ -418,7 +418,7 @@ describe('Journal Entries Integration Tests', () => {
 
       // Approve one
       await service.approveJournalEntry(
-        { entry_id: entries[1].entry.id, approved_by: approverId },
+        { entry_id: entries[1].entry.id, approved_by: approverId, post_immediately: false },
         deviceId2
       );
 
