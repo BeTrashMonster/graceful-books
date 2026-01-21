@@ -379,7 +379,7 @@ export class KeyRotationService {
       await db.accounts.bulkPut(updates);
 
       // Save checkpoint
-      this.saveCheckpoint(job.id, 'accounts', batch[batch.length - 1].id, i + batch.length);
+      this.saveCheckpoint(job.id, 'accounts', batch[batch.length - 1]!.id, i + batch.length);
     }
   }
 
@@ -407,7 +407,7 @@ export class KeyRotationService {
       }));
 
       await db.transactions.bulkPut(updates);
-      this.saveCheckpoint(job.id, 'transactions', batch[batch.length - 1].id, i + batch.length);
+      this.saveCheckpoint(job.id, 'transactions', batch[batch.length - 1]!.id, i + batch.length);
     }
   }
 
@@ -435,7 +435,7 @@ export class KeyRotationService {
       }));
 
       await db.transactionLines.bulkPut(updates);
-      this.saveCheckpoint(job.id, 'transactionLines', batch[batch.length - 1].id, i + batch.length);
+      this.saveCheckpoint(job.id, 'transactionLines', batch[batch.length - 1]!.id, i + batch.length);
     }
   }
 
@@ -463,7 +463,7 @@ export class KeyRotationService {
       }));
 
       await db.contacts.bulkPut(updates);
-      this.saveCheckpoint(job.id, 'contacts', batch[batch.length - 1].id, i + batch.length);
+      this.saveCheckpoint(job.id, 'contacts', batch[batch.length - 1]!.id, i + batch.length);
     }
   }
 
@@ -491,7 +491,7 @@ export class KeyRotationService {
       }));
 
       await db.users.bulkPut(updates);
-      this.saveCheckpoint(job.id, 'users', batch[batch.length - 1].id, i + batch.length);
+      this.saveCheckpoint(job.id, 'users', batch[batch.length - 1]!.id, i + batch.length);
     }
   }
 

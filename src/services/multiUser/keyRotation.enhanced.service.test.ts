@@ -218,7 +218,7 @@ describe('KeyRotationService', () => {
 
       const jobs = service.getCompanyJobs('company-123');
       expect(jobs).toHaveLength(1);
-      expect(jobs[0].companyId).toBe('company-123');
+      expect(jobs[0]!.companyId).toBe('company-123');
     });
 
     it('should return empty array for company with no jobs', () => {

@@ -763,8 +763,8 @@ describe('Profit & Loss Report Service', () => {
       expect(report.revenue.subtotal).toBe(10000)
       expect(report.revenue.comparisonSubtotal).toBe(8000)
       // Note: Variance is calculated on line items, not section totals
-      expect(report.revenue.lineItems[0].variance).toBe(2000)
-      expect(report.revenue.lineItems[0].variancePercentage).toBeCloseTo(25, 1) // 25% increase
+      expect(report.revenue.lineItems[0]!.variance).toBe(2000)
+      expect(report.revenue.lineItems[0]!.variancePercentage).toBeCloseTo(25, 1) // 25% increase
     })
 
     it('should calculate variance percentage correctly', async () => {
@@ -828,7 +828,7 @@ describe('Profit & Loss Report Service', () => {
       const report = await generateProfitLossReport(options)
 
       // 12000 vs 10000 = 20% increase
-      expect(report.revenue.lineItems[0].variancePercentage).toBeCloseTo(20, 1)
+      expect(report.revenue.lineItems[0]!.variancePercentage).toBeCloseTo(20, 1)
     })
 
     it('should handle negative variance (decline)', async () => {
@@ -891,8 +891,8 @@ describe('Profit & Loss Report Service', () => {
 
       const report = await generateProfitLossReport(options)
 
-      expect(report.revenue.lineItems[0].variance).toBe(-4000)
-      expect(report.revenue.lineItems[0].variancePercentage).toBeCloseTo(-40, 1) // 40% decline
+      expect(report.revenue.lineItems[0]!.variance).toBe(-4000)
+      expect(report.revenue.lineItems[0]!.variancePercentage).toBeCloseTo(-40, 1) // 40% decline
     })
 
     it('should calculate gross profit variance', async () => {

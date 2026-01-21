@@ -414,7 +414,7 @@ describe('A/R Aging Report Service', () => {
 
       // Should only have Customer One
       expect(report.customerAging).toHaveLength(1)
-      expect(report.customerAging[0].customerId).toBe('cust-1')
+      expect(report.customerAging[0]!.customerId).toBe('cust-1')
     })
 
     it('should set urgency levels correctly based on days overdue and amount', async () => {
@@ -747,7 +747,7 @@ describe('A/R Aging Report Service', () => {
       const invoices = getCustomerInvoiceDetails(mockReport, 'cust-1', '1-30')
 
       expect(invoices).toHaveLength(1)
-      expect(invoices[0].invoiceNumber).toBe('INV-001')
+      expect(invoices[0]!.invoiceNumber).toBe('INV-001')
     })
   })
 })

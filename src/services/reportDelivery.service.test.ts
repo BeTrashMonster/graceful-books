@@ -127,7 +127,7 @@ describe('ReportDelivery Service', () => {
       const result = await getDeliveryHistory('schedule-123', 50);
 
       expect(result).toHaveLength(1);
-      expect(result[0].id).toBe('delivery-1');
+      expect(result[0]!.id).toBe('delivery-1');
     });
   });
 

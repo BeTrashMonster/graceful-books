@@ -222,7 +222,7 @@ function detectSeasonalPattern(monthlyData: { month: Date; revenue: number; expe
 
   for (const data of monthlyData) {
     const monthOfYear = data.month.getMonth()
-    monthBuckets[monthOfYear].push(data.revenue + data.expenses)
+    monthBuckets[monthOfYear]!.push(data.revenue + data.expenses)
   }
 
   // Check if at least 6 months have multiple data points
@@ -277,8 +277,8 @@ function calculateTrendAdjusted(monthlyData: { month: Date; revenue: number; exp
 
   for (let i = 0; i < monthlyData.length; i++) {
     const weight = i + 1 // 1, 2, 3, ... (most recent is highest)
-    weightedRevenue += monthlyData[i].revenue * weight
-    weightedExpenses += monthlyData[i].expenses * weight
+    weightedRevenue += monthlyData[i]!.revenue * weight
+    weightedExpenses += monthlyData[i]!.expenses * weight
     totalWeight += weight
   }
 
@@ -315,8 +315,8 @@ function calculateSeasonal(monthlyData: { month: Date; revenue: number; expenses
 
   for (const data of monthlyData) {
     const monthOfYear = data.month.getMonth()
-    monthBuckets[monthOfYear].revenue.push(data.revenue)
-    monthBuckets[monthOfYear].expenses.push(data.expenses)
+    monthBuckets[monthOfYear]!.revenue.push(data.revenue)
+    monthBuckets[monthOfYear]!.expenses.push(data.expenses)
   }
 
   // Calculate average for each month
