@@ -90,6 +90,26 @@ if (typeof window !== 'undefined') {
   }
 }
 
+// Mock Recharts components for testing
+// Recharts doesn't render properly in jsdom because it needs to calculate SVG dimensions
+vi.mock('recharts', () => {
+  const React = require('react')
+  return {
+    ResponsiveContainer: ({ children }: any) => React.createElement('div', { className: 'recharts-wrapper recharts-responsive-container' }, children),
+    LineChart: ({ children }: any) => React.createElement('div', { className: 'recharts-wrapper' }, children),
+    BarChart: ({ children }: any) => React.createElement('div', { className: 'recharts-wrapper' }, children),
+    Line: () => React.createElement('div', { className: 'recharts-line' }),
+    Bar: ({ dataKey }: any) => React.createElement('div', { className: 'recharts-bar', 'data-key': dataKey },
+      React.createElement('div', { className: 'recharts-bar-rectangle' })
+    ),
+    XAxis: () => React.createElement('div', { className: 'recharts-xaxis', 'aria-hidden': 'true' }),
+    YAxis: () => React.createElement('div', { className: 'recharts-yaxis', 'aria-hidden': 'true' }),
+    Tooltip: () => React.createElement('div', { className: 'recharts-tooltip', 'aria-hidden': 'true' }),
+    Legend: () => React.createElement('div', { className: 'recharts-legend recharts-legend-wrapper' }),
+    CartesianGrid: () => React.createElement('div', { className: 'recharts-cartesian-grid', 'aria-hidden': 'true' }),
+  }
+})
+
 // Mock brain.js (neural network library)
 // This allows tests to run without native compilation dependencies
 vi.mock('brain.js', () => {
