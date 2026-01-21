@@ -444,7 +444,7 @@ export class JournalEntriesService {
           original_entry_id: request.entry_id,
           reversal_date: now,
           description: `Void: ${entry.description || ''}`,
-          auto_created: true,
+          submit_for_approval: false,
         },
         deviceId,
         userId

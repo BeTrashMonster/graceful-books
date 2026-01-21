@@ -14,7 +14,7 @@
 
 import { db } from '../../db';
 import { renderScenarioPushed } from '../email/templates/scenarioPushed';
-import { queueEmail } from '../email/emailQueue.service';
+import { EmailService } from '../email/email.service';
 import type {
   Scenario,
   ScenarioShare,

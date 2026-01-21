@@ -316,9 +316,10 @@ describe('Group E Integration Tests', () => {
       // Generate invoice from template
       const invoiceResult = await generateInvoiceFromTemplate(
         template.id,
-        customer.id,
-        testCompanyId,
-        testUserId
+        {
+          customerId: customer.id,
+          invoiceDate: new Date(),
+        }
       );
 
       expect(invoiceResult.success).toBe(true);

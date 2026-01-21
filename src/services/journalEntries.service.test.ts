@@ -393,7 +393,6 @@ describe('JournalEntriesService', () => {
       const updated = await service.updateJournalEntry(
         created.entry.id,
         {
-          entry_id: created.entry.id,
           description: 'Updated description',
           memo: 'Added memo',
         },

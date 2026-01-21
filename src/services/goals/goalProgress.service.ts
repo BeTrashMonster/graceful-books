@@ -302,9 +302,18 @@ export class GoalProgressService {
 
       case 'runway': {
         // Use J6 runway calculator
+        const now = new Date();
+        const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        const dateRange = {
+          preset: 'last-90-days' as const,
+          startDate: ninetyDaysAgo,
+          endDate: now,
+          label: 'Last 90 Days',
+        };
         const calculation = await runwayCalculatorService.calculateRunway(
           goal.company_id,
-          'simple'
+          'simple',
+          dateRange
         );
 
         return calculation.months_of_runway.toString();

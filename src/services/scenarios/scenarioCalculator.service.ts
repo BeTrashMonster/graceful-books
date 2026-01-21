@@ -51,11 +51,11 @@ export async function pullBaselineSnapshot(
   companyId: string,
   asOfDate: number = Date.now()
 ): Promise<Omit<ScenarioBaseline, 'id' | 'scenario_id'>> {
-  const accountsResult = await queryAccounts({ companyId: companyId, deleted_at: null });
+  const accountsResult = await queryAccounts({ companyId: companyId, includeDeleted: false });
   if (!accountsResult.success) throw new Error('Failed to fetch accounts');
   const accounts = accountsResult.data;
 
-  const transactionsResult = await queryTransactions({ companyId: companyId, deleted_at: null });
+  const transactionsResult = await queryTransactions({ companyId: companyId, includeDeleted: false });
   if (!transactionsResult.success) throw new Error('Failed to fetch transactions');
   // TODO: Use transactions data for detailed scenario calculations
 
