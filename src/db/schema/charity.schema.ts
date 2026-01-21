@@ -9,7 +9,8 @@
  * - CHARITY-001: Charity selection during signup
  */
 
-import type { Charity, CharityCategory, CharityStatus } from '../../types/database.types';
+import type { Charity, CharityCategory } from '../../types/database.types';
+import { CharityStatus } from '../../types/database.types';
 
 /**
  * Dexie.js schema definition for Charities table
@@ -48,7 +49,7 @@ export const createDefaultCharity = (
     category,
     website,
     logo: logo || null,
-    status: 'PENDING',
+    status: CharityStatus.PENDING,
     verification_notes: null,
     rejection_reason: null,
     created_by: createdBy || null,

@@ -21,6 +21,7 @@ import type { Subscription } from '../../types/billing.types';
 import type { Charity } from '../../types/database.types';
 import type { User } from '../../types/database.types';
 import { PRICING } from '../../types/billing.types';
+import { CharityStatus } from '../../types/database.types';
 
 // Mock database
 vi.mock('../../db', () => ({
@@ -80,7 +81,7 @@ describe('CharityDistributionService', () => {
           id: 'charity-1',
           name: 'Khan Academy',
           ein: '12-3456789',
-          status: 'VERIFIED',
+          status: CharityStatus.VERIFIED,
           website: 'https://khanacademy.org',
           payment_address: '123 Main St',
         },
@@ -88,7 +89,7 @@ describe('CharityDistributionService', () => {
           id: 'charity-2',
           name: 'GiveDirectly',
           ein: '98-7654321',
-          status: 'VERIFIED',
+          status: CharityStatus.VERIFIED,
           website: 'https://givedirectly.org',
           payment_address: '456 Elm St',
         },
@@ -151,7 +152,7 @@ describe('CharityDistributionService', () => {
           id: 'charity-1',
           name: 'Pending Charity',
           ein: '12-3456789',
-          status: 'PENDING',
+          status: CharityStatus.PENDING,
           website: 'https://example.org',
           payment_address: '123 Main St',
         },
@@ -201,7 +202,7 @@ describe('CharityDistributionService', () => {
           id: 'charity-1',
           name: 'Khan Academy',
           ein: '12-3456789',
-          status: 'VERIFIED',
+          status: CharityStatus.VERIFIED,
           website: 'https://khanacademy.org',
           payment_address: '123 Main St',
         },
@@ -253,7 +254,7 @@ describe('CharityDistributionService', () => {
           id: 'charity-1',
           name: 'Khan Academy',
           ein: '12-3456789',
-          status: 'VERIFIED',
+          status: CharityStatus.VERIFIED,
           website: 'https://khanacademy.org',
           payment_address: '123 Main St',
         },
@@ -348,7 +349,7 @@ describe('CharityDistributionService', () => {
           id: 'charity-1',
           name: 'Khan Academy',
           ein: '12-3456789',
-          status: 'VERIFIED',
+          status: CharityStatus.VERIFIED,
           website: 'https://khanacademy.org',
           payment_address: '123 Main St',
         },
@@ -399,7 +400,7 @@ describe('CharityDistributionService', () => {
           id: 'charity-1',
           name: 'Khan Academy',
           ein: '12-3456789',
-          status: 'VERIFIED',
+          status: CharityStatus.VERIFIED,
           website: 'https://khanacademy.org',
           payment_address: '123 Main St',
         },
@@ -640,7 +641,7 @@ describe('CharityDistributionService', () => {
           id: 'charity-1',
           name: 'Khan Academy',
           ein: '12-3456789',
-          status: 'VERIFIED',
+          status: CharityStatus.VERIFIED,
           website: 'https://khanacademy.org',
           payment_address: '123 Main St',
         },

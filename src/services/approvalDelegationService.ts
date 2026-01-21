@@ -14,9 +14,9 @@ import { nanoid } from 'nanoid';
 import type {
   ApprovalDelegation,
   ApprovalRule,
-  DelegationStatus,
   DelegationScopeType,
 } from '../db/schema/approvalWorkflows.schema';
+import { DelegationStatus } from '../db/schema/approvalWorkflows.schema';
 import {
   createDefaultApprovalDelegation,
   isDelegationActive,
@@ -267,7 +267,7 @@ export class ApprovalDelegationService implements IApprovalDelegationService {
 
       // Update to revoked status
       const updated = await this.db.updateDelegation(delegationId, {
-        status: 'REVOKED',
+        status: DelegationStatus.REVOKED,
       });
 
       delegationLogger.info('Delegation revoked', {
@@ -464,7 +464,7 @@ export class ApprovalDelegationService implements IApprovalDelegationService {
       // Check if max uses reached
       let status = delegation.status;
       if (delegation.max_uses && newUseCount >= delegation.max_uses) {
-        status = 'USED';
+        status = DelegationStatus.USED;
       }
 
       const updated = await this.db.updateDelegation(delegationId, {
@@ -499,7 +499,7 @@ export class ApprovalDelegationService implements IApprovalDelegationService {
       for (const delegation of expiredDelegations) {
         if (delegation.status === 'ACTIVE') {
           const updated = await this.db.updateDelegation(delegation.id, {
-            status: 'EXPIRED',
+            status: DelegationStatus.EXPIRED,
           });
           processed.push(updated);
 

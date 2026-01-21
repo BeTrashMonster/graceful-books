@@ -25,11 +25,11 @@ import type {
   ApprovalRequest,
   ApprovalAction,
   ApprovalHistory,
-  ApprovalRequestStatus,
   ApprovalActionType,
   ApprovalLevel,
   ApprovalRequirementType,
 } from '../db/schema/approvalWorkflows.schema';
+import { ApprovalRequestStatus } from '../db/schema/approvalWorkflows.schema';
 import {
   createDefaultApprovalRequest,
   createDefaultApprovalAction,
@@ -413,7 +413,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
         if (request.current_level >= request.total_levels) {
           // All levels complete - approve request
           updatedRequest = await this.db.updateRequest(approvalRequestId, {
-            status: 'APPROVED',
+            status: ApprovalRequestStatus.APPROVED,
             completed_at: Date.now(),
           });
 
@@ -555,7 +555,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
 
       // Update request to rejected
       const updatedRequest = await this.db.updateRequest(approvalRequestId, {
-        status: 'REJECTED',
+        status: ApprovalRequestStatus.REJECTED,
         rejection_reason: rejectionReason,
         completed_at: Date.now(),
       });
@@ -643,7 +643,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
 
       // Update request to cancelled
       const updatedRequest = await this.db.updateRequest(approvalRequestId, {
-        status: 'CANCELLED',
+        status: ApprovalRequestStatus.CANCELLED,
         completed_at: Date.now(),
       });
 
@@ -692,7 +692,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
         if (rule.auto_approve_on_timeout) {
           // Auto-approve
           const updatedRequest = await this.db.updateRequest(request.id, {
-            status: 'AUTO_APPROVED',
+            status: ApprovalRequestStatus.AUTO_APPROVED,
             auto_approved_reason: 'Auto-approved due to timeout',
             completed_at: Date.now(),
           });
@@ -718,7 +718,7 @@ export class ApprovalWorkflowService implements IApprovalWorkflowService {
         } else {
           // Mark as expired
           const updatedRequest = await this.db.updateRequest(request.id, {
-            status: 'EXPIRED',
+            status: ApprovalRequestStatus.EXPIRED,
             completed_at: Date.now(),
           });
 

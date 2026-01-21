@@ -9,8 +9,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { db } from '../../db';
-import type { Charity, CharityStatus } from '../../types/database.types';
-import { CharityCategory } from '../../types/database.types';
+import type { Charity } from '../../types/database.types';
+import { CharityCategory, CharityStatus } from '../../types/database.types';
 import {
   createCharity,
   getAllCharities,
@@ -64,13 +64,13 @@ describe('Admin Charity Service', () => {
       expect(result).toMatchObject({
         name: 'Test Charity',
         ein: '12-3456789',
-        status: 'PENDING',
+        status: CharityStatus.PENDING,
       });
       expect(db.charities.add).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'Test Charity',
           ein: '12-3456789',
-          status: 'PENDING',
+          status: CharityStatus.PENDING,
         })
       );
     });
@@ -113,7 +113,7 @@ describe('Admin Charity Service', () => {
           category: CharityCategory.EDUCATION,
           website: 'https://charity1.org',
           logo: null,
-          status: 'VERIFIED',
+          status: CharityStatus.VERIFIED,
           verification_notes: null,
           rejection_reason: null,
           created_by: 'admin-123',
@@ -144,7 +144,7 @@ describe('Admin Charity Service', () => {
           category: CharityCategory.EDUCATION,
           website: 'https://charity1.org',
           logo: null,
-          status: 'PENDING',
+          status: CharityStatus.PENDING,
           verification_notes: null,
           rejection_reason: null,
           created_by: 'admin-123',
@@ -162,10 +162,10 @@ describe('Admin Charity Service', () => {
         equals: mockEquals,
       });
 
-      await getAllCharities({ status: 'PENDING' });
+      await getAllCharities({ status: CharityStatus.PENDING });
 
       expect(db.charities.where).toHaveBeenCalledWith('status');
-      expect(mockEquals).toHaveBeenCalledWith('PENDING');
+      expect(mockEquals).toHaveBeenCalledWith(CharityStatus.PENDING);
     });
 
     it('should filter by search term', async () => {
@@ -178,7 +178,7 @@ describe('Admin Charity Service', () => {
           category: CharityCategory.EDUCATION,
           website: 'https://khanacademy.org',
           logo: null,
-          status: 'VERIFIED',
+          status: CharityStatus.VERIFIED,
           verification_notes: null,
           rejection_reason: null,
           created_by: 'admin-123',
@@ -194,7 +194,7 @@ describe('Admin Charity Service', () => {
           category: CharityCategory.HEALTH,
           website: 'https://other.org',
           logo: null,
-          status: 'VERIFIED',
+          status: CharityStatus.VERIFIED,
           verification_notes: null,
           rejection_reason: null,
           created_by: 'admin-123',
@@ -227,7 +227,7 @@ describe('Admin Charity Service', () => {
           category: CharityCategory.EDUCATION,
           website: 'https://charity.org',
           logo: null,
-          status: 'VERIFIED',
+          status: CharityStatus.VERIFIED,
           verification_notes: null,
           rejection_reason: null,
           created_by: 'admin-123',
@@ -248,7 +248,7 @@ describe('Admin Charity Service', () => {
       const result = await getVerifiedCharities();
 
       expect(db.charities.where).toHaveBeenCalledWith('status');
-      expect(mockEquals).toHaveBeenCalledWith('VERIFIED');
+      expect(mockEquals).toHaveBeenCalledWith(CharityStatus.VERIFIED);
       expect(result).toEqual(mockCharities);
     });
   });
@@ -263,7 +263,7 @@ describe('Admin Charity Service', () => {
         category: CharityCategory.EDUCATION,
         website: 'https://testcharity.org',
         logo: null,
-        status: 'PENDING',
+        status: CharityStatus.PENDING,
         verification_notes: null,
         rejection_reason: null,
         created_by: 'admin-123',
@@ -297,7 +297,7 @@ describe('Admin Charity Service', () => {
         category: CharityCategory.EDUCATION,
         website: 'https://testcharity.org',
         logo: null,
-        status: 'PENDING',
+        status: CharityStatus.PENDING,
         verification_notes: 'Existing note',
         rejection_reason: null,
         created_by: 'admin-123',
@@ -333,7 +333,7 @@ describe('Admin Charity Service', () => {
         category: CharityCategory.EDUCATION,
         website: 'https://testcharity.org',
         logo: null,
-        status: 'PENDING',
+        status: CharityStatus.PENDING,
         verification_notes: 'IRS verified',
         rejection_reason: null,
         created_by: 'admin-123',
@@ -353,7 +353,7 @@ describe('Admin Charity Service', () => {
       expect(db.charities.update).toHaveBeenCalledWith(
         'charity-1',
         expect.objectContaining({
-          status: 'VERIFIED',
+          status: CharityStatus.VERIFIED,
           verification_notes: expect.stringContaining('Verified by admin user admin-456'),
         })
       );
@@ -368,7 +368,7 @@ describe('Admin Charity Service', () => {
         category: CharityCategory.EDUCATION,
         website: 'https://testcharity.org',
         logo: null,
-        status: 'VERIFIED',
+        status: CharityStatus.VERIFIED,
         verification_notes: null,
         rejection_reason: null,
         created_by: 'admin-123',
@@ -384,7 +384,7 @@ describe('Admin Charity Service', () => {
           charityId: 'charity-1',
           verifiedBy: 'admin-456',
         })
-      ).rejects.toThrow('Cannot verify charity with status: VERIFIED');
+      ).rejects.toThrow(`Cannot verify charity with status: ${CharityStatus.VERIFIED}`);
     });
   });
 
@@ -398,7 +398,7 @@ describe('Admin Charity Service', () => {
         category: CharityCategory.EDUCATION,
         website: 'https://testcharity.org',
         logo: null,
-        status: 'PENDING',
+        status: CharityStatus.PENDING,
         verification_notes: null,
         rejection_reason: null,
         created_by: 'admin-123',
@@ -419,7 +419,7 @@ describe('Admin Charity Service', () => {
       expect(db.charities.update).toHaveBeenCalledWith(
         'charity-1',
         expect.objectContaining({
-          status: 'REJECTED',
+          status: CharityStatus.REJECTED,
           rejection_reason: 'Invalid EIN on IRS database',
           verification_notes: expect.stringContaining('Invalid EIN on IRS database'),
         })
@@ -435,7 +435,7 @@ describe('Admin Charity Service', () => {
         category: CharityCategory.EDUCATION,
         website: 'https://testcharity.org',
         logo: null,
-        status: 'REJECTED',
+        status: CharityStatus.REJECTED,
         verification_notes: null,
         rejection_reason: null,
         created_by: 'admin-123',
@@ -452,7 +452,7 @@ describe('Admin Charity Service', () => {
           reason: 'Invalid',
           rejectedBy: 'admin-456',
         })
-      ).rejects.toThrow('Cannot reject charity with status: REJECTED');
+      ).rejects.toThrow(`Cannot reject charity with status: ${CharityStatus.REJECTED}`);
     });
   });
 
@@ -466,7 +466,7 @@ describe('Admin Charity Service', () => {
         category: CharityCategory.EDUCATION,
         website: 'https://testcharity.org',
         logo: null,
-        status: 'VERIFIED',
+        status: CharityStatus.VERIFIED,
         verification_notes: null,
         rejection_reason: null,
         created_by: 'admin-123',
@@ -483,7 +483,7 @@ describe('Admin Charity Service', () => {
       expect(db.charities.update).toHaveBeenCalledWith(
         'charity-1',
         expect.objectContaining({
-          status: 'INACTIVE',
+          status: CharityStatus.INACTIVE,
           active: false,
         })
       );
@@ -501,7 +501,7 @@ describe('Admin Charity Service', () => {
           category: CharityCategory.EDUCATION,
           website: 'https://charity1.org',
           logo: null,
-          status: 'VERIFIED',
+          status: CharityStatus.VERIFIED,
           verification_notes: null,
           rejection_reason: null,
           created_by: 'admin-123',
@@ -517,7 +517,7 @@ describe('Admin Charity Service', () => {
           category: CharityCategory.HEALTH,
           website: 'https://charity2.org',
           logo: null,
-          status: 'VERIFIED',
+          status: CharityStatus.VERIFIED,
           verification_notes: null,
           rejection_reason: null,
           created_by: 'admin-123',
@@ -533,7 +533,7 @@ describe('Admin Charity Service', () => {
           category: CharityCategory.ENVIRONMENT,
           website: 'https://charity3.org',
           logo: null,
-          status: 'PENDING',
+          status: CharityStatus.PENDING,
           verification_notes: null,
           rejection_reason: null,
           created_by: 'admin-123',

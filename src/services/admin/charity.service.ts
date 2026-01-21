@@ -10,7 +10,8 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import { db } from '../../db';
-import type { Charity, CharityCategory, CharityStatus } from '../../types/database.types';
+import type { Charity, CharityCategory } from '../../types/database.types';
+import { CharityStatus } from '../../types/database.types';
 import { createDefaultCharity, validateCharity, isValidEIN } from '../../db/schema/charity.schema';
 
 /**
@@ -138,7 +139,7 @@ export async function getVerifiedCharities(): Promise<Charity[]> {
   try {
     return await db.charities
       .where('status')
-      .equals('VERIFIED')
+      .equals(CharityStatus.VERIFIED)
       .toArray();
   } catch (error) {
     console.error('Error fetching verified charities:', error);
@@ -251,7 +252,7 @@ export async function verifyCharity(input: VerifyCharityInput): Promise<Charity>
       throw new Error('Charity not found');
     }
 
-    if (charity.status !== 'PENDING') {
+    if (charity.status !== CharityStatus.PENDING) {
       throw new Error(`Cannot verify charity with status: ${charity.status}`);
     }
 
@@ -263,7 +264,7 @@ export async function verifyCharity(input: VerifyCharityInput): Promise<Charity>
 
     const updated: Charity = {
       ...charity,
-      status: 'VERIFIED',
+      status: CharityStatus.VERIFIED,
       verification_notes: updatedNotes,
       updated_at: Date.now(),
     };
@@ -291,7 +292,7 @@ export async function rejectCharity(input: RejectCharityInput): Promise<Charity>
       throw new Error('Charity not found');
     }
 
-    if (charity.status !== 'PENDING') {
+    if (charity.status !== CharityStatus.PENDING) {
       throw new Error(`Cannot reject charity with status: ${charity.status}`);
     }
 
@@ -303,7 +304,7 @@ export async function rejectCharity(input: RejectCharityInput): Promise<Charity>
 
     const updated: Charity = {
       ...charity,
-      status: 'REJECTED',
+      status: CharityStatus.REJECTED,
       rejection_reason: input.reason,
       verification_notes: updatedNotes,
       updated_at: Date.now(),
@@ -333,7 +334,7 @@ export async function removeCharity(id: string): Promise<Charity> {
 
     const updated: Charity = {
       ...charity,
-      status: 'INACTIVE',
+      status: CharityStatus.INACTIVE,
       active: false,
       updated_at: Date.now(),
     };
@@ -355,10 +356,10 @@ export async function getCharityStatistics() {
 
     return {
       total: allCharities.length,
-      verified: allCharities.filter(c => c.status === 'VERIFIED').length,
-      pending: allCharities.filter(c => c.status === 'PENDING').length,
-      rejected: allCharities.filter(c => c.status === 'REJECTED').length,
-      inactive: allCharities.filter(c => c.status === 'INACTIVE').length,
+      verified: allCharities.filter(c => c.status === CharityStatus.VERIFIED).length,
+      pending: allCharities.filter(c => c.status === CharityStatus.PENDING).length,
+      rejected: allCharities.filter(c => c.status === CharityStatus.REJECTED).length,
+      inactive: allCharities.filter(c => c.status === CharityStatus.INACTIVE).length,
     };
   } catch (error) {
     console.error('Error fetching charity statistics:', error);
