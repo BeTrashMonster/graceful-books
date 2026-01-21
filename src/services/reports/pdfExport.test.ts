@@ -192,7 +192,7 @@ describe('PDF Export Service', () => {
 
       await exportProfitLossToPDF(report)
 
-      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0][0]
+      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0]![0]
       expect(callArgs.content).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -216,7 +216,7 @@ describe('PDF Export Service', () => {
       await exportProfitLossToPDF(report)
 
       expect(pdfMake.default.createPdf).toHaveBeenCalled()
-      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0][0]
+      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0]![0]
       expect(callArgs.content).toBeDefined()
     })
 
@@ -302,7 +302,7 @@ describe('PDF Export Service', () => {
       await exportProfitLossToPDF(report, options)
 
       expect(pdfMake.default.createPdf).toHaveBeenCalled()
-      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0][0]
+      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0]![0]
       expect(callArgs.content).toBeDefined()
     })
 
@@ -329,7 +329,7 @@ describe('PDF Export Service', () => {
 
       await exportProfitLossToPDF(report, options)
 
-      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0][0]
+      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0]![0]
       const content = JSON.stringify(callArgs.content)
       expect(content).toContain('made money')
     })
@@ -357,7 +357,7 @@ describe('PDF Export Service', () => {
 
       await exportProfitLossToPDF(report, options)
 
-      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0][0]
+      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0]![0]
       const content = JSON.stringify(callArgs.content)
       expect(content).toContain('loss')
     })
@@ -379,7 +379,7 @@ describe('PDF Export Service', () => {
 
       await exportProfitLossToPDF(report, options)
 
-      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0][0]
+      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0]![0]
       expect(callArgs.pageOrientation).toBe('landscape')
     })
 
@@ -396,7 +396,7 @@ describe('PDF Export Service', () => {
 
       await exportProfitLossToPDF(report)
 
-      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0][0]
+      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0]![0]
       expect(callArgs.pageOrientation).toBe('portrait')
     })
 
@@ -413,14 +413,14 @@ describe('PDF Export Service', () => {
 
       // Test A4
       await exportProfitLossToPDF(report, { pageSize: 'a4' })
-      let callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0][0]
+      let callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0]![0]
       expect(callArgs.pageSize).toBe('A4')
 
       vi.clearAllMocks()
 
       // Test letter (default)
       await exportProfitLossToPDF(report, { pageSize: 'letter' })
-      callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0][0]
+      callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0]![0]
       expect(callArgs.pageSize).toBe('LETTER')
     })
 
@@ -530,7 +530,7 @@ describe('PDF Export Service', () => {
 
       await generateBalanceSheetPDF(balanceSheet, 'Test Company')
 
-      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0][0]
+      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0]![0]
       const content = JSON.stringify(callArgs.content)
       expect(content).toContain('balanced')
     })
@@ -551,7 +551,7 @@ describe('PDF Export Service', () => {
 
       await generateBalanceSheetPDF(balanceSheet, 'Test Company')
 
-      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0][0]
+      const callArgs = vi.mocked(pdfMake.default.createPdf).mock.calls[0]![0]
       const content = JSON.stringify(callArgs.content)
       expect(content).toContain('difference')
     })

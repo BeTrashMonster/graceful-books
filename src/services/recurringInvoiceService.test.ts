@@ -273,12 +273,12 @@ describe('Recurring Invoice Generation Service', () => {
       const dates = rrule.all();
 
       // Verify dates adjust for month lengths (RRule returns UTC dates)
-      expect(dates[0].getUTCDate()).toBe(31); // Jan 31
-      expect(dates[1].getUTCDate()).toBe(28); // Feb 28 (non-leap)
-      expect(dates[2].getUTCDate()).toBe(31); // Mar 31
-      expect(dates[3].getUTCDate()).toBe(30); // Apr 30
-      expect(dates[4].getUTCDate()).toBe(31); // May 31
-      expect(dates[5].getUTCDate()).toBe(30); // Jun 30
+      expect(dates[0]!.getUTCDate()).toBe(31); // Jan 31
+      expect(dates[1]!.getUTCDate()).toBe(28); // Feb 28 (non-leap)
+      expect(dates[2]!.getUTCDate()).toBe(31); // Mar 31
+      expect(dates[3]!.getUTCDate()).toBe(30); // Apr 30
+      expect(dates[4]!.getUTCDate()).toBe(31); // May 31
+      expect(dates[5]!.getUTCDate()).toBe(30); // Jun 30
     });
 
     it('should handle quarterly billing on the 31st', () => {
@@ -296,10 +296,10 @@ describe('Recurring Invoice Generation Service', () => {
 
       const dates = rrule.all();
 
-      expect(dates[0].getUTCDate()).toBe(31); // Jan 31
-      expect(dates[1].getUTCDate()).toBe(30); // Apr 30 (no 31st)
-      expect(dates[2].getUTCDate()).toBe(31); // Jul 31
-      expect(dates[3].getUTCDate()).toBe(31); // Oct 31
+      expect(dates[0]!.getUTCDate()).toBe(31); // Jan 31
+      expect(dates[1]!.getUTCDate()).toBe(30); // Apr 30 (no 31st)
+      expect(dates[2]!.getUTCDate()).toBe(31); // Jul 31
+      expect(dates[3]!.getUTCDate()).toBe(31); // Oct 31
     });
 
     it('should handle annual billing on Feb 29 in leap year', () => {
@@ -319,7 +319,7 @@ describe('Recurring Invoice Generation Service', () => {
 
       const dates = rrule.all();
 
-      expect(dates[0].getUTCDate()).toBe(29); // 2024 Feb 29 (leap)
+      expect(dates[0]!.getUTCDate()).toBe(29); // 2024 Feb 29 (leap)
       // RRule should handle non-leap years by skipping or adjusting
       // The exact behavior depends on rrule library implementation
       expect(dates.length).toBeGreaterThan(0);
