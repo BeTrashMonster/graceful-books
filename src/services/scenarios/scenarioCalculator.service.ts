@@ -15,7 +15,7 @@
 
 import Decimal from 'decimal.js';
 import { generateProfitLossReport } from '../reports/profitLoss';
-import { generateBalanceSheetReport } from '../reports/balanceSheet';
+import { generateBalanceSheet } from '../reports/balanceSheet';
 import { queryAccounts } from '../../store/accounts';
 import { queryTransactions } from '../../store/transactions';
 import type {
@@ -72,9 +72,13 @@ export async function pullBaselineSnapshot(
     comparison: false,
   });
 
-  const balanceSheet = await generateBalanceSheetReport(companyId, asOfDate, {
-    comparison: false,
+  const balanceSheetResult = await generateBalanceSheet({
+    companyId,
+    asOfDate: typeof asOfDate === 'number' ? new Date(asOfDate) : asOfDate,
   });
+
+  if (!balanceSheetResult.success) throw new Error('Failed to generate balance sheet');
+  const balanceSheet = balanceSheetResult.data;
 
   // Calculate cash balance (sum of all Cash & Bank accounts)
   const cashAccounts = accounts.filter(

@@ -15,7 +15,7 @@ import JSZip from 'jszip'
 import { format } from 'date-fns'
 import { generateProfitLossReport } from '../reports/profitLoss'
 import { generateBalanceSheet } from '../reports/balanceSheet'
-import { generateBalanceSheetPDF, generateProfitLossPDF } from '../reports/pdfExport'
+import { generateBalanceSheetPDF, exportProfitLossToPDF } from '../reports/pdfExport'
 import { db } from '../../db'
 import { getTaxDocuments } from './taxDocumentManager.service'
 import type { TaxYear, TaxPackage } from '../../types/tax.types'
@@ -52,7 +52,11 @@ export async function generateTaxPackage(
     accountingMethod: 'accrual', // Default to accrual for tax purposes
   })
 
-  const plPDF = await generateProfitLossPDF(plReport, companyName)
+  const plPDFResult = await exportProfitLossToPDF(plReport, { title: `Profit & Loss - ${companyName}` })
+  if (!plPDFResult.success || !plPDFResult.blob) {
+    throw new Error('Failed to generate P&L PDF')
+  }
+  const plPDF = plPDFResult.blob
   reportsFolder.file('Profit_Loss_Statement.pdf', plPDF)
 
   // 2. Generate Balance Sheet

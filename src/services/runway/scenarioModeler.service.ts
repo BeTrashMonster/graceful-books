@@ -23,7 +23,6 @@ import type {
   RevenueBreakdown,
   BurnRateAnalysis,
 } from '../../types/runway.types'
-import { calculateRunwayMonths } from './runwayCalculator.service'
 
 // Configure Decimal.js for currency precision
 Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_UP })
