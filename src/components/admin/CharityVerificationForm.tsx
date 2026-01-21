@@ -14,7 +14,7 @@
  */
 
 import { useState, FormEvent } from 'react';
-import type { CharityCategory } from '../../types/database.types';
+import { CharityCategory } from '../../types/database.types';
 import {
   createCharity,
   validateEINFormat,
@@ -28,24 +28,31 @@ interface CharityVerificationFormProps {
 }
 
 const CHARITY_CATEGORIES: { value: CharityCategory; label: string }[] = [
-  { value: 'EDUCATION', label: 'Education' },
-  { value: 'ENVIRONMENT', label: 'Environment' },
-  { value: 'HEALTH', label: 'Health' },
-  { value: 'POVERTY', label: 'Poverty Relief' },
-  { value: 'ANIMAL_WELFARE', label: 'Animal Welfare' },
-  { value: 'HUMAN_RIGHTS', label: 'Human Rights' },
-  { value: 'DISASTER_RELIEF', label: 'Disaster Relief' },
-  { value: 'ARTS_CULTURE', label: 'Arts & Culture' },
-  { value: 'COMMUNITY', label: 'Community Development' },
-  { value: 'OTHER', label: 'Other' },
+  { value: CharityCategory.EDUCATION, label: 'Education' },
+  { value: CharityCategory.ENVIRONMENT, label: 'Environment' },
+  { value: CharityCategory.HEALTH, label: 'Health' },
+  { value: CharityCategory.POVERTY, label: 'Poverty Relief' },
+  { value: CharityCategory.ANIMAL_WELFARE, label: 'Animal Welfare' },
+  { value: CharityCategory.HUMAN_RIGHTS, label: 'Human Rights' },
+  { value: CharityCategory.DISASTER_RELIEF, label: 'Disaster Relief' },
+  { value: CharityCategory.ARTS_CULTURE, label: 'Arts & Culture' },
+  { value: CharityCategory.COMMUNITY, label: 'Community Development' },
+  { value: CharityCategory.OTHER, label: 'Other' },
 ];
 
 export function CharityVerificationForm({ onSuccess, onCancel }: CharityVerificationFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    ein: string;
+    description: string;
+    category: CharityCategory | '';
+    website: string;
+    logo: string;
+  }>({
     name: '',
     ein: '',
     description: '',
-    category: '' | '',
+    category: '',
     website: '',
     logo: '',
   });
@@ -141,7 +148,7 @@ export function CharityVerificationForm({ onSuccess, onCancel }: CharityVerifica
         name: formData.name,
         ein: formData.ein,
         description: formData.description,
-        category: formData.category,
+        category: formData.category as CharityCategory,
         website: formData.website,
         logo: formData.logo || undefined,
         createdBy: adminUserId,
