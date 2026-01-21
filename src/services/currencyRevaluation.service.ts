@@ -1,8 +1,8 @@
 /**
  * Currency Revaluation Service
  *
- * Handles periodic revaluation of foreign currency balance!s.
- * Implements GAAP-compliant currency revaluation process for outstanding balance!s.
+ * Handles periodic revaluation of foreign currency balances.
+ * Implements GAAP-compliant currency revaluation process for outstanding balances.
  *
  * Requirements:
  * - I4: Multi-Currency - Full
@@ -40,15 +40,15 @@ Decimal.set({ precision: 28, rounding: Decimal.ROUND_HALF_UP });
 // ============================================================================
 
 /**
- * Account balance! with currency information
+ * Account balance with currency information
  */
 export interface ForeignCurrencyBalance {
   account_id: string;
   account_name: string;
   account_code: string;
   currency: CurrencyCode;
-  balance!: string; // Amount in foreign currency
-  original_rate: string; // Rate at which balance! was originally recorded
+  balance: string; // Amount in foreign currency
+  original_rate: string; // Rate at which balance was originally recorded
   original_base_currency_amount: string; // Original amount in base currency
   last_revaluation_date: number | null;
 }
@@ -61,7 +61,7 @@ export interface RevaluationJournalEntry {
   revaluation_date: number;
   account_id: string;
   currency: CurrencyCode;
-  foreign_currency_balance!: string;
+  foreign_currency_balance: string;
   old_rate: string;
   new_rate: string;
   old_base_currency_amount: string;
@@ -81,7 +81,7 @@ export interface RevaluationReport {
   total_unrealized_gain_loss: string;
   results_by_account: CurrencyRevaluationResult[];
   results_by_currency: Map<CurrencyCode, {
-    total_balance!: string;
+    total_balance: string;
     total_gain_loss: string;
     account_count: number;
   }>;
@@ -143,41 +143,41 @@ export class CurrencyRevaluationService implements ICurrencyRevaluationService {
   async revaluateAccounts(request: CurrencyRevaluationRequest): Promise<RevaluationReport> {
     const results: CurrencyRevaluationResult[] = [];
 
-    // Get foreign currency balance!s for specified accounts
-    const balance!s = await this.getForeignCurrencyBalances(
+    // Get foreign currency balances for specified accounts
+    const balances = await this.getForeignCurrencyBalances(
       this.companyId,
       request.account_ids
     );
 
-    // Revaluate each balance!
-    for (const balance! of balance!s) {
-      // Skip if balance! currency is same as target currency
-      if (balance!.currency === request.target_currency) {
+    // Revaluate each balance
+    for (const balance of balances) {
+      // Skip if balance currency is same as target currency
+      if (balance.currency === request.target_currency) {
         continue;
       }
 
       try {
         // Get current exchange rate at revaluation date
         const currentRate = await this.getExchangeRateForDate(
-          balance!.currency,
+          balance.currency,
           request.target_currency,
           request.revaluation_date
         );
 
         // Calculate new base currency amount
-        const foreignBalance = new Decimal(balance!.balance!);
+        const foreignBalance = new Decimal(balance.balance);
         const newBaseCurrencyAmount = foreignBalance.mul(currentRate);
 
         // Calculate unrealized gain/loss
-        const originalAmount = new Decimal(balance!.original_base_currency_amount);
+        const originalAmount = new Decimal(balance.original_base_currency_amount);
         const unrealizedGainLoss = newBaseCurrencyAmount.minus(originalAmount);
 
         // Create result
         const result: CurrencyRevaluationResult = {
-          account_id: balance!.account_id,
-          currency: balance!.currency,
-          outstanding_balance!: balance!.balance!,
-          original_rate: balance!.original_rate,
+          account_id: balance.account_id,
+          currency: balance.currency,
+          outstanding_balance: balance.balance,
+          original_rate: balance.original_rate,
           current_rate: currentRate.toFixed(28),
           unrealized_gain_loss: unrealizedGainLoss.toFixed(28),
           revaluation_date: request.revaluation_date,
@@ -185,7 +185,7 @@ export class CurrencyRevaluationService implements ICurrencyRevaluationService {
 
         results.push(result);
       } catch (error) {
-        console.error(`Failed to revaluate account ${balance!.account_id}:`, error);
+        console.error(`Failed to revaluate account ${balance.account_id}:`, error);
         // Continue with other accounts
       }
     }
@@ -201,7 +201,7 @@ export class CurrencyRevaluationService implements ICurrencyRevaluationService {
     // Calculate totals
     let totalUnrealizedGainLoss = new Decimal(0);
     const resultsByCurrency = new Map<CurrencyCode, {
-      total_balance!: string;
+      total_balance: string;
       total_gain_loss: string;
       account_count: number;
     }>();
@@ -211,16 +211,16 @@ export class CurrencyRevaluationService implements ICurrencyRevaluationService {
 
       // Update currency totals
       const currencyData = resultsByCurrency.get(result.currency) || {
-        total_balance!: '0',
+        total_balance: '0',
         total_gain_loss: '0',
         account_count: 0,
       };
 
-      const balance! = new Decimal(currencyData.total_balance!).plus(result.outstanding_balance!);
+      const balance = new Decimal(currencyData.total_balance).plus(result.outstanding_balance);
       const gainLoss = new Decimal(currencyData.total_gain_loss).plus(result.unrealized_gain_loss);
 
       resultsByCurrency.set(result.currency, {
-        total_balance!: balance!.toFixed(28),
+        total_balance: balance.toFixed(28),
         total_gain_loss: gainLoss.toFixed(28),
         account_count: currencyData.account_count + 1,
       });
@@ -245,35 +245,35 @@ export class CurrencyRevaluationService implements ICurrencyRevaluationService {
     revaluationDate: number,
     baseCurrency: CurrencyCode
   ): Promise<CurrencyRevaluationResult> {
-    // Get account balance!
-    const balance!s = await this.getForeignCurrencyBalances(this.companyId, [accountId]);
+    // Get account balance
+    const balances = await this.getForeignCurrencyBalances(this.companyId, [accountId]);
 
-    if (balance!s.length === 0) {
-      throw new Error(`No foreign currency balance! found for account ${accountId}`);
+    if (balances.length === 0) {
+      throw new Error(`No foreign currency balance found for account ${accountId}`);
     }
 
-    const balance! = balance!s[0];
+    const balance = balances[0]!;
 
     // Get current exchange rate
     const currentRate = await this.getExchangeRateForDate(
-      balance!.currency,
+      balance.currency,
       baseCurrency,
       revaluationDate
     );
 
     // Calculate new base currency amount
-    const foreignBalance = new Decimal(balance!.balance!);
+    const foreignBalance = new Decimal(balance.balance);
     const newBaseCurrencyAmount = foreignBalance.mul(currentRate);
 
     // Calculate unrealized gain/loss
-    const originalAmount = new Decimal(balance!.original_base_currency_amount);
+    const originalAmount = new Decimal(balance.original_base_currency_amount);
     const unrealizedGainLoss = newBaseCurrencyAmount.minus(originalAmount);
 
     return {
-      account_id: balance!.account_id,
-      currency: balance!.currency,
-      outstanding_balance!: balance!.balance!,
-      original_rate: balance!.original_rate,
+      account_id: balance.account_id,
+      currency: balance.currency,
+      outstanding_balance: balance.balance,
+      original_rate: balance.original_rate,
       current_rate: currentRate.toFixed(28),
       unrealized_gain_loss: unrealizedGainLoss.toFixed(28),
       revaluation_date: revaluationDate,
@@ -281,19 +281,19 @@ export class CurrencyRevaluationService implements ICurrencyRevaluationService {
   }
 
   /**
-   * Get all foreign currency balance!s
+   * Get all foreign currency balances
    */
   async getForeignCurrencyBalances(
     _companyId: string,
     _accountIds?: string[]
   ): Promise<ForeignCurrencyBalance[]> {
-    // This would typically query the database for foreign currency balance!s
+    // This would typically query the database for foreign currency balances
     // For now, we'll return an empty array as a placeholder
     // In production, this would:
     // 1. Query accounts table for accounts with foreign currency
-    // 2. Calculate current balance!s from transaction line items
+    // 2. Calculate current balances from transaction line items
     // 3. Get original rates from first transaction or account setup
-    // 4. Return formatted balance!s
+    // 4. Return formatted balances
 
     return [];
   }
@@ -309,15 +309,15 @@ export class CurrencyRevaluationService implements ICurrencyRevaluationService {
     const allBalances = await this.getForeignCurrencyBalances(companyId);
 
     // Filter to accounts that need revaluation
-    return allBalances.filter((balance!) => {
+    return allBalances.filter((balance) => {
       // If never revalued, needs revaluation
-      if (!balance!.last_revaluation_date) {
+      if (!balance.last_revaluation_date) {
         return true;
       }
 
       // Check if enough time has passed since last revaluation
       const daysSinceRevaluation =
-        (revaluationDate - balance!.last_revaluation_date) / (1000 * 60 * 60 * 24);
+        (revaluationDate - balance.last_revaluation_date) / (1000 * 60 * 60 * 24);
 
       return daysSinceRevaluation >= minDaysSinceLastRevaluation;
     });
@@ -341,20 +341,20 @@ export class CurrencyRevaluationService implements ICurrencyRevaluationService {
       }
 
       // Calculate old base currency amount
-      const balance! = new Decimal(result.outstanding_balance!);
+      const balance = new Decimal(result.outstanding_balance);
       const oldRate = new Decimal(result.original_rate);
-      const oldBaseCurrencyAmount = balance!.mul(oldRate);
+      const oldBaseCurrencyAmount = balance.mul(oldRate);
 
       // Calculate new base currency amount
       const newRate = new Decimal(result.current_rate);
-      const newBaseCurrencyAmount = balance!.mul(newRate);
+      const newBaseCurrencyAmount = balance.mul(newRate);
 
       entries.push({
         id: this.generateEntryId(),
         revaluation_date: result.revaluation_date,
         account_id: result.account_id,
         currency: result.currency,
-        foreign_currency_balance!: result.outstanding_balance!,
+        foreign_currency_balance: result.outstanding_balance,
         old_rate: result.original_rate,
         new_rate: result.current_rate,
         old_base_currency_amount: oldBaseCurrencyAmount.toFixed(28),
@@ -515,9 +515,9 @@ export function identifyHighExposureAccounts(
     : new Decimal(exposureThreshold);
 
   return results.filter((result) => {
-    const balance! = new Decimal(result.outstanding_balance!);
+    const balance = new Decimal(result.outstanding_balance);
     const rate = new Decimal(result.current_rate);
-    const baseCurrencyValue = balance!.mul(rate);
+    const baseCurrencyValue = balance.mul(rate);
 
     return baseCurrencyValue.abs().gte(threshold);
   });
@@ -531,7 +531,7 @@ export function formatRevaluationResult(
   precision: number = 2
 ): {
   currency: string;
-  balance!: string;
+  balance: string;
   oldRate: string;
   newRate: string;
   gainLoss: string;
@@ -547,7 +547,7 @@ export function formatRevaluationResult(
 
   return {
     currency: result.currency,
-    balance!: new Decimal(result.outstanding_balance!).toFixed(precision),
+    balance: new Decimal(result.outstanding_balance).toFixed(precision),
     oldRate: oldRate.toFixed(6),
     newRate: newRate.toFixed(6),
     gainLoss: gainLoss.isPositive()
