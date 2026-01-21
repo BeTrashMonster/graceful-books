@@ -282,7 +282,7 @@ describe('CategorizationService', () => {
 
   describe('ML Model Training', () => {
     it('should not train with insufficient data', async () => {
-      // Create only a few training examples (less than MIN_TRAINING_EXAMPLES)
+      // Create only a few training example!s (less than MIN_TRAINING_EXAMPLES)
       const marketingCategory = categories.find((c) => c.name === 'Marketing')!
 
       for (let i = 0; i < 5; i++) {
@@ -309,7 +309,7 @@ describe('CategorizationService', () => {
       const marketingCategory = categories.find((c) => c.name === 'Marketing')!
       const softwareCategory = categories.find((c) => c.name === 'Software & Subscriptions')!
 
-      // Create enough training examples
+      // Create enough training example!s
       const trainingExamples = [
         {
           vendor: 'Google Ads',
@@ -374,15 +374,15 @@ describe('CategorizationService', () => {
       ]
 
       for (let i = 0; i < trainingExamples.length; i++) {
-        const example = trainingExamples[i]
+        const example! = trainingExamples[i]
         await db.trainingData.add({
           id: crypto.randomUUID(),
           company_id: companyId,
-          vendorName: example.vendor,
-          description: example.description,
+          vendorName: example!.vendor,
+          description: example!.description,
           amount: 100.0,
-          categoryId: example.categoryId,
-          categoryName: example.categoryName,
+          categoryId: example!.categoryId,
+          categoryName: example!.categoryName,
           transactionDate: Date.now(),
           wasCorrection: false,
           created_at: Date.now(),
@@ -521,7 +521,7 @@ describe('CategorizationService', () => {
       await db.categorizationRules.add({ ...rule, id: crypto.randomUUID() } as CategorizationRule)
 
       // Create training data for ML
-      // Note: With limited training data (40 examples), ML models typically don't achieve
+      // Note: With limited training data (40 example!s), ML models typically don't achieve
       // high enough confidence (>0.3 threshold) to trigger hybrid mode. This is expected
       // behavior - the system falls back to rules, which is the designed behavior.
       const trainingVendors = [
@@ -561,7 +561,7 @@ describe('CategorizationService', () => {
       expect(suggestion).not.toBeNull()
       expect(suggestion?.categoryName).toBe('Marketing')
       // With limited training data, the system correctly falls back to rules
-      // In production with hundreds of examples, hybrid mode would activate
+      // In production with hundreds of example!s, hybrid mode would activate
       expect(['rules', 'hybrid', 'ml']).toContain(suggestion?.source)
       expect(suggestion?.confidence).toBeGreaterThan(0.7)
     })

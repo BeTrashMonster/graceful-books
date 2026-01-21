@@ -532,10 +532,10 @@ describe('CommentsService', () => {
       );
 
       // Navigate to deepest level
-      let current = threads[0];
+      let current! = threads[0];
       let depth = 0;
-      while (current.replies.length > 0) {
-        current = current.replies[0];
+      while (current!.replies.length > 0) {
+        current! = current!.replies[0];
         depth++;
       }
 
@@ -1069,13 +1069,13 @@ describe('CommentsService', () => {
       expect(result.comment.mentioned_user_ids.length).toBe(uniqueMentions.length);
     });
 
-    it('should handle concurrent comment creation', async () => {
+    it('should handle concurrent! comment creation', async () => {
       // Create multiple comments simultaneously
       const promises = Array.from({ length: 10 }, (_, i) =>
         service.createComment(
           CommentableType.TRANSACTION,
           TEST_TRANSACTION_ID,
-          `Concurrent comment ${i}`
+          `Concurrent! comment ${i}`
         )
       );
 

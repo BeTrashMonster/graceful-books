@@ -296,10 +296,10 @@ describe('Invoice Template Schema', () => {
       expect(results).toHaveProperty('primaryOnSecondary');
 
       // Header text on primary should have good contrast
-      expect(results.headerContrast.wcagAA).toBe(true);
+      expect(results.headerContrast!.wcagAA).toBe(true);
 
       // Body text on background should have good contrast
-      expect(results.bodyContrast.wcagAA).toBe(true);
+      expect(results.bodyContrast!.wcagAA).toBe(true);
     });
 
     it('should detect poor accessibility in brand colors', () => {
@@ -333,7 +333,7 @@ describe('Invoice Template Schema', () => {
       const resultsLarge = validateBrandColorsAccessibility(colors, 14);
 
       // Body contrast requirements differ by font size
-      expect(resultsLarge.bodyContrast.wcagAA).toBe(true);
+      expect(resultsLarge.bodyContrast!.wcagAA).toBe(true);
     });
   });
 

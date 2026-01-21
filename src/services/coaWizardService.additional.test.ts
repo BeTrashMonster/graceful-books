@@ -414,8 +414,8 @@ describe('CoaWizardService - Additional Comprehensive Tests', () => {
 
       await createAccountsFromWizard('company-1', wizardData)
 
-      const callArgs = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
-      const accountsToCreate = callArgs[0]
+      const callArgs! = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
+      const accountsToCreate = callArgs![0]
 
       const customizedAccount = accountsToCreate.find(
         (acc) => acc.name === 'My Primary Operating Account'
@@ -447,8 +447,8 @@ describe('CoaWizardService - Additional Comprehensive Tests', () => {
 
       await createAccountsFromWizard('company-1', wizardData)
 
-      const callArgs = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
-      const accountsToCreate = callArgs[0]
+      const callArgs! = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
+      const accountsToCreate = callArgs![0]
 
       // Should have customized account
       const customizedAccount = accountsToCreate.find(
@@ -573,8 +573,8 @@ describe('CoaWizardService - Additional Comprehensive Tests', () => {
 
       await createAccountsFromWizard('company-1', wizardData)
 
-      const callArgs = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
-      const accountsToCreate = callArgs[0]
+      const callArgs! = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
+      const accountsToCreate = callArgs![0]
 
       // Check for duplicate account numbers
       const accountNumbers = accountsToCreate
@@ -600,8 +600,8 @@ describe('CoaWizardService - Additional Comprehensive Tests', () => {
 
       await createAccountsFromWizard(companyId, wizardData)
 
-      const callArgs = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
-      const accountsToCreate = callArgs[0]
+      const callArgs! = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
+      const accountsToCreate = callArgs![0]
 
       // All accounts should have the correct company ID
       accountsToCreate.forEach((acc) => {
@@ -623,8 +623,8 @@ describe('CoaWizardService - Additional Comprehensive Tests', () => {
 
       await createAccountsFromWizard('company-1', wizardData)
 
-      const callArgs = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
-      const accountsToCreate = callArgs[0]
+      const callArgs! = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
+      const accountsToCreate = callArgs![0]
 
       // All accounts should be active
       accountsToCreate.forEach((acc) => {

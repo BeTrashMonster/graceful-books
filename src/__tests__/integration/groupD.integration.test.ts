@@ -302,9 +302,9 @@ describe('Group D Integration Tests', () => {
       // Add customization to rename an account
       const firstAccount = template!.accounts[0]
       wizardData.customizations.push({
-        templateAccountName: firstAccount.name,
+        templateAccountName: firstAccount!.name,
         name: 'Custom Account Name',
-        accountNumber: firstAccount.accountNumber,
+        accountNumber: firstAccount!.accountNumber,
         description: 'Custom description',
         isIncluded: true,
       })

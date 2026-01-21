@@ -225,13 +225,13 @@ export class AnomalyDetectionService {
     const similar = await this.findSimilarTransactions(input, duplicateThreshold)
 
     if (similar.length > 0) {
-      const mostSimilar = similar[0]
+      const mostSimilar! = similar[0]
       const daysBetween = Math.abs(
-        differenceInDays(new Date(input.transactionDate), new Date(mostSimilar.date))
+        differenceInDays(new Date(input.transactionDate), new Date(mostSimilar!.date))
       )
 
       // Calculate confidence based on similarity and recency
-      const confidence = mostSimilar.similarity * (1 - daysBetween / duplicateThreshold)
+      const confidence = mostSimilar!.similarity * (1 - daysBetween / duplicateThreshold)
 
       if (confidence > 0.5) {
         return {
@@ -241,7 +241,7 @@ export class AnomalyDetectionService {
           severity: this.getSeverityFromConfidence(confidence),
           confidence,
           confidenceLevel: this.getConfidenceLevel(confidence),
-          explanation: `This looks similar to a transaction from ${daysBetween} days ago: ${mostSimilar.description} ($${mostSimilar.amount}).`,
+          explanation: `This looks similar to a transaction from ${daysBetween} days ago: ${mostSimilar!.description} ($${mostSimilar!.amount}).`,
           actualValue: input.description,
           suggestedAction: 'Check if this is a duplicate',
           dismissed: false,

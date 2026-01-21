@@ -343,14 +343,14 @@ describe('Extended Audit Log Service', () => {
       expect(result.totalLogs).toBeGreaterThan(0);
       expect(result.executionTimeMs).toBeLessThan(250); // Relaxed for CI environments
 
-      // Verify entry structure
-      const entry = result.entries[0];
-      expect(entry).toHaveProperty('timestamp');
-      expect(entry).toHaveProperty('date');
-      expect(entry).toHaveProperty('count');
-      expect(entry).toHaveProperty('actions');
-      expect(entry).toHaveProperty('entityTypes');
-      expect(entry).toHaveProperty('logs');
+      // Verify entry! structure
+      const entry! = result.entries[0];
+      expect(entry!).toHaveProperty('timestamp');
+      expect(entry!).toHaveProperty('date');
+      expect(entry!).toHaveProperty('count');
+      expect(entry!).toHaveProperty('actions');
+      expect(entry!).toHaveProperty('entityTypes');
+      expect(entry!).toHaveProperty('logs');
     });
 
     it('should group logs by hour', async () => {
@@ -396,16 +396,16 @@ describe('Extended Audit Log Service', () => {
         'day'
       );
 
-      const entry = result.entries[0];
-      expect(entry.actions.length).toBeGreaterThan(0);
-      expect(entry.entityTypes.length).toBeGreaterThan(0);
+      const entry! = result.entries[0];
+      expect(entry!.actions.length).toBeGreaterThan(0);
+      expect(entry!.entityTypes.length).toBeGreaterThan(0);
 
       // Verify action counts
-      const totalActionCount = entry.actions.reduce(
+      const totalActionCount = entry!.actions.reduce(
         (sum, a) => sum + a.count,
         0
       );
-      expect(totalActionCount).toBe(entry.count);
+      expect(totalActionCount).toBe(entry!.count);
     });
   });
 

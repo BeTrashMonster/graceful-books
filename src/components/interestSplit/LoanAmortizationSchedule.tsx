@@ -173,7 +173,7 @@ export const LoanAmortizationSchedule = ({
               >
                 <span className="year-label">{year}</span>
                 <span className="year-stats">
-                  {entries.length} payments • {formatCurrency(totals.payment)} total
+                  {entries!.length} payments • {formatCurrency(totals.payment)} total
                 </span>
                 <span className={`expand-icon ${isExpanded ? 'expanded' : ''}`}>
                   ▼
@@ -195,7 +195,7 @@ export const LoanAmortizationSchedule = ({
                       </tr>
                     </thead>
                     <tbody>
-                      {entries.map((entry) => (
+                      {entries!.map((entry) => (
                         <tr
                           key={entry.id}
                           className={`entry-row ${entry.is_paid ? 'paid' : 'unpaid'} ${

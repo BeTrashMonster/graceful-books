@@ -392,8 +392,8 @@ describe('CoaWizardService', () => {
       expect(accountsStore.batchCreateAccounts).toHaveBeenCalled()
 
       // Get the accounts that were passed to batchCreateAccounts
-      const callArgs = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
-      const accountsToCreate = callArgs[0]
+      const callArgs! = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
+      const accountsToCreate = callArgs![0]
 
       // Business Checking should not be in the list
       const hasBusinessChecking = accountsToCreate.some(
@@ -424,8 +424,8 @@ describe('CoaWizardService', () => {
       await createAccountsFromWizard('company-1', wizardData)
 
       // Verify custom account was included
-      const callArgs = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
-      const accountsToCreate = callArgs[0]
+      const callArgs! = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
+      const accountsToCreate = callArgs![0]
 
       const hasCustomAccount = accountsToCreate.some(
         account => account.name === 'My Custom Account'
@@ -454,8 +454,8 @@ describe('CoaWizardService', () => {
       await createAccountsFromWizard('company-1', wizardData)
 
       // Verify customized name was used
-      const callArgs = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
-      const accountsToCreate = callArgs[0]
+      const callArgs! = vi.mocked(accountsStore.batchCreateAccounts).mock.calls[0]
+      const accountsToCreate = callArgs![0]
 
       const customizedAccount = accountsToCreate.find(
         account => account.name === 'Main Operating Account'
