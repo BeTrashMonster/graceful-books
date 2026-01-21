@@ -67,9 +67,10 @@ export async function pullBaselineSnapshot(
   };
 
   // Generate financial statements
-  const profitLoss = await generateProfitLossReport(companyId, ytdRange, {
-    method: 'accrual', // Default to accrual for scenarios
-    comparison: false,
+  const profitLoss = await generateProfitLossReport({
+    companyId,
+    dateRange: ytdRange,
+    accountingMethod: 'accrual', // Default to accrual for scenarios
   });
 
   const balanceSheetResult = await generateBalanceSheet({
