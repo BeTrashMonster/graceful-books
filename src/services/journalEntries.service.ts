@@ -19,9 +19,8 @@ import Database from '../db/database';
 import type {
   Transaction,
   TransactionLineItem,
-  TransactionStatus,
 } from '../types/database.types';
-import { TransactionType } from '../types/database.types';
+import { TransactionType, TransactionStatus } from '../types/database.types';
 import type {
   JournalEntry,
   JournalEntryLineItem,
@@ -132,7 +131,7 @@ export class JournalEntriesService {
 
     // Save to database
     await this.db.transactions.add(entry);
-    await this.db.transaction_line_items.bulkAdd(lineItems);
+    await this.db.transactionLineItems.bulkAdd(lineItems);
 
     // If this is a reversing entry, update the original entry
     if (request.reverses_entry_id) {
@@ -151,7 +150,7 @@ export class JournalEntriesService {
       throw new Error(`Journal entry not found: ${entryId}`);
     }
 
-    const lineItems = await this.db.transaction_line_items
+    const lineItems = await this.db.transactionLineItems
       .where('transaction_id')
       .equals(entryId)
       .and((item: TransactionLineItem) => item.deleted_at === null)
@@ -288,13 +287,13 @@ export class JournalEntriesService {
       }
 
       // Soft delete existing line items
-      const existingItems = await this.db.transaction_line_items
+      const existingItems = await this.db.transactionLineItems
         .where('transaction_id')
         .equals(entryId)
         .toArray();
 
       for (const item of existingItems) {
-        await this.db.transaction_line_items.update(item.id, { deleted_at: now });
+        await this.db.transactionLineItems.update(item.id, { deleted_at: now });
       }
 
       // Create new line items
@@ -317,7 +316,7 @@ export class JournalEntriesService {
         is_auto_balanced: false,
       }));
 
-      await this.db.transaction_line_items.bulkAdd(newLineItems);
+      await this.db.transactionLineItems.bulkAdd(newLineItems);
     }
 
     return this.getJournalEntryWithLineItems(entryId);
@@ -347,7 +346,7 @@ export class JournalEntriesService {
         ...entry.version_vector,
         [deviceId]: (entry.version_vector[deviceId] || 0) + 1,
       },
-    });
+    } as any);
   }
 
   /**
@@ -370,7 +369,7 @@ export class JournalEntriesService {
     const now = Date.now();
     await this.db.transactions.update(request.entry_id, {
       approval_status: 'APPROVED',
-      status: 'POSTED', // Also update transaction status
+      status: TransactionStatus.POSTED, // Also update transaction status
       approved_at: now,
       approved_by: request.approved_by,
       updated_at: now,
@@ -378,7 +377,7 @@ export class JournalEntriesService {
         ...entry.version_vector,
         [deviceId]: (entry.version_vector[deviceId] || 0) + 1,
       },
-    });
+    } as any);
   }
 
   /**
@@ -398,7 +397,7 @@ export class JournalEntriesService {
     const now = Date.now();
     await this.db.transactions.update(request.entry_id, {
       approval_status: 'REJECTED',
-      status: 'DRAFT', // Back to draft for editing
+      status: TransactionStatus.DRAFT, // Back to draft for editing
       rejected_at: now,
       rejected_by: request.rejected_by,
       rejection_reason: request.reason,
@@ -407,7 +406,7 @@ export class JournalEntriesService {
         ...entry.version_vector,
         [deviceId]: (entry.version_vector[deviceId] || 0) + 1,
       },
-    });
+    } as any);
   }
 
   /**
@@ -428,14 +427,14 @@ export class JournalEntriesService {
 
     // Update entry to VOID status
     await this.db.transactions.update(request.entry_id, {
-      status: 'VOID',
+      status: TransactionStatus.VOID,
       approval_status: 'VOID',
       updated_at: now,
       version_vector: {
         ...entry.version_vector,
         [deviceId]: (entry.version_vector[deviceId] || 0) + 1,
       },
-    });
+    } as any);
 
     // Create reversing entry if requested
     if (request.create_reversing_entry) {
@@ -453,7 +452,7 @@ export class JournalEntriesService {
       // Update original entry with reversing entry ID
       await this.db.transactions.update(request.entry_id, {
         reversed_by_entry_id: reversingEntryId,
-      });
+      } as any);
 
       return reversingEntryId;
     }
@@ -726,7 +725,7 @@ export class JournalEntriesService {
         ...entry.version_vector,
         [deviceId]: (entry.version_vector[deviceId] || 0) + 1,
       },
-    });
+    } as any);
   }
 }
 

@@ -6,33 +6,6 @@
  * direct access to EmailService instance.
  */
 
-import { EmailService } from './email.service';
-import type { EmailProvider, EmailServiceConfig } from '../../types/ic4-email.types';
-
-// Default email service configuration
-// In production, this would be loaded from environment or user settings
-const defaultConfig: EmailServiceConfig = {
-  provider: 'resend' as EmailProvider,
-  apiKey: process.env.VITE_EMAIL_API_KEY || '',
-  fromEmail: process.env.VITE_EMAIL_FROM || 'noreply@gracefulbooks.com',
-  fromName: 'Graceful Books',
-  testMode: true,
-  maxEmailsPerMinute: 10,
-  maxEmailsPerHour: 100,
-  defaultMaxRetries: 3,
-  retryDelayMinutes: [1, 5, 15],
-};
-
-// Singleton instance
-let emailServiceInstance: EmailService | null = null;
-
-function _getEmailService(): EmailService {
-  if (!emailServiceInstance) {
-    emailServiceInstance = new EmailService(defaultConfig);
-  }
-  return emailServiceInstance;
-}
-
 /**
  * Queue an email for sending
  * Simplified interface for backward compatibility
