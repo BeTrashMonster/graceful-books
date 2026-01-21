@@ -338,7 +338,7 @@ export class JournalEntriesService {
 
     const now = Date.now();
     await this.db.transactions.update(entryId, {
-      approval_status: 'pending',
+      approval_status: 'PENDING',
       submitted_at: now,
       submitted_by: userId,
       updated_at: now,
@@ -575,12 +575,15 @@ export class JournalEntriesService {
     const now = Date.now();
     const monthAgo = now - 30 * 24 * 60 * 60 * 1000;
 
+    const pendingCount = journalEntries.filter((e) => e.approval_status === 'PENDING').length;
+
     return {
       company_id: companyId,
       total_entries: journalEntries.length,
       by_status: {} as Record<TransactionStatus, number>,
       by_approval_status: {} as Record<JournalEntryApprovalStatus, number>,
-      pending_approval_count: journalEntries.filter((e) => e.approval_status === 'PENDING').length,
+      pending_approval_count: pendingCount,
+      pending_approval: pendingCount, // Alternative name for backward compatibility
       draft_count: journalEntries.filter((e) => e.status === 'DRAFT').length,
       posted_count: journalEntries.filter((e) => e.status === 'POSTED').length,
       voided_count: journalEntries.filter((e) => e.status === 'VOID').length,

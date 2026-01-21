@@ -64,7 +64,7 @@ const createMockDatabase = (): typeof Database => {
         return 0;
       }),
     },
-    transaction_line_items: {
+    transactionLineItems: {
       bulkAdd: vi.fn(async (items: TransactionLineItem[]) => {
         lineItemsStore.push(...items);
       }),
