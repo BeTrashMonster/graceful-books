@@ -120,7 +120,7 @@ function getFieldValue(
       return context.productIds.filter((id) => id !== null);
 
     case 'METADATA':
-      return context.metadata as string | number | string[];
+      return context.metadata as unknown as string | number | string[];
 
     default:
       ruleLogger.warn('Unknown condition field', { field });

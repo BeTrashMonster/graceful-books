@@ -82,8 +82,8 @@ Accounting software that feels like a friend, not a chore.
   `.trim();
 
   return {
-    html: replaceVariables(htmlBody, variables as Record<string, string>, true),
-    plainText: replaceVariables(plainTextBody, variables as Record<string, string>, false),
+    html: replaceVariables(htmlBody, variables as unknown as Record<string, string>, true),
+    plainText: replaceVariables(plainTextBody, variables as unknown as Record<string, string>, false),
     subject: `${variables.advisorName} invited you to connect your Graceful Books account`,
   };
 }

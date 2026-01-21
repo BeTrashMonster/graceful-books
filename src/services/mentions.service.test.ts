@@ -50,7 +50,7 @@ describe('MentionsService', () => {
       updated_at: Date.now(),
       deleted_at: null,
       version_vector: { [TEST_DEVICE_ID]: 1 },
-    } as User);
+    } as unknown as User);
 
     await db.users.add({
       id: TEST_USER_ID_2,
@@ -61,7 +61,7 @@ describe('MentionsService', () => {
       updated_at: Date.now(),
       deleted_at: null,
       version_vector: { [TEST_DEVICE_ID]: 1 },
-    } as User);
+    } as unknown as User);
 
     await db.users.add({
       id: TEST_USER_ID_3,
@@ -72,7 +72,7 @@ describe('MentionsService', () => {
       updated_at: Date.now(),
       deleted_at: null,
       version_vector: { [TEST_DEVICE_ID]: 1 },
-    } as User);
+    } as unknown as User);
 
     // Create company users with permissions
     await db.companyUsers.add({
@@ -94,7 +94,7 @@ describe('MentionsService', () => {
       updated_at: Date.now(),
       deleted_at: null,
       version_vector: { [TEST_DEVICE_ID]: 1 },
-    } as CompanyUser);
+    } as unknown as CompanyUser);
 
     await db.companyUsers.add({
       id: 'cu-002',
@@ -109,7 +109,7 @@ describe('MentionsService', () => {
       updated_at: Date.now(),
       deleted_at: null,
       version_vector: { [TEST_DEVICE_ID]: 1 },
-    } as CompanyUser);
+    } as unknown as CompanyUser);
 
     await db.companyUsers.add({
       id: 'cu-003',
@@ -124,7 +124,7 @@ describe('MentionsService', () => {
       updated_at: Date.now(),
       deleted_at: null,
       version_vector: { [TEST_DEVICE_ID]: 1 },
-    } as CompanyUser);
+    } as unknown as CompanyUser);
 
     service = createMentionsService(TEST_COMPANY_ID, TEST_DEVICE_ID);
   });
@@ -907,7 +907,7 @@ describe('MentionsService', () => {
         updated_at: Date.now(),
         deleted_at: null,
         version_vector: { [TEST_DEVICE_ID]: 1 },
-      } as User);
+      } as unknown as User);
 
       await db.companyUsers.add({
         id: 'cu-new',
@@ -922,7 +922,7 @@ describe('MentionsService', () => {
         updated_at: Date.now(),
         deleted_at: null,
         version_vector: { [TEST_DEVICE_ID]: 1 },
-      } as CompanyUser);
+      } as unknown as CompanyUser);
 
       await service.createMentions(
         'comment-new',

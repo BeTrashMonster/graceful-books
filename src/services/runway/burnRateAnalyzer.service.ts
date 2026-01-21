@@ -326,7 +326,7 @@ export async function analyzeRevenueBreakdown(
     .where('companyId')
     .equals(companyId)
     .and((inv) => {
-      const invDate = new Date(inv.invoiceDate)
+      const invDate = new Date(inv.invoice_date)
       return invDate >= dateRange.startDate && invDate <= dateRange.endDate && inv.status !== 'void'
     })
     .toArray()
@@ -340,7 +340,7 @@ export async function analyzeRevenueBreakdown(
     const contact = contactMap.get(invoice.contactId)
     if (!contact) continue
 
-    const invDate = new Date(invoice.invoiceDate)
+    const invDate = new Date(invoice.invoice_date)
     const monthKey = `${invDate.getFullYear()}-${String(invDate.getMonth() + 1).padStart(2, '0')}`
 
     if (!clientRevenue.has(contact.id)) {
@@ -393,7 +393,7 @@ export async function analyzeRevenueBreakdown(
       type: 'client',
       monthlyAmount: avgMonthly,
       percentage: 0, // Calculate later
-      trend: trend.direction,
+      trend: trend.direction === 'increasing' ? 'growing' : trend.direction === 'decreasing' ? 'declining' : 'stable',
       trendPercentage: trend.percentage,
       isRecurring: data.recurring,
     })
@@ -413,7 +413,7 @@ export async function analyzeRevenueBreakdown(
       type: 'product',
       monthlyAmount: avgMonthly,
       percentage: 0, // Calculate later
-      trend: trend.direction,
+      trend: trend.direction === 'increasing' ? 'growing' : trend.direction === 'decreasing' ? 'declining' : 'stable',
       trendPercentage: trend.percentage,
       isRecurring: false, // Products are not typically recurring
     })

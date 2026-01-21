@@ -419,7 +419,7 @@ export async function generateARAgingReport(
   const report: ARAgingReport = {
     companyId,
     companyName,
-    asOfDate,
+    asOfDate: typeof asOfDate === 'number' ? new Date(asOfDate) : asOfDate,
     generatedAt: new Date(),
     totalOutstanding: totalOutstanding.toNumber(),
     totalInvoiceCount,

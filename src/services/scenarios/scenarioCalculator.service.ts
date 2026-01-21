@@ -63,8 +63,8 @@ export async function pullBaselineSnapshot(
   // Calculate year-to-date date range
   const year = new Date(asOfDate).getFullYear();
   const ytdRange: DateRange = {
-    startDate: new Date(year, 0, 1).getTime(),
-    endDate: asOfDate,
+    startDate: new Date(year, 0, 1),
+    endDate: typeof asOfDate === 'number' ? new Date(asOfDate) : asOfDate,
   };
 
   // Generate financial statements
@@ -994,7 +994,7 @@ export function parseFormula(
 
       references.push({
         type: 'account',
-        id: accountCode,
+        id: accountCode || '',
         name: `Account ${accountCode}`,
       });
 

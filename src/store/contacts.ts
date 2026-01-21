@@ -169,7 +169,7 @@ export async function createContact(
           ? await encryptionService.encrypt(entity.phone)
           : undefined,
         address: entity.address
-          ? await encryptionService.encrypt(JSON.stringify(entity.address))
+          ? await encryptionService.encrypt(typeof entity.address === 'string' ? entity.address : JSON.stringify(entity.address))
           : undefined,
         taxId: entity.taxId
           ? await encryptionService.encrypt(entity.taxId)
@@ -185,7 +185,7 @@ export async function createContact(
           taxId: !!entity.taxId,
           notes: !!entity.notes,
         },
-      }
+      } as any
     }
 
     // Store in database

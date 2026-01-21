@@ -66,7 +66,7 @@ describe('recurrence.service', () => {
 
     it('should create an annual recurrence rule', () => {
       const rule: RecurrenceRule = {
-        frequency: 'ANNUALLY',
+        frequency: RecurrenceFrequency.ANNUALLY,
         interval: 1,
         startDate: new Date('2026-03-15').getTime(),
         endType: RecurrenceEndType.NEVER,
@@ -86,7 +86,7 @@ describe('recurrence.service', () => {
         frequency: RecurrenceFrequency.MONTHLY,
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'ON_DATE',
+        endType: RecurrenceEndType.ON_DATE,
         endDate: new Date('2026-12-31').getTime(),
         dayOfMonth: 1,
       };
@@ -100,7 +100,7 @@ describe('recurrence.service', () => {
         frequency: RecurrenceFrequency.MONTHLY,
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'AFTER_COUNT',
+        endType: RecurrenceEndType.AFTER_COUNT,
         occurrenceCount: 12,
         dayOfMonth: 1,
       };
@@ -134,7 +134,7 @@ describe('recurrence.service', () => {
         frequency: RecurrenceFrequency.MONTHLY,
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'ON_DATE',
+        endType: RecurrenceEndType.ON_DATE,
         endDate: new Date('2026-06-30').getTime(),
         dayOfMonth: 1,
       };
@@ -219,7 +219,7 @@ describe('recurrence.service', () => {
         frequency: RecurrenceFrequency.MONTHLY,
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'AFTER_COUNT',
+        endType: RecurrenceEndType.AFTER_COUNT,
         occurrenceCount: 3,
         dayOfMonth: 1,
       };
@@ -235,7 +235,7 @@ describe('recurrence.service', () => {
   describe('edge cases for date handling', () => {
     it('should handle leap year correctly', () => {
       const rule: RecurrenceRule = {
-        frequency: 'ANNUALLY',
+        frequency: RecurrenceFrequency.ANNUALLY,
         interval: 1,
         startDate: new Date('2024-02-29').getTime(), // Leap year
         endType: RecurrenceEndType.NEVER,
@@ -333,7 +333,7 @@ describe('recurrence.service', () => {
         frequency: RecurrenceFrequency.MONTHLY,
         interval: 1,
         startDate: new Date('2026-06-01').getTime(),
-        endType: 'ON_DATE',
+        endType: RecurrenceEndType.ON_DATE,
         endDate: new Date('2026-01-01').getTime(),
         dayOfMonth: 1,
       };
@@ -348,7 +348,7 @@ describe('recurrence.service', () => {
         frequency: RecurrenceFrequency.MONTHLY,
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'ON_DATE',
+        endType: RecurrenceEndType.ON_DATE,
         dayOfMonth: 1,
       };
 
@@ -418,7 +418,7 @@ describe('recurrence.service', () => {
         frequency: RecurrenceFrequency.MONTHLY,
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'ON_DATE',
+        endType: RecurrenceEndType.ON_DATE,
         endDate: new Date('2026-03-31').getTime(),
         dayOfMonth: 1,
       };
@@ -436,7 +436,7 @@ describe('recurrence.service', () => {
         frequency: RecurrenceFrequency.MONTHLY,
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'AFTER_COUNT',
+        endType: RecurrenceEndType.AFTER_COUNT,
         occurrenceCount: 12,
         dayOfMonth: 1,
       };
@@ -478,7 +478,7 @@ describe('recurrence.service', () => {
         frequency: RecurrenceFrequency.MONTHLY,
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'ON_DATE',
+        endType: RecurrenceEndType.ON_DATE,
         endDate: new Date('2026-06-30').getTime(),
         dayOfMonth: 1,
       };
@@ -493,7 +493,7 @@ describe('recurrence.service', () => {
         frequency: RecurrenceFrequency.MONTHLY,
         interval: 1,
         startDate: new Date('2026-01-01').getTime(),
-        endType: 'ON_DATE',
+        endType: RecurrenceEndType.ON_DATE,
         endDate: new Date('2026-12-31').getTime(),
         dayOfMonth: 1,
       };

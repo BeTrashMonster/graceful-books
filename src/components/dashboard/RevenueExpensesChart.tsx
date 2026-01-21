@@ -208,10 +208,10 @@ export function RevenueExpensesChart({
               width={60}
             />
             <Tooltip
-              formatter={(value: number, name: string) => [
+              formatter={((value: number, name: string) => [
                 formatCurrency(value),
                 name === 'revenue' ? 'Revenue' : 'Expenses',
-              ] as any}
+              ]) as any}
               labelFormatter={(label) => formatDate(label)}
               contentStyle={{
                 backgroundColor: 'var(--color-surface)',

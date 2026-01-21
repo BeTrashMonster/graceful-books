@@ -81,7 +81,7 @@ export async function initializeGateway(
     return {
       success: false,
       error: {
-        code: ErrorCode.CONFIGURATION_ERROR,
+        code: 'VALIDATION_ERROR',
         message: `Failed to initialize ${config.gateway} gateway`,
         details: error,
       },
@@ -109,7 +109,7 @@ export async function createPaymentIntent(
       return {
         success: false,
         error: {
-          code: ErrorCode.NOT_FOUND,
+          code: 'NOT_FOUND',
           message: `Invoice not found: ${invoiceId}`,
         },
       };
@@ -130,8 +130,8 @@ export async function createPaymentIntent(
         deviceId
       ),
       customer_name: customerName || null,
-      status: 'PENDING',
-    };
+      status: 'PENDING' as any,
+    } as Payment;
 
     // Validate
     const errors = validatePayment(payment);

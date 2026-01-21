@@ -375,17 +375,16 @@ export async function getConflictStatistics(
   bySeverity: Record<string, number>;
   avgResolutionTimeMs: number;
 }> {
-  let query = db.table('conflict_history');
+  let conflicts = await db.table('conflict_history').toArray();
 
+  // Filter by date range if provided
   if (startDate) {
-    query = query.where('detectedAt').aboveOrEqual(startDate);
+    conflicts = conflicts.filter(c => c.detectedAt >= startDate);
   }
 
   if (endDate) {
-    query = query.where('detectedAt').belowOrEqual(endDate);
+    conflicts = conflicts.filter(c => c.detectedAt <= endDate);
   }
-
-  const conflicts = await query.toArray();
 
   const total = conflicts.length;
   const resolved = conflicts.filter(c => c.resolvedAt !== null).length;

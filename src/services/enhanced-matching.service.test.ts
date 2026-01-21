@@ -37,7 +37,7 @@ describe('Enhanced Matching Service', () => {
             { id: 'line-1', accountId: 'acc-1', debit: 5000, credit: 0 },
             { id: 'line-2', accountId: 'acc-2', debit: 0, credit: 5000 },
           ],
-        } as JournalEntry,
+        } as unknown as JournalEntry,
       ];
 
       const result = await enhancedMatchTransactions(statementTxs, systemTxs, {
@@ -74,7 +74,7 @@ describe('Enhanced Matching Service', () => {
             { id: 'line-1', accountId: 'acc-1', debit: 3500, credit: 0 },
             { id: 'line-2', accountId: 'acc-2', debit: 0, credit: 3500 },
           ],
-        } as JournalEntry,
+        } as unknown as JournalEntry,
       ];
 
       const result = await enhancedMatchTransactions(statementTxs, systemTxs);
@@ -108,7 +108,7 @@ describe('Enhanced Matching Service', () => {
             { id: 'line-1', accountId: 'acc-1', debit: 2500, credit: 0 },
             { id: 'line-2', accountId: 'acc-2', debit: 0, credit: 2500 },
           ],
-        } as JournalEntry,
+        } as unknown as JournalEntry,
       ];
 
       const result = await enhancedMatchTransactions(statementTxs, systemTxs, {
@@ -144,7 +144,7 @@ describe('Enhanced Matching Service', () => {
             { id: 'line-1', accountId: 'acc-1', debit: 7500, credit: 0 }, // Different amount
             { id: 'line-2', accountId: 'acc-2', debit: 0, credit: 7500 },
           ],
-        } as JournalEntry,
+        } as unknown as JournalEntry,
       ];
 
       const result = await enhancedMatchTransactions(statementTxs, systemTxs);
@@ -174,7 +174,7 @@ describe('Enhanced Matching Service', () => {
             { id: 'line-1', accountId: 'acc-1', debit: 5000, credit: 0 },
             { id: 'line-2', accountId: 'acc-2', debit: 0, credit: 5000 },
           ],
-        } as JournalEntry,
+        } as unknown as JournalEntry,
       ];
 
       const result = await enhancedMatchTransactions(statementTxs, systemTxs);
@@ -220,7 +220,7 @@ describe('Enhanced Matching Service', () => {
             { id: 'line-1', accountId: 'acc-1', debit: 5000, credit: 0 },
             { id: 'line-2', accountId: 'acc-2', debit: 0, credit: 5000 },
           ],
-        } as JournalEntry,
+        } as unknown as JournalEntry,
       ];
 
       const result = await enhancedMatchTransactions(statementTxs, systemTxs, {
@@ -273,7 +273,7 @@ describe('Enhanced Matching Service', () => {
             { id: 'line-1', accountId: 'acc-1', debit: 5000, credit: 0 },
             { id: 'line-2', accountId: 'acc-2', debit: 0, credit: 5000 },
           ],
-        } as JournalEntry,
+        } as unknown as JournalEntry,
         {
           id: 'sys-2',
           date: new Date('2026-01-11').getTime(),
@@ -284,7 +284,7 @@ describe('Enhanced Matching Service', () => {
             { id: 'line-1', accountId: 'acc-1', debit: 3000, credit: 0 },
             { id: 'line-2', accountId: 'acc-2', debit: 0, credit: 3000 },
           ],
-        } as JournalEntry,
+        } as unknown as JournalEntry,
         // Third transaction not in system - should lower accuracy
       ];
 

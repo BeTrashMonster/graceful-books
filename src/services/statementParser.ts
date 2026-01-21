@@ -69,9 +69,9 @@ function detectColumnMapping(headers: string[]): CSVColumnMapping | null {
   }
 
   return {
-    dateColumn,
-    descriptionColumn,
-    amountColumn,
+    dateColumn: dateColumn!,
+    descriptionColumn: descriptionColumn!,
+    amountColumn: amountColumn!,
     debitColumn,
     creditColumn,
     balanceColumn,

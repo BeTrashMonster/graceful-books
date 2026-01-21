@@ -271,21 +271,20 @@ export class KeyRotationService {
    */
   private async countEntitiesForReEncryption(companyId: string): Promise<EntityTypeCount> {
     try {
-      const [accounts, transactions, transactionLines, contacts, users] = await Promise.all([
-        db.accounts.where('company_id').equals(companyId).and((a: any) => !a.deleted_at).count(),
-        db.transactions.where('company_id').equals(companyId).and((t: any) => !t.deleted_at).count(),
-        db.transactionLines.where('company_id').equals(companyId).and((tl: any) => !tl.deleted_at).count(),
-        db.contacts.where('company_id').equals(companyId).and((c: any) => !c.deleted_at).count(),
-        db.users.where('email').notEqual('').and((u: any) => !u.deleted_at).count(), // All users
+      const [accounts, transactions, contacts, users] = await Promise.all([
+        db.accounts.where('company_id').equals(companyId).and((a: any) => !a.deletedAt).count(),
+        db.transactions.where('company_id').equals(companyId).and((t: any) => !t.deletedAt).count(),
+        db.contacts.where('company_id').equals(companyId).and((c: any) => !c.deletedAt).count(),
+        db.users.where('email').notEqual('').and((u: any) => !u.deletedAt).count(), // All users
       ]);
 
       return {
         accounts,
         transactions,
-        transactionLines,
+        transactionLines: 0, // Not a separate table
         contacts,
         users,
-        total: accounts + transactions + transactionLines + contacts + users,
+        total: accounts + transactions + contacts + users,
       };
     } catch (error) {
       log.error('Failed to count entities', { companyId, error });
@@ -360,7 +359,7 @@ export class KeyRotationService {
     const accounts = await db.accounts
       .where('company_id')
       .equals(job.companyId)
-      .and((a) => !a.deleted_at)
+      .and((a) => !a.deletedAt)
       .toArray();
 
     for (let i = 0; i < accounts.length; i += this.BATCH_SIZE) {
@@ -370,7 +369,7 @@ export class KeyRotationService {
       const updates = batch.map((account) => ({
         ...account,
         updated_at: Date.now(),
-        version_vector: incrementVersionVector(account.version_vector),
+        versionVector: incrementVersionVector(account.versionVector),
       }));
 
       await db.accounts.bulkPut(updates);
@@ -391,7 +390,7 @@ export class KeyRotationService {
     const transactions = await db.transactions
       .where('company_id')
       .equals(job.companyId)
-      .and((t) => !t.deleted_at)
+      .and((t) => !t.deletedAt)
       .toArray();
 
     for (let i = 0; i < transactions.length; i += this.BATCH_SIZE) {
@@ -400,7 +399,7 @@ export class KeyRotationService {
       const updates = batch.map((transaction) => ({
         ...transaction,
         updated_at: Date.now(),
-        version_vector: incrementVersionVector(transaction.version_vector),
+        versionVector: incrementVersionVector(transaction.versionVector),
       }));
 
       await db.transactions.bulkPut(updates);
@@ -410,30 +409,15 @@ export class KeyRotationService {
 
   /**
    * Re-encrypt transaction lines
+   * Note: Transaction lines are stored within transactions, not as a separate table
    */
   private async reEncryptTransactionLines(
-    job: RotationJob,
+    _job: RotationJob,
     _oldContext: EncryptionContext,
     _newContext: EncryptionContext
   ): Promise<void> {
-    const lines = await db.transactionLines
-      .where('company_id')
-      .equals(job.companyId)
-      .and((tl: any) => !tl.deleted_at)
-      .toArray();
-
-    for (let i = 0; i < lines.length; i += this.BATCH_SIZE) {
-      const batch = lines.slice(i, i + this.BATCH_SIZE);
-
-      const updates = batch.map((line: any) => ({
-        ...line,
-        updated_at: Date.now(),
-        version_vector: incrementVersionVector(line.version_vector),
-      }));
-
-      await db.transactionLines.bulkPut(updates);
-      this.saveCheckpoint(job.id, 'transactionLines', batch[batch.length - 1]!.id, i + batch.length);
-    }
+    // No-op: Transaction lines are part of transactions, handled in reEncryptTransactions
+    return;
   }
 
   /**
@@ -447,7 +431,7 @@ export class KeyRotationService {
     const contacts = await db.contacts
       .where('company_id')
       .equals(job.companyId)
-      .and((c) => !c.deleted_at)
+      .and((c) => !c.deletedAt)
       .toArray();
 
     for (let i = 0; i < contacts.length; i += this.BATCH_SIZE) {
@@ -456,7 +440,7 @@ export class KeyRotationService {
       const updates = batch.map((contact) => ({
         ...contact,
         updated_at: Date.now(),
-        version_vector: incrementVersionVector(contact.version_vector),
+        versionVector: incrementVersionVector(contact.versionVector),
       }));
 
       await db.contacts.bulkPut(updates);
@@ -475,7 +459,7 @@ export class KeyRotationService {
     const users = await db.users
       .where('email')
       .notEqual('')
-      .and((u) => !u.deleted_at)
+      .and((u) => !u.deletedAt)
       .toArray();
 
     for (let i = 0; i < users.length; i += this.BATCH_SIZE) {
@@ -484,7 +468,7 @@ export class KeyRotationService {
       const updates = batch.map((user) => ({
         ...user,
         updated_at: Date.now(),
-        version_vector: incrementVersionVector(user.version_vector),
+        versionVector: incrementVersionVector(user.versionVector),
       }));
 
       await db.users.bulkPut(updates);
@@ -503,7 +487,7 @@ export class KeyRotationService {
       await db.companies.update(company.id, {
         // master_key_id: newMasterKeyId, // Uncomment when schema includes this field
         updated_at: Date.now(),
-        version_vector: incrementVersionVector(company.version_vector),
+        versionVector: incrementVersionVector(company.versionVector),
       });
     }
   }

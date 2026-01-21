@@ -62,7 +62,7 @@ export async function createApprovalRule(
       id: ruleId,
       company_id: companyId,
       name,
-    };
+    } as ApprovalRule;
 
     // Validate rule
     const errors = validateApprovalRule(rule);
@@ -291,7 +291,7 @@ export async function getApprovalRequestByTransaction(
       return null;
     }
 
-    return requests.sort((a, b) => b.created_at - a.created_at)[0];
+    return requests.sort((a, b) => b.created_at - a.created_at)[0] || null;
   } catch (error) {
     storeLogger.error('Error getting approval request by transaction', {
       transactionId,

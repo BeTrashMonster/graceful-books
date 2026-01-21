@@ -115,7 +115,7 @@ export async function pushScenarioToClient(
   const scenarioUrl = `${window.location.origin}/scenarios/${scenarioId}/view`;
 
   const emailVariables: ScenarioPushedVariables = {
-    clientFirstName: client.name.split(' ')[0],
+    clientFirstName: client.name.split(' ')[0] || client.name,
     advisorName: advisor.name,
     scenarioName: scenario.name,
     advisorNote: emailMessage,

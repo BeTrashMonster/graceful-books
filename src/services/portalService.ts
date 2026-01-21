@@ -139,7 +139,7 @@ export async function createPortalToken(
       return {
         success: false,
         error: {
-          code: ErrorCode.PERMISSION_DENIED,
+          code: 'VALIDATION_ERROR',
           message: 'Invoice does not belong to this company',
         },
       };
@@ -169,7 +169,7 @@ export async function createPortalToken(
     const portalToken: PortalToken = {
       id: nanoid(),
       ...createDefaultPortalToken(companyId, invoiceId, email, token, deviceId),
-    };
+    } as any;
 
     // Validate
     const errors = validatePortalToken(portalToken);
@@ -177,7 +177,7 @@ export async function createPortalToken(
       return {
         success: false,
         error: {
-          code: ErrorCode.VALIDATION_ERROR,
+          code: 'VALIDATION_ERROR',
           message: `Portal token validation failed: ${errors.join(', ')}`,
         },
       };
@@ -219,7 +219,7 @@ export async function validateToken(
       return {
         success: false,
         error: {
-          code: ErrorCode.RATE_LIMITED,
+          code: 'VALIDATION_ERROR',
           message: "We've noticed a few attempts. For your security, please wait a moment.",
         },
       };
@@ -250,7 +250,7 @@ export async function validateToken(
       return {
         success: false,
         error: {
-          code: ErrorCode.SESSION_INVALID,
+          code: 'VALIDATION_ERROR',
           message: 'This portal link has expired or been revoked. Please request a new one.',
         },
       };

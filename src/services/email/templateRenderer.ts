@@ -80,7 +80,7 @@ export function renderTemplate(
     // Validate required variables
     const requiredVars = TEMPLATE_CONFIG[templateType];
     const validation = validateVariables(
-      variables as Record<string, string>,
+      variables as unknown as Record<string, string>,
       requiredVars
     );
 

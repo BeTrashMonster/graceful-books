@@ -49,7 +49,7 @@ describe('ReportScheduler Service', () => {
         recipients: ['test@example.com'],
         format: 'pdf',
         reportParameters: {
-          dateRangeType: 'last-week',
+          dateRangeType: 'last-month',
         },
       };
 

@@ -54,7 +54,7 @@ describe('CommentsService', () => {
       updated_at: Date.now(),
       deleted_at: null,
       version_vector: { [TEST_DEVICE_ID]: 1 },
-    } as User);
+    } as unknown as User);
 
     await db.users.add({
       id: TEST_USER_ID_2,
@@ -65,7 +65,7 @@ describe('CommentsService', () => {
       updated_at: Date.now(),
       deleted_at: null,
       version_vector: { [TEST_DEVICE_ID]: 1 },
-    } as User);
+    } as unknown as User);
 
     // Create test company user with full permissions
     await db.companyUsers.add({

@@ -114,7 +114,7 @@ function createTestJournalEntry(
     createdBy: 'test-user',
     createdAt: new Date(),
     updatedAt: new Date(),
-  } as JournalEntry;
+  } as unknown as JournalEntry;
 }
 
 /**

@@ -185,9 +185,9 @@ export class MultiUserAuditService {
       const auditLog: Omit<AuditLog, 'id'> = {
         company_id: metadata.companyId || '',
         user_id: metadata.actorUserId || '',
-        entity_type: metadata.targetResource || 'SYSTEM',
+        entity_type: (metadata.targetResource || 'SYSTEM') as any,
         entity_id: metadata.targetResourceId || '',
-        action: eventType,
+        action: eventType as any,
         changes: metadata.changes ? JSON.stringify(metadata.changes) : null,
         ip_address: metadata.ipAddress || null,
         device_id: metadata.deviceId || deviceId,
@@ -531,11 +531,11 @@ export class MultiUserAuditService {
       let results = await collection.toArray();
 
       if (filters.companyId) {
-        results = results.filter((log) => log.company_id === filters.companyId);
+        results = results.filter((log) => log.companyId === filters.companyId);
       }
 
       if (filters.userId) {
-        results = results.filter((log) => log.user_id === filters.userId);
+        results = results.filter((log) => log.userId === filters.userId);
       }
 
       if (filters.eventType) {
@@ -554,18 +554,18 @@ export class MultiUserAuditService {
       }
 
       if (filters.resourceType) {
-        results = results.filter((log) => log.entity_type === filters.resourceType);
+        results = results.filter((log) => log.entityType === filters.resourceType);
       }
 
       if (filters.resourceId) {
-        results = results.filter((log) => log.entity_id === filters.resourceId);
+        results = results.filter((log) => log.entityId === filters.resourceId);
       }
 
       const total = results.length;
       const paginatedResults = results.slice(offset, offset + limit);
 
       return {
-        events: paginatedResults,
+        events: paginatedResults as any,
         total,
         hasMore: offset + limit < total,
       };
@@ -605,13 +605,13 @@ export class MultiUserAuditService {
         eventsByType[log.action] = (eventsByType[log.action] || 0) + 1;
 
         // Track unique users
-        if (log.user_id) {
-          uniqueUsers.add(log.user_id);
+        if (log.userId) {
+          uniqueUsers.add(log.userId);
         }
 
         // Track unique sessions
-        if (log.device_id) {
-          uniqueSessions.add(log.device_id);
+        if (log.deviceId) {
+          uniqueSessions.add(log.deviceId);
         }
 
         // Count security events
@@ -752,12 +752,12 @@ export class MultiUserAuditService {
       const rows = logs.map((log) => [
         new Date(log.timestamp).toISOString(),
         log.action,
-        log.user_id,
-        log.entity_type,
-        log.entity_id,
+        log.userId,
+        log.entityType,
+        log.entityId,
         log.action,
-        log.ip_address || '',
-        log.device_id || '',
+        log.ipAddress || '',
+        log.deviceId || '',
       ]);
 
       const csv = [

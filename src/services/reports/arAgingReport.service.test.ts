@@ -36,8 +36,8 @@ describe('A/R Aging Report Service', () => {
       company_id: mockCompanyId,
       customer_id: 'cust-1',
       invoice_number: 'INV-001',
-      invoice_date: new Date('2025-12-01').getTime(),
-      due_date: new Date('2025-12-31').getTime(), // 17 days overdue
+      invoice_date: new Date('2025-12-01').getTime() as any,
+      due_date: new Date('2025-12-31').getTime() as any,
       status: 'sent',
       total: '1000.00',
       subtotal: '1000.00',
@@ -48,8 +48,8 @@ describe('A/R Aging Report Service', () => {
       company_id: mockCompanyId,
       customer_id: 'cust-1',
       invoice_number: 'INV-002',
-      invoice_date: new Date('2026-01-01').getTime(),
-      due_date: new Date('2026-01-31').getTime(), // Not yet due (current)
+      invoice_date: new Date('2026-01-01').getTime() as any,
+      due_date: new Date('2026-01-31').getTime() as any,
       status: 'sent',
       total: '500.00',
       subtotal: '500.00',
@@ -60,8 +60,8 @@ describe('A/R Aging Report Service', () => {
       company_id: mockCompanyId,
       customer_id: 'cust-2',
       invoice_number: 'INV-003',
-      invoice_date: new Date('2025-10-01').getTime(),
-      due_date: new Date('2025-10-31').getTime(), // 78 days overdue (61-90)
+      invoice_date: new Date('2025-10-01').getTime() as any,
+      due_date: new Date('2025-10-31').getTime() as any,
       status: 'overdue',
       total: '2000.00',
       subtotal: '2000.00',
@@ -72,8 +72,8 @@ describe('A/R Aging Report Service', () => {
       company_id: mockCompanyId,
       customer_id: 'cust-3',
       invoice_number: 'INV-004',
-      invoice_date: new Date('2025-09-01').getTime(),
-      due_date: new Date('2025-09-30').getTime(), // 109 days overdue (90+)
+      invoice_date: new Date('2025-09-01').getTime() as any,
+      due_date: new Date('2025-09-30').getTime() as any,
       status: 'overdue',
       total: '3000.00',
       subtotal: '3000.00',
@@ -84,8 +84,8 @@ describe('A/R Aging Report Service', () => {
       company_id: mockCompanyId,
       customer_id: 'cust-1',
       invoice_number: 'INV-005',
-      invoice_date: new Date('2025-12-15').getTime(),
-      due_date: new Date('2025-12-25').getTime(), // 23 days overdue (1-30)
+      invoice_date: new Date('2025-12-15').getTime() as any,
+      due_date: new Date('2025-12-25').getTime() as any,
       status: 'sent',
       total: '750.00',
       subtotal: '750.00',
@@ -96,14 +96,14 @@ describe('A/R Aging Report Service', () => {
       company_id: mockCompanyId,
       customer_id: 'cust-4',
       invoice_number: 'INV-006',
-      invoice_date: new Date('2026-01-10').getTime(),
-      due_date: new Date('2026-02-10').getTime(), // Current (not due)
+      invoice_date: new Date('2026-01-10').getTime() as any,
+      due_date: new Date('2026-02-10').getTime() as any,
       status: 'sent',
       total: '1250.00',
       subtotal: '1250.00',
       deleted_at: null,
     },
-  ]
+  ] as any[]
 
   const mockContacts: Partial<Contact>[] = [
     {
@@ -307,8 +307,8 @@ describe('A/R Aging Report Service', () => {
           company_id: mockCompanyId,
           customer_id: 'cust-1',
           invoice_number: 'INV-H1',
-          invoice_date: mockAsOfDate.getTime(),
-          due_date: new Date(mockAsOfDate.getTime() + 30 * 24 * 60 * 60 * 1000).getTime(),
+          invoice_date: mockAsOfDate.getTime() as any,
+          due_date: new Date(mockAsOfDate.getTime() + 30 * 24 * 60 * 60 * 1000).getTime() as any,
           status: 'sent',
           total: '5000.00',
           subtotal: '5000.00',
@@ -319,14 +319,14 @@ describe('A/R Aging Report Service', () => {
           company_id: mockCompanyId,
           customer_id: 'cust-2',
           invoice_number: 'INV-H2',
-          invoice_date: mockAsOfDate.getTime(),
-          due_date: new Date(mockAsOfDate.getTime() - 5 * 24 * 60 * 60 * 1000).getTime(),
+          invoice_date: mockAsOfDate.getTime() as any,
+          due_date: new Date(mockAsOfDate.getTime() - 5 * 24 * 60 * 60 * 1000).getTime() as any,
           status: 'sent',
           total: '500.00',
           subtotal: '500.00',
           deleted_at: null,
         },
-      ]
+      ] as any[]
 
       const mockHealthyQuery = {
         equals: vi.fn().mockReturnThis(),
@@ -355,13 +355,13 @@ describe('A/R Aging Report Service', () => {
           company_id: mockCompanyId,
           customer_id: 'cust-1',
           invoice_number: 'INV-VOID',
-          invoice_date: mockAsOfDate.getTime(),
-          due_date: mockAsOfDate.getTime(),
+          invoice_date: mockAsOfDate.getTime() as any,
+          due_date: mockAsOfDate.getTime() as any,
           status: 'void',
           total: '999.00',
           subtotal: '999.00',
           deleted_at: null,
-        },
+        } as any,
       ]
 
       const mockQueryWithVoid = {

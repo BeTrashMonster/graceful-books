@@ -81,8 +81,8 @@ Privacy Policy: https://gracefulbooks.com/privacy
   `.trim();
 
   return {
-    html: replaceVariables(htmlBody, variables as Record<string, string>, true),
-    plainText: replaceVariables(plainTextBody, variables as Record<string, string>, false),
+    html: replaceVariables(htmlBody, variables as unknown as Record<string, string>, true),
+    plainText: replaceVariables(plainTextBody, variables as unknown as Record<string, string>, false),
     subject: `${variables.advisorName} granted you access to Tax Prep Mode`,
   };
 }

@@ -484,7 +484,7 @@ export class JournalEntriesService {
     const reversingEntry = await this.createJournalEntry(
       {
         company_id: originalEntry.entry.company_id,
-        transaction_date: options.reverse_date,
+        transaction_date: options.reversal_date,
         description: options.description || `Reversing entry for ${originalEntry.entry.transaction_number}`,
         reference: originalEntry.entry.reference,
         memo: `Reverses ${originalEntry.entry.transaction_number}`,

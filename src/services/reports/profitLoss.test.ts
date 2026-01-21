@@ -1112,7 +1112,7 @@ describe('Profit & Loss Report Service', () => {
       vi.mocked(queryAccounts).mockResolvedValue({
         success: false,
         error: {
-          code: 'DATABASE_ERROR',
+          code: 'UNKNOWN_ERROR',
           message: 'Failed to fetch accounts',
         },
       })
@@ -1146,7 +1146,7 @@ describe('Profit & Loss Report Service', () => {
       vi.mocked(queryTransactions).mockResolvedValue({
         success: false,
         error: {
-          code: 'DATABASE_ERROR',
+          code: 'UNKNOWN_ERROR',
           message: 'Failed to fetch transactions',
         },
       })

@@ -112,6 +112,13 @@ describe('Journal Entries Integration Tests', () => {
         transaction_date: Date.now(),
         description: 'Monthly office expense',
         reference: 'INV-001',
+        memo: null,
+        attachments: [],
+        submit_for_approval: false,
+        is_reversing: false,
+        reverses_entry_id: null,
+        auto_reverse_date: null,
+        template_id: null,
         line_items: [
           {
             account_id: expenseAccountId,
@@ -174,6 +181,13 @@ describe('Journal Entries Integration Tests', () => {
         company_id: companyId,
         transaction_date: Date.now(),
         description: 'Entry to reject',
+        reference: null,
+        memo: null,
+        attachments: [],
+        is_reversing: false,
+        reverses_entry_id: null,
+        auto_reverse_date: null,
+        template_id: null,
         line_items: [
           { account_id: expenseAccountId, debit: '500.00', credit: '0.00', description: null, contact_id: null, product_id: null },
           { account_id: cashAccountId, debit: '0.00', credit: '500.00', description: null, contact_id: null, product_id: null },
@@ -226,6 +240,14 @@ describe('Journal Entries Integration Tests', () => {
         company_id: companyId,
         transaction_date: Date.now() - 30 * 24 * 60 * 60 * 1000, // 30 days ago
         description: 'Accrued expense',
+        reference: null,
+        memo: null,
+        attachments: [],
+        submit_for_approval: false,
+        is_reversing: false,
+        reverses_entry_id: null,
+        auto_reverse_date: null,
+        template_id: null,
         line_items: [
           {
             account_id: expenseAccountId,
@@ -290,6 +312,14 @@ describe('Journal Entries Integration Tests', () => {
         company_id: companyId,
         transaction_date: Date.now(),
         description: 'Entry to void',
+        reference: null,
+        memo: null,
+        attachments: [],
+        submit_for_approval: false,
+        is_reversing: false,
+        reverses_entry_id: null,
+        auto_reverse_date: null,
+        template_id: null,
         line_items: [
           { account_id: expenseAccountId, debit: '1000.00', credit: '0.00', description: null, contact_id: null, product_id: null },
           { account_id: cashAccountId, debit: '0.00', credit: '1000.00', description: null, contact_id: null, product_id: null },
