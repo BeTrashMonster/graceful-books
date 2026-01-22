@@ -10,7 +10,7 @@
  */
 
 import { nanoid } from 'nanoid';
-import { db } from './database';
+import { db } from '../db/database';
 import type { DatabaseResult, EncryptionContext, VersionVector } from './types';
 import type {
   Invoice,
