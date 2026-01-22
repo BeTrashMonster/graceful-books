@@ -1,0 +1,681 @@
+
+> graceful-books@0.1.0 test
+> vitest src/services/automation/recurringDetectionService.test.ts
+
+
+[1m[46m RUN [49m[22m [36mv4.0.17 [39m[90mC:/Users/Admin/graceful_books[39m
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2minitialization[2m > [22m[2mshould create service instance
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2minitialization[2m > [22m[2mshould create service instance
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2minitialization[2m > [22m[2mshould create service instance
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2minitialization[2m > [22m[2mshould initialize successfully
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2minitialization[2m > [22m[2mshould initialize successfully
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2minitialization[2m > [22m[2mshould initialize successfully
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2minitialization[2m > [22m[2mshould initialize successfully
+[22m[39m[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'cfc8980c-cf9a-4560-859f-e4c2ab55c892'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031852372[39m,
+    updatedAt: [33m1769031852372[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2minitialization[2m > [22m[2mshould initialize successfully
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2minitialization[2m > [22m[2mshould initialize successfully
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when recurring detection is disabled
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when recurring detection is disabled
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when recurring detection is disabled
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when recurring detection is disabled
+[22m[39m[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'8c465aba-87c7-4694-b64a-e68c66897270'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031852426[39m,
+    updatedAt: [33m1769031852426[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when recurring detection is disabled
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when recurring detection is disabled
+[22m[39m[RecurringDetectionService] Getting historical transactions { vendorName: [32m'Netflix'[39m, beforeDate: [33m1769031852430[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when recurring detection is disabled
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when insufficient historical data
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when insufficient historical data
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when insufficient historical data
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when insufficient historical data
+[22m[39m[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'e7424ab7-f1b7-49f8-ae25-fe83b4f2d966'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031852489[39m,
+    updatedAt: [33m1769031852489[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when insufficient historical data
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when insufficient historical data
+[22m[39m[RecurringDetectionService] Getting historical transactions { vendorName: [32m'New Vendor'[39m, beforeDate: [33m1769031852490[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when insufficient historical data
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould detect monthly recurring pattern
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould detect monthly recurring pattern
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould detect monthly recurring pattern
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould detect monthly recurring pattern
+[22m[39m[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'1fbc44be-eb68-4d35-b077-d72eaebccc49'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031852521[39m,
+    updatedAt: [33m1769031852521[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould detect monthly recurring pattern
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould detect monthly recurring pattern
+[22m[39m[RecurringDetectionService] Getting historical transactions { vendorName: [32m'Rent Payment'[39m, beforeDate: [33m1769031852523[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould detect monthly recurring pattern
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include average amount and variance
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include average amount and variance
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include average amount and variance
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include average amount and variance
+[22m[39m[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'ad7a6922-a1d0-4428-a141-3a4a54614694'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031852552[39m,
+    updatedAt: [33m1769031852552[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include average amount and variance
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include average amount and variance
+[22m[39m[RecurringDetectionService] Getting historical transactions { vendorName: [32m'Spotify'[39m, beforeDate: [33m1769031852554[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include average amount and variance
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include previous occurrence dates
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include previous occurrence dates
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include previous occurrence dates
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include previous occurrence dates
+[22m[39m[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'23eef632-ba56-420b-9f49-be70f5b9a92c'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031852587[39m,
+    updatedAt: [33m1769031852587[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include previous occurrence dates
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include previous occurrence dates
+[22m[39m[RecurringDetectionService] Getting historical transactions { vendorName: [32m'Internet Provider'[39m, beforeDate: [33m1769031852588[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include previous occurrence dates
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould predict next expected date
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould predict next expected date
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould predict next expected date
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould predict next expected date
+[22m[39m[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'c2e0e0df-f77f-43d5-b4f2-b181d30ac9a1'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031852618[39m,
+    updatedAt: [33m1769031852618[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould predict next expected date
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould predict next expected date
+[22m[39m[RecurringDetectionService] Getting historical transactions { vendorName: [32m'Gym Membership'[39m, beforeDate: [33m1769031852619[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould predict next expected date
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould detect weekly frequency (7 days ± 2)
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould detect weekly frequency (7 days ± 2)
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould detect weekly frequency (7 days ± 2)
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould detect bi-weekly frequency (14 days ± 2)
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould detect bi-weekly frequency (14 days ± 2)
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould detect bi-weekly frequency (14 days ± 2)
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould detect monthly frequency (~30 days ± 4)
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould detect monthly frequency (~30 days ± 4)
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould detect monthly frequency (~30 days ± 4)
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould detect quarterly frequency (~90 days ± 5)
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould detect quarterly frequency (~90 days ± 5)
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould detect quarterly frequency (~90 days ± 5)
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould detect yearly frequency (~365 days ± 15)
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould detect yearly frequency (~365 days ± 15)
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould detect yearly frequency (~365 days ± 15)
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould reject inconsistent intervals
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould reject inconsistent intervals
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mfrequency detection[2m > [22m[2mshould reject inconsistent intervals
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mamount consistency[2m > [22m[2mshould accept consistent amounts (< 10% variance)
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mamount consistency[2m > [22m[2mshould accept consistent amounts (< 10% variance)
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mamount consistency[2m > [22m[2mshould accept consistent amounts (< 10% variance)
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mamount consistency[2m > [22m[2mshould reject inconsistent amounts (> 10% variance)
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mamount consistency[2m > [22m[2mshould reject inconsistent amounts (> 10% variance)
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mamount consistency[2m > [22m[2mshould reject inconsistent amounts (> 10% variance)
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mconfidence calculation[2m > [22m[2mshould increase confidence with more matches
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mconfidence calculation[2m > [22m[2mshould increase confidence with more matches
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mconfidence calculation[2m > [22m[2mshould increase confidence with more matches
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mconfidence calculation[2m > [22m[2mshould increase confidence with low amount variance
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mconfidence calculation[2m > [22m[2mshould increase confidence with low amount variance
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mconfidence calculation[2m > [22m[2mshould increase confidence with low amount variance
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mconfidence calculation[2m > [22m[2mshould increase confidence with consistent intervals
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mconfidence calculation[2m > [22m[2mshould increase confidence with consistent intervals
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mconfidence calculation[2m > [22m[2mshould increase confidence with consistent intervals
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format weekly frequency
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format weekly frequency
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format weekly frequency
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format weekly frequency
+[22m[39m[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'e626c090-7e12-4870-904f-5482336c213b'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031853046[39m,
+    updatedAt: [33m1769031853046[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format weekly frequency
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format weekly frequency
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format bi-weekly frequency
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format bi-weekly frequency
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format bi-weekly frequency
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format bi-weekly frequency
+[22m[39m[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'4c0dbe12-9ed9-4ce3-8e02-ada73b9f4540'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031853102[39m,
+    updatedAt: [33m1769031853102[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format bi-weekly frequency
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format bi-weekly frequency
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format monthly frequency
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format monthly frequency
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format monthly frequency
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format monthly frequency
+[22m[39m[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'c965f5dc-af3a-4273-b0bc-ba5dd5dd21c4'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031853137[39m,
+    updatedAt: [33m1769031853137[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format monthly frequency
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format monthly frequency
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format quarterly frequency
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format quarterly frequency
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format quarterly frequency
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format quarterly frequency
+[22m[39m[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'9384a44e-a1f5-4abb-a78d-fb4e2b9d44c5'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031853171[39m,
+    updatedAt: [33m1769031853171[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format quarterly frequency
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format quarterly frequency
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format yearly frequency
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format yearly frequency
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format yearly frequency
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format yearly frequency
+[22m[39m[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'34aef11b-617a-4216-b25c-0555683f58c2'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031853231[39m,
+    updatedAt: [33m1769031853231[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format yearly frequency
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format yearly frequency
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatRecurringMessage[2m > [22m[2mshould format recurring message with all details
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatRecurringMessage[2m > [22m[2mshould format recurring message with all details
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatRecurringMessage[2m > [22m[2mshould format recurring message with all details
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatRecurringMessage[2m > [22m[2mshould format recurring message with all details
+[22m[39m[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'3ea2b09e-8c5b-4b3f-9ffc-becf70e2c248'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031853271[39m,
+    updatedAt: [33m1769031853271[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatRecurringMessage[2m > [22m[2mshould format recurring message with all details
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatRecurringMessage[2m > [22m[2mshould format recurring message with all details
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould handle initialization errors gracefully
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould handle initialization errors gracefully
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould handle initialization errors gracefully
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'invalid-id'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould handle initialization errors gracefully
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: invalid-id
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:365:7
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould handle initialization errors gracefully
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: invalid-id
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:365:7
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould handle initialization errors gracefully
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould return null on detectRecurring errors
+[22m[39m[Database] TreasureChest database deleted 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould return null on detectRecurring errors
+[22m[39m[Database] TreasureChest database initialized successfully 
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould return null on detectRecurring errors
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould return null on detectRecurring errors
+[22m[39m[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'd3ad5c41-f7b3-4f99-a42e-1e0058207cde'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031853357[39m,
+    updatedAt: [33m1769031853357[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould return null on detectRecurring errors
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould return null on detectRecurring errors
+[22m[39m[RecurringDetectionService] Getting historical transactions { vendorName: [90mundefined[39m, beforeDate: [90mundefined[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould return null on detectRecurring errors
+[22m[39m[Database] TreasureChest database deleted 
+
+ [32m✓[39m src/services/automation/recurringDetectionService.test.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 1167[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m27 passed[39m[22m[90m (27)[39m
+[2m   Start at [22m 13:43:56
+[2m   Duration [22m 16.92s[2m (transform 1.63s, setup 4.59s, import 3.82s, tests 1.17s, environment 6.15s)[22m
+

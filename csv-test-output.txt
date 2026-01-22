@@ -1,0 +1,966 @@
+
+> graceful-books@0.1.0 test
+> vitest src/components/csv
+
+
+[1m[46m RUN [49m[22m [36mv4.0.17 [39m[90mC:/Users/Admin/graceful_books[39m
+
+ [31m❯[39m src/components/csv/ColumnMapper.test.tsx [2m([22m[2m19 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 1628[2mms[22m[39m
+       [33m[2m✓[22m[39m should render the component [33m 440[2mms[22m[39m
+       [32m✓[39m should render table with headers[32m 120[2mms[22m[39m
+       [32m✓[39m should render all CSV columns[32m 128[2mms[22m[39m
+[31m       [31m×[31m should render confidence badges[39m[32m 105[2mms[22m[39m
+       [32m✓[39m should show unmapped required fields warning[32m 53[2mms[22m[39m
+       [32m✓[39m should have accessible table structure[32m 76[2mms[22m[39m
+       [32m✓[39m should have labels for select dropdowns[32m 74[2mms[22m[39m
+       [32m✓[39m should announce mapping count with aria-live[32m 40[2mms[22m[39m
+       [32m✓[39m should have role="alert" for warnings[32m 41[2mms[22m[39m
+       [32m✓[39m should have accessible checkbox for filter[32m 66[2mms[22m[39m
+       [32m✓[39m should call onMappingsChange when initialized[32m 48[2mms[22m[39m
+       [32m✓[39m should change mapping when select is changed[32m 84[2mms[22m[39m
+       [32m✓[39m should allow unmapping a column[32m 48[2mms[22m[39m
+       [32m✓[39m should filter to show only unmapped columns[32m 64[2mms[22m[39m
+[31m       [31m×[31m should display confidence levels correctly[39m[32m 57[2mms[22m[39m
+       [32m✓[39m should show help text[32m 52[2mms[22m[39m
+       [32m✓[39m should show high confidence for exact matches[32m 58[2mms[22m[39m
+       [32m✓[39m should show medium confidence for partial matches[32m 34[2mms[22m[39m
+       [32m✓[39m should show low confidence for weak matches[32m 23[2mms[22m[39m
+ [31m❯[39m src/components/csv/CSVExporter.test.tsx [2m([22m[2m24 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[33m 2068[2mms[22m[39m
+       [33m[2m✓[22m[39m should render the component [33m 399[2mms[22m[39m
+       [32m✓[39m should render entity type selector[32m 61[2mms[22m[39m
+       [32m✓[39m should render date range selector for time-based entities[32m 72[2mms[22m[39m
+       [32m✓[39m should not render date range for contacts[32m 47[2mms[22m[39m
+       [32m✓[39m should render field selection checkboxes[32m 87[2mms[22m[39m
+       [32m✓[39m should render export button[32m 116[2mms[22m[39m
+       [32m✓[39m should have required field indicators[32m 39[2mms[22m[39m
+       [32m✓[39m should have accessible labels for all inputs[32m 66[2mms[22m[39m
+       [32m✓[39m should have accessible field selection group[32m 53[2mms[22m[39m
+[31m       [31m×[31m should have keyboard-accessible select all button[39m[32m 173[2mms[22m[39m
+       [32m✓[39m should announce status messages with aria-live[32m 31[2mms[22m[39m
+       [32m✓[39m should have minimum touch target size for buttons[32m 56[2mms[22m[39m
+       [32m✓[39m should disable export button when exporting[32m 109[2mms[22m[39m
+       [32m✓[39m should change entity type when selected[32m 41[2mms[22m[39m
+       [32m✓[39m should show custom date inputs when custom range selected[32m 56[2mms[22m[39m
+       [32m✓[39m should toggle field selection[32m 53[2mms[22m[39m
+[31m       [31m×[31m should select all fields when select all clicked[39m[32m 70[2mms[22m[39m
+[31m       [31m×[31m should deselect all fields when deselect all clicked[39m[32m 77[2mms[22m[39m
+       [32m✓[39m should call onExportComplete when export succeeds[32m 75[2mms[22m[39m
+       [32m✓[39m should call onExportError when export fails[32m 75[2mms[22m[39m
+       [32m✓[39m should display error message on export failure[32m 118[2mms[22m[39m
+       [32m✓[39m should display success message on export success[32m 82[2mms[22m[39m
+       [32m✓[39m should allow keyboard navigation through form elements[32m 40[2mms[22m[39m
+       [32m✓[39m should allow Enter key to toggle checkboxes[32m 55[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 5 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/components/csv/ColumnMapper.test.tsx[2m > [22mColumnMapper Component[2m > [22mRendering[2m > [22mshould render confidence badges
+[31m[1mAssertionError[22m: expected [ <span …(1)></span>, …(2) ] to have a length of 2 but got 3[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 2[39m
+[31m+ 3[39m
+
+[36m [2m❯[22m src/components/csv/ColumnMapper.test.tsx:[2m81:55[22m[39m
+    [90m 79| [39m      )[33m;[39m
+    [90m 80| [39m
+    [90m 81| [39m      [34mexpect[39m(screen[33m.[39m[34mgetAllByText[39m([36m/high confidence/i[39m))[33m.[39m[34mtoHaveLength[39m([34m2[39m)[33m;[39m
+    [90m   | [39m                                                      [31m^[39m
+    [90m 82| [39m    })[33m;[39m
+    [90m 83| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/csv/ColumnMapper.test.tsx[2m > [22mColumnMapper Component[2m > [22mInteraction[2m > [22mshould display confidence levels correctly
+[31m[1mAssertionError[22m: expected [ <span …(1)></span>, …(2) ] to have a length of 2 but got 3[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 2[39m
+[31m+ 3[39m
+
+[36m [2m❯[22m src/components/csv/ColumnMapper.test.tsx:[2m272:55[22m[39m
+    [90m270| [39m
+    [90m271| [39m      [90m// High confidence (1.0)[39m
+    [90m272| [39m      [34mexpect[39m(screen[33m.[39m[34mgetAllByText[39m([36m/high confidence/i[39m))[33m.[39m[34mtoHaveLength[39m([34m2[39m)[33m;[39m
+    [90m   | [39m                                                      [31m^[39m
+    [90m273| [39m
+    [90m274| [39m      [90m// Medium confidence (0.8)[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/csv/CSVExporter.test.tsx[2m > [22mCSVExporter Component[2m > [22mAccessibility[2m > [22mshould have keyboard-accessible select all button
+[31m[1mTestingLibraryElementError[22m[39m: Found multiple elements with the role "button" and name `/select all fields/i`
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<button[39m
+  [33maria-label[39m=[32m"Select all fields"[39m
+  [33mclass[39m=[32m"_linkButton_26fe16"[39m
+  [33mtype[39m=[32m"button"[39m
+[36m>[39m
+  [0mSelect all[0m
+[36m</button>[39m
+
+Ignored nodes: comments, script, style
+[36m<button[39m
+  [33maria-label[39m=[32m"Deselect all fields"[39m
+  [33mclass[39m=[32m"_linkButton_26fe16"[39m
+  [33mtype[39m=[32m"button"[39m
+[36m>[39m
+  [0mDeselect all[0m
+[36m</button>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"_container_26fe16"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_header_26fe16"[39m
+      [36m>[39m
+        [36m<h2[39m
+          [33mid[39m=[32m"export-heading"[39m
+        [36m>[39m
+          [0mExport to CSV[0m
+        [36m</h2>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"_description_26fe16"[39m
+        [36m>[39m
+          [0mChoose what to export and download your data in CSV format.[0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_section_26fe16"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"_label_26fe16"[39m
+          [33mfor[39m=[32m"entity-type"[39m
+        [36m>[39m
+          [0mWhat would you like to export? [0m
+          [36m<span[39m
+            [33mclass[39m=[32m"_required_26fe16"[39m
+          [36m>[39m
+            [0m*[0m
+          [36m</span>[39m
+        [36m</label>[39m
+        [36m<select[39m
+          [33maria-required[39m=[32m"true"[39m
+          [33mclass[39m=[32m"_select_26fe16"[39m
+          [33mid[39m=[32m"entity-type"[39m
+        [36m>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"transactions"[39m
+          [36m>[39m
+            [0mTransactions[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"invoices"[39m
+          [36m>[39m
+            [0mInvoices[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"bills"[39m
+          [36m>[39m
+            [0mBills[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"contacts"[39m
+          [36m>[39m
+            [0mContacts[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"products"[39m
+          [36m>[39m
+            [0mProducts/Services[0m
+          [36m</option>[39m
+        [36m</select>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_section_26fe16"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"_label_26fe16"[39m
+          [33mfor[39m=[32m"date-range"[39m
+        [36m>[39m
+          [0mDate range[0m
+        [36m</label>[39m
+        [36m<select[39m
+          [33mclass[39m=[32m"_select_26fe16"[39m
+          [33mid[39m=[32m"date-range"[39m
+        [36m>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"allTime"[39m
+          [36m>[39m
+            [0mAll time[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"last30"[39m
+          [36m>[39m
+            [0mLast 30 days[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"last90"[39m
+          [36m>[39m
+            [0mLast 90 days[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"last365"[39m
+          [36m>[39m
+            [0mLast 365 days[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"ytd"[39m
+          [36m>[39m
+            [0mYear to date[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"lastYear"[39m
+          [36m>[39m
+            [0mLast year[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"custom"[39m
+          [36m>[39m
+            [0mCustom range[0m
+          [36m</option>[39m
+        [36m</select>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_section_26fe16"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_fieldHeader_26fe16"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_label_26fe16"[39m
+          [36m>[39m
+            [0mFields to include[0m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"_fieldActions_26fe16"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Select all fields"[39m
+              [33mclass[39m=[32m"_linkButton_26fe16"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mSelect all[0m
+            [36m</button>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_separator_26fe16"[39m
+            [36m>[39m
+              [0m|[0m
+            [36m</span>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Deselect all fields"[39m
+              [33mclass[39m=[32m"_linkButton_26fe16"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mDeselect all[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-labelledby[39m=[32m"field-selection-label"[39m
+          [33mclass[39m=[32m"_fieldList_26fe16"[39m
+          [33mrole[39m=[32m"group"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"_visuallyHidden_26fe16"[39m
+            [33mid[39m=[32m"field-selection-label"[39m
+          [36m>[39m
+            [0mSelect fields to include in export[0m
+          [36m</span>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Date"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mDate[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Description"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mDescription[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Amount"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mAmount[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Account"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mAccount[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Category"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mCategory[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Notes"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mNotes[0m
+            [36m</span>[39m
+          [36m</label>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"_hint_26fe16"[39m
+        [36m>[39m
+          [0mLeave unchecked to include all fields[0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_actions_26fe16"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33maria-busy[39m=[32m"false"[39m
+          [33mclass[39m=[32m"_exportButton_26fe16"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mExport to CSV[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/csv/CSVExporter.test.tsx:[2m68:38[22m[39m
+    [90m 66| [39m    [34mit[39m([32m'should have keyboard-accessible select all button'[39m[33m,[39m () [33m=>[39m {
+    [90m 67| [39m      [34mrender[39m([33m<[39m[33mCSVExporter[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 68| [39m      const selectAllButton = screen.getByRole('button', { name: /sele…
+    [90m   | [39m                                     [31m^[39m
+    [90m 69| [39m      selectAllButton[33m.[39m[34mfocus[39m()[33m;[39m
+    [90m 70| [39m      [34mexpect[39m(selectAllButton)[33m.[39m[34mtoHaveFocus[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/csv/CSVExporter.test.tsx[2m > [22mCSVExporter Component[2m > [22mInteraction[2m > [22mshould select all fields when select all clicked
+[31m[1mTestingLibraryElementError[22m[39m: Found multiple elements with the role "button" and name `/select all fields/i`
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<button[39m
+  [33maria-label[39m=[32m"Select all fields"[39m
+  [33mclass[39m=[32m"_linkButton_26fe16"[39m
+  [33mtype[39m=[32m"button"[39m
+[36m>[39m
+  [0mSelect all[0m
+[36m</button>[39m
+
+Ignored nodes: comments, script, style
+[36m<button[39m
+  [33maria-label[39m=[32m"Deselect all fields"[39m
+  [33mclass[39m=[32m"_linkButton_26fe16"[39m
+  [33mtype[39m=[32m"button"[39m
+[36m>[39m
+  [0mDeselect all[0m
+[36m</button>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"_container_26fe16"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_header_26fe16"[39m
+      [36m>[39m
+        [36m<h2[39m
+          [33mid[39m=[32m"export-heading"[39m
+        [36m>[39m
+          [0mExport to CSV[0m
+        [36m</h2>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"_description_26fe16"[39m
+        [36m>[39m
+          [0mChoose what to export and download your data in CSV format.[0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_section_26fe16"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"_label_26fe16"[39m
+          [33mfor[39m=[32m"entity-type"[39m
+        [36m>[39m
+          [0mWhat would you like to export? [0m
+          [36m<span[39m
+            [33mclass[39m=[32m"_required_26fe16"[39m
+          [36m>[39m
+            [0m*[0m
+          [36m</span>[39m
+        [36m</label>[39m
+        [36m<select[39m
+          [33maria-required[39m=[32m"true"[39m
+          [33mclass[39m=[32m"_select_26fe16"[39m
+          [33mid[39m=[32m"entity-type"[39m
+        [36m>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"transactions"[39m
+          [36m>[39m
+            [0mTransactions[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"invoices"[39m
+          [36m>[39m
+            [0mInvoices[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"bills"[39m
+          [36m>[39m
+            [0mBills[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"contacts"[39m
+          [36m>[39m
+            [0mContacts[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"products"[39m
+          [36m>[39m
+            [0mProducts/Services[0m
+          [36m</option>[39m
+        [36m</select>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_section_26fe16"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"_label_26fe16"[39m
+          [33mfor[39m=[32m"date-range"[39m
+        [36m>[39m
+          [0mDate range[0m
+        [36m</label>[39m
+        [36m<select[39m
+          [33mclass[39m=[32m"_select_26fe16"[39m
+          [33mid[39m=[32m"date-range"[39m
+        [36m>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"allTime"[39m
+          [36m>[39m
+            [0mAll time[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"last30"[39m
+          [36m>[39m
+            [0mLast 30 days[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"last90"[39m
+          [36m>[39m
+            [0mLast 90 days[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"last365"[39m
+          [36m>[39m
+            [0mLast 365 days[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"ytd"[39m
+          [36m>[39m
+            [0mYear to date[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"lastYear"[39m
+          [36m>[39m
+            [0mLast year[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"custom"[39m
+          [36m>[39m
+            [0mCustom range[0m
+          [36m</option>[39m
+        [36m</select>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_section_26fe16"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_fieldHeader_26fe16"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_label_26fe16"[39m
+          [36m>[39m
+            [0mFields to include[0m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"_fieldActions_26fe16"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Select all fields"[39m
+              [33mclass[39m=[32m"_linkButton_26fe16"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mSelect all[0m
+            [36m</button>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_separator_26fe16"[39m
+            [36m>[39m
+              [0m|[0m
+            [36m</span>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Deselect all fields"[39m
+              [33mclass[39m=[32m"_linkButton_26fe16"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mDeselect all[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-labelledby[39m=[32m"field-selection-label"[39m
+          [33mclass[39m=[32m"_fieldList_26fe16"[39m
+          [33mrole[39m=[32m"group"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"_visuallyHidden_26fe16"[39m
+            [33mid[39m=[32m"field-selection-label"[39m
+          [36m>[39m
+            [0mSelect fields to include in export[0m
+          [36m</span>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Date"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mDate[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Description"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mDescription[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Amount"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mAmount[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Account"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mAccount[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Category"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mCategory[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Notes"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mNotes[0m
+            [36m</span>[39m
+          [36m</label>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"_hint_26fe16"[39m
+        [36m>[39m
+          [0mLeave unchecked to include all fields[0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_actions_26fe16"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33maria-busy[39m=[32m"false"[39m
+          [33mclass[39m=[32m"_exportButton_26fe16"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mExport to CSV[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/csv/CSVExporter.test.tsx:[2m139:38[22m[39m
+    [90m137| [39m    [34mit[39m([32m'should select all fields when select all clicked'[39m[33m,[39m () [33m=>[39m {
+    [90m138| [39m      [34mrender[39m([33m<[39m[33mCSVExporter[39m [33mdefaultEntityType[39m[33m=[39m[32m"transactions"[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m139| [39m      const selectAllButton = screen.getByRole('button', { name: /sele…
+    [90m   | [39m                                     [31m^[39m
+    [90m140| [39m      fireEvent[33m.[39m[34mclick[39m(selectAllButton)[33m;[39m
+    [90m141| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/csv/CSVExporter.test.tsx[2m > [22mCSVExporter Component[2m > [22mInteraction[2m > [22mshould deselect all fields when deselect all clicked
+[31m[1mTestingLibraryElementError[22m[39m: Found multiple elements with the role "button" and name `/select all fields/i`
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<button[39m
+  [33maria-label[39m=[32m"Select all fields"[39m
+  [33mclass[39m=[32m"_linkButton_26fe16"[39m
+  [33mtype[39m=[32m"button"[39m
+[36m>[39m
+  [0mSelect all[0m
+[36m</button>[39m
+
+Ignored nodes: comments, script, style
+[36m<button[39m
+  [33maria-label[39m=[32m"Deselect all fields"[39m
+  [33mclass[39m=[32m"_linkButton_26fe16"[39m
+  [33mtype[39m=[32m"button"[39m
+[36m>[39m
+  [0mDeselect all[0m
+[36m</button>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"_container_26fe16"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_header_26fe16"[39m
+      [36m>[39m
+        [36m<h2[39m
+          [33mid[39m=[32m"export-heading"[39m
+        [36m>[39m
+          [0mExport to CSV[0m
+        [36m</h2>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"_description_26fe16"[39m
+        [36m>[39m
+          [0mChoose what to export and download your data in CSV format.[0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_section_26fe16"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"_label_26fe16"[39m
+          [33mfor[39m=[32m"entity-type"[39m
+        [36m>[39m
+          [0mWhat would you like to export? [0m
+          [36m<span[39m
+            [33mclass[39m=[32m"_required_26fe16"[39m
+          [36m>[39m
+            [0m*[0m
+          [36m</span>[39m
+        [36m</label>[39m
+        [36m<select[39m
+          [33maria-required[39m=[32m"true"[39m
+          [33mclass[39m=[32m"_select_26fe16"[39m
+          [33mid[39m=[32m"entity-type"[39m
+        [36m>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"transactions"[39m
+          [36m>[39m
+            [0mTransactions[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"invoices"[39m
+          [36m>[39m
+            [0mInvoices[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"bills"[39m
+          [36m>[39m
+            [0mBills[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"contacts"[39m
+          [36m>[39m
+            [0mContacts[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"products"[39m
+          [36m>[39m
+            [0mProducts/Services[0m
+          [36m</option>[39m
+        [36m</select>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_section_26fe16"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"_label_26fe16"[39m
+          [33mfor[39m=[32m"date-range"[39m
+        [36m>[39m
+          [0mDate range[0m
+        [36m</label>[39m
+        [36m<select[39m
+          [33mclass[39m=[32m"_select_26fe16"[39m
+          [33mid[39m=[32m"date-range"[39m
+        [36m>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"allTime"[39m
+          [36m>[39m
+            [0mAll time[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"last30"[39m
+          [36m>[39m
+            [0mLast 30 days[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"last90"[39m
+          [36m>[39m
+            [0mLast 90 days[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"last365"[39m
+          [36m>[39m
+            [0mLast 365 days[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"ytd"[39m
+          [36m>[39m
+            [0mYear to date[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"lastYear"[39m
+          [36m>[39m
+            [0mLast year[0m
+          [36m</option>[39m
+          [36m<option[39m
+            [33mvalue[39m=[32m"custom"[39m
+          [36m>[39m
+            [0mCustom range[0m
+          [36m</option>[39m
+        [36m</select>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_section_26fe16"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_fieldHeader_26fe16"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_label_26fe16"[39m
+          [36m>[39m
+            [0mFields to include[0m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"_fieldActions_26fe16"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Select all fields"[39m
+              [33mclass[39m=[32m"_linkButton_26fe16"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mSelect all[0m
+            [36m</button>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_separator_26fe16"[39m
+            [36m>[39m
+              [0m|[0m
+            [36m</span>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Deselect all fields"[39m
+              [33mclass[39m=[32m"_linkButton_26fe16"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mDeselect all[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-labelledby[39m=[32m"field-selection-label"[39m
+          [33mclass[39m=[32m"_fieldList_26fe16"[39m
+          [33mrole[39m=[32m"group"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"_visuallyHidden_26fe16"[39m
+            [33mid[39m=[32m"field-selection-label"[39m
+          [36m>[39m
+            [0mSelect fields to include in export[0m
+          [36m</span>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Date"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mDate[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Description"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mDescription[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Amount"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mAmount[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Account"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mAccount[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Category"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mCategory[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"_checkbox_26fe16"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Include Notes"[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mNotes[0m
+            [36m</span>[39m
+          [36m</label>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"_hint_26fe16"[39m
+        [36m>[39m
+          [0mLeave unchecked to include all fields[0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"_actions_26fe16"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33maria-busy[39m=[32m"false"[39m
+          [33mclass[39m=[32m"_exportButton_26fe16"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mExport to CSV[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/csv/CSVExporter.test.tsx:[2m152:38[22m[39m
+    [90m150| [39m
+    [90m151| [39m      [90m// First select all[39m
+    [90m152| [39m      const selectAllButton = screen.getByRole('button', { name: /sele…
+    [90m   | [39m                                     [31m^[39m
+    [90m153| [39m      fireEvent[33m.[39m[34mclick[39m(selectAllButton)[33m;[39m
+    [90m154| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m38 passed[39m[22m[90m (43)[39m
+[2m   Start at [22m 12:14:11
+[2m   Duration [22m 25.75s[2m (transform 2.00s, setup 14.47s, import 3.07s, tests 3.70s, environment 25.03s)[22m
+

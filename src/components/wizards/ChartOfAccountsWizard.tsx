@@ -63,7 +63,7 @@ const WIZARD_STEPS = [
   {
     id: 'welcome',
     title: 'Welcome',
-    description: 'Let\'s set up your chart of accounts together',
+    description: 'Let\'s set up your Chart of Accounts together!',
   },
   {
     id: 'template',
@@ -83,7 +83,7 @@ const WIZARD_STEPS = [
   {
     id: 'complete',
     title: 'All Set!',
-    description: 'Your chart of accounts is ready',
+    description: 'Your Chart of Accounts is ready',
   },
 ]
 
@@ -352,7 +352,7 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
       <Modal
         isOpen
         onClose={handleCancel}
-        title="Set up your chart of accounts"
+        title="Set up your Chart of Accounts"
         size="lg"
       >
         {content}

@@ -1,0 +1,57 @@
+
+> graceful-books@0.1.0 test
+> vitest src/services/exchangeRate.service.integration.test.ts
+
+
+[1m[46m RUN [49m[22m [36mv4.0.17 [39m[90mC:/Users/Admin/graceful_books[39m
+
+ [31m❯[39m src/services/exchangeRate.service.integration.test.ts [2m([22m[2m16 tests[22m[2m | [22m[31m6 failed[39m[2m)[22m[32m 280[2mms[22m[39m
+       [32m✓[39m should fetch and store automatic rates for multiple currencies[32m 110[2mms[22m[39m
+       [32m✓[39m should skip rate update when provider is manual[32m 10[2mms[22m[39m
+[31m       [31m×[31m should only update rates that need updating[39m[32m 11[2mms[22m[39m
+[31m       [31m×[31m should detect when rates need updating based on age[39m[32m 10[2mms[22m[39m
+       [32m✓[39m should handle partial failures gracefully[32m 18[2mms[22m[39m
+[31m       [31m×[31m should retrieve latest rate for currency pair[39m[32m 18[2mms[22m[39m
+[31m       [31m×[31m should retrieve historical rate for specific date[39m[32m 15[2mms[22m[39m
+[31m       [31m×[31m should retrieve rate history for date range[39m[32m 23[2mms[22m[39m
+       [32m✓[39m should calculate inverse rate correctly[32m 8[2mms[22m[39m
+       [32m✓[39m should calculate cross rate correctly[32m 8[2mms[22m[39m
+[31m       [31m×[31m should store inverse rates automatically[39m[32m 10[2mms[22m[39m
+       [32m✓[39m should reject negative exchange rates[32m 15[2mms[22m[39m
+       [32m✓[39m should reject zero exchange rates[32m 5[2mms[22m[39m
+       [32m✓[39m should reject same currency conversion[32m 4[2mms[22m[39m
+       [32m✓[39m should warn on unusually high rates[32m 5[2mms[22m[39m
+       [32m✓[39m should warn on unusually low rates[32m 5[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 6 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/services/exchangeRate.service.integration.test.ts[2m > [22mExchangeRateService - Integration Tests[2m > [22mAutomatic Rate Updates[2m > [22mshould only update rates that need updating
+[31m[1mSchemaError[22m: KeyPath company_id+from_currency+to_currency on object store exchangeRates is not indexed[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/exchangeRate.service.integration.test.ts[2m > [22mExchangeRateService - Integration Tests[2m > [22mAutomatic Rate Updates[2m > [22mshould detect when rates need updating based on age
+[31m[1mSchemaError[22m: KeyPath company_id+from_currency+to_currency on object store exchangeRates is not indexed[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/exchangeRate.service.integration.test.ts[2m > [22mExchangeRateService - Integration Tests[2m > [22mRate Retrieval[2m > [22mshould retrieve latest rate for currency pair
+[31m[1mSchemaError[22m: KeyPath company_id+from_currency+to_currency on object store exchangeRates is not indexed[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/exchangeRate.service.integration.test.ts[2m > [22mExchangeRateService - Integration Tests[2m > [22mRate Retrieval[2m > [22mshould retrieve historical rate for specific date
+[31m[1mSchemaError[22m: KeyPath company_id+from_currency+to_currency on object store exchangeRates is not indexed[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/exchangeRate.service.integration.test.ts[2m > [22mExchangeRateService - Integration Tests[2m > [22mRate Retrieval[2m > [22mshould retrieve rate history for date range
+[31m[1mSchemaError[22m: KeyPath company_id+from_currency+to_currency on object store exchangeRates is not indexed[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/exchangeRate.service.integration.test.ts[2m > [22mExchangeRateService - Integration Tests[2m > [22mRate Calculations[2m > [22mshould store inverse rates automatically
+[31m[1mSchemaError[22m: KeyPath company_id+from_currency+to_currency on object store exchangeRates is not indexed[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m6 failed[39m[22m[2m | [22m[1m[32m10 passed[39m[22m[90m (16)[39m
+[2m   Start at [22m 13:24:15
+[2m   Duration [22m 20.47s[2m (transform 633ms, setup 6.46s, import 678ms, tests 280ms, environment 10.53s)[22m
+

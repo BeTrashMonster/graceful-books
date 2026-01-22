@@ -1,0 +1,461 @@
+
+> graceful-books@0.1.0 test
+> vitest src/services/automation/recurringDetectionService.test.ts
+
+
+[1m[46m RUN [49m[22m [36mv4.0.17 [39m[90mC:/Users/Admin/graceful_books[39m
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2minitialization[2m > [22m[2mshould initialize successfully
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'175a6a80-b734-4a6d-87e0-22586c08ed78'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031389905[39m,
+    updatedAt: [33m1769031389905[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2minitialization[2m > [22m[2mshould initialize successfully
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when recurring detection is disabled
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'95a23b4b-4f15-4dc3-8e04-70fe28470da3'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031389916[39m,
+    updatedAt: [33m1769031389916[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when recurring detection is disabled
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when recurring detection is disabled
+[22m[39m[RecurringDetectionService] Getting historical transactions { vendorName: [32m'Netflix'[39m, beforeDate: [33m1769031389919[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when insufficient historical data
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'ee92c546-f4ab-43ed-81c7-1502d0e88209'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031389921[39m,
+    updatedAt: [33m1769031389921[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when insufficient historical data
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when insufficient historical data
+[22m[39m[RecurringDetectionService] Getting historical transactions { vendorName: [32m'New Vendor'[39m, beforeDate: [33m1769031389923[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould detect monthly recurring pattern
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'acf843d3-0b45-4803-a245-9229c93b0daf'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031389925[39m,
+    updatedAt: [33m1769031389925[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould detect monthly recurring pattern
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould detect monthly recurring pattern
+[22m[39m[RecurringDetectionService] Getting historical transactions { vendorName: [32m'Rent Payment'[39m, beforeDate: [33m1769031389926[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include average amount and variance
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'e630e109-f95f-484f-9360-4efd1badd2c1'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031389927[39m,
+    updatedAt: [33m1769031389927[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include average amount and variance
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include average amount and variance
+[22m[39m[RecurringDetectionService] Getting historical transactions { vendorName: [32m'Spotify'[39m, beforeDate: [33m1769031389929[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include previous occurrence dates
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'b1c315ba-d2cc-4716-a585-1679a99a8230'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031389933[39m,
+    updatedAt: [33m1769031389933[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include previous occurrence dates
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include previous occurrence dates
+[22m[39m[RecurringDetectionService] Getting historical transactions { vendorName: [32m'Internet Provider'[39m, beforeDate: [33m1769031389936[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould predict next expected date
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'53c4f754-8399-4dee-ba64-a5fc1e554c28'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031389937[39m,
+    updatedAt: [33m1769031389937[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould predict next expected date
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould predict next expected date
+[22m[39m[RecurringDetectionService] Getting historical transactions { vendorName: [32m'Gym Membership'[39m, beforeDate: [33m1769031389938[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format weekly frequency
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'e022435c-a94d-45b4-888c-7c5154d48be7'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031389947[39m,
+    updatedAt: [33m1769031389947[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format weekly frequency
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format bi-weekly frequency
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'818e25a4-ac03-483d-ae45-79a607e68c41'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031389949[39m,
+    updatedAt: [33m1769031389949[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format bi-weekly frequency
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format monthly frequency
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'be669ea6-8bb2-4fac-81cc-79e830e46295'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031389953[39m,
+    updatedAt: [33m1769031389953[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format monthly frequency
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format quarterly frequency
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'd1637b44-b610-43ae-b99a-042a39931618'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031389954[39m,
+    updatedAt: [33m1769031389954[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format quarterly frequency
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format yearly frequency
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'65defa91-7de6-4a70-9b98-40e68f5c77e0'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031389955[39m,
+    updatedAt: [33m1769031389955[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format yearly frequency
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatRecurringMessage[2m > [22m[2mshould format recurring message with all details
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'1b566bd9-753a-49b2-a700-9458c00a22af'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031389962[39m,
+    updatedAt: [33m1769031389962[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatRecurringMessage[2m > [22m[2mshould format recurring message with all details
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould handle initialization errors gracefully
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'invalid-id'[39m }
+[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'e3a44a00-81a7-4451-8fbd-f19049572295'[39m,
+    companyId: [32m'invalid-id'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031389970[39m,
+    updatedAt: [33m1769031389970[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould handle initialization errors gracefully
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould return null on detectRecurring errors
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+[RecurringDetectionService] Loaded automation settings {
+  settings: {
+    id: [32m'61a1c3c1-8970-4b8b-9855-8d90e7c623f3'[39m,
+    companyId: [32m'test-company-123'[39m,
+    categorizationEnabled: [33mtrue[39m,
+    categorizationMinConfidence: [33m0.7[39m,
+    categorizationAutoApply: [33mfalse[39m,
+    recurringDetectionEnabled: [33mtrue[39m,
+    recurringMinOccurrences: [33m3[39m,
+    recurringAutoCreate: [33mfalse[39m,
+    anomalyDetectionEnabled: [33mtrue[39m,
+    anomalyMinSeverity: [32m'medium'[39m,
+    anomalyDuplicateThreshold: [33m30[39m,
+    learningEnabled: [33mtrue[39m,
+    learningMinMatches: [33m5[39m,
+    createdAt: [33m1769031389988[39m,
+    updatedAt: [33m1769031389988[39m
+  }
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould return null on detectRecurring errors
+[22m[39m[RecurringDetectionService] Recurring detection service initialized { enabled: [33mtrue[39m }
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould return null on detectRecurring errors
+[22m[39m[RecurringDetectionService] Getting historical transactions { vendorName: [90mundefined[39m, beforeDate: [90mundefined[39m }
+
+ [31m❯[39m src/services/automation/recurringDetectionService.test.ts [2m([22m[2m27 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 99[2mms[22m[39m
+       [32m✓[39m should create service instance[32m 4[2mms[22m[39m
+       [32m✓[39m should initialize successfully[32m 14[2mms[22m[39m
+       [32m✓[39m should return null when recurring detection is disabled[32m 5[2mms[22m[39m
+       [32m✓[39m should return null when insufficient historical data[32m 3[2mms[22m[39m
+       [32m✓[39m should detect monthly recurring pattern[32m 2[2mms[22m[39m
+       [32m✓[39m should include average amount and variance[32m 4[2mms[22m[39m
+       [32m✓[39m should include previous occurrence dates[32m 6[2mms[22m[39m
+       [32m✓[39m should predict next expected date[32m 2[2mms[22m[39m
+       [32m✓[39m should detect weekly frequency (7 days ± 2)[32m 2[2mms[22m[39m
+       [32m✓[39m should detect bi-weekly frequency (14 days ± 2)[32m 1[2mms[22m[39m
+       [32m✓[39m should detect monthly frequency (~30 days ± 4)[32m 1[2mms[22m[39m
+       [32m✓[39m should detect quarterly frequency (~90 days ± 5)[32m 0[2mms[22m[39m
+       [32m✓[39m should detect yearly frequency (~365 days ± 15)[32m 0[2mms[22m[39m
+       [32m✓[39m should reject inconsistent intervals[32m 1[2mms[22m[39m
+       [32m✓[39m should accept consistent amounts (< 10% variance)[32m 1[2mms[22m[39m
+       [32m✓[39m should reject inconsistent amounts (> 10% variance)[32m 0[2mms[22m[39m
+       [32m✓[39m should increase confidence with more matches[32m 0[2mms[22m[39m
+       [32m✓[39m should increase confidence with low amount variance[32m 0[2mms[22m[39m
+       [32m✓[39m should increase confidence with consistent intervals[32m 1[2mms[22m[39m
+       [32m✓[39m should format weekly frequency[32m 2[2mms[22m[39m
+       [32m✓[39m should format bi-weekly frequency[32m 3[2mms[22m[39m
+       [32m✓[39m should format monthly frequency[32m 1[2mms[22m[39m
+       [32m✓[39m should format quarterly frequency[32m 2[2mms[22m[39m
+       [32m✓[39m should format yearly frequency[32m 5[2mms[22m[39m
+       [32m✓[39m should format recurring message with all details[32m 9[2mms[22m[39m
+[31m       [31m×[31m should handle initialization errors gracefully[39m[32m 18[2mms[22m[39m
+       [32m✓[39m should return null on detectRecurring errors[32m 2[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/services/automation/recurringDetectionService.test.ts[2m > [22mRecurringDetectionService[2m > [22merror handling[2m > [22mshould handle initialization errors gracefully
+[31m[1mAssertionError[22m: promise resolved "undefined" instead of rejecting[39m
+
+[32m- Expected:[39m 
+Error {
+  "message": "rejected promise",
+}
+
+[31m+ Received:[39m 
+undefined
+
+[36m [2m❯[22m src/services/automation/recurringDetectionService.test.ts:[2m333:45[22m[39m
+    [90m331| [39m    [34mit[39m([32m'should handle initialization errors gracefully'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m332| [39m      const errorService = createRecurringDetectionService('invalid-id…
+    [90m333| [39m      [35mawait[39m [34mexpect[39m(errorService[33m.[39m[34minitialize[39m())[33m.[39mrejects[33m.[39m[34mtoThrow[39m()
+    [90m   | [39m                                            [31m^[39m
+    [90m334| [39m    })
+    [90m335| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m26 passed[39m[22m[90m (27)[39m
+[2m   Start at [22m 13:36:19
+[2m   Duration [22m 10.43s[2m (transform 341ms, setup 3.32s, import 1.28s, tests 99ms, environment 4.75s)[22m
+

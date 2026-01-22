@@ -1,0 +1,139 @@
+
+> graceful-books@0.1.0 test
+> vitest src/__tests__/integration/groupE.integration.test.ts
+
+
+[1m[46m RUN [49m[22m [36mv4.0.17 [39m[90mC:/Users/Admin/graceful_books[39m
+
+[90mstdout[2m | src/__tests__/integration/groupE.integration.test.ts[2m > [22m[2mGroup E Integration Tests[2m > [22m[2mE1 + E7: Reconciliation with Audit Logging[2m > [22m[2mshould log audit entries when learning from reconciliation matches
+[22m[39m[ReconciliationHistory] Created reconciliation pattern { patternId: [32m'o7VZ1dmMmuzU0OeeUdnXU'[39m, vendorName: [32m'coffee shop'[39m }
+
+[90mstdout[2m | src/__tests__/integration/groupE.integration.test.ts[2m > [22m[2mGroup E Integration Tests[2m > [22m[2mE1 + E7: Reconciliation with Audit Logging[2m > [22m[2mshould log audit entries when learning from reconciliation matches
+[22m[39m[ReconciliationHistory] Updated reconciliation pattern {
+  patternId: [32m'o7VZ1dmMmuzU0OeeUdnXU'[39m,
+  changedFields: [
+    [32m'description_patterns'[39m,
+    [32m'typical_amount_range'[39m,
+    [32m'typical_day_of_month'[39m,
+    [32m'confidence'[39m,
+    [32m'last_matched_at'[39m,
+    [32m'match_count'[39m
+  ]
+}
+
+ [31m❯[39m src/__tests__/integration/groupE.integration.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m6 failed[39m[2m)[22m[32m 244[2mms[22m[39m
+[31m       [31m×[31m should log audit entries when learning from reconciliation matches[39m[32m 129[2mms[22m[39m
+[31m       [31m×[31m should track reconciliation streaks and log milestones[39m[32m 24[2mms[22m[39m
+[31m       [31m×[31m should create recurring transactions and auto-categorize them[39m[32m 28[2mms[22m[39m
+[31m       [31m×[31m should create invoice templates, generate recurring invoices, and log all actions[39m[32m 17[2mms[22m[39m
+[31m       [31m×[31m should create bills, categorize them, and audit all changes[39m[32m 24[2mms[22m[39m
+[31m       [31m×[31m should handle a complete accounting workflow using all Group E features[39m[32m 14[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 6 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/integration/groupE.integration.test.ts[2m > [22mGroup E Integration Tests[2m > [22mE1 + E7: Reconciliation with Audit Logging[2m > [22mshould log audit entries when learning from reconciliation matches
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/__tests__/integration/groupE.integration.test.ts:[2m121:35[22m[39m
+    [90m119| [39m      })[33m;[39m
+    [90m120| [39m
+    [90m121| [39m      [34mexpect[39m(auditResult[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                                  [31m^[39m
+    [90m122| [39m      [34mexpect[39m((auditResult [35mas[39m any)[33m.[39mdata)[33m.[39m[34mtoHaveLength[39m([34m1[39m)[33m;[39m
+    [90m123| [39m      [34mexpect[39m((auditResult [35mas[39m any)[33m.[39mdata[[34m0[39m][33m.[39maction)[33m.[39m[34mtoBe[39m([32m'create'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/integration/groupE.integration.test.ts[2m > [22mGroup E Integration Tests[2m > [22mE1 + E7: Reconciliation with Audit Logging[2m > [22mshould track reconciliation streaks and log milestones
+[31m[1mAssertionError[22m: expected undefined to be +0 // Object.is equality[39m
+
+[32m- Expected:[39m 
+0
+
+[31m+ Received:[39m 
+undefined
+
+[36m [2m❯[22m src/__tests__/integration/groupE.integration.test.ts:[2m135:56[22m[39m
+    [90m133| [39m
+    [90m134| [39m      [34mexpect[39m(streakResult[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m135| [39m      [34mexpect[39m((streakResult [35mas[39m any)[33m.[39mdata[33m.[39mcurrentStreak)[33m.[39m[34mtoBe[39m([34m0[39m)[33m;[39m
+    [90m   | [39m                                                       [31m^[39m
+    [90m136| [39m
+    [90m137| [39m      [90m// Perform several reconciliations[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/integration/groupE.integration.test.ts[2m > [22mGroup E Integration Tests[2m > [22mE2 + E5: Recurring Transactions with Categorization[2m > [22mshould create recurring transactions and auto-categorize them
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/__tests__/integration/groupE.integration.test.ts:[2m261:94[22m[39m
+    [90m259| [39m      [34mexpect[39m(suggestionsResult[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m260| [39m      [34mexpect[39m((suggestionsResult [35mas[39m any)[33m.[39mdata)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m261| [39m      expect((suggestionsResult as any).data.some((s: any) => s.catego…
+    [90m   | [39m                                                                                             [31m^[39m
+    [90m262| [39m    })[33m;[39m
+    [90m263| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/integration/groupE.integration.test.ts[2m > [22mGroup E Integration Tests[2m > [22mE3 + E4 + E7: Invoice Templates, Recurring Invoices, and Audit Logging[2m > [22mshould create invoice templates, generate recurring invoices, and log all actions
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'add')[39m
+[36m [2m❯[22m src/__tests__/integration/groupE.integration.test.ts:[2m297:33[22m[39m
+    [90m295| [39m      }[33m;[39m
+    [90m296| [39m
+    [90m297| [39m      [35mawait[39m db[33m.[39minvoiceTemplates[33m.[39m[34madd[39m(template)[33m;[39m
+    [90m   | [39m                                [31m^[39m
+    [90m298| [39m
+    [90m299| [39m      [90m// Create recurring invoice schedule (E4)[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/integration/groupE.integration.test.ts[2m > [22mGroup E Integration Tests[2m > [22mE6 + E5 + E7: Bill Management with Categorization and Audit Logging[2m > [22mshould create bills, categorize them, and audit all changes
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/__tests__/integration/groupE.integration.test.ts:[2m419:39[22m[39m
+    [90m417| [39m      })[33m;[39m
+    [90m418| [39m
+    [90m419| [39m      [34mexpect[39m(billAuditResult[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                                      [31m^[39m
+    [90m420| [39m      [34mexpect[39m((billAuditResult [35mas[39m any)[33m.[39mdata[33m.[39mlength)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m
+    [90m421| [39m      [34mexpect[39m((billAuditResult [35mas[39m any)[33m.[39mdata[[34m0[39m][33m.[39maction)[33m.[39m[34mtoBe[39m([32m'create'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/integration/groupE.integration.test.ts[2m > [22mGroup E Integration Tests[2m > [22mFull Group E Workflow Integration[2m > [22mshould handle a complete accounting workflow using all Group E features
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'add')[39m
+[36m [2m❯[22m src/__tests__/integration/groupE.integration.test.ts:[2m461:33[22m[39m
+    [90m459| [39m        created[33m:[39m [35mnew[39m [33mDate[39m()[33m,[39m
+    [90m460| [39m      }[33m;[39m
+    [90m461| [39m      [35mawait[39m db[33m.[39minvoiceTemplates[33m.[39m[34madd[39m(template)[33m;[39m
+    [90m   | [39m                                [31m^[39m
+    [90m462| [39m
+    [90m463| [39m      [35mconst[39m recurringInvoice [33m=[39m [35mawait[39m [34mcreateRecurringInvoice[39m({
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m6 failed[39m[22m[90m (6)[39m
+[2m   Start at [22m 12:46:16
+[2m   Duration [22m 12.76s[2m (transform 2.03s, setup 3.23s, import 3.34s, tests 244ms, environment 4.86s)[22m
+

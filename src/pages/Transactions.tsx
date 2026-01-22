@@ -11,20 +11,24 @@ import { Breadcrumbs } from '../components/navigation/Breadcrumbs'
 import { TransactionList } from '../components/transactions/TransactionList'
 import { TransactionForm } from '../components/transactions/TransactionForm'
 import { useTransactions, useNewTransaction } from '../hooks/useTransactions'
-import type { JournalEntry, Account } from '../types'
-
-// Mock company and user IDs - in a real app, these would come from auth context
-const MOCK_COMPANY_ID = 'comp-1'
-const MOCK_USER_ID = 'user-1'
+import { useAccounts } from '../hooks/useAccounts'
+import { useAuth } from '../contexts/AuthContext'
+import type { JournalEntry } from '../types'
 
 export default function Transactions() {
+  const { companyId, userIdentifier } = useAuth()
+
+  // Fallback to demo IDs for development
+  const activeCompanyId = companyId || 'demo-company-id'
+  const activeUserId = userIdentifier || 'demo-user-id'
+
   const {
     transactions,
     currentTransaction,
     isLoading,
     error,
     loadTransactions,
-    
+
     createNewTransaction,
     updateExistingTransaction,
     removeTransaction,
@@ -32,64 +36,22 @@ export default function Transactions() {
     clearError,
   } = useTransactions()
 
+  // Load accounts from database
+  const { accounts, isLoading: accountsLoading } = useAccounts({
+    companyId: activeCompanyId,
+    isActive: true
+  })
+
   const [showForm, setShowForm] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
 
-  // Mock accounts - in a real app, these would be loaded from the database
-  const [mockAccounts] = useState<Account[]>([
-    {
-      id: 'acc-1',
-      companyId: MOCK_COMPANY_ID,
-      name: 'Cash',
-      accountNumber: '1000',
-      type: 'asset',
-      isActive: true,
-      balance: 5000,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: 'acc-2',
-      companyId: MOCK_COMPANY_ID,
-      name: 'Accounts Receivable',
-      accountNumber: '1200',
-      type: 'asset',
-      isActive: true,
-      balance: 2000,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: 'acc-3',
-      companyId: MOCK_COMPANY_ID,
-      name: 'Revenue',
-      accountNumber: '4000',
-      type: 'income',
-      isActive: true,
-      balance: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: 'acc-4',
-      companyId: MOCK_COMPANY_ID,
-      name: 'Expenses',
-      accountNumber: '6000',
-      type: 'expense',
-      isActive: true,
-      balance: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ])
-
   // Load transactions on mount
   useEffect(() => {
-    loadTransactions({ companyId: MOCK_COMPANY_ID })
-  }, [loadTransactions])
+    loadTransactions({ companyId: activeCompanyId })
+  }, [loadTransactions, activeCompanyId])
 
   const handleCreateNew = () => {
-    const newTransaction = useNewTransaction(MOCK_COMPANY_ID, MOCK_USER_ID)
+    const newTransaction = useNewTransaction(activeCompanyId, activeUserId)
     setCurrentTransaction(newTransaction)
     setIsEditing(false)
     setShowForm(true)
@@ -134,7 +96,7 @@ export default function Transactions() {
     if (window.confirm('Are you sure you want to delete this transaction?')) {
       const success = await removeTransaction(id)
       if (success) {
-        loadTransactions({ companyId: MOCK_COMPANY_ID })
+        loadTransactions({ companyId: activeCompanyId })
       }
     }
   }
@@ -202,14 +164,56 @@ export default function Transactions() {
             <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>
               {isEditing ? 'Edit Transaction' : 'New Transaction'}
             </h2>
-            {currentTransaction && (
+
+            {accounts.length === 0 && !accountsLoading ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <p style={{ fontSize: '1.125rem', color: 'var(--color-text-secondary)', marginBottom: '1rem' }}>
+                  Let's set up your Chart of Accounts first!
+                </p>
+                <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>
+                  Before you can record transactions, we need to set up the accounts you'll track.
+                  Don't worry - we'll walk you through it step by step.
+                </p>
+                <button
+                  onClick={() => window.location.href = '/accounts'}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    backgroundColor: 'var(--color-primary, #3b82f6)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                  }}
+                >
+                  Set Up Chart of Accounts
+                </button>
+                <button
+                  onClick={handleCancel}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    backgroundColor: 'transparent',
+                    color: 'var(--color-text-secondary)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: '0.375rem',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                    marginLeft: '1rem',
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : currentTransaction && (
               <TransactionForm
                 transaction={currentTransaction}
-                accounts={mockAccounts}
+                accounts={accounts}
                 onChange={handleTransactionChange}
                 onSave={handleSave}
                 onCancel={handleCancel}
-                isLoading={isLoading}
+                isLoading={isLoading || accountsLoading}
                 error={error || undefined}
               />
             )}

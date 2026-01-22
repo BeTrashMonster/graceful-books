@@ -1,0 +1,491 @@
+
+> graceful-books@0.1.0 test
+> vitest src/services/automation/recurringDetectionService.test.ts
+
+
+[1m[46m RUN [49m[22m [36mv4.0.17 [39m[90mC:/Users/Admin/graceful_books[39m
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2minitialization[2m > [22m[2mshould initialize successfully
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2minitialization[2m > [22m[2mshould initialize successfully
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:36:7
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2minitialization[2m > [22m[2mshould initialize successfully
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:36:7
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when recurring detection is disabled
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when recurring detection is disabled
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:42:7
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when recurring detection is disabled
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:42:7
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when insufficient historical data
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when insufficient historical data
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:42:7
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould return null when insufficient historical data
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:42:7
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould detect monthly recurring pattern
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould detect monthly recurring pattern
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:42:7
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould detect monthly recurring pattern
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:42:7
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include average amount and variance
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include average amount and variance
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:42:7
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include average amount and variance
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:42:7
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include previous occurrence dates
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include previous occurrence dates
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:42:7
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould include previous occurrence dates
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:42:7
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould predict next expected date
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould predict next expected date
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:42:7
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mdetectRecurring[2m > [22m[2mshould predict next expected date
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:42:7
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format weekly frequency
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format weekly frequency
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:270:7
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format weekly frequency
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:270:7
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format bi-weekly frequency
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format bi-weekly frequency
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:270:7
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format bi-weekly frequency
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:270:7
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format monthly frequency
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format monthly frequency
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:270:7
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format monthly frequency
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:270:7
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format quarterly frequency
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format quarterly frequency
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:270:7
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format quarterly frequency
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:270:7
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format yearly frequency
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format yearly frequency
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:270:7
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatFrequency[2m > [22m[2mshould format yearly frequency
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:270:7
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatRecurringMessage[2m > [22m[2mshould format recurring message with all details
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatRecurringMessage[2m > [22m[2mshould format recurring message with all details
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:301:7
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2mformatRecurringMessage[2m > [22m[2mshould format recurring message with all details
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:301:7
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould handle initialization errors gracefully
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'invalid-id'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould handle initialization errors gracefully
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: invalid-id
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:333:7
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould handle initialization errors gracefully
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: invalid-id
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:333:7
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+}
+
+[90mstdout[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould return null on detectRecurring errors
+[22m[39m[RecurringDetectionService] Initializing recurring detection service { companyId: [32m'test-company-123'[39m }
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould return null on detectRecurring errors
+[22m[39m[RecurringDetectionService] Failed to load settings {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:337:7
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+}
+
+[90mstderr[2m | src/services/automation/recurringDetectionService.test.ts[2m > [22m[2mRecurringDetectionService[2m > [22m[2merror handling[2m > [22m[2mshould return null on detectRecurring errors
+[22m[39m[RecurringDetectionService] Failed to initialize recurring detection service {
+  error: Error: Company not found: test-company-123
+      at RecurringDetectionService.loadSettings (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:419:15)
+  [90m    at runNextTicks (node:internal/process/task_queues:64:5)[39m
+  [90m    at processImmediate (node:internal/timers:472:9)[39m
+      at RecurringDetectionService.initialize (C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.ts:66:7)
+      at C:/Users/Admin/graceful_books/src/services/automation/recurringDetectionService.test.ts:337:7
+      at [90mfile:///C:/Users/Admin/graceful_books/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+}
+
+ [31m❯[39m src/services/automation/recurringDetectionService.test.ts [2m([22m[2m27 tests[22m[2m | [22m[31m14 failed[39m[2m)[22m[32m 190[2mms[22m[39m
+       [32m✓[39m should create service instance[32m 5[2mms[22m[39m
+[31m       [31m×[31m should initialize successfully[39m[32m 120[2mms[22m[39m
+[31m       [31m×[31m should return null when recurring detection is disabled[39m[32m 5[2mms[22m[39m
+[31m       [31m×[31m should return null when insufficient historical data[39m[32m 6[2mms[22m[39m
+[31m       [31m×[31m should detect monthly recurring pattern[39m[32m 4[2mms[22m[39m
+[31m       [31m×[31m should include average amount and variance[39m[32m 3[2mms[22m[39m
+[31m       [31m×[31m should include previous occurrence dates[39m[32m 2[2mms[22m[39m
+[31m       [31m×[31m should predict next expected date[39m[32m 4[2mms[22m[39m
+       [32m✓[39m should detect weekly frequency (7 days ± 2)[32m 1[2mms[22m[39m
+       [32m✓[39m should detect bi-weekly frequency (14 days ± 2)[32m 1[2mms[22m[39m
+       [32m✓[39m should detect monthly frequency (~30 days ± 4)[32m 1[2mms[22m[39m
+       [32m✓[39m should detect quarterly frequency (~90 days ± 5)[32m 1[2mms[22m[39m
+       [32m✓[39m should detect yearly frequency (~365 days ± 15)[32m 1[2mms[22m[39m
+       [32m✓[39m should reject inconsistent intervals[32m 1[2mms[22m[39m
+       [32m✓[39m should accept consistent amounts (< 10% variance)[32m 1[2mms[22m[39m
+       [32m✓[39m should reject inconsistent amounts (> 10% variance)[32m 1[2mms[22m[39m
+       [32m✓[39m should increase confidence with more matches[32m 0[2mms[22m[39m
+       [32m✓[39m should increase confidence with low amount variance[32m 0[2mms[22m[39m
+       [32m✓[39m should increase confidence with consistent intervals[32m 1[2mms[22m[39m
+[31m       [31m×[31m should format weekly frequency[39m[32m 3[2mms[22m[39m
+[31m       [31m×[31m should format bi-weekly frequency[39m[32m 4[2mms[22m[39m
+[31m       [31m×[31m should format monthly frequency[39m[32m 3[2mms[22m[39m
+[31m       [31m×[31m should format quarterly frequency[39m[32m 3[2mms[22m[39m
+[31m       [31m×[31m should format yearly frequency[39m[32m 3[2mms[22m[39m
+[31m       [31m×[31m should format recurring message with all details[39m[32m 2[2mms[22m[39m
+       [32m✓[39m should handle initialization errors gracefully[32m 5[2mms[22m[39m
+[31m       [31m×[31m should return null on detectRecurring errors[39m[32m 2[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 14 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/services/automation/recurringDetectionService.test.ts[2m > [22mRecurringDetectionService[2m > [22minitialization[2m > [22mshould initialize successfully
+[31m[1mAssertionError[22m: promise rejected "Error: Company not found: test-company-123" instead of resolving[39m
+[36m [2m❯[22m src/services/automation/recurringDetectionService.test.ts:[2m36:40[22m[39m
+    [90m 34| [39m
+    [90m 35| [39m    [34mit[39m([32m'should initialize successfully'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m 36| [39m      [35mawait[39m [34mexpect[39m(service[33m.[39m[34minitialize[39m())[33m.[39mresolves[33m.[39mnot[33m.[39m[34mtoThrow[39m()
+    [90m   | [39m                                       [31m^[39m
+    [90m 37| [39m    })
+    [90m 38| [39m  })
+
+[31m[1mCaused by: Error[22m: Company not found: test-company-123[39m
+[36m [2m❯[22m RecurringDetectionService.loadSettings src/services/automation/recurringDetectionService.ts:[2m419:15[22m[39m
+[90m [2m❯[22m RecurringDetectionService.initialize src/services/automation/recurringDetectionService.ts:[2m66:7[22m[39m
+[90m [2m❯[22m src/services/automation/recurringDetectionService.test.ts:[2m36:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/automation/recurringDetectionService.test.ts[2m > [22mRecurringDetectionService[2m > [22mdetectRecurring[2m > [22mshould return null when recurring detection is disabled
+[41m[1m FAIL [22m[49m src/services/automation/recurringDetectionService.test.ts[2m > [22mRecurringDetectionService[2m > [22mdetectRecurring[2m > [22mshould detect monthly recurring pattern
+[41m[1m FAIL [22m[49m src/services/automation/recurringDetectionService.test.ts[2m > [22mRecurringDetectionService[2m > [22mdetectRecurring[2m > [22mshould include average amount and variance
+[41m[1m FAIL [22m[49m src/services/automation/recurringDetectionService.test.ts[2m > [22mRecurringDetectionService[2m > [22mdetectRecurring[2m > [22mshould predict next expected date
+[31m[1mError[22m: Company not found: test-company-123[39m
+[36m [2m❯[22m RecurringDetectionService.loadSettings src/services/automation/recurringDetectionService.ts:[2m419:15[22m[39m
+    [90m417| [39m      [35mconst[39m company [33m=[39m [35mawait[39m db[33m.[39mcompanies[33m.[39m[35mget[39m([35mthis[39m[33m.[39mcompanyId)
+    [90m418| [39m      [35mif[39m ([33m![39mcompany) {
+    [90m419| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m`Company not found: [39m[36m${[39m[35mthis[39m[33m.[39mcompanyId[36m}[39m[32m`[39m)
+    [90m   | [39m              [31m^[39m
+    [90m420| [39m      }
+    [90m421| [39m
+[90m [2m❯[22m RecurringDetectionService.initialize src/services/automation/recurringDetectionService.ts:[2m66:7[22m[39m
+[90m [2m❯[22m src/services/automation/recurringDetectionService.test.ts:[2m42:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/automation/recurringDetectionService.test.ts[2m > [22mRecurringDetectionService[2m > [22mdetectRecurring[2m > [22mshould return null when insufficient historical data
+[41m[1m FAIL [22m[49m src/services/automation/recurringDetectionService.test.ts[2m > [22mRecurringDetectionService[2m > [22mdetectRecurring[2m > [22mshould include previous occurrence dates
+[31m[1mError[22m: Company not found: test-company-123[39m
+[36m [2m❯[22m RecurringDetectionService.loadSettings src/services/automation/recurringDetectionService.ts:[2m419:15[22m[39m
+    [90m417| [39m      [35mconst[39m company [33m=[39m [35mawait[39m db[33m.[39mcompanies[33m.[39m[35mget[39m([35mthis[39m[33m.[39mcompanyId)
+    [90m418| [39m      [35mif[39m ([33m![39mcompany) {
+    [90m419| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m`Company not found: [39m[36m${[39m[35mthis[39m[33m.[39mcompanyId[36m}[39m[32m`[39m)
+    [90m   | [39m              [31m^[39m
+    [90m420| [39m      }
+    [90m421| [39m
+[90m [2m❯[22m RecurringDetectionService.initialize src/services/automation/recurringDetectionService.ts:[2m66:7[22m[39m
+[90m [2m❯[22m src/services/automation/recurringDetectionService.test.ts:[2m42:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/automation/recurringDetectionService.test.ts[2m > [22mRecurringDetectionService[2m > [22mformatFrequency[2m > [22mshould format weekly frequency
+[41m[1m FAIL [22m[49m src/services/automation/recurringDetectionService.test.ts[2m > [22mRecurringDetectionService[2m > [22mformatFrequency[2m > [22mshould format bi-weekly frequency
+[41m[1m FAIL [22m[49m src/services/automation/recurringDetectionService.test.ts[2m > [22mRecurringDetectionService[2m > [22mformatFrequency[2m > [22mshould format monthly frequency
+[41m[1m FAIL [22m[49m src/services/automation/recurringDetectionService.test.ts[2m > [22mRecurringDetectionService[2m > [22mformatFrequency[2m > [22mshould format quarterly frequency
+[31m[1mError[22m: Company not found: test-company-123[39m
+[36m [2m❯[22m RecurringDetectionService.loadSettings src/services/automation/recurringDetectionService.ts:[2m419:15[22m[39m
+    [90m417| [39m      [35mconst[39m company [33m=[39m [35mawait[39m db[33m.[39mcompanies[33m.[39m[35mget[39m([35mthis[39m[33m.[39mcompanyId)
+    [90m418| [39m      [35mif[39m ([33m![39mcompany) {
+    [90m419| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m`Company not found: [39m[36m${[39m[35mthis[39m[33m.[39mcompanyId[36m}[39m[32m`[39m)
+    [90m   | [39m              [31m^[39m
+    [90m420| [39m      }
+    [90m421| [39m
+[90m [2m❯[22m RecurringDetectionService.initialize src/services/automation/recurringDetectionService.ts:[2m66:7[22m[39m
+[90m [2m❯[22m src/services/automation/recurringDetectionService.test.ts:[2m270:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/automation/recurringDetectionService.test.ts[2m > [22mRecurringDetectionService[2m > [22mformatFrequency[2m > [22mshould format yearly frequency
+[31m[1mError[22m: Company not found: test-company-123[39m
+[36m [2m❯[22m RecurringDetectionService.loadSettings src/services/automation/recurringDetectionService.ts:[2m419:15[22m[39m
+    [90m417| [39m      [35mconst[39m company [33m=[39m [35mawait[39m db[33m.[39mcompanies[33m.[39m[35mget[39m([35mthis[39m[33m.[39mcompanyId)
+    [90m418| [39m      [35mif[39m ([33m![39mcompany) {
+    [90m419| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m`Company not found: [39m[36m${[39m[35mthis[39m[33m.[39mcompanyId[36m}[39m[32m`[39m)
+    [90m   | [39m              [31m^[39m
+    [90m420| [39m      }
+    [90m421| [39m
+[90m [2m❯[22m RecurringDetectionService.initialize src/services/automation/recurringDetectionService.ts:[2m66:7[22m[39m
+[90m [2m❯[22m src/services/automation/recurringDetectionService.test.ts:[2m270:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/automation/recurringDetectionService.test.ts[2m > [22mRecurringDetectionService[2m > [22mformatRecurringMessage[2m > [22mshould format recurring message with all details
+[31m[1mError[22m: Company not found: test-company-123[39m
+[36m [2m❯[22m RecurringDetectionService.loadSettings src/services/automation/recurringDetectionService.ts:[2m419:15[22m[39m
+    [90m417| [39m      [35mconst[39m company [33m=[39m [35mawait[39m db[33m.[39mcompanies[33m.[39m[35mget[39m([35mthis[39m[33m.[39mcompanyId)
+    [90m418| [39m      [35mif[39m ([33m![39mcompany) {
+    [90m419| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m`Company not found: [39m[36m${[39m[35mthis[39m[33m.[39mcompanyId[36m}[39m[32m`[39m)
+    [90m   | [39m              [31m^[39m
+    [90m420| [39m      }
+    [90m421| [39m
+[90m [2m❯[22m RecurringDetectionService.initialize src/services/automation/recurringDetectionService.ts:[2m66:7[22m[39m
+[90m [2m❯[22m src/services/automation/recurringDetectionService.test.ts:[2m301:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/14]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/automation/recurringDetectionService.test.ts[2m > [22mRecurringDetectionService[2m > [22merror handling[2m > [22mshould return null on detectRecurring errors
+[31m[1mError[22m: Company not found: test-company-123[39m
+[36m [2m❯[22m RecurringDetectionService.loadSettings src/services/automation/recurringDetectionService.ts:[2m419:15[22m[39m
+    [90m417| [39m      [35mconst[39m company [33m=[39m [35mawait[39m db[33m.[39mcompanies[33m.[39m[35mget[39m([35mthis[39m[33m.[39mcompanyId)
+    [90m418| [39m      [35mif[39m ([33m![39mcompany) {
+    [90m419| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m`Company not found: [39m[36m${[39m[35mthis[39m[33m.[39mcompanyId[36m}[39m[32m`[39m)
+    [90m   | [39m              [31m^[39m
+    [90m420| [39m      }
+    [90m421| [39m
+[90m [2m❯[22m RecurringDetectionService.initialize src/services/automation/recurringDetectionService.ts:[2m66:7[22m[39m
+[90m [2m❯[22m src/services/automation/recurringDetectionService.test.ts:[2m337:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/14]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m14 failed[39m[22m[2m | [22m[1m[32m13 passed[39m[22m[90m (27)[39m
+[2m   Start at [22m 13:41:12
+[2m   Duration [22m 14.39s[2m (transform 1.22s, setup 2.64s, import 3.24s, tests 190ms, environment 6.58s)[22m
+

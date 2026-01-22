@@ -19,17 +19,6 @@ export interface WelcomeStepProps {
 export const WelcomeStep: FC<WelcomeStepProps> = ({ onNext }) => {
   return (
     <div className={styles.welcomeStep}>
-      <div className={styles.hero}>
-        <h3 className={styles.headline}>
-          Let's set up your chart of accounts together.
-          <br />
-          No accounting degree required!
-        </h3>
-        <p className={styles.subheadline}>
-          We'll guide you through every step, and you can always come back to make changes later.
-        </p>
-      </div>
-
       <div className={styles.content}>
         <div className={styles.section}>
           <h4 className={styles.sectionTitle}>What is a chart of accounts?</h4>
