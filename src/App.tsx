@@ -2,6 +2,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { ErrorBoundary } from './components/error/ErrorBoundary'
 import { AppRoutes } from './routes'
 import { AuthProvider } from './contexts/AuthContext'
+import './utils/devReset' // Make devReset() available in console
 
 function App() {
   return (

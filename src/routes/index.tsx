@@ -29,6 +29,7 @@ const Reconciliation = lazy(() => import('../pages/Reconciliation'))
 const NotFound = lazy(() => import('../pages/NotFound'))
 const Forbidden = lazy(() => import('../pages/Forbidden'))
 const AdminCharities = lazy(() => import('../pages/admin/AdminCharities'))
+const DevTools = lazy(() => import('../pages/DevTools'))
 
 export function AppRoutes() {
   return (
@@ -37,6 +38,7 @@ export function AppRoutes() {
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/dev-tools" element={<DevTools />} />
 
         {/* Onboarding routes */}
         <Route path="/onboarding" element={<Onboarding />} />
