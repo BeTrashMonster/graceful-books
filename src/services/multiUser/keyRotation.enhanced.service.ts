@@ -159,6 +159,9 @@ export class KeyRotationService {
 
       this.activeJobs.set(job.id, job);
 
+      // Return a snapshot of the job before performing rotation
+      const jobSnapshot = { ...job };
+
       // Perform rotation asynchronously
       this.performRotation(job, oldContext, newMasterKey).catch((error) => {
         log.error('Rotation failed', { jobId: job.id, error });
@@ -166,7 +169,7 @@ export class KeyRotationService {
 
       return {
         success: true,
-        data: job,
+        data: jobSnapshot,
       };
     } catch (error) {
       return {

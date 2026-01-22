@@ -264,7 +264,7 @@ describe('Reconciliation E2E Integration Tests', () => {
       statement = {
         ...statement,
         openingBalance: 0,
-        closingBalance: 1967500, // $19,675.00 in cents (sum of all transactions)
+        closingBalance: 18850, // $188.50 in cents (sum of all transactions: 5000-150+3200-500+2800-1200+4500-75+3100-25+2500-300)
       };
 
       // STEP 3: Create reconciliation session
@@ -371,10 +371,11 @@ describe('Reconciliation E2E Integration Tests', () => {
         testUserId
       );
 
-      // Generate statement but modify some descriptions to prevent auto-match
+      // Generate statement but modify one to prevent auto-match
       const statementData = generateMatchingStatement(transactions, bankAccount.id);
       if (statementData[0]) {
-        statementData[0].description = 'Unknown Vendor XYZ'; // Won't auto-match
+        statementData[0].description = 'Unknown Vendor XYZ'; // Different description
+        statementData[0].amount = statementData[0].amount + 0.50; // Slightly different amount
       }
 
       const csvContent = generateBankStatementCSV(statementData);
@@ -383,7 +384,7 @@ describe('Reconciliation E2E Integration Tests', () => {
       statement = {
         ...statement,
         openingBalance: 0,
-        closingBalance: 1967500,
+        closingBalance: 18900, // $189.00 in cents (18850 + 50 for modified transaction)
       };
 
       // Create reconciliation
@@ -394,11 +395,16 @@ describe('Reconciliation E2E Integration Tests', () => {
         isFirstReconciliation: true,
       });
 
-      // Auto-match (will miss the modified one)
+      // Auto-match (will miss the modified one due to strict description matching)
       const matchResult = await enhancedMatchTransactions(
         statement.transactions,
         transactions,
-        { usePatternLearning: false, patterns: [] }
+        {
+          usePatternLearning: false,
+          patterns: [],
+          descriptionSimilarityThreshold: 70, // Require 70% description similarity
+          minConfidenceScore: 60 // Require higher confidence
+        }
       );
 
       let reconWithMatches = applyMatches(reconciliation, matchResult.matches);
@@ -451,7 +457,7 @@ describe('Reconciliation E2E Integration Tests', () => {
       const csvContent = generateBankStatementCSV(statementData);
       let statement = await parseCSVStatement(csvContent);
 
-      statement = { ...statement, openingBalance: 0, closingBalance: 1967500 };
+      statement = { ...statement, openingBalance: 0, closingBalance: 18850 };
 
       const reconciliation = createReconciliation({
         companyId: testCompanyId,
@@ -469,8 +475,9 @@ describe('Reconciliation E2E Integration Tests', () => {
       let reconWithMatches = applyMatches(reconciliation, matchResult.matches);
       const initialSummary = getReconciliationSummary(reconWithMatches);
 
-      // Remove first match
-      const firstMatchedStmt = statement.transactions.find((tx: any) => tx.matched);
+      // Remove first match (get statement from reconciliation object)
+      const updatedStatement: ParsedStatement = JSON.parse(reconWithMatches.statement_data);
+      const firstMatchedStmt = updatedStatement.transactions.find((tx: any) => tx.matched);
       expect(firstMatchedStmt).toBeDefined();
 
       reconWithMatches = removeMatch(reconWithMatches, firstMatchedStmt!.id);
@@ -523,7 +530,7 @@ describe('Reconciliation E2E Integration Tests', () => {
         const csvContent = generateBankStatementCSV(statementData);
         let statement = await parseCSVStatement(csvContent);
 
-        statement = { ...statement, openingBalance: 0, closingBalance: 1967500 };
+        statement = { ...statement, openingBalance: 0, closingBalance: 18850 };
 
         // Create reconciliation
         const reconciliation = createReconciliation({
@@ -637,7 +644,7 @@ describe('Reconciliation E2E Integration Tests', () => {
         const csvContent = generateBankStatementCSV(statementData);
         let statement = await parseCSVStatement(csvContent);
 
-        statement = { ...statement, openingBalance: 0, closingBalance: 1967500 };
+        statement = { ...statement, openingBalance: 0, closingBalance: 18850 };
 
         const reconciliation = createReconciliation({
           companyId: testCompanyId,
@@ -665,8 +672,8 @@ describe('Reconciliation E2E Integration Tests', () => {
               end: new Date(2024, month - 1, 28).getTime(),
             },
             beginning_balance: 0,
-            ending_balance: 1967500,
-            calculated_balance: 1967500,
+            ending_balance: 18850,
+            calculated_balance: 18850,
             discrepancy: 0,
             status: 'balanced',
             matched_transactions: [],
@@ -829,7 +836,7 @@ describe('Reconciliation E2E Integration Tests', () => {
       const csvContent = generateBankStatementCSV(statementData);
       let statement = await parseCSVStatement(csvContent);
 
-      statement = { ...statement, openingBalance: 0, closingBalance: 1967500 };
+      statement = { ...statement, openingBalance: 0, closingBalance: 18850 };
 
       // Create reconciliation
       const reconciliation = createReconciliation({
@@ -909,7 +916,7 @@ describe('Reconciliation E2E Integration Tests', () => {
         const csvContent = generateBankStatementCSV(statementData);
         let statement = await parseCSVStatement(csvContent);
 
-        statement = { ...statement, openingBalance: 0, closingBalance: 1967500 };
+        statement = { ...statement, openingBalance: 0, closingBalance: 18850 };
 
         const reconciliation = createReconciliation({
           companyId: testCompanyId,
@@ -937,8 +944,8 @@ describe('Reconciliation E2E Integration Tests', () => {
               end: new Date(2024, month - 1, 28).getTime(),
             },
             beginning_balance: 0,
-            ending_balance: 1967500,
-            calculated_balance: 1967500,
+            ending_balance: 18850,
+            calculated_balance: 18850,
             discrepancy: 0,
             status: 'balanced',
             matched_transactions: [],

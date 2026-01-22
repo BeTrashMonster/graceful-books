@@ -4,13 +4,35 @@
  * Per I6: Scheduled Report Delivery - Unit Tests for Export
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { exportReport, exportResultToBuffer, getExportMimeType } from './reportExport.service';
 import type { BalanceSheetData } from '../../types/reports.types';
 
+// Mock pdfmake to avoid timeout issues in test environment
+vi.mock('pdfmake/build/pdfmake', () => ({
+  default: {
+    createPdf: vi.fn().mockReturnValue({
+      getBlob: vi.fn((callback) => {
+        // Immediately call the callback with a mock Blob
+        const mockBlob = new Blob(['mock PDF content'], { type: 'application/pdf' });
+        callback(mockBlob);
+      }),
+    }),
+    vfs: {},
+  },
+}));
+
+vi.mock('pdfmake/build/vfs_fonts', () => ({
+  default: {
+    pdfMake: {
+      vfs: {},
+    },
+  },
+}));
+
 describe('ReportExport Service', () => {
   describe('exportReport', () => {
-    it('should export balance sheet to PDF', async () => {
+    it('should export balance sheet to PDF', { timeout: 15000 }, async () => {
       const mockData: Partial<BalanceSheetData> = {
         companyId: 'company-123',
         asOfDate: new Date('2026-01-18'),
@@ -118,10 +140,25 @@ describe('ReportExport Service', () => {
 
   describe('exportResultToBuffer', () => {
     it('should convert blob to buffer', async () => {
+      const testContent = 'test content';
+      const testBuffer = Buffer.from(testContent);
+
+      // Create a mock blob with arrayBuffer method
+      const blob: any = {
+        size: testBuffer.length,
+        type: 'application/pdf',
+        arrayBuffer: async () => {
+          return testBuffer.buffer.slice(
+            testBuffer.byteOffset,
+            testBuffer.byteOffset + testBuffer.byteLength
+          );
+        },
+      };
+
       const mockResult = {
         success: true,
         format: 'pdf' as const,
-        blob: new Blob(['test content']),
+        blob,
         filename: 'test.pdf',
       };
 

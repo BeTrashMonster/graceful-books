@@ -69,10 +69,22 @@ export const FlowNode: React.FC<FlowNodeProps> = ({
     } else if (showPopover && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
       e.preventDefault()
       const direction = e.key === 'ArrowDown' ? 1 : -1
-      const newIndex = Math.max(
-        -1,
-        Math.min(node.subNodes.length - 1, focusedSubIndex + direction)
-      )
+      let newIndex: number
+
+      if (focusedSubIndex === -1 && e.key === 'ArrowDown') {
+        // First arrow down should focus the first item
+        newIndex = 0
+      } else if (focusedSubIndex === -1 && e.key === 'ArrowUp') {
+        // First arrow up should focus the last item
+        newIndex = node.subNodes.length - 1
+      } else {
+        // Normal navigation
+        newIndex = Math.max(
+          0,
+          Math.min(node.subNodes.length - 1, focusedSubIndex + direction)
+        )
+      }
+
       setFocusedSubIndex(newIndex)
     }
   }
@@ -91,7 +103,7 @@ export const FlowNode: React.FC<FlowNodeProps> = ({
     }
   }
 
-  // Close popover when clicking outside
+  // Close popover when clicking outside or pressing Escape
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -104,9 +116,20 @@ export const FlowNode: React.FC<FlowNodeProps> = ({
       }
     }
 
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setShowPopover(false)
+        setFocusedSubIndex(-1)
+      }
+    }
+
     if (showPopover) {
       document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
+      document.addEventListener('keydown', handleEscapeKey)
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside)
+        document.removeEventListener('keydown', handleEscapeKey)
+      }
     }
   }, [showPopover])
 

@@ -533,11 +533,11 @@ export class MultiUserAuditService {
       let results = await collection.toArray();
 
       if (filters.companyId) {
-        results = results.filter((log) => log.companyId === filters.companyId);
+        results = results.filter((log) => log.company_id === filters.companyId);
       }
 
       if (filters.userId) {
-        results = results.filter((log) => log.userId === filters.userId);
+        results = results.filter((log) => log.user_id === filters.userId);
       }
 
       if (filters.eventType) {
@@ -564,11 +564,11 @@ export class MultiUserAuditService {
       }
 
       if (filters.resourceType) {
-        results = results.filter((log) => log.entityType === filters.resourceType);
+        results = results.filter((log) => log.entity_type === filters.resourceType);
       }
 
       if (filters.resourceId) {
-        results = results.filter((log) => log.entityId === filters.resourceId);
+        results = results.filter((log) => log.entity_id === filters.resourceId);
       }
 
       const total = results.length;
@@ -620,13 +620,13 @@ export class MultiUserAuditService {
         eventsByType[log.action] = (eventsByType[log.action] || 0) + 1;
 
         // Track unique users
-        if (log.userId) {
-          uniqueUsers.add(log.userId);
+        if (log.user_id) {
+          uniqueUsers.add(log.user_id);
         }
 
         // Track unique sessions
-        if (log.deviceId) {
-          uniqueSessions.add(log.deviceId);
+        if (log.device_id) {
+          uniqueSessions.add(log.device_id);
         }
 
         // Count security events
@@ -772,12 +772,12 @@ export class MultiUserAuditService {
       const rows = logs.map((log) => [
         new Date(log.timestamp).toISOString(),
         log.action,
-        log.userId,
-        log.entityType,
-        log.entityId,
+        log.user_id,
+        log.entity_type,
+        log.entity_id,
         log.action,
-        log.ipAddress || '',
-        log.deviceId || '',
+        log.ip_address || '',
+        log.device_id || '',
       ]);
 
       const csv = [

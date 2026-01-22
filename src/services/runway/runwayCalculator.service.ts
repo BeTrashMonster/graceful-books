@@ -99,7 +99,11 @@ export function getDateRangeFromPreset(preset: RunwayDateRangePreset): RunwayDat
  * Cash + liquid assets - short-term liabilities
  */
 export async function calculateAvailableCash(companyId: string): Promise<number> {
-  const accounts = await db.accounts.where({ companyId, isActive: true }).toArray()
+  const allAccounts = await db.accounts
+    .where('companyId')
+    .equals(companyId)
+    .toArray()
+  const accounts = allAccounts.filter(account => account.isActive)
 
   let availableCash = new Decimal(0)
 

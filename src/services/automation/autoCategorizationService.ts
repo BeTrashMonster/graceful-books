@@ -25,6 +25,7 @@ import type {
   ConfidenceLevel,
 } from '../../types/automation.types'
 import { logger } from '../../utils/logger'
+import { db } from '../../db'
 
 const serviceLogger = logger.child('AutoCategorizationService')
 
@@ -341,6 +342,12 @@ export class AutoCategorizationService {
    */
   private async loadSettings(): Promise<void> {
     try {
+      // Validate company exists
+      const company = await db.companies.get(this.companyId)
+      if (!company) {
+        throw new Error(`Company not found: ${this.companyId}`)
+      }
+
       // Placeholder - would load from automation_settings table
       this.settings = {
         id: crypto.randomUUID(),

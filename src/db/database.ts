@@ -193,6 +193,14 @@ import type {
   TaxAdvisorAccess,
   TaxPackage,
 } from '../types/tax.types';
+import {
+  currenciesSchema,
+  exchangeRatesSchema,
+} from './schema/currency.schema';
+import type {
+  Currency,
+  ExchangeRate,
+} from '../types/database.types';
 
 /**
  * TreasureChest Database Class
@@ -265,6 +273,8 @@ export class TreasureChestDB extends Dexie {
   taxPackages!: Table<TaxPackage, string>;
   journalEntries!: Table<any, string>;
   scenario_notes!: Table<any, string>;
+  currencies!: Table<Currency, string>;
+  exchangeRates!: Table<ExchangeRate, string>;
 
   constructor() {
     super('TreasureChest');
@@ -883,6 +893,73 @@ export class TreasureChestDB extends Dexie {
       taxPackages: taxPackagesSchema,
     });
 
+    // Version 18: Add H5 Multi-Currency tables
+    this.version(18).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+      recentActivity: recentActivitySchema,
+      conflict_history: conflictHistorySchema,
+      conflict_notifications: conflictNotificationsSchema,
+      comments: commentsSchema,
+      mentions: mentionsSchema,
+      emailQueue: emailQueueSchema,
+      emailLogs: emailLogsSchema,
+      emailNotificationPreferences: emailNotificationPreferencesSchema,
+      subscriptions: subscriptionsSchema,
+      advisorClients: advisorClientsSchema,
+      advisorTeamMembers: advisorTeamMembersSchema,
+      paymentMethods: paymentMethodsSchema,
+      billingInvoices: billingInvoicesSchema,
+      stripeWebhookEvents: stripeWebhookEventsSchema,
+      charityDistributions: charityDistributionsSchema,
+      charities: charitiesSchema,
+      financialGoals: financialGoalsSchema,
+      goalProgressSnapshots: goalProgressSnapshotsSchema,
+      taxDocuments: taxDocumentsSchema,
+      taxCategoryStatus: taxCategoryStatusSchema,
+      taxPrepSessions: taxPrepSessionsSchema,
+      taxAdvisorAccess: taxAdvisorAccessSchema,
+      taxPackages: taxPackagesSchema,
+      currencies: currenciesSchema,
+      exchangeRates: exchangeRatesSchema,
+    });
+
     // Version 14: Add IC4 Email Queue and Logs tables
     this.version(14).stores({
       accounts: accountsSchema,
@@ -1002,6 +1079,8 @@ export class TreasureChestDB extends Dexie {
     this.valuationMethodChanges.hook('updating', updateTimestamp);
     this.portalTokens.hook('updating', updateTimestamp);
     this.payments.hook('updating', updateTimestamp);
+    this.currencies.hook('updating', updateTimestamp);
+    this.exchangeRates.hook('updating', updateTimestamp);
   }
 
   /**

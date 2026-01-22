@@ -81,7 +81,7 @@ function findPotentialMatches(
     }
 
     // Skip reconciled transactions
-    if (sysTx.status === ('RECONCILED' as any)) {
+    if (sysTx.status === 'reconciled') {
       continue;
     }
 

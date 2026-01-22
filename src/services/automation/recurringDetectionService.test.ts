@@ -11,19 +11,51 @@
  * - Next expected date prediction
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import {
   RecurringDetectionService,
   createRecurringDetectionService,
 } from './recurringDetectionService'
 import type { RecurringDetectionInput } from '../../types/automation.types'
+import { db, initializeDatabase, deleteDatabase } from '../../db/database'
+import type { Company } from '../../types/database.types'
 
 describe('RecurringDetectionService', () => {
   let service: RecurringDetectionService
   const companyId = 'test-company-123'
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await deleteDatabase()
+    await initializeDatabase()
+
+    // Create test company
+    const company: Company = {
+      id: companyId,
+      name: 'Test Company',
+      legal_name: 'Test Company LLC',
+      tax_id: '12-3456789',
+      address: '123 Test St',
+      phone: '555-1234',
+      email: 'test@example.com',
+      fiscal_year_end: '12-31',
+      currency: 'USD',
+      settings: {
+        accounting_method: 'accrual',
+        multi_currency: false,
+        track_inventory: false,
+      },
+      version_vector: {},
+      created_at: Date.now(),
+      updated_at: Date.now(),
+      deleted_at: null,
+    }
+    await db.companies.add(company)
+
     service = createRecurringDetectionService(companyId)
+  })
+
+  afterEach(async () => {
+    await deleteDatabase()
   })
 
   describe('initialization', () => {

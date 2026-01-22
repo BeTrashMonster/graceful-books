@@ -228,7 +228,7 @@ export class ExchangeRateService implements IExchangeRateService {
 
     // Find the most recent rate on or before the date
     const rates = await this.db.exchangeRates
-      .where('company_id+from_currency+to_currency')
+      .where('[company_id+from_currency+to_currency]')
       .equals([companyId, fromCurrency, toCurrency])
       .and((r: ExchangeRate) => !r.deleted_at && r.effective_date <= date)
       .sortBy('effective_date');
@@ -263,7 +263,7 @@ export class ExchangeRateService implements IExchangeRateService {
     endDate?: number
   ): Promise<ExchangeRate[]> {
     let query = this.db.exchangeRates
-      .where('company_id+from_currency+to_currency')
+      .where('[company_id+from_currency+to_currency]')
       .equals([companyId, fromCurrency, toCurrency])
       .and((r: ExchangeRate) => !r.deleted_at);
 

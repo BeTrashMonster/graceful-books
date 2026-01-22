@@ -62,6 +62,8 @@ vi.mock('../../store/database', () => ({
   },
 }));
 
+import * as keyManagement from '../../crypto/keyManagement';
+
 vi.mock('../../crypto/keyManagement', () => ({
   rotateKeys: vi.fn(),
   deriveAllKeys: vi.fn(),
@@ -120,6 +122,17 @@ describe('KeyRotationService', () => {
 
     // Reset mocks
     vi.clearAllMocks();
+
+    // Configure crypto mocks to return success
+    vi.mocked(keyManagement.deriveAllKeys).mockResolvedValue({
+      success: true,
+      data: new Map(),
+    });
+
+    vi.mocked(keyManagement.createEncryptionContext).mockResolvedValue({
+      success: true,
+      data: mockOldContext,
+    });
   });
 
   describe('initiateRotation', () => {

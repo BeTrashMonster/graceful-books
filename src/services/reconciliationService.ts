@@ -238,8 +238,8 @@ export function calculateDiscrepancy(
       // Find the line for this account
       const line = systemTxn.lines.find((l) => l.accountId === accountId);
       if (line) {
-        // Debit increases bank balance, credit decreases it
-        netMatchedAmount += Math.round((line.debit - line.credit) * 100);
+        // Debit increases bank balance, credit decreases it (already in cents)
+        netMatchedAmount += (line.debit - line.credit);
       }
     }
   }

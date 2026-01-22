@@ -65,7 +65,7 @@ describe('CSVExporter Component', () => {
 
     it('should have keyboard-accessible select all button', () => {
       render(<CSVExporter />);
-      const selectAllButton = screen.getByRole('button', { name: /select all fields/i });
+      const selectAllButton = screen.getByRole('button', { name: /^select all fields$/i });
       selectAllButton.focus();
       expect(selectAllButton).toHaveFocus();
     });
@@ -136,7 +136,7 @@ describe('CSVExporter Component', () => {
 
     it('should select all fields when select all clicked', () => {
       render(<CSVExporter defaultEntityType="transactions" />);
-      const selectAllButton = screen.getByRole('button', { name: /select all fields/i });
+      const selectAllButton = screen.getByRole('button', { name: /^select all fields$/i });
       fireEvent.click(selectAllButton);
 
       const fields = csvExporterService.getAvailableFields('transactions');
@@ -149,11 +149,11 @@ describe('CSVExporter Component', () => {
       render(<CSVExporter defaultEntityType="transactions" />);
 
       // First select all
-      const selectAllButton = screen.getByRole('button', { name: /select all fields/i });
+      const selectAllButton = screen.getByRole('button', { name: /^select all fields$/i });
       fireEvent.click(selectAllButton);
 
       // Then deselect all
-      const deselectAllButton = screen.getByRole('button', { name: /deselect all fields/i });
+      const deselectAllButton = screen.getByRole('button', { name: /^deselect all fields$/i });
       fireEvent.click(deselectAllButton);
 
       const fields = csvExporterService.getAvailableFields('transactions');

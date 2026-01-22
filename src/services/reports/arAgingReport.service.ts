@@ -205,8 +205,8 @@ export async function generateARAgingReport(
       if (customerId && inv.customer_id !== customerId) return false
 
       // Include/exclude based on status
-      if (!includeVoidedInvoices && inv.status === 'VOID') return false
-      if (!includePaidInvoices && inv.status === 'PAID') return false
+      if (!includeVoidedInvoices && inv.status === 'void') return false
+      if (!includePaidInvoices && inv.status === 'paid') return false
 
       return true
     })
