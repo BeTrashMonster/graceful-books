@@ -39,6 +39,9 @@ export function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
+        {/* Developer tools - accessible without full layout */}
+        <Route path="/dev-tools" element={<DevTools />} />
+
         {/* Onboarding routes */}
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/onboarding/assessment" element={<Assessment />} />
@@ -61,7 +64,6 @@ export function AppRoutes() {
           <Route path="/reports/balance-sheet" element={<BalanceSheet />} />
           <Route path="/reports/cash-flow" element={<CashFlow />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/dev-tools" element={<DevTools />} />
         </Route>
 
         {/* Customer portal - public with token auth */}

@@ -51,7 +51,25 @@ export default function DevTools() {
   const info = getStorageInfo()
 
   return (
-    <div style={{ maxWidth: '800px', margin: '2rem auto', padding: '2rem' }}>
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: '#f9fafb',
+      padding: '2rem'
+    }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <a
+          href="/dashboard"
+          style={{
+            color: '#3b82f6',
+            textDecoration: 'none',
+            fontSize: '0.875rem',
+            fontWeight: 600,
+          }}
+        >
+          ← Back to Dashboard
+        </a>
+      </div>
       <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '0.5rem' }}>
         🛠️ Developer Tools
       </h1>
@@ -268,6 +286,7 @@ export default function DevTools() {
           devResetAll()
         </code>{' '}
         in the browser console
+      </div>
       </div>
     </div>
   )
