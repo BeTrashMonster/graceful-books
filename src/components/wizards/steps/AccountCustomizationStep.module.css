@@ -24,6 +24,43 @@
 .accountCount {
   font-size: 1rem;
   color: #3b82f6;
+  margin-bottom: 0.5rem;
+}
+
+.partProgress {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.partHeader {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.partTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.partDescription {
+  font-size: 1rem;
+  color: #6b7280;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.emptyMessage {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  font-style: italic;
 }
 
 .tableHeader {
