@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react'
 import { Breadcrumbs } from '../components/navigation/Breadcrumbs'
 import { TransactionList } from '../components/transactions/TransactionList'
 import { TransactionForm } from '../components/transactions/TransactionForm'
+import { SimpleTransactionForm } from '../components/transactions/SimpleTransactionForm'
 import { useTransactions, useNewTransaction } from '../hooks/useTransactions'
 import { useAccounts } from '../hooks/useAccounts'
 import { useAuth } from '../contexts/AuthContext'
@@ -44,6 +45,7 @@ export default function Transactions() {
 
   const [showForm, setShowForm] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const [isSimpleMode, setIsSimpleMode] = useState(true) // Default to simple mode
 
   // Load transactions on mount
   useEffect(() => {
@@ -75,13 +77,13 @@ export default function Transactions() {
       )
       if (result) {
         setShowForm(false)
-        loadTransactions({ companyId: MOCK_COMPANY_ID })
+        loadTransactions({ companyId: activeCompanyId })
       }
     } else {
       const result = await createNewTransaction(currentTransaction)
       if (result) {
         setShowForm(false)
-        loadTransactions({ companyId: MOCK_COMPANY_ID })
+        loadTransactions({ companyId: activeCompanyId })
       }
     }
   }
@@ -161,9 +163,47 @@ export default function Transactions() {
           </>
         ) : (
           <div className="card" style={{ padding: '2rem' }}>
-            <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>
-              {isEditing ? 'Edit Transaction' : 'New Transaction'}
-            </h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ margin: 0 }}>
+                {isEditing ? 'Edit Transaction' : 'New Transaction'}
+              </h2>
+              {!isEditing && (
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsSimpleMode(true)}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      backgroundColor: isSimpleMode ? '#3b82f6' : 'transparent',
+                      color: isSimpleMode ? 'white' : '#6b7280',
+                      border: `1px solid ${isSimpleMode ? '#3b82f6' : '#d1d5db'}`,
+                      borderRadius: '0.375rem 0 0 0.375rem',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      fontSize: '0.875rem',
+                    }}
+                  >
+                    Simple Mode
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsSimpleMode(false)}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      backgroundColor: !isSimpleMode ? '#3b82f6' : 'transparent',
+                      color: !isSimpleMode ? 'white' : '#6b7280',
+                      border: `1px solid ${!isSimpleMode ? '#3b82f6' : '#d1d5db'}`,
+                      borderRadius: '0 0.375rem 0.375rem 0',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      fontSize: '0.875rem',
+                    }}
+                  >
+                    Advanced
+                  </button>
+                </div>
+              )}
+            </div>
 
             {accounts.length === 0 && !accountsLoading ? (
               <div style={{ textAlign: 'center', padding: '2rem' }}>
@@ -207,15 +247,27 @@ export default function Transactions() {
                 </button>
               </div>
             ) : currentTransaction && (
-              <TransactionForm
-                transaction={currentTransaction}
-                accounts={accounts}
-                onChange={handleTransactionChange}
-                onSave={handleSave}
-                onCancel={handleCancel}
-                isLoading={isLoading || accountsLoading}
-                error={error || undefined}
-              />
+              isSimpleMode && !isEditing ? (
+                <SimpleTransactionForm
+                  transaction={currentTransaction}
+                  accounts={accounts}
+                  onChange={handleTransactionChange}
+                  onSave={handleSave}
+                  onCancel={handleCancel}
+                  isLoading={isLoading || accountsLoading}
+                  error={error || undefined}
+                />
+              ) : (
+                <TransactionForm
+                  transaction={currentTransaction}
+                  accounts={accounts}
+                  onChange={handleTransactionChange}
+                  onSave={handleSave}
+                  onCancel={handleCancel}
+                  isLoading={isLoading || accountsLoading}
+                  error={error || undefined}
+                />
+              )
             )}
           </div>
         )}
