@@ -1,12 +1,15 @@
 import { BrowserRouter } from 'react-router-dom'
 import { ErrorBoundary } from './components/error/ErrorBoundary'
 import { AppRoutes } from './routes'
+import { AuthProvider } from './contexts/AuthContext'
 
 function App() {
   return (
     <ErrorBoundary level="root">
       <BrowserRouter>
-        <AppRoutes />
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>
   )

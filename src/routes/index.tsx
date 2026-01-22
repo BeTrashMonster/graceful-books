@@ -14,6 +14,11 @@ const BalanceSheet = lazy(() => import('../pages/BalanceSheet'))
 const CashFlow = lazy(() => import('../pages/reports/CashFlow'))
 const Customers = lazy(() => import('../pages/Customers'))
 const Vendors = lazy(() => import('../pages/Vendors'))
+const Invoices = lazy(() => import('../pages/Invoices'))
+const Receipts = lazy(() => import('../pages/Receipts'))
+const ChartOfAccounts = lazy(() => import('../pages/ChartOfAccounts'))
+const Checklist = lazy(() => import('../pages/Checklist'))
+const CustomerPortal = lazy(() => import('../pages/CustomerPortal'))
 const Settings = lazy(() => import('../pages/Settings'))
 const Login = lazy(() => import('../pages/auth/Login'))
 const Signup = lazy(() => import('../pages/auth/Signup'))
@@ -42,15 +47,23 @@ export function AppRoutes() {
         <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/transactions" element={<Transactions />} />
+          <Route path="/accounts" element={<ChartOfAccounts />} />
+          <Route path="/chart-of-accounts" element={<ChartOfAccounts />} />
           <Route path="/reconciliation" element={<Reconciliation />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/vendors" element={<Vendors />} />
+          <Route path="/invoices" element={<Invoices />} />
+          <Route path="/receipts" element={<Receipts />} />
+          <Route path="/checklist" element={<Checklist />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/reports/profit-loss" element={<ProfitLoss />} />
           <Route path="/reports/balance-sheet" element={<BalanceSheet />} />
           <Route path="/reports/cash-flow" element={<CashFlow />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
+
+        {/* Customer portal - public with token auth */}
+        <Route path="/portal/:token" element={<CustomerPortal />} />
 
         {/* Admin-only routes with layout */}
         <Route element={<AdminRoute><ProtectedRoute><MainLayout /></ProtectedRoute></AdminRoute>}>

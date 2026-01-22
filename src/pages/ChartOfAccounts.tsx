@@ -247,3 +247,5 @@ export const ChartOfAccounts: FC<ChartOfAccountsProps> = ({ companyId }) => {
     </div>
   )
 }
+
+export default ChartOfAccounts

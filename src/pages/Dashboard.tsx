@@ -4,18 +4,34 @@ import { MetricCard } from '../components/dashboard/MetricCard';
 import { RecentTransactions } from '../components/dashboard/RecentTransactions';
 import { QuickActions, type QuickAction } from '../components/dashboard/QuickActions';
 import { FinancialSummary } from '../components/dashboard/FinancialSummary';
+import { CashPositionWidget } from '../components/dashboard/CashPositionWidget';
+import { OverdueInvoicesWidget } from '../components/dashboard/OverdueInvoicesWidget';
+import { RevenueExpensesChart } from '../components/dashboard/RevenueExpensesChart';
+import { ResumeWidget } from '../components/dashboard/ResumeWidget';
 import { useDashboardMetrics, useRecentTransactions } from '../hooks/useDashboardMetrics';
+import { useCashPosition } from '../hooks/useCashPosition';
+import { useOverdueInvoices } from '../hooks/useOverdueInvoices';
+import { useRevenueExpensesData } from '../hooks/useRevenueExpensesData';
+import { useRecentActivity } from '../hooks/useRecentActivity';
 import { formatCurrency } from '../utils/metricsCalculation';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { companyId } = useAuth();
 
-  // TODO: Get actual company ID from auth context
-  const companyId = 'demo-company-id';
+  // Fallback to demo company ID if not authenticated (development only)
+  const activeCompanyId = companyId || 'demo-company-id';
 
   // Fetch dashboard metrics
-  const metrics = useDashboardMetrics({ companyId });
-  const { transactions, isLoading: transactionsLoading } = useRecentTransactions(companyId, 10);
+  const metrics = useDashboardMetrics({ companyId: activeCompanyId });
+  const { transactions, isLoading: transactionsLoading } = useRecentTransactions(activeCompanyId, 10);
+
+  // Fetch data for advanced widgets
+  const { data: cashPositionData, isLoading: cashPositionLoading } = useCashPosition(activeCompanyId);
+  const { invoices: overdueInvoices, isLoading: overdueInvoicesLoading } = useOverdueInvoices(activeCompanyId, 5);
+  const { data: revenueExpensesData, isLoading: revenueExpensesLoading } = useRevenueExpensesData(activeCompanyId, 6);
+  const { recentEdits, isLoading: recentActivityLoading } = useRecentActivity(activeCompanyId, 5);
 
   // Define quick actions
   const quickActions: QuickAction[] = [
@@ -123,6 +139,60 @@ export default function Dashboard() {
               isLoading={transactionsLoading}
               limit={10}
               onViewAll={() => navigate('/transactions')}
+            />
+          </div>
+        </div>
+
+        {/* Advanced Widgets Section */}
+        <div style={{ marginTop: '2rem' }}>
+          {/* Revenue vs Expenses Chart - Full Width */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <RevenueExpensesChart
+              data={revenueExpensesData}
+              isLoading={revenueExpensesLoading}
+              period="Last 6 Months"
+            />
+          </div>
+
+          {/* Two-Column Widget Grid */}
+          <div
+            style={{
+              display: 'grid',
+              gap: '1.5rem',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            }}
+          >
+            {/* Cash Position Widget */}
+            <CashPositionWidget
+              data={cashPositionData || { currentBalance: 0, monthlyExpenses: 0, trend: [] }}
+              isLoading={cashPositionLoading}
+            />
+
+            {/* Overdue Invoices Widget */}
+            <OverdueInvoicesWidget
+              invoices={overdueInvoices}
+              isLoading={overdueInvoicesLoading}
+              onFollowUp={(invoiceId) => navigate(`/invoices/${invoiceId}`)}
+            />
+          </div>
+
+          {/* Resume Widget - Full Width */}
+          <div style={{ marginTop: '1.5rem' }}>
+            <ResumeWidget
+              recentEdits={recentEdits}
+              onItemClick={(entityType, entityId) => {
+                // Navigate to the appropriate page based on entity type
+                const routeMap: Record<string, string> = {
+                  transaction: '/transactions',
+                  invoice: '/invoices',
+                  customer: '/customers',
+                  vendor: '/vendors',
+                  account: '/accounts',
+                };
+                const basePath = routeMap[entityType] || '/dashboard';
+                navigate(`${basePath}?id=${entityId}`);
+              }}
+              isLoading={recentActivityLoading}
             />
           </div>
         </div>
