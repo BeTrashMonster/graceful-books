@@ -108,10 +108,11 @@ function checkRateLimit(ip: string): boolean {
 }
 
 /**
- * Record a portal access
+ * Record a portal access (rate limit already checked in validateToken)
  */
 function recordAccess(ip: string): void {
-  checkRateLimit(ip);
+  // Rate limit already checked, just track the access
+  // The checkRateLimit call in validateToken handles both checking and incrementing
 }
 
 /**
@@ -219,7 +220,7 @@ export async function validateToken(
       return {
         success: false,
         error: {
-          code: 'VALIDATION_ERROR',
+          code: ErrorCode.RATE_LIMITED,
           message: "We've noticed a few attempts. For your security, please wait a moment.",
         },
       };
@@ -250,7 +251,7 @@ export async function validateToken(
       return {
         success: false,
         error: {
-          code: 'VALIDATION_ERROR',
+          code: ErrorCode.SESSION_INVALID,
           message: 'This portal link has expired or been revoked. Please request a new one.',
         },
       };
