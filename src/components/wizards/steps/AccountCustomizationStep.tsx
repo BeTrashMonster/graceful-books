@@ -100,6 +100,12 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         </p>
       </div>
 
+      <div className={styles.tableHeader}>
+        <div className={styles.headerAccount}>Account Name</div>
+        <div className={styles.headerHelp}>Learn More</div>
+        <div className={styles.headerEdit}>Edit</div>
+      </div>
+
       <div className={styles.accountsList}>
         {customizations.map((customization, index) => {
           const templateAccount = template.accounts.find(

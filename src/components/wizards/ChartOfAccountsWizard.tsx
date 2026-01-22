@@ -129,6 +129,11 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
     saveWizardProgress(progress)
   }, [wizardState, companyId])
 
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [wizardState.currentStepId])
+
   const handleNext = useCallback(() => {
     setWizardState((prev) => navigateToNextStep(prev))
   }, [])
