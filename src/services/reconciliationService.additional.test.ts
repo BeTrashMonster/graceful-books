@@ -68,14 +68,14 @@ describe('ReconciliationService - Additional Comprehensive Tests', () => {
       {
         id: 'line-1',
         accountId,
-        debit: 50.0,
+        debit: 5000, // $50.00 in cents
         credit: 0,
       },
       {
         id: 'line-2',
         accountId: 'other-account',
         debit: 0,
-        credit: 50.0,
+        credit: 5000, // $50.00 in cents
       },
     ],
     createdBy: 'user-123',
@@ -366,8 +366,8 @@ describe('ReconciliationService - Additional Comprehensive Tests', () => {
         createMockJournalEntry({
           id: 'txn-1',
           lines: [
-            { id: 'line-1', accountId, debit: 50.0, credit: 0 },
-            { id: 'line-2', accountId: 'other', debit: 0, credit: 50.0 },
+            { id: 'line-1', accountId, debit: 5000, credit: 0 }, // $50.00 in cents
+            { id: 'line-2', accountId: 'other', debit: 0, credit: 5000 }, // $50.00 in cents
           ],
         }),
       ];
@@ -409,8 +409,8 @@ describe('ReconciliationService - Additional Comprehensive Tests', () => {
         createMockJournalEntry({
           id: 'txn-1',
           lines: [
-            { id: 'line-1', accountId, debit: 50.0, credit: 0 },
-            { id: 'line-2', accountId: 'other', debit: 0, credit: 50.0 },
+            { id: 'line-1', accountId, debit: 5000, credit: 0 }, // $50.00 in cents
+            { id: 'line-2', accountId: 'other', debit: 0, credit: 5000 }, // $50.00 in cents
           ],
         }),
       ];
@@ -452,8 +452,8 @@ describe('ReconciliationService - Additional Comprehensive Tests', () => {
         createMockJournalEntry({
           id: 'txn-1',
           lines: [
-            { id: 'line-1', accountId, debit: 0, credit: 50.0 }, // Credit decreases bank balance
-            { id: 'line-2', accountId: 'other', debit: 50.0, credit: 0 },
+            { id: 'line-1', accountId, debit: 0, credit: 5000 }, // $50.00 in cents - Credit decreases bank balance
+            { id: 'line-2', accountId: 'other', debit: 5000, credit: 0 }, // $50.00 in cents
           ],
         }),
       ];
