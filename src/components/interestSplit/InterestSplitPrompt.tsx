@@ -182,6 +182,7 @@ export const InterestSplitPrompt = ({
             variant="primary"
             onClick={handleSplitNow}
             disabled={isLoading || (manualMode && !!validationError)}
+            aria-label={messages.split_now_button[discType]}
           >
             {isLoading ? <Loading size="sm" /> : messages.split_now_button[discType]}
           </Button>

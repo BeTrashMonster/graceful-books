@@ -82,8 +82,9 @@ describe('InterestSplitPrompt', () => {
         />
       );
 
-      expect(screen.getByText(/\$800\.00/)).toBeInTheDocument(); // Principal
-      expect(screen.getByText(/\$200\.00/)).toBeInTheDocument(); // Interest
+      // Amounts appear in both the message and the breakdown, use getAllByText
+      expect(screen.getAllByText(/\$800\.00/)).toHaveLength(2); // Principal (in message and breakdown)
+      expect(screen.getAllByText(/\$200\.00/)).toHaveLength(2); // Interest (in message and breakdown)
     });
 
     it('should display confidence level', () => {
@@ -142,7 +143,8 @@ describe('InterestSplitPrompt', () => {
         />
       );
 
-      expect(screen.getByText(/This Looks Like a Loan Payment/i)).toBeInTheDocument();
+      // Text appears in title, so query specifically for the heading
+      expect(screen.getByRole('heading', { name: /This Looks Like a Loan Payment/i })).toBeInTheDocument();
     });
 
     it('should show Steadiness-style messaging', () => {
@@ -156,7 +158,8 @@ describe('InterestSplitPrompt', () => {
         />
       );
 
-      expect(screen.getByText(/We Noticed.*Loan Payment/i)).toBeInTheDocument();
+      // Text appears in both title and message, use getAllByText to verify it appears
+      expect(screen.getAllByText(/We Noticed.*Loan Payment/i).length).toBeGreaterThan(0);
     });
 
     it('should show Conscientiousness-style messaging with details', () => {
