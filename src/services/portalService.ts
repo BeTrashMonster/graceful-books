@@ -140,7 +140,7 @@ export async function createPortalToken(
       return {
         success: false,
         error: {
-          code: 'VALIDATION_ERROR',
+          code: ErrorCode.PERMISSION_DENIED,
           message: 'Invoice does not belong to this company',
         },
       };
