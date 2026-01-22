@@ -41,6 +41,7 @@ export function AppRoutes() {
 
         {/* Developer tools - accessible without full layout */}
         <Route path="/dev-tools" element={<DevTools />} />
+        <Route path="/developer-tools" element={<DevTools />} />
 
         {/* Onboarding routes */}
         <Route path="/onboarding" element={<Onboarding />} />

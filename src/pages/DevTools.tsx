@@ -5,12 +5,19 @@
  * Access via /dev-tools
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { resetCompanyData, resetEverything } from '../utils/devReset'
 
 export default function DevTools() {
   const [isResettingCompany, setIsResettingCompany] = useState(false)
   const [isResettingAll, setIsResettingAll] = useState(false)
+
+  useEffect(() => {
+    console.log('DevTools component mounted')
+    return () => {
+      console.log('DevTools component unmounting')
+    }
+  }, [])
 
   const handleResetCompany = async () => {
     if (window.confirm(
