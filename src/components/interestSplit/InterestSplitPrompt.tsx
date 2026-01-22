@@ -139,8 +139,8 @@ export const InterestSplitPrompt = ({
       total_payment_amount: new Decimal(principalAmount)
         .plus(new Decimal(interestAmount))
         .toFixed(2),
-      principal_amount: principalAmount,
-      interest_amount: interestAmount,
+      principal_amount: new Decimal(principalAmount).toFixed(2),
+      interest_amount: new Decimal(interestAmount).toFixed(2),
       payment_date: Date.now(),
       schedule_entry_id: null,
       user_specified_split: manualMode,
@@ -172,7 +172,7 @@ export const InterestSplitPrompt = ({
       size="md"
       footer={
         <div className="modal-footer">
-          <Button variant="secondary" onClick={handleSkip} disabled={isLoading}>
+          <Button variant="secondary" onClick={handleSkip} disabled={isLoading} autoFocus>
             {messages.skip_button[discType]}
           </Button>
           <Button variant="secondary" onClick={handleDefer} disabled={isLoading}>
