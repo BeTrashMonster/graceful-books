@@ -6,21 +6,36 @@
  */
 
 import { useState } from 'react'
-import { resetEverything } from '../utils/devReset'
+import { resetCompanyData, resetEverything } from '../utils/devReset'
 
 export default function DevTools() {
-  const [isResetting, setIsResetting] = useState(false)
+  const [isResettingCompany, setIsResettingCompany] = useState(false)
+  const [isResettingAll, setIsResettingAll] = useState(false)
 
-  const handleReset = async () => {
+  const handleResetCompany = async () => {
     if (window.confirm(
-      '⚠️ This will DELETE ALL DATA including:\n\n' +
+      '🔄 This will reset your company data:\n\n' +
+      '✅ KEEPS: Your login credentials\n' +
+      '❌ DELETES: Chart of Accounts, transactions, settings\n\n' +
+      'Perfect for testing the COA wizard again!\n\n' +
+      'Continue?'
+    )) {
+      setIsResettingCompany(true)
+      await resetCompanyData()
+    }
+  }
+
+  const handleResetAll = async () => {
+    if (window.confirm(
+      '⚠️ This will DELETE EVERYTHING including:\n\n' +
       '• Login credentials\n' +
       '• Chart of Accounts\n' +
       '• All transactions\n' +
       '• All settings\n\n' +
+      'Use this to test the signup/onboarding flow.\n\n' +
       'Are you absolutely sure?'
     )) {
-      setIsResetting(true)
+      setIsResettingAll(true)
       await resetEverything()
     }
   }
@@ -117,6 +132,7 @@ export default function DevTools() {
           border: '1px solid #e5e7eb',
           borderRadius: '8px',
           padding: '1.5rem',
+          marginBottom: '1.5rem',
         }}
       >
         <h3
@@ -127,27 +143,95 @@ export default function DevTools() {
             color: '#1f2937',
           }}
         >
-          Reset Everything
+          Reset Company Data (Recommended)
         </h3>
         <p style={{ color: '#6b7280', marginBottom: '1rem', lineHeight: 1.6 }}>
-          Completely wipe all data and start fresh. Perfect for testing the
-          onboarding flow or Chart of Accounts wizard from scratch.
+          Clear all business data while keeping your login credentials. Perfect
+          for testing the Chart of Accounts wizard from scratch without having
+          to sign up again.
         </p>
+        <div
+          style={{
+            display: 'flex',
+            gap: '1rem',
+            padding: '1rem',
+            backgroundColor: '#f0fdf4',
+            borderRadius: '6px',
+            marginBottom: '1rem',
+            fontSize: '0.875rem',
+          }}
+        >
+          <div style={{ flex: 1 }}>
+            <strong style={{ color: '#166534', display: 'block', marginBottom: '0.5rem' }}>
+              ✅ Keeps:
+            </strong>
+            <div style={{ color: '#15803d' }}>• Login credentials</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <strong style={{ color: '#991b1b', display: 'block', marginBottom: '0.5rem' }}>
+              ❌ Deletes:
+            </strong>
+            <div style={{ color: '#dc2626' }}>• Chart of Accounts</div>
+            <div style={{ color: '#dc2626' }}>• Transactions</div>
+            <div style={{ color: '#dc2626' }}>• Settings</div>
+          </div>
+        </div>
         <button
-          onClick={handleReset}
-          disabled={isResetting}
+          onClick={handleResetCompany}
+          disabled={isResettingCompany}
           style={{
             padding: '0.75rem 1.5rem',
-            backgroundColor: isResetting ? '#9ca3af' : '#dc2626',
+            backgroundColor: isResettingCompany ? '#9ca3af' : '#3b82f6',
             color: 'white',
             border: 'none',
             borderRadius: '6px',
             fontWeight: 600,
             fontSize: '1rem',
-            cursor: isResetting ? 'not-allowed' : 'pointer',
+            cursor: isResettingCompany ? 'not-allowed' : 'pointer',
           }}
         >
-          {isResetting ? '🔄 Resetting...' : '🗑️ Reset Everything'}
+          {isResettingCompany ? '🔄 Resetting...' : '🔄 Reset Company Data'}
+        </button>
+      </div>
+
+      <div
+        style={{
+          backgroundColor: 'white',
+          border: '2px solid #fecaca',
+          borderRadius: '8px',
+          padding: '1.5rem',
+        }}
+      >
+        <h3
+          style={{
+            fontSize: '1rem',
+            fontWeight: 600,
+            marginBottom: '0.5rem',
+            color: '#991b1b',
+          }}
+        >
+          Reset Everything (Including Login)
+        </h3>
+        <p style={{ color: '#6b7280', marginBottom: '1rem', lineHeight: 1.6 }}>
+          Completely wipe all data including login credentials. Use this only
+          when you need to test the complete signup/onboarding flow from the
+          very beginning.
+        </p>
+        <button
+          onClick={handleResetAll}
+          disabled={isResettingAll}
+          style={{
+            padding: '0.75rem 1.5rem',
+            backgroundColor: isResettingAll ? '#9ca3af' : '#dc2626',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            fontWeight: 600,
+            fontSize: '1rem',
+            cursor: isResettingAll ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {isResettingAll ? '🔄 Resetting...' : '🗑️ Reset Everything'}
         </button>
       </div>
 
@@ -161,7 +245,7 @@ export default function DevTools() {
           color: '#1e40af',
         }}
       >
-        <strong>Console Access:</strong> You can also run{' '}
+        <strong>Console Access:</strong> Run{' '}
         <code
           style={{
             backgroundColor: '#e0f2fe',
@@ -170,7 +254,18 @@ export default function DevTools() {
             fontFamily: 'monospace',
           }}
         >
-          devReset()
+          devResetCompany()
+        </code>{' '}
+        or{' '}
+        <code
+          style={{
+            backgroundColor: '#e0f2fe',
+            padding: '0.25rem 0.5rem',
+            borderRadius: '3px',
+            fontFamily: 'monospace',
+          }}
+        >
+          devResetAll()
         </code>{' '}
         in the browser console
       </div>
