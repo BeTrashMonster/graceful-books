@@ -155,7 +155,6 @@ export interface CoaWizardData {
     type: 'equipment' | 'credit-card' | 'loan'
   }>
 }
-}
 
 /**
  * Wizard progress for persistence
