@@ -82,41 +82,9 @@ export const TemplateSelectionStep: FC<TemplateSelectionStepProps> = ({
               )}
             </div>
             <p className={styles.templateDescription}>{template.description}</p>
-            <div className={styles.templateMeta}>
-              <span className={styles.accountCount}>
-                {template.accounts.length} accounts
-              </span>
-            </div>
           </button>
         ))}
       </div>
-
-      {selectedTemplate && (
-        <div className={styles.preview}>
-          <h4 className={styles.previewTitle}>
-            What's included in "{selectedTemplate.friendlyName}"
-          </h4>
-          <p className={styles.previewDescription}>
-            Here are the main accounts we'll set up for you. You can adjust these in the next step.
-          </p>
-          <ul className={styles.accountList}>
-            {selectedTemplate.accounts
-              .filter((account) => account.isDefault)
-              .slice(0, 5)
-              .map((account, index) => (
-                <li key={index} className={styles.accountItem}>
-                  <strong>{account.name}</strong>
-                  <span className={styles.accountExplanation}>{account.explanation}</span>
-                </li>
-              ))}
-            {selectedTemplate.accounts.filter((account) => account.isDefault).length > 5 && (
-              <li className={styles.moreAccounts}>
-                + {selectedTemplate.accounts.filter((account) => account.isDefault).length - 5} more accounts
-              </li>
-            )}
-          </ul>
-        </div>
-      )}
 
       <div className={styles.actions}>
         <Button variant="outline" onClick={onBack}>

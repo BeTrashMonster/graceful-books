@@ -42,12 +42,17 @@ export const ReviewStep: FC<ReviewStepProps> = ({
     customizations
       .filter((c) => c.isIncluded)
       .forEach((customization) => {
-        const templateAccount = template?.accounts.find(
-          (a) => a.name === customization.templateAccountName
-        )
-        if (!templateAccount) return
+        // Use type directly from customization if available, otherwise look up from template
+        let type = customization.type
 
-        const type = templateAccount.type
+        if (!type) {
+          const templateAccount = template?.accounts.find(
+            (a) => a.name === customization.templateAccountName
+          )
+          if (!templateAccount) return
+          type = templateAccount.type
+        }
+
         if (!grouped[type]) {
           grouped[type] = []
         }
@@ -152,9 +157,23 @@ export const ReviewStep: FC<ReviewStepProps> = ({
         </p>
       </div>
 
+      <div className={styles.warning}>
+        <p>
+          <strong>Note:</strong> If you need to make changes, it's easier to create your accounts now and edit them afterwards from your Chart of Accounts page, rather than going back through the wizard.
+        </p>
+      </div>
+
       <div className={styles.actions}>
-        <Button variant="outline" onClick={onBack} disabled={isSubmitting}>
-          Back to make changes
+        <Button
+          variant="outline"
+          onClick={() => {
+            if (window.confirm('Going back will clear your entries. Are you sure? (It\'s easier to create the accounts and edit them afterwards.)')) {
+              onBack()
+            }
+          }}
+          disabled={isSubmitting}
+        >
+          Start over
         </Button>
         <Button
           variant="primary"

@@ -82,6 +82,7 @@ export interface AccountCustomization {
   accountNumber?: string
   description?: string
   isIncluded: boolean
+  type?: AccountType
 }
 
 /**

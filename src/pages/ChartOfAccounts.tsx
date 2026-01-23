@@ -142,7 +142,7 @@ export const ChartOfAccounts: FC<ChartOfAccountsProps> = ({ companyId }) => {
       <header style={{ marginBottom: '2rem' }}>
         <h1>Chart of Accounts</h1>
         <p style={{ color: '#6b7280' }}>
-          Manage your chart of accounts - the foundation of your financial records
+          Manage your Chart of Accounts – the blocks on which your books are built
         </p>
       </header>
 

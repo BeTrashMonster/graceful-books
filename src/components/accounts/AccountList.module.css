@@ -58,6 +58,32 @@
   gap: 1rem;
 }
 
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.topLevelCard {
+  width: 100%;
+}
+
+.subAccountCard {
+  width: 100%;
+  padding-left: 2rem;
+  position: relative;
+}
+
+.subAccountCard::before {
+  content: '';
+  position: absolute;
+  left: 1rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #e5e7eb;
+}
+
 .emptyState {
   display: flex;
   flex-direction: column;

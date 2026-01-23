@@ -196,17 +196,31 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
       data.customizations
         .filter((c) => c.isIncluded)
         .forEach((customization) => {
-          const templateAccount = template.accounts.find(
-            (a: TemplateAccount) => a.name === customization.templateAccountName
-          )
-          if (!templateAccount) return
+          // Use type directly from customization if available, otherwise look up from template
+          let type = customization.type
+          let templateDescription = ''
+
+          if (!type) {
+            const templateAccount = template.accounts.find(
+              (a: TemplateAccount) => a.name === customization.templateAccountName
+            )
+            if (!templateAccount) return
+            type = templateAccount.type
+            templateDescription = templateAccount.description
+          } else {
+            // If we have a type, still try to get the description from template
+            const templateAccount = template.accounts.find(
+              (a: TemplateAccount) => a.name === customization.templateAccountName
+            )
+            templateDescription = templateAccount?.description || ''
+          }
 
           accountsToCreate.push({
             companyId,
             name: customization.name,
             accountNumber: customization.accountNumber,
-            type: templateAccount.type,
-            description: customization.description || templateAccount.description,
+            type,
+            description: customization.description || templateDescription,
             isActive: true,
           })
         })
@@ -366,6 +380,7 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
         onClose={handleCancel}
         title="Set up your Chart of Accounts"
         size="lg"
+        closeOnBackdropClick={false}
       >
         {content}
       </Modal>
