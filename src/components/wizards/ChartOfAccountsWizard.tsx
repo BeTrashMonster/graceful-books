@@ -180,11 +180,19 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
   }, [handleUpdateData, handleNext])
 
   const handleCustomizationsUpdate = useCallback((customizations: AccountCustomization[], formData?: any) => {
+    console.log('=== handleCustomizationsUpdate CALLED ===')
+    console.log('Customizations count:', customizations.length)
+    console.log('Form data received:', formData)
+    console.log('Has equipment items:', formData?.equipmentItems)
+    console.log('Has loans:', formData?.loans)
+
     handleUpdateData({
       customizations,
       customizationFormData: formData
     })
-  }, [handleUpdateData])
+
+    console.log('After update, wizard state data:', wizardState.data)
+  }, [handleUpdateData, wizardState.data])
 
   const handleCreateAccounts = useCallback(async () => {
     setIsSubmitting(true)
