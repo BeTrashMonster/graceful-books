@@ -125,8 +125,34 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
     alert('Transaction detail view coming soon!')
   }
 
+  // Determine column labels based on GAAP rules
+  const getColumnLabels = () => {
+    // Normal debit balance accounts: Assets and Expenses
+    const isDebitNormal = [
+      'asset',
+      'expense',
+      'cost-of-goods-sold',
+      'other-expense',
+    ].includes(account.type)
+
+    if (isDebitNormal) {
+      return {
+        debitLabel: 'Increase',
+        creditLabel: 'Decrease',
+      }
+    }
+
+    // Normal credit balance accounts: Liabilities, Equity, and Revenue
+    return {
+      debitLabel: 'Decrease',
+      creditLabel: 'Increase',
+    }
+  }
+
+  const { debitLabel, creditLabel } = getColumnLabels()
+
   const handleExportCSV = () => {
-    const headers = ['Date', 'Reference', 'Memo', 'Increase', 'Decrease', 'Balance']
+    const headers = ['Date', 'Reference', 'Memo', debitLabel, creditLabel, 'Balance']
     const rows = registerLines.map(line => [
       formatDate(line.date),
       line.reference || '',
@@ -235,8 +261,8 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
                 <th>Date</th>
                 <th>Reference</th>
                 <th>Memo</th>
-                <th className={styles.amountColumn}>Increase</th>
-                <th className={styles.amountColumn}>Decrease</th>
+                <th className={styles.amountColumn}>{debitLabel}</th>
+                <th className={styles.amountColumn}>{creditLabel}</th>
                 <th className={styles.amountColumn}>Balance</th>
               </tr>
             </thead>
