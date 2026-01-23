@@ -32,14 +32,14 @@ export const AccountRegisterPage: FC = () => {
       accountIds: accounts.map(a => a.id)
     })
 
-    if (!isLoading && accountId) {
+    if (!isLoading && accountId && accounts.length > 0) {
       const found = accounts.find(acc => acc.id === accountId)
       console.log('Looking for account:', accountId, 'Found:', !!found)
       if (found) {
         setAccount(found)
         setNotFound(false)
       } else {
-        // Account not found
+        // Account not found - but only set notFound if we have accounts loaded
         console.error('Account not found. Available accounts:', accounts.map(a => ({ id: a.id, name: a.name })))
         setNotFound(true)
         setTimeout(() => navigate('/chart-of-accounts'), 2000)
