@@ -32,6 +32,7 @@ export const AccountRegisterPage: FC = () => {
       accountIds: accounts.map(a => a.id)
     })
 
+    // Wait for accounts to load before checking
     if (!isLoading && accountId && accounts.length > 0) {
       const found = accounts.find(acc => acc.id === accountId)
       console.log('Looking for account:', accountId, 'Found:', !!found)
@@ -39,10 +40,12 @@ export const AccountRegisterPage: FC = () => {
         setAccount(found)
         setNotFound(false)
       } else {
-        // Account not found - but only set notFound if we have accounts loaded
+        // Account not found after accounts loaded
         console.error('Account not found. Available accounts:', accounts.map(a => ({ id: a.id, name: a.name })))
         setNotFound(true)
-        setTimeout(() => navigate('/chart-of-accounts'), 2000)
+        const timer = setTimeout(() => navigate('/chart-of-accounts'), 2000)
+        // Cleanup function to clear timeout if component unmounts or deps change
+        return () => clearTimeout(timer)
       }
     }
   }, [accounts, accountId, isLoading, navigate])
