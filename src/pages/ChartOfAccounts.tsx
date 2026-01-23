@@ -13,7 +13,7 @@
  * - WCAG 2.1 AA accessible
  */
 
-import { type FC, useState } from 'react'
+import { type FC, useState, useEffect } from 'react'
 import { useAccounts } from '../hooks/useAccounts'
 import { AccountList } from '../components/accounts/AccountList'
 import { AccountForm, type AccountFormData } from '../components/accounts/AccountForm'
@@ -21,6 +21,7 @@ import { ChartOfAccountsWizard } from '../components/wizards'
 import { Modal } from '../components/modals/Modal'
 import { Button } from '../components/core/Button'
 import type { Account } from '../types'
+import { loadWizardProgress } from '../utils/wizardState'
 
 export interface ChartOfAccountsProps {
   /**
@@ -51,12 +52,19 @@ export const ChartOfAccounts: FC<ChartOfAccountsProps> = ({ companyId }) => {
 
   const [modalState, setModalState] = useState<ModalState>({ type: 'closed' })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [hasSavedWizardProgress, setHasSavedWizardProgress] = useState(false)
 
   const treeNodes = buildTree(accounts)
   const hasAccounts = accounts.length > 0
 
   // Get top-level accounts for parent selection
   const parentAccounts = accounts.filter((acc) => !acc.parentAccountId && acc.isActive)
+
+  // Check for saved wizard progress
+  useEffect(() => {
+    const saved = loadWizardProgress('coa-setup', companyId)
+    setHasSavedWizardProgress(!!saved && !saved.isComplete)
+  }, [companyId])
 
   const handleCreate = () => {
     setModalState({ type: 'create' })
@@ -163,7 +171,7 @@ export const ChartOfAccounts: FC<ChartOfAccountsProps> = ({ companyId }) => {
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
             <Button variant="primary" size="lg" onClick={handleStartWizard}>
-              Start guided setup
+              {hasSavedWizardProgress ? 'Continue guided setup' : 'Start guided setup'}
             </Button>
             <Button variant="outline" size="lg" onClick={handleCreate}>
               Create manually
@@ -188,6 +196,7 @@ export const ChartOfAccounts: FC<ChartOfAccountsProps> = ({ companyId }) => {
           isOpen
           onClose={handleCloseModal}
           title={modalState.type === 'create' ? 'Create Account' : 'Edit Account'}
+          closeOnBackdropClick={false}
         >
           <AccountForm
             account={modalState.type === 'edit' ? modalState.account : undefined}
@@ -248,4 +257,12 @@ export const ChartOfAccounts: FC<ChartOfAccountsProps> = ({ companyId }) => {
   )
 }
 
-export default ChartOfAccounts
+/**
+ * Default wrapper with demo companyId
+ * TODO: Get companyId from auth context
+ */
+const ChartOfAccountsWithDefaults: FC = () => {
+  return <ChartOfAccounts companyId="demo-company" />
+}
+
+export default ChartOfAccountsWithDefaults

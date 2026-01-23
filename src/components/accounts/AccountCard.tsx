@@ -274,14 +274,6 @@ export const AccountCard: FC<AccountCardProps> = ({
           >
             Edit
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={(e) => handleDelete(e)}
-            aria-label={`Delete ${account.name}`}
-          >
-            Delete
-          </Button>
         </div>
       )}
     </div>
