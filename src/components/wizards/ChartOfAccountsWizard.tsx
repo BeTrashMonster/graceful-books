@@ -32,6 +32,7 @@ import { batchCreateAccounts } from '../../store/accounts'
 import { createTransaction } from '../../store/transactions'
 import { getEntityConfig } from '../../data/demoEntityConfig'
 import { generateOpeningBalanceJournalEntries, parseDollarsToCents, type OpeningBalanceItem } from '../../utils/openingBalances'
+import { generateEquityAccounts } from '../../utils/equityAccounts'
 import { WelcomeStep } from './steps/WelcomeStep'
 import { TemplateSelectionStep } from './steps/TemplateSelectionStep'
 import { AccountCustomizationStep } from './steps/AccountCustomizationStep'
@@ -246,6 +247,15 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
         })
       }
 
+      // Generate and add equity accounts based on entity type
+      const entityConfig = getEntityConfig(companyId)
+      const equityAccounts = generateEquityAccounts(
+        entityConfig.entityType,
+        entityConfig.owners,
+        companyId
+      )
+      accountsToCreate.push(...equityAccounts)
+
       // Create accounts in batch
       const result = await batchCreateAccounts(accountsToCreate)
 
@@ -280,23 +290,7 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
           })
         }
 
-        // Extract credit card opening balances
-        if (formData.creditCards) {
-          formData.creditCards.forEach((card) => {
-            if (card.name.trim() && card.balance && card.date) {
-              const account = createdAccountsMap.get(card.name.trim())
-              if (account) {
-                openingBalances.push({
-                  accountId: account.id,
-                  accountName: account.name,
-                  amount: parseDollarsToCents(card.balance),
-                  date: new Date(card.date),
-                  type: 'credit-card',
-                })
-              }
-            }
-          })
-        }
+        // Credit cards no longer have opening balances - handled in reconciliation
 
         // Extract loan opening balances
         if (formData.loans) {
@@ -323,6 +317,14 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
             (acc) => acc.type === 'equity' && acc.name.includes('Capital') && !acc.name.includes('Distributions')
           )
 
+          console.log('Creating opening balance journal entries:', {
+            openingBalancesCount: openingBalances.length,
+            openingBalances,
+            memberCapitalAccountsCount: memberCapitalAccounts.length,
+            memberCapitalAccounts: memberCapitalAccounts.map(acc => ({ id: acc.id, name: acc.name })),
+            entityConfig,
+          })
+
           const journalEntries = generateOpeningBalanceJournalEntries(
             openingBalances,
             entityConfig,
@@ -330,11 +332,16 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
             companyId
           )
 
+          console.log('Generated journal entries:', journalEntries)
+
           // Create each journal entry
           for (const entry of journalEntries) {
+            console.log('Creating journal entry:', entry)
             const entryResult = await createTransaction(entry)
             if (!entryResult.success) {
               console.error('Failed to create opening balance entry:', entryResult.error)
+            } else {
+              console.log('Successfully created journal entry:', entryResult.data)
             }
           }
         }

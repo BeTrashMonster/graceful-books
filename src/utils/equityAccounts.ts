@@ -92,7 +92,7 @@ export function generateEquityAccounts(
       owners.forEach((owner, index) => {
         accounts.push({
           companyId,
-          name: `${owner.name} - ${capitalLabel} Capital`,
+          name: `${owner.name} - ${capitalLabel} Capital (${owner.ownershipPercentage}%)`,
           accountNumber: String(accountNumber),
           type: 'equity',
           description: `${capitalLabel} capital account for ${owner.name} (${owner.ownershipPercentage}% ownership)`,
@@ -106,7 +106,7 @@ export function generateEquityAccounts(
       owners.forEach((owner, index) => {
         accounts.push({
           companyId,
-          name: `${owner.name} - ${capitalLabel} Distributions`,
+          name: `${owner.name} - ${capitalLabel} Distributions (${owner.ownershipPercentage}%)`,
           accountNumber: String(accountNumber),
           type: 'equity',
           description: `Distributions to ${owner.name}`,

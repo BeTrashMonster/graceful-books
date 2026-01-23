@@ -41,6 +41,11 @@ interface BalanceAccountEntry {
   date: string
 }
 
+interface CreditCardEntry {
+  id: string
+  name: string
+}
+
 interface IncomeEntry {
   id: string
   name: string
@@ -79,8 +84,8 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   const includeAR = true // Always required
 
   // Part 3: Credit Cards
-  const [creditCards, setCreditCards] = useState<BalanceAccountEntry[]>([
-    { id: crypto.randomUUID(), name: '', balance: '', date: '' }
+  const [creditCards, setCreditCards] = useState<CreditCardEntry[]>([
+    { id: crypto.randomUUID(), name: '' }
   ])
 
   // Part 4: Loans
@@ -188,6 +193,23 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   }, [currentPart])
 
   const handlePartNext = () => {
+    // Validate Part 2 (Equipment) before proceeding
+    if (currentPart === 2 && includeEquipment) {
+      const hasInvalidEquipment = equipmentItems.some(item => {
+        // If they started filling out an item, they must complete it
+        const hasAnyData = item.name.trim() || item.value.trim() || item.date.trim()
+        if (hasAnyData) {
+          return !item.name.trim() || !item.value.trim() || !item.date.trim()
+        }
+        return false
+      })
+
+      if (hasInvalidEquipment) {
+        alert('Please complete all equipment fields (name, value, and purchase date) or remove empty items before continuing.')
+        return
+      }
+    }
+
     if (currentPart < 6) {
       setCurrentPart(currentPart + 1)
     } else {
@@ -289,7 +311,6 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
           templateAccountName: 'Credit Card',
           name: card.name.trim(),
           accountNumber: String(accountNumber),
-          description: card.balance ? `Current balance: $${card.balance}` : undefined,
           isIncluded: true,
           type: 'liability',
         })
@@ -326,7 +347,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       entityConfig.owners.forEach((owner) => {
         customizationsList.push({
           templateAccountName: 'Member Capital',
-          name: `${owner.name} - ${capitalLabel}`,
+          name: `${owner.name} - ${capitalLabel} (${owner.ownershipPercentage}%)`,
           accountNumber: String(equityAccountNumber),
           description: `${capitalLabel} account for ${owner.name} (${owner.ownershipPercentage}% ownership)`,
           isIncluded: true,
@@ -340,7 +361,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       entityConfig.owners.forEach((owner) => {
         customizationsList.push({
           templateAccountName: 'Member Distributions',
-          name: `${owner.name} - ${distributionLabel}`,
+          name: `${owner.name} - ${distributionLabel} (${owner.ownershipPercentage}%)`,
           accountNumber: String(equityAccountNumber),
           description: `Distributions to ${owner.name}`,
           isIncluded: true,
@@ -698,6 +719,9 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         />
         {includeEquipment && (
           <div className={styles.indentedInput}>
+            <p className={styles.equipmentInstructions}>
+              Enter each piece of equipment with its <strong>value when purchased</strong> and the <strong>date you bought it</strong>. This helps track depreciation properly.
+            </p>
             {equipmentItems.map((item, index) => (
               <div key={item.id} className={styles.balanceRow}>
                 <div className={styles.balanceInputs}>
@@ -710,6 +734,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                     }}
                     placeholder="Professional Camera"
                     fullWidth
+                    required={item.value.trim() !== '' || item.date.trim() !== ''}
                   />
                   <Input
                     value={item.value}
@@ -720,6 +745,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                     }}
                     placeholder="$3,500.00"
                     type="text"
+                    required={item.name.trim() !== '' || item.date.trim() !== ''}
                   />
                   <Input
                     value={item.date}
@@ -730,6 +756,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                     }}
                     placeholder="Purchase date"
                     type="date"
+                    required={item.name.trim() !== '' || item.value.trim() !== ''}
                   />
                 </div>
                 {equipmentItems.length > 1 && (
@@ -801,43 +828,23 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       </div>
 
       <h4 className={styles.sectionSubtitle}>Credit Cards</h4>
-      <p className={styles.partNote}>List your business credit cards and their current balances.</p>
+      <p className={styles.partNote}>
+        List your business credit cards. You'll set up balances and transactions later when you reconcile.
+      </p>
 
       <div className={styles.inputSection}>
         {creditCards.map((card, index) => (
-          <div key={card.id} className={styles.balanceRow}>
-            <div className={styles.balanceInputs}>
-              <Input
-                value={card.name}
-                onChange={(e) => {
-                  const updated = [...creditCards]
-                  updated[index] = { ...card, name: e.target.value }
-                  setCreditCards(updated)
-                }}
-                placeholder="Credit Union Credit Card - 0614"
-                fullWidth
-              />
-              <Input
-                value={card.balance}
-                onChange={(e) => {
-                  const updated = [...creditCards]
-                  updated[index] = { ...card, balance: e.target.value }
-                  setCreditCards(updated)
-                }}
-                placeholder="$0.00"
-                type="text"
-              />
-              <Input
-                value={card.date}
-                onChange={(e) => {
-                  const updated = [...creditCards]
-                  updated[index] = { ...card, date: e.target.value }
-                  setCreditCards(updated)
-                }}
-                placeholder="Balance date"
-                type="date"
-              />
-            </div>
+          <div key={card.id} className={styles.inputRow}>
+            <Input
+              value={card.name}
+              onChange={(e) => {
+                const updated = [...creditCards]
+                updated[index] = { ...card, name: e.target.value }
+                setCreditCards(updated)
+              }}
+              placeholder="Credit Union Credit Card - 0614"
+              fullWidth
+            />
             {creditCards.length > 1 && (
               <button
                 type="button"
@@ -855,7 +862,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         <Button
           variant="outline"
           onClick={() => {
-            setCreditCards([...creditCards, { id: crypto.randomUUID(), name: '', balance: '', date: '' }])
+            setCreditCards([...creditCards, { id: crypto.randomUUID(), name: '' }])
           }}
         >
           + Add another credit card
@@ -868,12 +875,16 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
     </>
   )
 
-  const renderPart4 = () => (
+  const renderPart4 = () => {
+    const currentYear = new Date().getFullYear()
+    const lastYear = currentYear - 1
+
+    return (
     <>
       <div className={styles.partHeader}>
         <h3 className={styles.partTitle}>Part 4: Loans</h3>
         <p className={styles.partDescription}>
-          Do you have any business loans? List them with their current balances.
+          Enter the loan balance from when you want to start tracking. For example, if you want to enter transactions from the beginning of {currentYear}, use the loan balance on 12/31/{lastYear}.
         </p>
       </div>
 
@@ -941,6 +952,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       </div>
     </>
   )
+  }
 
   const renderPart5 = () => (
     <>
@@ -997,7 +1009,32 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
     </>
   )
 
-  const renderPart6 = () => (
+  const renderPart6 = () => {
+    // Create sorted expense options for proper column display
+    const expenseOptions = [
+      { key: 'bankFees', label: 'Bank Fees' },
+      { key: 'businessLicense', label: 'Business License + Permits' },
+      { key: 'continuingEducation', label: 'Continuing Education' },
+      { key: 'contractLabor', label: 'Contract Labor' },
+      { key: 'insurance', label: 'Insurance' },
+      { key: 'marketing', label: 'Marketing + Advertising' },
+      { key: 'merchantFees', label: 'Merchant Fees' },
+      { key: 'officeSupplies', label: 'Office Supplies' },
+      { key: 'phoneInternet', label: 'Phone + Internet' },
+      { key: 'postageDelivery', label: 'Postage + Delivery' },
+      { key: 'professionalFees', label: 'Professional Fees' },
+      { key: 'rent', label: 'Rent' },
+      { key: 'repairsMaintenance', label: 'Repairs + Maintenance' },
+      { key: 'software', label: 'Software + Subscriptions' },
+      { key: 'suppliesMaterials', label: 'Supplies + Materials' },
+      { key: 'travel', label: 'Travel' },
+      { key: 'utilities', label: 'Utilities' },
+    ]
+
+    // Sort alphabetically
+    expenseOptions.sort((a, b) => a.label.localeCompare(b.label))
+
+    return (
     <>
       <div className={styles.partHeader}>
         <h3 className={styles.partTitle}>Part 6: Expenses</h3>
@@ -1007,91 +1044,17 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       </div>
 
       <div className={styles.checkboxGrid}>
-        <Checkbox
-          label="Bank Fees"
-          checked={commonExpenses.bankFees}
-          onChange={() => setCommonExpenses({...commonExpenses, bankFees: !commonExpenses.bankFees})}
-        />
-        <Checkbox
-          label="Business License + Permits"
-          checked={commonExpenses.businessLicense}
-          onChange={() => setCommonExpenses({...commonExpenses, businessLicense: !commonExpenses.businessLicense})}
-        />
-        <Checkbox
-          label="Continuing Education"
-          checked={commonExpenses.continuingEducation}
-          onChange={() => setCommonExpenses({...commonExpenses, continuingEducation: !commonExpenses.continuingEducation})}
-        />
-        <Checkbox
-          label="Contract Labor"
-          checked={commonExpenses.contractLabor}
-          onChange={() => setCommonExpenses({...commonExpenses, contractLabor: !commonExpenses.contractLabor})}
-        />
-        <Checkbox
-          label="Insurance"
-          checked={commonExpenses.insurance}
-          onChange={() => setCommonExpenses({...commonExpenses, insurance: !commonExpenses.insurance})}
-        />
-        <Checkbox
-          label="Marketing + Advertising"
-          checked={commonExpenses.marketing}
-          onChange={() => setCommonExpenses({...commonExpenses, marketing: !commonExpenses.marketing})}
-        />
-        <Checkbox
-          label="Merchant Fees"
-          checked={commonExpenses.merchantFees}
-          onChange={() => setCommonExpenses({...commonExpenses, merchantFees: !commonExpenses.merchantFees})}
-        />
-        <Checkbox
-          label="Office Supplies"
-          checked={commonExpenses.officeSupplies}
-          onChange={() => setCommonExpenses({...commonExpenses, officeSupplies: !commonExpenses.officeSupplies})}
-        />
-        <Checkbox
-          label="Phone + Internet"
-          checked={commonExpenses.phoneInternet}
-          onChange={() => setCommonExpenses({...commonExpenses, phoneInternet: !commonExpenses.phoneInternet})}
-        />
-        <Checkbox
-          label="Postage + Delivery"
-          checked={commonExpenses.postageDelivery}
-          onChange={() => setCommonExpenses({...commonExpenses, postageDelivery: !commonExpenses.postageDelivery})}
-        />
-        <Checkbox
-          label="Professional Fees"
-          checked={commonExpenses.professionalFees}
-          onChange={() => setCommonExpenses({...commonExpenses, professionalFees: !commonExpenses.professionalFees})}
-        />
-        <Checkbox
-          label="Rent"
-          checked={commonExpenses.rent}
-          onChange={() => setCommonExpenses({...commonExpenses, rent: !commonExpenses.rent})}
-        />
-        <Checkbox
-          label="Repairs + Maintenance"
-          checked={commonExpenses.repairsMaintenance}
-          onChange={() => setCommonExpenses({...commonExpenses, repairsMaintenance: !commonExpenses.repairsMaintenance})}
-        />
-        <Checkbox
-          label="Software + Subscriptions"
-          checked={commonExpenses.software}
-          onChange={() => setCommonExpenses({...commonExpenses, software: !commonExpenses.software})}
-        />
-        <Checkbox
-          label="Supplies + Materials"
-          checked={commonExpenses.suppliesMaterials}
-          onChange={() => setCommonExpenses({...commonExpenses, suppliesMaterials: !commonExpenses.suppliesMaterials})}
-        />
-        <Checkbox
-          label="Travel"
-          checked={commonExpenses.travel}
-          onChange={() => setCommonExpenses({...commonExpenses, travel: !commonExpenses.travel})}
-        />
-        <Checkbox
-          label="Utilities"
-          checked={commonExpenses.utilities}
-          onChange={() => setCommonExpenses({...commonExpenses, utilities: !commonExpenses.utilities})}
-        />
+        {expenseOptions.map(option => (
+          <Checkbox
+            key={option.key}
+            label={option.label}
+            checked={commonExpenses[option.key as keyof typeof commonExpenses]}
+            onChange={() => setCommonExpenses({
+              ...commonExpenses,
+              [option.key]: !commonExpenses[option.key as keyof typeof commonExpenses]
+            })}
+          />
+        ))}
       </div>
 
       <div className={styles.customExpensesSection}>
@@ -1137,6 +1100,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       </div>
     </>
   )
+  }
 
   const renderCurrentPart = () => {
     switch (currentPart) {
