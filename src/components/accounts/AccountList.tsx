@@ -13,6 +13,7 @@
  */
 
 import { type FC, useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Input } from '../forms/Input'
 import { Select, type SelectOption } from '../forms/Select'
 import { Button } from '../core/Button'
@@ -74,11 +75,16 @@ export const AccountList: FC<AccountListProps> = ({
   isLoading = false,
   parentAccounts = [],
 }) => {
+  const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<string>('all')
   const [filterStatus, setFilterStatus] = useState<string>('active')
   const [sortBy, setSortBy] = useState<SortBy>('number')
   const [viewMode, setViewMode] = useState<ViewMode>('card')
+
+  const handleViewRegister = (account: Account) => {
+    navigate(`/accounts/${account.id}/register`)
+  }
 
   // Filter and sort accounts
   const filteredAccounts = useMemo(() => {
@@ -268,7 +274,7 @@ export const AccountList: FC<AccountListProps> = ({
               nodes={treeNodes}
               groupByType
               showBalances
-              onSelect={onEdit}
+              onSelect={handleViewRegister}
             />
           )}
         </div>

@@ -22,20 +22,34 @@ export const AccountRegisterPage: FC = () => {
   })
 
   const [account, setAccount] = useState<Account | null>(null)
+  const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    if (!isLoading && accounts.length > 0 && accountId) {
+    if (!isLoading && accountId) {
       const found = accounts.find(acc => acc.id === accountId)
       if (found) {
         setAccount(found)
       } else {
-        // Account not found, redirect to chart of accounts
-        navigate('/chart-of-accounts')
+        // Account not found
+        setNotFound(true)
+        setTimeout(() => navigate('/chart-of-accounts'), 2000)
       }
     }
   }, [accounts, accountId, isLoading, navigate])
 
-  if (isLoading || !account) {
+  if (isLoading) {
+    return <PageLoader />
+  }
+
+  if (notFound) {
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center' }}>
+        <p>Account not found. Redirecting to Chart of Accounts...</p>
+      </div>
+    )
+  }
+
+  if (!account) {
     return <PageLoader />
   }
 
