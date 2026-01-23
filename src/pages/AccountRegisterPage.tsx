@@ -25,12 +25,22 @@ export const AccountRegisterPage: FC = () => {
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
+    console.log('AccountRegisterPage - Debug:', {
+      accountId,
+      isLoading,
+      accountsCount: accounts.length,
+      accountIds: accounts.map(a => a.id)
+    })
+
     if (!isLoading && accountId) {
       const found = accounts.find(acc => acc.id === accountId)
+      console.log('Looking for account:', accountId, 'Found:', !!found)
       if (found) {
         setAccount(found)
+        setNotFound(false)
       } else {
         // Account not found
+        console.error('Account not found. Available accounts:', accounts.map(a => ({ id: a.id, name: a.name })))
         setNotFound(true)
         setTimeout(() => navigate('/chart-of-accounts'), 2000)
       }
