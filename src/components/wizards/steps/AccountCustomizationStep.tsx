@@ -10,6 +10,7 @@ import { Button } from '../../core/Button'
 import { Input } from '../../forms/Input'
 import { Checkbox } from '../../forms/Checkbox'
 import type { IndustryTemplate, AccountCustomization } from '../../../types/wizard.types'
+import { getEntityConfig } from '../../../data/demoEntityConfig'
 import styles from './AccountCustomizationStep.module.css'
 
 export interface AccountCustomizationStepProps {
@@ -30,12 +31,14 @@ interface EquipmentEntry {
   id: string
   name: string
   value: string
+  date: string
 }
 
 interface BalanceAccountEntry {
   id: string
   name: string
   balance: string
+  date: string
 }
 
 interface IncomeEntry {
@@ -69,7 +72,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   // Part 2: Other Assets
   const [includeEquipment, setIncludeEquipment] = useState(false)
   const [equipmentItems, setEquipmentItems] = useState<EquipmentEntry[]>([
-    { id: crypto.randomUUID(), name: '', value: '' }
+    { id: crypto.randomUUID(), name: '', value: '', date: '' }
   ])
   const [includeInventory, setIncludeInventory] = useState(false)
   const [inventoryName, setInventoryName] = useState('')
@@ -77,12 +80,12 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
 
   // Part 3: Credit Cards
   const [creditCards, setCreditCards] = useState<BalanceAccountEntry[]>([
-    { id: crypto.randomUUID(), name: '', balance: '' }
+    { id: crypto.randomUUID(), name: '', balance: '', date: '' }
   ])
 
   // Part 4: Loans
   const [loans, setLoans] = useState<BalanceAccountEntry[]>([
-    { id: crypto.randomUUID(), name: '', balance: '' }
+    { id: crypto.randomUUID(), name: '', balance: '', date: '' }
   ])
 
   // Part 5: Income
@@ -310,21 +313,74 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       }
     })
 
-    // Required equity accounts
-    customizationsList.push({
-      templateAccountName: 'Owner Investment',
-      name: 'Owner Investment',
-      accountNumber: '3000',
-      isIncluded: true,
-      type: 'equity',
-    })
-    customizationsList.push({
-      templateAccountName: 'Owner Draw',
-      name: 'Owner Draw',
-      accountNumber: '3100',
-      isIncluded: true,
-      type: 'equity',
-    })
+    // Generate equity accounts based on entity type
+    // TODO: Get companyId from props when auth is implemented
+    const entityConfig = getEntityConfig('demo-company')
+    let equityAccountNumber = 3000
+
+    if (entityConfig.entityType === 'multi-member-llc' || entityConfig.entityType === 'partnership') {
+      // Create individual capital accounts for each member/partner
+      const capitalLabel = entityConfig.entityType === 'multi-member-llc' ? 'Member Capital' : 'Partner Capital'
+      const distributionLabel = entityConfig.entityType === 'multi-member-llc' ? 'Member Distributions' : 'Partner Distributions'
+
+      entityConfig.owners.forEach((owner) => {
+        customizationsList.push({
+          templateAccountName: 'Member Capital',
+          name: `${owner.name} - ${capitalLabel}`,
+          accountNumber: String(equityAccountNumber),
+          description: `${capitalLabel} account for ${owner.name} (${owner.ownershipPercentage}% ownership)`,
+          isIncluded: true,
+          type: 'equity',
+        })
+        equityAccountNumber += 10
+      })
+
+      // Add distribution accounts
+      equityAccountNumber = 3100
+      entityConfig.owners.forEach((owner) => {
+        customizationsList.push({
+          templateAccountName: 'Member Distributions',
+          name: `${owner.name} - ${distributionLabel}`,
+          accountNumber: String(equityAccountNumber),
+          description: `Distributions to ${owner.name}`,
+          isIncluded: true,
+          type: 'equity',
+        })
+        equityAccountNumber += 10
+      })
+    } else if (entityConfig.entityType === 'sole-proprietorship') {
+      customizationsList.push({
+        templateAccountName: 'Owner Investment',
+        name: "Owner's Capital",
+        accountNumber: '3000',
+        isIncluded: true,
+        type: 'equity',
+      })
+      customizationsList.push({
+        templateAccountName: 'Owner Draw',
+        name: "Owner's Draw",
+        accountNumber: '3100',
+        isIncluded: true,
+        type: 'equity',
+      })
+    } else if (entityConfig.entityType === 'single-member-llc') {
+      customizationsList.push({
+        templateAccountName: 'Owner Investment',
+        name: "Member's Capital",
+        accountNumber: '3000',
+        isIncluded: true,
+        type: 'equity',
+      })
+      customizationsList.push({
+        templateAccountName: 'Owner Draw',
+        name: "Member's Draw",
+        accountNumber: '3100',
+        isIncluded: true,
+        type: 'equity',
+      })
+    }
+
+    // All entity types get Retained Earnings
     customizationsList.push({
       templateAccountName: 'Retained Earnings',
       name: 'Retained Earnings',
@@ -665,6 +721,16 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                     placeholder="$3,500.00"
                     type="text"
                   />
+                  <Input
+                    value={item.date}
+                    onChange={(e) => {
+                      const updated = [...equipmentItems]
+                      updated[index] = { ...item, date: e.target.value }
+                      setEquipmentItems(updated)
+                    }}
+                    placeholder="Purchase date"
+                    type="date"
+                  />
                 </div>
                 {equipmentItems.length > 1 && (
                   <button
@@ -684,7 +750,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
               variant="outline"
               size="sm"
               onClick={() => {
-                setEquipmentItems([...equipmentItems, { id: crypto.randomUUID(), name: '', value: '' }])
+                setEquipmentItems([...equipmentItems, { id: crypto.randomUUID(), name: '', value: '', date: '' }])
               }}
             >
               + Add more equipment
@@ -761,6 +827,16 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                 placeholder="$0.00"
                 type="text"
               />
+              <Input
+                value={card.date}
+                onChange={(e) => {
+                  const updated = [...creditCards]
+                  updated[index] = { ...card, date: e.target.value }
+                  setCreditCards(updated)
+                }}
+                placeholder="Balance date"
+                type="date"
+              />
             </div>
             {creditCards.length > 1 && (
               <button
@@ -779,7 +855,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         <Button
           variant="outline"
           onClick={() => {
-            setCreditCards([...creditCards, { id: crypto.randomUUID(), name: '', balance: '' }])
+            setCreditCards([...creditCards, { id: crypto.randomUUID(), name: '', balance: '', date: '' }])
           }}
         >
           + Add another credit card
@@ -825,6 +901,16 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                 placeholder="$0.00"
                 type="text"
               />
+              <Input
+                value={loan.date}
+                onChange={(e) => {
+                  const updated = [...loans]
+                  updated[index] = { ...loan, date: e.target.value }
+                  setLoans(updated)
+                }}
+                placeholder="Balance date"
+                type="date"
+              />
             </div>
             {loans.length > 1 && (
               <button
@@ -843,7 +929,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         <Button
           variant="outline"
           onClick={() => {
-            setLoans([...loans, { id: crypto.randomUUID(), name: '', balance: '' }])
+            setLoans([...loans, { id: crypto.randomUUID(), name: '', balance: '', date: '' }])
           }}
         >
           + Add another loan

@@ -116,11 +116,11 @@ export interface CoaWizardData {
     includeCash: boolean
     cashName: string
     includeEquipment: boolean
-    equipmentItems: Array<{ id: string; name: string; value: string }>
+    equipmentItems: Array<{ id: string; name: string; value: string; date: string }>
     includeInventory: boolean
     inventoryName: string
-    creditCards: Array<{ id: string; name: string; balance: string }>
-    loans: Array<{ id: string; name: string; balance: string }>
+    creditCards: Array<{ id: string; name: string; balance: string; date: string }>
+    loans: Array<{ id: string; name: string; balance: string; date: string }>
     incomeSources: Array<{ id: string; name: string }>
     commonExpenses: {
       rent: boolean
@@ -143,6 +143,18 @@ export interface CoaWizardData {
     }
     customExpenses: Array<{ id: string; name: string }>
   }
+  /**
+   * Opening balance journal entry data
+   * Generated from equipment, credit card, and loan balances
+   */
+  openingBalances?: Array<{
+    accountName: string
+    accountId?: string
+    amount: number
+    date: Date
+    type: 'equipment' | 'credit-card' | 'loan'
+  }>
+}
 }
 
 /**
