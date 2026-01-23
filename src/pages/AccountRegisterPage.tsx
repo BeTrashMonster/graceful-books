@@ -40,7 +40,7 @@ export const AccountRegisterPage: FC = () => {
         setAccount(found)
         setNotFound(false)
       } else {
-        // Account genuinely not found after accounts loaded
+        // Account not found after accounts loaded
         setNotFound(true)
         const timer = setTimeout(() => navigate('/chart-of-accounts'), 2000)
         return () => clearTimeout(timer)
@@ -49,34 +49,19 @@ export const AccountRegisterPage: FC = () => {
   }, [accounts, accountId, isLoading, navigate])
 
   if (isLoading) {
-    return (
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <h2>Loading account register...</h2>
-        <p>Loading {accounts.length} accounts</p>
-      </div>
-    )
+    return <PageLoader />
   }
 
   if (notFound) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <h2>Account not found</h2>
-        <p>Looking for account ID: {accountId}</p>
-        <p>Available accounts: {accounts.length}</p>
-        <p>Account IDs: {accounts.map(a => a.id).join(', ')}</p>
-        <p>Redirecting to Chart of Accounts in 2 seconds...</p>
+        <p>Account not found. Redirecting to Chart of Accounts...</p>
       </div>
     )
   }
 
   if (!account) {
-    return (
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <h2>Waiting for account data...</h2>
-        <p>Account ID: {accountId}</p>
-        <p>Loaded {accounts.length} accounts</p>
-      </div>
-    )
+    return <PageLoader />
   }
 
   return <AccountRegister account={account} companyId="demo-company" />
