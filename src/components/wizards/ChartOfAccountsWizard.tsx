@@ -18,6 +18,7 @@ import type { WizardState, CoaWizardData, AccountCustomization, TemplateAccount 
 import type { Account } from '../../types'
 import {
   initializeWizardState,
+  restoreWizardState,
   navigateToNextStep,
   navigateToPreviousStep,
   updateWizardData,
@@ -101,7 +102,7 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
     const saved = loadWizardProgress(WIZARD_ID, companyId)
     if (saved && !saved.isComplete) {
       // Restore from saved progress
-      return initializeWizardState(WIZARD_ID, WIZARD_STEPS)
+      return restoreWizardState(WIZARD_ID, WIZARD_STEPS, saved)
     }
     return initializeWizardState(WIZARD_ID, WIZARD_STEPS)
   })

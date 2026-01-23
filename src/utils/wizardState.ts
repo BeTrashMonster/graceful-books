@@ -123,6 +123,32 @@ export function initializeWizardState(
 }
 
 /**
+ * Restore wizard state from saved progress
+ */
+export function restoreWizardState(
+  wizardId: string,
+  steps: Omit<WizardStep, 'status'>[],
+  savedProgress: WizardProgress
+): WizardState {
+  const currentIndex = steps.findIndex((s) => s.id === savedProgress.currentStep)
+
+  return {
+    wizardId,
+    currentStepId: savedProgress.currentStep,
+    steps: steps.map((step, index) => ({
+      ...step,
+      status:
+        index < currentIndex ? 'completed' :
+        index === currentIndex ? 'active' :
+        'pending',
+    })),
+    data: savedProgress.data,
+    startedAt: savedProgress.createdAt,
+    lastModifiedAt: savedProgress.lastUpdated,
+  }
+}
+
+/**
  * Navigate to next step
  */
 export function navigateToNextStep(state: WizardState): WizardState {
