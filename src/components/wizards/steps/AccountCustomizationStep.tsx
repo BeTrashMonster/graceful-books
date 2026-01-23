@@ -792,7 +792,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                     }}
                     placeholder="Professional Camera"
                     fullWidth
-                    error={hasError && hasAnyData && !item.name.trim()}
+                    hasError={hasError && hasAnyData && !item.name.trim()}
                   />
                   <Input
                     value={item.value}
@@ -804,7 +804,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                     }}
                     placeholder="$3,500.00"
                     type="text"
-                    error={hasError && hasAnyData && !item.value.trim()}
+                    hasError={hasError && hasAnyData && !item.value.trim()}
                   />
                   <Input
                     value={item.date}
@@ -817,7 +817,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                     }}
                     placeholder="MM/DD/YY or MM/DD/YYYY"
                     type="text"
-                    error={hasError && hasAnyData && !item.date.trim()}
+                    hasError={hasError && hasAnyData && !item.date.trim()}
                   />
                 </div>
                 {equipmentItems.length > 1 && (
