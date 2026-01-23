@@ -229,3 +229,91 @@
     border: 1px solid currentColor;
   }
 }
+
+/* Sub-accounts */
+.subAccounts {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: var(--color-surface-muted, #f9fafb);
+  border-radius: 0.375rem;
+  border-left: 3px solid var(--color-primary, #3b82f6);
+}
+
+.subAccountsHeader {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.subAccountRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.subAccountRow:last-child {
+  margin-bottom: 0;
+}
+
+.subAccountInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.subAccountNumber {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.subAccountName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #111827);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subAccountBalance {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.subAccountActions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.iconButton {
+  padding: 0.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+  font-size: 0.875rem;
+}
+
+.iconButton:hover {
+  background: var(--color-surface-muted, #f3f4f6);
+}
+
+.iconButton:focus {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+}

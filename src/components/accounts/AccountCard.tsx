@@ -15,6 +15,7 @@
  */
 
 import { type FC, type MouseEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 import { Button } from '../core/Button'
 import type { Account } from '../../types'
@@ -50,6 +51,11 @@ export interface AccountCardProps {
    * Show parent account name if available
    */
   parentAccountName?: string
+
+  /**
+   * Sub-accounts to display nested within this card
+   */
+  subAccounts?: Account[]
 
   /**
    * Custom className
@@ -111,17 +117,25 @@ export const AccountCard: FC<AccountCardProps> = ({
   onDelete,
   onClick,
   parentAccountName,
+  subAccounts = [],
   className,
   variant = 'default',
 }) => {
-  const handleEdit = (e: MouseEvent) => {
+  const navigate = useNavigate()
+
+  const handleEdit = (e: MouseEvent, acc: Account = account) => {
     e.stopPropagation()
-    onEdit?.(account)
+    onEdit?.(acc)
   }
 
-  const handleDelete = (e: MouseEvent) => {
+  const handleDelete = (e: MouseEvent, acc: Account = account) => {
     e.stopPropagation()
-    onDelete?.(account)
+    onDelete?.(acc)
+  }
+
+  const handleViewRegister = (e: MouseEvent, acc: Account = account) => {
+    e.stopPropagation()
+    navigate(`/accounts/${acc.id}/register`)
   }
 
   const handleClick = () => {
@@ -200,12 +214,62 @@ export const AccountCard: FC<AccountCardProps> = ({
         )}
       </div>
 
+      {subAccounts.length > 0 && (
+        <div className={styles.subAccounts}>
+          <div className={styles.subAccountsHeader}>Sub-accounts</div>
+          {subAccounts.map((subAccount) => (
+            <div key={subAccount.id} className={styles.subAccountRow}>
+              <div className={styles.subAccountInfo}>
+                {subAccount.accountNumber && (
+                  <span className={styles.subAccountNumber}>{subAccount.accountNumber}</span>
+                )}
+                <span className={styles.subAccountName}>{subAccount.name}</span>
+                {!subAccount.isActive && (
+                  <span className={styles.inactiveBadge}>Inactive</span>
+                )}
+              </div>
+              <div className={styles.subAccountBalance}>
+                {formatBalance(subAccount.balance)}
+              </div>
+              {showActions && (
+                <div className={styles.subAccountActions}>
+                  <button
+                    onClick={(e) => handleEdit(e, subAccount)}
+                    className={styles.iconButton}
+                    aria-label={`Edit ${subAccount.name}`}
+                    title="Edit"
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    onClick={(e) => handleDelete(e, subAccount)}
+                    className={styles.iconButton}
+                    aria-label={`Delete ${subAccount.name}`}
+                    title="Delete"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       {showActions && (
         <div className={styles.actions}>
           <Button
+            variant="primary"
+            size="sm"
+            onClick={(e) => handleViewRegister(e)}
+            aria-label={`View register for ${account.name}`}
+          >
+            View Register
+          </Button>
+          <Button
             variant="outline"
             size="sm"
-            onClick={handleEdit}
+            onClick={(e) => handleEdit(e)}
             aria-label={`Edit ${account.name}`}
           >
             Edit
@@ -213,7 +277,7 @@ export const AccountCard: FC<AccountCardProps> = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={handleDelete}
+            onClick={(e) => handleDelete(e)}
             aria-label={`Delete ${account.name}`}
           >
             Delete

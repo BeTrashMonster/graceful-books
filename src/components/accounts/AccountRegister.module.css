@@ -1,0 +1,261 @@
+/**
+ * Account Register Styles
+ */
+
+.registerPage {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.titleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+}
+
+.backButton {
+  align-self: flex-start;
+}
+
+.accountInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.accountName {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.accountNumber {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #6b7280;
+  padding: 0.25rem 0.75rem;
+  background-color: #f3f4f6;
+  border-radius: 0.375rem;
+}
+
+.accountType {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.accountDescription {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.filters > * {
+  flex: 1;
+  min-width: 150px;
+  max-width: 250px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  color: #6b7280;
+  font-size: 1.125rem;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.emptyState p {
+  margin: 0.5rem 0;
+}
+
+.registerTable {
+  overflow-x: auto;
+  background-color: white;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.registerTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.registerTable thead {
+  background-color: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.registerTable th {
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.registerTable td {
+  padding: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  color: #111827;
+}
+
+.registerTable tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.amountColumn {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.balanceCell {
+  font-weight: 600;
+  background-color: #f9fafb;
+}
+
+.registerTable tfoot {
+  border-top: 2px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.totalRow td {
+  padding: 1rem;
+  font-weight: 700;
+  border-bottom: none;
+}
+
+/* Print styles */
+@media print {
+  .registerPage {
+    padding: 0;
+    max-width: none;
+  }
+
+  .header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .accountName {
+    font-size: 1.5rem;
+  }
+
+  .filters {
+    display: none;
+  }
+
+  .registerTable {
+    border: none;
+  }
+
+  .registerTable table {
+    font-size: 0.875rem;
+  }
+
+  .registerTable th,
+  .registerTable td {
+    padding: 0.5rem;
+  }
+
+  .registerTable tbody tr:hover {
+    background-color: transparent;
+  }
+
+  @page {
+    size: landscape;
+    margin: 1cm;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .registerPage {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .actions button {
+    flex: 1;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .filters > * {
+    max-width: none;
+    width: 100%;
+  }
+
+  .accountName {
+    font-size: 1.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .registerTable {
+    overflow-x: scroll;
+  }
+
+  .registerTable table {
+    min-width: 800px;
+  }
+}

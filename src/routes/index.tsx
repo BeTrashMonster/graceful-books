@@ -26,6 +26,7 @@ const Onboarding = lazy(() => import('../pages/onboarding/Onboarding'))
 const Assessment = lazy(() => import('../pages/onboarding/Assessment'))
 const Setup = lazy(() => import('../pages/onboarding/Setup'))
 const Reconciliation = lazy(() => import('../pages/Reconciliation'))
+const AccountRegisterPage = lazy(() => import('../pages/AccountRegisterPage'))
 const NotFound = lazy(() => import('../pages/NotFound'))
 const Forbidden = lazy(() => import('../pages/Forbidden'))
 const AdminCharities = lazy(() => import('../pages/admin/AdminCharities'))
@@ -53,6 +54,7 @@ export function AppRoutes() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/accounts" element={<ChartOfAccounts />} />
+          <Route path="/accounts/:accountId/register" element={<AccountRegisterPage />} />
           <Route path="/chart-of-accounts" element={<ChartOfAccounts />} />
           <Route path="/reconciliation" element={<Reconciliation />} />
           <Route path="/customers" element={<Customers />} />

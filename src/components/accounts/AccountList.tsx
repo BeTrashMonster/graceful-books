@@ -129,36 +129,6 @@ export const AccountList: FC<AccountListProps> = ({
     return filtered
   }, [accounts, searchTerm, filterType, filterStatus, sortBy])
 
-  // Organize accounts hierarchically for card view
-  const organizedAccounts = useMemo(() => {
-    const result: Array<Account & { isSubAccount?: boolean }> = []
-
-    // Get top-level accounts from filtered list
-    const topLevel = filteredAccounts.filter(acc => !acc.parentAccountId)
-
-    // For each top-level account, add it and its children
-    topLevel.forEach(parent => {
-      result.push(parent)
-
-      // Find and add children
-      const children = filteredAccounts.filter(acc => acc.parentAccountId === parent.id)
-      children.forEach(child => {
-        result.push({ ...child, isSubAccount: true })
-      })
-    })
-
-    // Add any orphaned accounts (whose parent isn't in the filtered list)
-    filteredAccounts.forEach(acc => {
-      if (acc.parentAccountId && !filteredAccounts.find(a => a.id === acc.parentAccountId)) {
-        if (!result.find(r => r.id === acc.id)) {
-          result.push({ ...acc, isSubAccount: true })
-        }
-      }
-    })
-
-    return result
-  }, [filteredAccounts])
-
   const typeOptions: SelectOption[] = [
     { value: 'all', label: 'All Types' },
     { value: 'asset', label: 'Assets' },
@@ -278,21 +248,20 @@ export const AccountList: FC<AccountListProps> = ({
       ) : (
         <div className={styles.content}>
           {viewMode === 'card' ? (
-            <div className={styles.cardList}>
-              {organizedAccounts.map((account) => (
-                <div
-                  key={account.id}
-                  className={account.isSubAccount ? styles.subAccountCard : styles.topLevelCard}
-                >
+            <div className={styles.cardGrid}>
+              {filteredAccounts.filter(acc => !acc.parentAccountId).map((account) => {
+                const children = filteredAccounts.filter(child => child.parentAccountId === account.id)
+                return (
                   <AccountCard
+                    key={account.id}
                     account={account}
                     showActions
                     onEdit={onEdit}
                     onDelete={onDelete}
-                    parentAccountName={getParentName(account.parentAccountId)}
+                    subAccounts={children}
                   />
-                </div>
-              ))}
+                )
+              })}
             </div>
           ) : (
             <AccountTree
