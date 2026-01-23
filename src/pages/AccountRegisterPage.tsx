@@ -25,26 +25,24 @@ export const AccountRegisterPage: FC = () => {
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    console.log('AccountRegisterPage - Debug:', {
-      accountId,
-      isLoading,
-      accountsCount: accounts.length,
-      accountIds: accounts.map(a => a.id)
-    })
+    // Reset states when starting fresh
+    if (isLoading || accounts.length === 0) {
+      setAccount(null)
+      setNotFound(false)
+      return
+    }
 
-    // Wait for accounts to load before checking
-    if (!isLoading && accountId && accounts.length > 0) {
+    // Only search when we have accounts loaded
+    if (accountId && accounts.length > 0) {
       const found = accounts.find(acc => acc.id === accountId)
-      console.log('Looking for account:', accountId, 'Found:', !!found)
+
       if (found) {
         setAccount(found)
         setNotFound(false)
       } else {
-        // Account not found after accounts loaded
-        console.error('Account not found. Available accounts:', accounts.map(a => ({ id: a.id, name: a.name })))
+        // Account genuinely not found after accounts loaded
         setNotFound(true)
         const timer = setTimeout(() => navigate('/chart-of-accounts'), 2000)
-        // Cleanup function to clear timeout if component unmounts or deps change
         return () => clearTimeout(timer)
       }
     }
