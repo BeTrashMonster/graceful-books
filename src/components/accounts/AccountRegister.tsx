@@ -118,8 +118,15 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
     window.print()
   }
 
+  const handleRowClick = (transactionId: string) => {
+    // TODO: Navigate to transaction detail when that feature is implemented
+    // navigate(`/transactions/${transactionId}`)
+    console.log('Transaction clicked:', transactionId)
+    alert('Transaction detail view coming soon!')
+  }
+
   const handleExportCSV = () => {
-    const headers = ['Date', 'Reference', 'Memo', 'Debit', 'Credit', 'Balance']
+    const headers = ['Date', 'Reference', 'Memo', 'Increase', 'Decrease', 'Balance']
     const rows = registerLines.map(line => [
       formatDate(line.date),
       line.reference || '',
@@ -228,14 +235,19 @@ export const AccountRegister: FC<AccountRegisterProps> = ({
                 <th>Date</th>
                 <th>Reference</th>
                 <th>Memo</th>
-                <th className={styles.amountColumn}>Debit</th>
-                <th className={styles.amountColumn}>Credit</th>
+                <th className={styles.amountColumn}>Increase</th>
+                <th className={styles.amountColumn}>Decrease</th>
                 <th className={styles.amountColumn}>Balance</th>
               </tr>
             </thead>
             <tbody>
               {registerLines.map((line, index) => (
-                <tr key={`${line.transactionId}-${index}`}>
+                <tr
+                  key={`${line.transactionId}-${index}`}
+                  onClick={() => handleRowClick(line.transactionId)}
+                  className={styles.clickableRow}
+                  style={{ cursor: 'pointer' }}
+                >
                   <td>{formatDate(line.date)}</td>
                   <td>{line.reference || '—'}</td>
                   <td>{line.memo || '—'}</td>
