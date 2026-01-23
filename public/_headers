@@ -1,0 +1,48 @@
+# Cache Control Headers for Graceful Books
+# Cloudflare Pages automatically applies these headers
+# Updated: 2026-01-23
+
+# HTML - Never cache (always check for updates)
+# This ensures users always get the latest version of the app
+/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+# JavaScript and CSS - Short cache with revalidation
+# Vite content-hashes these files, so cache for 1 hour with revalidation
+/assets/*.js
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/assets/*.css
+  Cache-Control: public, max-age=3600, must-revalidate
+
+# Fonts - Long cache (Vite content-hashes these)
+/assets/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.ttf
+  Cache-Control: public, max-age=31536000, immutable
+
+# Images - Long cache (content-addressed)
+/assets/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+# Fallback for any other files in assets
+/assets/*
+  Cache-Control: public, max-age=3600, must-revalidate

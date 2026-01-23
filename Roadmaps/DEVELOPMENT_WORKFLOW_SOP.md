@@ -138,11 +138,16 @@ npm run dev
 
 ### Issue: Changes not showing after deployment
 
+**Root Cause:** Browser caching of JavaScript/CSS files. Fixed as of 2026-01-23 with addition of `public/_headers` file.
+
 **Solution:**
 1. Wait 2-5 minutes for deployment to complete
 2. Check GitHub Actions for deployment status
-3. Clear localStorage and hard refresh (Ctrl+Shift+R)
-4. Check browser DevTools console for errors
+3. Hard refresh (Ctrl+Shift+R) - should now work reliably
+4. If still not working: Use incognito/private window as fallback
+5. Check browser DevTools console for errors
+
+**Note:** The `_headers` file ensures proper cache control headers are sent by Cloudflare Pages, making hard refresh work consistently.
 
 ### Issue: "Continue Guided Setup" appears when you want to start fresh
 
