@@ -20,6 +20,46 @@ export type UserRole = 'admin' | 'manager' | 'bookkeeper' | 'view-only'
 export type BusinessPhase = 'stabilize' | 'organize' | 'build' | 'grow'
 
 /**
+ * Legal entity type determines equity account structure
+ *
+ * IMPORTANT: C-Corp and S-Corp should ONLY use Retained Earnings.
+ * Common Stock is NOT supported as this software targets small businesses
+ * that would not have issued stock.
+ */
+export type EntityType =
+  | 'sole-proprietorship'
+  | 'single-member-llc'
+  | 'multi-member-llc'
+  | 'partnership'
+  | 'c-corp'
+  | 's-corp'
+
+/**
+ * Owner/Member information for equity account creation
+ */
+export interface Owner {
+  id: string
+  name: string
+  ownershipPercentage: number
+  email?: string
+}
+
+/**
+ * Equity account configuration based on entity type
+ *
+ * - Sole Proprietorship: Owner's Capital
+ * - Single-Member LLC: Member's Capital
+ * - Multi-Member LLC: Individual Member Capital accounts (split by ownership %)
+ * - Partnership: Individual Partner Capital accounts (split by ownership %)
+ * - C-Corp/S-Corp: Retained Earnings ONLY (no Common Stock)
+ */
+export interface EntityConfiguration {
+  entityType: EntityType
+  owners: Owner[]
+  fiscalYearEnd?: string // MM-DD format
+}
+
+/**
  * User profile stored locally (encrypted)
  */
 export interface UserProfile {
