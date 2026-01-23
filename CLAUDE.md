@@ -195,3 +195,4 @@ Architecture should support (but not block on):
 6. **Plain English** - Avoid accounting jargon without explanation
 7. **GAAP compliance** - Beneath the friendly UI, accounting must be professional-grade
 8. **Accessibility first** - WCAG 2.1 AA compliance is not optional
+9. **🚨 SECURITY: Before running `npm install`, ALWAYS run `npm audit` first** - See `NPM_INSTALL_CHECKLIST.md` for detailed security protocol. This is non-negotiable for a zero-knowledge security platform.
