@@ -29,6 +29,9 @@ import {
 } from '../../utils/wizardState'
 import { INDUSTRY_TEMPLATES, getTemplateById } from '../../data/industryTemplates'
 import { batchCreateAccounts } from '../../store/accounts'
+import { createTransaction } from '../../store/transactions'
+import { getEntityConfig } from '../../data/demoEntityConfig'
+import { generateOpeningBalanceJournalEntries, parseDollarsToCents, type OpeningBalanceItem } from '../../utils/openingBalances'
 import { WelcomeStep } from './steps/WelcomeStep'
 import { TemplateSelectionStep } from './steps/TemplateSelectionStep'
 import { AccountCustomizationStep } from './steps/AccountCustomizationStep'
@@ -252,6 +255,91 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
       }
 
       setCreatedAccounts(result.successful)
+
+      // Create opening balance journal entries if we have form data with balances
+      if (data.customizationFormData) {
+        const formData = data.customizationFormData
+        const openingBalances: OpeningBalanceItem[] = []
+        const createdAccountsMap = new Map(result.successful.map(acc => [acc.name, acc]))
+
+        // Extract equipment opening balances
+        if (formData.includeEquipment && formData.equipmentItems) {
+          formData.equipmentItems.forEach((item) => {
+            if (item.name.trim() && item.value && item.date) {
+              const account = createdAccountsMap.get(item.name.trim())
+              if (account) {
+                openingBalances.push({
+                  accountId: account.id,
+                  accountName: account.name,
+                  amount: parseDollarsToCents(item.value),
+                  date: new Date(item.date),
+                  type: 'equipment',
+                })
+              }
+            }
+          })
+        }
+
+        // Extract credit card opening balances
+        if (formData.creditCards) {
+          formData.creditCards.forEach((card) => {
+            if (card.name.trim() && card.balance && card.date) {
+              const account = createdAccountsMap.get(card.name.trim())
+              if (account) {
+                openingBalances.push({
+                  accountId: account.id,
+                  accountName: account.name,
+                  amount: parseDollarsToCents(card.balance),
+                  date: new Date(card.date),
+                  type: 'credit-card',
+                })
+              }
+            }
+          })
+        }
+
+        // Extract loan opening balances
+        if (formData.loans) {
+          formData.loans.forEach((loan) => {
+            if (loan.name.trim() && loan.balance && loan.date) {
+              const account = createdAccountsMap.get(loan.name.trim())
+              if (account) {
+                openingBalances.push({
+                  accountId: account.id,
+                  accountName: account.name,
+                  amount: parseDollarsToCents(loan.balance),
+                  date: new Date(loan.date),
+                  type: 'loan',
+                })
+              }
+            }
+          })
+        }
+
+        // Create journal entries if we have opening balances
+        if (openingBalances.length > 0) {
+          const entityConfig = getEntityConfig(companyId)
+          const memberCapitalAccounts = result.successful.filter(
+            (acc) => acc.type === 'equity' && acc.name.includes('Capital') && !acc.name.includes('Distributions')
+          )
+
+          const journalEntries = generateOpeningBalanceJournalEntries(
+            openingBalances,
+            entityConfig,
+            memberCapitalAccounts,
+            companyId
+          )
+
+          // Create each journal entry
+          for (const entry of journalEntries) {
+            const entryResult = await createTransaction(entry)
+            if (!entryResult.success) {
+              console.error('Failed to create opening balance entry:', entryResult.error)
+            }
+          }
+        }
+      }
+
       handleNext()
     } catch (error) {
       console.error('Failed to create accounts:', error)
