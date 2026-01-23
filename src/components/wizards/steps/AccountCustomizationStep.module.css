@@ -82,10 +82,14 @@
   text-align: left;
 }
 
-.headerHelp,
+.headerHelp {
+  text-align: center;
+  width: 100px;
+}
+
 .headerEdit {
   text-align: center;
-  width: 32px;
+  width: 80px;
 }
 
 .accountsList {

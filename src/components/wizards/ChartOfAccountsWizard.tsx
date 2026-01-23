@@ -131,7 +131,14 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
 
   // Scroll to top when step changes
   useEffect(() => {
+    // Scroll window (for non-modal usage)
     window.scrollTo({ top: 0, behavior: 'smooth' })
+
+    // Also scroll modal body if in modal
+    const modalBody = document.querySelector('[class*="modalBody"]')
+    if (modalBody) {
+      modalBody.scrollTop = 0
+    }
   }, [wizardState.currentStepId])
 
   const handleNext = useCallback(() => {

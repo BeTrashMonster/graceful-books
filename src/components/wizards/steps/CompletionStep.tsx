@@ -39,7 +39,7 @@ export const CompletionStep: FC<CompletionStepProps> = ({
           ✓
         </div>
         <h3 className={styles.headline}>
-          Your chart of accounts is ready!
+          Your Chart of Accounts is ready!
         </h3>
         <p className={styles.subheadline}>
           That was easier than expected, right?
