@@ -83,6 +83,15 @@ export interface AccountCustomization {
   description?: string
   isIncluded: boolean
   type?: AccountType
+  /**
+   * Parent account name if this is a sub-account
+   * References the name of another customization
+   */
+  parentAccountName?: string
+  /**
+   * Sub-account names for linear wizard entry
+   */
+  subAccounts?: string[]
 }
 
 /**
