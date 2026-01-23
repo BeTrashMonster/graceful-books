@@ -65,6 +65,12 @@ export function clearWizardProgress(wizardId: string, companyId: string): void {
 export function calculateWizardProgress(steps: WizardStep[]): number {
   if (steps.length === 0) return 0
 
+  const currentIndex = steps.findIndex((step) => step.status === 'active')
+  const isOnLastStep = currentIndex === steps.length - 1
+
+  // If on the last step (completion), show 100%
+  if (isOnLastStep) return 100
+
   const completedSteps = steps.filter(
     (step) => step.status === 'completed' || step.status === 'skipped'
   ).length

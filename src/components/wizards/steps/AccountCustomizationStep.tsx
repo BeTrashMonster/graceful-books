@@ -60,7 +60,7 @@ interface ExpenseEntry {
  * Parse date input and handle 2-digit years intelligently
  * Examples:
  *   123120 -> 2020-12-31 (assumes current century)
- *   010125 -> 2025-01-01
+ *   12/31/20 -> 2020-12-31
  *   123199 -> 1999-12-31 (past date, assumes 19xx)
  */
 const parseSmartDate = (input: string): string => {
@@ -71,7 +71,7 @@ const parseSmartDate = (input: string): string => {
     return input
   }
 
-  // Handle MMDDYY or MMDDYYYY formats (6 or 8 digits)
+  // Remove all non-digit characters
   const digitsOnly = input.replace(/\D/g, '')
 
   if (digitsOnly.length === 6) {
@@ -90,13 +90,13 @@ const parseSmartDate = (input: string): string => {
       ? currentCentury - 100 + yearTwoDigit
       : currentCentury + yearTwoDigit
 
-    return `${year}-${month}-${day}`
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
   } else if (digitsOnly.length === 8) {
     // MMDDYYYY format
     const month = digitsOnly.substring(0, 2)
     const day = digitsOnly.substring(2, 4)
     const year = digitsOnly.substring(4, 8)
-    return `${year}-${month}-${day}`
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
   }
 
   return input
@@ -809,22 +809,14 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                   <Input
                     value={item.date}
                     onChange={(e) => {
+                      const parsed = parseSmartDate(e.target.value)
                       const updated = [...equipmentItems]
-                      updated[index] = { ...item, date: e.target.value }
+                      updated[index] = { ...item, date: parsed }
                       setEquipmentItems(updated)
                       setEquipmentErrors(new Set())
                     }}
-                    onBlur={(e) => {
-                      // Smart date parsing on blur
-                      const parsed = parseSmartDate(e.target.value)
-                      if (parsed !== e.target.value) {
-                        const updated = [...equipmentItems]
-                        updated[index] = { ...item, date: parsed }
-                        setEquipmentItems(updated)
-                      }
-                    }}
-                    placeholder="Purchase date"
-                    type="date"
+                    placeholder="MM/DD/YY or MM/DD/YYYY"
+                    type="text"
                     error={hasError && hasAnyData && !item.date.trim()}
                   />
                 </div>
@@ -985,21 +977,13 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
               <Input
                 value={loan.date}
                 onChange={(e) => {
+                  const parsed = parseSmartDate(e.target.value)
                   const updated = [...loans]
-                  updated[index] = { ...loan, date: e.target.value }
+                  updated[index] = { ...loan, date: parsed }
                   setLoans(updated)
                 }}
-                onBlur={(e) => {
-                  // Smart date parsing on blur
-                  const parsed = parseSmartDate(e.target.value)
-                  if (parsed !== e.target.value) {
-                    const updated = [...loans]
-                    updated[index] = { ...loan, date: parsed }
-                    setLoans(updated)
-                  }
-                }}
-                placeholder="Balance date"
-                type="date"
+                placeholder="MM/DD/YY or MM/DD/YYYY"
+                type="text"
               />
             </div>
             {loans.length > 1 && (

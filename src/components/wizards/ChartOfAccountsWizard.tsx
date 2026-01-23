@@ -191,6 +191,16 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
 
     try {
       const data = wizardState.data as CoaWizardData
+
+      console.log('=== WIZARD handleCreateAccounts CALLED ===')
+      console.log('Wizard data:', data)
+      console.log('Has customizationFormData:', !!data.customizationFormData)
+      if (data.customizationFormData) {
+        console.log('Form data keys:', Object.keys(data.customizationFormData))
+        console.log('Equipment items:', data.customizationFormData.equipmentItems)
+        console.log('Loans:', data.customizationFormData.loans)
+      }
+
       const template = data.selectedTemplateId ? getTemplateById(data.selectedTemplateId) : null
 
       if (!template) {
@@ -274,17 +284,22 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
 
         // Extract equipment opening balances
         if (formData.includeEquipment && formData.equipmentItems) {
+          console.log('Processing equipment items:', formData.equipmentItems)
           formData.equipmentItems.forEach((item) => {
+            console.log('Equipment item:', item, 'has name:', !!item.name.trim(), 'has value:', !!item.value, 'has date:', !!item.date)
             if (item.name.trim() && item.value && item.date) {
               const account = createdAccountsMap.get(item.name.trim())
+              console.log('Found account for equipment:', account)
               if (account) {
-                openingBalances.push({
+                const openingBalance = {
                   accountId: account.id,
                   accountName: account.name,
                   amount: parseDollarsToCents(item.value),
                   date: new Date(item.date),
-                  type: 'equipment',
-                })
+                  type: 'equipment' as const,
+                }
+                console.log('Adding equipment opening balance:', openingBalance)
+                openingBalances.push(openingBalance)
               }
             }
           })
