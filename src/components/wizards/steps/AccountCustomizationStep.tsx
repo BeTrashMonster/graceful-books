@@ -665,7 +665,24 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       }
     })
 
-    onUpdate(customizationsList)
+    // Pass the formData along with customizations to preserve equipment/loan opening balances
+    const formData = {
+      currentPart,
+      bankAccounts,
+      includeCash,
+      cashName,
+      includeEquipment,
+      equipmentItems,
+      includeInventory,
+      inventoryName,
+      creditCards,
+      loans,
+      incomeSources,
+      commonExpenses,
+      customExpenses,
+    }
+
+    onUpdate(customizationsList, formData)
   }
 
   if (!template) {
