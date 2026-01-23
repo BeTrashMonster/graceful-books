@@ -83,7 +83,13 @@ export const AccountList: FC<AccountListProps> = ({
   const [viewMode, setViewMode] = useState<ViewMode>('card')
 
   const handleViewRegister = (account: Account) => {
-    navigate(`/accounts/${account.id}/register`)
+    const url = `/accounts/${account.id}/register`
+    console.log('AccountList - Navigating to register:', {
+      accountId: account.id,
+      accountName: account.name,
+      url
+    })
+    navigate(url)
   }
 
   // Filter and sort accounts

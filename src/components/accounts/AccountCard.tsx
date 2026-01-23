@@ -135,7 +135,13 @@ export const AccountCard: FC<AccountCardProps> = ({
 
   const handleViewRegister = (e: MouseEvent, acc: Account = account) => {
     e.stopPropagation()
-    navigate(`/accounts/${acc.id}/register`)
+    const url = `/accounts/${acc.id}/register`
+    console.log('AccountCard - Navigating to register:', {
+      accountId: acc.id,
+      accountName: acc.name,
+      url
+    })
+    navigate(url)
   }
 
   const handleClick = () => {
