@@ -1,17 +1,11 @@
 /**
- * Account Customization Step Component
+ * Account Customization Step Component (Refactored)
  *
- * Third step where users customize template accounts.
- * Reorganized into 6 numbered, hand-holdy parts:
- * Part 1: Bank accounts (checking/savings)
- * Part 2: Other assets (equipment, inventory, etc.)
- * Part 3: Credit cards
- * Part 4: Loans
- * Part 5: Income accounts
- * Part 6: Expense accounts
+ * User-driven account creation with helpful guidance.
+ * Users type in their actual accounts rather than checking boxes.
  */
 
-import { type FC, useState, useCallback, useMemo, useEffect } from 'react'
+import { type FC, useState, useCallback, useEffect } from 'react'
 import { Button } from '../../core/Button'
 import { Input } from '../../forms/Input'
 import { Checkbox } from '../../forms/Checkbox'
@@ -26,9 +20,27 @@ export interface AccountCustomizationStepProps {
   onBack: () => void
 }
 
-/**
- * Account Customization Step Component
- */
+interface BankAccountEntry {
+  id: string
+  name: string
+}
+
+interface BalanceAccountEntry {
+  id: string
+  name: string
+  balance: string
+}
+
+interface IncomeEntry {
+  id: string
+  name: string
+}
+
+interface ExpenseEntry {
+  id: string
+  name: string
+}
+
 export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   template,
   customizations,
@@ -37,120 +49,58 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   onBack,
 }) => {
   const [currentPart, setCurrentPart] = useState(1)
-  const [expandedAccountIndex, setExpandedAccountIndex] = useState<number | null>(null)
-  const [showingHelp, setShowingHelp] = useState<Set<number>>(new Set())
+
+  // Part 1: Bank Accounts
+  const [bankAccounts, setBankAccounts] = useState<BankAccountEntry[]>([
+    { id: crypto.randomUUID(), name: '' }
+  ])
+  const [includeCash, setIncludeCash] = useState(false)
+  const [cashName, setCashName] = useState('')
+
+  // Part 2: Other Assets
+  const [includeEquipment, setIncludeEquipment] = useState(false)
+  const [equipmentItems, setEquipmentItems] = useState<BankAccountEntry[]>([
+    { id: crypto.randomUUID(), name: '' }
+  ])
+  const [includeInventory, setIncludeInventory] = useState(false)
+  const [inventoryName, setInventoryName] = useState('')
+  const [includeAR, setIncludeAR] = useState(true) // Default to true
+
+  // Part 3: Credit Cards
+  const [creditCards, setCreditCards] = useState<BalanceAccountEntry[]>([
+    { id: crypto.randomUUID(), name: '', balance: '' }
+  ])
+
+  // Part 4: Loans
+  const [loans, setLoans] = useState<BalanceAccountEntry[]>([
+    { id: crypto.randomUUID(), name: '', balance: '' }
+  ])
+
+  // Part 5: Income
+  const [incomeSources, setIncomeSources] = useState<IncomeEntry[]>([
+    { id: crypto.randomUUID(), name: '' }
+  ])
+
+  // Part 6: Expenses
+  const [expenses, setExpenses] = useState<ExpenseEntry[]>([
+    { id: crypto.randomUUID(), name: '' }
+  ])
 
   // Scroll to top when part changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [currentPart])
-
-  if (!template) {
-    return (
-      <div className={styles.error}>
-        <p>No template selected. Please go back and select a template.</p>
-        <Button variant="outline" onClick={onBack}>
-          Back
-        </Button>
-      </div>
-    )
-  }
-
-  const handleToggleAccount = useCallback((index: number) => {
-    const updated = [...customizations]
-    updated[index] = {
-      ...updated[index]!,
-      isIncluded: !updated[index]!.isIncluded,
+    const modalBody = document.querySelector('[class*="modalBody"]')
+    if (modalBody) {
+      modalBody.scrollTop = 0
     }
-    onUpdate(updated)
-  }, [customizations, onUpdate])
-
-  const handleUpdateName = useCallback((index: number, name: string) => {
-    const updated = [...customizations]
-    updated[index] = { ...updated[index]!, name }
-    onUpdate(updated)
-  }, [customizations, onUpdate])
-
-  const handleUpdateAccountNumber = useCallback((index: number, accountNumber: string) => {
-    const updated = [...customizations]
-    updated[index] = { ...updated[index]!, accountNumber }
-    onUpdate(updated)
-  }, [customizations, onUpdate])
-
-  const handleToggleExpanded = useCallback((index: number) => {
-    setExpandedAccountIndex((prev) => (prev === index ? null : index))
-  }, [])
-
-  const handleToggleHelp = useCallback((index: number) => {
-    setShowingHelp((prev) => {
-      const next = new Set(prev)
-      if (next.has(index)) {
-        next.delete(index)
-      } else {
-        next.add(index)
-      }
-      return next
-    })
-  }, [])
-
-  // Group accounts by part
-  const accountsByPart = useMemo(() => {
-    if (!template) return { part1: [], part2: [], part3: [], part4: [], part5: [], part6: [] }
-
-    const part1: Array<{ customization: AccountCustomization; index: number }> = []
-    const part2: Array<{ customization: AccountCustomization; index: number }> = []
-    const part3: Array<{ customization: AccountCustomization; index: number }> = []
-    const part4: Array<{ customization: AccountCustomization; index: number }> = []
-    const part5: Array<{ customization: AccountCustomization; index: number }> = []
-    const part6: Array<{ customization: AccountCustomization; index: number }> = []
-
-    customizations.forEach((customization, index) => {
-      const templateAccount = template.accounts.find(
-        (a) => a.name === customization.templateAccountName
-      )
-      if (!templateAccount) return
-
-      // Part 1: Bank accounts (checking/savings/cash)
-      if (templateAccount.type === 'asset' &&
-          (templateAccount.name.toLowerCase().includes('checking') ||
-           templateAccount.name.toLowerCase().includes('savings') ||
-           templateAccount.name.toLowerCase().includes('cash'))) {
-        part1.push({ customization, index })
-      }
-      // Part 2: Other assets
-      else if (templateAccount.type === 'asset') {
-        part2.push({ customization, index })
-      }
-      // Part 3: Credit cards
-      else if (templateAccount.type === 'liability' &&
-               templateAccount.name.toLowerCase().includes('credit')) {
-        part3.push({ customization, index })
-      }
-      // Part 4: Loans
-      else if (templateAccount.type === 'liability') {
-        part4.push({ customization, index })
-      }
-      // Part 5: Income
-      else if (templateAccount.type === 'income' || templateAccount.type === 'other-income') {
-        part5.push({ customization, index })
-      }
-      // Part 6: Expenses
-      else if (templateAccount.type === 'expense' ||
-               templateAccount.type === 'cost-of-goods-sold' ||
-               templateAccount.type === 'other-expense') {
-        part6.push({ customization, index })
-      }
-    })
-
-    return { part1, part2, part3, part4, part5, part6 }
-  }, [template, customizations])
-
-  const includedCount = customizations.filter((c) => c.isIncluded).length
+  }, [currentPart])
 
   const handlePartNext = () => {
     if (currentPart < 6) {
       setCurrentPart(currentPart + 1)
     } else {
+      // Generate customizations and call onNext
+      generateCustomizations()
       onNext()
     }
   }
@@ -163,271 +113,581 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
     }
   }
 
-  const renderAccountCard = (customization: AccountCustomization, index: number) => {
-    const templateAccount = template!.accounts.find(
-      (a) => a.name === customization.templateAccountName
-    )
-    if (!templateAccount) return null
+  const generateCustomizations = () => {
+    const customizationsList: AccountCustomization[] = []
+    let accountNumber = 1000
 
-    const isExpanded = expandedAccountIndex === index
-    const isShowingHelp = showingHelp.has(index)
-    const isRequired = templateAccount.isRequired
+    // Bank accounts
+    bankAccounts.forEach((account) => {
+      if (account.name.trim()) {
+        customizationsList.push({
+          templateAccountName: 'Business Checking',
+          name: account.name.trim(),
+          accountNumber: String(accountNumber),
+          isIncluded: true,
+        })
+        accountNumber += 10
+      }
+    })
 
+    // Cash
+    if (includeCash && cashName.trim()) {
+      customizationsList.push({
+        templateAccountName: 'Cash on Hand',
+        name: cashName.trim(),
+        accountNumber: String(accountNumber),
+        isIncluded: true,
+      })
+      accountNumber += 10
+    }
+
+    // Accounts Receivable (if included)
+    if (includeAR) {
+      customizationsList.push({
+        templateAccountName: 'Accounts Receivable',
+        name: 'Accounts Receivable',
+        accountNumber: '1200',
+        isIncluded: true,
+      })
+    }
+
+    // Equipment
+    if (includeEquipment) {
+      equipmentItems.forEach((item) => {
+        if (item.name.trim()) {
+          customizationsList.push({
+            templateAccountName: 'Equipment',
+            name: item.name.trim(),
+            accountNumber: '1500',
+            isIncluded: true,
+          })
+        }
+      })
+    }
+
+    // Inventory
+    if (includeInventory && inventoryName.trim()) {
+      customizationsList.push({
+        templateAccountName: 'Inventory',
+        name: inventoryName.trim(),
+        accountNumber: '1400',
+        isIncluded: true,
+      })
+    }
+
+    // Credit Cards
+    accountNumber = 2000
+    creditCards.forEach((card) => {
+      if (card.name.trim()) {
+        customizationsList.push({
+          templateAccountName: 'Credit Card',
+          name: card.name.trim(),
+          accountNumber: String(accountNumber),
+          description: card.balance ? `Current balance: $${card.balance}` : undefined,
+          isIncluded: true,
+        })
+        accountNumber += 10
+      }
+    })
+
+    // Loans
+    accountNumber = 2500
+    loans.forEach((loan) => {
+      if (loan.name.trim()) {
+        customizationsList.push({
+          templateAccountName: 'Loan',
+          name: loan.name.trim(),
+          accountNumber: String(accountNumber),
+          description: loan.balance ? `Current balance: $${loan.balance}` : undefined,
+          isIncluded: true,
+        })
+        accountNumber += 10
+      }
+    })
+
+    // Required equity accounts
+    customizationsList.push({
+      templateAccountName: 'Owner Investment',
+      name: 'Owner Investment',
+      accountNumber: '3000',
+      isIncluded: true,
+    })
+    customizationsList.push({
+      templateAccountName: 'Owner Draw',
+      name: 'Owner Draw',
+      accountNumber: '3100',
+      isIncluded: true,
+    })
+    customizationsList.push({
+      templateAccountName: 'Retained Earnings',
+      name: 'Retained Earnings',
+      accountNumber: '3900',
+      isIncluded: true,
+    })
+
+    // Income
+    accountNumber = 4000
+    incomeSources.forEach((income) => {
+      if (income.name.trim()) {
+        customizationsList.push({
+          templateAccountName: 'Income',
+          name: income.name.trim(),
+          accountNumber: String(accountNumber),
+          isIncluded: true,
+        })
+        accountNumber += 100
+      }
+    })
+
+    // Expenses
+    accountNumber = 6000
+    expenses.forEach((expense) => {
+      if (expense.name.trim()) {
+        customizationsList.push({
+          templateAccountName: 'Expense',
+          name: expense.name.trim(),
+          accountNumber: String(accountNumber),
+          isIncluded: true,
+        })
+        accountNumber += 100
+      }
+    })
+
+    onUpdate(customizationsList)
+  }
+
+  if (!template) {
     return (
-      <div
-        key={index}
-        className={`${styles.accountCard} ${
-          customization.isIncluded ? styles.included : styles.excluded
-        } ${isExpanded ? styles.expanded : ''}`}
-      >
-        <div className={styles.accountHeader}>
-          <Checkbox
-            label={customization.name}
-            checked={customization.isIncluded}
-            onChange={() => handleToggleAccount(index)}
-            disabled={isRequired}
-            helperText={isRequired ? 'Required account' : undefined}
-          />
-          <button
-            type="button"
-            className={styles.helpButton}
-            onClick={() => handleToggleHelp(index)}
-            aria-label="Learn more about this account"
-            aria-expanded={isShowingHelp}
-          >
-            {isShowingHelp ? '✕' : '?'}
-          </button>
-          {customization.isIncluded && (
-            <button
-              type="button"
-              className={styles.expandButton}
-              onClick={() => handleToggleExpanded(index)}
-              aria-label={isExpanded ? 'Collapse' : 'Expand to edit'}
-              aria-expanded={isExpanded}
-            >
-              {isExpanded ? '▼' : '▶'}
-            </button>
-          )}
-        </div>
-
-        {isShowingHelp && (
-          <div className={styles.helpText} role="region" aria-label="Account explanation">
-            <p className={styles.explanation}>{templateAccount.explanation}</p>
-            <p className={styles.description}>
-              <em>{templateAccount.description}</em>
-            </p>
-          </div>
-        )}
-
-        {isExpanded && customization.isIncluded && (
-          <div className={styles.accountEdit}>
-            <Input
-              label="Account Name"
-              value={customization.name}
-              onChange={(e) => handleUpdateName(index, e.target.value)}
-              fullWidth
-              helperText="Customize the name if you'd like"
-            />
-            <Input
-              label="Account Number (optional)"
-              value={customization.accountNumber || ''}
-              onChange={(e) => handleUpdateAccountNumber(index, e.target.value)}
-              fullWidth
-              placeholder="e.g., 1000"
-              helperText="For organizing your accounts"
-            />
-          </div>
-        )}
-
-        <div className={styles.accountMeta}>
-          <span className={styles.accountType}>
-            {templateAccount.type.replace(/-/g, ' ')}
-          </span>
-          {templateAccount.accountNumber && (
-            <span className={styles.accountNumber}>
-              #{templateAccount.accountNumber}
-            </span>
-          )}
-        </div>
+      <div className={styles.error}>
+        <p>No template selected. Please go back and select a template.</p>
+        <Button variant="outline" onClick={onBack}>
+          Back
+        </Button>
       </div>
     )
   }
 
-  const renderPart = () => {
+  const renderPart1 = () => (
+    <>
+      <div className={styles.partHeader}>
+        <h3 className={styles.partTitle}>Part 1: Your Bank Accounts</h3>
+        <p className={styles.partDescription}>
+          List your business checking and savings accounts. Use the exact name so you recognize them!
+        </p>
+      </div>
+
+      <div className={styles.inputSection}>
+        {bankAccounts.map((account, index) => (
+          <div key={account.id} className={styles.inputRow}>
+            <Input
+              value={account.name}
+              onChange={(e) => {
+                const updated = [...bankAccounts]
+                updated[index] = { ...account, name: e.target.value }
+                setBankAccounts(updated)
+              }}
+              placeholder="e.g., Chase Business -4567"
+              fullWidth
+            />
+            {bankAccounts.length > 1 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setBankAccounts(bankAccounts.filter((_, i) => i !== index))
+                }}
+                className={styles.removeButton}
+                aria-label="Remove"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        ))}
+        <Button
+          variant="outline"
+          onClick={() => {
+            setBankAccounts([...bankAccounts, { id: crypto.randomUUID(), name: '' }])
+          }}
+        >
+          + Add another bank account
+        </Button>
+      </div>
+
+      <div className={styles.optionalSection}>
+        <Checkbox
+          label="I handle physical cash"
+          checked={includeCash}
+          onChange={() => setIncludeCash(!includeCash)}
+        />
+        {includeCash && (
+          <div className={styles.indentedInput}>
+            <Input
+              value={cashName}
+              onChange={(e) => setCashName(e.target.value)}
+              placeholder="e.g., Cash on Hand"
+              fullWidth
+            />
+          </div>
+        )}
+      </div>
+    </>
+  )
+
+  const renderPart2 = () => (
+    <>
+      <div className={styles.partHeader}>
+        <h3 className={styles.partTitle}>Part 2: Other Assets</h3>
+        <p className={styles.partDescription}>
+          Do you need to track equipment, inventory, or money owed to you?
+        </p>
+      </div>
+
+      <div className={styles.optionalSection}>
+        <Checkbox
+          label="Money owed to me (Accounts Receivable)"
+          checked={includeAR}
+          onChange={() => setIncludeAR(!includeAR)}
+          helperText="Track invoices you've sent that haven't been paid yet"
+        />
+      </div>
+
+      <div className={styles.optionalSection}>
+        <Checkbox
+          label="Equipment"
+          checked={includeEquipment}
+          onChange={() => setIncludeEquipment(!includeEquipment)}
+          helperText="Big purchases like computers, cameras, tools (typically $2,500+)"
+        />
+        {includeEquipment && (
+          <div className={styles.indentedInput}>
+            {equipmentItems.map((item, index) => (
+              <div key={item.id} className={styles.inputRow}>
+                <Input
+                  value={item.name}
+                  onChange={(e) => {
+                    const updated = [...equipmentItems]
+                    updated[index] = { ...item, name: e.target.value }
+                    setEquipmentItems(updated)
+                  }}
+                  placeholder="e.g., MacBook Pro 2024"
+                  fullWidth
+                />
+                {equipmentItems.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEquipmentItems(equipmentItems.filter((_, i) => i !== index))
+                    }}
+                    className={styles.removeButton}
+                    aria-label="Remove"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setEquipmentItems([...equipmentItems, { id: crypto.randomUUID(), name: '' }])
+              }}
+            >
+              + Add more equipment
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.optionalSection}>
+        <Checkbox
+          label="Inventory"
+          checked={includeInventory}
+          onChange={() => setIncludeInventory(!includeInventory)}
+          helperText="Products you have in stock to sell"
+        />
+        {includeInventory && (
+          <div className={styles.indentedInput}>
+            <Input
+              value={inventoryName}
+              onChange={(e) => setInventoryName(e.target.value)}
+              placeholder="e.g., Product Inventory"
+              fullWidth
+            />
+          </div>
+        )}
+      </div>
+    </>
+  )
+
+  const renderPart3 = () => (
+    <>
+      <div className={styles.partHeader}>
+        <h3 className={styles.partTitle}>Part 3: Credit Cards</h3>
+        <p className={styles.partDescription}>
+          List your business credit cards and their current balances.
+        </p>
+      </div>
+
+      <div className={styles.inputSection}>
+        {creditCards.map((card, index) => (
+          <div key={card.id} className={styles.balanceRow}>
+            <div className={styles.balanceInputs}>
+              <Input
+                value={card.name}
+                onChange={(e) => {
+                  const updated = [...creditCards]
+                  updated[index] = { ...card, name: e.target.value }
+                  setCreditCards(updated)
+                }}
+                placeholder="e.g., Chase Ink -5678"
+                fullWidth
+              />
+              <Input
+                value={card.balance}
+                onChange={(e) => {
+                  const updated = [...creditCards]
+                  updated[index] = { ...card, balance: e.target.value }
+                  setCreditCards(updated)
+                }}
+                placeholder="$0.00"
+                type="text"
+              />
+            </div>
+            {creditCards.length > 1 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setCreditCards(creditCards.filter((_, i) => i !== index))
+                }}
+                className={styles.removeButton}
+                aria-label="Remove"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        ))}
+        <Button
+          variant="outline"
+          onClick={() => {
+            setCreditCards([...creditCards, { id: crypto.randomUUID(), name: '', balance: '' }])
+          }}
+        >
+          + Add another credit card
+        </Button>
+      </div>
+
+      <div className={styles.helpNote}>
+        <p>💡 No business credit cards? You can skip this - just leave the fields empty!</p>
+      </div>
+    </>
+  )
+
+  const renderPart4 = () => (
+    <>
+      <div className={styles.partHeader}>
+        <h3 className={styles.partTitle}>Part 4: Loans</h3>
+        <p className={styles.partDescription}>
+          Do you have any business loans? List them with their current balances.
+        </p>
+      </div>
+
+      <div className={styles.inputSection}>
+        {loans.map((loan, index) => (
+          <div key={loan.id} className={styles.balanceRow}>
+            <div className={styles.balanceInputs}>
+              <Input
+                value={loan.name}
+                onChange={(e) => {
+                  const updated = [...loans]
+                  updated[index] = { ...loan, name: e.target.value }
+                  setLoans(updated)
+                }}
+                placeholder="e.g., SBA Loan"
+                fullWidth
+              />
+              <Input
+                value={loan.balance}
+                onChange={(e) => {
+                  const updated = [...loans]
+                  updated[index] = { ...loan, balance: e.target.value }
+                  setLoans(updated)
+                }}
+                placeholder="$0.00"
+                type="text"
+              />
+            </div>
+            {loans.length > 1 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setLoans(loans.filter((_, i) => i !== index))
+                }}
+                className={styles.removeButton}
+                aria-label="Remove"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        ))}
+        <Button
+          variant="outline"
+          onClick={() => {
+            setLoans([...loans, { id: crypto.randomUUID(), name: '', balance: '' }])
+          }}
+        >
+          + Add another loan
+        </Button>
+      </div>
+
+      <div className={styles.helpNote}>
+        <p>💡 No loans? Perfect! Leave the fields empty and continue.</p>
+      </div>
+    </>
+  )
+
+  const renderPart5 = () => (
+    <>
+      <div className={styles.partHeader}>
+        <h3 className={styles.partTitle}>Part 5: Income</h3>
+        <p className={styles.partDescription}>
+          What do you call the money coming into your business? List your revenue streams.
+        </p>
+      </div>
+
+      <div className={styles.inputSection}>
+        {incomeSources.map((income, index) => (
+          <div key={income.id} className={styles.inputRow}>
+            <Input
+              value={income.name}
+              onChange={(e) => {
+                const updated = [...incomeSources]
+                updated[index] = { ...income, name: e.target.value }
+                setIncomeSources(updated)
+              }}
+              placeholder="e.g., Design Services, Consulting, Product Sales"
+              fullWidth
+            />
+            {incomeSources.length > 1 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIncomeSources(incomeSources.filter((_, i) => i !== index))
+                }}
+                className={styles.removeButton}
+                aria-label="Remove"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        ))}
+        <Button
+          variant="outline"
+          onClick={() => {
+            setIncomeSources([...incomeSources, { id: crypto.randomUUID(), name: '' }])
+          }}
+        >
+          + Add another income source
+        </Button>
+      </div>
+
+      <div className={styles.helpNote}>
+        <p>💡 Keep it simple! You can always add more specific categories later.</p>
+      </div>
+    </>
+  )
+
+  const renderPart6 = () => (
+    <>
+      <div className={styles.partHeader}>
+        <h3 className={styles.partTitle}>Part 6: Expenses</h3>
+        <p className={styles.partDescription}>
+          What are your main business expenses? List the categories you want to track.
+        </p>
+      </div>
+
+      <div className={styles.inputSection}>
+        {expenses.map((expense, index) => (
+          <div key={expense.id} className={styles.inputRow}>
+            <Input
+              value={expense.name}
+              onChange={(e) => {
+                const updated = [...expenses]
+                updated[index] = { ...expense, name: e.target.value }
+                setExpenses(updated)
+              }}
+              placeholder="e.g., Rent, Software, Marketing, Insurance"
+              fullWidth
+            />
+            {expenses.length > 1 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setExpenses(expenses.filter((_, i) => i !== index))
+                }}
+                className={styles.removeButton}
+                aria-label="Remove"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        ))}
+        <Button
+          variant="outline"
+          onClick={() => {
+            setExpenses([...expenses, { id: crypto.randomUUID(), name: '' }])
+          }}
+        >
+          + Add another expense
+        </Button>
+      </div>
+
+      <div className={styles.helpNote}>
+        <p>💡 Start with your biggest expenses. You can always add more detailed categories later!</p>
+      </div>
+    </>
+  )
+
+  const renderCurrentPart = () => {
     switch (currentPart) {
       case 1:
-        return (
-          <>
-            <div className={styles.partHeader}>
-              <h3 className={styles.partTitle}>Part 1: Your Bank Accounts</h3>
-              <p className={styles.partDescription}>
-                Let's start with your checking and savings accounts. These are the foundation of your bookkeeping.
-              </p>
-            </div>
-            <div className={styles.tableHeader}>
-              <div className={styles.headerAccount}>Account Name</div>
-              <div className={styles.headerHelp}>Learn More</div>
-              <div className={styles.headerEdit}>Edit</div>
-            </div>
-            <div className={styles.accountsList}>
-              {accountsByPart.part1.length > 0 ? (
-                accountsByPart.part1.map(({ customization, index }) =>
-                  renderAccountCard(customization, index)
-                )
-              ) : (
-                <p className={styles.emptyMessage}>No bank accounts in this template.</p>
-              )}
-            </div>
-          </>
-        )
-
+        return renderPart1()
       case 2:
-        return (
-          <>
-            <div className={styles.partHeader}>
-              <h3 className={styles.partTitle}>Part 2: Other Assets</h3>
-              <p className={styles.partDescription}>
-                Do you need to track big purchases like equipment, inventory, or money owed to you? Select what applies.
-              </p>
-            </div>
-            <div className={styles.tableHeader}>
-              <div className={styles.headerAccount}>Account Name</div>
-              <div className={styles.headerHelp}>Learn More</div>
-              <div className={styles.headerEdit}>Edit</div>
-            </div>
-            <div className={styles.accountsList}>
-              {accountsByPart.part2.length > 0 ? (
-                accountsByPart.part2.map(({ customization, index }) =>
-                  renderAccountCard(customization, index)
-                )
-              ) : (
-                <p className={styles.emptyMessage}>No other assets in this template. You can skip this step!</p>
-              )}
-            </div>
-          </>
-        )
-
+        return renderPart2()
       case 3:
-        return (
-          <>
-            <div className={styles.partHeader}>
-              <h3 className={styles.partTitle}>Part 3: Credit Cards</h3>
-              <p className={styles.partDescription}>
-                List your business credit cards here. We'll help you track what you owe on each.
-              </p>
-            </div>
-            <div className={styles.tableHeader}>
-              <div className={styles.headerAccount}>Account Name</div>
-              <div className={styles.headerHelp}>Learn More</div>
-              <div className={styles.headerEdit}>Edit</div>
-            </div>
-            <div className={styles.accountsList}>
-              {accountsByPart.part3.length > 0 ? (
-                accountsByPart.part3.map(({ customization, index }) =>
-                  renderAccountCard(customization, index)
-                )
-              ) : (
-                <p className={styles.emptyMessage}>No credit card accounts in this template. You can skip this step!</p>
-              )}
-            </div>
-          </>
-        )
-
+        return renderPart3()
       case 4:
-        return (
-          <>
-            <div className={styles.partHeader}>
-              <h3 className={styles.partTitle}>Part 4: Loans</h3>
-              <p className={styles.partDescription}>
-                Do you have any business loans? Track them here to see what you owe and when.
-              </p>
-            </div>
-            <div className={styles.tableHeader}>
-              <div className={styles.headerAccount}>Account Name</div>
-              <div className={styles.headerHelp}>Learn More</div>
-              <div className={styles.headerEdit}>Edit</div>
-            </div>
-            <div className={styles.accountsList}>
-              {accountsByPart.part4.length > 0 ? (
-                accountsByPart.part4.map(({ customization, index }) =>
-                  renderAccountCard(customization, index)
-                )
-              ) : (
-                <p className={styles.emptyMessage}>No loan accounts in this template. You can skip this step!</p>
-              )}
-            </div>
-          </>
-        )
-
+        return renderPart4()
       case 5:
-        return (
-          <>
-            <div className={styles.partHeader}>
-              <h3 className={styles.partTitle}>Part 5: Income</h3>
-              <p className={styles.partDescription}>
-                What do you call the money coming into your business? You can customize these names to match how you think about your revenue.
-              </p>
-            </div>
-            <div className={styles.tableHeader}>
-              <div className={styles.headerAccount}>Account Name</div>
-              <div className={styles.headerHelp}>Learn More</div>
-              <div className={styles.headerEdit}>Edit</div>
-            </div>
-            <div className={styles.accountsList}>
-              {accountsByPart.part5.length > 0 ? (
-                accountsByPart.part5.map(({ customization, index }) =>
-                  renderAccountCard(customization, index)
-                )
-              ) : (
-                <p className={styles.emptyMessage}>No income accounts in this template.</p>
-              )}
-            </div>
-          </>
-        )
-
+        return renderPart5()
       case 6:
-        return (
-          <>
-            <div className={styles.partHeader}>
-              <h3 className={styles.partTitle}>Part 6: Expenses</h3>
-              <p className={styles.partDescription}>
-                Finally, select the expense categories that apply to your business. Don't worry about getting everything perfect - you can always add more later!
-              </p>
-            </div>
-            <div className={styles.tableHeader}>
-              <div className={styles.headerAccount}>Account Name</div>
-              <div className={styles.headerHelp}>Learn More</div>
-              <div className={styles.headerEdit}>Edit</div>
-            </div>
-            <div className={styles.accountsList}>
-              {accountsByPart.part6.length > 0 ? (
-                accountsByPart.part6.map(({ customization, index }) =>
-                  renderAccountCard(customization, index)
-                )
-              ) : (
-                <p className={styles.emptyMessage}>No expense accounts in this template.</p>
-              )}
-            </div>
-          </>
-        )
-
+        return renderPart6()
       default:
         return null
     }
   }
 
+  const canProceed = () => {
+    // At least one bank account or one income source or one expense
+    const hasBankAccount = bankAccounts.some(a => a.name.trim())
+    const hasIncome = incomeSources.some(i => i.name.trim())
+    const hasExpense = expenses.some(e => e.name.trim())
+    return hasBankAccount || hasIncome || hasExpense
+  }
+
   return (
     <div className={styles.customizationStep}>
       <div className={styles.intro}>
-        <p className={styles.accountCount}>
-          <strong>{includedCount} accounts</strong> will be created
-        </p>
         <div className={styles.partProgress}>
           Part {currentPart} of 6
         </div>
       </div>
 
-      {renderPart()}
+      {renderCurrentPart()}
 
       <div className={styles.infoBox}>
         <h4 className={styles.infoTitle}>Need something else?</h4>
@@ -443,7 +703,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         <Button
           variant="primary"
           onClick={handlePartNext}
-          disabled={includedCount === 0}
+          disabled={!canProceed()}
         >
           {currentPart === 6 ? 'Continue to review' : 'Next'}
         </Button>
