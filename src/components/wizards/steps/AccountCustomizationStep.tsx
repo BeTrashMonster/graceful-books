@@ -56,6 +56,52 @@ interface ExpenseEntry {
   name: string
 }
 
+/**
+ * Parse date input and handle 2-digit years intelligently
+ * Examples:
+ *   123120 -> 2020-12-31 (assumes current century)
+ *   010125 -> 2025-01-01
+ *   123199 -> 1999-12-31 (past date, assumes 19xx)
+ */
+const parseSmartDate = (input: string): string => {
+  if (!input) return input
+
+  // If it's already in YYYY-MM-DD format, return as-is
+  if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+    return input
+  }
+
+  // Handle MMDDYY or MMDDYYYY formats (6 or 8 digits)
+  const digitsOnly = input.replace(/\D/g, '')
+
+  if (digitsOnly.length === 6) {
+    // MMDDYY format - need to infer century
+    const month = digitsOnly.substring(0, 2)
+    const day = digitsOnly.substring(2, 4)
+    const yearTwoDigit = parseInt(digitsOnly.substring(4, 6), 10)
+
+    // If year is > current year's last 2 digits, assume previous century
+    // Otherwise assume current century
+    const currentYear = new Date().getFullYear()
+    const currentCentury = Math.floor(currentYear / 100) * 100
+    const currentYearTwoDigit = currentYear % 100
+
+    const year = yearTwoDigit > currentYearTwoDigit
+      ? currentCentury - 100 + yearTwoDigit
+      : currentCentury + yearTwoDigit
+
+    return `${year}-${month}-${day}`
+  } else if (digitsOnly.length === 8) {
+    // MMDDYYYY format
+    const month = digitsOnly.substring(0, 2)
+    const day = digitsOnly.substring(2, 4)
+    const year = digitsOnly.substring(4, 8)
+    return `${year}-${month}-${day}`
+  }
+
+  return input
+}
+
 export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   template,
   customizations: initialCustomizations,
@@ -66,6 +112,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
 }) => {
   const [currentPart, setCurrentPart] = useState(1)
   const [initialized, setInitialized] = useState(false)
+  const [equipmentErrors, setEquipmentErrors] = useState<Set<string>>(new Set())
 
   // Part 1: Bank Accounts
   const [bankAccounts, setBankAccounts] = useState<BankAccountEntry[]>([
@@ -195,19 +242,25 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   const handlePartNext = () => {
     // Validate Part 2 (Equipment) before proceeding
     if (currentPart === 2 && includeEquipment) {
-      const hasInvalidEquipment = equipmentItems.some(item => {
+      const invalidItems = new Set<string>()
+
+      equipmentItems.forEach(item => {
         // If they started filling out an item, they must complete it
         const hasAnyData = item.name.trim() || item.value.trim() || item.date.trim()
         if (hasAnyData) {
-          return !item.name.trim() || !item.value.trim() || !item.date.trim()
+          if (!item.name.trim() || !item.value.trim() || !item.date.trim()) {
+            invalidItems.add(item.id)
+          }
         }
-        return false
       })
 
-      if (hasInvalidEquipment) {
+      if (invalidItems.size > 0) {
+        setEquipmentErrors(invalidItems)
         alert('Please complete all equipment fields (name, value, and purchase date) or remove empty items before continuing.')
         return
       }
+
+      setEquipmentErrors(new Set())
     }
 
     if (currentPart < 6) {
@@ -722,7 +775,11 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
             <p className={styles.equipmentInstructions}>
               Enter each piece of equipment with its <strong>value when purchased</strong> and the <strong>date you bought it</strong>. This helps track depreciation properly.
             </p>
-            {equipmentItems.map((item, index) => (
+            {equipmentItems.map((item, index) => {
+              const hasError = equipmentErrors.has(item.id)
+              const hasAnyData = item.name.trim() || item.value.trim() || item.date.trim()
+
+              return (
               <div key={item.id} className={styles.balanceRow}>
                 <div className={styles.balanceInputs}>
                   <Input
@@ -731,10 +788,11 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                       const updated = [...equipmentItems]
                       updated[index] = { ...item, name: e.target.value }
                       setEquipmentItems(updated)
+                      setEquipmentErrors(new Set()) // Clear errors on change
                     }}
                     placeholder="Professional Camera"
                     fullWidth
-                    required={item.value.trim() !== '' || item.date.trim() !== ''}
+                    error={hasError && hasAnyData && !item.name.trim()}
                   />
                   <Input
                     value={item.value}
@@ -742,10 +800,11 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                       const updated = [...equipmentItems]
                       updated[index] = { ...item, value: e.target.value }
                       setEquipmentItems(updated)
+                      setEquipmentErrors(new Set())
                     }}
                     placeholder="$3,500.00"
                     type="text"
-                    required={item.name.trim() !== '' || item.date.trim() !== ''}
+                    error={hasError && hasAnyData && !item.value.trim()}
                   />
                   <Input
                     value={item.date}
@@ -753,10 +812,20 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                       const updated = [...equipmentItems]
                       updated[index] = { ...item, date: e.target.value }
                       setEquipmentItems(updated)
+                      setEquipmentErrors(new Set())
+                    }}
+                    onBlur={(e) => {
+                      // Smart date parsing on blur
+                      const parsed = parseSmartDate(e.target.value)
+                      if (parsed !== e.target.value) {
+                        const updated = [...equipmentItems]
+                        updated[index] = { ...item, date: parsed }
+                        setEquipmentItems(updated)
+                      }
                     }}
                     placeholder="Purchase date"
                     type="date"
-                    required={item.name.trim() !== '' || item.value.trim() !== ''}
+                    error={hasError && hasAnyData && !item.date.trim()}
                   />
                 </div>
                 {equipmentItems.length > 1 && (
@@ -772,7 +841,8 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                   </button>
                 )}
               </div>
-            ))}
+              )
+            })}
             <Button
               variant="outline"
               size="sm"
@@ -918,6 +988,15 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
                   const updated = [...loans]
                   updated[index] = { ...loan, date: e.target.value }
                   setLoans(updated)
+                }}
+                onBlur={(e) => {
+                  // Smart date parsing on blur
+                  const parsed = parseSmartDate(e.target.value)
+                  if (parsed !== e.target.value) {
+                    const updated = [...loans]
+                    updated[index] = { ...loan, date: parsed }
+                    setLoans(updated)
+                  }
                 }}
                 placeholder="Balance date"
                 type="date"
