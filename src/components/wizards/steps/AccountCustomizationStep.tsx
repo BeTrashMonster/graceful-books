@@ -15,9 +15,10 @@ import styles from './AccountCustomizationStep.module.css'
 export interface AccountCustomizationStepProps {
   template?: IndustryTemplate
   customizations: AccountCustomization[]
-  onUpdate: (customizations: AccountCustomization[]) => void
+  onUpdate: (customizations: AccountCustomization[], formData?: any) => void
   onNext: () => void
   onBack: () => void
+  savedFormData?: any
 }
 
 interface BankAccountEntry {
@@ -53,6 +54,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   onUpdate,
   onNext,
   onBack,
+  savedFormData,
 }) => {
   const [currentPart, setCurrentPart] = useState(1)
   const [initialized, setInitialized] = useState(false)
@@ -90,16 +92,87 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
 
   // Part 6: Expenses
   const [commonExpenses, setCommonExpenses] = useState({
-    rent: false,
+    bankFees: false,
+    businessLicense: false,
+    continuingEducation: false,
+    contractLabor: false,
     insurance: false,
-    software: false,
     marketing: false,
     merchantFees: false,
-    phoneInternet: false,
     officeSupplies: false,
+    phoneInternet: false,
+    postageDelivery: false,
+    professionalFees: false,
+    rent: false,
+    repairsMaintenance: false,
+    software: false,
+    suppliesMaterials: false,
+    travel: false,
+    utilities: false,
   })
   const [customExpenses, setCustomExpenses] = useState<ExpenseEntry[]>([
     { id: crypto.randomUUID(), name: '' }
+  ])
+
+  // Initialize from saved form data if available
+  useEffect(() => {
+    if (!initialized) {
+      if (savedFormData) {
+        setCurrentPart(savedFormData.currentPart || 1)
+        if (savedFormData.bankAccounts) setBankAccounts(savedFormData.bankAccounts)
+        if (savedFormData.includeCash !== undefined) setIncludeCash(savedFormData.includeCash)
+        if (savedFormData.cashName) setCashName(savedFormData.cashName)
+        if (savedFormData.includeEquipment !== undefined) setIncludeEquipment(savedFormData.includeEquipment)
+        if (savedFormData.equipmentItems) setEquipmentItems(savedFormData.equipmentItems)
+        if (savedFormData.includeInventory !== undefined) setIncludeInventory(savedFormData.includeInventory)
+        if (savedFormData.inventoryName) setInventoryName(savedFormData.inventoryName)
+        if (savedFormData.creditCards) setCreditCards(savedFormData.creditCards)
+        if (savedFormData.loans) setLoans(savedFormData.loans)
+        if (savedFormData.incomeSources) setIncomeSources(savedFormData.incomeSources)
+        if (savedFormData.commonExpenses) setCommonExpenses({...commonExpenses, ...savedFormData.commonExpenses})
+        if (savedFormData.customExpenses) setCustomExpenses(savedFormData.customExpenses)
+      }
+      setInitialized(true)
+    }
+  }, [initialized, savedFormData])
+
+  // Save form data continuously to support "Save and finish later"
+  useEffect(() => {
+    if (initialized) {
+      const formData = {
+        currentPart,
+        bankAccounts,
+        includeCash,
+        cashName,
+        includeEquipment,
+        equipmentItems,
+        includeInventory,
+        inventoryName,
+        creditCards,
+        loans,
+        incomeSources,
+        commonExpenses,
+        customExpenses,
+      }
+      // Update the wizard data immediately with current form state
+      onUpdate([], formData)
+    }
+  }, [
+    initialized,
+    currentPart,
+    bankAccounts,
+    includeCash,
+    cashName,
+    includeEquipment,
+    equipmentItems,
+    includeInventory,
+    inventoryName,
+    creditCards,
+    loans,
+    incomeSources,
+    commonExpenses,
+    customExpenses,
+    onUpdate,
   ])
 
   // Scroll to top when part changes
@@ -275,12 +348,42 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       }
     })
 
-    // Expenses - Common checkboxes
+    // Expenses - Common checkboxes (in alphabetical order)
     accountNumber = 6000
-    if (commonExpenses.rent) {
+    if (commonExpenses.bankFees) {
       customizationsList.push({
         templateAccountName: 'Expense',
-        name: 'Rent',
+        name: 'Bank Fees',
+        accountNumber: String(accountNumber),
+        isIncluded: true,
+        type: 'expense',
+      })
+      accountNumber += 100
+    }
+    if (commonExpenses.businessLicense) {
+      customizationsList.push({
+        templateAccountName: 'Expense',
+        name: 'Business License + Permits',
+        accountNumber: String(accountNumber),
+        isIncluded: true,
+        type: 'expense',
+      })
+      accountNumber += 100
+    }
+    if (commonExpenses.continuingEducation) {
+      customizationsList.push({
+        templateAccountName: 'Expense',
+        name: 'Continuing Education',
+        accountNumber: String(accountNumber),
+        isIncluded: true,
+        type: 'expense',
+      })
+      accountNumber += 100
+    }
+    if (commonExpenses.contractLabor) {
+      customizationsList.push({
+        templateAccountName: 'Expense',
+        name: 'Contract Labor',
         accountNumber: String(accountNumber),
         isIncluded: true,
         type: 'expense',
@@ -297,20 +400,10 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       })
       accountNumber += 100
     }
-    if (commonExpenses.software) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Software & Subscriptions',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
     if (commonExpenses.marketing) {
       customizationsList.push({
         templateAccountName: 'Expense',
-        name: 'Marketing & Advertising',
+        name: 'Marketing + Advertising',
         accountNumber: String(accountNumber),
         isIncluded: true,
         type: 'expense',
@@ -327,20 +420,100 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       })
       accountNumber += 100
     }
-    if (commonExpenses.phoneInternet) {
+    if (commonExpenses.officeSupplies) {
       customizationsList.push({
         templateAccountName: 'Expense',
-        name: 'Phone & Internet',
+        name: 'Office Supplies',
         accountNumber: String(accountNumber),
         isIncluded: true,
         type: 'expense',
       })
       accountNumber += 100
     }
-    if (commonExpenses.officeSupplies) {
+    if (commonExpenses.phoneInternet) {
       customizationsList.push({
         templateAccountName: 'Expense',
-        name: 'Office Supplies',
+        name: 'Phone + Internet',
+        accountNumber: String(accountNumber),
+        isIncluded: true,
+        type: 'expense',
+      })
+      accountNumber += 100
+    }
+    if (commonExpenses.postageDelivery) {
+      customizationsList.push({
+        templateAccountName: 'Expense',
+        name: 'Postage + Delivery',
+        accountNumber: String(accountNumber),
+        isIncluded: true,
+        type: 'expense',
+      })
+      accountNumber += 100
+    }
+    if (commonExpenses.professionalFees) {
+      customizationsList.push({
+        templateAccountName: 'Expense',
+        name: 'Professional Fees',
+        accountNumber: String(accountNumber),
+        isIncluded: true,
+        type: 'expense',
+      })
+      accountNumber += 100
+    }
+    if (commonExpenses.rent) {
+      customizationsList.push({
+        templateAccountName: 'Expense',
+        name: 'Rent',
+        accountNumber: String(accountNumber),
+        isIncluded: true,
+        type: 'expense',
+      })
+      accountNumber += 100
+    }
+    if (commonExpenses.repairsMaintenance) {
+      customizationsList.push({
+        templateAccountName: 'Expense',
+        name: 'Repairs + Maintenance',
+        accountNumber: String(accountNumber),
+        isIncluded: true,
+        type: 'expense',
+      })
+      accountNumber += 100
+    }
+    if (commonExpenses.software) {
+      customizationsList.push({
+        templateAccountName: 'Expense',
+        name: 'Software + Subscriptions',
+        accountNumber: String(accountNumber),
+        isIncluded: true,
+        type: 'expense',
+      })
+      accountNumber += 100
+    }
+    if (commonExpenses.suppliesMaterials) {
+      customizationsList.push({
+        templateAccountName: 'Expense',
+        name: 'Supplies + Materials',
+        accountNumber: String(accountNumber),
+        isIncluded: true,
+        type: 'expense',
+      })
+      accountNumber += 100
+    }
+    if (commonExpenses.travel) {
+      customizationsList.push({
+        templateAccountName: 'Expense',
+        name: 'Travel',
+        accountNumber: String(accountNumber),
+        isIncluded: true,
+        type: 'expense',
+      })
+      accountNumber += 100
+    }
+    if (commonExpenses.utilities) {
+      customizationsList.push({
+        templateAccountName: 'Expense',
+        name: 'Utilities',
         accountNumber: String(accountNumber),
         isIncluded: true,
         type: 'expense',
@@ -749,9 +922,24 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
 
       <div className={styles.checkboxGrid}>
         <Checkbox
-          label="Rent"
-          checked={commonExpenses.rent}
-          onChange={() => setCommonExpenses({...commonExpenses, rent: !commonExpenses.rent})}
+          label="Bank Fees"
+          checked={commonExpenses.bankFees}
+          onChange={() => setCommonExpenses({...commonExpenses, bankFees: !commonExpenses.bankFees})}
+        />
+        <Checkbox
+          label="Business License + Permits"
+          checked={commonExpenses.businessLicense}
+          onChange={() => setCommonExpenses({...commonExpenses, businessLicense: !commonExpenses.businessLicense})}
+        />
+        <Checkbox
+          label="Continuing Education"
+          checked={commonExpenses.continuingEducation}
+          onChange={() => setCommonExpenses({...commonExpenses, continuingEducation: !commonExpenses.continuingEducation})}
+        />
+        <Checkbox
+          label="Contract Labor"
+          checked={commonExpenses.contractLabor}
+          onChange={() => setCommonExpenses({...commonExpenses, contractLabor: !commonExpenses.contractLabor})}
         />
         <Checkbox
           label="Insurance"
@@ -759,12 +947,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
           onChange={() => setCommonExpenses({...commonExpenses, insurance: !commonExpenses.insurance})}
         />
         <Checkbox
-          label="Software & Subscriptions"
-          checked={commonExpenses.software}
-          onChange={() => setCommonExpenses({...commonExpenses, software: !commonExpenses.software})}
-        />
-        <Checkbox
-          label="Marketing & Advertising"
+          label="Marketing + Advertising"
           checked={commonExpenses.marketing}
           onChange={() => setCommonExpenses({...commonExpenses, marketing: !commonExpenses.marketing})}
         />
@@ -774,14 +957,54 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
           onChange={() => setCommonExpenses({...commonExpenses, merchantFees: !commonExpenses.merchantFees})}
         />
         <Checkbox
-          label="Phone & Internet"
+          label="Office Supplies"
+          checked={commonExpenses.officeSupplies}
+          onChange={() => setCommonExpenses({...commonExpenses, officeSupplies: !commonExpenses.officeSupplies})}
+        />
+        <Checkbox
+          label="Phone + Internet"
           checked={commonExpenses.phoneInternet}
           onChange={() => setCommonExpenses({...commonExpenses, phoneInternet: !commonExpenses.phoneInternet})}
         />
         <Checkbox
-          label="Office Supplies"
-          checked={commonExpenses.officeSupplies}
-          onChange={() => setCommonExpenses({...commonExpenses, officeSupplies: !commonExpenses.officeSupplies})}
+          label="Postage + Delivery"
+          checked={commonExpenses.postageDelivery}
+          onChange={() => setCommonExpenses({...commonExpenses, postageDelivery: !commonExpenses.postageDelivery})}
+        />
+        <Checkbox
+          label="Professional Fees"
+          checked={commonExpenses.professionalFees}
+          onChange={() => setCommonExpenses({...commonExpenses, professionalFees: !commonExpenses.professionalFees})}
+        />
+        <Checkbox
+          label="Rent"
+          checked={commonExpenses.rent}
+          onChange={() => setCommonExpenses({...commonExpenses, rent: !commonExpenses.rent})}
+        />
+        <Checkbox
+          label="Repairs + Maintenance"
+          checked={commonExpenses.repairsMaintenance}
+          onChange={() => setCommonExpenses({...commonExpenses, repairsMaintenance: !commonExpenses.repairsMaintenance})}
+        />
+        <Checkbox
+          label="Software + Subscriptions"
+          checked={commonExpenses.software}
+          onChange={() => setCommonExpenses({...commonExpenses, software: !commonExpenses.software})}
+        />
+        <Checkbox
+          label="Supplies + Materials"
+          checked={commonExpenses.suppliesMaterials}
+          onChange={() => setCommonExpenses({...commonExpenses, suppliesMaterials: !commonExpenses.suppliesMaterials})}
+        />
+        <Checkbox
+          label="Travel"
+          checked={commonExpenses.travel}
+          onChange={() => setCommonExpenses({...commonExpenses, travel: !commonExpenses.travel})}
+        />
+        <Checkbox
+          label="Utilities"
+          checked={commonExpenses.utilities}
+          onChange={() => setCommonExpenses({...commonExpenses, utilities: !commonExpenses.utilities})}
         />
       </div>
 

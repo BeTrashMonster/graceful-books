@@ -106,6 +106,43 @@ export interface CoaWizardData {
     type: AccountType
     description?: string
   }>
+  /**
+   * Form state for the customization step (Parts 1-6)
+   * Saved continuously to support "Save and finish later"
+   */
+  customizationFormData?: {
+    currentPart: number
+    bankAccounts: Array<{ id: string; name: string }>
+    includeCash: boolean
+    cashName: string
+    includeEquipment: boolean
+    equipmentItems: Array<{ id: string; name: string; value: string }>
+    includeInventory: boolean
+    inventoryName: string
+    creditCards: Array<{ id: string; name: string; balance: string }>
+    loans: Array<{ id: string; name: string; balance: string }>
+    incomeSources: Array<{ id: string; name: string }>
+    commonExpenses: {
+      rent: boolean
+      insurance: boolean
+      software: boolean
+      marketing: boolean
+      merchantFees: boolean
+      phoneInternet: boolean
+      officeSupplies: boolean
+      bankFees: boolean
+      suppliesMaterials: boolean
+      utilities: boolean
+      contractLabor: boolean
+      professionalFees: boolean
+      businessLicense: boolean
+      continuingEducation: boolean
+      travel: boolean
+      postageDelivery: boolean
+      repairsMaintenance: boolean
+    }
+    customExpenses: Array<{ id: string; name: string }>
+  }
 }
 
 /**

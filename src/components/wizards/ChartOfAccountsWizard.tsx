@@ -175,8 +175,11 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
     handleNext()
   }, [handleUpdateData, handleNext])
 
-  const handleCustomizationsUpdate = useCallback((customizations: AccountCustomization[]) => {
-    handleUpdateData({ customizations })
+  const handleCustomizationsUpdate = useCallback((customizations: AccountCustomization[], formData?: any) => {
+    handleUpdateData({
+      customizations,
+      customizationFormData: formData
+    })
   }, [handleUpdateData])
 
   const handleCreateAccounts = useCallback(async () => {
@@ -291,6 +294,7 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
           <AccountCustomizationStep
             template={data.selectedTemplateId ? getTemplateById(data.selectedTemplateId) : undefined}
             customizations={data.customizations || []}
+            savedFormData={data.customizationFormData}
             onUpdate={handleCustomizationsUpdate}
             onNext={handleNext}
             onBack={handleBack}
