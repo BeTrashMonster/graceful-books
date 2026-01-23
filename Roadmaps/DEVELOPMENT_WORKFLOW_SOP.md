@@ -73,13 +73,34 @@ Check deployment status:
 
 ## Testing Workflow
 
-### Testing Changes on app.audacious.money
+### Testing Changes on graceful-books.pages.dev
 
-**IMPORTANT:** Always clear localStorage between tests to start fresh.
+**IMPORTANT:** Always reset data properly between tests.
 
-#### Method 1: Clear Wizard Progress Only (Recommended)
+#### ⭐ Method 1: One-Command Full Reset (RECOMMENDED) ⭐
 
-When testing wizard changes specifically:
+**This is the easiest and most reliable method:**
+
+```javascript
+// Open browser console (F12 → Console tab), paste this ONE line:
+devResetCompany()
+```
+
+**What this does:**
+- ✅ Clears localStorage (including wizard progress)
+- ✅ Deletes IndexedDB (accounts, transactions, everything)
+- ✅ Clears all caches
+- ✅ Preserves your login (no need to log in again)
+- ✅ Automatically reloads the page
+- ✅ Always works reliably
+
+**Result:** Fresh start at the Chart of Accounts wizard in 2 seconds.
+
+---
+
+#### Method 2: Clear Wizard Progress Only
+
+When testing wizard changes and you DON'T want to delete accounts:
 
 ```javascript
 // Open browser console (F12 → Console tab)
@@ -87,25 +108,11 @@ Object.keys(localStorage).filter(k => k.includes('wizard')).forEach(k => localSt
 location.reload()
 ```
 
-#### Method 2: Clear All Storage (Full Reset)
+#### Method 3: Manual Reset (NOT RECOMMENDED)
 
-When you need a completely fresh start:
+**Don't use this method** - it's easy to forget steps and cause "Continue guided setup" bugs.
 
-```javascript
-// Open browser console (F12 → Console tab)
-localStorage.clear()
-location.reload(true)
-```
-
-#### Method 3: Delete IndexedDB (Reset All Data)
-
-When you need to clear all saved data (accounts, transactions, etc.):
-
-1. Press **F12** to open DevTools
-2. Go to **Application** tab
-3. Click **IndexedDB** in left sidebar
-4. Right-click on the database → **Delete database**
-5. Refresh the page (F5 or Ctrl+R)
+Use **devResetCompany()** instead (Method 1).
 
 ### Verifying Changes
 
