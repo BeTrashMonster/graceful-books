@@ -63,16 +63,8 @@ export const ChartOfAccounts: FC<ChartOfAccountsProps> = ({ companyId }) => {
   // Check for saved wizard progress
   useEffect(() => {
     const saved = loadWizardProgress('coa-setup', companyId)
-
-    // If wizard says it's complete but we have no accounts, clear the stale progress
-    if (saved?.isComplete && accounts.length === 0) {
-      localStorage.removeItem(`wizard-progress-coa-setup-${companyId}`)
-      setHasSavedWizardProgress(false)
-      return
-    }
-
     setHasSavedWizardProgress(!!saved && !saved.isComplete)
-  }, [companyId, accounts.length])
+  }, [companyId])
 
   const handleCreate = () => {
     setModalState({ type: 'create' })
