@@ -5,7 +5,7 @@
  * Users type in their actual accounts rather than checking boxes.
  */
 
-import { type FC, useState, useCallback, useEffect } from 'react'
+import { type FC, useState, useEffect } from 'react'
 import { Button } from '../../core/Button'
 import { Input } from '../../forms/Input'
 import { Checkbox } from '../../forms/Checkbox'
@@ -43,7 +43,6 @@ interface ExpenseEntry {
 
 export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   template,
-  customizations,
   onUpdate,
   onNext,
   onBack,
