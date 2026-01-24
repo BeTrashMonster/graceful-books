@@ -33,9 +33,6 @@ export const TemplateSelectionStep: FC<TemplateSelectionStepProps> = ({
   const [hoveredTemplateId, setHoveredTemplateId] = useState<string | null>(null)
   const [selectedForPreview, setSelectedForPreview] = useState<string | null>(selectedTemplateId || null)
 
-  const selectedTemplate = selectedForPreview
-    ? templates.find((t) => t.id === selectedForPreview)
-    : null
 
   const handleTemplateClick = (templateId: string) => {
     setSelectedForPreview(templateId)

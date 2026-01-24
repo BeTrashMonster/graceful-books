@@ -53,11 +53,6 @@ export interface AccountListProps {
    * Whether data is currently loading
    */
   isLoading?: boolean
-
-  /**
-   * Parent accounts for reference
-   */
-  parentAccounts?: Account[]
 }
 
 type ViewMode = 'card' | 'tree'
@@ -73,7 +68,6 @@ export const AccountList: FC<AccountListProps> = ({
   onDelete,
   onCreate,
   isLoading = false,
-  parentAccounts = [],
 }) => {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
@@ -160,10 +154,6 @@ export const AccountList: FC<AccountListProps> = ({
     { value: 'balance', label: 'Balance' },
   ]
 
-  const getParentName = (parentId?: string) => {
-    if (!parentId) return undefined
-    return parentAccounts.find((p) => p.id === parentId)?.name
-  }
 
   if (isLoading) {
     return (

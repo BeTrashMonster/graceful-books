@@ -39,7 +39,15 @@ export function useRecentActivity(companyId: string, limit = 5): {
           const limitedActivities = activities.slice(0, limit);
 
           if (mounted) {
-            setRecentEdits(limitedActivities);
+            // Map RecentActivity[] to RecentEditEntry[]
+            const editEntries: RecentEditEntry[] = limitedActivities.map(activity => ({
+              id: activity.id,
+              entity_type: activity.entity_type,
+              entity_id: activity.entity_id || '',
+              label: activity.entity_label,
+              timestamp: activity.timestamp,
+            }));
+            setRecentEdits(editEntries);
           }
         } else {
           // Fallback: Return empty array (table will be created when user edits something)

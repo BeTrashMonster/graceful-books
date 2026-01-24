@@ -9,6 +9,43 @@
  * - ARCH-004: CRDT-Compatible Schema Design
  */
 
+import type { BaseEntity } from '../../types/database.types';
+
+/**
+ * Currency entity
+ */
+export interface Currency extends BaseEntity {
+  id: string;
+  company_id: string;
+  code: string; // ISO 4217 code (e.g., "USD", "EUR")
+  name: string;
+  symbol: string;
+  decimal_places: number;
+  is_base_currency: boolean;
+  is_active: boolean;
+  created_at: number;
+  updated_at: number;
+  deleted_at: number | null;
+  version_vector: Record<string, number>;
+}
+
+/**
+ * Exchange Rate entity
+ */
+export interface ExchangeRate extends BaseEntity {
+  id: string;
+  company_id: string;
+  from_currency: string; // Currency code
+  to_currency: string; // Currency code
+  rate: string; // Decimal as string for precision
+  effective_date: number; // Timestamp
+  source: string | null; // e.g., "manual", "api", "bank"
+  created_at: number;
+  updated_at: number;
+  deleted_at: number | null;
+  version_vector: Record<string, number>;
+}
+
 /**
  * Dexie.js schema definition for Currencies table
  *

@@ -103,7 +103,7 @@ export async function calculateAvailableCash(companyId: string): Promise<number>
     .where('companyId')
     .equals(companyId)
     .toArray()
-  const accounts = allAccounts.filter(account => account.isActive)
+  const accounts = allAccounts.filter(account => account.active)
 
   let availableCash = new Decimal(0)
 

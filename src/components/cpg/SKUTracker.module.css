@@ -1,0 +1,278 @@
+/**
+ * SKU Tracker Styles
+ *
+ * Displays pricing information for standalone CPG users
+ * WCAG 2.1 AA compliant
+ */
+
+.tracker {
+  background-color: var(--color-background, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--color-primary-light, #dbeafe) 0%, var(--color-background, #ffffff) 100%);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* SKU Count Display */
+.skuCount {
+  text-align: center;
+  padding: 1.5rem 1rem;
+}
+
+.countCircle {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.countNumber {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.countLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem;
+}
+
+.countDescription {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+/* Pricing Breakdown */
+.pricingBreakdown {
+  padding: 1.5rem;
+  background-color: var(--color-background-secondary, #f9fafb);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+}
+
+.breakdownRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border-light, #f3f4f6);
+}
+
+.breakdownRow:last-child {
+  border-bottom: none;
+}
+
+.breakdownRow.savings {
+  color: #10b981;
+}
+
+.breakdownRow.total {
+  padding-top: 1rem;
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.breakdownLabel {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.total .breakdownLabel {
+  color: var(--color-text-primary, #1f2937);
+}
+
+.breakdownValue {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1f2937);
+}
+
+.total .breakdownValue {
+  font-size: 1.5rem;
+  color: var(--color-primary, #3b82f6);
+}
+
+.breakdownDivider {
+  height: 1px;
+  background-color: var(--color-border, #e5e7eb);
+  margin: 0.5rem 0;
+}
+
+/* Message Cards */
+.messaging {
+  margin-top: 0.5rem;
+}
+
+.messageCard {
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+}
+
+.messageCard.info {
+  background-color: #eff6ff;
+  border-color: #3b82f6;
+}
+
+.messageCard.success {
+  background-color: #f0fdf4;
+  border-color: #10b981;
+}
+
+.messageText {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.messageCard.info .messageText {
+  color: #1e40af;
+}
+
+.messageCard.success .messageText {
+  color: #065f46;
+}
+
+/* Actions */
+.actions {
+  margin-top: 0.5rem;
+}
+
+.actions button {
+  width: 100%;
+}
+
+/* Pricing Info */
+.pricingInfo {
+  padding: 1.5rem;
+  background-color: var(--color-background-secondary, #f9fafb);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+}
+
+.infoTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0 0 1rem 0;
+}
+
+.infoList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.infoItem {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary, #6b7280);
+  line-height: 1.6;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.infoItem::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #10b981;
+  font-weight: 700;
+}
+
+.infoItem strong {
+  color: var(--color-text-primary, #1f2937);
+  font-weight: 600;
+}
+
+/* Upgrade Card */
+.upgradeCard {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #ffffff 100%);
+  border: 2px solid #f59e0b;
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+.upgradeTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0 0 0.75rem 0;
+}
+
+.upgradeText {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0 0 1rem 0;
+  line-height: 1.6;
+}
+
+.upgradeCard button {
+  width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header,
+  .content {
+    padding: 1rem;
+  }
+
+  .countCircle {
+    width: 100px;
+    height: 100px;
+  }
+
+  .countNumber {
+    font-size: 2.5rem;
+  }
+
+  .pricingBreakdown,
+  .pricingInfo,
+  .upgradeCard {
+    padding: 1rem;
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

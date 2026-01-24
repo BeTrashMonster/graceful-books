@@ -1,0 +1,311 @@
+/**
+ * CPU Timeline Styles
+ *
+ * Visual timeline with expandable entries
+ * WCAG 2.1 AA compliant
+ */
+
+.container {
+  width: 100%;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 3rem 2rem;
+  background-color: var(--color-background-secondary, #f9fafb);
+  border-radius: 0.75rem;
+  border: 2px dashed var(--color-border, #e5e7eb);
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.emptyText {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+/* Timeline */
+.timeline {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.timelineItem {
+  position: relative;
+  display: flex;
+  gap: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+.timelineItem:last-child {
+  padding-bottom: 0;
+}
+
+/* Timeline Connector */
+.timelineConnector {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.timelineDot {
+  width: 1rem;
+  height: 1rem;
+  background-color: var(--color-primary, #3b82f6);
+  border: 3px solid var(--color-background, #ffffff);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--color-primary-light, #dbeafe);
+  z-index: 1;
+}
+
+.timelineLine {
+  width: 2px;
+  flex: 1;
+  background-color: var(--color-border, #e5e7eb);
+  margin-top: 0.5rem;
+}
+
+/* Timeline Content */
+.timelineContent {
+  flex: 1;
+  background-color: var(--color-background, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.timelineContent:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Timeline Header */
+.timelineHeader {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s;
+}
+
+.timelineHeader:hover {
+  background-color: var(--color-background-secondary, #f9fafb);
+}
+
+.timelineHeader:focus-visible {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: -2px;
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.invoiceDate {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1f2937);
+}
+
+.invoiceNumber {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary, #3b82f6);
+}
+
+.vendorName {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.variantCount {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  padding: 0.25rem 0.75rem;
+  background-color: var(--color-background-secondary, #f3f4f6);
+  border-radius: 9999px;
+}
+
+.expandIcon {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #9ca3af);
+  transition: transform 0.2s;
+}
+
+/* Timeline Details */
+.timelineDetails {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  background-color: var(--color-background-secondary, #f9fafb);
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  padding-top: 1.25rem;
+}
+
+/* Variant Cards */
+.variantCard {
+  padding: 1rem;
+  background-color: var(--color-background, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+}
+
+.variantHeader {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border-light, #f3f4f6);
+}
+
+.variantName {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1f2937);
+}
+
+.variantDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detailLabel {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.detailValue {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1f2937);
+}
+
+/* View Details Button */
+.viewDetailsButton {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary, #3b82f6);
+  background-color: var(--color-background, #ffffff);
+  border: 1px solid var(--color-primary, #3b82f6);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.viewDetailsButton:hover {
+  background-color: var(--color-primary, #3b82f6);
+  color: white;
+}
+
+.viewDetailsButton:focus-visible {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .timelineItem {
+    gap: 1rem;
+  }
+
+  .timelineHeader {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .headerRight {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .timelineDetails {
+    padding: 0 1rem 1rem 1rem;
+  }
+
+  .detailsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .timelineConnector {
+    display: none;
+  }
+
+  .timelineItem {
+    padding-left: 0;
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .expandIcon {
+    transition: none;
+  }
+
+  .timelineContent {
+    transition: none;
+  }
+
+  .timelineHeader {
+    transition: none;
+  }
+
+  .timelineDetails {
+    animation: none;
+  }
+
+  .viewDetailsButton {
+    transition: none;
+  }
+}

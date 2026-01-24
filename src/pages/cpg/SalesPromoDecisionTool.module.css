@@ -1,0 +1,145 @@
+/* Sales Promo Decision Tool Page Styles */
+
+.pageContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1.5rem 0;
+}
+
+.section {
+  width: 100%;
+}
+
+/* Decision Card */
+.decisionCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--border-radius-lg, 12px);
+  border: 2px solid var(--color-border, #e5e7eb);
+  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.decisionTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.decisionDescription {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+/* Notes Field */
+.notesField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.notesLabel {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #111827);
+}
+
+.notesTextarea {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-family: inherit;
+  line-height: 1.6;
+  color: var(--color-text-primary, #111827);
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: var(--border-radius-md, 8px);
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notesTextarea:focus {
+  outline: none;
+  border-color: var(--color-primary, #0066cc);
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.notesTextarea::placeholder {
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* Decision Actions */
+.decisionActions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.approveButton {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+}
+
+.approveButton:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.declineButton {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: none;
+}
+
+.declineButton:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .pageContent {
+    padding: 1rem 0;
+    gap: 1.5rem;
+  }
+
+  .decisionCard {
+    padding: 1.5rem;
+  }
+
+  .decisionActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .decisionActions button {
+    width: 100%;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .notesTextarea {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .decisionCard {
+    border-width: 3px;
+  }
+
+  .notesTextarea {
+    border-width: 2px;
+  }
+
+  .notesTextarea:focus {
+    border-width: 3px;
+  }
+}

@@ -27,7 +27,6 @@ import {
 } from '../db/schema/portalTokens.schema';
 import { getDeviceId } from '../utils/device';
 import { incrementVersionVector } from '../db/crdt';
-import { ErrorCode } from '../utils/errors';
 import { logger } from '../utils/logger';
 
 const portalLogger = logger.child('PortalService');
@@ -110,7 +109,7 @@ function checkRateLimit(ip: string): boolean {
 /**
  * Record a portal access (rate limit already checked in validateToken)
  */
-function recordAccess(ip: string): void {
+function recordAccess(_ip: string): void {
   // Rate limit already checked, just track the access
   // The checkRateLimit call in validateToken handles both checking and incrementing
 }
@@ -130,7 +129,7 @@ export async function createPortalToken(
       return {
         success: false,
         error: {
-          code: ErrorCode.NOT_FOUND,
+          code: 'NOT_FOUND',
           message: `Invoice not found: ${invoiceId}`,
         },
       };
@@ -140,7 +139,7 @@ export async function createPortalToken(
       return {
         success: false,
         error: {
-          code: ErrorCode.PERMISSION_DENIED,
+          code: 'VALIDATION_ERROR',
           message: 'Invoice does not belong to this company',
         },
       };
@@ -199,7 +198,7 @@ export async function createPortalToken(
     return {
       success: false,
       error: {
-        code: ErrorCode.UNKNOWN_ERROR,
+        code: 'UNKNOWN_ERROR',
         message: error instanceof Error ? error.message : 'Unknown error',
         details: error,
       },
@@ -220,7 +219,7 @@ export async function validateToken(
       return {
         success: false,
         error: {
-          code: ErrorCode.RATE_LIMITED,
+          code: 'VALIDATION_ERROR',
           message: "We've noticed a few attempts. For your security, please wait a moment.",
         },
       };
@@ -234,7 +233,7 @@ export async function validateToken(
       return {
         success: false,
         error: {
-          code: ErrorCode.NOT_FOUND,
+          code: 'NOT_FOUND',
           message: 'Invalid or expired portal link. Please request a new one.',
         },
       };
@@ -251,7 +250,7 @@ export async function validateToken(
       return {
         success: false,
         error: {
-          code: ErrorCode.SESSION_INVALID,
+          code: 'VALIDATION_ERROR',
           message: 'This portal link has expired or been revoked. Please request a new one.',
         },
       };
@@ -267,7 +266,7 @@ export async function validateToken(
       return {
         success: false,
         error: {
-          code: ErrorCode.NOT_FOUND,
+          code: 'NOT_FOUND',
           message: 'Invoice not found',
         },
       };
@@ -304,7 +303,7 @@ export async function validateToken(
     return {
       success: false,
       error: {
-        code: ErrorCode.UNKNOWN_ERROR,
+        code: 'UNKNOWN_ERROR',
         message: error instanceof Error ? error.message : 'Unknown error',
         details: error,
       },
@@ -323,7 +322,7 @@ export async function revokeToken(tokenId: string): Promise<DatabaseResult<void>
       return {
         success: false,
         error: {
-          code: ErrorCode.NOT_FOUND,
+          code: 'NOT_FOUND',
           message: `Token not found: ${tokenId}`,
         },
       };
@@ -350,7 +349,7 @@ export async function revokeToken(tokenId: string): Promise<DatabaseResult<void>
     return {
       success: false,
       error: {
-        code: ErrorCode.UNKNOWN_ERROR,
+        code: 'UNKNOWN_ERROR',
         message: error instanceof Error ? error.message : 'Unknown error',
         details: error,
       },
@@ -378,7 +377,7 @@ export async function getInvoicePortalTokens(
     return {
       success: false,
       error: {
-        code: ErrorCode.UNKNOWN_ERROR,
+        code: 'UNKNOWN_ERROR',
         message: error instanceof Error ? error.message : 'Unknown error',
         details: error,
       },
@@ -417,7 +416,7 @@ export async function cleanupExpiredTokens(): Promise<DatabaseResult<number>> {
     return {
       success: false,
       error: {
-        code: ErrorCode.UNKNOWN_ERROR,
+        code: 'UNKNOWN_ERROR',
         message: error instanceof Error ? error.message : 'Unknown error',
         details: error,
       },

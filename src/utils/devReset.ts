@@ -108,6 +108,6 @@ export async function resetEverything(): Promise<void> {
 
 // Add to window for easy console access
 if (typeof window !== 'undefined') {
-  (window as any).devResetCompany = resetCompanyData
-  (window as any).devResetAll = resetEverything
+  (window as any).devResetCompany = resetCompanyData;
+  (window as any).devResetAll = resetEverything;
 }

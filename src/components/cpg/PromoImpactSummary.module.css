@@ -1,0 +1,193 @@
+/* Promo Impact Summary Styles */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--border-radius-lg, 12px);
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--color-border, #e5e7eb);
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: var(--color-surface-elevated, #f9fafb);
+  border-radius: var(--border-radius-md, 8px);
+  border: 1px solid var(--color-border, #e5e7eb);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metricCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.prominentCard {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 2px solid #0ea5e9;
+}
+
+.metricLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metricValue {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-text-primary, #111827);
+}
+
+.metricDescription {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+/* Margin Difference Styling */
+.marginDifference {
+  align-items: center;
+}
+
+.marginDifference .icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.marginDifference .value {
+  font-size: 2rem;
+}
+
+.positive {
+  color: #10b981;
+}
+
+.negative {
+  color: #dc2626;
+}
+
+/* Total Cost Styling */
+.totalCost {
+  align-items: baseline;
+}
+
+.totalCost .currency {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.totalCost .amount {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #0ea5e9;
+}
+
+/* Total Units Styling */
+.totalUnits .value {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+/* Interpretation Message */
+.interpretation {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: var(--border-radius-md, 8px);
+  border-left: 4px solid #f59e0b;
+}
+
+.interpretationIcon {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.interpretationText {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #78350f;
+  margin: 0;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .metricValue {
+    font-size: 1.75rem;
+  }
+
+  .totalCost .amount {
+    font-size: 2rem;
+  }
+
+  .marginDifference .icon,
+  .marginDifference .value {
+    font-size: 1.75rem;
+  }
+}
+
+/* Tablet responsive */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .metricsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .metricCard {
+    transition: none;
+  }
+
+  .metricCard:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .prominentCard {
+    border-width: 3px;
+  }
+
+  .interpretation {
+    border-left-width: 6px;
+  }
+
+  .positive,
+  .negative {
+    font-weight: 900;
+  }
+}

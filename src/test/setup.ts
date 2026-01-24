@@ -72,7 +72,7 @@ if (typeof window !== 'undefined') {
       const derivedBits = await crypto.subtle.deriveBits(
         {
           name: 'PBKDF2',
-          salt: options.salt,
+          salt: options.salt as BufferSource,
           iterations: options.time * 100000,
           hash: 'SHA-256',
         },

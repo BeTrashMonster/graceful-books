@@ -1,0 +1,223 @@
+/* Promo Comparison Styles */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--border-radius-lg, 12px);
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--color-border, #e5e7eb);
+}
+
+.variantSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--color-surface-elevated, #f9fafb);
+  border-radius: var(--border-radius-md, 8px);
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+.variantTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 0.75rem 0;
+}
+
+.comparisonGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--border-radius-md, 8px);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
+}
+
+.columnHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  border-bottom: 2px solid var(--color-border, #d1d5db);
+}
+
+.columnIcon {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.columnTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.columnContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.metricLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.metricValue {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.marginValue {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.marginIcon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.marginQualityLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-left: 0.25rem;
+}
+
+/* Margin Quality Colors */
+.marginPoor {
+  color: #dc2626;
+}
+
+.marginPoor .marginIcon {
+  color: #dc2626;
+}
+
+.marginGood {
+  color: #f59e0b;
+}
+
+.marginGood .marginIcon {
+  color: #f59e0b;
+}
+
+.marginBetter {
+  color: #10b981;
+}
+
+.marginBetter .marginIcon {
+  color: #10b981;
+}
+
+.marginBest {
+  color: #059669;
+}
+
+.marginBest .marginIcon {
+  color: #059669;
+}
+
+/* Margin Difference Indicator */
+.differenceIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--border-radius-md, 8px);
+  border: 2px solid var(--color-border, #e5e7eb);
+  margin-top: 0.5rem;
+}
+
+.differenceLabel {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.differenceValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.differencePositive {
+  color: #10b981;
+}
+
+.differenceNegative {
+  color: #dc2626;
+}
+
+/* Mobile responsive - stack columns vertically */
+@media (max-width: 768px) {
+  .comparisonGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .column {
+    width: 100%;
+  }
+
+  .metricValue {
+    font-size: 1rem;
+  }
+
+  .differenceValue {
+    font-size: 1.125rem;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .column {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .marginPoor,
+  .marginGood,
+  .marginBetter,
+  .marginBest {
+    font-weight: 700;
+  }
+
+  .column {
+    border: 2px solid var(--color-border, #d1d5db);
+  }
+}

@@ -196,11 +196,33 @@ import type {
 import {
   currenciesSchema,
   exchangeRatesSchema,
+  type Currency,
+  type ExchangeRate,
 } from './schema/currency.schema';
+import {
+  cpgCategoriesSchema,
+  cpgInvoicesSchema,
+  cpgDistributorsSchema,
+  cpgDistributionCalculationsSchema,
+  cpgSalesPromosSchema,
+} from './schema/cpg.schema';
 import type {
-  Currency,
-  ExchangeRate,
-} from '../types/database.types';
+  CPGCategory,
+  CPGInvoice,
+  CPGDistributor,
+  CPGDistributionCalculation,
+  CPGSalesPromo,
+} from './schema/cpg.schema';
+import {
+  standaloneFinancialsSchema,
+  skuCountTrackersSchema,
+} from './schema/standaloneFinancials.schema';
+import type {
+  StandaloneFinancials,
+  SKUCountTracker,
+} from './schema/standaloneFinancials.schema';
+import { cpgProductLinksSchema } from './schema/cpgProductLinks.schema';
+import type { CPGProductLink } from './schema/cpgProductLinks.schema';
 
 /**
  * TreasureChest Database Class
@@ -275,6 +297,14 @@ export class TreasureChestDB extends Dexie {
   scenario_notes!: Table<any, string>;
   currencies!: Table<Currency, string>;
   exchangeRates!: Table<ExchangeRate, string>;
+  cpgCategories!: Table<CPGCategory, string>;
+  cpgInvoices!: Table<CPGInvoice, string>;
+  cpgDistributors!: Table<CPGDistributor, string>;
+  cpgDistributionCalculations!: Table<CPGDistributionCalculation, string>;
+  cpgSalesPromos!: Table<CPGSalesPromo, string>;
+  cpgProductLinks!: Table<CPGProductLink, string>;
+  standaloneFinancials!: Table<StandaloneFinancials, string>;
+  skuCountTrackers!: Table<SKUCountTracker, string>;
 
   constructor() {
     super('TreasureChest');
@@ -960,6 +990,154 @@ export class TreasureChestDB extends Dexie {
       exchangeRates: exchangeRatesSchema,
     });
 
+    // Version 20: Add Standalone Financials for CPG standalone mode
+    this.version(20).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+      recentActivity: recentActivitySchema,
+      conflict_history: conflictHistorySchema,
+      conflict_notifications: conflictNotificationsSchema,
+      comments: commentsSchema,
+      mentions: mentionsSchema,
+      emailQueue: emailQueueSchema,
+      emailLogs: emailLogsSchema,
+      emailNotificationPreferences: emailNotificationPreferencesSchema,
+      subscriptions: subscriptionsSchema,
+      advisorClients: advisorClientsSchema,
+      advisorTeamMembers: advisorTeamMembersSchema,
+      paymentMethods: paymentMethodsSchema,
+      billingInvoices: billingInvoicesSchema,
+      stripeWebhookEvents: stripeWebhookEventsSchema,
+      charityDistributions: charityDistributionsSchema,
+      charities: charitiesSchema,
+      financialGoals: financialGoalsSchema,
+      goalProgressSnapshots: goalProgressSnapshotsSchema,
+      taxDocuments: taxDocumentsSchema,
+      taxCategoryStatus: taxCategoryStatusSchema,
+      taxPrepSessions: taxPrepSessionsSchema,
+      taxAdvisorAccess: taxAdvisorAccessSchema,
+      taxPackages: taxPackagesSchema,
+      currencies: currenciesSchema,
+      exchangeRates: exchangeRatesSchema,
+      cpgCategories: cpgCategoriesSchema,
+      cpgInvoices: cpgInvoicesSchema,
+      cpgDistributors: cpgDistributorsSchema,
+      cpgDistributionCalculations: cpgDistributionCalculationsSchema,
+      cpgSalesPromos: cpgSalesPromosSchema,
+      cpgProductLinks: cpgProductLinksSchema,
+      standaloneFinancials: standaloneFinancialsSchema,
+      skuCountTrackers: skuCountTrackersSchema,
+    });
+
+    // Version 19: Add CPG (Consumer Packaged Goods) tables
+    this.version(19).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+      recentActivity: recentActivitySchema,
+      conflict_history: conflictHistorySchema,
+      conflict_notifications: conflictNotificationsSchema,
+      comments: commentsSchema,
+      mentions: mentionsSchema,
+      emailQueue: emailQueueSchema,
+      emailLogs: emailLogsSchema,
+      emailNotificationPreferences: emailNotificationPreferencesSchema,
+      subscriptions: subscriptionsSchema,
+      advisorClients: advisorClientsSchema,
+      advisorTeamMembers: advisorTeamMembersSchema,
+      paymentMethods: paymentMethodsSchema,
+      billingInvoices: billingInvoicesSchema,
+      stripeWebhookEvents: stripeWebhookEventsSchema,
+      charityDistributions: charityDistributionsSchema,
+      charities: charitiesSchema,
+      financialGoals: financialGoalsSchema,
+      goalProgressSnapshots: goalProgressSnapshotsSchema,
+      taxDocuments: taxDocumentsSchema,
+      taxCategoryStatus: taxCategoryStatusSchema,
+      taxPrepSessions: taxPrepSessionsSchema,
+      taxAdvisorAccess: taxAdvisorAccessSchema,
+      taxPackages: taxPackagesSchema,
+      currencies: currenciesSchema,
+      exchangeRates: exchangeRatesSchema,
+      cpgCategories: cpgCategoriesSchema,
+      cpgInvoices: cpgInvoicesSchema,
+      cpgDistributors: cpgDistributorsSchema,
+      cpgDistributionCalculations: cpgDistributionCalculationsSchema,
+      cpgSalesPromos: cpgSalesPromosSchema,
+      cpgProductLinks: cpgProductLinksSchema,
+    });
+
     // Version 14: Add IC4 Email Queue and Logs tables
     this.version(14).stores({
       accounts: accountsSchema,
@@ -1081,6 +1259,14 @@ export class TreasureChestDB extends Dexie {
     this.payments.hook('updating', updateTimestamp);
     this.currencies.hook('updating', updateTimestamp);
     this.exchangeRates.hook('updating', updateTimestamp);
+    this.cpgCategories.hook('updating', updateTimestamp);
+    this.cpgInvoices.hook('updating', updateTimestamp);
+    this.cpgDistributors.hook('updating', updateTimestamp);
+    this.cpgDistributionCalculations.hook('updating', updateTimestamp);
+    this.cpgSalesPromos.hook('updating', updateTimestamp);
+    this.cpgProductLinks.hook('updating', updateTimestamp);
+    this.standaloneFinancials.hook('updating', updateTimestamp);
+    this.skuCountTrackers.hook('updating', updateTimestamp);
   }
 
   /**

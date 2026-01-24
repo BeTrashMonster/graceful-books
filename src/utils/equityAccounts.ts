@@ -9,17 +9,7 @@
  * that would not have issued stock.
  */
 
-import type { EntityType, Owner, Account, AccountType } from '../types'
-
-/**
- * Equity account template for generation
- */
-interface EquityAccountTemplate {
-  name: string
-  accountNumber: string
-  description: string
-  type: AccountType
-}
+import type { EntityType, Owner, Account } from '../types'
 
 /**
  * Generate equity accounts based on entity type and ownership structure
@@ -89,7 +79,7 @@ export function generateEquityAccounts(
       // Multi-member LLC and Partnership use individual capital accounts for each member/partner
       const capitalLabel = entityType === 'multi-member-llc' ? 'Member' : 'Partner'
 
-      owners.forEach((owner, index) => {
+      owners.forEach((owner, _index) => {
         accounts.push({
           companyId,
           name: `${owner.name} - ${capitalLabel} Capital (${owner.ownershipPercentage}%)`,
@@ -103,7 +93,7 @@ export function generateEquityAccounts(
 
       // Add distributions account
       accountNumber = 3100
-      owners.forEach((owner, index) => {
+      owners.forEach((owner, _index) => {
         accounts.push({
           companyId,
           name: `${owner.name} - ${capitalLabel} Distributions (${owner.ownershipPercentage}%)`,

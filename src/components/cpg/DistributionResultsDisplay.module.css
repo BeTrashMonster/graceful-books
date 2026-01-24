@@ -1,0 +1,250 @@
+/**
+ * DistributionResultsDisplay Styles
+ */
+
+.resultsTitle {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.resultsDescription {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.resultsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.sectionTitle {
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Summary Section */
+.summarySection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.summaryCard {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.summaryLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  opacity: 0.9;
+  margin-bottom: 0.5rem;
+}
+
+.summaryValue {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Variants Section */
+.variantsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.variantCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.variantCard {
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.variantCard:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.variantHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.variantName {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.variantMetrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: white;
+  border-radius: 0.25rem;
+}
+
+.metricLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.metricValue {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Breakdown Section */
+.breakdownSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.breakdownTable {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.breakdownTable table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.breakdownTable thead {
+  background-color: #f9fafb;
+}
+
+.breakdownTable th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.breakdownTable td {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #1f2937;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.breakdownTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.breakdownTable tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.totalRow {
+  background-color: #f3f4f6;
+}
+
+.totalRow td {
+  font-weight: 600;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-top: 2px solid #d1d5db;
+}
+
+.rightAlign {
+  text-align: right;
+}
+
+.emptyState {
+  padding: 2rem;
+  background-color: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 0.375rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-align: center;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .variantCard {
+    transition: none;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .summarySection {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryValue {
+    font-size: 1.5rem;
+  }
+
+  .variantCards {
+    grid-template-columns: 1fr;
+  }
+
+  .variantHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .breakdownTable {
+    font-size: 0.8125rem;
+  }
+
+  .breakdownTable th,
+  .breakdownTable td {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}

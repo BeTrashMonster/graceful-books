@@ -7,7 +7,7 @@
 import { useState, useEffect } from 'react';
 import type { CashPositionData } from '../components/dashboard/CashPositionWidget';
 import { db } from '../db/database';
-import { getStartOfMonth, getEndOfMonth } from '../utils/metricsCalculation';
+import { getEndOfMonth } from '../utils/metricsCalculation';
 
 export function useCashPosition(companyId: string): {
   data: CashPositionData | null;
@@ -35,7 +35,7 @@ export function useCashPosition(companyId: string): {
 
         // Calculate current balance (sum of all bank account balances)
         const currentBalance = accounts.reduce((sum, account) => {
-          const balance = parseFloat(account.balanceCents || '0') / 100;
+          const balance = parseFloat(account.balance || '0');
           return sum + balance;
         }, 0);
 
@@ -77,7 +77,7 @@ export function useCashPosition(companyId: string): {
           for (const item of lineItems) {
             if (expenseAccountIds.includes(item.account_id)) {
               // Expenses are debits
-              totalExpenses += parseFloat(item.debit_amount_cents || '0') / 100;
+              totalExpenses += parseFloat(item.debit || '0');
             }
           }
         }
@@ -115,8 +115,8 @@ export function useCashPosition(companyId: string): {
               const account = accounts.find(acc => acc.id === item.account_id);
               if (account) {
                 // Bank accounts increase with debits, decrease with credits
-                const credit = parseFloat(item.credit_amount_cents || '0') / 100;
-                const debit = parseFloat(item.debit_amount_cents || '0') / 100;
+                const credit = parseFloat(item.credit || '0');
+                const debit = parseFloat(item.debit || '0');
                 monthBalance += debit - credit;
               }
             }

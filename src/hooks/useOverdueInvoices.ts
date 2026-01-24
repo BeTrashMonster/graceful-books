@@ -37,21 +37,21 @@ export function useOverdueInvoices(companyId: string, limit = 5): {
         const overdueInvoices = allInvoices
           .filter(invoice => {
             const isPaid = invoice.status === 'PAID';
-            const isDue = invoice.dueDate ? invoice.dueDate < now : false;
+            const isDue = invoice.due_date ? invoice.due_date < now : false;
             return !isPaid && isDue;
           })
           .map(invoice => {
-            const dueDate = invoice.dueDate || now;
+            const dueDate = invoice.due_date || now;
             const daysOverdue = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
 
             // Get customer name (may need to fetch from contacts)
-            const customerName = invoice.customerName || 'Unknown Customer';
+            const customerName = 'Unknown Customer'; // TODO: Fetch from contacts using invoice.contact_id
 
             return {
               id: invoice.id,
-              invoice_number: invoice.invoiceNumber,
+              invoice_number: invoice.invoice_number,
               customer_name: customerName,
-              total: parseFloat(invoice.totalCents || '0') / 100,
+              total: parseFloat(invoice.total || '0') / 100,
               due_date: dueDate,
               days_overdue: daysOverdue,
             };

@@ -186,7 +186,6 @@ export const ChartOfAccounts: FC<ChartOfAccountsProps> = ({ companyId }) => {
           onDelete={handleDelete}
           onCreate={handleCreate}
           isLoading={isLoading}
-          parentAccounts={parentAccounts}
         />
       )}
 

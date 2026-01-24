@@ -1,0 +1,280 @@
+/**
+ * Category Manager Styles
+ *
+ * Clean category/variant management interface
+ * WCAG 2.1 AA compliant
+ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 400px;
+}
+
+/* Error Banner */
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background-color: var(--color-error-light, #fee2e2);
+  border: 1px solid var(--color-error, #ef4444);
+  border-radius: 0.5rem;
+  color: var(--color-error-dark, #991b1b);
+}
+
+.errorText {
+  color: var(--color-error, #ef4444);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Category List */
+.categoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.categoryCard {
+  padding: 1.25rem;
+  background-color: var(--color-background, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.categoryCard:hover {
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.categoryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.categoryInfo {
+  flex: 1;
+}
+
+.categoryName {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0 0 0.25rem 0;
+}
+
+.categoryDescription {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+.categoryActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Variant Tags */
+.variantTags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border-light, #f3f4f6);
+}
+
+.variantTagsLabel {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.variantTag {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-primary-dark, #1e40af);
+  background-color: var(--color-primary-light, #dbeafe);
+  border-radius: 9999px;
+}
+
+/* Category Editor */
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.editorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.editorTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0;
+}
+
+.editorContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Variants Section */
+.variantsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.variantsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.variantsLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #374151);
+}
+
+.variantsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.variantRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.removeVariantButton {
+  margin-top: 0.125rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--color-error, #ef4444);
+  background: none;
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  min-width: 2.5rem;
+  height: 2.75rem;
+}
+
+.removeVariantButton:hover {
+  background-color: var(--color-error-light, #fee2e2);
+  border-color: var(--color-error, #ef4444);
+}
+
+.removeVariantButton:focus-visible {
+  outline: 2px solid var(--color-error, #ef4444);
+  outline-offset: 2px;
+}
+
+.editorActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 3rem 2rem;
+  background-color: var(--color-background-secondary, #f9fafb);
+  border-radius: 0.75rem;
+  border: 2px dashed var(--color-border, #e5e7eb);
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.emptyTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0 0 0.75rem 0;
+}
+
+.emptyText {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .categoryHeader {
+    flex-direction: column;
+  }
+
+  .categoryActions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .editorActions {
+    flex-direction: column-reverse;
+  }
+
+  .editorActions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .categoryCard {
+    transition: none;
+  }
+
+  .removeVariantButton {
+    transition: none;
+  }
+}

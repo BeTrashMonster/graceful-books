@@ -333,8 +333,8 @@ export const STANDARD_JOURNAL_ENTRY_TEMPLATES_EXTENDED: JournalEntryTemplate[] =
     reverse_days: 0,
     created_at: Date.now(),
     updated_at: Date.now(),
-    created_by: 'system',
-    updated_by: 'system',
+    deleted_at: null,
+    version_vector: {},
   },
   {
     id: 'accrued-expense',
@@ -370,8 +370,8 @@ export const STANDARD_JOURNAL_ENTRY_TEMPLATES_EXTENDED: JournalEntryTemplate[] =
     reverse_days: 30,
     created_at: Date.now(),
     updated_at: Date.now(),
-    created_by: 'system',
-    updated_by: 'system',
+    deleted_at: null,
+    version_vector: {},
   },
 ]
 

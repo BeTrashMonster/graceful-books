@@ -36,7 +36,7 @@ export const DEMO_ENTITY_CONFIG: EntityConfiguration = {
  * Get entity configuration for a company
  * TODO: Replace with database lookup when onboarding is implemented
  */
-export function getEntityConfig(companyId: string): EntityConfiguration {
+export function getEntityConfig(_companyId: string): EntityConfiguration {
   // For now, return demo config for all companies
   // Later this will query the database
   return DEMO_ENTITY_CONFIG

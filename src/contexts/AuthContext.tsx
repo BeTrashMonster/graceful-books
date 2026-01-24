@@ -11,6 +11,8 @@ interface AuthContextValue {
   isAuthenticated: boolean
   userIdentifier: string | null
   companyId: string | null
+  currentCompany: { id: string; name: string } | null
+  deviceId: string | null
   role: string
   isLoading: boolean
 }
@@ -26,6 +28,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isAuthenticated: false,
     userIdentifier: null,
     companyId: null,
+    currentCompany: null,
+    deviceId: null,
     role: 'admin',
     isLoading: true,
   })
@@ -41,6 +45,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
             isAuthenticated: true,
             userIdentifier: parsed.userIdentifier || null,
             companyId: parsed.companyId || null,
+            currentCompany: parsed.currentCompany || null,
+            deviceId: parsed.deviceId || null,
             role: parsed.role || 'admin',
             isLoading: false,
           })
@@ -49,6 +55,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
             isAuthenticated: false,
             userIdentifier: null,
             companyId: null,
+            currentCompany: null,
+            deviceId: null,
             role: 'admin',
             isLoading: false,
           })
@@ -59,6 +67,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
           isAuthenticated: false,
           userIdentifier: null,
           companyId: null,
+          currentCompany: null,
+          deviceId: null,
           role: 'admin',
           isLoading: false,
         })

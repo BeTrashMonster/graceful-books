@@ -83,8 +83,8 @@ export function useRevenueExpensesData(companyId: string, months = 6): {
               .toArray();
 
             for (const item of lineItems) {
-              const creditAmount = parseFloat(item.credit_amount_cents || '0') / 100;
-              const debitAmount = parseFloat(item.debit_amount_cents || '0') / 100;
+              const creditAmount = parseFloat(item.credit || '0');
+              const debitAmount = parseFloat(item.debit || '0');
 
               if (incomeAccountIds.includes(item.account_id)) {
                 // Income accounts increase with credits

@@ -459,4 +459,20 @@ export interface Charity {
 /**
  * Re-exports from other type files for convenience
  */
+
+// CPG (Consumer Packaged Goods) Module Types
+export type {
+  CPGCategory,
+  CPGInvoice,
+  CPGDistributor,
+  CPGDistributionCalculation,
+  CPGSalesPromo,
+} from '../db/schema/cpg.schema';
+
+export type { CPGProductLink } from '../db/schema/cpgProductLinks.schema';
+
+export type {
+  StandaloneFinancials,
+  SKUCountTracker,
+} from '../db/schema/standaloneFinancials.schema';
 export type { JournalEntry } from './journalEntry.types'

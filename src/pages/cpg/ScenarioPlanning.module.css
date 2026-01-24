@@ -1,0 +1,666 @@
+/**
+ * Scenario Planning Styles
+ *
+ * WCAG 2.1 AA compliant styling for scenario planning interface.
+ */
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.header p {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #666);
+}
+
+/* Analysis Type Selector */
+.analysisTypeSelector {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--color-border, #e0e0e0);
+}
+
+.analysisTypeSelector button {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #666);
+  transition: all 0.2s ease;
+}
+
+.analysisTypeSelector button:hover {
+  color: var(--color-primary, #2563eb);
+  background: var(--color-bg-hover, #f5f5f5);
+}
+
+.analysisTypeSelector button.active {
+  color: var(--color-primary, #2563eb);
+  border-bottom-color: var(--color-primary, #2563eb);
+  background: var(--color-bg-active, #eff6ff);
+}
+
+/* Section */
+.section {
+  background: var(--color-bg-card, #ffffff);
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.section h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.section > p {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #666);
+  margin-bottom: 1.5rem;
+}
+
+.section h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  margin-top: 1.5rem;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+/* Distributor Grid */
+.distributorGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.distributorCard {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid var(--color-border, #e0e0e0);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.distributorCard:hover {
+  border-color: var(--color-primary, #2563eb);
+  background: var(--color-bg-hover, #f5f5f5);
+}
+
+.distributorCard input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.distributorCard input[type='checkbox']:checked + .distributorName {
+  font-weight: 600;
+  color: var(--color-primary, #2563eb);
+}
+
+.distributorName {
+  font-size: 1rem;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+/* Variant Config */
+.variantConfig {
+  margin-bottom: 2rem;
+}
+
+.variantRow {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.variantRow input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.variantRow button {
+  padding: 0.75rem 1rem;
+  background: var(--color-danger, #dc2626);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background 0.2s ease;
+}
+
+.variantRow button:hover {
+  background: var(--color-danger-hover, #b91c1c);
+}
+
+/* Form Group */
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.formGroup input,
+.formGroup select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.helpText {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #666);
+}
+
+/* Comparison Results */
+.comparisonResults {
+  margin-top: 2rem;
+}
+
+.bestDistributor {
+  padding: 1.5rem;
+  background: var(--color-success-bg, #f0fdf4);
+  border: 2px solid var(--color-success, #22c55e);
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.bestDistributor strong {
+  font-size: 1.125rem;
+  color: var(--color-success, #22c55e);
+}
+
+.bestDistributor p {
+  margin-top: 0.5rem;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.comparisonTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.comparisonTable th,
+.comparisonTable td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+}
+
+.comparisonTable th {
+  background: var(--color-bg-secondary, #f9fafb);
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.comparisonTable tr:hover {
+  background: var(--color-bg-hover, #f5f5f5);
+}
+
+/* Variant Breakdown */
+.variantBreakdown {
+  margin-top: 2rem;
+}
+
+.variantSection {
+  margin-bottom: 2rem;
+}
+
+.variantSection h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.variantTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.variantTable th,
+.variantTable td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+}
+
+.variantTable th {
+  background: var(--color-bg-secondary, #f9fafb);
+  font-weight: 600;
+}
+
+/* What-If */
+.whatIfConfig {
+  margin-bottom: 2rem;
+}
+
+.whatIfRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 8px;
+}
+
+.variantLabel {
+  font-weight: 600;
+  min-width: 100px;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.priceInputs {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+}
+
+.priceInputs > div {
+  flex: 1;
+}
+
+.priceInputs label {
+  display: block;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  color: var(--color-text-secondary, #666);
+}
+
+.priceInputs input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 4px;
+}
+
+/* What-If Results */
+.whatIfResults {
+  margin-top: 2rem;
+}
+
+.overallImpact {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.impactCard {
+  padding: 1.5rem;
+  background: var(--color-bg-secondary, #f9fafb);
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.impactCard .label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #666);
+  margin-bottom: 0.5rem;
+}
+
+.impactCard .value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.impactCard .positive {
+  color: var(--color-success, #22c55e);
+}
+
+.impactCard .negative {
+  color: var(--color-danger, #dc2626);
+}
+
+.whatIfTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.whatIfTable th,
+.whatIfTable td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+}
+
+.whatIfTable th {
+  background: var(--color-bg-secondary, #f9fafb);
+  font-weight: 600;
+}
+
+.positive {
+  color: var(--color-success, #22c55e);
+  font-weight: 600;
+}
+
+.negative {
+  color: var(--color-danger, #dc2626);
+  font-weight: 600;
+}
+
+.recommendation {
+  text-transform: capitalize;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  display: inline-block;
+  background: var(--color-bg-secondary, #f9fafb);
+}
+
+/* Break-Even */
+.breakEvenForm {
+  margin-bottom: 2rem;
+}
+
+.breakEvenResults {
+  margin-top: 2rem;
+}
+
+.breakEvenSummary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.summaryCard {
+  padding: 2rem;
+  background: var(--color-bg-secondary, #f9fafb);
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.summaryCard .label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #666);
+  margin-bottom: 0.75rem;
+}
+
+.summaryCard .bigValue {
+  display: block;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-primary, #2563eb);
+}
+
+.summaryCard .value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.summaryCard .valueGreen {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-success, #22c55e);
+}
+
+.summaryCard .valueYellow {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-warning, #f59e0b);
+}
+
+.summaryCard .valueRed {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-danger, #dc2626);
+}
+
+.breakEvenDetails {
+  margin-bottom: 2rem;
+}
+
+.detailsTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.detailsTable tr {
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+}
+
+.detailsTable td {
+  padding: 0.75rem;
+}
+
+.detailsTable td:first-child {
+  font-weight: 500;
+  color: var(--color-text-secondary, #666);
+}
+
+.detailsTable td:last-child {
+  text-align: right;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+/* Rationalization */
+.rationalizeResults {
+  margin-top: 2rem;
+}
+
+.rationalizeSummary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.recommendationsList {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.recommendationCard {
+  padding: 1.5rem;
+  border: 2px solid var(--color-border, #e0e0e0);
+  border-radius: 8px;
+  background: var(--color-bg-card, #ffffff);
+}
+
+.recommendationCard.keep {
+  border-color: var(--color-success, #22c55e);
+  background: var(--color-success-bg, #f0fdf4);
+}
+
+.recommendationCard.review {
+  border-color: var(--color-warning, #f59e0b);
+  background: var(--color-warning-bg, #fffbeb);
+}
+
+.recommendationCard.discontinue {
+  border-color: var(--color-danger, #dc2626);
+  background: var(--color-danger-bg, #fef2f2);
+}
+
+.recHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.recHeader h4 {
+  flex: 1;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.recBadge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.recBadge.keep {
+  background: var(--color-success, #22c55e);
+  color: white;
+}
+
+.recBadge.review {
+  background: var(--color-warning, #f59e0b);
+  color: white;
+}
+
+.recBadge.discontinue {
+  background: var(--color-danger, #dc2626);
+  color: white;
+}
+
+.reason {
+  margin-bottom: 1rem;
+  color: var(--color-text-primary, #1a1a1a);
+  line-height: 1.6;
+}
+
+.actionSteps {
+  margin-top: 1rem;
+}
+
+.actionSteps strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.actionSteps ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin: 0;
+}
+
+.actionSteps li {
+  margin-bottom: 0.25rem;
+  color: var(--color-text-secondary, #666);
+  line-height: 1.5;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.emptyState h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.emptyState p {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #666);
+  margin-bottom: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .analysisTypeSelector {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .analysisTypeSelector button {
+    border-bottom: 1px solid var(--color-border, #e0e0e0);
+  }
+
+  .distributorGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .variantRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .whatIfRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .priceInputs {
+    flex-direction: column;
+  }
+
+  .comparisonTable,
+  .whatIfTable,
+  .variantTable {
+    font-size: 0.875rem;
+  }
+
+  .comparisonTable th,
+  .comparisonTable td,
+  .whatIfTable th,
+  .whatIfTable td,
+  .variantTable th,
+  .variantTable td {
+    padding: 0.5rem;
+  }
+
+  .breakEvenSummary,
+  .rationalizeSummary,
+  .overallImpact {
+    grid-template-columns: 1fr;
+  }
+}

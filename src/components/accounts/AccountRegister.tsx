@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '../core/Button'
 import { Input } from '../forms/Input'
 import { useTransactions, type TransactionFilter } from '../../hooks/useTransactions'
-import type { Account, JournalEntry } from '../../types'
+import type { Account } from '../../types'
 import { formatCurrency, formatDate } from '../../utils/formatting'
 import styles from './AccountRegister.module.css'
 

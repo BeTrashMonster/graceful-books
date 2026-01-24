@@ -56,7 +56,7 @@ export const ReviewStep: FC<ReviewStepProps> = ({
         if (!grouped[type]) {
           grouped[type] = []
         }
-        grouped[type].push(customization)
+        grouped[type]!.push(customization)
       })
 
     return grouped

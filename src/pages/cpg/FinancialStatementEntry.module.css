@@ -1,0 +1,329 @@
+/**
+ * Financial Statement Entry Page Styles
+ *
+ * Main layout for standalone financial statement entry
+ * WCAG 2.1 AA compliant, mobile responsive
+ */
+
+.page {
+  min-height: 100vh;
+  background-color: var(--color-background-secondary, #f9fafb);
+}
+
+/* Error/Loading States */
+.error,
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 2rem;
+  text-align: center;
+  font-size: 1.125rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  color: white;
+  padding: 3rem 2rem;
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  font-weight: 400;
+  margin: 0;
+  opacity: 0.95;
+  line-height: 1.6;
+  max-width: 700px;
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 2rem 1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+}
+
+/* Banners */
+.successBanner,
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem auto;
+  max-width: 1200px;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+.successBanner {
+  background-color: #f0fdf4;
+  border: 1px solid #10b981;
+  color: #065f46;
+}
+
+.errorBanner {
+  background-color: #fee2e2;
+  border: 1px solid #ef4444;
+  color: #991b1b;
+}
+
+.successIcon,
+.errorIcon {
+  font-size: 1.5rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.successText,
+.errorText {
+  flex: 1;
+}
+
+/* Content Layout */
+.content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .content {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+  }
+
+  .sidebar {
+    order: -1;
+  }
+}
+
+/* Main Column */
+.mainColumn {
+  background-color: var(--color-background, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 2px solid var(--color-border, #e5e7eb);
+  background-color: var(--color-background-secondary, #f9fafb);
+}
+
+.tab {
+  flex: 1;
+  padding: 1.25rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  top: 2px;
+}
+
+.tab:hover {
+  color: var(--color-text-primary, #1f2937);
+  background-color: var(--color-background, #ffffff);
+}
+
+.tab.active {
+  color: var(--color-primary, #3b82f6);
+  background-color: var(--color-background, #ffffff);
+  border-bottom-color: var(--color-primary, #3b82f6);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: -2px;
+}
+
+@media (max-width: 640px) {
+  .tab {
+    padding: 1rem 0.75rem;
+    font-size: 0.9375rem;
+  }
+}
+
+/* Tab Content */
+.tabContent {
+  padding: 0;
+}
+
+.formContainer {
+  padding: 2rem;
+}
+
+@media (max-width: 640px) {
+  .formContainer {
+    padding: 1.5rem;
+  }
+}
+
+/* History Section */
+.historySection {
+  padding: 2rem;
+  border-top: 2px solid var(--color-border, #e5e7eb);
+  background-color: var(--color-background-secondary, #f9fafb);
+}
+
+.historyTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0 0 1.5rem 0;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.historyCard {
+  padding: 1.25rem;
+  background-color: var(--color-background, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.historyCard:hover {
+  border-color: var(--color-primary-light, #93c5fd);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.historyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border-light, #f3f4f6);
+}
+
+.historyPeriod {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1f2937);
+}
+
+.historyDate {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.historyStats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.historyStat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.historyStatLabel {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.historyStatValue {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1f2937);
+}
+
+.historyStatValue.positive {
+  color: #10b981;
+}
+
+.historyStatValue.negative {
+  color: #ef4444;
+}
+
+.balanceStatus {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border-light, #f3f4f6);
+  display: flex;
+  justify-content: center;
+}
+
+.balanced {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  background-color: #f0fdf4;
+  color: #10b981;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.unbalanced {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  background-color: #fef3c7;
+  color: #f59e0b;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Sidebar */
+.sidebar {
+  position: sticky;
+  top: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    position: static;
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .historyCard {
+    transition: none;
+  }
+}

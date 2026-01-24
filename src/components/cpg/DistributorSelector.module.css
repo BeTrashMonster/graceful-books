@@ -1,0 +1,36 @@
+/**
+ * DistributorSelector Styles
+ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.selectWrapper {
+  flex: 1;
+}
+
+.addButtonWrapper {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.emptyState {
+  padding: 1rem;
+  background-color: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 0.375rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-align: center;
+  margin: 0;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .addButtonWrapper button {
+    width: 100%;
+  }
+}

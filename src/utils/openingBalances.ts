@@ -6,6 +6,7 @@
  * - Loans (liabilities): Offsets to member distribution accounts based on ownership
  */
 
+import { nanoid } from 'nanoid'
 import type { EntityConfiguration, Account, JournalEntry, JournalEntryLine } from '../types'
 
 export interface OpeningBalanceItem {
@@ -42,6 +43,7 @@ export function generateOpeningBalanceJournalEntries(
     if (item.type === 'equipment') {
       // Asset: Debit Equipment, Credit Member Capital (split)
       lines.push({
+        id: nanoid(),
         accountId: item.accountId,
         debit: item.amount,
         credit: 0,
@@ -57,6 +59,7 @@ export function generateOpeningBalanceJournalEntries(
         if (memberCapitalAccount) {
           const ownerAmount = Math.round(item.amount * (owner.ownershipPercentage / 100))
           lines.push({
+            id: nanoid(),
             accountId: memberCapitalAccount.id,
             debit: 0,
             credit: ownerAmount,
@@ -76,6 +79,7 @@ export function generateOpeningBalanceJournalEntries(
         if (memberDistributionAccount) {
           const ownerAmount = Math.round(item.amount * (owner.ownershipPercentage / 100))
           lines.push({
+            id: nanoid(),
             accountId: memberDistributionAccount.id,
             debit: ownerAmount,
             credit: 0,
@@ -86,6 +90,7 @@ export function generateOpeningBalanceJournalEntries(
 
       // Credit the liability account
       lines.push({
+        id: nanoid(),
         accountId: item.accountId,
         debit: 0,
         credit: item.amount,
