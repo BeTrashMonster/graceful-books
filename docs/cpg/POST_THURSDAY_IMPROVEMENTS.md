@@ -47,6 +47,28 @@ Items to implement after the Thursday demo is complete.
 
 ---
 
+### 3. Archived Items Visibility & Management
+**Problem:** When items are archived, it's not always clear where they went or how to view them.
+
+**What's Needed:**
+- Consistent "Show Archived" toggle across ALL components that support archiving:
+  - Categories (CategoryManager) - ✅ Already has checkbox, but needs debugging
+  - Finished Products (FinishedProductManager)
+  - Recipes (RecipeBuilder)
+  - Distributors (DistributorManager)
+  - Invoices (CPUTracker) - ✅ Already implemented
+- Debug why archived categories not showing up when checkbox is checked
+- Visual indicators for archived items (grayed out, "ARCHIVED" badge)
+- Ability to unarchive items when needed
+- Consider unified archive management page showing all archived items across all types
+
+**User Story:**
+"I archived a category but when I checked 'Show Archived' it didn't appear. I need to debug this and ensure archive visibility works consistently everywhere."
+
+**Status:** Deferred - needs investigation and consistent implementation post-Thursday
+
+---
+
 ## UI/UX Polish
 
 ### 3. Blue Focus Indicator Refinement

@@ -336,13 +336,13 @@ export function CPUBreakdownModal({
         {/* Help Text */}
         <div style={{ padding: '1rem', backgroundColor: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', fontSize: '0.875rem' }}>
           <div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#92400e' }}>
-            💡 Why might your calculation differ?
+            💡 How we calculate Cost Per Unit:
           </div>
           <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#78350f' }}>
             <li>We use <strong>Units Received</strong> (not Units Purchased) for CPU calculation</li>
             <li>Manual line total overrides affect the total cost</li>
             <li>Only active, non-archived invoices are included</li>
-            <li>Make sure your spreadsheet uses the same invoices</li>
+            <li>All invoices contributing to this category/variant are shown above</li>
           </ul>
         </div>
       </div>
