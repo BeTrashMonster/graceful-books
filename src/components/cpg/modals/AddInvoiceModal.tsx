@@ -251,6 +251,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         units_purchased: item.units_purchased,
         unit_price: item.unit_price,
         units_received: item.units_received || item.units_purchased,
+        manual_line_total: item.manual_line_total || undefined,
       };
     });
 

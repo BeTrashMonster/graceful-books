@@ -1104,7 +1104,10 @@ export class CPUCalculatorService {
     const variantUnitsReceived = new Map<string, Decimal>();
 
     for (const [_key, attr] of Object.entries(costAttribution)) {
-      const directCost = new Decimal(attr.units_purchased).times(new Decimal(attr.unit_price));
+      // Use manual line total if provided, otherwise calculate from units × price
+      const directCost = attr.manual_line_total
+        ? new Decimal(attr.manual_line_total)
+        : new Decimal(attr.units_purchased).times(new Decimal(attr.unit_price));
       const variantKey = attr.variant || 'none';
 
       variantCosts.set(variantKey, (variantCosts.get(variantKey) || new Decimal(0)).plus(directCost));
@@ -1174,7 +1177,10 @@ export class CPUCalculatorService {
     // Calculate total direct costs for proportional allocation
     let totalDirectCosts = new Decimal(0);
     for (const attr of Object.values(costAttribution)) {
-      const directCost = new Decimal(attr.units_purchased).times(new Decimal(attr.unit_price));
+      // Use manual line total if provided, otherwise calculate from units × price
+      const directCost = attr.manual_line_total
+        ? new Decimal(attr.manual_line_total)
+        : new Decimal(attr.units_purchased).times(new Decimal(attr.unit_price));
       totalDirectCosts = totalDirectCosts.plus(directCost);
     }
 
@@ -1188,7 +1194,10 @@ export class CPUCalculatorService {
 
     // Build breakdown for each attribution
     for (const [_key, attr] of Object.entries(costAttribution)) {
-      const directCost = new Decimal(attr.units_purchased).times(new Decimal(attr.unit_price));
+      // Use manual line total if provided, otherwise calculate from units × price
+      const directCost = attr.manual_line_total
+        ? new Decimal(attr.manual_line_total)
+        : new Decimal(attr.units_purchased).times(new Decimal(attr.unit_price));
 
       // Proportional share of additional costs
       let allocatedAdditionalCost = new Decimal(0);

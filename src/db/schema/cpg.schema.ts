@@ -91,6 +91,7 @@ export interface CPGInvoice extends BaseEntity {
       units_purchased: string; // Decimal as string for precision
       unit_price: string;
       units_received: string | null; // For reconciliation
+      manual_line_total?: string; // Optional override for rounding discrepancies
     }
   >;
 

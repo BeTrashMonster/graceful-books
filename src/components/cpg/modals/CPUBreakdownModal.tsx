@@ -37,6 +37,8 @@ interface InvoiceContribution {
   unitsReceived: number;
   totalCost: number;
   description?: string;
+  hasManualOverride: boolean;
+  calculatedTotal: number;
 }
 
 export function CPUBreakdownModal({
@@ -87,13 +89,19 @@ export function CPUBreakdownModal({
               // Check if variant matches (null means no variant specified)
               const itemVariant = item.variant || null;
               if (itemVariant === variant) {
+                const calculatedTotal = parseFloat(item.units_purchased) * parseFloat(item.unit_price);
+                const hasManualOverride = !!item.manual_line_total;
+                const totalCost = hasManualOverride ? parseFloat(item.manual_line_total!) : calculatedTotal;
+
                 relevantContributions.push({
                   invoice,
                   unitsPurchased: parseFloat(item.units_purchased),
                   unitPrice: parseFloat(item.unit_price),
                   unitsReceived: parseFloat(item.units_received || item.units_purchased),
-                  totalCost: parseFloat(item.units_purchased) * parseFloat(item.unit_price),
+                  totalCost,
                   description: item.description,
+                  hasManualOverride,
+                  calculatedTotal,
                 });
               }
             }
@@ -314,6 +322,24 @@ export function CPUBreakdownModal({
                       </div>
                     </div>
                   </div>
+
+                  {contribution.hasManualOverride && (
+                    <div style={{
+                      marginTop: '0.75rem',
+                      padding: '0.5rem',
+                      backgroundColor: '#fef3c7',
+                      border: '1px solid #fde68a',
+                      borderRadius: '4px',
+                      fontSize: '0.8125rem',
+                    }}>
+                      <div style={{ fontWeight: 600, color: '#92400e', marginBottom: '0.25rem' }}>
+                        ⚠️ Manual Total Override Applied
+                      </div>
+                      <div style={{ color: '#78350f', fontSize: '0.75rem' }}>
+                        Calculated: {formatCurrency(contribution.calculatedTotal)} → Actual: {formatCurrency(contribution.totalCost)}
+                      </div>
+                    </div>
+                  )}
 
                   <div style={{
                     display: 'flex',
