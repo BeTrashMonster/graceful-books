@@ -49,6 +49,17 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
     loadFinishedProductCPUs();
   }, [activeCompanyId]);
 
+  // Listen for data updates (e.g., invoice edited, recipe changed)
+  useEffect(() => {
+    const handleDataUpdate = () => {
+      console.log('CPUDisplay: Received data update event, reloading...');
+      loadFinishedProductCPUs();
+    };
+
+    window.addEventListener('cpg-data-updated', handleDataUpdate);
+    return () => window.removeEventListener('cpg-data-updated', handleDataUpdate);
+  }, [activeCompanyId]);
+
   const loadFinishedProductCPUs = async () => {
     try {
       setLoading(true);

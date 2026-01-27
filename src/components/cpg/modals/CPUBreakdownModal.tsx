@@ -147,6 +147,7 @@ export function CPUBreakdownModal({
         onClose={onClose}
         title="Cost Breakdown"
         size="lg"
+        closeOnBackdropClick={false}
       >
         <div style={{ textAlign: 'center', padding: '2rem' }}>
           <p style={{ color: 'var(--color-text-secondary)' }}>
@@ -164,6 +165,7 @@ export function CPUBreakdownModal({
         onClose={onClose}
         title="Cost Breakdown"
         size="lg"
+        closeOnBackdropClick={false}
         footer={
           <div className={styles.modalFooter}>
             <Button variant="primary" onClick={onClose}>
@@ -185,6 +187,7 @@ export function CPUBreakdownModal({
       onClose={onClose}
       title={`Cost Breakdown: ${category.name}${variant ? ` (${variant})` : ''}`}
       size="lg"
+      closeOnBackdropClick={false}
       footer={
         <div className={styles.modalFooter}>
           <Button variant="primary" onClick={onClose}>
