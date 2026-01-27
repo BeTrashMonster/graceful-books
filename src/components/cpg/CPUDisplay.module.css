@@ -382,6 +382,18 @@
   background-color: var(--color-background-secondary, #f9fafb);
   border-radius: 0.375rem;
   border-left: 3px solid var(--color-border, #e5e7eb);
+  transition: all 0.2s ease;
+}
+
+.breakdownItem.clickable:hover {
+  background-color: #eff6ff;
+  border-left-color: #4a90e2;
+  transform: translateX(2px);
+}
+
+.breakdownItem.clickable:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
 }
 
 .componentInfo {

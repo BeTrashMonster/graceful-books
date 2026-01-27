@@ -21,6 +21,8 @@ import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
 import { HelpTooltip } from '../help/HelpTooltip';
+import { CPUBreakdownModal } from './modals/CPUBreakdownModal';
+import { InvoiceDetailsModal } from './modals/InvoiceDetailsModal';
 import styles from './CPUDisplay.module.css';
 
 export interface CPUDisplayProps {
@@ -38,6 +40,10 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
   const [products, setProducts] = useState<FinishedProductCPUBreakdown[]>([]);
   const [expanded, setExpanded] = useState<ExpandedState>({});
   const [loading, setLoading] = useState(true);
+  const [showBreakdownModal, setShowBreakdownModal] = useState(false);
+  const [selectedComponent, setSelectedComponent] = useState<{ categoryId: string; variant: string | null } | null>(null);
+  const [showInvoiceDetails, setShowInvoiceDetails] = useState(false);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
 
   useEffect(() => {
     loadFinishedProductCPUs();
@@ -81,6 +87,17 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
       ...prev,
       [index]: !prev[index]
     }));
+  };
+
+  const handleComponentClick = (categoryId: string, variant: string | null) => {
+    setSelectedComponent({ categoryId, variant });
+    setShowBreakdownModal(true);
+  };
+
+  const handleViewInvoice = (invoiceId: string) => {
+    setShowBreakdownModal(false);
+    setSelectedInvoiceId(invoiceId);
+    setShowInvoiceDetails(true);
   };
 
   if (isLoading || loading) {
@@ -206,11 +223,30 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
                       </div>
                       <ul className={styles.breakdownList}>
                         {product.breakdown.map((component, idx) => (
-                          <li key={idx} className={styles.breakdownItem}>
+                          <li
+                            key={idx}
+                            className={`${styles.breakdownItem} ${component.hasCostData ? styles.clickable : ''}`}
+                            onClick={() => component.hasCostData && component.categoryId && handleComponentClick(component.categoryId, component.variant || null)}
+                            role={component.hasCostData ? 'button' : undefined}
+                            tabIndex={component.hasCostData ? 0 : undefined}
+                            onKeyDown={(e) => {
+                              if (component.hasCostData && component.categoryId && (e.key === 'Enter' || e.key === ' ')) {
+                                e.preventDefault();
+                                handleComponentClick(component.categoryId, component.variant || null);
+                              }
+                            }}
+                            style={{ cursor: component.hasCostData ? 'pointer' : 'default' }}
+                            title={component.hasCostData ? 'Click to see detailed cost breakdown' : undefined}
+                          >
                             <div className={styles.componentInfo}>
                               <span className={styles.componentName}>
                                 {component.categoryName}
                                 {component.variant && ` (${component.variant})`}
+                                {component.hasCostData && (
+                                  <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: '#4a90e2' }}>
+                                    🔍
+                                  </span>
+                                )}
                               </span>
                               <span className={styles.componentQty}>
                                 {component.quantity} {component.unitOfMeasure}
@@ -271,6 +307,33 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
             </p>
           </div>
         </div>
+      )}
+
+      {/* CPU Breakdown Modal */}
+      {showBreakdownModal && selectedComponent && (
+        <CPUBreakdownModal
+          isOpen={showBreakdownModal}
+          onClose={() => {
+            setShowBreakdownModal(false);
+            setSelectedComponent(null);
+          }}
+          categoryId={selectedComponent.categoryId}
+          variant={selectedComponent.variant}
+          companyId={activeCompanyId}
+          onViewInvoice={handleViewInvoice}
+        />
+      )}
+
+      {/* Invoice Details Modal */}
+      {showInvoiceDetails && selectedInvoiceId && (
+        <InvoiceDetailsModal
+          isOpen={showInvoiceDetails}
+          onClose={() => {
+            setShowInvoiceDetails(false);
+            setSelectedInvoiceId(null);
+          }}
+          invoiceId={selectedInvoiceId}
+        />
       )}
     </div>
   );
