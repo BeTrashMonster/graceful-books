@@ -7,10 +7,12 @@
  * Features:
  * - Date picker for invoice date
  * - Vendor name input
+ * - Total invoice amount with balance validation
  * - Category/variant selection per line
+ * - Line item descriptions
  * - Units purchased/received (reconciliation)
  * - Unit price
- * - Additional costs (shipping, printing, embossing, foil)
+ * - Running balance display
  * - Real-time CPU calculation preview
  * - Smart defaults (pre-fill from last invoice)
  * - Inline help tooltips
@@ -23,12 +25,12 @@
  */
 
 import { useState, useEffect } from 'react';
-import Decimal from 'decimal.js';
 import { Modal } from '../modals/Modal';
 import { Button } from '../core/Button';
 import { Input } from '../forms/Input';
 import { Select } from '../forms/Select';
 import { HelpTooltip } from '../help/HelpTooltip';
+import { useAuth } from '../../contexts/AuthContext';
 import { cpuCalculatorService, type CreateInvoiceParams } from '../../services/cpg/cpuCalculator.service';
 import type { CPGCategory } from '../../db/schema/cpg.schema';
 import { generateCategoryKey } from '../../db/schema/cpg.schema';
@@ -45,15 +47,10 @@ interface InvoiceLine {
   id: string;
   category_id: string;
   variant: string | null;
+  description: string;
   units_purchased: string;
   unit_price: string;
   units_received: string;
-}
-
-interface AdditionalCost {
-  id: string;
-  name: string;
-  amount: string;
 }
 
 export function InvoiceEntryForm({
@@ -62,6 +59,8 @@ export function InvoiceEntryForm({
   onClose,
   onSaved,
 }: InvoiceEntryFormProps) {
+  const { deviceId } = useAuth();
+
   // Form state
   const [invoiceDate, setInvoiceDate] = useState<string>(
     new Date().toISOString().split('T')[0]!
@@ -69,6 +68,7 @@ export function InvoiceEntryForm({
   const [vendorName, setVendorName] = useState<string>('');
   const [invoiceNumber, setInvoiceNumber] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
+  const [totalInvoiceAmount, setTotalInvoiceAmount] = useState<string>('');
 
   // Line items
   const [lines, setLines] = useState<InvoiceLine[]>([
@@ -76,19 +76,12 @@ export function InvoiceEntryForm({
       id: '1',
       category_id: '',
       variant: null,
+      description: '',
       units_purchased: '',
       unit_price: '',
       units_received: '',
     },
   ]);
-
-  // Additional costs
-  const [additionalCosts, setAdditionalCosts] = useState<AdditionalCost[]>([]);
-  const [showAdditionalCosts, setShowAdditionalCosts] = useState(false);
-
-  // Preview calculation
-  const [previewCPUs, setPreviewCPUs] = useState<Record<string, string>>({});
-  const [totalPaid, setTotalPaid] = useState<string>('0.00');
 
   // Submission state
   const [isSaving, setIsSaving] = useState(false);
@@ -97,82 +90,25 @@ export function InvoiceEntryForm({
   // Validation
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
-  // Update preview whenever form data changes
-  useEffect(() => {
-    calculatePreview();
-  }, [lines, additionalCosts]);
-
-  const calculatePreview = () => {
-    try {
-      // Build cost attribution
-      const costAttribution: Record<string, any> = {};
-      let totalDirectCost = new Decimal(0);
-
-      for (const line of lines) {
-        if (!line.category_id || !line.units_purchased || !line.unit_price) {
-          continue;
-        }
-
-        const key = generateCategoryKey(
-          categories.find((c) => c.id === line.category_id)?.name || line.category_id,
-          line.variant
-        );
-
-        const directCost = new Decimal(line.units_purchased).times(new Decimal(line.unit_price));
-        totalDirectCost = totalDirectCost.plus(directCost);
-
-        costAttribution[key] = {
-          category_id: line.category_id,
-          variant: line.variant,
-          units_purchased: line.units_purchased,
-          unit_price: line.unit_price,
-          units_received: line.units_received || line.units_purchased,
-        };
-      }
-
-      // Calculate total additional costs
-      let totalAdditional = new Decimal(0);
-      for (const cost of additionalCosts) {
-        if (cost.amount) {
-          totalAdditional = totalAdditional.plus(new Decimal(cost.amount));
-        }
-      }
-
-      // Total paid
-      const total = totalDirectCost.plus(totalAdditional);
-      setTotalPaid(total.toFixed(2));
-
-      // Calculate CPUs (proportional allocation of additional costs)
-      const cpus: Record<string, string> = {};
-
-      for (const [_key, attr] of Object.entries(costAttribution)) {
-        const directCost = new Decimal(attr.units_purchased).times(new Decimal(attr.unit_price));
-        const unitsReceived = new Decimal(attr.units_received);
-
-        // Proportional share of additional costs
-        let allocatedAdditional = new Decimal(0);
-        if (totalDirectCost.greaterThan(0)) {
-          allocatedAdditional = totalAdditional.times(directCost).dividedBy(totalDirectCost);
-        }
-
-        // CPU = (direct + allocated additional) / units received
-        const cpu = directCost.plus(allocatedAdditional).dividedBy(unitsReceived);
-
-        const variant = attr.variant || 'none';
-        cpus[variant] = cpu.toFixed(2);
-      }
-
-      setPreviewCPUs(cpus);
-    } catch (err) {
-      console.error('Failed to calculate preview:', err);
-    }
+  // Calculate running balance
+  const calculateLineItemsTotal = (): number => {
+    return lines.reduce((sum, line) => {
+      const units = parseFloat(line.units_purchased || '0');
+      const price = parseFloat(line.unit_price || '0');
+      return sum + (units * price);
+    }, 0);
   };
+
+  const lineItemsTotal = calculateLineItemsTotal();
+  const invoiceTotal = parseFloat(totalInvoiceAmount || '0');
+  const remaining = invoiceTotal - lineItemsTotal;
 
   const handleAddLine = () => {
     const newLine: InvoiceLine = {
       id: Date.now().toString(),
       category_id: '',
       variant: null,
+      description: '',
       units_purchased: '',
       unit_price: '',
       units_received: '',
@@ -186,18 +122,17 @@ export function InvoiceEntryForm({
 
   const handleLineChange = (id: string, field: keyof InvoiceLine, value: any) => {
     setLines(
-      lines.map((line) =>
-        line.id === id
-          ? {
-              ...line,
-              [field]: value,
-              // Auto-set units_received = units_purchased if not manually edited
-              ...(field === 'units_purchased' && !line.units_received
-                ? { units_received: value }
-                : {}),
-            }
-          : line
-      )
+      lines.map((line) => {
+        if (line.id === id) {
+          const updated = { ...line, [field]: value };
+          // Auto-fill units_received when units_purchased changes
+          if (field === 'units_purchased' && !line.units_received) {
+            updated.units_received = value as string;
+          }
+          return updated;
+        }
+        return line;
+      })
     );
 
     // Clear validation error for this field
@@ -208,32 +143,6 @@ export function InvoiceEntryForm({
     });
   };
 
-  const handleAddAdditionalCost = () => {
-    const newCost: AdditionalCost = {
-      id: Date.now().toString(),
-      name: '',
-      amount: '',
-    };
-    setAdditionalCosts([...additionalCosts, newCost]);
-    setShowAdditionalCosts(true);
-  };
-
-  const handleRemoveAdditionalCost = (id: string) => {
-    setAdditionalCosts(additionalCosts.filter((cost) => cost.id !== id));
-  };
-
-  const handleAdditionalCostChange = (
-    id: string,
-    field: 'name' | 'amount',
-    value: string
-  ) => {
-    setAdditionalCosts(
-      additionalCosts.map((cost) =>
-        cost.id === id ? { ...cost, [field]: value } : cost
-      )
-    );
-  };
-
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
 
@@ -242,15 +151,26 @@ export function InvoiceEntryForm({
       errors.invoice_date = 'Invoice date is required';
     }
 
+    // Total invoice amount required
+    if (!totalInvoiceAmount || parseFloat(totalInvoiceAmount) <= 0) {
+      errors.total_invoice_amount = 'Total invoice amount is required';
+    }
+
     // At least one line item
     if (lines.length === 0) {
       errors.lines = 'At least one line item is required';
     }
 
+    // Check balance validation (±$0.01 tolerance)
+    const balanceDiff = Math.abs(remaining);
+    if (balanceDiff > 0.01 && totalInvoiceAmount) {
+      errors.balance = `Line items ($${lineItemsTotal.toFixed(2)}) don't match invoice total ($${invoiceTotal.toFixed(2)}). Remaining: $${remaining.toFixed(2)}`;
+    }
+
     // Validate each line
     for (const line of lines) {
       if (!line.category_id) {
-        errors[`${line.id}_category`] = 'Category is required';
+        errors[`${line.id}_category_id`] = 'Category is required';
       }
       if (!line.units_purchased || parseFloat(line.units_purchased) <= 0) {
         errors[`${line.id}_units_purchased`] = 'Units purchased must be greater than 0';
@@ -271,19 +191,6 @@ export function InvoiceEntryForm({
           errors[`${line.id}_units_received`] =
             'Units received cannot exceed units purchased';
         }
-      }
-    }
-
-    // Validate additional costs
-    for (const cost of additionalCosts) {
-      if (cost.name && !cost.amount) {
-        errors[`${cost.id}_amount`] = 'Amount is required';
-      }
-      if (cost.amount && !cost.name) {
-        errors[`${cost.id}_name`] = 'Cost name is required';
-      }
-      if (cost.amount && parseFloat(cost.amount) < 0) {
-        errors[`${cost.id}_amount`] = 'Amount cannot be negative';
       }
     }
 
@@ -315,18 +222,11 @@ export function InvoiceEntryForm({
         costAttribution[key] = {
           category_id: line.category_id,
           variant: line.variant,
+          description: line.description || undefined,
           units_purchased: line.units_purchased,
           unit_price: line.unit_price,
           units_received: line.units_received || line.units_purchased,
         };
-      }
-
-      // Build additional costs
-      const additionalCostsMap: Record<string, string> = {};
-      for (const cost of additionalCosts) {
-        if (cost.name && cost.amount) {
-          additionalCostsMap[cost.name] = cost.amount;
-        }
       }
 
       const params: CreateInvoiceParams = {
@@ -336,13 +236,13 @@ export function InvoiceEntryForm({
         invoice_number: invoiceNumber || undefined,
         notes: notes || undefined,
         cost_attribution: costAttribution,
-        additional_costs: Object.keys(additionalCostsMap).length > 0
-          ? additionalCostsMap
-          : undefined,
-        device_id: 'web-client', // TODO: Get from device context
+        device_id: deviceId || 'web-client',
       };
 
       await cpuCalculatorService.createInvoice(params);
+
+      // Dispatch CustomEvent on successful save
+      window.dispatchEvent(new CustomEvent('cpg-data-updated', { detail: { type: 'invoice' } }));
 
       // Success!
       onSaved();
@@ -360,17 +260,46 @@ export function InvoiceEntryForm({
     <Modal
       isOpen={true}
       onClose={onClose}
-      title="New Invoice"
+      title="Enter Raw Material Purchases"
+      closeOnBackdropClick={false}
       size="lg"
       aria-labelledby="invoice-form-title"
     >
       <form onSubmit={handleSubmit} className={styles.form}>
+        <div style={{ marginBottom: '1rem', color: '#64748b', fontSize: '0.9375rem' }}>
+          Track ingredients and packaging you buy to make your products
+        </div>
+
         {error && (
           <div className={styles.errorBanner} role="alert" aria-live="polite">
             <span aria-hidden="true">⚠️</span>
             <span>{error}</span>
           </div>
         )}
+
+        {validationErrors.balance && (
+          <div className={styles.errorBanner} role="alert" aria-live="polite">
+            <span aria-hidden="true">⚠️</span>
+            <span>{validationErrors.balance}</span>
+          </div>
+        )}
+
+        {/* Total Invoice Amount */}
+        <section className={styles.section}>
+          <Input
+            label="Total Invoice Amount"
+            type="number"
+            step="0.01"
+            min="0"
+            value={totalInvoiceAmount}
+            onChange={(e) => setTotalInvoiceAmount(e.target.value)}
+            placeholder="0.00"
+            iconBefore={<span>$</span>}
+            required
+            error={validationErrors.total_invoice_amount}
+            fullWidth
+          />
+        </section>
 
         {/* Invoice Header */}
         <section className={styles.section}>
@@ -447,6 +376,15 @@ export function InvoiceEntryForm({
                   </div>
 
                   <div className={styles.lineFields}>
+                    <Input
+                      label="Description (Optional)"
+                      type="text"
+                      value={line.description}
+                      onChange={(e) => handleLineChange(line.id, 'description', e.target.value)}
+                      placeholder="ex: Bulk lavender oil from ABC Supplier"
+                      fullWidth
+                    />
+
                     <div className={styles.grid3}>
                       <Select
                         label="Category"
@@ -456,7 +394,7 @@ export function InvoiceEntryForm({
                         }
                         placeholder="Select category"
                         required
-                        error={validationErrors[`${line.id}_category`]}
+                        error={validationErrors[`${line.id}_category_id`]}
                         fullWidth
                       >
                         <option value="">Select category</option>
@@ -549,83 +487,6 @@ export function InvoiceEntryForm({
           </Button>
         </section>
 
-        {/* Additional Costs */}
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>
-              Additional Costs (Optional)
-              <HelpTooltip content="Costs like shipping, printing, embossing, or foil. These will be allocated proportionally across your line items." />
-            </h3>
-            {!showAdditionalCosts && additionalCosts.length === 0 && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowAdditionalCosts(true)}
-              >
-                Add Additional Costs
-              </Button>
-            )}
-          </div>
-
-          {(showAdditionalCosts || additionalCosts.length > 0) && (
-            <>
-              {additionalCosts.map((cost, _index) => (
-                <div key={cost.id} className={styles.additionalCost}>
-                  <div className={styles.grid2}>
-                    <Input
-                      label="Cost Name"
-                      type="text"
-                      value={cost.name}
-                      onChange={(e) =>
-                        handleAdditionalCostChange(cost.id, 'name', e.target.value)
-                      }
-                      placeholder="e.g., Shipping, Printing"
-                      error={validationErrors[`${cost.id}_name`]}
-                      fullWidth
-                    />
-
-                    <div className={styles.costAmountRow}>
-                      <Input
-                        label="Amount"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={cost.amount}
-                        onChange={(e) =>
-                          handleAdditionalCostChange(cost.id, 'amount', e.target.value)
-                        }
-                        placeholder="0.00"
-                        iconBefore={<span>$</span>}
-                        error={validationErrors[`${cost.id}_amount`]}
-                        fullWidth
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveAdditionalCost(cost.id)}
-                        className={styles.removeButton}
-                        aria-label={`Remove ${cost.name || 'additional cost'}`}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddAdditionalCost}
-                iconBefore={<span>+</span>}
-              >
-                Add Another Cost
-              </Button>
-            </>
-          )}
-        </section>
-
         {/* Notes */}
         <section className={styles.section}>
           <Input
@@ -638,24 +499,36 @@ export function InvoiceEntryForm({
           />
         </section>
 
-        {/* Preview */}
-        {Object.keys(previewCPUs).length > 0 && (
-          <section className={styles.preview}>
-            <h3 className={styles.previewTitle}>Preview</h3>
-            <div className={styles.previewContent}>
-              <div className={styles.previewRow}>
-                <span className={styles.previewLabel}>Total Paid:</span>
-                <span className={styles.previewValue}>${totalPaid}</span>
-              </div>
-
-              {Object.entries(previewCPUs).map(([variant, cpu]) => (
-                <div key={variant} className={styles.previewRow}>
-                  <span className={styles.previewLabel}>
-                    CPU ({variant === 'none' ? 'No variant' : variant}):
-                  </span>
-                  <span className={styles.previewValue}>${cpu}</span>
+        {/* Running Balance */}
+        {lines.length > 0 && totalInvoiceAmount && (
+          <section className={styles.section}>
+            <div style={{
+              padding: '1rem',
+              backgroundColor: '#f8fafc',
+              borderRadius: '8px',
+              border: '1px solid #e2e8f0'
+            }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Invoice Total:</span>
+                  <strong>${invoiceTotal.toFixed(2)}</strong>
                 </div>
-              ))}
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Line Items:</span>
+                  <strong>${lineItemsTotal.toFixed(2)}</strong>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  paddingTop: '0.5rem',
+                  borderTop: '1px solid #e2e8f0',
+                  color: Math.abs(remaining) > 0.01 ? '#dc2626' : '#16a34a',
+                  fontWeight: 600
+                }}>
+                  <span>Remaining:</span>
+                  <span>${remaining.toFixed(2)}</span>
+                </div>
+              </div>
             </div>
           </section>
         )}

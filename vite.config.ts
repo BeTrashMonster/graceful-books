@@ -90,9 +90,11 @@ function sriValidationPlugin(): Plugin {
 // These headers protect against XSS, clickjacking, and other web vulnerabilities
 const securityHeadersMiddleware: Connect.NextHandleFunction = (_req, res, next) => {
   // Content Security Policy - prevents XSS and data injection attacks
+  // Note: 'unsafe-inline' and 'unsafe-eval' are needed for Vite dev mode HMR
+  // Production builds should use stricter CSP without these
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' ws: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
   )
   // X-Frame-Options - prevents clickjacking (legacy browser support)
   res.setHeader('X-Frame-Options', 'DENY')

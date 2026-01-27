@@ -83,16 +83,16 @@ export function ProductLinkingManager({ companyId, categories }: ProductLinkingM
 
       // Load products
       const productsData = await db.products
-        .where('[company_id+active]')
-        .equals([companyId, true] as any)
-        .and((p) => p.deleted_at === null)
+        .where('company_id')
+        .equals(companyId)
+        .filter((p) => p.active && p.deleted_at === null)
         .toArray();
 
       // Load accounts
       const accountsData = await db.accounts
-        .where('[company_id+active]')
-        .equals([companyId, true] as any)
-        .and((a) => a.deleted_at === null)
+        .where('company_id')
+        .equals(companyId)
+        .filter((a) => a.active && a.deleted_at === null)
         .toArray();
 
       // Build product link rows with names
@@ -331,6 +331,7 @@ export function ProductLinkingManager({ companyId, categories }: ProductLinkingM
             setError(null);
           }}
           title="Create Product Link"
+          closeOnBackdropClick={false}
           size="md"
         >
           <div className={styles.modalContent}>

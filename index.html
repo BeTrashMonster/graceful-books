@@ -37,7 +37,8 @@
 
     <!-- Security Headers (Fallback for static hosting) -->
     <!-- Note: frame-ancestors cannot be enforced via meta tags, use HTTP headers for full protection -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'" />
+    <!-- Note: 'unsafe-inline' and 'unsafe-eval' are needed for Vite dev mode. Production builds should use stricter CSP via HTTP headers. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' ws: wss:; base-uri 'self'; form-action 'self'; object-src 'none'" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta name="referrer" content="no-referrer" />
     <title>Graceful Books</title>

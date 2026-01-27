@@ -1,84 +1,89 @@
 /**
  * CPU Display Component
  *
- * Shows current Cost Per Unit for all variants with visual distinction.
+ * Shows current manufacturing costs for finished products with component breakdowns.
  *
  * Features:
- * - Current CPU per variant
- * - Last updated date
- * - Visual category distinction
- * - Color-coded by category
- * - Accessible cards
+ * - Finished product CPU with expandable breakdown
+ * - Missing cost data warnings
+ * - Color-coded complete vs incomplete CPUs
+ * - Accessible cards with keyboard navigation
  *
  * Requirements:
  * - Clean visual layout
- * - Clear variant labeling
+ * - Clear breakdown of component costs
  * - WCAG 2.1 AA compliance
  */
 
-import { useMemo } from 'react';
-import type { CPGCategory } from '../../db/schema/cpg.schema';
+import { useState, useEffect } from 'react';
+import type { FinishedProductCPUBreakdown } from '../../services/cpg/cpuCalculator.service';
+import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
+import { useAuth } from '../../contexts/AuthContext';
+import { db } from '../../db/database';
 import { HelpTooltip } from '../help/HelpTooltip';
 import styles from './CPUDisplay.module.css';
 
 export interface CPUDisplayProps {
-  currentCPUs: Record<string, string>; // variant → CPU value
-  categories: CPGCategory[];
   isLoading?: boolean;
 }
 
-interface CPUCard {
-  variant: string | null;
-  cpu: string;
-  categoryName: string;
-  categoryColor: string;
+interface ExpandedState {
+  [productId: string]: boolean;
 }
 
-export function CPUDisplay({ currentCPUs, categories, isLoading = false }: CPUDisplayProps) {
-  // Generate color palette for categories
-  const categoryColors = useMemo(() => {
-    const colors = [
-      '#3b82f6', // blue
-      '#10b981', // green
-      '#f59e0b', // amber
-      '#ef4444', // red
-      '#8b5cf6', // purple
-      '#ec4899', // pink
-      '#14b8a6', // teal
-      '#f97316', // orange
-    ];
+export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
+  const { companyId } = useAuth();
+  const activeCompanyId = companyId || 'demo-company-id';
 
-    const colorMap: Record<string, string> = {};
-    categories.forEach((cat, index) => {
-      colorMap[cat.id] = colors[index % colors.length]!;
-    });
+  const [products, setProducts] = useState<FinishedProductCPUBreakdown[]>([]);
+  const [expanded, setExpanded] = useState<ExpandedState>({});
+  const [loading, setLoading] = useState(true);
 
-    return colorMap;
-  }, [categories]);
+  useEffect(() => {
+    loadFinishedProductCPUs();
+  }, [activeCompanyId]);
 
-  // Build CPU cards with category information
-  const cpuCards: CPUCard[] = useMemo(() => {
-    const cards: CPUCard[] = [];
+  const loadFinishedProductCPUs = async () => {
+    try {
+      setLoading(true);
 
-    for (const [variant, cpu] of Object.entries(currentCPUs)) {
-      // Find category for this variant
-      // Note: We're using a simplified lookup here - in production,
-      // we'd need to track category_id alongside variant in calculated_cpus
-      const categoryName = 'All Categories'; // Placeholder
-      const categoryColor = '#6b7280'; // Default gray
+      // Get all finished products for this company
+      const finishedProducts = await db.cpgFinishedProducts
+        .where('company_id')
+        .equals(activeCompanyId)
+        .filter(product => product.active && product.deleted_at === null)
+        .toArray();
 
-      cards.push({
-        variant: variant === 'none' ? null : variant,
-        cpu,
-        categoryName,
-        categoryColor,
-      });
+      // Calculate CPU for each product
+      const productCPUs: FinishedProductCPUBreakdown[] = [];
+      for (const product of finishedProducts) {
+        try {
+          const cpuBreakdown = await cpuCalculatorService.getFinishedProductCPUBreakdown(
+            product.id,
+            activeCompanyId
+          );
+          productCPUs.push(cpuBreakdown);
+        } catch (error) {
+          console.error(`Failed to calculate CPU for product ${product.id}:`, error);
+        }
+      }
+
+      setProducts(productCPUs);
+    } catch (error) {
+      console.error('Failed to load finished product CPUs:', error);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    return cards;
-  }, [currentCPUs, categories, categoryColors]);
+  const toggleExpanded = (index: number) => {
+    setExpanded(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
 
-  if (isLoading) {
+  if (isLoading || loading) {
     return (
       <div className={styles.container}>
         <div className={styles.loadingGrid}>
@@ -94,14 +99,14 @@ export function CPUDisplay({ currentCPUs, categories, isLoading = false }: CPUDi
     );
   }
 
-  if (cpuCards.length === 0) {
+  if (products.length === 0) {
     return (
       <div className={styles.emptyState}>
         <div className={styles.emptyIcon} aria-hidden="true">
-          💰
+          📦
         </div>
         <p className={styles.emptyText}>
-          No cost data yet. Enter your first invoice to see your Cost Per Unit here.
+          No products defined yet. Add your first product to see manufacturing costs.
         </p>
       </div>
     );
@@ -110,63 +115,159 @@ export function CPUDisplay({ currentCPUs, categories, isLoading = false }: CPUDi
   return (
     <div className={styles.container}>
       <div className={styles.grid}>
-        {cpuCards.map((card, index) => (
-          <article
-            key={`${card.variant}-${index}`}
-            className={styles.card}
-            style={{ '--category-color': card.categoryColor } as React.CSSProperties}
-          >
-            <div className={styles.cardHeader}>
-              <div
-                className={styles.categoryIndicator}
-                style={{ backgroundColor: card.categoryColor }}
-                aria-hidden="true"
-              />
-              <div className={styles.cardTitle}>
-                {card.variant ? (
+        {products.map((product, index) => {
+          const isExpanded = expanded[index] || false;
+          const hasRecipe = product.breakdown.length > 0;
+          const statusColor = product.isComplete ? '#10b981' : '#f59e0b'; // green : amber
+
+          return (
+            <article
+              key={`${product.sku || product.productName}-${index}`}
+              className={styles.card}
+              style={{ '--category-color': statusColor } as React.CSSProperties}
+            >
+              <div className={styles.cardHeader}>
+                <div
+                  className={styles.categoryIndicator}
+                  style={{ backgroundColor: statusColor }}
+                  aria-hidden="true"
+                />
+                <div className={styles.cardTitle}>
+                  <span className={styles.variantName}>{product.productName}</span>
+                  {product.sku && (
+                    <>
+                      <span className={styles.variantSeparator}>•</span>
+                      <span className={styles.categoryLabel}>{product.sku}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className={styles.cardContent}>
+                {!hasRecipe ? (
+                  <div className={styles.noRecipe}>
+                    <span className={styles.warningIcon} aria-hidden="true">⚠️</span>
+                    <span className={styles.noRecipeText}>No recipe defined</span>
+                  </div>
+                ) : product.cpu !== null ? (
                   <>
-                    <span className={styles.variantName}>{card.variant}</span>
-                    <span className={styles.variantSeparator}>•</span>
-                    <span className={styles.categoryLabel}>{card.categoryName}</span>
+                    <div className={styles.cpuValue}>
+                      <span className={styles.currency}>$</span>
+                      <span className={styles.amount}>{product.cpu}</span>
+                    </div>
+                    <div className={styles.cpuLabel}>
+                      Total Manufacturing Cost
+                      <HelpTooltip content="This is the total cost to manufacture one unit, calculated from your recipe and raw material costs." />
+                    </div>
                   </>
                 ) : (
-                  <span className={styles.variantName}>No Variant</span>
+                  <>
+                    <div className={styles.incompleteCPU}>
+                      <span className={styles.incompleteText}>Incomplete</span>
+                      <span className={styles.warningIcon} aria-hidden="true">⚠️</span>
+                    </div>
+                    <div className={styles.cpuLabel}>
+                      Missing Cost Data
+                    </div>
+                  </>
+                )}
+
+                {product.msrp && (
+                  <div className={styles.msrpInfo}>
+                    <span className={styles.msrpLabel}>MSRP:</span>
+                    <span className={styles.msrpValue}>${product.msrp}</span>
+                  </div>
                 )}
               </div>
-            </div>
 
-            <div className={styles.cardContent}>
-              <div className={styles.cpuValue}>
-                <span className={styles.currency}>$</span>
-                <span className={styles.amount}>{card.cpu}</span>
-              </div>
+              {hasRecipe && (
+                <>
+                  <button
+                    className={styles.breakdownToggle}
+                    onClick={() => toggleExpanded(index)}
+                    aria-expanded={isExpanded}
+                    aria-controls={`breakdown-${index}`}
+                  >
+                    <span>{isExpanded ? 'Hide' : 'Show'} Breakdown</span>
+                    <span className={styles.toggleIcon} aria-hidden="true">
+                      {isExpanded ? '▲' : '▼'}
+                    </span>
+                  </button>
 
-              <div className={styles.cpuLabel}>
-                Cost Per Unit
-                <HelpTooltip content="This is the average cost to produce one unit, including all direct costs and allocated additional costs (shipping, printing, etc.)." />
-              </div>
-            </div>
+                  {isExpanded && (
+                    <div
+                      id={`breakdown-${index}`}
+                      className={styles.breakdown}
+                      role="region"
+                      aria-label="Cost breakdown"
+                    >
+                      <div className={styles.breakdownHeader}>
+                        <span className={styles.breakdownTitle}>Component Costs:</span>
+                      </div>
+                      <ul className={styles.breakdownList}>
+                        {product.breakdown.map((component, idx) => (
+                          <li key={idx} className={styles.breakdownItem}>
+                            <div className={styles.componentInfo}>
+                              <span className={styles.componentName}>
+                                {component.categoryName}
+                                {component.variant && ` (${component.variant})`}
+                              </span>
+                              <span className={styles.componentQty}>
+                                {component.quantity} {component.unitOfMeasure}
+                              </span>
+                            </div>
+                            <div className={styles.componentCost}>
+                              {component.hasCostData && component.subtotal ? (
+                                <span className={styles.costValue}>${component.subtotal}</span>
+                              ) : (
+                                <span className={styles.awaitingData} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                  <span className={styles.warningIcon} aria-hidden="true">⚠️</span>
+                                  <span>Add invoices to calculate</span>
+                                  <HelpTooltip
+                                    content={`Once you enter invoices for ${component.categoryName}${component.variant ? ` (${component.variant})` : ''}, we'll automatically calculate the cost per unit. Go to the Invoice Timeline to add your invoices.`}
+                                    position="left"
+                                  />
+                                </span>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
 
-            <div className={styles.cardFooter}>
-              <span className={styles.updatedLabel}>Last updated:</span>
-              <span className={styles.updatedDate}>
-                {new Date().toLocaleDateString()}
-              </span>
-            </div>
-          </article>
-        ))}
+                      {!product.isComplete && product.missingComponents.length > 0 && (
+                        <div className={styles.missingData}>
+                          <p className={styles.missingDataTitle}>
+                            <span className={styles.warningIcon} aria-hidden="true">⚠️</span>
+                            Missing cost data for:
+                          </p>
+                          <ul className={styles.missingList}>
+                            {product.missingComponents.map((component, idx) => (
+                              <li key={idx} className={styles.missingItem}>{component}</li>
+                            ))}
+                          </ul>
+                          <p className={styles.missingHelp}>
+                            Enter an invoice for these raw materials to complete CPU calculation.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </article>
+          );
+        })}
       </div>
 
       {/* Summary Section */}
-      {cpuCards.length > 0 && (
+      {products.length > 0 && (
         <div className={styles.summary}>
           <div className={styles.summaryContent}>
             <span className={styles.summaryIcon} aria-hidden="true">
               ℹ️
             </span>
             <p className={styles.summaryText}>
-              These costs are calculated from your most recent invoices. As you enter new
-              invoices, these values will update automatically.
+              Manufacturing costs are calculated from your product recipes and the most recent raw material invoices. As you enter new invoices, these values will update automatically.
             </p>
           </div>
         </div>

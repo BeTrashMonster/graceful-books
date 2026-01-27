@@ -1,0 +1,62 @@
+monitoring/config/metrics-collector.ts(393,7): error TS18046: 'metrics.details' is of type 'unknown'.
+src/components/accounts/AccountList.tsx(163,9): error TS6133: 'getParentName' is declared but its value is never read.
+src/components/accounts/AccountRegister.tsx(18,24): error TS6196: 'JournalEntry' is declared but never used.
+src/components/wizards/steps/AccountCustomizationStep.tsx(13,1): error TS6133: 'getEntityConfig' is declared but its value is never read.
+src/components/wizards/steps/AccountCustomizationStep.tsx(107,19): error TS6133: 'initialCustomizations' is declared but its value is never read.
+src/components/wizards/steps/AccountCustomizationStep.tsx(740,21): error TS2322: Type 'boolean | ""' is not assignable to type 'boolean | undefined'.
+src/components/wizards/steps/AccountCustomizationStep.tsx(752,21): error TS2322: Type 'boolean | ""' is not assignable to type 'boolean | undefined'.
+src/components/wizards/steps/AccountCustomizationStep.tsx(765,21): error TS2322: Type 'boolean | ""' is not assignable to type 'boolean | undefined'.
+src/components/wizards/steps/ReviewStep.tsx(59,9): error TS2532: Object is possibly 'undefined'.
+src/components/wizards/steps/TemplateSelectionStep.tsx(36,9): error TS6133: 'selectedTemplate' is declared but its value is never read.
+src/crypto/encryption.ts(133,7): error TS2322: Type 'SecurityErrorCode.CRYPTO_FAILED' is not assignable to type '"UNKNOWN_ERROR" | "DECRYPTION_FAILED" | "INVALID_KEY" | "WEAK_PASSPHRASE" | "KEY_EXPIRED" | undefined'.
+src/crypto/encryption.ts(213,7): error TS2322: Type 'SecurityErrorCode.CRYPTO_FAILED' is not assignable to type '"UNKNOWN_ERROR" | "DECRYPTION_FAILED" | "INVALID_KEY" | "WEAK_PASSPHRASE" | "KEY_EXPIRED" | undefined'.
+src/crypto/encryption.ts(263,7): error TS2322: Type 'SecurityErrorCode.CRYPTO_FAILED' is not assignable to type '"UNKNOWN_ERROR" | "DECRYPTION_FAILED" | "INVALID_KEY" | "WEAK_PASSPHRASE" | "KEY_EXPIRED" | undefined'.
+src/data/demoEntityConfig.ts(39,33): error TS6133: 'companyId' is declared but its value is never read.
+src/db/database.ts(201,3): error TS2305: Module '"../types/database.types"' has no exported member 'Currency'.
+src/db/database.ts(202,3): error TS2305: Module '"../types/database.types"' has no exported member 'ExchangeRate'.
+src/hooks/useCashPosition.ts(10,10): error TS6133: 'getStartOfMonth' is declared but its value is never read.
+src/hooks/useCashPosition.ts(38,46): error TS2339: Property 'balanceCents' does not exist on type 'Account'.
+src/hooks/useCashPosition.ts(80,48): error TS2339: Property 'debit_amount_cents' does not exist on type 'TransactionLineItem'.
+src/hooks/useCashPosition.ts(118,48): error TS2339: Property 'credit_amount_cents' does not exist on type 'TransactionLineItem'.
+src/hooks/useCashPosition.ts(119,47): error TS2339: Property 'debit_amount_cents' does not exist on type 'TransactionLineItem'.
+src/hooks/useOverdueInvoices.ts(40,35): error TS2551: Property 'dueDate' does not exist on type 'Invoice'. Did you mean 'due_date'?
+src/hooks/useOverdueInvoices.ts(40,53): error TS2551: Property 'dueDate' does not exist on type 'Invoice'. Did you mean 'due_date'?
+src/hooks/useOverdueInvoices.ts(44,37): error TS2551: Property 'dueDate' does not exist on type 'Invoice'. Did you mean 'due_date'?
+src/hooks/useOverdueInvoices.ts(48,42): error TS2339: Property 'customerName' does not exist on type 'Invoice'.
+src/hooks/useOverdueInvoices.ts(52,39): error TS2551: Property 'invoiceNumber' does not exist on type 'Invoice'. Did you mean 'invoice_number'?
+src/hooks/useOverdueInvoices.ts(54,41): error TS2339: Property 'totalCents' does not exist on type 'Invoice'.
+src/hooks/useRecentActivity.ts(42,28): error TS2345: Argument of type 'RecentActivity[]' is not assignable to parameter of type 'SetStateAction<RecentEditEntry[]>'.
+src/hooks/useRevenueExpensesData.ts(86,52): error TS2339: Property 'credit_amount_cents' does not exist on type 'TransactionLineItem'.
+src/hooks/useRevenueExpensesData.ts(87,51): error TS2339: Property 'debit_amount_cents' does not exist on type 'TransactionLineItem'.
+src/services/multiUser/audit.service.ts(536,47): error TS2551: Property 'company_id' does not exist on type 'AuditLogEntity'. Did you mean 'companyId'?
+src/services/multiUser/audit.service.ts(540,47): error TS2551: Property 'user_id' does not exist on type 'AuditLogEntity'. Did you mean 'userId'?
+src/services/multiUser/audit.service.ts(567,47): error TS2551: Property 'entity_type' does not exist on type 'AuditLogEntity'. Did you mean 'entityType'?
+src/services/multiUser/audit.service.ts(571,47): error TS2551: Property 'entity_id' does not exist on type 'AuditLogEntity'. Did you mean 'entityId'?
+src/services/multiUser/audit.service.ts(623,17): error TS2551: Property 'user_id' does not exist on type 'AuditLogEntity'. Did you mean 'userId'?
+src/services/multiUser/audit.service.ts(624,31): error TS2551: Property 'user_id' does not exist on type 'AuditLogEntity'. Did you mean 'userId'?
+src/services/multiUser/audit.service.ts(628,17): error TS2551: Property 'device_id' does not exist on type 'AuditLogEntity'. Did you mean 'deviceId'?
+src/services/multiUser/audit.service.ts(629,34): error TS2551: Property 'device_id' does not exist on type 'AuditLogEntity'. Did you mean 'deviceId'?
+src/services/multiUser/audit.service.ts(775,13): error TS2551: Property 'user_id' does not exist on type 'AuditLogEntity'. Did you mean 'userId'?
+src/services/multiUser/audit.service.ts(776,13): error TS2551: Property 'entity_type' does not exist on type 'AuditLogEntity'. Did you mean 'entityType'?
+src/services/multiUser/audit.service.ts(777,13): error TS2551: Property 'entity_id' does not exist on type 'AuditLogEntity'. Did you mean 'entityId'?
+src/services/multiUser/audit.service.ts(779,13): error TS2551: Property 'ip_address' does not exist on type 'AuditLogEntity'. Did you mean 'ipAddress'?
+src/services/multiUser/audit.service.ts(780,13): error TS2551: Property 'device_id' does not exist on type 'AuditLogEntity'. Did you mean 'deviceId'?
+src/services/portalService.ts(113,23): error TS6133: 'ip' is declared but its value is never read.
+src/services/portalService.ts(143,11): error TS2322: Type 'ErrorCode.PERMISSION_DENIED' is not assignable to type 'DatabaseErrorCode'.
+src/services/portalService.ts(223,11): error TS2322: Type 'ErrorCode.RATE_LIMITED' is not assignable to type 'DatabaseErrorCode'.
+src/services/portalService.ts(254,11): error TS2322: Type 'ErrorCode.SESSION_INVALID' is not assignable to type 'DatabaseErrorCode'.
+src/services/reports/arAgingReport.service.ts(208,37): error TS2367: This comparison appears to be unintentional because the types 'InvoiceStatus' and '"void"' have no overlap.
+src/services/reports/arAgingReport.service.ts(209,35): error TS2367: This comparison appears to be unintentional because the types 'InvoiceStatus' and '"paid"' have no overlap.
+src/services/runway/runwayCalculator.service.ts(106,58): error TS2551: Property 'isActive' does not exist on type 'Account'. Did you mean 'active'?
+src/test/setup.ts(75,11): error TS2322: Type 'Uint8Array<ArrayBufferLike>' is not assignable to type 'BufferSource'.
+src/types/journalEntry.types.ts(336,5): error TS2561: Object literal may only specify known properties, but 'created_by' does not exist in type 'JournalEntryTemplate'. Did you mean to write 'created_at'?
+src/types/journalEntry.types.ts(373,5): error TS2561: Object literal may only specify known properties, but 'created_by' does not exist in type 'JournalEntryTemplate'. Did you mean to write 'created_at'?
+src/utils/devReset.ts(112,4): error TS2554: Expected 0 arguments, but got 1.
+src/utils/devReset.ts(112,19): error TS2339: Property 'devResetAll' does not exist on type 'Promise<void>'.
+src/utils/equityAccounts.ts(17,11): error TS6196: 'EquityAccountTemplate' is declared but never used.
+src/utils/equityAccounts.ts(92,30): error TS6133: 'index' is declared but its value is never read.
+src/utils/equityAccounts.ts(106,30): error TS6133: 'index' is declared but its value is never read.
+src/utils/openingBalances.ts(44,18): error TS2345: Argument of type '{ accountId: string; debit: number; credit: number; memo: string; }' is not assignable to parameter of type 'JournalEntryLine'.
+src/utils/openingBalances.ts(59,22): error TS2345: Argument of type '{ accountId: string; debit: number; credit: number; memo: string; }' is not assignable to parameter of type 'JournalEntryLine'.
+src/utils/openingBalances.ts(78,22): error TS2345: Argument of type '{ accountId: string; debit: number; credit: number; memo: string; }' is not assignable to parameter of type 'JournalEntryLine'.
+src/utils/openingBalances.ts(88,18): error TS2345: Argument of type '{ accountId: string; debit: number; credit: number; memo: string; }' is not assignable to parameter of type 'JournalEntryLine'.

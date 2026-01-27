@@ -390,1003 +390,5224 @@ Group C is **production ready** with:
 **Ready for:** Group D (Welcome Home - Guided Setup)
 
 
-After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 0
-ChartOfAccountsWizard.tsx:185 Form data received: Object
-ChartOfAccountsWizard.tsx:186 Has equipment items: Array(1)
-ChartOfAccountsWizard.tsx:187 Has loans: Array(1)
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:183 === handleCustomizationsUpdate CALLED ===
-ChartOfAccountsWizard.tsx:184 Customizations count: 20
-ChartOfAccountsWizard.tsx:185 Form data received: undefined
-ChartOfAccountsWizard.tsx:186 Has equipment items: undefined
-ChartOfAccountsWizard.tsx:187 Has loans: undefined
-ChartOfAccountsWizard.tsx:194 After update, wizard state data: Object
-ChartOfAccountsWizard.tsx:203 === WIZARD handleCreateAccounts CALLED ===
-ChartOfAccountsWizard.tsx:204 Wizard data: Object
-ChartOfAccountsWizard.tsx:205 Has customizationFormData: false
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+react-router-dom.js?v=0e75c655:4436 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+warnOnce @ react-router-dom.js?v=0e75c655:4436Understand this warning
+react-router-dom.js?v=0e75c655:4436 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ react-router-dom.js?v=0e75c655:4436Understand this warning
+chunk-R52GTYG7.js?v=0e75c655:1364 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:873
+usePSD @ chunk-R52GTYG7.js?v=0e75c655:1075
+physicalTick @ chunk-R52GTYG7.js?v=0e75c655:872
+chunk-R52GTYG7.js?v=0e75c655:1364 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:873
+usePSD @ chunk-R52GTYG7.js?v=0e75c655:1075
+physicalTick @ chunk-R52GTYG7.js?v=0e75c655:872
+CPUTracker.tsx:46 Failed to load CPU tracker data: DexieError2
+loadData @ CPUTracker.tsx:46Understand this error
+CPUTracker.tsx:46 Failed to load CPU tracker data: DexieError2
+loadData @ CPUTracker.tsx:46Understand this error
+GettingStartedCard.tsx?t=1769368219333:41 GettingStartedCard state: Object
+GettingStartedCard.tsx?t=1769368219333:41 GettingStartedCard state: Object
+GettingStartedCard.tsx?t=1769368608246:41 GettingStartedCard state: Object
+GettingStartedCard.tsx?t=1769368608246:41 GettingStartedCard state: Object
+GettingStartedCard.tsx?t=1769368623284:41 GettingStartedCard state: Object
+GettingStartedCard.tsx?t=1769368623284:41 GettingStartedCard state: Object
+GettingStartedCard.tsx?t=1769368637286:41 GettingStartedCard state: Object
+GettingStartedCard.tsx?t=1769368637286:41 GettingStartedCard state: Object
+GettingStartedCard.tsx?t=1769368651366:41 GettingStartedCard state: Object
+GettingStartedCard.tsx?t=1769368651366:41 GettingStartedCard state: Object
+GettingStartedCard.tsx?t=1769368669203:41 GettingStartedCard state: Object
+GettingStartedCard.tsx?t=1769368669203:41 GettingStartedCard state: Object
+GettingStartedCard.tsx?t=1769368681627:41 GettingStartedCard state: Object
+GettingStartedCard.tsx?t=1769368681627:41 GettingStartedCard state: Object
+GettingStartedCard.tsx?t=1769368694603:41 GettingStartedCard state: Object
+GettingStartedCard.tsx?t=1769368694603:41 GettingStartedCard state: Object
+2AddCategoryModal.tsx?t=1769370051488:21 Uncaught ReferenceError: useEffect is not defined
+    at AddCategoryModal (AddCategoryModal.tsx?t=1769370051488:21:3)
+    at renderWithHooks (chunk-SXRIVT2P.js?v=0e75c655:11596:26)
+    at mountIndeterminateComponent (chunk-SXRIVT2P.js?v=0e75c655:14974:21)
+    at beginWork (chunk-SXRIVT2P.js?v=0e75c655:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-SXRIVT2P.js?v=0e75c655:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-SXRIVT2P.js?v=0e75c655:3705:24)
+    at invokeGuardedCallback (chunk-SXRIVT2P.js?v=0e75c655:3739:39)
+    at beginWork$1 (chunk-SXRIVT2P.js?v=0e75c655:19818:15)
+    at performUnitOfWork (chunk-SXRIVT2P.js?v=0e75c655:19251:20)
+    at workLoopSync (chunk-SXRIVT2P.js?v=0e75c655:19190:13)Understand this error
+chunk-SXRIVT2P.js?v=0e75c655:14080 The above error occurred in the <AddCategoryModal> component:
+
+    at AddCategoryModal (http://localhost:3000/src/components/cpg/modals/AddCategoryModal.tsx?t=1769370051488:12:36)
+    at main
+    at div
+    at CPGLayout (http://localhost:3000/src/components/layouts/CPGLayout.tsx?t=1769367672242:12:20)
+    at ProtectedRoute (http://localhost:3000/src/routes/ProtectedRoute.tsx:4:34)
+    at RenderedRoute (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4131:5)
+    at Routes (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4601:5)
+    at Suspense
+    at AppRoutes
+    at AuthProvider (http://localhost:3000/src/contexts/AuthContext.tsx:5:32)
+    at Router (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4544:15)
+    at BrowserRouter (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:5290:5)
+    at ErrorBoundary (http://localhost:3000/src/components/error/ErrorBoundary.tsx:3:8)
+    at App
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+logCapturedError @ chunk-SXRIVT2P.js?v=0e75c655:14080Understand this error
+ErrorBoundary.tsx:26 Error caught by boundary: ReferenceError: useEffect is not defined
+    at AddCategoryModal (AddCategoryModal.tsx?t=1769370051488:21:3)
+    at renderWithHooks (chunk-SXRIVT2P.js?v=0e75c655:11596:26)
+    at mountIndeterminateComponent (chunk-SXRIVT2P.js?v=0e75c655:14974:21)
+    at beginWork (chunk-SXRIVT2P.js?v=0e75c655:15962:22)
+    at beginWork$1 (chunk-SXRIVT2P.js?v=0e75c655:19806:22)
+    at performUnitOfWork (chunk-SXRIVT2P.js?v=0e75c655:19251:20)
+    at workLoopSync (chunk-SXRIVT2P.js?v=0e75c655:19190:13)
+    at renderRootSync (chunk-SXRIVT2P.js?v=0e75c655:19169:15)
+    at recoverFromConcurrentError (chunk-SXRIVT2P.js?v=0e75c655:18786:28)
+    at performSyncWorkOnRoot (chunk-SXRIVT2P.js?v=0e75c655:18932:28) Object
+componentDidCatch @ ErrorBoundary.tsx:26Understand this error
+2AddInvoiceModal.tsx?t=1769370149100:37 Uncaught ReferenceError: user is not defined
+    at AddInvoiceModal (AddInvoiceModal.tsx?t=1769370149100:37:15)
+    at renderWithHooks (chunk-SXRIVT2P.js?v=0e75c655:11596:26)
+    at mountIndeterminateComponent (chunk-SXRIVT2P.js?v=0e75c655:14974:21)
+    at beginWork (chunk-SXRIVT2P.js?v=0e75c655:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-SXRIVT2P.js?v=0e75c655:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-SXRIVT2P.js?v=0e75c655:3705:24)
+    at invokeGuardedCallback (chunk-SXRIVT2P.js?v=0e75c655:3739:39)
+    at beginWork$1 (chunk-SXRIVT2P.js?v=0e75c655:19818:15)
+    at performUnitOfWork (chunk-SXRIVT2P.js?v=0e75c655:19251:20)
+    at workLoopSync (chunk-SXRIVT2P.js?v=0e75c655:19190:13)Understand this error
+chunk-SXRIVT2P.js?v=0e75c655:14080 The above error occurred in the <AddInvoiceModal> component:
+
+    at AddInvoiceModal (http://localhost:3000/src/components/cpg/modals/AddInvoiceModal.tsx?t=1769370149100:12:35)
+    at main
+    at div
+    at CPGLayout (http://localhost:3000/src/components/layouts/CPGLayout.tsx?t=1769367672242:12:20)
+    at ProtectedRoute (http://localhost:3000/src/routes/ProtectedRoute.tsx:4:34)
+    at RenderedRoute (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4131:5)
+    at Routes (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4601:5)
+    at Suspense
+    at AppRoutes
+    at AuthProvider (http://localhost:3000/src/contexts/AuthContext.tsx:5:32)
+    at Router (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4544:15)
+    at BrowserRouter (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:5290:5)
+    at ErrorBoundary (http://localhost:3000/src/components/error/ErrorBoundary.tsx:3:8)
+    at App
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+logCapturedError @ chunk-SXRIVT2P.js?v=0e75c655:14080Understand this error
+ErrorBoundary.tsx:26 Error caught by boundary: ReferenceError: user is not defined
+    at AddInvoiceModal (AddInvoiceModal.tsx?t=1769370149100:37:15)
+    at renderWithHooks (chunk-SXRIVT2P.js?v=0e75c655:11596:26)
+    at mountIndeterminateComponent (chunk-SXRIVT2P.js?v=0e75c655:14974:21)
+    at beginWork (chunk-SXRIVT2P.js?v=0e75c655:15962:22)
+    at beginWork$1 (chunk-SXRIVT2P.js?v=0e75c655:19806:22)
+    at performUnitOfWork (chunk-SXRIVT2P.js?v=0e75c655:19251:20)
+    at workLoopSync (chunk-SXRIVT2P.js?v=0e75c655:19190:13)
+    at renderRootSync (chunk-SXRIVT2P.js?v=0e75c655:19169:15)
+    at recoverFromConcurrentError (chunk-SXRIVT2P.js?v=0e75c655:18786:28)
+    at performSyncWorkOnRoot (chunk-SXRIVT2P.js?v=0e75c655:18932:28) Object
+componentDidCatch @ ErrorBoundary.tsx:26Understand this error
+2AddInvoiceModal.tsx?t=1769370163480:37 Uncaught ReferenceError: user is not defined
+    at AddInvoiceModal (AddInvoiceModal.tsx?t=1769370163480:37:15)
+    at renderWithHooks (chunk-SXRIVT2P.js?v=0e75c655:11596:26)
+    at mountIndeterminateComponent (chunk-SXRIVT2P.js?v=0e75c655:14974:21)
+    at beginWork (chunk-SXRIVT2P.js?v=0e75c655:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-SXRIVT2P.js?v=0e75c655:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-SXRIVT2P.js?v=0e75c655:3705:24)
+    at invokeGuardedCallback (chunk-SXRIVT2P.js?v=0e75c655:3739:39)
+    at beginWork$1 (chunk-SXRIVT2P.js?v=0e75c655:19818:15)
+    at performUnitOfWork (chunk-SXRIVT2P.js?v=0e75c655:19251:20)
+    at workLoopSync (chunk-SXRIVT2P.js?v=0e75c655:19190:13)Understand this error
+chunk-SXRIVT2P.js?v=0e75c655:14080 The above error occurred in the <AddInvoiceModal> component:
+
+    at AddInvoiceModal (http://localhost:3000/src/components/cpg/modals/AddInvoiceModal.tsx?t=1769370163480:12:35)
+    at main
+    at div
+    at CPGLayout (http://localhost:3000/src/components/layouts/CPGLayout.tsx?t=1769367672242:12:20)
+    at ProtectedRoute (http://localhost:3000/src/routes/ProtectedRoute.tsx:4:34)
+    at RenderedRoute (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4131:5)
+    at Routes (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4601:5)
+    at Suspense
+    at AppRoutes
+    at AuthProvider (http://localhost:3000/src/contexts/AuthContext.tsx:5:32)
+    at Router (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4544:15)
+    at BrowserRouter (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:5290:5)
+    at ErrorBoundary (http://localhost:3000/src/components/error/ErrorBoundary.tsx:3:8)
+    at App
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+logCapturedError @ chunk-SXRIVT2P.js?v=0e75c655:14080Understand this error
+ErrorBoundary.tsx:26 Error caught by boundary: ReferenceError: user is not defined
+    at AddInvoiceModal (AddInvoiceModal.tsx?t=1769370163480:37:15)
+    at renderWithHooks (chunk-SXRIVT2P.js?v=0e75c655:11596:26)
+    at mountIndeterminateComponent (chunk-SXRIVT2P.js?v=0e75c655:14974:21)
+    at beginWork (chunk-SXRIVT2P.js?v=0e75c655:15962:22)
+    at beginWork$1 (chunk-SXRIVT2P.js?v=0e75c655:19806:22)
+    at performUnitOfWork (chunk-SXRIVT2P.js?v=0e75c655:19251:20)
+    at workLoopSync (chunk-SXRIVT2P.js?v=0e75c655:19190:13)
+    at renderRootSync (chunk-SXRIVT2P.js?v=0e75c655:19169:15)
+    at recoverFromConcurrentError (chunk-SXRIVT2P.js?v=0e75c655:18786:28)
+    at performSyncWorkOnRoot (chunk-SXRIVT2P.js?v=0e75c655:18932:28) Object
+componentDidCatch @ ErrorBoundary.tsx:26Understand this error
+2GettingStartedCard.tsx?t=1769370214038:39 Uncaught ReferenceError: user is not defined
+    at GettingStartedCard (GettingStartedCard.tsx?t=1769370214038:39:7)
+    at renderWithHooks (chunk-SXRIVT2P.js?v=0e75c655:11596:26)
+    at mountIndeterminateComponent (chunk-SXRIVT2P.js?v=0e75c655:14974:21)
+    at beginWork (chunk-SXRIVT2P.js?v=0e75c655:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-SXRIVT2P.js?v=0e75c655:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-SXRIVT2P.js?v=0e75c655:3705:24)
+    at invokeGuardedCallback (chunk-SXRIVT2P.js?v=0e75c655:3739:39)
+    at beginWork$1 (chunk-SXRIVT2P.js?v=0e75c655:19818:15)
+    at performUnitOfWork (chunk-SXRIVT2P.js?v=0e75c655:19251:20)
+    at workLoopSync (chunk-SXRIVT2P.js?v=0e75c655:19190:13)Understand this error
+chunk-SXRIVT2P.js?v=0e75c655:14080 The above error occurred in the <GettingStartedCard> component:
+
+    at GettingStartedCard (http://localhost:3000/src/components/cpg/GettingStartedCard.tsx?t=1769370214038:8:38)
+    at div
+    at CPGDashboard (http://localhost:3000/src/pages/cpg/CPGDashboard.tsx?t=1769368191470:8:19)
+    at RenderedRoute (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4131:5)
+    at Outlet (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4537:26)
+    at main
+    at div
+    at CPGLayout (http://localhost:3000/src/components/layouts/CPGLayout.tsx?t=1769367672242:12:20)
+    at ProtectedRoute (http://localhost:3000/src/routes/ProtectedRoute.tsx:4:34)
+    at RenderedRoute (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4131:5)
+    at Routes (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4601:5)
+    at Suspense
+    at AppRoutes
+    at AuthProvider (http://localhost:3000/src/contexts/AuthContext.tsx:5:32)
+    at Router (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4544:15)
+    at BrowserRouter (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:5290:5)
+    at ErrorBoundary (http://localhost:3000/src/components/error/ErrorBoundary.tsx:3:8)
+    at App
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+logCapturedError @ chunk-SXRIVT2P.js?v=0e75c655:14080Understand this error
+ErrorBoundary.tsx:26 Error caught by boundary: ReferenceError: user is not defined
+    at GettingStartedCard (GettingStartedCard.tsx?t=1769370214038:39:7)
+    at renderWithHooks (chunk-SXRIVT2P.js?v=0e75c655:11596:26)
+    at mountIndeterminateComponent (chunk-SXRIVT2P.js?v=0e75c655:14974:21)
+    at beginWork (chunk-SXRIVT2P.js?v=0e75c655:15962:22)
+    at beginWork$1 (chunk-SXRIVT2P.js?v=0e75c655:19806:22)
+    at performUnitOfWork (chunk-SXRIVT2P.js?v=0e75c655:19251:20)
+    at workLoopSync (chunk-SXRIVT2P.js?v=0e75c655:19190:13)
+    at renderRootSync (chunk-SXRIVT2P.js?v=0e75c655:19169:15)
+    at recoverFromConcurrentError (chunk-SXRIVT2P.js?v=0e75c655:18786:28)
+    at performSyncWorkOnRoot (chunk-SXRIVT2P.js?v=0e75c655:18932:28) Object
+componentDidCatch @ ErrorBoundary.tsx:26Understand this error
+2GettingStartedCard.tsx?t=1769370227807:39 Uncaught ReferenceError: user is not defined
+    at GettingStartedCard (GettingStartedCard.tsx?t=1769370227807:39:7)
+    at renderWithHooks (chunk-SXRIVT2P.js?v=0e75c655:11596:26)
+    at mountIndeterminateComponent (chunk-SXRIVT2P.js?v=0e75c655:14974:21)
+    at beginWork (chunk-SXRIVT2P.js?v=0e75c655:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-SXRIVT2P.js?v=0e75c655:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-SXRIVT2P.js?v=0e75c655:3705:24)
+    at invokeGuardedCallback (chunk-SXRIVT2P.js?v=0e75c655:3739:39)
+    at beginWork$1 (chunk-SXRIVT2P.js?v=0e75c655:19818:15)
+    at performUnitOfWork (chunk-SXRIVT2P.js?v=0e75c655:19251:20)
+    at workLoopSync (chunk-SXRIVT2P.js?v=0e75c655:19190:13)Understand this error
+chunk-SXRIVT2P.js?v=0e75c655:14080 The above error occurred in the <GettingStartedCard> component:
+
+    at GettingStartedCard (http://localhost:3000/src/components/cpg/GettingStartedCard.tsx?t=1769370227807:8:38)
+    at div
+    at CPGDashboard (http://localhost:3000/src/pages/cpg/CPGDashboard.tsx?t=1769368191470:8:19)
+    at RenderedRoute (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4131:5)
+    at Outlet (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4537:26)
+    at main
+    at div
+    at CPGLayout (http://localhost:3000/src/components/layouts/CPGLayout.tsx?t=1769367672242:12:20)
+    at ProtectedRoute (http://localhost:3000/src/routes/ProtectedRoute.tsx:4:34)
+    at RenderedRoute (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4131:5)
+    at Routes (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4601:5)
+    at Suspense
+    at AppRoutes
+    at AuthProvider (http://localhost:3000/src/contexts/AuthContext.tsx:5:32)
+    at Router (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:4544:15)
+    at BrowserRouter (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=0e75c655:5290:5)
+    at ErrorBoundary (http://localhost:3000/src/components/error/ErrorBoundary.tsx:3:8)
+    at App
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+logCapturedError @ chunk-SXRIVT2P.js?v=0e75c655:14080Understand this error
+ErrorBoundary.tsx:26 Error caught by boundary: ReferenceError: user is not defined
+    at GettingStartedCard (GettingStartedCard.tsx?t=1769370227807:39:7)
+    at renderWithHooks (chunk-SXRIVT2P.js?v=0e75c655:11596:26)
+    at mountIndeterminateComponent (chunk-SXRIVT2P.js?v=0e75c655:14974:21)
+    at beginWork (chunk-SXRIVT2P.js?v=0e75c655:15962:22)
+    at beginWork$1 (chunk-SXRIVT2P.js?v=0e75c655:19806:22)
+    at performUnitOfWork (chunk-SXRIVT2P.js?v=0e75c655:19251:20)
+    at workLoopSync (chunk-SXRIVT2P.js?v=0e75c655:19190:13)
+    at renderRootSync (chunk-SXRIVT2P.js?v=0e75c655:19169:15)
+    at recoverFromConcurrentError (chunk-SXRIVT2P.js?v=0e75c655:18786:28)
+    at performSyncWorkOnRoot (chunk-SXRIVT2P.js?v=0e75c655:18932:28) Object
+componentDidCatch @ ErrorBoundary.tsx:26Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+(anonymous) @ GettingStartedCard.tsx:63
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=0e75c655:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=0e75c655:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=0e75c655:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=0e75c655:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:19381
+workLoop @ chunk-SXRIVT2P.js?v=0e75c655:197
+flushWork @ chunk-SXRIVT2P.js?v=0e75c655:176
+performWorkUntilDeadline @ chunk-SXRIVT2P.js?v=0e75c655:384
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+AddCategoryModal.tsx?t=1769370105546:24 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+loadCount @ AddCategoryModal.tsx?t=1769370105546:24
+(anonymous) @ AddCategoryModal.tsx?t=1769370105546:27
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=0e75c655:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=0e75c655:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=0e75c655:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=0e75c655:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+AddCategoryModal.tsx?t=1769370105546:26 Uncaught (in promise) DexieError2Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+AddCategoryModal.tsx?t=1769370105546:24 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+loadCount @ AddCategoryModal.tsx?t=1769370105546:24
+(anonymous) @ AddCategoryModal.tsx?t=1769370105546:27
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=0e75c655:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=0e75c655:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=0e75c655:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=0e75c655:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+AddCategoryModal.tsx?t=1769370105546:26 Uncaught (in promise) DexieError2Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+CPGLayout.tsx?t=1769367672242:46 Category added successfully
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+CPUTracker.tsx:34 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.toArray @ chunk-R52GTYG7.js?v=0e75c655:2002
+Collection2.sortBy @ chunk-R52GTYG7.js?v=0e75c655:1996
+loadData @ CPUTracker.tsx:34
+(anonymous) @ CPUTracker.tsx:28
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=0e75c655:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=0e75c655:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=0e75c655:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=0e75c655:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+CPUTracker.tsx:34 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.toArray @ chunk-R52GTYG7.js?v=0e75c655:2002
+Collection2.sortBy @ chunk-R52GTYG7.js?v=0e75c655:1996
+loadData @ CPUTracker.tsx:34
+(anonymous) @ CPUTracker.tsx:28
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+CPUTracker.tsx:46 Failed to load CPU tracker data: DexieError2
+loadData @ CPUTracker.tsx:46Understand this error
+CPUTracker.tsx:46 Failed to load CPU tracker data: DexieError2
+loadData @ CPUTracker.tsx:46Understand this error
+CPUTracker.tsx:79 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.toArray @ chunk-R52GTYG7.js?v=0e75c655:2002
+Collection2.sortBy @ chunk-R52GTYG7.js?v=0e75c655:1996
+loadData @ CPUTracker.tsx:79
+(anonymous) @ CPUTracker.tsx:55
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=0e75c655:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=0e75c655:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=0e75c655:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=0e75c655:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+flushSync @ chunk-SXRIVT2P.js?v=0e75c655:19012
+scheduleRefresh @ chunk-SXRIVT2P.js?v=0e75c655:20057
+(anonymous) @ @react-refresh:228
+performReactRefresh @ @react-refresh:217
+(anonymous) @ @react-refresh:604
+CPUTracker.tsx:79 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.toArray @ chunk-R52GTYG7.js?v=0e75c655:2002
+Collection2.sortBy @ chunk-R52GTYG7.js?v=0e75c655:1996
+loadData @ CPUTracker.tsx:79
+(anonymous) @ CPUTracker.tsx:55
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+flushSync @ chunk-SXRIVT2P.js?v=0e75c655:19012
+scheduleRefresh @ chunk-SXRIVT2P.js?v=0e75c655:20057
+(anonymous) @ @react-refresh:228
+performReactRefresh @ @react-refresh:217
+(anonymous) @ @react-refresh:604
+CPUTracker.tsx:105 Failed to load CPU tracker data: DexieError2
+loadData @ CPUTracker.tsx:105Understand this error
+CPUTracker.tsx:105 Failed to load CPU tracker data: DexieError2
+loadData @ CPUTracker.tsx:105Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+(anonymous) @ GettingStartedCard.tsx:63
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=0e75c655:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=0e75c655:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=0e75c655:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=0e75c655:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+(anonymous) @ GettingStartedCard.tsx:63
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+AddCategoryModal.tsx:44 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+loadCount @ AddCategoryModal.tsx:44
+(anonymous) @ AddCategoryModal.tsx:48
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=0e75c655:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=0e75c655:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=0e75c655:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=0e75c655:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+AddCategoryModal.tsx:46 Uncaught (in promise) DexieError2Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+AddCategoryModal.tsx:95 Adding category: Object
+AddCategoryModal.tsx:97 Category added successfully: ff7120b4-765f-4b2d-ba96-bd810bcbf1f9
+CPGLayout.tsx:59 Category added successfully
+GettingStartedCard.tsx:38 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+GettingStartedCard.tsx:58 Error checking progress: DexieError2
+checkProgress @ GettingStartedCard.tsx:58Understand this error
+CPUTracker.tsx:79 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.toArray @ chunk-R52GTYG7.js?v=0e75c655:2002
+Collection2.sortBy @ chunk-R52GTYG7.js?v=0e75c655:1996
+loadData @ CPUTracker.tsx:79
+(anonymous) @ CPUTracker.tsx:55
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=0e75c655:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=0e75c655:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=0e75c655:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=0e75c655:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+CPUTracker.tsx:79 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.toArray @ chunk-R52GTYG7.js?v=0e75c655:2002
+Collection2.sortBy @ chunk-R52GTYG7.js?v=0e75c655:1996
+loadData @ CPUTracker.tsx:79
+(anonymous) @ CPUTracker.tsx:55
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+CPUTracker.tsx:105 Failed to load CPU tracker data: DexieError2
+loadData @ CPUTracker.tsx:105Understand this error
+CPUTracker.tsx:105 Failed to load CPU tracker data: DexieError2
+loadData @ CPUTracker.tsx:105Understand this error
+CPUTracker.tsx:79 DexieError2
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.toArray @ chunk-R52GTYG7.js?v=0e75c655:2002
+Collection2.sortBy @ chunk-R52GTYG7.js?v=0e75c655:1996
+loadData @ CPUTracker.tsx:79
+handleCategoriesUpdated @ CPUTracker.tsx:118
+handleSaveCategory @ CategoryManager.tsx:206
+CPUTracker.tsx:105 Failed to load CPU tracker data: DexieError2
+loadData @ CPUTracker.tsx:105Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+(anonymous) @ GettingStartedCard.tsx:63
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=0e75c655:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=0e75c655:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=0e75c655:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=0e75c655:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+(anonymous) @ GettingStartedCard.tsx:63
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=0e75c655:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=0e75c655:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=0e75c655:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=0e75c655:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+(anonymous) @ GettingStartedCard.tsx:63
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+(anonymous) @ GettingStartedCard.tsx:63
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+await in checkProgress
+(anonymous) @ GettingStartedCard.tsx:63
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=0e75c655:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=0e75c655:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=0e75c655:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=0e75c655:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+await in checkProgress
+(anonymous) @ GettingStartedCard.tsx:63
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+AddCategoryModal.tsx:44 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+loadCount @ AddCategoryModal.tsx:44
+(anonymous) @ AddCategoryModal.tsx:48
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=0e75c655:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=0e75c655:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=0e75c655:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=0e75c655:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+loadCount @ AddCategoryModal.tsx:44
+(anonymous) @ AddCategoryModal.tsx:48
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=0e75c655:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=0e75c655:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=0e75c655:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=0e75c655:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+AddCategoryModal.tsx:46 Uncaught (in promise) DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+loadCount @ AddCategoryModal.tsx:46
+await in loadCount
+(anonymous) @ AddCategoryModal.tsx:48
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=0e75c655:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=0e75c655:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=0e75c655:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=0e75c655:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+AddCategoryModal.tsx:95 Adding category: {company_id: 'cpg-demo', name: 'Oil', description: null, variants: null, sort_order: 999, …}
+AddCategoryModal.tsx:97 Category added successfully: 134bb03d-e1e3-4cd6-bae4-fad44c0b86d1
+CPGLayout.tsx:59 Category added successfully
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error
+GettingStartedCard.tsx:38 DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1364
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:1087
+(anonymous) @ chunk-R52GTYG7.js?v=0e75c655:857
+callListener @ chunk-R52GTYG7.js?v=0e75c655:856
+endMicroTickScope @ chunk-R52GTYG7.js?v=0e75c655:891
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1371
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+Dexie: read cpgCategories
+Table2._trans @ chunk-R52GTYG7.js?v=0e75c655:1350
+Collection2._read @ chunk-R52GTYG7.js?v=0e75c655:1928
+Collection2.count @ chunk-R52GTYG7.js?v=0e75c655:1960
+checkProgress @ GettingStartedCard.tsx:38
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677
+GettingStartedCard.tsx:58 Error checking progress: DexieError2 {name: 'DataError', message: "Failed to execute 'bound' on 'IDBKeyRange': The pa… 'IDBKeyRange': The parameter is not a valid key.", inner: DataError: Failed to execute 'bound' on 'IDBKeyRange': The parameter is not a valid key.
+    at mak…}
+checkProgress @ GettingStartedCard.tsx:58
+setInterval
+(anonymous) @ GettingStartedCard.tsx:66
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=0e75c655:16963
+invokePassiveEffectMountInDEV @ chunk-SXRIVT2P.js?v=0e75c655:18374
+invokeEffectsInDev @ chunk-SXRIVT2P.js?v=0e75c655:19754
+commitDoubleInvokeEffectsInDEV @ chunk-SXRIVT2P.js?v=0e75c655:19739
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=0e75c655:19556
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=0e75c655:19500
+commitRootImpl @ chunk-SXRIVT2P.js?v=0e75c655:19469
+commitRoot @ chunk-SXRIVT2P.js?v=0e75c655:19330
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=0e75c655:18948
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=0e75c655:9166
+(anonymous) @ chunk-SXRIVT2P.js?v=0e75c655:18677Understand this error

@@ -30,6 +30,7 @@ import type {
 } from '../../db/schema/cpg.schema';
 import {
   validateCPGInvoice,
+  normalizeVariant,
 } from '../../db/schema/cpg.schema';
 import { logger } from '../../utils/logger';
 
@@ -124,6 +125,7 @@ export interface CPUHistoryEntry {
   variant: string | null;
   cpu: string;
   units_received: string;
+  is_archived?: boolean;
 }
 
 /**
@@ -143,6 +145,46 @@ export interface CPUTrend {
   min_cpu: string;
   max_cpu: string;
   trend_direction: 'increasing' | 'decreasing' | 'stable';
+}
+
+/**
+ * Finished product CPU calculation result
+ */
+export interface FinishedProductCPUResult {
+  cpu: string | null;
+  breakdown: Array<{
+    categoryName: string;
+    categoryId: string;
+    variant: string | null;
+    quantity: string;
+    unitOfMeasure: string;
+    unitCost: string | null;
+    subtotal: string | null;
+    hasCostData: boolean;
+  }>;
+  isComplete: boolean;
+}
+
+/**
+ * Finished product CPU breakdown with product metadata
+ */
+export interface FinishedProductCPUBreakdown {
+  productName: string;
+  sku: string | null;
+  msrp: string | null;
+  cpu: string | null;
+  breakdown: Array<{
+    categoryName: string;
+    categoryId: string;
+    variant: string | null;
+    quantity: string;
+    unitOfMeasure: string;
+    unitCost: string | null;
+    subtotal: string | null;
+    hasCostData: boolean;
+  }>;
+  isComplete: boolean;
+  missingComponents: string[];
 }
 
 /**
@@ -472,19 +514,29 @@ export class CPUCalculatorService {
       let totalInvoices = 0;
       const latestCPUs: Record<string, string> = {};
 
-      // Sort by date (latest first)
-      invoices.sort((a, b) => b.invoice_date - a.invoice_date);
+      // Sort by date (oldest first so we can process chronologically)
+      invoices.sort((a, b) => a.invoice_date - b.invoice_date);
 
-      // Process each invoice
+      // Process each invoice and actually CALCULATE CPUs
       for (const invoice of invoices) {
-        if (invoice.calculated_cpus) {
-          for (const [variant, cpu] of Object.entries(invoice.calculated_cpus)) {
-            // Only update if not already set (since we sorted by latest first)
-            if (!latestCPUs[variant]) {
-              latestCPUs[variant] = cpu;
-            }
-          }
+        // Calculate CPUs for this invoice
+        const { totalPaid, calculatedCPUs } = this.calculateInvoiceCPUs(
+          invoice.cost_attribution,
+          invoice.additional_costs || null
+        );
+
+        // Update the invoice with calculated CPUs
+        await this.db.cpgInvoices.update(invoice.id, {
+          calculated_cpus: calculatedCPUs,
+          total_paid: totalPaid,
+          updated_at: Date.now(),
+        });
+
+        // Track latest CPU for each variant
+        for (const [variant, cpu] of Object.entries(calculatedCPUs)) {
+          latestCPUs[variant] = cpu; // Latest will overwrite earlier
         }
+
         totalInvoices++;
       }
 
@@ -517,15 +569,22 @@ export class CPUCalculatorService {
    */
   async getCPUHistory(
     company_id: string,
-    category_id?: string
+    category_id?: string,
+    includeArchived?: boolean
   ): Promise<CPUHistoryEntry[]> {
     try {
       let invoices = await this.db.cpgInvoices
-        .where('[company_id+invoice_date]')
-        .between([company_id, 0], [company_id, Date.now() + 1])
-        .and((inv) => inv.deleted_at === null && inv.active)
-        .reverse()
+        .where('company_id')
+        .equals(company_id)
+        .filter((inv) => includeArchived || (inv.deleted_at === null && inv.active))
         .toArray();
+
+      console.log(`📊 getCPUHistory: Found ${invoices.length} invoices for company ${company_id}`);
+      console.log(`📊 Invoices with calculated_cpus: ${invoices.filter(inv => inv.calculated_cpus).length}`);
+      console.log(`📊 Sample invoice:`, invoices[0]);
+
+      // Sort by invoice_date descending (most recent first)
+      invoices = invoices.sort((a, b) => b.invoice_date - a.invoice_date);
 
       // Filter by category if specified
       if (category_id) {
@@ -537,6 +596,11 @@ export class CPUCalculatorService {
       const history: CPUHistoryEntry[] = [];
 
       for (const invoice of invoices) {
+        console.log(`📊 Processing invoice ${invoice.id}:`, {
+          has_calculated_cpus: !!invoice.calculated_cpus,
+          calculated_cpus: invoice.calculated_cpus,
+          cost_attribution: invoice.cost_attribution
+        });
         if (!invoice.calculated_cpus) continue;
 
         for (const [variant, cpu] of Object.entries(invoice.calculated_cpus)) {
@@ -553,6 +617,7 @@ export class CPUCalculatorService {
             variant: variant === 'none' ? null : variant,
             cpu,
             units_received: attribution?.units_received || '0',
+            is_archived: invoice.deleted_at !== null,
           });
         }
       }
@@ -560,6 +625,333 @@ export class CPUCalculatorService {
       return history;
     } catch (error) {
       serviceLogger.error('Failed to get CPU history', { error });
+      throw error;
+    }
+  }
+
+  /**
+   * Calculate CPU for a raw material based on invoice history
+   * Uses Latest Purchase Price method (most recent invoice for that category/variant)
+   *
+   * @param categoryId Raw material category ID
+   * @param variant Raw material variant (e.g., "1oz", "5oz")
+   * @param companyId Company ID
+   * @returns CPU as string or null if no invoices found
+   *
+   * @example
+   * const cpu = await service.calculateRawMaterialCPU('cat-oil', '1oz', 'comp-123');
+   * // Returns "0.42" if invoice exists, null if no invoice found
+   */
+  async calculateRawMaterialCPU(
+    categoryId: string,
+    variant: string | null,
+    companyId: string
+  ): Promise<string | null> {
+    try {
+      serviceLogger.info('Calculating raw material CPU', {
+        categoryId,
+        variant,
+        companyId
+      });
+
+      // Get all active invoices for this company
+      const invoices = await this.db.cpgInvoices
+        .where('company_id')
+        .equals(companyId)
+        .filter(inv => inv.active && inv.deleted_at === null)
+        .toArray();
+
+      if (invoices.length === 0) {
+        serviceLogger.debug('No invoices found for company', { companyId });
+        return null;
+      }
+
+      // Normalize the variant we're looking for
+      const normalizedTargetVariant = normalizeVariant(variant);
+
+      // Filter to invoices that contain this category/variant
+      const relevantInvoices = invoices.filter(inv => {
+        const costAttribution = inv.cost_attribution;
+
+        // Check if this invoice has the category/variant we need
+        return Object.values(costAttribution).some(attr => {
+          const matchesCategory = attr.category_id === categoryId;
+          const normalizedAttrVariant = normalizeVariant(attr.variant);
+          const matchesVariant = normalizedAttrVariant === normalizedTargetVariant;
+
+          return matchesCategory && matchesVariant;
+        });
+      });
+
+      if (relevantInvoices.length === 0) {
+        serviceLogger.debug('No invoices found for category/variant', {
+          categoryId,
+          variant
+        });
+        return null;
+      }
+
+      // Sort by date descending (most recent first)
+      const latestInvoice = relevantInvoices.sort(
+        (a, b) => b.invoice_date - a.invoice_date
+      )[0];
+
+      // Get the calculated CPU from the latest invoice
+      if (!latestInvoice.calculated_cpus) {
+        serviceLogger.warn('Latest invoice has no calculated CPUs', {
+          invoiceId: latestInvoice.id
+        });
+        return null;
+      }
+
+      // Find the CPU for this variant in the calculated_cpus
+      // The key in calculated_cpus is the variant name (or 'none' for null)
+      const variantKey = variant || 'none';
+      const cpu = latestInvoice.calculated_cpus[variantKey];
+
+      if (!cpu) {
+        serviceLogger.warn('CPU not found for variant in latest invoice', {
+          invoiceId: latestInvoice.id,
+          variant: variantKey
+        });
+        return null;
+      }
+
+      serviceLogger.info('Raw material CPU calculated', {
+        categoryId,
+        variant,
+        cpu,
+        invoiceDate: latestInvoice.invoice_date
+      });
+
+      return cpu;
+    } catch (error) {
+      serviceLogger.error('Failed to calculate raw material CPU', {
+        error,
+        categoryId,
+        variant
+      });
+      // Return null on error (graceful degradation)
+      return null;
+    }
+  }
+
+  /**
+   * Calculate CPU for a finished product based on its recipe
+   * Sums the cost of all raw material components
+   *
+   * @param productId Finished product ID
+   * @param companyId Company ID
+   * @returns CPU calculation result with breakdown
+   *
+   * @example
+   * const result = await service.calculateFinishedProductCPU('prod-123', 'comp-456');
+   * if (result.isComplete) {
+   *   console.log(`Total CPU: ${result.cpu}`);
+   * } else {
+   *   console.log('Missing cost data for some components');
+   * }
+   */
+  async calculateFinishedProductCPU(
+    productId: string,
+    companyId: string
+  ): Promise<FinishedProductCPUResult> {
+    try {
+      serviceLogger.info('Calculating finished product CPU', {
+        productId,
+        companyId
+      });
+
+      // Get all recipe lines for this product
+      const recipeLines = await this.db.cpgRecipes
+        .where('finished_product_id')
+        .equals(productId)
+        .filter(recipe => recipe.active && recipe.deleted_at === null)
+        .toArray();
+
+      if (recipeLines.length === 0) {
+        serviceLogger.debug('No recipe found for product', { productId });
+        return {
+          cpu: null,
+          breakdown: [],
+          isComplete: false,
+        };
+      }
+
+      const breakdown: FinishedProductCPUResult['breakdown'] = [];
+      let totalCPU = new Decimal(0);
+      let isComplete = true;
+
+      // Process each component in the recipe
+      for (const recipeLine of recipeLines) {
+        // Get category info
+        const category = await this.db.cpgCategories.get(recipeLine.category_id);
+
+        if (!category || category.deleted_at !== null) {
+          serviceLogger.warn('Category not found or deleted', {
+            categoryId: recipeLine.category_id
+          });
+
+          breakdown.push({
+            categoryName: 'Unknown Category',
+            categoryId: recipeLine.category_id,
+            variant: recipeLine.variant,
+            quantity: recipeLine.quantity,
+            unitOfMeasure: 'unknown',
+            unitCost: null,
+            subtotal: null,
+            hasCostData: false,
+          });
+
+          isComplete = false;
+          continue;
+        }
+
+        // Calculate CPU for this raw material
+        const unitCost = await this.calculateRawMaterialCPU(
+          recipeLine.category_id,
+          recipeLine.variant,
+          companyId
+        );
+
+        const hasCostData = unitCost !== null;
+
+        // Calculate subtotal
+        let subtotal: string | null = null;
+        if (hasCostData) {
+          const quantity = new Decimal(recipeLine.quantity);
+          const cost = new Decimal(unitCost!);
+          const subtotalDecimal = quantity.times(cost);
+          subtotal = subtotalDecimal.toFixed(2);
+          totalCPU = totalCPU.plus(subtotalDecimal);
+        } else {
+          isComplete = false;
+        }
+
+        breakdown.push({
+          categoryName: category.name,
+          categoryId: recipeLine.category_id,
+          variant: recipeLine.variant,
+          quantity: recipeLine.quantity,
+          unitOfMeasure: category.unit_of_measure,
+          unitCost: unitCost,
+          subtotal: subtotal,
+          hasCostData: hasCostData,
+        });
+
+        serviceLogger.debug('Recipe component processed', {
+          categoryName: category.name,
+          variant: recipeLine.variant,
+          quantity: recipeLine.quantity,
+          unitCost,
+          subtotal,
+          hasCostData,
+        });
+      }
+
+      const result: FinishedProductCPUResult = {
+        cpu: isComplete ? totalCPU.toFixed(2) : null,
+        breakdown,
+        isComplete,
+      };
+
+      serviceLogger.info('Finished product CPU calculated', {
+        productId,
+        cpu: result.cpu,
+        isComplete: result.isComplete,
+        componentCount: breakdown.length,
+      });
+
+      return result;
+    } catch (error) {
+      serviceLogger.error('Failed to calculate finished product CPU', {
+        error,
+        productId
+      });
+
+      // Return empty result on error (graceful degradation)
+      return {
+        cpu: null,
+        breakdown: [],
+        isComplete: false,
+      };
+    }
+  }
+
+  /**
+   * Get finished product CPU breakdown with product metadata
+   * Includes product name, SKU, MSRP, and list of missing components
+   *
+   * @param productId Finished product ID
+   * @param companyId Company ID
+   * @returns CPU breakdown with product details
+   *
+   * @example
+   * const breakdown = await service.getFinishedProductCPUBreakdown('prod-123', 'comp-456');
+   * console.log(`${breakdown.productName} (${breakdown.sku})`);
+   * console.log(`CPU: ${breakdown.cpu || 'Incomplete'}`);
+   * if (!breakdown.isComplete) {
+   *   console.log(`Missing: ${breakdown.missingComponents.join(', ')}`);
+   * }
+   */
+  async getFinishedProductCPUBreakdown(
+    productId: string,
+    companyId: string
+  ): Promise<FinishedProductCPUBreakdown> {
+    try {
+      serviceLogger.info('Getting finished product CPU breakdown', {
+        productId,
+        companyId
+      });
+
+      // Get product info
+      const product = await this.db.cpgFinishedProducts.get(productId);
+
+      if (!product || product.deleted_at !== null) {
+        serviceLogger.error('Product not found or deleted', { productId });
+        throw new Error(`Product not found: ${productId}`);
+      }
+
+      // Calculate CPU
+      const cpuResult = await this.calculateFinishedProductCPU(
+        productId,
+        companyId
+      );
+
+      // Build list of missing components
+      const missingComponents: string[] = [];
+      for (const component of cpuResult.breakdown) {
+        if (!component.hasCostData) {
+          const componentName = component.variant
+            ? `${component.categoryName} (${component.variant})`
+            : component.categoryName;
+          missingComponents.push(componentName);
+        }
+      }
+
+      const result: FinishedProductCPUBreakdown = {
+        productName: product.name,
+        sku: product.sku,
+        msrp: product.msrp,
+        cpu: cpuResult.cpu,
+        breakdown: cpuResult.breakdown,
+        isComplete: cpuResult.isComplete,
+        missingComponents,
+      };
+
+      serviceLogger.info('Finished product CPU breakdown retrieved', {
+        productId,
+        productName: product.name,
+        isComplete: result.isComplete,
+        missingCount: missingComponents.length,
+      });
+
+      return result;
+    } catch (error) {
+      serviceLogger.error('Failed to get finished product CPU breakdown', {
+        error,
+        productId
+      });
       throw error;
     }
   }
@@ -581,9 +973,14 @@ export class CPUCalculatorService {
   ): Promise<CPUTrend> {
     try {
       const invoices = await this.db.cpgInvoices
-        .where('[company_id+invoice_date]')
-        .between([company_id, start_date], [company_id, end_date + 1], false)
-        .and((inv) => inv.deleted_at === null && inv.active)
+        .where('company_id')
+        .equals(company_id)
+        .filter((inv) =>
+          inv.deleted_at === null &&
+          inv.active &&
+          inv.invoice_date >= start_date &&
+          inv.invoice_date <= end_date
+        )
         .sortBy('invoice_date');
 
       const dataPoints: { date: number; cpu: string; invoice_id: string }[] = [];

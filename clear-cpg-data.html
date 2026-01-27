@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clear CPG Data - Graceful Books</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-top: 0;
+    }
+    .warning {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    .success {
+      background: #d4edda;
+      border: 2px solid #28a745;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+      display: none;
+    }
+    .error {
+      background: #f8d7da;
+      border: 2px solid #dc3545;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+      display: none;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button.danger {
+      background: #dc3545;
+    }
+    button.danger:hover {
+      background: #c82333;
+    }
+    button:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+    .info {
+      background: #e7f3ff;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    code {
+      background: #e9ecef;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+    pre {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🗑️ Clear CPG Data Utility</h1>
+
+    <div class="warning">
+      <strong>⚠️ Important:</strong> This tool clears ALL CPG data. This action cannot be undone!
+    </div>
+
+    <div class="info">
+      <h3>Instructions:</h3>
+      <ol>
+        <li>Make sure your Graceful Books app is running (npm run dev)</li>
+        <li>Make sure you're logged in to the app</li>
+        <li>Open your browser's DevTools (F12)</li>
+        <li>Go to the Console tab</li>
+        <li>Copy and paste the commands below</li>
+      </ol>
+    </div>
+
+    <h2>Browser Console Commands</h2>
+
+    <h3>1. Get Your Company ID</h3>
+    <pre><code>const companyId = window.getCompanyId();
+console.log('Company ID:', companyId);</code></pre>
+
+    <h3>2. Check Current Data (Optional)</h3>
+    <pre><code>window.getCPGDataCounts(companyId).then(counts => {
+  const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+  console.log('Total CPG records:', total);
+  console.log('Details:', counts);
+});</code></pre>
+
+    <h3>3. Clear All CPG Data</h3>
+    <pre><code>window.clearCPGData(companyId).then(result => {
+  const total = Object.values(result).reduce((sum, count) => sum + count, 0);
+  console.log('✅ Cleared', total, 'records');
+  console.log('Details:', result);
+});</code></pre>
+
+    <h3>One-Liner (All Steps Combined)</h3>
+    <pre><code>window.clearCPGData(window.getCompanyId()).then(r => console.log('Cleared:', r));</code></pre>
+
+    <div class="info">
+      <h3>Alternative: Use the Dev Tool Component</h3>
+      <p>You can also add the <code>DevClearDataTool</code> component to your CPG Dashboard for a visual interface.</p>
+      <p>See <code>CPG_DATA_CLEAR_INSTRUCTIONS.md</code> for details.</p>
+    </div>
+
+    <h2>Files Created</h2>
+    <ul>
+      <li><code>src/utils/clearCPGData.ts</code> - Utility functions</li>
+      <li><code>src/components/cpg/DevClearDataTool.tsx</code> - React component (optional)</li>
+      <li><code>src/components/cpg/DevClearDataTool.module.css</code> - Component styles</li>
+      <li><code>CPG_DATA_CLEAR_INSTRUCTIONS.md</code> - Full documentation</li>
+    </ul>
+
+    <div class="warning">
+      <strong>Note:</strong> Make sure you have the latest version running. If you just created these files, restart your dev server (npm run dev) to ensure they're loaded.
+    </div>
+  </div>
+
+  <script>
+    console.log('📋 CPG Data Clear Utility loaded');
+    console.log('Open your main app (http://localhost:5173) and use the console commands shown above');
+  </script>
+</body>
+</html>

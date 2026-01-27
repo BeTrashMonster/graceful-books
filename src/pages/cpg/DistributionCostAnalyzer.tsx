@@ -321,6 +321,7 @@ export default function DistributionCostAnalyzer() {
           isOpen={showAddDistributorModal}
           onClose={() => setShowAddDistributorModal(false)}
           title="Add New Distributor"
+          closeOnBackdropClick={false}
           size="lg"
         >
           <DistributorProfileForm
@@ -336,6 +337,7 @@ export default function DistributionCostAnalyzer() {
           isOpen={showEditDistributorModal}
           onClose={() => setShowEditDistributorModal(false)}
           title="Edit Distributor"
+          closeOnBackdropClick={false}
           size="lg"
         >
           <DistributorProfileForm
@@ -352,6 +354,7 @@ export default function DistributionCostAnalyzer() {
           isOpen={showSaveScenarioModal}
           onClose={() => setShowSaveScenarioModal(false)}
           title="Save Calculation"
+          closeOnBackdropClick={false}
           size="sm"
         >
           <div className={styles.saveScenarioModal}>

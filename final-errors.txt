@@ -1,0 +1,19 @@
+monitoring/config/metrics-collector.ts(393,7): error TS18046: 'metrics.details' is of type 'unknown'.
+src/components/accounts/AccountList.tsx(163,9): error TS6133: '_getParentName' is declared but its value is never read.
+src/components/wizards/steps/ReviewStep.tsx(59,9): error TS2532: Object is possibly 'undefined'.
+src/components/wizards/steps/TemplateSelectionStep.tsx(36,9): error TS6133: '_selectedTemplate' is declared but its value is never read.
+src/crypto/encryption.ts(133,7): error TS2322: Type 'SecurityErrorCode.CRYPTO_FAILED' is not assignable to type '"UNKNOWN_ERROR" | "DECRYPTION_FAILED" | "INVALID_KEY" | "WEAK_PASSPHRASE" | "KEY_EXPIRED" | undefined'.
+src/crypto/encryption.ts(213,7): error TS2322: Type 'SecurityErrorCode.CRYPTO_FAILED' is not assignable to type '"UNKNOWN_ERROR" | "DECRYPTION_FAILED" | "INVALID_KEY" | "WEAK_PASSPHRASE" | "KEY_EXPIRED" | undefined'.
+src/crypto/encryption.ts(263,7): error TS2322: Type 'SecurityErrorCode.CRYPTO_FAILED' is not assignable to type '"UNKNOWN_ERROR" | "DECRYPTION_FAILED" | "INVALID_KEY" | "WEAK_PASSPHRASE" | "KEY_EXPIRED" | undefined'.
+src/hooks/useRecentActivity.ts(42,28): error TS2345: Argument of type 'RecentActivity[]' is not assignable to parameter of type 'SetStateAction<RecentEditEntry[]>'.
+src/services/portalService.ts(143,11): error TS2322: Type 'ErrorCode.PERMISSION_DENIED' is not assignable to type 'DatabaseErrorCode'.
+src/services/portalService.ts(223,11): error TS2322: Type 'ErrorCode.RATE_LIMITED' is not assignable to type 'DatabaseErrorCode'.
+src/services/portalService.ts(254,11): error TS2322: Type 'ErrorCode.SESSION_INVALID' is not assignable to type 'DatabaseErrorCode'.
+src/services/reports/arAgingReport.service.ts(208,37): error TS2367: This comparison appears to be unintentional because the types 'InvoiceStatus' and '"void"' have no overlap.
+src/services/reports/arAgingReport.service.ts(209,35): error TS2367: This comparison appears to be unintentional because the types 'InvoiceStatus' and '"paid"' have no overlap.
+src/services/runway/runwayCalculator.service.ts(106,58): error TS2551: Property 'isActive' does not exist on type 'Account'. Did you mean 'active'?
+src/test/setup.ts(75,11): error TS2322: Type 'Uint8Array<ArrayBufferLike>' is not assignable to type 'BufferSource'.
+src/types/journalEntry.types.ts(336,5): error TS2561: Object literal may only specify known properties, but 'created_by' does not exist in type 'JournalEntryTemplate'. Did you mean to write 'created_at'?
+src/types/journalEntry.types.ts(373,5): error TS2561: Object literal may only specify known properties, but 'created_by' does not exist in type 'JournalEntryTemplate'. Did you mean to write 'created_at'?
+src/utils/devReset.ts(112,4): error TS2554: Expected 0 arguments, but got 1.
+src/utils/devReset.ts(112,19): error TS2339: Property 'devResetAll' does not exist on type 'Promise<void>'.

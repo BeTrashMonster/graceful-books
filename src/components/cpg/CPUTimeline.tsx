@@ -26,10 +26,13 @@ export interface CPUTimelineProps {
   history: CPUHistoryEntry[];
   categories: CPGCategory[];
   onInvoiceClick?: (invoiceId: string) => void;
+  onArchiveInvoice?: (invoiceId: string) => void;
+  onUnarchiveInvoice?: (invoiceId: string) => void;
 }
 
-export function CPUTimeline({ history, categories: _categories, onInvoiceClick }: CPUTimelineProps) {
+export function CPUTimeline({ history, categories: _categories, onInvoiceClick, onArchiveInvoice, onUnarchiveInvoice }: CPUTimelineProps) {
   const [expandedInvoices, setExpandedInvoices] = useState<Set<string>>(new Set());
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState<string | null>(null);
 
   const toggleInvoice = (invoiceId: string) => {
     const newExpanded = new Set(expandedInvoices);
@@ -88,6 +91,7 @@ export function CPUTimeline({ history, categories: _categories, onInvoiceClick }
           const entries = groupedByInvoice[invoiceId]!;
           const firstEntry = entries[0]!;
           const isExpanded = expandedInvoices.has(invoiceId);
+          const isArchived = firstEntry.is_archived || false;
 
           return (
             <article
@@ -95,6 +99,7 @@ export function CPUTimeline({ history, categories: _categories, onInvoiceClick }
               className={styles.timelineItem}
               role="listitem"
               aria-labelledby={`invoice-${invoiceId}-title`}
+              style={isArchived ? { opacity: 0.6, backgroundColor: '#f8f9fa' } : {}}
             >
               {/* Timeline Connector */}
               <div className={styles.timelineConnector} aria-hidden="true">
@@ -119,6 +124,21 @@ export function CPUTimeline({ history, categories: _categories, onInvoiceClick }
                     >
                       {formatDate(firstEntry.invoice_date)}
                     </time>
+
+                    {isArchived && (
+                      <span
+                        style={{
+                          padding: '0.25rem 0.5rem',
+                          fontSize: '0.75rem',
+                          backgroundColor: '#6c757d',
+                          color: 'white',
+                          borderRadius: '4px',
+                          marginLeft: '0.5rem',
+                        }}
+                      >
+                        Archived
+                      </span>
+                    )}
 
                     {firstEntry.invoice_number && (
                       <span className={styles.invoiceNumber}>
@@ -183,15 +203,37 @@ export function CPUTimeline({ history, categories: _categories, onInvoiceClick }
                       ))}
                     </div>
 
-                    {onInvoiceClick && (
-                      <button
-                        type="button"
-                        className={styles.viewDetailsButton}
-                        onClick={() => onInvoiceClick(invoiceId)}
-                      >
-                        View Full Invoice Details
-                      </button>
-                    )}
+                    <div className={styles.invoiceActions}>
+                      {onInvoiceClick && (
+                        <button
+                          type="button"
+                          className={styles.viewDetailsButton}
+                          onClick={() => onInvoiceClick(invoiceId)}
+                        >
+                          View Full Invoice Details
+                        </button>
+                      )}
+                      {!isArchived && onArchiveInvoice && (
+                        <button
+                          type="button"
+                          className={styles.archiveButton}
+                          onClick={() => setShowArchiveConfirm(invoiceId)}
+                          style={{ color: '#dc2626', marginLeft: '1rem' }}
+                        >
+                          Archive Invoice
+                        </button>
+                      )}
+                      {isArchived && onUnarchiveInvoice && (
+                        <button
+                          type="button"
+                          className={styles.unarchiveButton}
+                          onClick={() => onUnarchiveInvoice(invoiceId)}
+                          style={{ marginLeft: '1rem' }}
+                        >
+                          Unarchive Invoice
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -199,6 +241,74 @@ export function CPUTimeline({ history, categories: _categories, onInvoiceClick }
           );
         })}
       </div>
+
+      {/* Archive Confirmation Modal */}
+      {showArchiveConfirm && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '2rem',
+              maxWidth: '500px',
+              width: '90%',
+            }}
+          >
+            <h3 style={{ marginBottom: '1rem' }}>Archive this invoice?</h3>
+            <p style={{ marginBottom: '1.5rem', color: '#64748b' }}>
+              It will be hidden but preserved for audit trail. This is required for financial
+              record keeping.
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => setShowArchiveConfirm(null)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '4px',
+                  backgroundColor: 'white',
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (onArchiveInvoice) {
+                    onArchiveInvoice(showArchiveConfirm);
+                  }
+                  setShowArchiveConfirm(null);
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  border: 'none',
+                  borderRadius: '4px',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  cursor: 'pointer',
+                }}
+              >
+                Archive
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

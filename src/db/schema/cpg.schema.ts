@@ -25,6 +25,7 @@ export interface CPGCategory extends BaseEntity {
   name: string; // e.g., "Oil", "Bottle", "Box", "Impact"
   description: string | null;
   variants: string[] | null; // User-defined variants (e.g., ["Small", "Large"] or ["8oz", "16oz", "32oz"] or null for no variants)
+  unit_of_measure: string; // e.g., "oz", "ml", "each", "lb", "g"
   sort_order: number; // Display order
   active: boolean;
   created_at: number;
@@ -40,7 +41,8 @@ export const createDefaultCPGCategory = (
   companyId: string,
   name: string,
   deviceId: string,
-  variants?: string[]
+  variants?: string[],
+  unitOfMeasure: string = 'each'
 ): Partial<CPGCategory> => {
   const now = Date.now();
   return {
@@ -48,6 +50,7 @@ export const createDefaultCPGCategory = (
     name,
     description: null,
     variants: variants || null, // User provides variants, or null for no variants
+    unit_of_measure: unitOfMeasure,
     sort_order: 999,
     active: true,
     created_at: now,
@@ -84,6 +87,7 @@ export interface CPGInvoice extends BaseEntity {
     {
       category_id: string;
       variant: string | null; // User-defined variant name (e.g., "8oz", "Small", etc.) or null for no variant
+      description?: string; // Optional description of the line item
       units_purchased: string; // Decimal as string for precision
       unit_price: string;
       units_received: string | null; // For reconciliation
@@ -451,3 +455,300 @@ export const generateCategoryKey = (
   const cleanVariant = variant.replace(/[^a-zA-Z0-9]/g, '');
   return `${cleanName}_${cleanVariant}`;
 };
+
+// ============================================================================
+// CPG Finished Product - Products that are manufactured and sold
+// ============================================================================
+
+/**
+ * CPG Finished Product
+ * Represents a product that is manufactured from raw materials and sold to customers.
+ */
+export interface CPGFinishedProduct extends BaseEntity {
+  id: string;
+  company_id: string;
+  name: string; // e.g., "1oz Body Oil"
+  description: string | null;
+  sku: string | null; // e.g., "BO-1OZ"
+  msrp: string | null; // Manufacturer's Suggested Retail Price (e.g., "10.00")
+  unit_of_measure: string; // e.g., "each", "case", "dozen"
+  pieces_per_unit: number; // How many individual items in one unit (default: 1)
+                           // Example: "case" with pieces_per_unit: 12 = 12 bottles per case
+  active: boolean;
+  created_at: number;
+  updated_at: number;
+  deleted_at: number | null;
+  version_vector: Record<string, number>;
+}
+
+export const cpgFinishedProductsSchema =
+  'id, company_id, [company_id+active], sku, active, updated_at, deleted_at';
+
+/**
+ * Create a default CPG finished product with all required fields
+ */
+export const createDefaultCPGFinishedProduct = (
+  companyId: string,
+  name: string,
+  deviceId: string
+): Partial<CPGFinishedProduct> => {
+  const now = Date.now();
+  return {
+    company_id: companyId,
+    name,
+    description: null,
+    sku: null,
+    msrp: null,
+    unit_of_measure: 'each',
+    pieces_per_unit: 1,
+    active: true,
+    created_at: now,
+    updated_at: now,
+    deleted_at: null,
+    version_vector: { [deviceId]: 1 },
+  };
+};
+
+/**
+ * Validate a CPG finished product
+ * Returns array of error messages (empty if valid)
+ */
+export const validateCPGFinishedProduct = (
+  product: Partial<CPGFinishedProduct>,
+  existingProducts?: CPGFinishedProduct[]
+): string[] => {
+  const errors: string[] = [];
+
+  // company_id required
+  if (!product.company_id) {
+    errors.push('company_id is required');
+  }
+
+  // name required, non-empty
+  if (!product.name || product.name.trim() === '') {
+    errors.push('name is required');
+  }
+
+  // name must be unique within company
+  if (product.name && product.company_id && existingProducts) {
+    const duplicate = existingProducts.find(
+      (p) =>
+        p.id !== product.id &&
+        p.company_id === product.company_id &&
+        p.name.toLowerCase() === product.name!.toLowerCase() &&
+        p.deleted_at === null
+    );
+    if (duplicate) {
+      errors.push(`A product named "${product.name}" already exists`);
+    }
+  }
+
+  // sku optional, but if provided must be unique within company
+  if (product.sku && product.company_id && existingProducts) {
+    const duplicate = existingProducts.find(
+      (p) =>
+        p.id !== product.id &&
+        p.company_id === product.company_id &&
+        p.sku === product.sku &&
+        p.deleted_at === null
+    );
+    if (duplicate) {
+      errors.push(`SKU "${product.sku}" is already in use`);
+    }
+  }
+
+  // msrp optional, but if provided must be valid currency format
+  if (product.msrp !== null && product.msrp !== undefined && product.msrp !== '') {
+    const msrpNum = parseFloat(product.msrp);
+    if (isNaN(msrpNum)) {
+      errors.push('MSRP must be a valid number');
+    } else if (msrpNum < 0) {
+      errors.push('MSRP cannot be negative');
+    }
+  }
+
+  // unit_of_measure required
+  if (!product.unit_of_measure || product.unit_of_measure.trim() === '') {
+    errors.push('unit_of_measure is required');
+  }
+
+  // pieces_per_unit required, must be integer >= 1
+  if (product.pieces_per_unit === null || product.pieces_per_unit === undefined) {
+    errors.push('pieces_per_unit is required');
+  } else if (
+    !Number.isInteger(product.pieces_per_unit) ||
+    product.pieces_per_unit < 1
+  ) {
+    errors.push('pieces_per_unit must be an integer >= 1');
+  }
+
+  return errors;
+};
+
+// ============================================================================
+// CPG Recipe - Bill of Materials for finished products
+// ============================================================================
+
+/**
+ * CPG Recipe
+ * Represents a single line item in a Bill of Materials (BOM).
+ * Each recipe line specifies one raw material component needed to make a finished product.
+ */
+export interface CPGRecipe extends BaseEntity {
+  id: string;
+  company_id: string;
+  finished_product_id: string; // Links to cpg_finished_products
+
+  // Raw material component
+  category_id: string; // Links to cpg_categories
+  variant: string | null; // Specific variant (e.g., "1oz")
+
+  // Quantity needed
+  quantity: string; // e.g., "1.00" for 1oz oil, "1" for 1 bottle
+
+  // Metadata
+  notes: string | null;
+  active: boolean;
+  created_at: number;
+  updated_at: number;
+  deleted_at: number | null;
+  version_vector: Record<string, number>;
+}
+
+export const cpgRecipesSchema =
+  'id, company_id, finished_product_id, category_id, [company_id+finished_product_id], active, updated_at, deleted_at';
+
+/**
+ * Create a default CPG recipe with all required fields
+ */
+export const createDefaultCPGRecipe = (
+  companyId: string,
+  finishedProductId: string,
+  categoryId: string,
+  deviceId: string
+): Partial<CPGRecipe> => {
+  const now = Date.now();
+  return {
+    company_id: companyId,
+    finished_product_id: finishedProductId,
+    category_id: categoryId,
+    variant: null,
+    quantity: '1.00',
+    notes: null,
+    active: true,
+    created_at: now,
+    updated_at: now,
+    deleted_at: null,
+    version_vector: { [deviceId]: 1 },
+  };
+};
+
+/**
+ * Validate a CPG recipe
+ * Returns array of error messages (empty if valid)
+ */
+export const validateCPGRecipe = (
+  recipe: Partial<CPGRecipe>,
+  existingRecipes?: CPGRecipe[]
+): string[] => {
+  const errors: string[] = [];
+
+  // company_id required
+  if (!recipe.company_id) {
+    errors.push('company_id is required');
+  }
+
+  // finished_product_id required
+  if (!recipe.finished_product_id) {
+    errors.push('finished_product_id is required');
+  }
+
+  // category_id required
+  if (!recipe.category_id) {
+    errors.push('category_id is required');
+  }
+
+  // quantity must be > 0
+  if (!recipe.quantity || recipe.quantity.trim() === '') {
+    errors.push('quantity is required');
+  } else {
+    const quantityNum = parseFloat(recipe.quantity);
+    if (isNaN(quantityNum)) {
+      errors.push('quantity must be a valid number');
+    } else if (quantityNum <= 0) {
+      errors.push('quantity must be greater than 0');
+    }
+  }
+
+  // Cannot have duplicate category_id + variant in same recipe
+  if (
+    recipe.finished_product_id &&
+    recipe.category_id &&
+    existingRecipes
+  ) {
+    const normalizedVariant = normalizeVariant(recipe.variant || null);
+    const duplicate = existingRecipes.find(
+      (r) =>
+        r.id !== recipe.id &&
+        r.finished_product_id === recipe.finished_product_id &&
+        r.category_id === recipe.category_id &&
+        normalizeVariant(r.variant) === normalizedVariant &&
+        r.deleted_at === null
+    );
+    if (duplicate) {
+      errors.push(
+        'This category and variant combination is already in the recipe'
+      );
+    }
+  }
+
+  return errors;
+};
+
+// ============================================================================
+// Referential Integrity Helper Functions
+// ============================================================================
+
+/**
+ * Check if a category is used in any recipes
+ * Returns the count of recipes using this category
+ */
+export const checkCategoryInUse = async (
+  categoryId: string
+): Promise<number> => {
+  const { db } = await import('../database');
+  return await db.cpgRecipes
+    .where('category_id')
+    .equals(categoryId)
+    .and((recipe) => recipe.deleted_at === null)
+    .count();
+};
+
+/**
+ * Check if a finished product has any recipes
+ * Returns the count of recipes for this product
+ */
+export const checkFinishedProductHasRecipes = async (
+  productId: string
+): Promise<number> => {
+  const { db } = await import('../database');
+  return await db.cpgRecipes
+    .where('finished_product_id')
+    .equals(productId)
+    .and((recipe) => recipe.deleted_at === null)
+    .count();
+};
+
+// ============================================================================
+// Variant Normalization Utility
+// ============================================================================
+
+/**
+ * Normalize variant strings for consistent matching
+ * Converts to lowercase and removes spaces, hyphens, and underscores
+ * Example: "1 oz" -> "1oz", "1-oz" -> "1oz", "1_oz" -> "1oz"
+ */
+export function normalizeVariant(variant: string | null): string | null {
+  if (!variant) return null;
+  return variant.toLowerCase().replace(/[\s\-_]/g, '');
+}

@@ -518,6 +518,7 @@ export function InvoiceEntryFormIntegrated({
       isOpen={true}
       onClose={onClose}
       title="New Invoice"
+      closeOnBackdropClick={false}
       size="lg"
       aria-labelledby="invoice-form-title"
     >
@@ -649,7 +650,6 @@ export function InvoiceEntryFormIntegrated({
                         error={validationErrors[`${line.id}_category`]}
                         fullWidth
                       >
-                        <option value="">Select category</option>
                         {categories.map((cat) => (
                           <option key={cat.id} value={cat.id}>
                             {cat.name}

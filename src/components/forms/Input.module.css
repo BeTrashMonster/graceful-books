@@ -39,7 +39,6 @@
 
 .inputContainer:focus-within {
   border-color: #4a90e2;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
   outline: none;
 }
 
@@ -50,7 +49,6 @@
 
 .hasError:focus-within {
   border-color: #dc2626;
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
 /* Success state - using icon + color for accessibility */
@@ -60,7 +58,6 @@
 
 .hasSuccess:focus-within {
   border-color: #059669;
-  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
 }
 
 /* Disabled state */
@@ -102,6 +99,11 @@
   justify-content: center;
   padding-left: 0.875rem;
   color: #6b7280;
+}
+
+/* Reduce input padding when icon is present */
+.iconBefore + .input {
+  padding-left: 0.25rem;
 }
 
 .iconAfter {

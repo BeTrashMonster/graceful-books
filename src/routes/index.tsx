@@ -4,6 +4,7 @@ import { ProtectedRoute } from './ProtectedRoute'
 import { AdminRoute } from './AdminRoute'
 import { PageLoader } from '../components/loading/PageLoader'
 import { MainLayout } from '../components/layouts/MainLayout'
+import { CPGLayout } from '../components/layouts/CPGLayout'
 
 // Lazy load page components
 const Dashboard = lazy(() => import('../pages/Dashboard'))
@@ -31,6 +32,22 @@ const NotFound = lazy(() => import('../pages/NotFound'))
 const Forbidden = lazy(() => import('../pages/Forbidden'))
 const AdminCharities = lazy(() => import('../pages/admin/AdminCharities'))
 const DevTools = lazy(() => import('../pages/DevTools'))
+
+// CPG Module Pages
+const CPGDashboard = lazy(() => import('../pages/cpg/CPGDashboard'))
+const FinishedProducts = lazy(() => import('../pages/cpg/FinishedProducts'))
+const CPUTracker = lazy(() => import('../pages/cpg/CPUTracker'))
+const DistributionCostAnalyzer = lazy(() => import('../pages/cpg/DistributionCostAnalyzer'))
+const SalesPromoDecisionTool = lazy(() => import('../pages/cpg/SalesPromoDecisionTool'))
+const FinancialStatementEntry = lazy(() => import('../pages/cpg/FinancialStatementEntry'))
+const HistoricalAnalytics = lazy(() => import('../pages/cpg/HistoricalAnalytics'))
+const ScenarioPlanning = lazy(() => import('../pages/cpg/ScenarioPlanning'))
+
+// CPG Reports
+const CPGProfitLoss = lazy(() => import('../pages/cpg/reports/CPGProfitLoss'))
+const DistributionCostReport = lazy(() => import('../pages/cpg/reports/DistributionCostReport'))
+const GrossMarginReport = lazy(() => import('../pages/cpg/reports/GrossMarginReport'))
+const TradeSpendReport = lazy(() => import('../pages/cpg/reports/TradeSpendReport'))
 
 export function AppRoutes() {
   return (
@@ -67,6 +84,23 @@ export function AppRoutes() {
           <Route path="/reports/balance-sheet" element={<BalanceSheet />} />
           <Route path="/reports/cash-flow" element={<CashFlow />} />
           <Route path="/settings" element={<Settings />} />
+        </Route>
+
+        {/* CPG Module - Protected routes with CPG-specific layout */}
+        <Route element={<ProtectedRoute><CPGLayout /></ProtectedRoute>}>
+          <Route path="/cpg" element={<CPGDashboard />} />
+          <Route path="/cpg/dashboard" element={<CPGDashboard />} />
+          <Route path="/cpg/products" element={<FinishedProducts />} />
+          <Route path="/cpg/cpu-tracker" element={<CPUTracker />} />
+          <Route path="/cpg/distribution-cost" element={<DistributionCostAnalyzer />} />
+          <Route path="/cpg/promo-decision" element={<SalesPromoDecisionTool />} />
+          <Route path="/cpg/financial-entry" element={<FinancialStatementEntry />} />
+          <Route path="/cpg/analytics" element={<HistoricalAnalytics />} />
+          <Route path="/cpg/scenario-planning" element={<ScenarioPlanning />} />
+          <Route path="/cpg/reports/profit-loss" element={<CPGProfitLoss />} />
+          <Route path="/cpg/reports/distribution-cost" element={<DistributionCostReport />} />
+          <Route path="/cpg/reports/gross-margin" element={<GrossMarginReport />} />
+          <Route path="/cpg/reports/trade-spend" element={<TradeSpendReport />} />
         </Route>
 
         {/* Customer portal - public with token auth */}

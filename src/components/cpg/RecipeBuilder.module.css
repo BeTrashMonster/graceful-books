@@ -1,0 +1,187 @@
+.recipeBuilder {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.errorAlert {
+  padding: 1rem;
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  color: #c00;
+  font-size: 0.9375rem;
+}
+
+.componentList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.componentHeader {
+  display: flex;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #4b006e;
+}
+
+.componentRow {
+  padding: 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: box-shadow 0.2s;
+}
+
+.componentRow:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.componentFields {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.select:hover {
+  border-color: #cbd5e1;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #4b006e;
+  box-shadow: 0 0 0 3px rgba(75, 0, 110, 0.1);
+}
+
+.unitLabel {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+  padding-left: 0.25rem;
+}
+
+.fieldError {
+  font-size: 0.8125rem;
+  color: #dc2626;
+  margin-top: 0.25rem;
+  padding-left: 0.25rem;
+}
+
+.costValue {
+  font-weight: 600;
+  color: #16a34a;
+  font-size: 0.9375rem;
+}
+
+.costMissing {
+  font-size: 0.875rem;
+  color: #f59e0b;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+
+.warningIcon {
+  font-size: 1rem;
+}
+
+.emptyState {
+  padding: 2rem;
+  text-align: center;
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+}
+
+.addButtonRow {
+  padding-top: 0.5rem;
+}
+
+.costSummary {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.costSummaryHeader {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #4b006e;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.costSummaryEmpty {
+  color: #64748b;
+  font-size: 0.9375rem;
+}
+
+.costSummaryComplete {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.costSummaryIncomplete {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.totalCPU {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4b006e;
+}
+
+.completeLabel {
+  padding: 0.25rem 0.75rem;
+  background: #dcfce7;
+  color: #16a34a;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.missingCostList {
+  font-size: 0.875rem;
+  color: #f59e0b;
+  padding: 0.75rem;
+  background: #fffbeb;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
