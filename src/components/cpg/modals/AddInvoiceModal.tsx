@@ -22,6 +22,7 @@ export interface AddInvoiceModalProps {
   onClose: () => void;
   onSuccess?: () => void;
   onNeedCategories?: () => void;
+  invoiceId?: string; // If provided, modal is in edit mode
 }
 
 interface CostAttributionItem {
@@ -35,7 +36,7 @@ interface CostAttributionItem {
   manual_line_total?: string; // Optional override for rounding issues
 }
 
-export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories }: AddInvoiceModalProps) {
+export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, invoiceId }: AddInvoiceModalProps) {
   const { companyId, deviceId } = useAuth();
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
@@ -46,7 +47,10 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories }
   const [costItems, setCostItems] = useState<CostAttributionItem[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingInvoice, setIsLoadingInvoice] = useState(false);
   const errorAlertRef = useRef<HTMLDivElement>(null);
+
+  const isEditMode = !!invoiceId;
 
   // Scroll to error when errors are set
   useEffect(() => {
@@ -79,6 +83,51 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories }
 
     loadCategories();
   }, [isOpen, companyId]);
+
+  // Load existing invoice data when in edit mode
+  useEffect(() => {
+    if (!isOpen || !invoiceId || !companyId) return;
+
+    const loadInvoiceData = async () => {
+      try {
+        setIsLoadingInvoice(true);
+        const invoice = await db.cpgInvoices.get(invoiceId);
+
+        if (!invoice) {
+          setErrors({ form: 'Invoice not found' });
+          return;
+        }
+
+        // Populate form fields
+        setInvoiceNumber(invoice.invoice_number || '');
+        setInvoiceDate(new Date(invoice.invoice_date).toISOString().split('T')[0]);
+        setVendorName(invoice.vendor_name || '');
+        setNotes(invoice.notes || '');
+        setTotalInvoiceAmount(invoice.total_paid || '');
+
+        // Populate cost items from cost_attribution
+        const items: CostAttributionItem[] = Object.entries(invoice.cost_attribution || {}).map(([key, item]) => ({
+          id: key,
+          category_id: item.category_id,
+          variant: item.variant || null,
+          description: item.description || '',
+          units_purchased: item.units_purchased,
+          unit_price: item.unit_price,
+          units_received: item.units_received || item.units_purchased,
+          manual_line_total: undefined, // Don't preserve manual overrides in edit mode
+        }));
+
+        setCostItems(items);
+      } catch (error) {
+        console.error('Error loading invoice data:', error);
+        setErrors({ form: 'Failed to load invoice data' });
+      } finally {
+        setIsLoadingInvoice(false);
+      }
+    };
+
+    loadInvoiceData();
+  }, [isOpen, invoiceId, companyId]);
 
   const addCostItem = () => {
     setCostItems(prev => [
@@ -210,15 +259,35 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories }
     // Save to database using cpuCalculatorService (which calculates CPUs)
     setIsSubmitting(true);
     try {
-      await cpuCalculatorService.createInvoice({
-        company_id: companyId,
-        invoice_date: new Date(invoiceDate).getTime(),
-        invoice_number: invoiceNumber || undefined,
-        vendor_name: vendorName || undefined,
-        notes: notes || undefined,
-        cost_attribution: costAttribution,
-        device_id: deviceId || 'default',
-      });
+      if (isEditMode && invoiceId) {
+        // Update existing invoice
+        const { totalPaid, calculatedCPUs } = cpuCalculatorService.calculateInvoiceCPUs(
+          costAttribution,
+          null
+        );
+
+        await db.cpgInvoices.update(invoiceId, {
+          invoice_date: new Date(invoiceDate).getTime(),
+          invoice_number: invoiceNumber || undefined,
+          vendor_name: vendorName || undefined,
+          notes: notes || undefined,
+          cost_attribution: costAttribution,
+          total_paid: totalPaid,
+          calculated_cpus: calculatedCPUs,
+          updated_at: Date.now(),
+        });
+      } else {
+        // Create new invoice
+        await cpuCalculatorService.createInvoice({
+          company_id: companyId,
+          invoice_date: new Date(invoiceDate).getTime(),
+          invoice_number: invoiceNumber || undefined,
+          vendor_name: vendorName || undefined,
+          notes: notes || undefined,
+          cost_attribution: costAttribution,
+          device_id: deviceId || 'default',
+        });
+      }
 
       // Dispatch CustomEvent on successful save
       window.dispatchEvent(new CustomEvent('cpg-data-updated', { detail: { type: 'invoice' } }));
@@ -228,8 +297,8 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories }
       onSuccess?.();
       onClose();
     } catch (error) {
-      console.error('Error adding invoice:', error);
-      setErrors({ form: 'Failed to save invoice. Please try again.' });
+      console.error(`Error ${isEditMode ? 'updating' : 'adding'} invoice:`, error);
+      setErrors({ form: `Failed to ${isEditMode ? 'update' : 'save'} invoice. Please try again.` });
     } finally {
       setIsSubmitting(false);
     }
@@ -254,16 +323,16 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories }
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Enter Raw Material Purchases"
+      title={isEditMode ? 'Edit Raw Material Purchase' : 'Enter Raw Material Purchases'}
       size="xl"
       closeOnBackdropClick={false}
       footer={
         <div className={styles.modalFooter}>
-          <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
+          <Button variant="outline" onClick={handleClose} disabled={isSubmitting || isLoadingInvoice}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? 'Adding...' : 'Add Invoice'}
+          <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting || isLoadingInvoice}>
+            {isSubmitting ? (isEditMode ? 'Updating...' : 'Adding...') : (isEditMode ? 'Update Invoice' : 'Add Invoice')}
           </Button>
         </div>
       }

@@ -22,7 +22,7 @@
 import { useState, useEffect } from 'react';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { Button } from '../../components/core/Button';
-import { InvoiceEntryForm } from '../../components/cpg/InvoiceEntryForm';
+import { AddInvoiceModal } from '../../components/cpg/modals/AddInvoiceModal';
 import { CPUDisplay } from '../../components/cpg/CPUDisplay';
 import { CPUTimeline } from '../../components/cpg/CPUTimeline';
 import { CategoryManager } from '../../components/cpg/CategoryManager';
@@ -51,6 +51,7 @@ export default function CPUTracker() {
   const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [showInvoiceDetails, setShowInvoiceDetails] = useState(false);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
+  const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | undefined>(undefined);
   const [showArchived, setShowArchived] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
@@ -391,12 +392,15 @@ export default function CPUTracker() {
       </div>
 
       {/* Invoice Entry Form Modal */}
-      {showInvoiceForm && (
-        <InvoiceEntryForm
-          companyId={activeCompanyId}
-          categories={categories}
-          onClose={() => setShowInvoiceForm(false)}
-          onSaved={handleInvoiceSaved}
+      {(showInvoiceForm || editingInvoiceId) && (
+        <AddInvoiceModal
+          isOpen={showInvoiceForm || !!editingInvoiceId}
+          onClose={() => {
+            setShowInvoiceForm(false);
+            setEditingInvoiceId(null);
+          }}
+          onSuccess={handleInvoiceSaved}
+          invoiceId={editingInvoiceId || undefined}
         />
       )}
 
@@ -419,6 +423,10 @@ export default function CPUTracker() {
             setSelectedInvoiceId(null);
           }}
           invoiceId={selectedInvoiceId}
+          onEdit={(invoiceId) => {
+            setEditingInvoiceId(invoiceId);
+            setShowInvoiceForm(true);
+          }}
         />
       )}
     </div>

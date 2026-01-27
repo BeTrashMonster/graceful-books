@@ -22,9 +22,10 @@ export interface InvoiceDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   invoiceId: string;
+  onEdit?: (invoiceId: string) => void;
 }
 
-export function InvoiceDetailsModal({ isOpen, onClose, invoiceId }: InvoiceDetailsModalProps) {
+export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: InvoiceDetailsModalProps) {
   const [invoice, setInvoice] = useState<CPGInvoice | null>(null);
   const [categories, setCategories] = useState<CPGCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -140,6 +141,17 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId }: InvoiceDetai
       size="lg"
       footer={
         <div className={styles.modalFooter}>
+          {onEdit && !invoice?.deleted_at && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                onEdit(invoiceId);
+                onClose();
+              }}
+            >
+              Edit Invoice
+            </Button>
+          )}
           <Button variant="primary" onClick={onClose}>
             Close
           </Button>
