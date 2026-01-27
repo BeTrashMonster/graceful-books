@@ -202,7 +202,12 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
       return;
     }
 
-    if (costItems.length === 0) {
+    // Filter out empty cost items (items with no data entered)
+    const filledCostItems = costItems.filter(item =>
+      item.category_id || item.units_purchased || item.unit_price
+    );
+
+    if (filledCostItems.length === 0) {
       setErrors({ form: 'Please add at least one cost item' });
       return;
     }
@@ -220,7 +225,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
     const costAttribution: Record<string, any> = {};
     let hasErrors = false;
 
-    costItems.forEach((item, index) => {
+    filledCostItems.forEach((item, index) => {
       if (!item.category_id) {
         setErrors(prev => ({ ...prev, [`item_${index}_category`]: 'Category required' }));
         hasErrors = true;

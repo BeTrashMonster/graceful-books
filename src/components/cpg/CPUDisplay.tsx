@@ -23,6 +23,7 @@ import { db } from '../../db/database';
 import { HelpTooltip } from '../help/HelpTooltip';
 import { CPUBreakdownModal } from './modals/CPUBreakdownModal';
 import { InvoiceDetailsModal } from './modals/InvoiceDetailsModal';
+import { AddInvoiceModal } from './modals/AddInvoiceModal';
 import styles from './CPUDisplay.module.css';
 
 export interface CPUDisplayProps {
@@ -44,6 +45,8 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
   const [selectedComponent, setSelectedComponent] = useState<{ categoryId: string; variant: string | null } | null>(null);
   const [showInvoiceDetails, setShowInvoiceDetails] = useState(false);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
+  const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
+  const [showInvoiceForm, setShowInvoiceForm] = useState(false);
 
   useEffect(() => {
     loadFinishedProductCPUs();
@@ -109,6 +112,19 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
     setShowBreakdownModal(false);
     setSelectedInvoiceId(invoiceId);
     setShowInvoiceDetails(true);
+  };
+
+  const handleEditInvoice = (invoiceId: string) => {
+    setShowInvoiceDetails(false);
+    setShowBreakdownModal(false);
+    setEditingInvoiceId(invoiceId);
+    setShowInvoiceForm(true);
+  };
+
+  const handleInvoiceSaved = () => {
+    setShowInvoiceForm(false);
+    setEditingInvoiceId(null);
+    loadFinishedProductCPUs();
   };
 
   if (isLoading || loading) {
@@ -344,6 +360,20 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
             setSelectedInvoiceId(null);
           }}
           invoiceId={selectedInvoiceId}
+          onEdit={handleEditInvoice}
+        />
+      )}
+
+      {/* Invoice Edit Modal */}
+      {(showInvoiceForm || editingInvoiceId) && (
+        <AddInvoiceModal
+          isOpen={showInvoiceForm || !!editingInvoiceId}
+          onClose={() => {
+            setShowInvoiceForm(false);
+            setEditingInvoiceId(null);
+          }}
+          onSuccess={handleInvoiceSaved}
+          invoiceId={editingInvoiceId || undefined}
         />
       )}
     </div>

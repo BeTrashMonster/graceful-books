@@ -101,6 +101,8 @@ export default function CPUTracker() {
       if (invoicesNeedingRecalculation.length > 0) {
         console.log(`🔧 Found ${invoicesNeedingRecalculation.length} invoices without CPU calculations. Recalculating...`);
         await cpuCalculatorService.recalculateAllCPUs(activeCompanyId);
+        // Notify other components to reload
+        window.dispatchEvent(new CustomEvent('cpg-data-updated', { detail: { type: 'auto-recalculation' } }));
       }
 
       // Load finished products
@@ -159,6 +161,10 @@ export default function CPUTracker() {
       console.log('🔧 Manually recalculating all CPUs...');
       await cpuCalculatorService.recalculateAllCPUs(activeCompanyId);
       console.log('✅ Recalculation complete!');
+
+      // Dispatch event to notify CPUDisplay and other components
+      window.dispatchEvent(new CustomEvent('cpg-data-updated', { detail: { type: 'recalculation' } }));
+
       await loadData();
     } catch (err) {
       console.error('Failed to recalculate CPUs:', err);

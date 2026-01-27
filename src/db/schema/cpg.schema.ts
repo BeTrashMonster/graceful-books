@@ -101,8 +101,11 @@ export interface CPGInvoice extends BaseEntity {
 
   // Calculated fields
   total_paid: string; // Sum of all costs
-  // Calculated CPUs stored per variant: { "8oz": "5.23", "16oz": "4.15", ... }
-  calculated_cpus: Record<string, string> | null; // variant name → CPU value
+  // Calculated CPUs stored per category+variant combination
+  // Key format: "categoryId_variant" or just "categoryId" if no variant
+  // Example: { "cat123_1oz": "5.23", "cat456_5oz": "4.15", "cat789": "2.50" }
+  // This ensures Bottle 1oz and Lid 1oz are tracked separately!
+  calculated_cpus: Record<string, string> | null; // category+variant → CPU value
 
   active: boolean;
   created_at: number;

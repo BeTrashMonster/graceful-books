@@ -704,15 +704,19 @@ export class CPUCalculatorService {
         return null;
       }
 
-      // Find the CPU for this variant in the calculated_cpus
-      // The key in calculated_cpus is the variant name (or 'none' for null)
-      const variantKey = variant || 'none';
-      const cpu = latestInvoice.calculated_cpus[variantKey];
+      // Find the CPU for this category+variant in the calculated_cpus
+      // The key is category_id + variant (e.g., "cat123_1oz" or just "cat123" if no variant)
+      const categoryVariantKey = variant
+        ? `${categoryId}_${variant}`
+        : categoryId;
+      const cpu = latestInvoice.calculated_cpus[categoryVariantKey];
 
       if (!cpu) {
-        serviceLogger.warn('CPU not found for variant in latest invoice', {
+        serviceLogger.warn('CPU not found for category+variant in latest invoice', {
           invoiceId: latestInvoice.id,
-          variant: variantKey
+          categoryId,
+          variant,
+          categoryVariantKey
         });
         return null;
       }
@@ -1099,21 +1103,29 @@ export class CPUCalculatorService {
     costAttribution: CPGInvoice['cost_attribution'],
     additionalCosts: Record<string, string> | null
   ): { totalPaid: string; calculatedCPUs: Record<string, string> } {
-    // Calculate direct costs per variant
-    const variantCosts = new Map<string, Decimal>();
-    const variantUnitsReceived = new Map<string, Decimal>();
+    // Calculate direct costs per category+variant (not just variant!)
+    const categoryVariantCosts = new Map<string, Decimal>();
+    const categoryVariantUnitsReceived = new Map<string, Decimal>();
 
     for (const [_key, attr] of Object.entries(costAttribution)) {
       // Use manual line total if provided, otherwise calculate from units × price
       const directCost = attr.manual_line_total
         ? new Decimal(attr.manual_line_total)
         : new Decimal(attr.units_purchased).times(new Decimal(attr.unit_price));
-      const variantKey = attr.variant || 'none';
 
-      variantCosts.set(variantKey, (variantCosts.get(variantKey) || new Decimal(0)).plus(directCost));
-      variantUnitsReceived.set(
-        variantKey,
-        (variantUnitsReceived.get(variantKey) || new Decimal(0)).plus(
+      // Key by category_id + variant (not just variant!)
+      // This ensures Bottle 1oz and Lid 1oz are tracked separately
+      const categoryVariantKey = attr.variant
+        ? `${attr.category_id}_${attr.variant}`
+        : attr.category_id;
+
+      categoryVariantCosts.set(
+        categoryVariantKey,
+        (categoryVariantCosts.get(categoryVariantKey) || new Decimal(0)).plus(directCost)
+      );
+      categoryVariantUnitsReceived.set(
+        categoryVariantKey,
+        (categoryVariantUnitsReceived.get(categoryVariantKey) || new Decimal(0)).plus(
           new Decimal(attr.units_received || attr.units_purchased)
         )
       );
@@ -1121,8 +1133,8 @@ export class CPUCalculatorService {
 
     // Calculate total direct costs
     let totalDirectCosts = new Decimal(0);
-    const variantCostsValuesArray = Array.from(variantCosts.values());
-    for (const cost of variantCostsValuesArray) {
+    const categoryVariantCostsValuesArray = Array.from(categoryVariantCosts.values());
+    for (const cost of categoryVariantCostsValuesArray) {
       totalDirectCosts = totalDirectCosts.plus(cost);
     }
 
@@ -1137,12 +1149,12 @@ export class CPUCalculatorService {
     // Total paid = direct costs + additional costs
     const totalPaid = totalDirectCosts.plus(totalAdditionalCosts).toFixed(2);
 
-    // Allocate additional costs proportionally to each variant
+    // Allocate additional costs proportionally to each category+variant
     const calculatedCPUs: Record<string, string> = {};
 
-    const variantCostsEntriesArray = Array.from(variantCosts.entries());
-    for (const [variant, directCost] of variantCostsEntriesArray) {
-      const unitsReceived = variantUnitsReceived.get(variant) || new Decimal(1);
+    const categoryVariantCostsEntriesArray = Array.from(categoryVariantCosts.entries());
+    for (const [categoryVariantKey, directCost] of categoryVariantCostsEntriesArray) {
+      const unitsReceived = categoryVariantUnitsReceived.get(categoryVariantKey) || new Decimal(1);
 
       // Proportional share of additional costs
       let allocatedAdditionalCost = new Decimal(0);
@@ -1152,13 +1164,13 @@ export class CPUCalculatorService {
           .dividedBy(totalDirectCosts);
       }
 
-      // Total cost for this variant
+      // Total cost for this category+variant
       const totalCost = directCost.plus(allocatedAdditionalCost);
 
       // CPU = total cost / units received
       const cpu = totalCost.dividedBy(unitsReceived);
 
-      calculatedCPUs[variant] = cpu.toFixed(2);
+      calculatedCPUs[categoryVariantKey] = cpu.toFixed(2);
     }
 
     return { totalPaid, calculatedCPUs };
