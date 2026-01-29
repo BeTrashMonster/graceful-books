@@ -11,6 +11,16 @@
   width: 100%;
 }
 
+/* Loading State */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  font-size: 1.125rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
 /* Decision Card */
 .decisionCard {
   display: flex;
@@ -141,5 +151,76 @@
 
   .notesTextarea:focus {
     border-width: 3px;
+  }
+}
+
+/* Success Message */
+.successMessage {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border: 2px solid #10b981;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  animation: slideDown 0.3s ease-out;
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1);
+}
+
+.successIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  background: #10b981;
+  color: white;
+  border-radius: 50%;
+  font-size: 1.75rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.successContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.successText {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #065f46;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.successLink {
+  font-size: 0.9375rem;
+  color: #065f46;
+  margin: 0;
+}
+
+.link {
+  color: #047857;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #065f46;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

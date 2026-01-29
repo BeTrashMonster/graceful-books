@@ -89,7 +89,7 @@ export function PromoImpactSummary({
 
         {/* Total Promo Cost */}
         <div className={clsx(styles.metricCard, styles.prominentCard)}>
-          <div className={styles.metricLabel}>Total Promo Cost</div>
+          <div className={styles.metricLabel}>Potential Payback</div>
           <div className={clsx(styles.metricValue, styles.totalCost)}>
             <span className={styles.currency}>$</span>
             <span className={styles.amount}>
@@ -100,7 +100,7 @@ export function PromoImpactSummary({
             </span>
           </div>
           <div className={styles.metricDescription}>
-            Your total contribution to the promotion
+            Maximum payback if all units sell at promo price
           </div>
         </div>
 

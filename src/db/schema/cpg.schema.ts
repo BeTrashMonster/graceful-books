@@ -369,8 +369,12 @@ export interface CPGSalesPromo extends BaseEntity {
   total_promo_cost: string; // Total producer contribution across all variants
   recommendation: 'participate' | 'decline' | 'neutral' | null; // Based on margin thresholds
 
+  // Actual performance tracking (for completed promos)
+  actual_payback: string | null; // Actual amount paid back to retailer
+  actual_units_sold: string | null; // Total units sold across all variants
+
   notes: string | null;
-  status: 'draft' | 'submitted' | 'approved' | 'declined';
+  status: 'draft' | 'submitted' | 'approved' | 'declined' | 'active' | 'completed';
   active: boolean;
   created_at: number;
   updated_at: number;
@@ -391,6 +395,8 @@ export const createDefaultCPGSalesPromo = (
     company_id: companyId,
     promo_name: promoName,
     retailer_name: null,
+    actual_payback: null,
+    actual_units_sold: null,
     promo_start_date: null,
     promo_end_date: null,
     store_sale_percentage: '0',

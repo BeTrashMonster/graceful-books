@@ -30,6 +30,7 @@ import { Button } from '../../components/core/Button';
 import { Loading } from '../../components/feedback/Loading';
 import { ErrorMessage } from '../../components/feedback/ErrorMessage';
 import { MarginQualityBadge } from '../../components/cpg/MarginQualityBadge';
+import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
 import type { CPGDistributor } from '../../db/schema/cpg.schema';
 import { ScenarioPlanningService } from '../../services/cpg/scenarioPlanning.service';
@@ -95,8 +96,9 @@ export default function ScenarioPlanning() {
   // Service
   const [service] = useState(() => new ScenarioPlanningService(db));
 
-  // Constants
-  const companyId = 'company-1'; // TODO: Get from auth context
+  // Get company ID from auth context
+  const { companyId: authCompanyId } = useAuth();
+  const companyId = authCompanyId || 'demo-company-id';
 
   // Load distributors
   useEffect(() => {

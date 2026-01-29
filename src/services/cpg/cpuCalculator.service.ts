@@ -691,44 +691,55 @@ export class CPUCalculatorService {
         return null;
       }
 
-      // Sort by date descending (most recent first)
-      const latestInvoice = relevantInvoices.sort(
-        (a, b) => b.invoice_date - a.invoice_date
-      )[0];
+      // Calculate weighted average CPU across ALL relevant invoices
+      // This matches the calculation in CPUBreakdownModal
+      let totalCost = new Decimal(0);
+      let totalUnitsReceived = new Decimal(0);
 
-      // Get the calculated CPU from the latest invoice
-      if (!latestInvoice.calculated_cpus) {
-        serviceLogger.warn('Latest invoice has no calculated CPUs', {
-          invoiceId: latestInvoice.id
-        });
-        return null;
+      for (const invoice of relevantInvoices) {
+        const costAttribution = invoice.cost_attribution;
+
+        // Find line items for this category/variant
+        for (const [_key, attr] of Object.entries(costAttribution)) {
+          const matchesCategory = attr.category_id === categoryId;
+          const normalizedAttrVariant = normalizeVariant(attr.variant);
+          const matchesVariant = normalizedAttrVariant === normalizedTargetVariant;
+
+          if (matchesCategory && matchesVariant) {
+            // Calculate cost for this line item (use manual override if present)
+            const lineCost = attr.manual_line_total
+              ? new Decimal(attr.manual_line_total)
+              : new Decimal(attr.units_purchased).times(new Decimal(attr.unit_price));
+
+            const lineUnits = new Decimal(attr.units_received || attr.units_purchased);
+
+            totalCost = totalCost.plus(lineCost);
+            totalUnitsReceived = totalUnitsReceived.plus(lineUnits);
+          }
+        }
       }
 
-      // Find the CPU for this category+variant in the calculated_cpus
-      // The key is category_id + variant (e.g., "cat123_1oz" or just "cat123" if no variant)
-      const categoryVariantKey = variant
-        ? `${categoryId}_${variant}`
-        : categoryId;
-      const cpu = latestInvoice.calculated_cpus[categoryVariantKey];
-
-      if (!cpu) {
-        serviceLogger.warn('CPU not found for category+variant in latest invoice', {
-          invoiceId: latestInvoice.id,
+      if (totalUnitsReceived.equals(0)) {
+        serviceLogger.warn('No units received for category/variant', {
           categoryId,
-          variant,
-          categoryVariantKey
+          variant
         });
         return null;
       }
 
-      serviceLogger.info('Raw material CPU calculated', {
+      // Weighted average CPU = total cost / total units received
+      const cpu = totalCost.dividedBy(totalUnitsReceived);
+
+      serviceLogger.info('Raw material CPU calculated (weighted average)', {
         categoryId,
         variant,
-        cpu,
-        invoiceDate: latestInvoice.invoice_date
+        cpu: cpu.toFixed(2),
+        totalCost: totalCost.toFixed(2),
+        totalUnitsReceived: totalUnitsReceived.toFixed(2),
+        invoiceCount: relevantInvoices.length
       });
 
-      return cpu;
+      return cpu.toFixed(2);
     } catch (error) {
       serviceLogger.error('Failed to calculate raw material CPU', {
         error,

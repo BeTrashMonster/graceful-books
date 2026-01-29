@@ -17,7 +17,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db';
 import { getDeviceId } from '../../db/crdt';
 import { PLEntryForm } from '../../components/cpg/PLEntryForm';
@@ -32,8 +33,9 @@ import {
 } from '../../db/schema/standaloneFinancials.schema';
 import styles from './FinancialStatementEntry.module.css';
 
-export function FinancialStatementEntry() {
-  const { companyId } = useParams<{ companyId: string }>();
+export default function FinancialStatementEntry() {
+  const { companyId: authCompanyId } = useAuth();
+  const companyId = authCompanyId || 'demo-company-id';
   const navigate = useNavigate();
 
   // Tab state
@@ -69,14 +71,16 @@ export function FinancialStatementEntry() {
           ?.where({ company_id: companyId, statement_type: 'balance_sheet', active: true })
           .toArray();
 
-        // Load SKU count
-        const products = await db.products
-          ?.where({ company_id: companyId, active: true })
+        // Load SKU count from CPG finished products
+        const products = await db.cpgFinishedProducts
+          .where('company_id')
+          .equals(companyId)
+          .filter(p => p.active && p.deleted_at === null)
           .toArray();
 
         setPlStatements(plData || []);
         setBalanceSheets(bsData || []);
-        setSkuCount(products?.length || 0);
+        setSkuCount(products.length);
       } catch (err) {
         console.error('Error loading financial statements:', err);
         setError('Oops! We had trouble loading your financial data. Let\'s try that again.');
@@ -186,16 +190,8 @@ export function FinancialStatementEntry() {
   };
 
   const handleManageProducts = () => {
-    navigate(`/company/${companyId}/products`);
+    navigate(`/cpg/products`);
   };
-
-  if (!companyId) {
-    return (
-      <div className={styles.error}>
-        <p>Company ID is required</p>
-      </div>
-    );
-  }
 
   if (isLoading) {
     return (

@@ -25,9 +25,9 @@
 
 /* Header */
 .header {
-  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-  color: white;
-  padding: 3rem 2rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-bottom: 3px solid #3b82f6;
+  padding: 2.5rem 2rem;
 }
 
 .headerContent {
@@ -40,15 +40,16 @@
   font-weight: 800;
   margin: 0 0 0.75rem 0;
   line-height: 1.2;
+  color: #1e293b;
 }
 
 .subtitle {
   font-size: 1.125rem;
   font-weight: 400;
   margin: 0;
-  opacity: 0.95;
   line-height: 1.6;
   max-width: 700px;
+  color: #475569;
 }
 
 @media (max-width: 768px) {

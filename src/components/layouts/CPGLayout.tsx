@@ -81,8 +81,15 @@ export function CPGLayout() {
         // Navigate to products page where user can add recipes
         window.location.href = '/cpg/products';
         break;
-      case 'add-promo':
       case 'add-financial':
+        // Scroll to the form area and focus first input
+        setTimeout(() => {
+          const firstInput = document.querySelector('select, input[type="date"]') as HTMLElement;
+          firstInput?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstInput?.focus();
+        }, 100);
+        break;
+      case 'add-promo':
       case 'add-data':
       case 'add-scenario':
         // TODO: Wire up these actions

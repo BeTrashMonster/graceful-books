@@ -321,12 +321,13 @@ export const generatePeriodLabel = (
 
   switch (periodType) {
     case 'monthly':
-      return `${monthNames[startDate.getMonth()]} ${startDate.getFullYear()}`;
+      // Use UTC methods to avoid timezone shifting dates to wrong month
+      return `${monthNames[startDate.getUTCMonth()]} ${startDate.getUTCFullYear()}`;
     case 'quarterly':
-      const quarter = Math.floor(startDate.getMonth() / 3) + 1;
-      return `Q${quarter} ${startDate.getFullYear()}`;
+      const quarter = Math.floor(startDate.getUTCMonth() / 3) + 1;
+      return `Q${quarter} ${startDate.getUTCFullYear()}`;
     case 'annual':
-      return `${startDate.getFullYear()}`;
+      return `${startDate.getUTCFullYear()}`;
     case 'custom':
       return `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
     default:

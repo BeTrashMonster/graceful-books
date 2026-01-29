@@ -139,7 +139,7 @@ export function PromoComparison({ variants, className }: PromoComparisonProps) {
               </div>
               <div className={styles.columnContent}>
                 <div className={styles.metric}>
-                  <span className={styles.metricLabel}>CPU w/ Promo:</span>
+                  <span className={styles.metricLabel}>CPU:</span>
                   <span className={styles.metricValue}>${variantData.withPromo.cpu}</span>
                 </div>
                 <div className={styles.metric}>

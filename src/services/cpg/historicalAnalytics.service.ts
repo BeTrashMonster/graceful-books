@@ -191,8 +191,8 @@ export class HistoricalAnalyticsService {
 
       // Fetch invoices in date range
       let invoices = await this.db.cpgInvoices
-        .where('[company_id+invoice_date]')
-        .between([companyId, startDate], [companyId, endDate + 1], false, true)
+        .where('company_id')
+        .equals(companyId).and((inv) => inv.invoice_date >= startDate && inv.invoice_date <= endDate)
         .and((inv) => inv.deleted_at === null && inv.active)
         .sortBy('invoice_date');
 

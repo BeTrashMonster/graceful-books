@@ -94,8 +94,8 @@ export function AppRoutes() {
           <Route path="/cpg/cpu-tracker" element={<CPUTracker />} />
           <Route path="/cpg/distribution-cost" element={<DistributionCostAnalyzer />} />
           <Route path="/cpg/promo-decision" element={<SalesPromoDecisionTool />} />
-          <Route path="/cpg/financial-entry" element={<FinancialStatementEntry />} />
           <Route path="/cpg/analytics" element={<HistoricalAnalytics />} />
+          <Route path="/cpg/financial-entry" element={<FinancialStatementEntry />} />
           <Route path="/cpg/scenario-planning" element={<ScenarioPlanning />} />
           <Route path="/cpg/reports/profit-loss" element={<CPGProfitLoss />} />
           <Route path="/cpg/reports/distribution-cost" element={<DistributionCostReport />} />

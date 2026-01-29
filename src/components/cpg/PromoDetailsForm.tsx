@@ -260,9 +260,9 @@ export function PromoDetailsForm({
       </div>
 
       <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Per Variant Details</h3>
+        <h3 className={styles.sectionTitle}>Product Details</h3>
         <p className={styles.sectionDescription}>
-          Enter pricing and availability for each product variant. Base CPUs are pre-filled from your latest invoice.
+          Enter pricing and availability for each product. Base CPUs are pre-filled from your latest invoice.
         </p>
 
         {availableVariants.map((variant) => (

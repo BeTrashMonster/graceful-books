@@ -56,22 +56,65 @@ export function PLEntryForm({
   onSave,
   onCancel,
 }: PLEntryFormProps) {
-  // Period selection
+  // Helper to format date as YYYY-MM-DD in local timezone (no UTC conversion)
+  const formatDateLocal = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Helper to parse date string (YYYY-MM-DD) as local date without timezone shift
+  const parseDateLocal = (dateString: string): Date => {
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
+  // Period selection - Default to last completed month
   const [periodType, setPeriodType] = useState<PeriodType>(
     initialData?.periodType || 'monthly'
   );
+
+  // Get last completed month (previous month)
+  // Today is Jan 28, 2026, so last month is December 2025
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth(); // 0 = January, 11 = December
+
+  // Calculate last month's year and month number
+  const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+  const lastMonthNumber = currentMonth === 0 ? 11 : currentMonth - 1;
+
+  // First day of last month
+  const lastMonthStart = new Date(lastMonthYear, lastMonthNumber, 1);
+
+  // Last day of last month
+  const lastMonthEnd = new Date(lastMonthYear, lastMonthNumber + 1, 0);
+
+  console.log('🗓️ Date Debug:', {
+    today: today.toISOString(),
+    currentYear,
+    currentMonth,
+    lastMonthYear,
+    lastMonthNumber,
+    lastMonthStart: lastMonthStart.toString(),
+    lastMonthEnd: lastMonthEnd.toString(),
+    formattedStart: formatDateLocal(lastMonthStart),
+    formattedEnd: formatDateLocal(lastMonthEnd),
+  });
+
   const [periodStart, setPeriodStart] = useState<string>(
     initialData?.periodStart
-      ? new Date(initialData.periodStart).toISOString().split('T')[0]!
-      : new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]!
+      ? formatDateLocal(new Date(initialData.periodStart))
+      : formatDateLocal(lastMonthStart)
   );
   const [periodEnd, setPeriodEnd] = useState<string>(
     initialData?.periodEnd
-      ? new Date(initialData.periodEnd).toISOString().split('T')[0]!
-      : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
-          .toISOString()
-          .split('T')[0]!
+      ? formatDateLocal(new Date(initialData.periodEnd))
+      : formatDateLocal(lastMonthEnd)
   );
+
+  console.log('📅 State values:', { periodStart, periodEnd });
 
   // Line items
   const [revenueItems, setRevenueItems] = useState<StandaloneLineItem[]>(
@@ -136,7 +179,9 @@ export function PLEntryForm({
   useEffect(() => {
     if (!periodStart) return;
 
-    const startDate = new Date(periodStart);
+    // Parse date string as local date (no timezone shift)
+    const startDate = parseDateLocal(periodStart);
+    console.log('⚡ useEffect triggered:', { periodType, periodStart, startDate: startDate.toString() });
     let endDate: Date;
 
     switch (periodType) {
@@ -155,7 +200,9 @@ export function PLEntryForm({
         return;
     }
 
-    setPeriodEnd(endDate.toISOString().split('T')[0]!!);
+    const formattedEndDate = formatDateLocal(endDate);
+    console.log('⚡ useEffect setting periodEnd:', { endDate: endDate.toString(), formattedEndDate });
+    setPeriodEnd(formattedEndDate);
   }, [periodType, periodStart]);
 
   // Handlers
@@ -235,7 +282,7 @@ export function PLEntryForm({
       newErrors.periodEnd = 'Period end date is required';
     }
 
-    if (periodStart && periodEnd && new Date(periodEnd) <= new Date(periodStart)) {
+    if (periodStart && periodEnd && parseDateLocal(periodEnd) <= parseDateLocal(periodStart)) {
       newErrors.periodEnd = 'Period end must be after period start';
     }
 
@@ -258,8 +305,8 @@ export function PLEntryForm({
 
     onSave({
       periodType,
-      periodStart: new Date(periodStart).getTime(),
-      periodEnd: new Date(periodEnd).getTime(),
+      periodStart: parseDateLocal(periodStart).getTime(),
+      periodEnd: parseDateLocal(periodEnd).getTime(),
       lineItems: allItems,
     });
   };
@@ -308,13 +355,29 @@ export function PLEntryForm({
     </div>
   );
 
+  // Get dynamic period label for info box
+  const currentPeriodLabel = periodStart && periodEnd
+    ? generatePeriodLabel(periodType, parseDateLocal(periodStart).getTime(), parseDateLocal(periodEnd).getTime())
+    : 'your most recent period';
+
   return (
     <div className={styles.form}>
+      {/* Helpful Intro */}
+      <div className={styles.infoBox}>
+        <div className={styles.infoIcon}>💡</div>
+        <div className={styles.infoContent}>
+          <h4 className={styles.infoTitle}>Quick Start Guide</h4>
+          <p className={styles.infoText}>
+            Enter your <strong>completed month's</strong> financial data below. We've pre-selected last month (<strong>{currentPeriodLabel}</strong>) to get you started. Add line items for your revenue, costs, and expenses - as detailed or simple as you'd like.
+          </p>
+        </div>
+      </div>
+
       {/* Period Selection */}
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>
           Statement Period
-          <HelpTooltip content="Choose the time period this P&L statement covers. We'll help you track your financial performance over time." />
+          <HelpTooltip content="Choose the time period this P&L statement covers. We've defaulted to your last completed month, but you can change this to any period you need." />
         </h3>
 
         <div className={styles.periodGrid}>
@@ -349,7 +412,7 @@ export function PLEntryForm({
 
         {periodStart && periodEnd && (
           <p className={styles.periodLabel}>
-            Period: {generatePeriodLabel(periodType, new Date(periodStart).getTime(), new Date(periodEnd).getTime())}
+            Period: {generatePeriodLabel(periodType, parseDateLocal(periodStart).getTime(), parseDateLocal(periodEnd).getTime())}
           </p>
         )}
       </section>

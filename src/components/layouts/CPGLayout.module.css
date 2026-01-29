@@ -75,3 +75,73 @@
   overflow-y: auto;
   background: #f8fafc;
 }
+
+/* Nav Group (Dropdown) */
+.navGroup {
+  margin: 0;
+}
+
+.navGroupHeader {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.navGroupHeader a {
+  flex: 1;
+  padding-right: 3rem;
+}
+
+.dropdownToggle {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.dropdownToggle:hover {
+  color: #FFD700;
+}
+
+.dropdownArrow {
+  font-size: 0.625rem;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.dropdownArrowOpen {
+  transform: rotate(90deg);
+}
+
+.navGroupItems {
+  display: flex;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.navGroupItem {
+  display: block;
+  padding: 0.625rem 1.5rem 0.625rem 2.5rem;
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+}
+
+.navGroupItem:hover {
+  background: rgba(255, 215, 0, 0.15);
+  color: #FFD700;
+}
+
+.navGroupItem.active {
+  background: rgba(255, 215, 0, 0.3);
+  color: #FFD700;
+  font-weight: 600;
+}

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { Button } from '../../components/core/Button';
 import { PromoDetailsForm, type PromoFormData } from '../../components/cpg/PromoDetailsForm';
@@ -9,6 +9,7 @@ import { PromoImpactSummary } from '../../components/cpg/PromoImpactSummary';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db';
 import { SalesPromoAnalyzerService, type PromoAnalysisResult } from '../../services/cpg/salesPromoAnalyzer.service';
+import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import styles from './SalesPromoDecisionTool.module.css';
 
 /**
@@ -44,6 +45,7 @@ import styles from './SalesPromoDecisionTool.module.css';
  */
 export default function SalesPromoDecisionTool() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { companyId, deviceId } = useAuth();
   // Database is imported as singleton
 
@@ -51,23 +53,119 @@ export default function SalesPromoDecisionTool() {
   const activeCompanyId = companyId || 'demo-company-id';
   const activeDeviceId = deviceId || 'demo-device-id';
 
+  // Check if we're editing an existing promo
+  const editPromoId = searchParams.get('edit');
+
   // State
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<PromoAnalysisResult | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [notes, setNotes] = useState('');
+  const [availableVariants, setAvailableVariants] = useState<string[]>([]);
+  const [latestCPUs, setLatestCPUs] = useState<Record<string, string>>({});
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [submittedFormData, setSubmittedFormData] = useState<PromoFormData | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [initialFormData, setInitialFormData] = useState<Partial<PromoFormData> | undefined>(undefined);
 
-  // TODO: Replace with actual variants from company settings
-  // For demo, using example variants
-  const availableVariants = ['8oz', '16oz', '32oz'];
+  // Load finished products (SKUs) and their CPUs
+  useEffect(() => {
+    const loadProductsAndCPUs = async () => {
+      try {
+        setIsLoadingData(true);
 
-  // TODO: Replace with actual latest CPUs from invoices
-  // For demo, using example CPUs
-  const latestCPUs = {
-    '8oz': '2.15',
-    '16oz': '3.20',
-    '32oz': '4.50',
-  };
+        // Get all active finished products
+        const products = await db.cpgFinishedProducts
+          .where('company_id')
+          .equals(activeCompanyId)
+          .filter(p => p.active && p.deleted_at === null)
+          .toArray();
+
+        // Use SKU or name as the variant identifier
+        const productNames: string[] = [];
+        const cpuMap: Record<string, string> = {};
+
+        for (const product of products) {
+          // Show both SKU and product name for clarity
+          const variantName = product.sku
+            ? `${product.sku} - ${product.name}`
+            : product.name;
+          productNames.push(variantName);
+
+          // Get CPU for this product
+          try {
+            const cpuBreakdown = await cpuCalculatorService.getFinishedProductCPUBreakdown(
+              product.id,
+              activeCompanyId
+            );
+            if (cpuBreakdown.cpu) {
+              cpuMap[variantName] = cpuBreakdown.cpu;
+            }
+          } catch (error) {
+            console.error(`Failed to get CPU for ${variantName}:`, error);
+          }
+        }
+
+        setAvailableVariants(productNames.sort());
+        setLatestCPUs(cpuMap);
+      } catch (error) {
+        console.error('Error loading products and CPUs:', error);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    loadProductsAndCPUs();
+  }, [activeCompanyId]);
+
+  // Load draft promo if editing
+  useEffect(() => {
+    if (!editPromoId) return;
+
+    const loadDraftPromo = async () => {
+      try {
+        const promo = await db.cpgSalesPromos.get(editPromoId);
+        if (!promo) {
+          console.error('Draft promo not found');
+          return;
+        }
+
+        // Convert promo data to form data format
+        const formData: Partial<PromoFormData> = {
+          promoName: promo.promo_name,
+          retailerName: promo.retailer_name || '',
+          promoStartDate: promo.promo_start_date ? new Date(promo.promo_start_date).toISOString().split('T')[0] : '',
+          promoEndDate: promo.promo_end_date ? new Date(promo.promo_end_date).toISOString().split('T')[0] : '',
+          storeSalePercentage: promo.store_sale_percentage,
+          producerPaybackPercentage: promo.producer_payback_percentage,
+          variants: promo.variant_promo_data as Record<string, { retailPrice: string; unitsAvailable: string; baseCPU: string }>,
+        };
+
+        setInitialFormData(formData);
+        setNotes(promo.notes || '');
+
+        // If there are analysis results, load them too
+        if (promo.variant_promo_results && Object.keys(promo.variant_promo_results).length > 0) {
+          const result: PromoAnalysisResult = {
+            promoId: promo.id,
+            promoName: promo.promo_name,
+            retailerName: promo.retailer_name,
+            storeSalePercentage: promo.store_sale_percentage,
+            producerPaybackPercentage: promo.producer_payback_percentage,
+            variantResults: promo.variant_promo_results as any,
+            totalPromoCost: promo.total_promo_cost,
+            recommendation: promo.recommendation || 'neutral',
+            recommendationReason: '',
+          };
+          setAnalysisResult(result);
+        }
+      } catch (error) {
+        console.error('Error loading draft promo:', error);
+      }
+    };
+
+    loadDraftPromo();
+  }, [editPromoId]);
 
   /**
    * Handle form submission - analyze the promo
@@ -102,9 +200,18 @@ export default function SalesPromoDecisionTool() {
       );
 
       setAnalysisResult(result);
+      setSubmittedFormData(formData);
+
+      // Scroll to results section after a brief delay
+      setTimeout(() => {
+        const resultsSection = document.querySelector('[data-results-section]');
+        if (resultsSection) {
+          resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
     } catch (error) {
       console.error('Error analyzing promo:', error);
-      alert('Oops! Something went wrong while analyzing the promo. Please try again.');
+      setSuccessMessage('Oops! Something went wrong while analyzing the promo. Please try again.');
     } finally {
       setIsAnalyzing(false);
     }
@@ -128,11 +235,21 @@ export default function SalesPromoDecisionTool() {
         activeDeviceId
       );
 
-      alert("Great! You've approved participation in this promo. Your decision has been saved.");
-      navigate('/cpg/promos'); // TODO: Update route when promo list page exists
+      // Clear the analysis to show success state
+      setAnalysisResult(null);
+      setSuccessMessage("Great! You've approved participation in this promo. Your decision has been saved.");
+
+      // Scroll to top to show success message - find the scrollable main container
+      setTimeout(() => {
+        // The scrollable container is the main element with overflow-y: auto
+        const scrollContainer = document.querySelector('main');
+        if (scrollContainer) {
+          scrollContainer.scrollTop = 0;
+        }
+      }, 100);
     } catch (error) {
       console.error('Error approving promo:', error);
-      alert('Oops! Something went wrong while saving your decision. Please try again.');
+      setSuccessMessage('Oops! Something went wrong while saving your decision. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -156,11 +273,20 @@ export default function SalesPromoDecisionTool() {
         activeDeviceId
       );
 
-      alert('Your decision to decline has been saved. Good call protecting your margins!');
-      navigate('/cpg/promos'); // TODO: Update route when promo list page exists
+      // Clear the analysis to show success state
+      setAnalysisResult(null);
+      setSuccessMessage('Your decision to decline has been saved. Good call protecting your margins!');
+
+      // Scroll to top to show success message - find the scrollable main container
+      setTimeout(() => {
+        const scrollContainer = document.querySelector('main');
+        if (scrollContainer) {
+          scrollContainer.scrollTop = 0;
+        }
+      }, 100);
     } catch (error) {
       console.error('Error declining promo:', error);
-      alert('Oops! Something went wrong while saving your decision. Please try again.');
+      setSuccessMessage('Oops! Something went wrong while saving your decision. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -184,11 +310,20 @@ export default function SalesPromoDecisionTool() {
         activeDeviceId
       );
 
-      alert('Saved! You can review this promo again anytime from your promo list.');
-      navigate('/cpg/promos'); // TODO: Update route when promo list page exists
+      // Clear the analysis to show success state
+      setAnalysisResult(null);
+      setSuccessMessage('Saved! You can review this promo again anytime from your promo list.');
+
+      // Scroll to top to show success message - find the scrollable main container
+      setTimeout(() => {
+        const scrollContainer = document.querySelector('main');
+        if (scrollContainer) {
+          scrollContainer.scrollTop = 0;
+        }
+      }, 100);
     } catch (error) {
       console.error('Error saving promo:', error);
-      alert('Oops! Something went wrong while saving. Please try again.');
+      setSuccessMessage('Oops! Something went wrong while saving. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -200,21 +335,26 @@ export default function SalesPromoDecisionTool() {
   const getComparisonData = (): VariantComparisonData[] => {
     if (!analysisResult) return [];
 
-    return Object.entries(analysisResult.variantResults).map(([variant, results]) => ({
-      variant,
-      withoutPromo: {
-        cpu: results.cpuWithPromo, // Base CPU is cpuWithPromo minus salesPromoCostPerUnit
-        margin: results.netProfitMarginWithoutPromo,
-        marginQuality: getProfitMarginQuality(results.netProfitMarginWithoutPromo),
-      },
-      withPromo: {
-        cpu: results.cpuWithPromo,
-        salesPromoCost: results.salesPromoCostPerUnit,
-        margin: results.netProfitMarginWithPromo,
-        marginQuality: results.marginQualityWithPromo,
-      },
-      marginDifference: results.marginDifference,
-    }));
+    return Object.entries(analysisResult.variantResults).map(([variant, results]) => {
+      // Calculate base CPU (without promo cost)
+      const baseCPU = (parseFloat(results.cpuWithPromo) - parseFloat(results.salesPromoCostPerUnit)).toFixed(2);
+
+      return {
+        variant,
+        withoutPromo: {
+          cpu: baseCPU,
+          margin: results.netProfitMarginWithoutPromo,
+          marginQuality: getProfitMarginQuality(results.netProfitMarginWithoutPromo),
+        },
+        withPromo: {
+          cpu: baseCPU, // Base CPU is the same, promo cost is shown separately
+          salesPromoCost: results.salesPromoCostPerUnit,
+          margin: results.netProfitMarginWithPromo,
+          marginQuality: results.marginQualityWithPromo,
+        },
+        marginDifference: results.marginDifference,
+      };
+    });
   };
 
   /**
@@ -232,9 +372,13 @@ export default function SalesPromoDecisionTool() {
    * Calculate total units across all variants
    */
   const getTotalUnits = (): string => {
-    if (!analysisResult) return '0';
-    // TODO: Get this from form data or analysis result
-    return '500'; // Placeholder
+    if (!submittedFormData) return '0';
+
+    const total = Object.values(submittedFormData.variants).reduce((sum, variant) => {
+      return sum + parseFloat(variant.unitsAvailable || '0');
+    }, 0);
+
+    return total.toString();
   };
 
   return (
@@ -248,20 +392,39 @@ export default function SalesPromoDecisionTool() {
         </p>
       </div>
 
-      <div className={styles.pageContent}>
-        {/* Promo Details Form */}
-        <section className={styles.section}>
-          <PromoDetailsForm
-            availableVariants={availableVariants}
-            latestCPUs={latestCPUs}
-            onSubmit={handleAnalyzePromo}
-            isLoading={isAnalyzing}
-          />
-        </section>
+      {/* Success Message */}
+      {successMessage && (
+        <div className={styles.successMessage}>
+          <div className={styles.successIcon}>✓</div>
+          <div className={styles.successContent}>
+            <p className={styles.successText}>{successMessage}</p>
+            <p className={styles.successLink}>
+              View all your decisions in <a href="/cpg/analytics?tab=promo-tracker" className={styles.link}>Analytics → Promo Tracker</a>.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {isLoadingData ? (
+        <div className={styles.loading}>
+          <p>Loading your product variants and costs...</p>
+        </div>
+      ) : (
+        <div className={styles.pageContent}>
+          {/* Promo Details Form */}
+          <section className={styles.section}>
+            <PromoDetailsForm
+              availableVariants={availableVariants}
+              latestCPUs={latestCPUs}
+              onSubmit={handleAnalyzePromo}
+              isLoading={isAnalyzing}
+              initialData={initialFormData}
+            />
+          </section>
 
         {/* Analysis Results - Only show after analysis */}
         {analysisResult && (
-          <>
+          <div data-results-section>
             {/* Recommendation Badge */}
             <section className={styles.section}>
               <RecommendationBadge
@@ -343,9 +506,10 @@ export default function SalesPromoDecisionTool() {
                 </div>
               </div>
             </section>
-          </>
+          </div>
         )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
