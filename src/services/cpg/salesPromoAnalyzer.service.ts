@@ -46,6 +46,14 @@ import {
 // Types
 // ============================================================================
 
+export interface DemoHoursEntry {
+  id: string;
+  description: string;
+  hours: string;
+  hourlyRate: string;
+  costType: 'actual' | 'opportunity';
+}
+
 export interface CreatePromoParams {
   companyId: string;
   promoName: string;
@@ -54,6 +62,7 @@ export interface CreatePromoParams {
   promoEndDate?: number;
   storeSalePercentage: string;
   producerPaybackPercentage: string;
+  demoHoursEntries?: DemoHoursEntry[];
   notes?: string;
 }
 
@@ -75,18 +84,25 @@ export interface PromoAnalysisResult {
   retailerName: string | null;
   storeSalePercentage: string;
   producerPaybackPercentage: string;
+  demoHoursEntries: DemoHoursEntry[];
   variantResults: Record<
     string,
     {
       salesPromoCostPerUnit: string;
       cpuWithPromo: string;
+      actualLaborCostPerUnit: string | null;
+      opportunityCostPerUnit: string | null;
+      totalCostWithLabor: string | null;
       netProfitMarginWithPromo: string;
       netProfitMarginWithoutPromo: string;
+      netProfitMarginWithLabor: string | null;
       marginQualityWithPromo: 'poor' | 'good' | 'better' | 'best';
       marginDifference: string;
     }
   >;
   totalPromoCost: string;
+  totalActualLaborCost: string | null;
+  totalOpportunityCost: string | null;
   recommendation: 'participate' | 'decline' | 'neutral';
   recommendationReason: string;
 }
@@ -147,6 +163,15 @@ export class SalesPromoAnalyzerService {
       promo_end_date: params.promoEndDate || null,
       store_sale_percentage: params.storeSalePercentage,
       producer_payback_percentage: params.producerPaybackPercentage,
+      demo_hours_entries: params.demoHoursEntries && params.demoHoursEntries.length > 0
+        ? params.demoHoursEntries.map(e => ({
+            id: e.id,
+            description: e.description,
+            hours: e.hours,
+            hourly_rate: e.hourlyRate,
+            cost_type: e.costType,
+          }))
+        : null,
       notes: params.notes || null,
     } as CPGSalesPromo;
 
@@ -257,14 +282,54 @@ export class SalesPromoAnalyzerService {
     // Parse producer payback percentage
     const producerPaybackPct = new Decimal(promo.producer_payback_percentage).div(100);
 
+    // Calculate labor costs per unit if demo entries are provided
+    let actualLaborCostPerUnit = new Decimal(0);
+    let opportunityCostPerUnit = new Decimal(0);
+    let totalActualLaborCost = new Decimal(0);
+    let totalOpportunityCost = new Decimal(0);
+
+    if (promo.demo_hours_entries && promo.demo_hours_entries.length > 0) {
+      // Calculate total costs for each type
+      promo.demo_hours_entries.forEach((entry) => {
+        const hours = new Decimal(entry.hours);
+        const rate = new Decimal(entry.hourly_rate);
+        const cost = hours.mul(rate);
+
+        if (entry.cost_type === 'actual') {
+          totalActualLaborCost = totalActualLaborCost.plus(cost);
+        } else {
+          totalOpportunityCost = totalOpportunityCost.plus(cost);
+        }
+      });
+
+      // Calculate total units across all variants
+      const totalUnits = Object.values(params.variantPromoData).reduce((sum, data) => {
+        return sum.plus(new Decimal(data.unitsAvailable));
+      }, new Decimal(0));
+
+      // Distribute costs across all units
+      if (totalUnits.greaterThan(0)) {
+        if (totalActualLaborCost.greaterThan(0)) {
+          actualLaborCostPerUnit = totalActualLaborCost.div(totalUnits);
+        }
+        if (totalOpportunityCost.greaterThan(0)) {
+          opportunityCostPerUnit = totalOpportunityCost.div(totalUnits);
+        }
+      }
+    }
+
     // Calculate results for each variant
     const variantResults: Record<
       string,
       {
         salesPromoCostPerUnit: string;
         cpuWithPromo: string;
+        actualLaborCostPerUnit: string | null;
+        opportunityCostPerUnit: string | null;
+        totalCostWithLabor: string | null;
         netProfitMarginWithPromo: string;
         netProfitMarginWithoutPromo: string;
+        netProfitMarginWithLabor: string | null;
         marginQualityWithPromo: 'poor' | 'good' | 'better' | 'best';
         marginDifference: string;
       }
@@ -303,6 +368,20 @@ export class SalesPromoAnalyzerService {
       // Calculate margin difference
       const marginDifference = netProfitMarginWithPromo.minus(netProfitMarginWithoutPromo);
 
+      // Calculate total cost with labor (if applicable)
+      let totalCostWithLabor: Decimal | null = null;
+      let netProfitMarginWithLabor: Decimal | null = null;
+      const totalLaborCostPerUnit = actualLaborCostPerUnit.plus(opportunityCostPerUnit);
+
+      if (totalLaborCostPerUnit.greaterThan(0)) {
+        totalCostWithLabor = cpuWithPromo.plus(totalLaborCostPerUnit);
+        // Calculate profit margin with labor
+        // Formula: ((Retail Price - Total Cost with Labor) / Retail Price) × 100
+        netProfitMarginWithLabor = retailPrice.isZero()
+          ? new Decimal(0)
+          : retailPrice.minus(totalCostWithLabor).div(retailPrice).mul(100);
+      }
+
       // Determine margin quality
       const marginQualityWithPromo = getProfitMarginQuality(
         netProfitMarginWithPromo.toFixed(2)
@@ -316,14 +395,22 @@ export class SalesPromoAnalyzerService {
       variantResults[variantName] = {
         salesPromoCostPerUnit: salesPromoCostPerUnit.toFixed(2),
         cpuWithPromo: cpuWithPromo.toFixed(2),
+        actualLaborCostPerUnit: actualLaborCostPerUnit.greaterThan(0) ? actualLaborCostPerUnit.toFixed(2) : null,
+        opportunityCostPerUnit: opportunityCostPerUnit.greaterThan(0) ? opportunityCostPerUnit.toFixed(2) : null,
+        totalCostWithLabor: totalCostWithLabor ? totalCostWithLabor.toFixed(2) : null,
         netProfitMarginWithPromo: netProfitMarginWithPromo.toFixed(2),
         netProfitMarginWithoutPromo: netProfitMarginWithoutPromo.toFixed(2),
+        netProfitMarginWithLabor: netProfitMarginWithLabor ? netProfitMarginWithLabor.toFixed(2) : null,
         marginQualityWithPromo,
         marginDifference: marginDifference.toFixed(2),
       };
 
-      // Track margins for recommendation logic
-      margins.push(netProfitMarginWithPromo);
+      // Track margins for recommendation logic (use margins with labor if available)
+      if (netProfitMarginWithLabor !== null) {
+        margins.push(netProfitMarginWithLabor);
+      } else {
+        margins.push(netProfitMarginWithPromo);
+      }
     }
 
     // Determine recommendation based on margins
@@ -336,6 +423,8 @@ export class SalesPromoAnalyzerService {
         variant_promo_data: this.convertToSchemaFormat(params.variantPromoData),
         variant_promo_results: this.convertResultsToSchemaFormat(variantResults),
         total_promo_cost: totalPromoCost.toFixed(2),
+        total_actual_labor_cost: totalActualLaborCost.greaterThan(0) ? totalActualLaborCost.toFixed(2) : null,
+        total_opportunity_cost: totalOpportunityCost.greaterThan(0) ? totalOpportunityCost.toFixed(2) : null,
         recommendation,
       },
       deviceId
@@ -347,8 +436,11 @@ export class SalesPromoAnalyzerService {
       retailerName: promo.retailer_name,
       storeSalePercentage: promo.store_sale_percentage,
       producerPaybackPercentage: promo.producer_payback_percentage,
+      demoHoursEntries: promo.demo_hours_entries || [],
       variantResults,
       totalPromoCost: totalPromoCost.toFixed(2),
+      totalActualLaborCost: totalActualLaborCost.greaterThan(0) ? totalActualLaborCost.toFixed(2) : null,
+      totalOpportunityCost: totalOpportunityCost.greaterThan(0) ? totalOpportunityCost.toFixed(2) : null,
       recommendation,
       recommendationReason: reason,
     };
@@ -563,8 +655,12 @@ export class SalesPromoAnalyzerService {
       {
         salesPromoCostPerUnit: string;
         cpuWithPromo: string;
+        actualLaborCostPerUnit: string | null;
+        opportunityCostPerUnit: string | null;
+        totalCostWithLabor: string | null;
         netProfitMarginWithPromo: string;
         netProfitMarginWithoutPromo: string;
+        netProfitMarginWithLabor: string | null;
         marginQualityWithPromo: 'poor' | 'good' | 'better' | 'best';
         marginDifference: string;
       }
@@ -574,8 +670,11 @@ export class SalesPromoAnalyzerService {
     {
       sales_promo_cost_per_unit: string;
       cpu_with_promo: string;
+      demo_hours_cost_per_unit: string | null;
+      total_cost_with_demo: string | null;
       net_profit_margin_with_promo: string;
       net_profit_margin_without_promo: string;
+      net_profit_margin_with_demo: string | null;
       margin_quality_with_promo: 'poor' | 'good' | 'better' | 'best';
     }
   > {
@@ -584,17 +683,28 @@ export class SalesPromoAnalyzerService {
       {
         sales_promo_cost_per_unit: string;
         cpu_with_promo: string;
+        demo_hours_cost_per_unit: string | null;
+        total_cost_with_demo: string | null;
         net_profit_margin_with_promo: string;
         net_profit_margin_without_promo: string;
+        net_profit_margin_with_demo: string | null;
         margin_quality_with_promo: 'poor' | 'good' | 'better' | 'best';
       }
     > = {};
     for (const [key, value] of Object.entries(results)) {
+      // Combine both cost types for backward compatibility
+      const totalLaborCost = (value.actualLaborCostPerUnit && value.opportunityCostPerUnit)
+        ? (parseFloat(value.actualLaborCostPerUnit) + parseFloat(value.opportunityCostPerUnit)).toFixed(2)
+        : (value.actualLaborCostPerUnit || value.opportunityCostPerUnit);
+
       result[key] = {
         sales_promo_cost_per_unit: value.salesPromoCostPerUnit,
         cpu_with_promo: value.cpuWithPromo,
+        demo_hours_cost_per_unit: totalLaborCost,
+        total_cost_with_demo: value.totalCostWithLabor,
         net_profit_margin_with_promo: value.netProfitMarginWithPromo,
         net_profit_margin_without_promo: value.netProfitMarginWithoutPromo,
+        net_profit_margin_with_demo: value.netProfitMarginWithLabor,
         margin_quality_with_promo: value.marginQualityWithPromo,
       };
     }

@@ -208,29 +208,39 @@ export function CPGLayout() {
 
           <div className={styles.section}>
             <h3>Reports</h3>
-            <Link 
-              to="/cpg/reports/profit-loss" 
+            <Link
+              to="/cpg/reports/profit-loss"
               className={isActive('/cpg/reports/profit-loss') ? styles.active : ''}
             >
               P&L Report
             </Link>
-            <Link 
-              to="/cpg/reports/distribution-cost" 
+            <Link
+              to="/cpg/reports/distribution-cost"
               className={isActive('/cpg/reports/distribution-cost') ? styles.active : ''}
             >
               Distribution Report
             </Link>
-            <Link 
-              to="/cpg/reports/gross-margin" 
+            <Link
+              to="/cpg/reports/gross-margin"
               className={isActive('/cpg/reports/gross-margin') ? styles.active : ''}
             >
               Gross Margin Report
             </Link>
-            <Link 
-              to="/cpg/reports/trade-spend" 
+            <Link
+              to="/cpg/reports/trade-spend"
               className={isActive('/cpg/reports/trade-spend') ? styles.active : ''}
             >
               Trade Spend Report
+            </Link>
+          </div>
+
+          <div className={styles.section}>
+            <h3>Settings</h3>
+            <Link
+              to="/cpg/settings"
+              className={isActive('/cpg/settings') ? styles.active : ''}
+            >
+              ⚙️ Settings
             </Link>
           </div>
         </div>

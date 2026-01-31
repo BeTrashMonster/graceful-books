@@ -14,11 +14,31 @@
 /* Loading State */
 .loading {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 3rem;
+  gap: 1rem;
+}
+
+.loadingIcon {
+  font-size: 3rem;
+  animation: grow 1.5s ease-in-out infinite;
+}
+
+.loadingText {
   font-size: 1.125rem;
   color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+@keyframes grow {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
 }
 
 /* Decision Card */
@@ -125,10 +145,48 @@
   .decisionActions {
     flex-direction: column;
     align-items: stretch;
+    gap: 0.75rem;
   }
 
   .decisionActions button {
     width: 100%;
+    justify-content: center;
+    font-size: 1rem;
+    padding: 0.875rem 1.5rem;
+  }
+
+  /* Primary action (Approve) - most prominent on mobile */
+  .approveButton {
+    order: 1;
+    font-weight: 600;
+  }
+
+  /* Secondary action (Decline) - second priority */
+  .declineButton {
+    order: 2;
+    font-weight: 600;
+  }
+
+  /* Tertiary action (Save for Later) - least prominent */
+  .decisionActions button:not(.approveButton):not(.declineButton) {
+    order: 3;
+    opacity: 0.9;
+  }
+
+  .emptyState {
+    padding: 3rem 1.5rem;
+  }
+
+  .emptyStateIcon {
+    font-size: 3rem;
+  }
+
+  .emptyStateTitle {
+    font-size: 1.25rem;
+  }
+
+  .emptyStateMessage {
+    font-size: 1rem;
   }
 }
 
@@ -223,4 +281,289 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Help Link */
+.helpLink {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+/* Error Message */
+.errorMessage {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border: 2px solid #ef4444;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  animation: slideDown 0.3s ease-out;
+  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.1);
+}
+
+.errorIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  font-size: 1.75rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.errorContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.errorTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #991b1b;
+  margin: 0;
+}
+
+.errorText {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #7f1d1d;
+  margin: 0;
+}
+
+.errorAction {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #7f1d1d;
+  margin: 0;
+  padding: 0.75rem;
+  background: rgba(239, 68, 68, 0.05);
+  border-left: 3px solid #ef4444;
+  border-radius: 0.25rem;
+}
+
+.errorAction strong {
+  font-weight: 600;
+  color: #991b1b;
+}
+
+.dismissButton {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+}
+
+/* Confirmation Modal */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--border-radius-lg, 12px);
+  box-shadow: var(--shadow-xl, 0 20px 25px rgba(0, 0, 0, 0.15));
+  max-width: 500px;
+  width: 90%;
+  animation: slideUp 0.3s ease-out;
+}
+
+.modalHeader {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.modalBody {
+  padding: 1.5rem;
+}
+
+.modalMessage {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+.modalFooter {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-surface-elevated, #f9fafb);
+  border-radius: 0 0 var(--border-radius-lg, 12px) var(--border-radius-lg, 12px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsive modal */
+@media (max-width: 768px) {
+  .modalContent {
+    width: 95%;
+    max-width: none;
+  }
+
+  .modalFooter {
+    flex-direction: column-reverse;
+  }
+
+  .modalFooter button {
+    width: 100%;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .modalOverlay,
+  .modalContent {
+    animation: none;
+  }
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--border-radius-lg, 12px);
+  border: 2px dashed var(--color-border, #e5e7eb);
+  margin: 2rem 0;
+}
+
+.emptyStateIcon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+}
+
+.emptyStateTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 1rem 0;
+}
+
+.emptyStateMessage {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0 0 1.5rem 0;
+  max-width: 500px;
+}
+
+.emptyStateAction {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+.emptyStateAction .link {
+  color: #047857;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.emptyStateAction .link:hover {
+  color: #065f46;
+}
+
+/* CPU Error Warning */
+.cpuErrorWarning {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  border-radius: var(--border-radius-md, 8px);
+  margin-bottom: 1.5rem;
+}
+
+.warningIcon {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.warningContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.warningTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #92400e;
+  margin: 0;
+}
+
+.warningMessage {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #78350f;
+  margin: 0;
+}
+
+.warningList {
+  margin: 0;
+  padding-left: 1.5rem;
+  font-size: 0.875rem;
+  color: #92400e;
+  line-height: 1.6;
+}
+
+.warningAction {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #78350f;
+  margin: 0;
+  font-weight: 500;
 }

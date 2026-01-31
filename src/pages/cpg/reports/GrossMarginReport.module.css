@@ -251,7 +251,7 @@
   font-weight: 600;
 }
 
-.marginPoor {
+.marginGutCheck {
   color: #dc2626;
   font-weight: 600;
 }
@@ -282,7 +282,7 @@
   color: #ca8a04;
 }
 
-.badge.marginPoor {
+.badge.marginGutCheck {
   background-color: #fee2e2;
   color: #dc2626;
 }

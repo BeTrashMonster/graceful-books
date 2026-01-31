@@ -151,7 +151,7 @@ export const GrossMarginReport = () => {
         return styles.marginBetter || '';
       case 'good':
         return styles.marginGood || '';
-      case 'poor':
+      case 'gutCheck':
         return styles.marginPoor || '';
       default:
         return styles.marginGood || '';
@@ -166,7 +166,7 @@ export const GrossMarginReport = () => {
         return 'Better (60-70%)';
       case 'good':
         return 'Good (50-60%)';
-      case 'poor':
+      case 'gutCheck':
         return 'Poor (<50%)';
       default:
         return 'Good (50-60%)';

@@ -20,7 +20,6 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { Button } from '../../components/core/Button';
 import { AddInvoiceModal } from '../../components/cpg/modals/AddInvoiceModal';
 import { CPUDisplay } from '../../components/cpg/CPUDisplay';
@@ -228,8 +227,6 @@ export default function CPUTracker() {
 
   return (
     <div className="page">
-      <Breadcrumbs />
-
       <div className="page-header">
         <div className={styles.headerContent}>
           <div>

@@ -5,7 +5,7 @@ export interface MarginQualityBadgeProps {
   /**
    * Margin quality (determines color)
    */
-  quality: 'poor' | 'good' | 'better' | 'best';
+  quality: 'gutCheck' | 'good' | 'better' | 'best';
   /**
    * Margin percentage value
    */
@@ -26,9 +26,9 @@ export interface MarginQualityBadgeProps {
  * Displays color-coded profit margin indicator with WCAG 2.1 AA compliance.
  *
  * Color coding (user-configurable defaults):
- * - Poor (Red): < 50% - Use with caution, margins too low
- * - Good (Yellow): 50-60% - Acceptable margins
- * - Better (Light Green): 60-70% - Strong margins
+ * - Gut Check (Red): < 50% - Use with caution, margins too low
+ * - Good (Blue): 50-60% - Acceptable margins
+ * - Better (Green): 60-70% - Strong margins
  * - Best (Dark Green): >= 70% - Excellent margins
  *
  * Accessibility features:
@@ -41,7 +41,7 @@ export interface MarginQualityBadgeProps {
  * @example
  * ```tsx
  * <MarginQualityBadge quality="best" marginPercentage="72.50" />
- * <MarginQualityBadge quality="poor" marginPercentage="45.00" size="lg" />
+ * <MarginQualityBadge quality="gutCheck" marginPercentage="45.00" size="lg" />
  * ```
  */
 export function MarginQualityBadge({
@@ -51,21 +51,21 @@ export function MarginQualityBadge({
   size = 'md',
 }: MarginQualityBadgeProps) {
   const qualityLabels = {
-    poor: 'Poor',
+    gutCheck: 'Gut Check',
     good: 'Good',
     better: 'Better',
     best: 'Best',
   };
 
   const qualityIcons = {
-    poor: '⚠',
+    gutCheck: '⚠',
     good: '○',
     better: '◐',
     best: '●',
   };
 
   const qualityDescriptions = {
-    poor: 'Below 50% - Use caution, margins are low',
+    gutCheck: 'Below 50% - Use caution, margins are low',
     good: '50-60% - Acceptable profit margin',
     better: '60-70% - Strong profit margin',
     best: '70%+ - Excellent profit margin',

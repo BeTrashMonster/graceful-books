@@ -1,18 +1,25 @@
 import clsx from 'clsx';
 import styles from './PromoComparison.module.css';
+import { Tooltip } from '../core/Tooltip';
 
 export interface VariantComparisonData {
   variant: string;
+  retailPrice: string;
+  wholesaleCost?: string; // Optional wholesale cost
   withoutPromo: {
     cpu: string;
+    grossProfit: string;
     margin: string;
-    marginQuality: 'poor' | 'good' | 'better' | 'best';
+    marginQuality: 'gutCheck' | 'good' | 'better' | 'best';
   };
   withPromo: {
     cpu: string;
     salesPromoCost: string;
+    demoHoursCost?: string; // Optional demo hours cost
+    totalCost: string; // Total of all costs
+    grossProfit: string;
     margin: string;
-    marginQuality: 'poor' | 'good' | 'better' | 'best';
+    marginQuality: 'gutCheck' | 'good' | 'better' | 'best';
   };
   marginDifference: string;
 }
@@ -60,9 +67,9 @@ export interface PromoComparisonProps {
  * ```
  */
 export function PromoComparison({ variants, className }: PromoComparisonProps) {
-  const getMarginColorClass = (quality: 'poor' | 'good' | 'better' | 'best'): string => {
+  const getMarginColorClass = (quality: 'gutCheck' | 'good' | 'better' | 'best'): string => {
     const colorMap = {
-      poor: styles.marginPoor,
+      gutCheck: styles.marginGutCheck,
       good: styles.marginGood,
       better: styles.marginBetter,
       best: styles.marginBest,
@@ -70,9 +77,9 @@ export function PromoComparison({ variants, className }: PromoComparisonProps) {
     return colorMap[quality]!;
   };
 
-  const getMarginIcon = (quality: 'poor' | 'good' | 'better' | 'best'): string => {
+  const getMarginIcon = (quality: 'gutCheck' | 'good' | 'better' | 'best'): string => {
     const iconMap = {
-      poor: '⚠',
+      gutCheck: '⚠',
       good: '○',
       better: '◐',
       best: '●',
@@ -80,15 +87,17 @@ export function PromoComparison({ variants, className }: PromoComparisonProps) {
     return iconMap[quality];
   };
 
-  const getMarginLabel = (quality: 'poor' | 'good' | 'better' | 'best'): string => {
+  const getMarginLabel = (quality: 'gutCheck' | 'good' | 'better' | 'best'): string => {
     const labelMap = {
-      poor: 'Poor',
+      gutCheck: 'Gut Check',
       good: 'Good',
       better: 'Better',
       best: 'Best',
     };
     return labelMap[quality];
   };
+
+  const hasDemoCosts = variants.some(v => v.withPromo.demoHoursCost);
 
   return (
     <div className={clsx(styles.container, className)}>
@@ -105,16 +114,40 @@ export function PromoComparison({ variants, className }: PromoComparisonProps) {
                 <span className={styles.columnIcon}>✗</span>
                 <span className={styles.columnTitle}>WITHOUT Promo</span>
               </div>
-              <div className={styles.columnContent}>
-                <div className={styles.metric}>
-                  <span className={styles.metricLabel}>CPU:</span>
-                  <span className={styles.metricValue}>${variantData.withoutPromo.cpu}</span>
+              <div className={styles.plStatement}>
+                <div className={styles.plRow}>
+                  <span className={styles.plLabel}>Retail Price</span>
+                  <span className={styles.plValue}>${variantData.retailPrice}</span>
                 </div>
-                <div className={styles.metric}>
-                  <span className={styles.metricLabel}>Margin:</span>
+                <div className={clsx(styles.plRow, styles.plCostRow)}>
+                  <span className={styles.plLabel}>Less: CPU</span>
+                  <span className={styles.plValue}>({variantData.withoutPromo.cpu})</span>
+                </div>
+                {variantData.wholesaleCost && (
+                  <div className={clsx(styles.plRow, styles.plCostRow)}>
+                    <span className={styles.plLabel}>Less: Wholesale Cost</span>
+                    <span className={styles.plValue}>({variantData.wholesaleCost})</span>
+                  </div>
+                )}
+                <div className={clsx(styles.plRow, styles.plDivider, styles.plDividerWithTopLine)}>
+                  <Tooltip
+                    content="Revenue minus direct costs. This is what's left before operating expenses."
+                    position="right"
+                  >
+                    <span className={styles.plLabel}>Gross Profit</span>
+                  </Tooltip>
+                  <span className={styles.plValue}>${variantData.withoutPromo.grossProfit}</span>
+                </div>
+                <div className={clsx(styles.plRow, styles.plMarginRow)}>
+                  <Tooltip
+                    content="Percentage of each sale that becomes profit after all costs. Higher is better."
+                    position="right"
+                  >
+                    <span className={styles.plLabel}>Margin %</span>
+                  </Tooltip>
                   <span
                     className={clsx(
-                      styles.metricValue,
+                      styles.plValue,
                       styles.marginValue,
                       getMarginColorClass(variantData.withoutPromo.marginQuality)
                     )}
@@ -137,20 +170,61 @@ export function PromoComparison({ variants, className }: PromoComparisonProps) {
                 <span className={styles.columnIcon}>✓</span>
                 <span className={styles.columnTitle}>WITH Promo</span>
               </div>
-              <div className={styles.columnContent}>
-                <div className={styles.metric}>
-                  <span className={styles.metricLabel}>CPU:</span>
-                  <span className={styles.metricValue}>${variantData.withPromo.cpu}</span>
+              <div className={styles.plStatement}>
+                <div className={styles.plRow}>
+                  <span className={styles.plLabel}>Retail Price</span>
+                  <span className={styles.plValue}>${variantData.retailPrice}</span>
                 </div>
-                <div className={styles.metric}>
-                  <span className={styles.metricLabel}>Sales Promo Cost/Unit:</span>
-                  <span className={styles.metricValue}>${variantData.withPromo.salesPromoCost}</span>
+                <div className={clsx(styles.plRow, styles.plCostRow)}>
+                  <span className={styles.plLabel}>Less: CPU</span>
+                  <span className={styles.plValue}>({variantData.withPromo.cpu})</span>
                 </div>
-                <div className={styles.metric}>
-                  <span className={styles.metricLabel}>Margin w/ Promo:</span>
+                <div className={clsx(styles.plRow, styles.plCostRow)}>
+                  <span className={styles.plLabel}>Less: Sales Promo Cost</span>
+                  <span className={styles.plValue}>({variantData.withPromo.salesPromoCost})</span>
+                </div>
+                {variantData.withPromo.demoHoursCost && (
+                  <div className={clsx(styles.plRow, styles.plCostRow)}>
+                    <Tooltip
+                      content="Demo labor costs assume all units sell. If fewer units sell, your per-unit labor cost will be higher."
+                      position="right"
+                    >
+                      <span className={styles.plLabel}>
+                        Less: Demo Labor Cost<span className={styles.asterisk}>*</span>
+                      </span>
+                    </Tooltip>
+                    <span className={styles.plValue}>({variantData.withPromo.demoHoursCost})</span>
+                  </div>
+                )}
+                {variantData.wholesaleCost && (
+                  <div className={clsx(styles.plRow, styles.plCostRow)}>
+                    <span className={styles.plLabel}>Less: Wholesale Cost</span>
+                    <span className={styles.plValue}>({variantData.wholesaleCost})</span>
+                  </div>
+                )}
+                <div className={clsx(styles.plRow, styles.plTotalCostRow)}>
+                  <span className={styles.plLabel}>Total Costs</span>
+                  <span className={styles.plValue}>${variantData.withPromo.totalCost}</span>
+                </div>
+                <div className={clsx(styles.plRow, styles.plDivider)}>
+                  <Tooltip
+                    content="Revenue minus direct costs. This is what's left before operating expenses."
+                    position="right"
+                  >
+                    <span className={styles.plLabel}>Gross Profit</span>
+                  </Tooltip>
+                  <span className={styles.plValue}>${variantData.withPromo.grossProfit}</span>
+                </div>
+                <div className={clsx(styles.plRow, styles.plMarginRow)}>
+                  <Tooltip
+                    content="Percentage of each sale that becomes profit after all costs. Higher is better."
+                    position="right"
+                  >
+                    <span className={styles.plLabel}>Margin %</span>
+                  </Tooltip>
                   <span
                     className={clsx(
-                      styles.metricValue,
+                      styles.plValue,
                       styles.marginValue,
                       getMarginColorClass(variantData.withPromo.marginQuality)
                     )}
@@ -166,22 +240,6 @@ export function PromoComparison({ variants, className }: PromoComparisonProps) {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Margin Difference Indicator */}
-          <div className={styles.differenceIndicator}>
-            <span className={styles.differenceLabel}>Margin Impact:</span>
-            <span
-              className={clsx(
-                styles.differenceValue,
-                parseFloat(variantData.marginDifference) >= 0
-                  ? styles.differencePositive
-                  : styles.differenceNegative
-              )}
-            >
-              {parseFloat(variantData.marginDifference) >= 0 ? '+' : ''}
-              {variantData.marginDifference}%
-            </span>
           </div>
         </div>
       ))}

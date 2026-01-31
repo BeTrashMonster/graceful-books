@@ -63,14 +63,14 @@
   letter-spacing: 0.025em;
 }
 
-/* Quality: Poor (Red) - Margin < 50% */
-.badge.poor {
+/* Quality: Gut Check (Red) - Margin < 50% */
+.badge.gutCheck {
   background-color: #fee;
   border-color: #dc2626;
   color: #991b1b;
 }
 
-.badge.poor .icon {
+.badge.gutCheck .icon {
   color: #dc2626;
 }
 

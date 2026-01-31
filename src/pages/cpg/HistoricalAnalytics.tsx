@@ -41,7 +41,7 @@ import styles from './HistoricalAnalytics.module.css';
 
 type ViewMode = 'cpu-trend' | 'seasonal' | 'distributor' | 'promo-tracker';
 type PromoStatus = 'all' | 'draft' | 'approved' | 'declined' | 'active' | 'completed';
-type MarginQuality = 'all' | 'poor' | 'good' | 'better' | 'best';
+type MarginQuality = 'all' | 'gutCheck' | 'good' | 'better' | 'best';
 
 export default function HistoricalAnalytics() {
   const navigate = useNavigate();
@@ -288,9 +288,9 @@ export default function HistoricalAnalytics() {
       case 'neutral':
         return 'good';
       case 'caution':
-        return 'poor';
+        return 'gutCheck';
       case 'decline':
-        return 'poor';
+        return 'gutCheck';
       default:
         return 'good';
     }
@@ -304,7 +304,7 @@ export default function HistoricalAnalytics() {
       best: { text: 'Best', className: styles.marginBest },
       better: { text: 'Better', className: styles.marginBetter },
       good: { text: 'Good', className: styles.marginGood },
-      poor: { text: 'Poor', className: styles.marginPoor },
+      poor: { text: 'Gut Check', className: styles.marginGutCheck },
       all: { text: '', className: '' },
     };
 

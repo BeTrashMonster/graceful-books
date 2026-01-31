@@ -207,6 +207,7 @@ import {
   cpgSalesPromosSchema,
   cpgFinishedProductsSchema,
   cpgRecipesSchema,
+  cpgSettingsSchema,
 } from './schema/cpg.schema';
 import type {
   CPGCategory,
@@ -216,6 +217,7 @@ import type {
   CPGSalesPromo,
   CPGFinishedProduct,
   CPGRecipe,
+  CPGSettings,
 } from './schema/cpg.schema';
 import {
   standaloneFinancialsSchema,
@@ -309,6 +311,7 @@ export class TreasureChestDB extends Dexie {
   cpgFinishedProducts!: Table<CPGFinishedProduct, string>;
   cpgRecipes!: Table<CPGRecipe, string>;
   cpgProductLinks!: Table<CPGProductLink, string>;
+  cpgSettings!: Table<CPGSettings, string>;
   standaloneFinancials!: Table<StandaloneFinancials, string>;
   skuCountTrackers!: Table<SKUCountTracker, string>;
 
@@ -1145,6 +1148,7 @@ export class TreasureChestDB extends Dexie {
         cpgFinishedProducts: cpgFinishedProductsSchema,
         cpgRecipes: cpgRecipesSchema,
         cpgProductLinks: cpgProductLinksSchema,
+        cpgSettings: cpgSettingsSchema,
         standaloneFinancials: standaloneFinancialsSchema,
         skuCountTrackers: skuCountTrackersSchema,
       })
@@ -1161,6 +1165,125 @@ export class TreasureChestDB extends Dexie {
         });
 
         dbLogger.info('CPG category migration complete - all categories have unit_of_measure');
+      });
+
+    // Version 22: Expand CPG Settings with Financial, Reporting, Data Management, and Company Profile
+    this.version(22)
+      .stores({
+        accounts: accountsSchema,
+        transactions: transactionsSchema,
+        transactionLineItems: transactionLineItemsSchema,
+        contacts: contactsSchema,
+        products: productsSchema,
+        users: usersSchema,
+        companies: companiesSchema,
+        companyUsers: companyUsersSchema,
+        auditLogs: auditLogsSchema,
+        sessions: sessionsSchema,
+        devices: devicesSchema,
+        receipts: receiptsSchema,
+        categories: categoriesSchema,
+        emailPreferences: emailPreferencesSchema,
+        emailDelivery: emailDeliverySchema,
+        invoices: invoicesSchema,
+        invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+        recurringTransactions: recurringTransactionsSchema,
+        generatedTransactions: generatedTransactionsSchema,
+        categorizationModels: categorizationModelsSchema,
+        trainingData: trainingDataSchema,
+        suggestionHistory: suggestionHistorySchema,
+        categorizationRules: categorizationRulesSchema,
+        inventoryItems: inventoryItemsSchema,
+        inventoryLayers: inventoryLayersSchema,
+        inventoryTransactions: inventoryTransactionsSchema,
+        stockTakes: stockTakesSchema,
+        stockTakeItems: stockTakeItemsSchema,
+        valuationMethodChanges: valuationMethodChangesSchema,
+        portalTokens: portalTokensSchema,
+        payments: paymentsSchema,
+        approvalRules: approvalRulesSchema,
+        approvalRequests: approvalRequestsSchema,
+        approvalActions: approvalActionsSchema,
+        approvalDelegations: approvalDelegationsSchema,
+        approvalHistory: approvalHistorySchema,
+        reportSchedules: reportScheduleSchema,
+        scheduledReportDeliveries: scheduledReportDeliverySchema,
+        recentActivity: recentActivitySchema,
+        conflict_history: conflictHistorySchema,
+        conflict_notifications: conflictNotificationsSchema,
+        comments: commentsSchema,
+        mentions: mentionsSchema,
+        emailQueue: emailQueueSchema,
+        emailLogs: emailLogsSchema,
+        emailNotificationPreferences: emailNotificationPreferencesSchema,
+        subscriptions: subscriptionsSchema,
+        advisorClients: advisorClientsSchema,
+        advisorTeamMembers: advisorTeamMembersSchema,
+        paymentMethods: paymentMethodsSchema,
+        billingInvoices: billingInvoicesSchema,
+        stripeWebhookEvents: stripeWebhookEventsSchema,
+        charityDistributions: charityDistributionsSchema,
+        charities: charitiesSchema,
+        financialGoals: financialGoalsSchema,
+        goalProgressSnapshots: goalProgressSnapshotsSchema,
+        taxDocuments: taxDocumentsSchema,
+        taxCategoryStatus: taxCategoryStatusSchema,
+        taxPrepSessions: taxPrepSessionsSchema,
+        taxAdvisorAccess: taxAdvisorAccessSchema,
+        taxPackages: taxPackagesSchema,
+        currencies: currenciesSchema,
+        exchangeRates: exchangeRatesSchema,
+        cpgCategories: cpgCategoriesSchema,
+        cpgInvoices: cpgInvoicesSchema,
+        cpgDistributors: cpgDistributorsSchema,
+        cpgDistributionCalculations: cpgDistributionCalculationsSchema,
+        cpgSalesPromos: cpgSalesPromosSchema,
+        cpgFinishedProducts: cpgFinishedProductsSchema,
+        cpgRecipes: cpgRecipesSchema,
+        cpgProductLinks: cpgProductLinksSchema,
+        cpgSettings: cpgSettingsSchema,
+        standaloneFinancials: standaloneFinancialsSchema,
+        skuCountTrackers: skuCountTrackersSchema,
+      })
+      .upgrade(async (tx) => {
+        // Migrate existing CPG settings to have new fields
+        dbLogger.info('Migrating CPG settings to version 22 (expanded settings)');
+
+        await tx.table('cpgSettings').toCollection().modify((settings: any) => {
+          // Financial Defaults
+          if (settings.default_labor_rate === undefined) settings.default_labor_rate = '20.00';
+
+          // Reporting Preferences
+          if (settings.default_report_date_range === undefined) settings.default_report_date_range = 'last_30_days';
+          if (settings.include_deleted_in_reports === undefined) settings.include_deleted_in_reports = false;
+
+          // Display & Format Preferences
+          if (settings.currency_format === undefined) settings.currency_format = 'USD';
+          if (settings.date_format === undefined) settings.date_format = 'MM/DD/YYYY';
+          if (settings.number_format === undefined) settings.number_format = 'en-US';
+          if (settings.decimal_places_currency === undefined) settings.decimal_places_currency = 2;
+          if (settings.decimal_places_numbers === undefined) settings.decimal_places_numbers = 2;
+          if (settings.decimal_places_percentage === undefined) settings.decimal_places_percentage = 2;
+
+          // Data Management
+          if (settings.auto_save_interval === undefined) settings.auto_save_interval = 30;
+          if (settings.deleted_record_retention_days === undefined) settings.deleted_record_retention_days = 90;
+
+          // Company Profile
+          if (settings.company_name === undefined) settings.company_name = '';
+          if (settings.company_logo_url === undefined) settings.company_logo_url = null;
+          if (settings.company_address_line1 === undefined) settings.company_address_line1 = '';
+          if (settings.company_address_line2 === undefined) settings.company_address_line2 = null;
+          if (settings.company_city === undefined) settings.company_city = '';
+          if (settings.company_state === undefined) settings.company_state = '';
+          if (settings.company_postal_code === undefined) settings.company_postal_code = '';
+          if (settings.company_country === undefined) settings.company_country = 'US';
+          if (settings.company_phone === undefined) settings.company_phone = null;
+          if (settings.company_email === undefined) settings.company_email = null;
+          if (settings.company_website === undefined) settings.company_website = null;
+        });
+
+        dbLogger.info('CPG settings migration complete - all settings have new fields');
       });
 
     // Version 19: Add CPG (Consumer Packaged Goods) tables
@@ -1365,6 +1488,7 @@ export class TreasureChestDB extends Dexie {
     this.cpgFinishedProducts.hook('updating', updateTimestamp);
     this.cpgRecipes.hook('updating', updateTimestamp);
     this.cpgProductLinks.hook('updating', updateTimestamp);
+    this.cpgSettings.hook('updating', updateTimestamp);
     this.standaloneFinancials.hook('updating', updateTimestamp);
     this.skuCountTrackers.hook('updating', updateTimestamp);
   }

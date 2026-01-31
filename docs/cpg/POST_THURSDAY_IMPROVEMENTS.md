@@ -156,6 +156,30 @@ Use naming conventions that group alphabetically:
 
 ---
 
+### 4. Demo Time/Labor Cost Integration (Promo Analysis)
+**Problem:** Promo analysis doesn't currently account for time spent doing demos (owner time or paid worker hours).
+
+**What Client Wants:**
+- Add labor/demo time tracking to promo entry/analysis
+- Include this cost in total promo calculations
+- **Not a direct CPU**, but must factor into overall promo costs
+- Track whether it's owner time vs. paid worker time
+
+**Context:**
+- Client specifically requested this during Thursday demo
+- Critical for accurate ROI calculation on promos that require demo time/labor
+- User quote: "We need to figure out a way to include that into the cost somehow. It's not a direct CPU but it does need to be included with the total as it's being calculated out."
+
+**Implementation Considerations:**
+- Where in promo entry flow should this be captured?
+- How to enter: hours + rate? Total cost? Per-variant vs. per-promo?
+- How should it display in analysis and comparison views?
+- How does it affect payback calculations?
+
+**Status:** High Priority - client-requested feature for upcoming workshop (couple months out)
+
+---
+
 ## UI/UX Polish
 
 ### 4. Blue Focus Indicator Refinement

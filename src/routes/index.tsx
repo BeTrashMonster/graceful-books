@@ -42,6 +42,7 @@ const SalesPromoDecisionTool = lazy(() => import('../pages/cpg/SalesPromoDecisio
 const FinancialStatementEntry = lazy(() => import('../pages/cpg/FinancialStatementEntry'))
 const HistoricalAnalytics = lazy(() => import('../pages/cpg/HistoricalAnalytics'))
 const ScenarioPlanning = lazy(() => import('../pages/cpg/ScenarioPlanning'))
+const CPGSettings = lazy(() => import('../pages/cpg/CPGSettings'))
 
 // CPG Reports
 const CPGProfitLoss = lazy(() => import('../pages/cpg/reports/CPGProfitLoss'))
@@ -97,6 +98,7 @@ export function AppRoutes() {
           <Route path="/cpg/analytics" element={<HistoricalAnalytics />} />
           <Route path="/cpg/financial-entry" element={<FinancialStatementEntry />} />
           <Route path="/cpg/scenario-planning" element={<ScenarioPlanning />} />
+          <Route path="/cpg/settings" element={<CPGSettings />} />
           <Route path="/cpg/reports/profit-loss" element={<CPGProfitLoss />} />
           <Route path="/cpg/reports/distribution-cost" element={<DistributionCostReport />} />
           <Route path="/cpg/reports/gross-margin" element={<GrossMarginReport />} />

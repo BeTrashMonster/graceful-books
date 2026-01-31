@@ -75,34 +75,122 @@
   letter-spacing: 0.025em;
 }
 
-.columnContent {
+/* Disclaimer */
+.disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #fffbeb;
+  border: 1px solid #fbbf24;
+  border-radius: var(--border-radius-md, 8px);
+  margin-bottom: 0.5rem;
+}
+
+.disclaimerIcon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.disclaimerText {
+  font-size: 0.9375rem;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.disclaimerText strong {
+  font-weight: 600;
+  color: #92400e;
+}
+
+/* P&L Statement Format */
+.plStatement {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
   padding: 1rem;
 }
 
-.metric {
+.plRow {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid transparent;
 }
 
-.metricLabel {
-  font-size: 0.875rem;
+.plLabel {
+  font-size: 0.9375rem;
   font-weight: 500;
+  color: var(--color-text-primary, #111827);
+  flex: 1;
+}
+
+.plValue {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  text-align: right;
+  min-width: 100px;
+}
+
+.plCostRow {
+  padding-left: 1.5rem;
+}
+
+.plCostRow .plLabel {
+  font-size: 0.875rem;
   color: var(--color-text-secondary, #6b7280);
 }
 
-.metricValue {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-text-primary, #111827);
+.plCostRow .plValue {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.plSubtotalRow {
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  padding-top: 0.75rem;
+}
+
+.plTotalCostRow {
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  padding-left: 1.5rem; /* Indent total costs */
+}
+
+.plDivider {
+  margin-top: 0.25rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px double var(--color-text-primary, #111827);
+  font-weight: 700;
+}
+
+.plDividerWithTopLine {
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.plDivider .plLabel,
+.plDivider .plValue {
+  font-weight: 700;
+  font-size: 1.0625rem;
+}
+
+.plMarginRow {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
 }
 
 .marginValue {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 0.5rem;
 }
 
@@ -118,11 +206,11 @@
 }
 
 /* Margin Quality Colors */
-.marginPoor {
+.marginGutCheck {
   color: #dc2626;
 }
 
-.marginPoor .marginIcon {
+.marginGutCheck .marginIcon {
   color: #dc2626;
 }
 
@@ -192,12 +280,17 @@
     width: 100%;
   }
 
-  .metricValue {
-    font-size: 1rem;
+  .plLabel {
+    font-size: 0.875rem;
   }
 
-  .differenceValue {
-    font-size: 1.125rem;
+  .plValue {
+    font-size: 0.9375rem;
+    min-width: 80px;
+  }
+
+  .plStatement {
+    padding: 0.75rem;
   }
 }
 
@@ -208,9 +301,18 @@
   }
 }
 
+/* Asterisk for tooltips */
+.asterisk {
+  color: #7c3aed;
+  font-weight: 700;
+  margin-left: 0.25rem;
+  cursor: help;
+  text-decoration: none;
+}
+
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .marginPoor,
+  .marginGutCheck,
   .marginGood,
   .marginBetter,
   .marginBest {

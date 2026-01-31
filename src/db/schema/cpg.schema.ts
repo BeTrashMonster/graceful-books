@@ -264,7 +264,7 @@ export interface CPGDistributionCalculation extends BaseEntity {
     {
       total_cpu: string; // Base CPU + Distribution cost per unit
       net_profit_margin: string; // (Price - Total CPU) / Price * 100
-      margin_quality: 'poor' | 'good' | 'better' | 'best'; // Color coding
+      margin_quality: 'gutCheck' | 'good' | 'better' | 'best'; // Color coding
       msrp: string | null; // If MSRP markup applied
     }
   >;
@@ -341,6 +341,13 @@ export interface CPGSalesPromo extends BaseEntity {
   // Promo parameters
   store_sale_percentage: string; // e.g., "20" for 20% off
   producer_payback_percentage: string; // e.g., "10" for 10% cost-share
+  demo_hours_entries: Array<{
+    id: string;
+    description: string;
+    hours: string;
+    hourly_rate: string;
+    cost_type: 'actual' | 'opportunity'; // actual = paying someone, opportunity = owner's time
+  }> | null;
 
   // Variant-specific promo data
   // Example: { "8oz": { retailPrice: "10.00", unitsAvailable: "100", baseCPU: "2.15" }, ... }
@@ -360,13 +367,18 @@ export interface CPGSalesPromo extends BaseEntity {
     {
       sales_promo_cost_per_unit: string; // Retail price × producer payback %
       cpu_with_promo: string; // Base CPU + Sales promo cost
+      demo_hours_cost_per_unit: string | null; // Demo labor cost per unit (if applicable)
+      total_cost_with_demo: string | null; // CPU + promo cost + demo hours cost
       net_profit_margin_with_promo: string;
       net_profit_margin_without_promo: string; // For comparison
-      margin_quality_with_promo: 'poor' | 'good' | 'better' | 'best';
+      net_profit_margin_with_demo: string | null; // Margin after all costs including demo
+      margin_quality_with_promo: 'gutCheck' | 'good' | 'better' | 'best';
     }
   >;
 
   total_promo_cost: string; // Total producer contribution across all variants
+  total_actual_labor_cost: string | null; // Total actual labor cost (cash out of pocket)
+  total_opportunity_cost: string | null; // Total opportunity cost (owner's time valued)
   recommendation: 'participate' | 'decline' | 'neutral' | null; // Based on margin thresholds
 
   // Actual performance tracking (for completed promos)
@@ -401,9 +413,12 @@ export const createDefaultCPGSalesPromo = (
     promo_end_date: null,
     store_sale_percentage: '0',
     producer_payback_percentage: '0',
+    demo_hours_entries: null,
     variant_promo_data: {}, // Will be populated by user
     variant_promo_results: {}, // Calculated results per variant
     total_promo_cost: '0.00',
+    total_actual_labor_cost: null,
+    total_opportunity_cost: null,
     recommendation: null,
     notes: null,
     status: 'draft',
@@ -440,12 +455,13 @@ export const calculateProfitMargin = (price: string, cost: string): string => {
 
 /**
  * Determine profit margin quality (for color coding)
+ * Uses default thresholds - for custom thresholds, use the settings-aware version
  */
 export const getProfitMarginQuality = (
   marginPercentage: string
-): 'poor' | 'good' | 'better' | 'best' => {
+): 'gutCheck' | 'good' | 'better' | 'best' => {
   const margin = parseFloat(marginPercentage);
-  if (margin < 50) return 'poor';
+  if (margin < 50) return 'gutCheck';
   if (margin < 60) return 'good';
   if (margin < 70) return 'better';
   return 'best';
@@ -747,6 +763,173 @@ export const checkFinishedProductHasRecipes = async (
     .equals(productId)
     .and((recipe) => recipe.deleted_at === null)
     .count();
+};
+
+// ============================================================================
+// CPG Settings - Company-wide CPG Module Settings
+// ============================================================================
+
+export interface CPGSettings extends BaseEntity {
+  id: string;
+  company_id: string;
+
+  // Margin quality thresholds
+  margin_gut_check_max: string; // e.g., "50" (< 50% is "Gut Check")
+  margin_good_min: string; // e.g., "50"
+  margin_good_max: string; // e.g., "60"
+  margin_better_min: string; // e.g., "60"
+  margin_better_max: string; // e.g., "70"
+  margin_best_min: string; // e.g., "70" (≥ 70% is "Best")
+
+  // Colors for each margin quality level (hex codes)
+  color_gut_check: string; // e.g., "#dc2626" (red)
+  color_good: string; // e.g., "#2563eb" (blue)
+  color_better: string; // e.g., "#16a34a" (green)
+  color_best: string; // e.g., "#7c3aed" (royal purple)
+
+  // Financial Defaults
+  default_labor_rate: string; // Hourly rate for demo/promo labor (e.g., "20.00")
+
+  // Reporting Preferences
+  default_report_date_range: string; // e.g., "last_30_days", "last_quarter", "ytd", "all_time"
+  include_deleted_in_reports: boolean; // Include soft-deleted records in reports
+
+  // Display & Format Preferences
+  currency_format: string; // e.g., "USD", "CAD", "EUR", "GBP"
+  date_format: string; // e.g., "MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"
+  number_format: string; // e.g., "en-US" (1,234.56), "de-DE" (1.234,56)
+  decimal_places_currency: number; // e.g., 2 for $1.23 (0 or 2 only)
+  decimal_places_numbers: number; // e.g., 2 for quantities/weights/units (123.45)
+  decimal_places_percentage: number; // e.g., 1 for 12.3%
+
+  // Data Management
+  auto_save_interval: number; // Auto-save interval in seconds (e.g., 30, 60, 300)
+  deleted_record_retention_days: number; // Days to keep deleted records (e.g., 30, 90, 365)
+
+  // Company Profile
+  company_name: string;
+  company_logo_url: string | null; // URL to uploaded logo
+  company_address_line1: string;
+  company_address_line2: string | null;
+  company_city: string;
+  company_state: string;
+  company_postal_code: string;
+  company_country: string;
+  company_phone: string | null;
+  company_email: string | null;
+  company_website: string | null;
+
+  active: boolean;
+  created_at: number;
+  updated_at: number;
+  deleted_at: number | null;
+  version_vector: Record<string, number>;
+}
+
+export const cpgSettingsSchema =
+  'id, company_id, active, updated_at, deleted_at';
+
+export const createDefaultCPGSettings = (
+  companyId: string,
+  deviceId: string
+): Partial<CPGSettings> => {
+  const now = Date.now();
+  return {
+    company_id: companyId,
+
+    // Default thresholds
+    margin_gut_check_max: '50',
+    margin_good_min: '50',
+    margin_good_max: '60',
+    margin_better_min: '60',
+    margin_better_max: '70',
+    margin_best_min: '70',
+
+    // Default colors
+    color_gut_check: '#dc2626', // red-600
+    color_good: '#2563eb', // blue-600
+    color_better: '#16a34a', // green-600
+    color_best: '#7c3aed', // purple-600 (royal purple)
+
+    // Financial Defaults
+    default_labor_rate: '20.00', // $20/hour
+
+    // Reporting Preferences
+    default_report_date_range: 'last_30_days',
+    include_deleted_in_reports: false,
+
+    // Display & Format Preferences
+    currency_format: 'USD',
+    date_format: 'MM/DD/YYYY',
+    number_format: 'en-US',
+    decimal_places_currency: 2, // Show cents ($123.45)
+    decimal_places_numbers: 2, // 2 decimals (123.45)
+    decimal_places_percentage: 2, // 2 decimals (12.34%)
+
+    // Data Management
+    auto_save_interval: 30, // 30 seconds
+    deleted_record_retention_days: 90, // 90 days
+
+    // Company Profile
+    company_name: '',
+    company_logo_url: null,
+    company_address_line1: '',
+    company_address_line2: null,
+    company_city: '',
+    company_state: '',
+    company_postal_code: '',
+    company_country: 'US',
+    company_phone: null,
+    company_email: null,
+    company_website: null,
+
+    active: true,
+    created_at: now,
+    updated_at: now,
+    deleted_at: null,
+    version_vector: { [deviceId]: 1 },
+  };
+};
+
+export const validateCPGSettings = (settings: Partial<CPGSettings>, isUpdate = false): string[] => {
+  const errors: string[] = [];
+  // Only require company_id for new settings, not updates
+  if (!isUpdate && !settings.company_id) errors.push('company_id is required');
+
+  // Validate thresholds are valid numbers
+  const thresholds = [
+    settings.margin_gut_check_max,
+    settings.margin_good_min,
+    settings.margin_good_max,
+    settings.margin_better_min,
+    settings.margin_better_max,
+    settings.margin_best_min,
+  ];
+
+  for (const threshold of thresholds) {
+    if (threshold !== undefined && (isNaN(parseFloat(threshold)) || parseFloat(threshold) < 0)) {
+      errors.push('All margin thresholds must be valid non-negative numbers');
+      break;
+    }
+  }
+
+  // Validate colors are valid hex codes
+  const hexRegex = /^#[0-9A-F]{6}$/i;
+  const colors = [
+    settings.color_gut_check,
+    settings.color_good,
+    settings.color_better,
+    settings.color_best,
+  ];
+
+  for (const color of colors) {
+    if (color !== undefined && !hexRegex.test(color)) {
+      errors.push('All colors must be valid hex codes (e.g., #dc2626)');
+      break;
+    }
+  }
+
+  return errors;
 };
 
 // ============================================================================
