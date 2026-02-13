@@ -55,6 +55,9 @@ export default function HistoricalAnalytics() {
     ? tabParam
     : 'cpu-trend';
 
+  // Get initial distributor from URL parameter
+  const distributorParam = searchParams.get('distributor');
+
   const [viewMode, setViewMode] = useState<ViewMode>(initialTab);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,7 +66,7 @@ export default function HistoricalAnalytics() {
   const [dateRange, setDateRange] = useState<DateRangePreset>('1yr');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedVariant, setSelectedVariant] = useState<string>('all');
-  const [selectedDistributor, setSelectedDistributor] = useState<string>('all');
+  const [selectedDistributor, setSelectedDistributor] = useState<string>(distributorParam || 'all');
 
   // Promo Tracker Filters
   const [statusFilter, setStatusFilter] = useState<PromoStatus>('all');
@@ -198,11 +201,19 @@ export default function HistoricalAnalytics() {
       return;
     }
 
+    console.log('Loading distributor trend for:', {
+      currentCompany,
+      selectedDistributor,
+      dateRange,
+    });
+
     const trend = await service.getDistributorCostTrend(
       currentCompany,
       selectedDistributor,
       dateRange
     );
+
+    console.log('Distributor trend loaded:', trend);
     setDistributorTrend(trend);
   };
 
