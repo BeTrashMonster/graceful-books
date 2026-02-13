@@ -646,34 +646,74 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                 Fee Changes:
               </h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem' }}>
-                {Object.keys(pendingUpdate.formData.fee_structure).map((key) => {
-                  const oldValue = pendingUpdate.oldFees[key as keyof typeof pendingUpdate.oldFees];
-                  const newValue = pendingUpdate.formData.fee_structure[key as keyof typeof pendingUpdate.formData.fee_structure];
+                {(() => {
+                  const oldFees = pendingUpdate.oldFees;
+                  const newFees = pendingUpdate.formData.fee_structure;
+                  const changes: JSX.Element[] = [];
 
-                  // Skip custom_fees - they're an object, not a simple value
-                  if (key === 'custom_fees') return null;
+                  // Find removed fees
+                  oldFees.forEach((oldFee) => {
+                    const stillExists = newFees.some(f => f.description === oldFee.description);
+                    if (!stillExists) {
+                      changes.push(
+                        <div key={`removed-${oldFee.id}`} style={{
+                          padding: '0.5rem',
+                          backgroundColor: '#fee2e2',
+                          borderRadius: '4px',
+                          border: '1px solid #fecaca'
+                        }}>
+                          <span style={{ fontWeight: 500, color: '#991b1b' }}>
+                            Removed: {oldFee.description} (${oldFee.amount})
+                          </span>
+                        </div>
+                      );
+                    }
+                  });
 
-                  // Only show if value changed and at least one value exists
-                  if (oldValue !== newValue && (oldValue || newValue)) {
-                    return (
-                      <div key={key} style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        padding: '0.5rem',
-                        backgroundColor: '#f9fafb',
-                        borderRadius: '4px'
-                      }}>
-                        <span style={{ fontWeight: 500, color: '#374151' }}>
-                          {key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}:
-                        </span>
-                        <span style={{ color: '#6b7280' }}>
-                          ${oldValue || '0.00'} → ${newValue || '0.00'}
-                        </span>
-                      </div>
-                    );
-                  }
-                  return null;
-                })}
+                  // Find added or changed fees
+                  newFees.forEach((newFee) => {
+                    const oldFee = oldFees.find(f => f.description === newFee.description);
+
+                    if (!oldFee) {
+                      // New fee added
+                      changes.push(
+                        <div key={`added-${newFee.id}`} style={{
+                          padding: '0.5rem',
+                          backgroundColor: '#d1fae5',
+                          borderRadius: '4px',
+                          border: '1px solid #a7f3d0'
+                        }}>
+                          <span style={{ fontWeight: 500, color: '#065f46' }}>
+                            Added: {newFee.description} (${newFee.amount})
+                          </span>
+                        </div>
+                      );
+                    } else if (oldFee.amount !== newFee.amount || oldFee.unit !== newFee.unit) {
+                      // Fee changed
+                      changes.push(
+                        <div key={`changed-${newFee.id}`} style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          padding: '0.5rem',
+                          backgroundColor: '#fef3c7',
+                          borderRadius: '4px',
+                          border: '1px solid #fcd34d'
+                        }}>
+                          <span style={{ fontWeight: 500, color: '#92400e' }}>
+                            {newFee.description}:
+                          </span>
+                          <span style={{ color: '#92400e' }}>
+                            ${oldFee.amount} → ${newFee.amount}
+                          </span>
+                        </div>
+                      );
+                    }
+                  });
+
+                  return changes.length > 0 ? changes : (
+                    <p style={{ color: '#6b7280', fontStyle: 'italic' }}>No fee changes detected</p>
+                  );
+                })()}
               </div>
             </div>
           )}

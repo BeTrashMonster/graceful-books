@@ -98,20 +98,25 @@ export function generateOpeningBalanceJournalEntries(
       })
     }
 
-    // Create the journal entry
-    const memoPrefix = item.type === 'equipment' ? 'Opening balance - Equipment' :
-                       item.type === 'loan' ? 'Opening balance - Loan' :
-                       'Opening balance - Liability'
+    // Create the journal entry ONLY if we have at least 2 line items
+    // (otherwise it will fail validation)
+    if (lines.length >= 2) {
+      const memoPrefix = item.type === 'equipment' ? 'Opening balance - Equipment' :
+                         item.type === 'loan' ? 'Opening balance - Loan' :
+                         'Opening balance - Liability'
 
-    entries.push({
-      companyId,
-      date: item.date,
-      reference: 'OPENING',
-      memo: `${memoPrefix}: ${item.accountName}`,
-      status: 'posted',
-      lines,
-      createdBy: 'system', // TODO: Use actual user ID when auth is implemented
-    })
+      entries.push({
+        companyId,
+        date: item.date,
+        reference: 'OPENING',
+        memo: `${memoPrefix}: ${item.accountName}`,
+        status: 'posted',
+        lines,
+        createdBy: 'system', // TODO: Use actual user ID when auth is implemented
+      })
+    } else {
+      console.warn(`Skipping opening balance entry for ${item.accountName} - insufficient line items (need 2+, got ${lines.length})`)
+    }
   })
 
   return entries

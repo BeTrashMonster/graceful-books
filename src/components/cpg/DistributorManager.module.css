@@ -572,9 +572,9 @@
   background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
   border: 2px solid #34d399;
   border-radius: 0.5rem;
-  color: #065f46;
+  color: #052e16;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 0.75rem;
   animation: slideIn 0.3s ease-out;
 }

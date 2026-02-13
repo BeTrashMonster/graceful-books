@@ -2,9 +2,56 @@
  * Developer Reset Utility
  *
  * Provides options to reset data during development:
+ * - resetChartOfAccounts(): Clears only chart of accounts, keeps everything else
  * - resetCompanyData(): Keeps login, clears all business data
  * - resetEverything(): Full wipe including login credentials
  */
+
+import { db } from '../store/database';
+
+/**
+ * Reset ONLY the Chart of Accounts
+ * Clears all accounts AND wizard state so you can go through setup again
+ * Preserves everything else (transactions, contacts, etc.)
+ */
+export async function resetChartOfAccounts(): Promise<void> {
+  try {
+    console.log('🗑️ Resetting Chart of Accounts...');
+
+    // Count existing accounts
+    const accountCount = await db.accounts.count();
+    console.log(`Found ${accountCount} accounts`);
+
+    // Clear all accounts
+    await db.accounts.clear();
+
+    // Clear wizard state from localStorage
+    const wizardKeys = Object.keys(localStorage).filter(key =>
+      key.startsWith('graceful-books-wizard-')
+    );
+
+    wizardKeys.forEach(key => {
+      localStorage.removeItem(key);
+      console.log(`Cleared wizard state: ${key}`);
+    });
+
+    // Verify
+    const remaining = await db.accounts.count();
+    console.log(`✅ Cleared ${accountCount} accounts. Remaining: ${remaining}`);
+    console.log(`✅ Cleared ${wizardKeys.length} wizard state(s)`);
+    console.log('✅ All other data remains intact');
+    console.log('💡 Reloading page to start Chart of Accounts wizard...');
+
+    // Reload to trigger wizard
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+
+  } catch (error) {
+    console.error('❌ Error resetting Chart of Accounts:', error);
+    throw error;
+  }
+}
 
 /**
  * Reset only company data (Chart of Accounts, transactions, etc.)
@@ -108,6 +155,7 @@ export async function resetEverything(): Promise<void> {
 
 // Add to window for easy console access
 if (typeof window !== 'undefined') {
+  (window as any).devResetCOA = resetChartOfAccounts;
   (window as any).devResetCompany = resetCompanyData;
   (window as any).devResetAll = resetEverything;
 }

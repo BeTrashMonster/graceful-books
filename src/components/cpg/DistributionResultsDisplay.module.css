@@ -126,6 +126,41 @@
   color: #111827;
 }
 
+/* Accounting total lines - single line above, double lines below */
+.totalLine {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-top: 1px solid #374151;
+  position: relative;
+}
+
+.totalLine::before {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #374151;
+}
+
+.totalLine::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #374151;
+}
+
+.totalLine .metricLabel,
+.totalLine .metricValue {
+  font-weight: 700;
+  color: #111827;
+}
+
 /* Breakdown Section */
 .breakdownSection {
   display: flex;

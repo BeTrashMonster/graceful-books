@@ -163,13 +163,16 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
     if (!template) return
 
     // Initialize customizations with default accounts
-    const customizations: AccountCustomization[] = template.accounts.map((account: TemplateAccount) => ({
-      templateAccountName: account.name,
-      name: account.name,
-      accountNumber: account.accountNumber,
-      description: account.description,
-      isIncluded: account.isDefault,
-    }))
+    // EXCLUDE equity accounts - they'll be auto-generated based on entity type
+    const customizations: AccountCustomization[] = template.accounts
+      .filter((account: TemplateAccount) => account.type !== 'equity')
+      .map((account: TemplateAccount) => ({
+        templateAccountName: account.name,
+        name: account.name,
+        accountNumber: account.accountNumber,
+        description: account.description,
+        isIncluded: account.isDefault,
+      }))
 
     handleUpdateData({
       selectedTemplateId: templateId,
@@ -273,6 +276,21 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
         companyId
       )
       accountsToCreate.push(...equityAccounts)
+
+      // Sort accounts alphabetically within each type for clean organization
+      // Order by: type, then name
+      const typeOrder = ['asset', 'liability', 'equity', 'income', 'expense', 'cost-of-goods-sold', 'other-income', 'other-expense']
+      accountsToCreate.sort((a, b) => {
+        const typeIndexA = typeOrder.indexOf(a.type)
+        const typeIndexB = typeOrder.indexOf(b.type)
+
+        if (typeIndexA !== typeIndexB) {
+          return typeIndexA - typeIndexB
+        }
+
+        // Within same type, sort alphabetically by name
+        return a.name.localeCompare(b.name)
+      })
 
       // Create accounts in batch
       const result = await batchCreateAccounts(accountsToCreate)

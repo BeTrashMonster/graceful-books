@@ -429,6 +429,13 @@ export class HistoricalAnalyticsService {
       }
 
       // Fetch distribution calculations in date range
+      console.log('Querying calculations with:', {
+        companyId,
+        distributorId,
+        startDate,
+        endDate,
+      });
+
       const calculations = await this.db.cpgDistributionCalculations
         .where('[company_id+distributor_id]')
         .equals([companyId, distributorId])
@@ -440,6 +447,8 @@ export class HistoricalAnalyticsService {
             calc.calculation_date <= endDate
         )
         .sortBy('calculation_date');
+
+      console.log('Found calculations:', calculations.length, calculations);
 
       // Extract data points
       const dataPoints: DistributorCostDataPoint[] = calculations.map((calc) => ({

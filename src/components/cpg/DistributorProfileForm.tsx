@@ -28,40 +28,45 @@ export interface DistributorFormData {
   name: string;
   description: string | null;
   contact_info: string | null;
-  fee_structure: {
-    pallet_cost: string | null;
-    warehouse_services: string | null;
-    pallet_build: string | null;
-    floor_space_full_day: string | null;
-    floor_space_half_day: string | null;
-    truck_transfer_zone1: string | null;
-    truck_transfer_zone2: string | null;
-    custom_fees: Record<string, string> | null;
-  };
+  fee_structure: Array<{
+    id: string;
+    description: string;
+    amount: string;
+    unit: 'per_pallet' | 'per_case' | 'per_day_full' | 'per_day_half' | 'per_shipment' | 'per_zone' | 'flat_fee' | 'percentage';
+  }>;
+  last_fee_update_date: number | null;
+  typical_update_frequency: 'weekly' | 'monthly' | 'quarterly' | 'annually' | null;
 }
 
-interface CustomFee {
+interface Fee {
   id: string;
-  name: string;
+  description: string;
   amount: string;
+  unit: 'per_pallet' | 'per_case' | 'per_day_full' | 'per_day_half' | 'per_shipment' | 'per_zone' | 'flat_fee' | 'percentage';
 }
+
+// Common fee suggestions to help users get started
+const COMMON_FEE_SUGGESTIONS = [
+  { label: 'Pallet Cost', unit: 'per_pallet' as const },
+  { label: 'Warehouse Services', unit: 'per_pallet' as const },
+  { label: 'Pallet Build', unit: 'per_pallet' as const },
+  { label: 'Floor Space', unit: 'per_day_full' as const },
+  { label: 'Truck Transfer', unit: 'per_shipment' as const },
+  { label: 'Custom...', unit: 'flat_fee' as const },
+];
 
 /**
  * DistributorProfileForm Component
  *
- * Form to create or edit distributor profile with multi-layered fee structure.
+ * Form to create or edit distributor profile with flexible fee structure.
  *
  * Requirements: Group C2 - Distribution Cost Analyzer
  *
- * Fee structure includes:
- * - Pallet cost ($)
- * - Warehouse services ($)
- * - Pallet build ($)
- * - Floor space - full day ($)
- * - Floor space - half day ($)
- * - Truck transfer - Zone 1 ($)
- * - Truck transfer - Zone 2 ($)
- * - Custom fees (name + amount, multiple)
+ * Fee structure is now completely flexible:
+ * - Add any number of fees
+ * - Customize fee description
+ * - Set amount
+ * - Choose unit type (per pallet, per case, per day, etc.)
  *
  * @example
  * ```tsx
@@ -81,56 +86,39 @@ export function DistributorProfileForm({
   const [description, setDescription] = useState(distributor?.description || '');
   const [contactInfo, setContactInfo] = useState(distributor?.contact_info || '');
 
-  // Fee structure
-  const [palletCost, setPalletCost] = useState(
-    distributor?.fee_structure.pallet_cost || ''
+  // Fee tracking
+  const [lastFeeUpdateDate, setLastFeeUpdateDate] = useState<string>(
+    distributor?.last_fee_update_date
+      ? new Date(distributor.last_fee_update_date).toISOString().split('T')[0]
+      : ''
   );
-  const [warehouseServices, setWarehouseServices] = useState(
-    distributor?.fee_structure.warehouse_services || ''
-  );
-  const [palletBuild, setPalletBuild] = useState(
-    distributor?.fee_structure.pallet_build || ''
-  );
-  const [floorSpaceFullDay, setFloorSpaceFullDay] = useState(
-    distributor?.fee_structure.floor_space_full_day || ''
-  );
-  const [floorSpaceHalfDay, setFloorSpaceHalfDay] = useState(
-    distributor?.fee_structure.floor_space_half_day || ''
-  );
-  const [truckTransferZone1, setTruckTransferZone1] = useState(
-    distributor?.fee_structure.truck_transfer_zone1 || ''
-  );
-  const [truckTransferZone2, setTruckTransferZone2] = useState(
-    distributor?.fee_structure.truck_transfer_zone2 || ''
+  const [typicalUpdateFrequency, setTypicalUpdateFrequency] = useState<string>(
+    distributor?.typical_update_frequency || ''
   );
 
-  // Custom fees
-  const initialCustomFees: CustomFee[] = distributor?.fee_structure.custom_fees
-    ? Object.entries(distributor.fee_structure.custom_fees).map(([name, amount]) => ({
-        id: Math.random().toString(36).substr(2, 9),
-        name,
-        amount,
-      }))
-    : [];
-
-  const [customFees, setCustomFees] = useState<CustomFee[]>(initialCustomFees);
+  // Fee structure - flexible array
+  const initialFees: Fee[] = distributor?.fee_structure || [];
+  const [fees, setFees] = useState<Fee[]>(initialFees);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const addCustomFee = () => {
-    setCustomFees([
-      ...customFees,
-      { id: Math.random().toString(36).substr(2, 9), name: '', amount: '' },
-    ]);
+  const addFee = (suggestion?: { label: string; unit: typeof fees[0]['unit'] }) => {
+    const newFee: Fee = {
+      id: Math.random().toString(36).substr(2, 9),
+      description: suggestion?.label === 'Custom...' ? '' : (suggestion?.label || ''),
+      amount: '',
+      unit: suggestion?.unit || 'per_pallet',
+    };
+    setFees([...fees, newFee]);
   };
 
-  const removeCustomFee = (id: string) => {
-    setCustomFees(customFees.filter((fee) => fee.id !== id));
+  const removeFee = (id: string) => {
+    setFees(fees.filter((fee) => fee.id !== id));
   };
 
-  const updateCustomFee = (id: string, field: 'name' | 'amount', value: string) => {
-    setCustomFees(
-      customFees.map((fee) =>
+  const updateFee = (id: string, field: keyof Fee, value: string) => {
+    setFees(
+      fees.map((fee) =>
         fee.id === id ? { ...fee, [field]: value } : fee
       )
     );
@@ -143,13 +131,18 @@ export function DistributorProfileForm({
       newErrors.name = 'Distributor name is required';
     }
 
-    // Validate custom fees
-    customFees.forEach((fee, _index) => {
-      if (fee.name.trim() && !fee.amount.trim()) {
-        newErrors[`customFee_${fee.id}_amount`] = 'Amount is required for custom fee';
+    // Validate fees
+    fees.forEach((fee) => {
+      if (!fee.description.trim()) {
+        newErrors[`fee_${fee.id}_description`] = 'Fee description is required';
       }
-      if (!fee.name.trim() && fee.amount.trim()) {
-        newErrors[`customFee_${fee.id}_name`] = 'Name is required for custom fee';
+      if (!fee.amount.trim()) {
+        newErrors[`fee_${fee.id}_amount`] = 'Amount is required';
+      } else {
+        const amount = parseFloat(fee.amount);
+        if (isNaN(amount) || amount < 0) {
+          newErrors[`fee_${fee.id}_amount`] = 'Amount must be a valid positive number';
+        }
       }
     });
 
@@ -164,31 +157,30 @@ export function DistributorProfileForm({
       return;
     }
 
-    // Build custom fees object
-    const customFeesObj: Record<string, string> = {};
-    customFees.forEach((fee) => {
-      if (fee.name.trim() && fee.amount.trim()) {
-        customFeesObj[fee.name.trim()] = fee.amount.trim();
-      }
-    });
-
     const formData: DistributorFormData = {
       name: name.trim(),
       description: description.trim() || null,
       contact_info: contactInfo.trim() || null,
-      fee_structure: {
-        pallet_cost: palletCost.trim() || null,
-        warehouse_services: warehouseServices.trim() || null,
-        pallet_build: palletBuild.trim() || null,
-        floor_space_full_day: floorSpaceFullDay.trim() || null,
-        floor_space_half_day: floorSpaceHalfDay.trim() || null,
-        truck_transfer_zone1: truckTransferZone1.trim() || null,
-        truck_transfer_zone2: truckTransferZone2.trim() || null,
-        custom_fees: Object.keys(customFeesObj).length > 0 ? customFeesObj : null,
-      },
+      fee_structure: fees.filter(fee => fee.description.trim() && fee.amount.trim()),
+      last_fee_update_date: lastFeeUpdateDate ? new Date(lastFeeUpdateDate).getTime() : null,
+      typical_update_frequency: (typicalUpdateFrequency as 'weekly' | 'monthly' | 'quarterly' | 'annually') || null,
     };
 
     onSubmit(formData);
+  };
+
+  const getUnitLabel = (unit: Fee['unit']): string => {
+    const labels = {
+      per_pallet: 'per pallet',
+      per_case: 'per case',
+      per_day_full: 'per day (full)',
+      per_day_half: 'per day (half)',
+      per_shipment: 'per shipment',
+      per_zone: 'per zone',
+      flat_fee: 'flat fee',
+      percentage: '%',
+    };
+    return labels[unit];
   };
 
   return (
@@ -216,7 +208,6 @@ export function DistributorProfileForm({
                 error={errors.name}
                 required
                 fullWidth
-                placeholder="e.g., UNFI, KeHE, DPI"
               />
 
               <Input
@@ -234,158 +225,156 @@ export function DistributorProfileForm({
                 fullWidth
                 placeholder="Email, phone, or contact person"
               />
-            </div>
 
-            {/* Fee Structure */}
-            <div className={styles.section}>
-              <h4 className={styles.sectionTitle}>Fee Structure</h4>
-              <p className={styles.sectionDescription}>
-                Enter the fees charged by this distributor. Leave blank if not applicable.
-              </p>
+              <Input
+                label="Last Fee Update Date"
+                type="date"
+                value={lastFeeUpdateDate}
+                onChange={(e) => setLastFeeUpdateDate(e.target.value)}
+                fullWidth
+                helperText="When did this distributor last update their fees?"
+              />
 
-              <div className={styles.feeGrid}>
-                <Input
-                  label="Pallet Cost"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={palletCost}
-                  onChange={(e) => setPalletCost(e.target.value)}
-                  placeholder="0.00"
-                  iconBefore={<span>$</span>}
-                  helperText="Cost per pallet"
-                />
-
-                <Input
-                  label="Warehouse Services"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={warehouseServices}
-                  onChange={(e) => setWarehouseServices(e.target.value)}
-                  placeholder="0.00"
-                  iconBefore={<span>$</span>}
-                  helperText="Per pallet warehouse fee"
-                />
-
-                <Input
-                  label="Pallet Build"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={palletBuild}
-                  onChange={(e) => setPalletBuild(e.target.value)}
-                  placeholder="0.00"
-                  iconBefore={<span>$</span>}
-                  helperText="Per pallet build fee"
-                />
-
-                <Input
-                  label="Floor Space - Full Day"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={floorSpaceFullDay}
-                  onChange={(e) => setFloorSpaceFullDay(e.target.value)}
-                  placeholder="0.00"
-                  iconBefore={<span>$</span>}
-                  helperText="Per full day rate"
-                />
-
-                <Input
-                  label="Floor Space - Half Day"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={floorSpaceHalfDay}
-                  onChange={(e) => setFloorSpaceHalfDay(e.target.value)}
-                  placeholder="0.00"
-                  iconBefore={<span>$</span>}
-                  helperText="Per half day rate"
-                />
-
-                <Input
-                  label="Truck Transfer - Zone 1"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={truckTransferZone1}
-                  onChange={(e) => setTruckTransferZone1(e.target.value)}
-                  placeholder="0.00"
-                  iconBefore={<span>$</span>}
-                  helperText="Zone 1 transfer fee"
-                />
-
-                <Input
-                  label="Truck Transfer - Zone 2"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={truckTransferZone2}
-                  onChange={(e) => setTruckTransferZone2(e.target.value)}
-                  placeholder="0.00"
-                  iconBefore={<span>$</span>}
-                  helperText="Zone 2 transfer fee"
-                />
+              <div className={styles.selectWrapper}>
+                <label htmlFor="updateFrequency" className={styles.label}>
+                  Typical Update Frequency
+                </label>
+                <select
+                  id="updateFrequency"
+                  value={typicalUpdateFrequency}
+                  onChange={(e) => setTypicalUpdateFrequency(e.target.value)}
+                  className={styles.select}
+                >
+                  <option value="">Select frequency...</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="annually">Annually</option>
+                </select>
+                <p className={styles.helperText}>
+                  How often does this distributor typically update their fees?
+                </p>
               </div>
             </div>
 
-            {/* Custom Fees */}
+            {/* Fee Structure - Flexible Builder */}
             <div className={styles.section}>
               <div className={styles.sectionHeader}>
-                <h4 className={styles.sectionTitle}>Custom Fees</h4>
+                <div>
+                  <h4 className={styles.sectionTitle}>Fee Structure</h4>
+                  <p className={styles.sectionDescription}>
+                    Add the fees charged by this distributor. Customize the description, amount, and unit for each fee.
+                  </p>
+                </div>
+              </div>
+
+              {/* Common Fee Suggestions */}
+              <div className={styles.suggestionsContainer}>
+                <p className={styles.suggestionsLabel}>Quick Add:</p>
+                <div className={styles.suggestionButtons}>
+                  {COMMON_FEE_SUGGESTIONS.map((suggestion) => (
+                    <button
+                      key={suggestion.label}
+                      type="button"
+                      onClick={() => addFee(suggestion)}
+                      className={styles.suggestionButton}
+                    >
+                      + {suggestion.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Fee List */}
+              {fees.length > 0 ? (
+                <div className={styles.feesList}>
+                  {fees.map((fee) => (
+                    <div key={fee.id} className={styles.feeRow}>
+                      <div className={styles.feeFields}>
+                        <div className={styles.feeField}>
+                          <label className={styles.feeLabel}>Description</label>
+                          <input
+                            type="text"
+                            value={fee.description}
+                            onChange={(e) => updateFee(fee.id, 'description', e.target.value)}
+                            placeholder="ex: Pallet Cost"
+                            className={styles.feeInput}
+                          />
+                          {errors[`fee_${fee.id}_description`] && (
+                            <span className={styles.errorText}>{errors[`fee_${fee.id}_description`]}</span>
+                          )}
+                        </div>
+
+                        <div className={styles.feeField}>
+                          <label className={styles.feeLabel}>Amount</label>
+                          <div className={styles.amountWrapper}>
+                            {fee.unit !== 'percentage' && <span className={styles.currencySymbol}>$</span>}
+                            <input
+                              type="number"
+                              step={fee.unit === 'percentage' ? '1' : '0.01'}
+                              min="0"
+                              max={fee.unit === 'percentage' ? '100' : undefined}
+                              value={fee.amount}
+                              onChange={(e) => updateFee(fee.id, 'amount', e.target.value)}
+                              placeholder={fee.unit === 'percentage' ? '0' : '0.00'}
+                              className={styles.feeInputAmount}
+                            />
+                            {fee.unit === 'percentage' && <span className={styles.percentSymbol}>%</span>}
+                          </div>
+                          {errors[`fee_${fee.id}_amount`] && (
+                            <span className={styles.errorText}>{errors[`fee_${fee.id}_amount`]}</span>
+                          )}
+                        </div>
+
+                        <div className={styles.feeField}>
+                          <label className={styles.feeLabel}>Unit</label>
+                          <select
+                            value={fee.unit}
+                            onChange={(e) => updateFee(fee.id, 'unit', e.target.value)}
+                            className={styles.feeSelect}
+                          >
+                            <option value="per_pallet">per pallet</option>
+                            <option value="per_case">per case</option>
+                            <option value="per_day_full">per day (full)</option>
+                            <option value="per_day_half">per day (half)</option>
+                            <option value="per_shipment">per shipment</option>
+                            <option value="per_zone">per zone</option>
+                            <option value="flat_fee">flat fee</option>
+                            <option value="percentage">%</option>
+                          </select>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => removeFee(fee.id)}
+                          className={styles.removeButton}
+                          aria-label="Remove fee"
+                          title="Remove fee"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className={styles.emptyState}>
+                  <p>No fees added yet. Use the quick add buttons above or create a custom fee.</p>
+                </div>
+              )}
+
+              {/* Add Fee Button */}
+              <div className={styles.addFeeButtonContainer}>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={addCustomFee}
+                  onClick={() => addFee()}
                   iconBefore={<span>+</span>}
                 >
                   Add Custom Fee
                 </Button>
               </div>
-
-              {customFees.length > 0 ? (
-                <div className={styles.customFeesList}>
-                  {customFees.map((fee) => (
-                    <div key={fee.id} className={styles.customFeeRow}>
-                      <Input
-                        label="Fee Name"
-                        value={fee.name}
-                        onChange={(e) => updateCustomFee(fee.id, 'name', e.target.value)}
-                        error={errors[`customFee_${fee.id}_name`]}
-                        placeholder="e.g., Special handling"
-                        fullWidth
-                      />
-                      <Input
-                        label="Amount"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={fee.amount}
-                        onChange={(e) => updateCustomFee(fee.id, 'amount', e.target.value)}
-                        error={errors[`customFee_${fee.id}_amount`]}
-                        placeholder="0.00"
-                        iconBefore={<span>$</span>}
-                        fullWidth
-                      />
-                      <Button
-                        type="button"
-                        variant="danger"
-                        size="sm"
-                        onClick={() => removeCustomFee(fee.id)}
-                        aria-label="Remove custom fee"
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className={styles.emptyState}>
-                  No custom fees added. Use the button above to add distributor-specific fees.
-                </p>
-              )}
             </div>
           </div>
         </CardBody>

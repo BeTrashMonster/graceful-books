@@ -55,7 +55,7 @@ export interface DistributorComparisonParams {
     }
   >;
   // Common fees applied to all distributors for fair comparison
-  appliedFees: DistributionCalcParams['appliedFees'];
+  selectedFees: DistributionCalcParams['selectedFees'];
 }
 
 /**
@@ -71,7 +71,7 @@ export interface DistributorComparisonResult {
     {
       total_cpu: string;
       net_profit_margin: string;
-      margin_quality: 'poor' | 'good' | 'better' | 'best';
+      margin_quality: 'gutCheck' | 'good' | 'better' | 'best';
       msrp: string | null;
     }
   >;
@@ -104,7 +104,7 @@ export interface WhatIfPricingParams {
   distributorId: string;
   numPallets: string;
   unitsPerPallet: string;
-  appliedFees: DistributionCalcParams['appliedFees'];
+  selectedFees: DistributionCalcParams['selectedFees'];
   // Current pricing
   currentPricing: Record<
     string,
@@ -132,8 +132,8 @@ export interface WhatIfPricingResult {
       currentMargin: string;
       newMargin: string;
       marginImpact: string; // Percentage point change
-      marginQualityBefore: 'poor' | 'good' | 'better' | 'best';
-      marginQualityAfter: 'poor' | 'good' | 'better' | 'best';
+      marginQualityBefore: 'gutCheck' | 'good' | 'better' | 'best';
+      marginQualityAfter: 'gutCheck' | 'good' | 'better' | 'best';
       recommendation: 'increase' | 'decrease' | 'maintain'; // Based on margin quality
     }
   >;
@@ -156,7 +156,7 @@ export interface BreakEvenAnalysisParams {
   baseCPU: string; // Base CPU from invoice calculations
   numPallets: string;
   unitsPerPallet: string;
-  appliedFees: DistributionCalcParams['appliedFees'];
+  selectedFees: DistributionCalcParams['selectedFees'];
 }
 
 /**
@@ -192,7 +192,7 @@ export interface SKURationalizationParams {
 export interface SKURationalizationRecommendation {
   variantName: string;
   currentMargin: string;
-  marginQuality: 'poor' | 'good' | 'better' | 'best';
+  marginQuality: 'gutCheck' | 'good' | 'better' | 'best';
   totalCPU: string;
   pricePerUnit: string;
   volumeSold?: string; // Optional: if volume data available
@@ -273,7 +273,7 @@ export class ScenarioPlanningService {
         numPallets: params.numPallets,
         unitsPerPallet: params.unitsPerPallet,
         variantData: params.variantData,
-        appliedFees: params.appliedFees,
+        selectedFees: params.selectedFees,
       };
 
       const calcResult = await this.distributionService.calculateDistributionCost(
@@ -365,7 +365,7 @@ export class ScenarioPlanningService {
       numPallets: params.numPallets,
       unitsPerPallet: params.unitsPerPallet,
       variantData: params.currentPricing,
-      appliedFees: params.appliedFees,
+      selectedFees: params.selectedFees,
     };
 
     const currentResult = await this.distributionService.calculateDistributionCost(
@@ -411,7 +411,7 @@ export class ScenarioPlanningService {
 
       // Determine recommendation
       let recommendation: 'increase' | 'decrease' | 'maintain' = 'maintain';
-      if (newVariantResult.margin_quality === 'poor' && marginImpact.greaterThan(0)) {
+      if (newVariantResult.margin_quality === 'gutCheck' && marginImpact.greaterThan(0)) {
         recommendation = 'increase'; // Price increase improves poor margin
       } else if (
         currentVariantResult.margin_quality === 'best' &&
@@ -509,7 +509,7 @@ export class ScenarioPlanningService {
           base_cpu: params.baseCPU,
         },
       },
-      appliedFees: params.appliedFees,
+      selectedFees: params.selectedFees,
     };
 
     const calcResult = await this.distributionService.calculateDistributionCost(
@@ -776,11 +776,11 @@ export class ScenarioPlanningService {
   private generateBreakEvenRecommendation(
     breakEvenUnits: Decimal,
     contributionMarginPct: Decimal,
-    marginQuality: 'poor' | 'good' | 'better' | 'best'
+    marginQuality: 'gutCheck' | 'good' | 'better' | 'best'
   ): string {
     const units = breakEvenUnits.toFixed(0);
 
-    if (marginQuality === 'poor') {
+    if (marginQuality === 'gutCheck') {
       return `You need to sell ${units} units to break even, but the margin quality is poor. Consider increasing your price or reducing costs before launching this SKU.`;
     }
 

@@ -7,6 +7,7 @@ import { Modal } from '../../components/modals/Modal';
 import { Button } from '../../components/core/Button';
 import { Loading } from '../../components/feedback/Loading';
 import { ErrorMessage } from '../../components/feedback/ErrorMessage';
+import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
 import type { CPGDistributor } from '../../db/schema/cpg.schema';
 import type {
@@ -49,11 +50,16 @@ export default function DistributionCostAnalyzer() {
   const [calculationResults, setCalculationResults] = useState<DistributionCostResult | null>(
     null
   );
+  const [lastCalculationParams, setLastCalculationParams] = useState<DistributionCalcParams | null>(
+    null
+  );
 
   // Modal states
   const [showAddDistributorModal, setShowAddDistributorModal] = useState(false);
   const [showEditDistributorModal, setShowEditDistributorModal] = useState(false);
   const [showSaveScenarioModal, setShowSaveScenarioModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successModalMessage, setSuccessModalMessage] = useState('');
 
   // Loading and error states
   const [loading, setLoading] = useState(true);
@@ -62,16 +68,17 @@ export default function DistributionCostAnalyzer() {
   const [savingDistributor, setSavingDistributor] = useState(false);
   const [savingScenario, setSavingScenario] = useState(false);
 
+  // Auth context
+  const { companyId: authCompanyId, deviceId: authDeviceId, currentCompany, isLoading: authLoading } = useAuth();
+
   // Service
   const [calculatorService] = useState(
     () => new DistributionCostCalculatorService(db)
   );
 
-  // Device ID for CRDT
-  const deviceId = 'device-1'; // TODO: Get from auth context
-
-  // Company ID
-  const companyId = 'company-1'; // TODO: Get from auth context
+  // Use auth values (fallback to defaults for development if not authenticated)
+  const companyId = authCompanyId || 'company-1';
+  const deviceId = authDeviceId || 'device-1';
 
   // Load distributors
   useEffect(() => {
@@ -118,12 +125,18 @@ export default function DistributionCostAnalyzer() {
         data.description,
         data.contact_info,
         data.fee_structure,
-        deviceId
+        deviceId,
+        data.last_fee_update_date,
+        data.typical_update_frequency
       );
 
       setDistributors([...distributors, distributor]);
       setSelectedDistributorId(distributor.id);
       setShowAddDistributorModal(false);
+
+      // Show success modal
+      setSuccessModalMessage(`Distributor "${distributor.name}" created successfully! You can now use it to calculate distribution costs.`);
+      setShowSuccessModal(true);
     } catch (err) {
       console.error('Error creating distributor:', err);
       setError('Oops! We had trouble creating the distributor. Please try again.');
@@ -146,6 +159,8 @@ export default function DistributionCostAnalyzer() {
           description: data.description,
           contact_info: data.contact_info,
           fee_structure: data.fee_structure,
+          last_fee_update_date: data.last_fee_update_date,
+          typical_update_frequency: data.typical_update_frequency,
         },
         deviceId
       );
@@ -154,6 +169,10 @@ export default function DistributionCostAnalyzer() {
         distributors.map((d) => (d.id === updated.id ? updated : d))
       );
       setShowEditDistributorModal(false);
+
+      // Show success modal
+      setSuccessModalMessage(`Distributor "${updated.name}" updated successfully!`);
+      setShowSuccessModal(true);
     } catch (err) {
       console.error('Error updating distributor:', err);
       setError('Oops! We had trouble updating the distributor. Please try again.');
@@ -169,6 +188,15 @@ export default function DistributionCostAnalyzer() {
 
       const results = await calculatorService.calculateDistributionCost(params);
       setCalculationResults(results);
+      setLastCalculationParams(params); // Store params for saving later
+
+      // Scroll to results after a brief delay to allow DOM to update
+      setTimeout(() => {
+        const resultsSection = document.querySelector('[data-results-section]');
+        if (resultsSection) {
+          resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
     } catch (err) {
       console.error('Error calculating distribution costs:', err);
       setError('Oops! We had trouble calculating the costs. Please check your inputs.');
@@ -178,7 +206,7 @@ export default function DistributionCostAnalyzer() {
   };
 
   const handleSaveScenario = async () => {
-    if (!calculationResults || !selectedDistributor) return;
+    if (!calculationResults || !selectedDistributor || !lastCalculationParams) return;
 
     try {
       setSavingScenario(true);
@@ -187,42 +215,34 @@ export default function DistributionCostAnalyzer() {
       // For now, save without a name (can be enhanced to ask for scenario name)
       const scenarioName = `Calculation - ${new Date().toLocaleDateString()}`;
 
-      // Build params from results (we need to reconstruct the original params)
-      // This is a simplified version - in production, you'd store the original params
-      const params: DistributionCalcParams = {
+      console.log('Saving calculation with:', {
+        companyId,
+        deviceId,
         distributorId: calculationResults.distributorId,
-        numPallets: '1', // TODO: Store original params
-        unitsPerPallet: '100',
-        variantData: Object.entries(calculationResults.variantResults).reduce(
-          (acc, [variantName, result]) => {
-            acc[variantName] = {
-              price_per_unit: '0', // TODO: Store original params
-              base_cpu: result.total_cpu,
-            };
-            return acc;
-          },
-          {} as DistributionCalcParams['variantData']
-        ),
-        appliedFees: {
-          pallet_cost: false,
-          warehouse_services: false,
-          pallet_build: false,
-          floor_space: 'none',
-          truck_transfer_zone: 'none',
-        },
-      };
+        scenarioName,
+      });
 
-      await calculatorService.saveCalculation(
+      const saved = await calculatorService.saveCalculation(
         calculationResults,
-        params,
+        lastCalculationParams,
         companyId,
         scenarioName,
         deviceId
       );
 
+      console.log('Calculation saved:', saved);
+
+      // Verify it was saved by querying all calculations for this company
+      const allCalcs = await db.cpgDistributionCalculations
+        .where('company_id')
+        .equals(companyId)
+        .toArray();
+      console.log('All calculations in DB for this company:', allCalcs);
+
       setShowSaveScenarioModal(false);
-      // Show success message (can be enhanced with toast notification)
-      alert('Calculation saved successfully!');
+      // Show success modal
+      setSuccessModalMessage('Calculation saved successfully! You can view it in the Analytics tab under "Distributor Costs".');
+      setShowSuccessModal(true);
     } catch (err) {
       console.error('Error saving scenario:', err);
       setError('Oops! We had trouble saving the calculation. Please try again.');
@@ -231,7 +251,7 @@ export default function DistributionCostAnalyzer() {
     }
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className={styles.loadingContainer}>
         <Loading message="Loading distributors..." />
@@ -296,10 +316,11 @@ export default function DistributionCostAnalyzer() {
         )}
 
         {/* Results */}
-        {calculationResults && (
-          <div className={styles.section}>
+        {calculationResults && lastCalculationParams && (
+          <div className={styles.section} data-results-section>
             <DistributionResultsDisplay
               results={calculationResults}
+              params={lastCalculationParams}
               onSave={() => setShowSaveScenarioModal(true)}
               saving={savingScenario}
               showSaveButton={true}
@@ -353,12 +374,17 @@ export default function DistributionCostAnalyzer() {
         <Modal
           isOpen={showSaveScenarioModal}
           onClose={() => setShowSaveScenarioModal(false)}
-          title="Save Calculation"
+          title=""
           closeOnBackdropClick={false}
           size="sm"
         >
-          <div className={styles.saveScenarioModal}>
-            <p>Save this calculation to compare with future scenarios?</p>
+          <div className={styles.confirmModal}>
+            <div className={styles.confirmModalHeader}>
+              <h2 className={styles.confirmModalTitle}>Save Calculation</h2>
+            </div>
+            <p className={styles.confirmModalMessage}>
+              Save this calculation to compare with future scenarios?
+            </p>
             <div className={styles.modalActions}>
               <Button
                 variant="outline"
@@ -374,6 +400,53 @@ export default function DistributionCostAnalyzer() {
                 disabled={savingScenario}
               >
                 Save Calculation
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {showSuccessModal && (
+        <Modal
+          isOpen={showSuccessModal}
+          onClose={() => setShowSuccessModal(false)}
+          title=""
+          size="sm"
+        >
+          <div className={styles.successModal}>
+            <div className={styles.successModalHeader}>
+              <h2 className={styles.successModalTitle}>
+                <span className={styles.successIcon}>✓</span>
+                Success!
+              </h2>
+            </div>
+            <p className={styles.successModalMessage}>
+              {successModalMessage.includes('Distributor Costs') ? (
+                <>
+                  {successModalMessage.split('Distributor Costs')[0]}
+                  <a
+                    href="/cpg/analytics?tab=distributor"
+                    className={styles.successLink}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowSuccessModal(false);
+                      window.location.href = '/cpg/analytics?tab=distributor';
+                    }}
+                  >
+                    Distributor Costs
+                  </a>
+                  {successModalMessage.split('Distributor Costs')[1]}
+                </>
+              ) : (
+                successModalMessage
+              )}
+            </p>
+            <div className={styles.modalActions}>
+              <Button
+                variant="primary"
+                onClick={() => setShowSuccessModal(false)}
+              >
+                OK
               </Button>
             </div>
           </div>

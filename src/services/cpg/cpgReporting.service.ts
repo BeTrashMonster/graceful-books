@@ -522,46 +522,12 @@ export async function compareDistributors(
       const feeBreakdown: { feeName: string; feeAmount: number }[] = [];
       const fees = distributor.fee_structure;
 
-      if (fees.pallet_cost) {
-        feeBreakdown.push({ feeName: 'Pallet Cost', feeAmount: parseFloat(fees.pallet_cost) });
-      }
-      if (fees.warehouse_services) {
+      // Iterate through flexible fee structure
+      for (const fee of fees) {
         feeBreakdown.push({
-          feeName: 'Warehouse Services',
-          feeAmount: parseFloat(fees.warehouse_services),
+          feeName: `${fee.description} (${fee.unit.replace(/_/g, ' ')})`,
+          feeAmount: parseFloat(fee.amount)
         });
-      }
-      if (fees.pallet_build) {
-        feeBreakdown.push({ feeName: 'Pallet Build', feeAmount: parseFloat(fees.pallet_build) });
-      }
-      if (fees.floor_space_full_day) {
-        feeBreakdown.push({
-          feeName: 'Floor Space (Full Day)',
-          feeAmount: parseFloat(fees.floor_space_full_day),
-        });
-      }
-      if (fees.floor_space_half_day) {
-        feeBreakdown.push({
-          feeName: 'Floor Space (Half Day)',
-          feeAmount: parseFloat(fees.floor_space_half_day),
-        });
-      }
-      if (fees.truck_transfer_zone1) {
-        feeBreakdown.push({
-          feeName: 'Truck Transfer Zone 1',
-          feeAmount: parseFloat(fees.truck_transfer_zone1),
-        });
-      }
-      if (fees.truck_transfer_zone2) {
-        feeBreakdown.push({
-          feeName: 'Truck Transfer Zone 2',
-          feeAmount: parseFloat(fees.truck_transfer_zone2),
-        });
-      }
-      if (fees.custom_fees) {
-        for (const [name, amount] of Object.entries(fees.custom_fees)) {
-          feeBreakdown.push({ feeName: name, feeAmount: parseFloat(amount) });
-        }
       }
 
       distributors.push({

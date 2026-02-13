@@ -58,16 +58,14 @@ export interface DistributionCalcParams {
     }
   >;
 
-  // Fee selections (checkboxes)
-  appliedFees: {
-    pallet_cost: boolean;
-    warehouse_services: boolean;
-    pallet_build: boolean;
-    floor_space: 'none' | 'full_day' | 'half_day';
-    floor_space_days?: string; // Number of days
-    truck_transfer_zone: 'none' | 'zone1' | 'zone2';
-    custom_fees?: string[]; // Array of custom fee names that apply
-  };
+  // Flexible fee selections
+  selectedFees: Array<{
+    feeId: string;
+    description: string;
+    amount: string;
+    unit: 'per_pallet' | 'per_case' | 'per_day_full' | 'per_day_half' | 'per_shipment' | 'per_zone' | 'flat_fee' | 'percentage';
+    quantity?: string; // For per_day fees, etc.
+  }>;
 
   // Optional MSRP calculation
   msrpMarkupPercentage?: string; // e.g., "50" for 50%
@@ -88,7 +86,7 @@ export interface DistributionCostResult {
     {
       total_cpu: string; // Base CPU + Distribution cost per unit
       net_profit_margin: string; // (Price - Total CPU) / Price * 100
-      margin_quality: 'poor' | 'good' | 'better' | 'best';
+      margin_quality: 'gutCheck' | 'good' | 'better' | 'best';
       msrp: string | null; // If MSRP markup applied
     }
   >;
@@ -139,6 +137,7 @@ export class DistributionCostCalculatorService {
    * @param contactInfo - Optional contact information
    * @param feeStructure - Multi-layered fee structure
    * @param deviceId - Device ID for CRDT
+   * @param linkedContactId - Optional link to bookkeeping Contact (vendor)
    * @returns Created distributor
    */
   async createDistributor(
@@ -147,7 +146,10 @@ export class DistributionCostCalculatorService {
     description: string | null,
     contactInfo: string | null,
     feeStructure: CPGDistributor['fee_structure'],
-    deviceId: string
+    deviceId: string,
+    lastFeeUpdateDate?: number | null,
+    typicalUpdateFrequency?: 'weekly' | 'monthly' | 'quarterly' | 'annually' | null,
+    linkedContactId?: string | null
   ): Promise<CPGDistributor> {
     const now = Date.now();
 
@@ -158,6 +160,9 @@ export class DistributionCostCalculatorService {
       description,
       contact_info: contactInfo,
       fee_structure: feeStructure,
+      last_fee_update_date: lastFeeUpdateDate || null,
+      typical_update_frequency: typicalUpdateFrequency || null,
+      linked_contact_id: linkedContactId || null,
       active: true,
       created_at: now,
       updated_at: now,
@@ -180,7 +185,7 @@ export class DistributionCostCalculatorService {
   async updateDistributor(
     distributorId: string,
     updates: Partial<
-      Pick<CPGDistributor, 'name' | 'description' | 'contact_info' | 'fee_structure' | 'active'>
+      Pick<CPGDistributor, 'name' | 'description' | 'contact_info' | 'fee_structure' | 'active' | 'last_fee_update_date' | 'typical_update_frequency' | 'linked_contact_id'>
     >,
     deviceId: string
   ): Promise<CPGDistributor> {
@@ -236,8 +241,7 @@ export class DistributionCostCalculatorService {
 
     // Calculate total distribution fees
     const { totalFees, feeBreakdown } = this.calculateTotalFees(
-      distributor.fee_structure,
-      params.appliedFees,
+      params.selectedFees,
       params.numPallets
     );
 
@@ -332,11 +336,7 @@ export class DistributionCostCalculatorService {
       num_pallets: params.numPallets,
       units_per_pallet: params.unitsPerPallet,
       variant_data: params.variantData,
-      applied_fees: {
-        ...params.appliedFees,
-        floor_space_days: params.appliedFees.floor_space_days || null,
-        custom_fees: params.appliedFees.custom_fees || null,
-      },
+      selected_fees: params.selectedFees,
       total_distribution_cost: result.totalDistributionCost,
       distribution_cost_per_unit: result.distributionCostPerUnit,
       variant_results: result.variantResults,
@@ -378,16 +378,14 @@ export class DistributionCostCalculatorService {
   }
 
   /**
-   * Calculate total fees based on selected checkboxes
+   * Calculate total fees based on selected fees (flexible structure)
    *
-   * @param feeStructure - Distributor's fee structure
-   * @param appliedFees - Selected fees
+   * @param selectedFees - Array of selected fees with their configurations
    * @param numPallets - Number of pallets
    * @returns Total fees and breakdown
    */
   private calculateTotalFees(
-    feeStructure: CPGDistributor['fee_structure'],
-    appliedFees: DistributionCalcParams['appliedFees'],
+    selectedFees: DistributionCalcParams['selectedFees'],
     numPallets: string
   ): {
     totalFees: Decimal;
@@ -397,112 +395,56 @@ export class DistributionCostCalculatorService {
     const feeBreakdown: { feeName: string; feeAmount: string }[] = [];
     const pallets = new Decimal(numPallets);
 
-    // Pallet cost (per pallet)
-    if (appliedFees.pallet_cost && feeStructure.pallet_cost) {
-      const palletCost = new Decimal(feeStructure.pallet_cost);
-      const totalPalletCost = palletCost.times(pallets);
-      totalFees = totalFees.plus(totalPalletCost);
+    for (const fee of selectedFees) {
+      const feeAmount = new Decimal(fee.amount);
+      let totalFeeAmount: Decimal;
+      let feeName = fee.description;
+
+      switch (fee.unit) {
+        case 'per_pallet':
+          // Multiply by number of pallets
+          totalFeeAmount = feeAmount.times(pallets);
+          break;
+
+        case 'per_case':
+          // For now, treat same as per_pallet (user would need to adjust pallet count)
+          // Future enhancement: add separate case count input
+          totalFeeAmount = feeAmount.times(pallets);
+          break;
+
+        case 'per_day_full':
+        case 'per_day_half':
+          // Multiply by quantity (number of days)
+          const days = fee.quantity ? new Decimal(fee.quantity) : new Decimal(1);
+          totalFeeAmount = feeAmount.times(days);
+          if (days.greaterThan(1)) {
+            feeName = `${feeName} (${days} days)`;
+          }
+          break;
+
+        case 'per_shipment':
+        case 'per_zone':
+        case 'flat_fee':
+          // Fixed fee - no multiplication
+          totalFeeAmount = feeAmount;
+          break;
+
+        case 'percentage':
+          // Percentage fee - would need base amount to calculate
+          // For now, treat as flat fee (enhancement: add base amount input)
+          totalFeeAmount = feeAmount;
+          break;
+
+        default:
+          // Unknown unit type - treat as flat fee
+          totalFeeAmount = feeAmount;
+      }
+
+      totalFees = totalFees.plus(totalFeeAmount);
       feeBreakdown.push({
-        feeName: 'Pallet Cost',
-        feeAmount: totalPalletCost.toFixed(2),
+        feeName,
+        feeAmount: totalFeeAmount.toFixed(2),
       });
-    }
-
-    // Warehouse services (per pallet)
-    if (appliedFees.warehouse_services && feeStructure.warehouse_services) {
-      const warehouseServices = new Decimal(feeStructure.warehouse_services);
-      const totalWarehouseServices = warehouseServices.times(pallets);
-      totalFees = totalFees.plus(totalWarehouseServices);
-      feeBreakdown.push({
-        feeName: 'Warehouse Services',
-        feeAmount: totalWarehouseServices.toFixed(2),
-      });
-    }
-
-    // Pallet build (per pallet)
-    if (appliedFees.pallet_build && feeStructure.pallet_build) {
-      const palletBuild = new Decimal(feeStructure.pallet_build);
-      const totalPalletBuild = palletBuild.times(pallets);
-      totalFees = totalFees.plus(totalPalletBuild);
-      feeBreakdown.push({
-        feeName: 'Pallet Build',
-        feeAmount: totalPalletBuild.toFixed(2),
-      });
-    }
-
-    // Floor space (full day or half day, times number of days)
-    if (appliedFees.floor_space !== 'none') {
-      let floorSpaceFee: Decimal | null = null;
-      let feeName = '';
-
-      if (
-        appliedFees.floor_space === 'full_day' &&
-        feeStructure.floor_space_full_day
-      ) {
-        floorSpaceFee = new Decimal(feeStructure.floor_space_full_day);
-        feeName = 'Floor Space - Full Day';
-      } else if (
-        appliedFees.floor_space === 'half_day' &&
-        feeStructure.floor_space_half_day
-      ) {
-        floorSpaceFee = new Decimal(feeStructure.floor_space_half_day);
-        feeName = 'Floor Space - Half Day';
-      }
-
-      if (floorSpaceFee) {
-        const days = appliedFees.floor_space_days
-          ? new Decimal(appliedFees.floor_space_days)
-          : new Decimal(1);
-        const totalFloorSpace = floorSpaceFee.times(days);
-        totalFees = totalFees.plus(totalFloorSpace);
-        feeBreakdown.push({
-          feeName: `${feeName}${days.greaterThan(1) ? ` (${days} days)` : ''}`,
-          feeAmount: totalFloorSpace.toFixed(2),
-        });
-      }
-    }
-
-    // Truck transfer (zone-based pricing)
-    if (appliedFees.truck_transfer_zone !== 'none') {
-      let truckTransferFee: Decimal | null = null;
-      let feeName = '';
-
-      if (
-        appliedFees.truck_transfer_zone === 'zone1' &&
-        feeStructure.truck_transfer_zone1
-      ) {
-        truckTransferFee = new Decimal(feeStructure.truck_transfer_zone1);
-        feeName = 'Truck Transfer - Zone 1';
-      } else if (
-        appliedFees.truck_transfer_zone === 'zone2' &&
-        feeStructure.truck_transfer_zone2
-      ) {
-        truckTransferFee = new Decimal(feeStructure.truck_transfer_zone2);
-        feeName = 'Truck Transfer - Zone 2';
-      }
-
-      if (truckTransferFee) {
-        totalFees = totalFees.plus(truckTransferFee);
-        feeBreakdown.push({
-          feeName,
-          feeAmount: truckTransferFee.toFixed(2),
-        });
-      }
-    }
-
-    // Custom fees
-    if (appliedFees.custom_fees && feeStructure.custom_fees) {
-      for (const customFeeName of appliedFees.custom_fees) {
-        const customFeeAmount = feeStructure.custom_fees[customFeeName];
-        if (customFeeAmount) {
-          const customFee = new Decimal(customFeeAmount);
-          totalFees = totalFees.plus(customFee);
-          feeBreakdown.push({
-            feeName: customFeeName,
-            feeAmount: customFee.toFixed(2),
-          });
-        }
-      }
     }
 
     return { totalFees, feeBreakdown };
@@ -512,7 +454,7 @@ export class DistributionCostCalculatorService {
    * Determine margin quality based on thresholds
    *
    * Default thresholds:
-   * - Poor (Red): < 50%
+   * - Gut Check (Red): < 50%
    * - Good (Yellow): 50-60%
    * - Better (Light Green): 60-70%
    * - Best (Dark Green): >= 70%
@@ -524,8 +466,8 @@ export class DistributionCostCalculatorService {
   private determineMarginQuality(
     marginPercentage: number,
     thresholds: MarginThresholds
-  ): 'poor' | 'good' | 'better' | 'best' {
-    if (marginPercentage < thresholds.poor) return 'poor';
+  ): 'gutCheck' | 'good' | 'better' | 'best' {
+    if (marginPercentage < thresholds.poor) return 'gutCheck';
     if (marginPercentage < thresholds.better) return 'good';
     if (marginPercentage < thresholds.best) return 'better';
     return 'best';
@@ -587,14 +529,6 @@ export class DistributionCostCalculatorService {
             errors.push(`Base CPU cannot be negative for variant: ${variantName}`);
           }
         }
-      }
-    }
-
-    // Validate floor space days if applicable
-    if (params.appliedFees.floor_space !== 'none' && params.appliedFees.floor_space_days) {
-      const days = new Decimal(params.appliedFees.floor_space_days);
-      if (days.lessThanOrEqualTo(0)) {
-        errors.push('Floor space days must be greater than 0');
       }
     }
 

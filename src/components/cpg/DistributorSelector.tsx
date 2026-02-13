@@ -17,9 +17,9 @@ export interface DistributorSelectorProps {
    */
   onSelect: (distributorId: string) => void;
   /**
-   * Callback when "Add New Distributor" is clicked
+   * Callback when "Add New Distributor" is clicked (optional)
    */
-  onAddNew: () => void;
+  onAddNew?: () => void;
   /**
    * Loading state
    */
@@ -28,6 +28,10 @@ export interface DistributorSelectorProps {
    * Disabled state
    */
   disabled?: boolean;
+  /**
+   * Hide the Add New button (default: false)
+   */
+  hideAddButton?: boolean;
 }
 
 /**
@@ -60,6 +64,7 @@ export function DistributorSelector({
   onAddNew,
   loading = false,
   disabled = false,
+  hideAddButton = false,
 }: DistributorSelectorProps) {
   const activeDistributors = distributors.filter(
     (d) => d.active && d.deleted_at === null
@@ -85,16 +90,18 @@ export function DistributorSelector({
         />
       </div>
 
-      <div className={styles.addButtonWrapper}>
-        <Button
-          variant="outline"
-          onClick={onAddNew}
-          disabled={disabled || loading}
-          iconBefore={<span>+</span>}
-        >
-          Add New Distributor
-        </Button>
-      </div>
+      {!hideAddButton && onAddNew && (
+        <div className={styles.addButtonWrapper}>
+          <Button
+            variant="outline"
+            onClick={onAddNew}
+            disabled={disabled || loading}
+            iconBefore={<span>+</span>}
+          >
+            Add New Distributor
+          </Button>
+        </div>
+      )}
 
       {activeDistributors.length === 0 && !loading && (
         <p className={styles.emptyState} role="status">

@@ -152,6 +152,32 @@ export const validateCPGInvoice = (invoice: Partial<CPGInvoice>): string[] => {
 // CPG Distributor - Distributor profiles with fee structures
 // ============================================================================
 
+/**
+ * CPG Distributor
+ *
+ * ARCHITECTURAL DECISION: Bookkeeping Integration Strategy
+ * ---------------------------------------------------------
+ * This entity supports both standalone CPG usage and optional integration
+ * with the bookkeeping system via the `linked_contact_id` field.
+ *
+ * STANDALONE MODE (linked_contact_id = null):
+ *   - CPG distributors are independent entities
+ *   - No dependency on bookkeeping Contact table
+ *   - User manages distributor info directly in CPG
+ *
+ * INTEGRATED MODE (linked_contact_id = Contact.id):
+ *   - Distributor links to existing bookkeeping vendor
+ *   - Contact info syncs bidirectionally when linked
+ *   - Bills/payments in bookkeeping auto-associate with distributor
+ *   - User can unlink at any time (data preserved on both sides)
+ *
+ * This design ensures:
+ *   ✓ Zero complexity for standalone users
+ *   ✓ Effortless integration when ready
+ *   ✓ No duplicate data entry in integrated mode
+ *   ✓ Clean separation of concerns
+ *   ✓ Future-proof without technical debt
+ */
 export interface CPGDistributor extends BaseEntity {
   id: string;
   company_id: string;
@@ -159,17 +185,21 @@ export interface CPGDistributor extends BaseEntity {
   description: string | null;
   contact_info: string | null;
 
-  // Fee structure - flexible to support different fee types
-  fee_structure: {
-    pallet_cost: string | null; // e.g., "$81.00"
-    warehouse_services: string | null; // e.g., "$25.00"
-    pallet_build: string | null; // e.g., "$25.00"
-    floor_space_full_day: string | null; // e.g., "$100.00"
-    floor_space_half_day: string | null; // e.g., "$50.00"
-    truck_transfer_zone1: string | null; // e.g., "$100.00"
-    truck_transfer_zone2: string | null; // e.g., "$160.00"
-    custom_fees: Record<string, string> | null; // For additional user-defined fees
-  };
+  // Optional link to bookkeeping vendor (Contact with type='vendor')
+  // null = standalone CPG distributor, not linked to bookkeeping
+  linked_contact_id: string | null;
+
+  // Fee structure - flexible array of fees with customizable descriptions and units
+  fee_structure: Array<{
+    id: string; // Unique identifier for this fee
+    description: string; // e.g., "Pallet Cost", "Warehouse Services", "Custom handling fee"
+    amount: string; // e.g., "45.00"
+    unit: 'per_pallet' | 'per_case' | 'per_day_full' | 'per_day_half' | 'per_shipment' | 'per_zone' | 'flat_fee' | 'percentage';
+  }>;
+
+  // Fee update tracking
+  last_fee_update_date: number | null; // Timestamp of last known fee update
+  typical_update_frequency: 'weekly' | 'monthly' | 'quarterly' | 'annually' | null; // How often fees typically change
 
   active: boolean;
   created_at: number;
@@ -179,7 +209,7 @@ export interface CPGDistributor extends BaseEntity {
 }
 
 export const cpgDistributorsSchema =
-  'id, company_id, name, active, [company_id+active], updated_at, deleted_at';
+  'id, company_id, name, active, [company_id+active], linked_contact_id, updated_at, deleted_at';
 
 export const createDefaultCPGDistributor = (
   companyId: string,
@@ -192,16 +222,10 @@ export const createDefaultCPGDistributor = (
     name,
     description: null,
     contact_info: null,
-    fee_structure: {
-      pallet_cost: null,
-      warehouse_services: null,
-      pallet_build: null,
-      floor_space_full_day: null,
-      floor_space_half_day: null,
-      truck_transfer_zone1: null,
-      truck_transfer_zone2: null,
-      custom_fees: null,
-    },
+    linked_contact_id: null, // Standalone by default, can be linked later
+    fee_structure: [], // Empty array - fees added by user
+    last_fee_update_date: null,
+    typical_update_frequency: null,
     active: true,
     created_at: now,
     updated_at: now,
@@ -243,15 +267,13 @@ export interface CPGDistributionCalculation extends BaseEntity {
   >;
 
   // Fee selections (which fees apply to this calculation)
-  applied_fees: {
-    pallet_cost: boolean;
-    warehouse_services: boolean;
-    pallet_build: boolean;
-    floor_space: 'none' | 'full_day' | 'half_day';
-    floor_space_days: string | null; // Number of days
-    truck_transfer_zone: 'none' | 'zone1' | 'zone2';
-    custom_fees: string[] | null; // Array of custom fee names that apply
-  };
+  selected_fees: Array<{
+    feeId: string;
+    description: string;
+    amount: string;
+    unit: 'per_pallet' | 'per_case' | 'per_day_full' | 'per_day_half' | 'per_shipment' | 'per_zone' | 'flat_fee' | 'percentage';
+    quantity?: string; // For per_day fees, etc.
+  }>;
 
   // Calculated results
   total_distribution_cost: string;
@@ -295,15 +317,7 @@ export const createDefaultCPGDistributionCalculation = (
     num_pallets: '1.00',
     units_per_pallet: '0',
     variant_data: {}, // Will be populated by user
-    applied_fees: {
-      pallet_cost: false,
-      warehouse_services: false,
-      pallet_build: false,
-      floor_space: 'none',
-      floor_space_days: null,
-      truck_transfer_zone: 'none',
-      custom_fees: null,
-    },
+    selected_fees: [], // Empty array - fees selected by user
     total_distribution_cost: '0.00',
     distribution_cost_per_unit: '0.00',
     variant_results: {}, // Calculated results per variant

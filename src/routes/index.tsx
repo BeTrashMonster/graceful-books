@@ -37,7 +37,7 @@ const DevTools = lazy(() => import('../pages/DevTools'))
 const CPGDashboard = lazy(() => import('../pages/cpg/CPGDashboard'))
 const FinishedProducts = lazy(() => import('../pages/cpg/FinishedProducts'))
 const CPUTracker = lazy(() => import('../pages/cpg/CPUTracker'))
-const DistributionCostAnalyzer = lazy(() => import('../pages/cpg/DistributionCostAnalyzer'))
+const Distribution = lazy(() => import('../pages/cpg/Distribution'))
 const SalesPromoDecisionTool = lazy(() => import('../pages/cpg/SalesPromoDecisionTool'))
 const FinancialStatementEntry = lazy(() => import('../pages/cpg/FinancialStatementEntry'))
 const HistoricalAnalytics = lazy(() => import('../pages/cpg/HistoricalAnalytics'))
@@ -93,7 +93,7 @@ export function AppRoutes() {
           <Route path="/cpg/dashboard" element={<CPGDashboard />} />
           <Route path="/cpg/products" element={<FinishedProducts />} />
           <Route path="/cpg/cpu-tracker" element={<CPUTracker />} />
-          <Route path="/cpg/distribution-cost" element={<DistributionCostAnalyzer />} />
+          <Route path="/cpg/distribution-cost" element={<Distribution />} />
           <Route path="/cpg/promo-decision" element={<SalesPromoDecisionTool />} />
           <Route path="/cpg/analytics" element={<HistoricalAnalytics />} />
           <Route path="/cpg/financial-entry" element={<FinancialStatementEntry />} />

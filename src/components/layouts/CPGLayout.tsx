@@ -178,7 +178,7 @@ export function CPGLayout() {
               to="/cpg/distribution-cost"
               className={isActive('/cpg/distribution-cost') ? styles.active : ''}
             >
-              🚚 Distribution Costs
+              🚚 Distribution Center
             </Link>
             <Link
               to="/cpg/promo-decision"

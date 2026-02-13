@@ -330,7 +330,7 @@ export class SalesPromoAnalyzerService {
         netProfitMarginWithPromo: string;
         netProfitMarginWithoutPromo: string;
         netProfitMarginWithLabor: string | null;
-        marginQualityWithPromo: 'poor' | 'good' | 'better' | 'best';
+        marginQualityWithPromo: 'gutCheck' | 'good' | 'better' | 'best';
         marginDifference: string;
       }
     > = {};
@@ -661,7 +661,7 @@ export class SalesPromoAnalyzerService {
         netProfitMarginWithPromo: string;
         netProfitMarginWithoutPromo: string;
         netProfitMarginWithLabor: string | null;
-        marginQualityWithPromo: 'poor' | 'good' | 'better' | 'best';
+        marginQualityWithPromo: 'gutCheck' | 'good' | 'better' | 'best';
         marginDifference: string;
       }
     >
@@ -675,7 +675,7 @@ export class SalesPromoAnalyzerService {
       net_profit_margin_with_promo: string;
       net_profit_margin_without_promo: string;
       net_profit_margin_with_demo: string | null;
-      margin_quality_with_promo: 'poor' | 'good' | 'better' | 'best';
+      margin_quality_with_promo: 'gutCheck' | 'good' | 'better' | 'best';
     }
   > {
     const result: Record<
@@ -688,7 +688,7 @@ export class SalesPromoAnalyzerService {
         net_profit_margin_with_promo: string;
         net_profit_margin_without_promo: string;
         net_profit_margin_with_demo: string | null;
-        margin_quality_with_promo: 'poor' | 'good' | 'better' | 'best';
+        margin_quality_with_promo: 'gutCheck' | 'good' | 'better' | 'best';
       }
     > = {};
     for (const [key, value] of Object.entries(results)) {

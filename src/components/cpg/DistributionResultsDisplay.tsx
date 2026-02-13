@@ -1,7 +1,8 @@
 import { Button } from '../core/Button';
 import { Card, CardHeader, CardBody, CardFooter } from '../ui/Card';
 import { MarginQualityBadge } from './MarginQualityBadge';
-import type { DistributionCostResult } from '../../services/cpg/distributionCostCalculator.service';
+import Decimal from 'decimal.js';
+import type { DistributionCostResult, DistributionCalcParams } from '../../services/cpg/distributionCostCalculator.service';
 import styles from './DistributionResultsDisplay.module.css';
 
 export interface DistributionResultsDisplayProps {
@@ -9,6 +10,10 @@ export interface DistributionResultsDisplayProps {
    * Calculation results
    */
   results: DistributionCostResult;
+  /**
+   * Calculation parameters (to show base CPU)
+   */
+  params?: DistributionCalcParams;
   /**
    * Callback when "Save Calculation" is clicked
    */
@@ -53,11 +58,13 @@ export interface DistributionResultsDisplayProps {
  */
 export function DistributionResultsDisplay({
   results,
+  params,
   onSave,
   saving = false,
   showSaveButton = true,
 }: DistributionResultsDisplayProps) {
   const variantNames = Object.keys(results.variantResults);
+  const distributionCostPerUnit = new Decimal(results.distributionCostPerUnit);
 
   return (
     <Card variant="elevated" padding="lg">
@@ -110,12 +117,39 @@ export function DistributionResultsDisplay({
                     </div>
 
                     <div className={styles.variantMetrics}>
-                      <div className={styles.metric}>
-                        <span className={styles.metricLabel}>Total CPU</span>
-                        <span className={styles.metricValue}>
-                          ${parseFloat(variantResult.total_cpu).toFixed(2)}
-                        </span>
-                      </div>
+                      {params && params.variantData[variantName] && (
+                        <>
+                          <div className={styles.metric}>
+                            <span className={styles.metricLabel}>Base CPU</span>
+                            <span className={styles.metricValue}>
+                              ${parseFloat(params.variantData[variantName]!.base_cpu).toFixed(2)}
+                            </span>
+                          </div>
+
+                          <div className={styles.metric}>
+                            <span className={styles.metricLabel}>+ Distribution Cost</span>
+                            <span className={styles.metricValue}>
+                              ${distributionCostPerUnit.toFixed(2)}
+                            </span>
+                          </div>
+
+                          <div className={`${styles.metric} ${styles.totalLine}`}>
+                            <span className={styles.metricLabel}><strong>Total CPU</strong></span>
+                            <span className={styles.metricValue}>
+                              <strong>${parseFloat(variantResult.total_cpu).toFixed(2)}</strong>
+                            </span>
+                          </div>
+                        </>
+                      )}
+
+                      {(!params || !params.variantData[variantName]) && (
+                        <div className={styles.metric}>
+                          <span className={styles.metricLabel}>Total CPU</span>
+                          <span className={styles.metricValue}>
+                            ${parseFloat(variantResult.total_cpu).toFixed(2)}
+                          </span>
+                        </div>
+                      )}
 
                       <div className={styles.metric}>
                         <span className={styles.metricLabel}>Net Profit Margin</span>

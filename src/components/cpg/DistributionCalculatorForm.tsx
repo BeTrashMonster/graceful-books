@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Input } from '../forms/Input';
 import { Checkbox } from '../forms/Checkbox';
-import { Radio } from '../forms/Radio';
 import { Button } from '../core/Button';
 import { Card, CardHeader, CardBody, CardFooter } from '../ui/Card';
-import type { CPGDistributor } from '../../db/schema/cpg.schema';
+import { Select } from '../forms/Select';
+import { db } from '../../db/database';
+import { useAuth } from '../../contexts/AuthContext';
+import type { CPGDistributor, CPGCategory, CPGInvoice } from '../../db/schema/cpg.schema';
 import type { DistributionCalcParams } from '../../services/cpg/distributionCostCalculator.service';
+import Decimal from 'decimal.js';
 import styles from './DistributionCalculatorForm.module.css';
 
 export interface DistributionCalculatorFormProps {
@@ -34,6 +37,23 @@ interface VariantInput {
   baseCPU: string;
 }
 
+interface VariantOption {
+  type: 'product' | 'category-variant';
+  productId?: string;
+  productName: string;
+  categoryName?: string;
+  variantName?: string;
+  latestPrice: string | null;
+  latestCPU: string | null;
+}
+
+// Track which fees are selected and any associated quantities
+interface FeeSelection {
+  feeId: string;
+  selected: boolean;
+  quantity?: string; // For per_day fees, etc.
+}
+
 /**
  * DistributionCalculatorForm Component
  *
@@ -48,13 +68,9 @@ interface VariantInput {
  * - Base CPU - per variant (auto-populate from latest invoice)
  * - MSRP markup % (optional)
  *
- * Fee Selection (checkboxes):
- * - Pallet cost
- * - Warehouse services
- * - Pallet build
- * - Floor space: None | Full Day | Half Day + Days input
- * - Truck transfer: None | Zone 1 | Zone 2
- * - Custom fees (multi-select)
+ * Fee Selection (dynamic based on distributor's fee_structure):
+ * - Each fee can be selected via checkbox
+ * - Some fees may need quantity inputs (e.g., days for per_day fees)
  *
  * @example
  * ```tsx
@@ -71,9 +87,16 @@ export function DistributionCalculatorForm({
   loading = false,
   latestBaseCPUs = {},
 }: DistributionCalculatorFormProps) {
+  const { companyId: authCompanyId } = useAuth();
+  const companyId = authCompanyId || 'company-1';
+
   const [numPallets, setNumPallets] = useState('1');
   const [unitsPerPallet, setUnitsPerPallet] = useState('');
   const [msrpMarkupPercentage, setMsrpMarkupPercentage] = useState('');
+
+  // Available variants from CPG categories
+  const [availableVariants, setAvailableVariants] = useState<VariantOption[]>([]);
+  const [loadingVariants, setLoadingVariants] = useState(true);
 
   // Variants - user can add multiple
   const [variants, setVariants] = useState<VariantInput[]>([
@@ -85,16 +108,112 @@ export function DistributionCalculatorForm({
     },
   ]);
 
-  // Fee selections
-  const [palletCost, setPalletCost] = useState(false);
-  const [warehouseServices, setWarehouseServices] = useState(false);
-  const [palletBuild, setPalletBuild] = useState(false);
-  const [floorSpace, setFloorSpace] = useState<'none' | 'full_day' | 'half_day'>('none');
-  const [floorSpaceDays, setFloorSpaceDays] = useState('1');
-  const [truckTransferZone, setTruckTransferZone] = useState<'none' | 'zone1' | 'zone2'>('none');
-  const [selectedCustomFees, setSelectedCustomFees] = useState<string[]>([]);
+  // Fee selections - dynamic based on distributor fees
+  const [feeSelections, setFeeSelections] = useState<Record<string, FeeSelection>>({});
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Initialize fee selections when distributor changes
+  useEffect(() => {
+    const initialSelections: Record<string, FeeSelection> = {};
+    distributor.fee_structure.forEach(fee => {
+      initialSelections[fee.id] = {
+        feeId: fee.id,
+        selected: false,
+        quantity: fee.unit.includes('day') ? '1' : undefined,
+      };
+    });
+    setFeeSelections(initialSelections);
+  }, [distributor]);
+
+  // Load available variants from finished products
+  useEffect(() => {
+    const loadVariants = async () => {
+      try {
+        setLoadingVariants(true);
+
+        if (!companyId || companyId === '') {
+          setAvailableVariants([]);
+          setLoadingVariants(false);
+          return;
+        }
+
+        const allProducts = await db.cpgFinishedProducts
+          .where('company_id')
+          .equals(companyId)
+          .toArray();
+
+        const products = allProducts.filter((p) => p.active && !p.deleted_at);
+
+        const variantOptions: VariantOption[] = [];
+
+        for (const product of products) {
+          const recipes = await db.cpgRecipes
+            .where('[company_id+finished_product_id]')
+            .equals([companyId, product.id])
+            .and((r) => r.active && !r.deleted_at)
+            .toArray();
+
+          let calculatedCPU: string | null = null;
+
+          if (recipes.length > 0) {
+            let totalCPU = new Decimal(0);
+
+            for (const recipe of recipes) {
+              const category = await db.cpgCategories.get(recipe.category_id);
+              if (!category) continue;
+
+              const invoices = await db.cpgInvoices
+                .where('company_id')
+                .equals(companyId)
+                .and((inv) => !inv.deleted_at)
+                .reverse()
+                .sortBy('invoice_date');
+
+              let componentCPU: string | null = null;
+
+              for (const invoice of invoices) {
+                if (invoice.calculated_cpus) {
+                  const cpuKey = recipe.variant
+                    ? `${category.id}_${recipe.variant}`
+                    : category.id;
+                  componentCPU = invoice.calculated_cpus[cpuKey] || null;
+                  if (componentCPU) break;
+                }
+              }
+
+              if (componentCPU) {
+                const quantity = new Decimal(recipe.quantity);
+                const cpu = new Decimal(componentCPU);
+                totalCPU = totalCPU.plus(quantity.times(cpu));
+              }
+            }
+
+            if (totalCPU.greaterThan(0)) {
+              calculatedCPU = totalCPU.toFixed(2);
+            }
+          }
+
+          variantOptions.push({
+            type: 'product',
+            productId: product.id,
+            productName: product.name,
+            latestPrice: product.msrp || null,
+            latestCPU: calculatedCPU,
+          });
+        }
+
+        variantOptions.sort((a, b) => a.productName.localeCompare(b.productName));
+        setAvailableVariants(variantOptions);
+      } catch (error) {
+        console.error('Error loading variants:', error);
+      } finally {
+        setLoadingVariants(false);
+      }
+    };
+
+    loadVariants();
+  }, [companyId]);
 
   // Auto-populate base CPUs when available
   useEffect(() => {
@@ -123,25 +242,57 @@ export function DistributionCalculatorForm({
   };
 
   const removeVariant = (id: string) => {
-    setVariants(variants.filter((v) => v.id !== id));
+    if (variants.length > 1) {
+      setVariants(variants.filter((v) => v.id !== id));
+    }
   };
 
-  const updateVariant = (
-    id: string,
-    field: 'variantName' | 'pricePerUnit' | 'baseCPU',
-    value: string
-  ) => {
-    setVariants(
-      variants.map((v) => (v.id === id ? { ...v, [field]: value } : v))
-    );
+  const updateVariant = (id: string, field: keyof VariantInput, value: string) => {
+    setVariants(variants.map((v) => (v.id === id ? { ...v, [field]: value } : v)));
   };
 
-  const toggleCustomFee = (feeName: string) => {
-    setSelectedCustomFees((prev) =>
-      prev.includes(feeName)
-        ? prev.filter((name) => name !== feeName)
-        : [...prev, feeName]
-    );
+  const handleVariantSelect = (id: string, selectedOption: string) => {
+    const selected = availableVariants.find((opt) => {
+      if (opt.type === 'product') {
+        return opt.productName === selectedOption;
+      }
+      return false;
+    });
+
+    if (selected) {
+      // Update all fields at once to avoid state batching issues
+      setVariants(variants.map((v) => {
+        if (v.id === id) {
+          return {
+            ...v,
+            variantName: selected.productName,
+            pricePerUnit: selected.latestPrice || v.pricePerUnit,
+            baseCPU: selected.latestCPU || v.baseCPU,
+          };
+        }
+        return v;
+      }));
+    }
+  };
+
+  const toggleFee = (feeId: string) => {
+    setFeeSelections(prev => ({
+      ...prev,
+      [feeId]: {
+        ...prev[feeId],
+        selected: !prev[feeId].selected,
+      },
+    }));
+  };
+
+  const updateFeeQuantity = (feeId: string, quantity: string) => {
+    setFeeSelections(prev => ({
+      ...prev,
+      [feeId]: {
+        ...prev[feeId],
+        quantity,
+      },
+    }));
   };
 
   const validate = (): boolean => {
@@ -155,31 +306,30 @@ export function DistributionCalculatorForm({
       newErrors.unitsPerPallet = 'Units per pallet must be greater than 0';
     }
 
-    if (variants.length === 0) {
-      newErrors.variants = 'At least one variant is required';
-    }
-
-    variants.forEach((variant) => {
+    variants.forEach((variant, index) => {
       if (!variant.variantName.trim()) {
-        newErrors[`variant_${variant.id}_name`] = 'Variant name is required';
+        newErrors[`variant_${variant.id}_name`] = 'Product name is required';
       }
-      if (!variant.pricePerUnit || parseFloat(variant.pricePerUnit) < 0) {
-        newErrors[`variant_${variant.id}_price`] = 'Valid price is required';
+      if (!variant.pricePerUnit || parseFloat(variant.pricePerUnit) <= 0) {
+        newErrors[`variant_${variant.id}_price`] = 'Price must be greater than 0';
       }
       if (!variant.baseCPU || parseFloat(variant.baseCPU) < 0) {
-        newErrors[`variant_${variant.id}_cpu`] = 'Valid base CPU is required';
+        newErrors[`variant_${variant.id}_cpu`] = 'Base CPU is required';
       }
     });
 
-    if (floorSpace !== 'none' && (!floorSpaceDays || parseFloat(floorSpaceDays) <= 0)) {
-      newErrors.floorSpaceDays = 'Days must be greater than 0';
-    }
+    // Validate fee quantities where needed
+    Object.entries(feeSelections).forEach(([feeId, selection]) => {
+      if (selection.selected && selection.quantity !== undefined) {
+        const qty = parseFloat(selection.quantity);
+        if (isNaN(qty) || qty <= 0) {
+          newErrors[`fee_${feeId}_quantity`] = 'Quantity must be greater than 0';
+        }
+      }
+    });
 
-    if (
-      msrpMarkupPercentage &&
-      (parseFloat(msrpMarkupPercentage) < 0 || parseFloat(msrpMarkupPercentage) > 1000)
-    ) {
-      newErrors.msrpMarkupPercentage = 'MSRP markup must be between 0 and 1000%';
+    if (msrpMarkupPercentage && parseFloat(msrpMarkupPercentage) < 0) {
+      newErrors.msrpMarkupPercentage = 'MSRP markup cannot be negative';
     }
 
     setErrors(newErrors);
@@ -194,45 +344,63 @@ export function DistributionCalculatorForm({
     }
 
     // Build variant data
-    const variantData: DistributionCalcParams['variantData'] = {};
-    variants.forEach((v) => {
-      if (v.variantName.trim()) {
-        variantData[v.variantName.trim()] = {
-          price_per_unit: v.pricePerUnit.trim(),
-          base_cpu: v.baseCPU.trim(),
-        };
-      }
+    const variantData: Record<string, { price_per_unit: string; base_cpu: string }> = {};
+    variants.forEach((variant) => {
+      variantData[variant.variantName] = {
+        price_per_unit: variant.pricePerUnit,
+        base_cpu: variant.baseCPU,
+      };
     });
+
+    // Build selected fees with their configurations
+    const selectedFees = Object.entries(feeSelections)
+      .filter(([_, selection]) => selection.selected)
+      .map(([feeId, selection]) => {
+        const fee = distributor.fee_structure.find(f => f.id === feeId);
+        return {
+          feeId,
+          description: fee!.description,
+          amount: fee!.amount,
+          unit: fee!.unit,
+          quantity: selection.quantity,
+        };
+      });
 
     const params: DistributionCalcParams = {
       distributorId: distributor.id,
-      numPallets: numPallets.trim(),
-      unitsPerPallet: unitsPerPallet.trim(),
+      numPallets,
+      unitsPerPallet,
       variantData,
-      appliedFees: {
-        pallet_cost: palletCost,
-        warehouse_services: warehouseServices,
-        pallet_build: palletBuild,
-        floor_space: floorSpace,
-        floor_space_days: floorSpace !== 'none' ? floorSpaceDays.trim() : undefined,
-        truck_transfer_zone: truckTransferZone,
-        custom_fees: selectedCustomFees.length > 0 ? selectedCustomFees : undefined,
-      },
-      msrpMarkupPercentage: msrpMarkupPercentage.trim() || undefined,
+      selectedFees, // Pass the flexible fee selections
+      msrpMarkupPercentage: msrpMarkupPercentage || null,
     };
 
     onCalculate(params);
   };
 
-  const customFeesAvailable = distributor.fee_structure.custom_fees
-    ? Object.keys(distributor.fee_structure.custom_fees)
-    : [];
+  const needsQuantityInput = (unit: string): boolean => {
+    return unit === 'per_day_full' || unit === 'per_day_half';
+  };
+
+  const getUnitLabel = (unit: string): string => {
+    const labels: Record<string, string> = {
+      per_pallet: 'per pallet',
+      per_case: 'per case',
+      per_day_full: 'per day (full)',
+      per_day_half: 'per day (half)',
+      per_shipment: 'per shipment',
+      per_zone: 'per zone',
+      flat_fee: 'flat fee',
+      percentage: '%',
+    };
+    return labels[unit] || unit;
+  };
 
   return (
     <Card variant="bordered" padding="lg">
       <form onSubmit={handleCalculate}>
         <CardHeader>
-          <h3 className={styles.formTitle}>Distribution Calculator</h3>
+          <h3 className={styles.formTitle}>Distribution Cost Calculator</h3>
           <p className={styles.formDescription}>
             Calculate distribution costs and profit margins for {distributor.name}.
           </p>
@@ -240,9 +408,10 @@ export function DistributionCalculatorForm({
 
         <CardBody>
           <div className={styles.formGrid}>
-            {/* Pallet & Unit Parameters */}
+            {/* Basic Calculation Inputs */}
             <div className={styles.section}>
-              <h4 className={styles.sectionTitle}>Pallet Parameters</h4>
+              <h4 className={styles.sectionTitle}>Shipment Details</h4>
+
               <div className={styles.inputRow}>
                 <Input
                   label="Number of Pallets"
@@ -253,11 +422,11 @@ export function DistributionCalculatorForm({
                   onChange={(e) => setNumPallets(e.target.value)}
                   error={errors.numPallets}
                   required
-                  fullWidth
                   placeholder="1.00"
                 />
+
                 <Input
-                  label="Units Per Pallet"
+                  label="Units per Pallet"
                   type="number"
                   step="1"
                   min="0"
@@ -265,17 +434,16 @@ export function DistributionCalculatorForm({
                   onChange={(e) => setUnitsPerPallet(e.target.value)}
                   error={errors.unitsPerPallet}
                   required
-                  fullWidth
                   placeholder="100"
-                  helperText="Total units on each pallet"
+                  helperText="Total number of individual units on each pallet"
                 />
               </div>
             </div>
 
-            {/* Variant Pricing */}
+            {/* Products / Variants */}
             <div className={styles.section}>
               <div className={styles.sectionHeader}>
-                <h4 className={styles.sectionTitle}>Product Variants</h4>
+                <h4 className={styles.sectionTitle}>Products</h4>
                 <Button
                   type="button"
                   variant="outline"
@@ -283,222 +451,159 @@ export function DistributionCalculatorForm({
                   onClick={addVariant}
                   iconBefore={<span>+</span>}
                 >
-                  Add Variant
+                  Add Product
                 </Button>
               </div>
 
-              {errors.variants && (
-                <p className={styles.errorText}>{errors.variants}</p>
+              {loadingVariants && (
+                <p className={styles.loadingText}>Loading products...</p>
               )}
 
               <div className={styles.variantsList}>
                 {variants.map((variant, index) => (
                   <div key={variant.id} className={styles.variantRow}>
                     <div className={styles.variantNumber}>{index + 1}</div>
-                    <Input
-                      label="Variant Name"
-                      value={variant.variantName}
-                      onChange={(e) =>
-                        updateVariant(variant.id, 'variantName', e.target.value)
-                      }
-                      error={errors[`variant_${variant.id}_name`]}
-                      placeholder="e.g., 8oz, Small"
-                      fullWidth
-                    />
-                    <Input
-                      label="Price Per Unit"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={variant.pricePerUnit}
-                      onChange={(e) =>
-                        updateVariant(variant.id, 'pricePerUnit', e.target.value)
-                      }
-                      error={errors[`variant_${variant.id}_price`]}
-                      iconBefore={<span>$</span>}
-                      placeholder="0.00"
-                      fullWidth
-                    />
-                    <Input
-                      label="Base CPU"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={variant.baseCPU}
-                      onChange={(e) => updateVariant(variant.id, 'baseCPU', e.target.value)}
-                      error={errors[`variant_${variant.id}_cpu`]}
-                      iconBefore={<span>$</span>}
-                      placeholder="0.00"
-                      helperText="From latest invoice"
-                      fullWidth
-                    />
-                    {variants.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="danger"
-                        size="sm"
-                        onClick={() => removeVariant(variant.id)}
-                        aria-label="Remove variant"
-                      >
-                        Remove
-                      </Button>
-                    )}
+                    <div className={styles.variantFields}>
+                      <div className={styles.variantField}>
+                        <label className={styles.variantLabel}>Product</label>
+                        {availableVariants.length > 0 ? (
+                          <Select
+                            value={variant.variantName}
+                            onChange={(e) => handleVariantSelect(variant.id, e.target.value)}
+                            options={[
+                              { value: '', label: 'Select a product...' },
+                              ...availableVariants.map((opt) => ({
+                                value: opt.productName,
+                                label: opt.productName,
+                              })),
+                            ]}
+                            error={errors[`variant_${variant.id}_name`]}
+                          />
+                        ) : (
+                          <input
+                            type="text"
+                            value={variant.variantName}
+                            onChange={(e) => updateVariant(variant.id, 'variantName', e.target.value)}
+                            placeholder="ex: 8oz Body Oil"
+                            className={styles.variantInput}
+                          />
+                        )}
+                      </div>
+
+                      <div className={styles.variantField}>
+                        <label className={styles.variantLabel}>Price/Unit</label>
+                        <div className={styles.amountWrapper}>
+                          <span className={styles.currencySymbol}>$</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={variant.pricePerUnit}
+                            onChange={(e) => updateVariant(variant.id, 'pricePerUnit', e.target.value)}
+                            placeholder="0.00"
+                            className={styles.variantInputAmount}
+                          />
+                        </div>
+                        {errors[`variant_${variant.id}_price`] && (
+                          <span className={styles.errorText}>{errors[`variant_${variant.id}_price`]}</span>
+                        )}
+                      </div>
+
+                      <div className={styles.variantField}>
+                        <label className={styles.variantLabel}>Base CPU</label>
+                        <div className={styles.amountWrapper}>
+                          <span className={styles.currencySymbol}>$</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={variant.baseCPU}
+                            onChange={(e) => updateVariant(variant.id, 'baseCPU', e.target.value)}
+                            placeholder="0.00"
+                            className={styles.variantInputAmount}
+                          />
+                        </div>
+                        {errors[`variant_${variant.id}_cpu`] && (
+                          <span className={styles.errorText}>{errors[`variant_${variant.id}_cpu`]}</span>
+                        )}
+                      </div>
+
+                      {variants.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeVariant(variant.id)}
+                          className={styles.removeVariantButton}
+                          aria-label="Remove product"
+                          title="Remove product"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Fee Selection */}
+            {/* Fee Selection - Dynamic */}
             <div className={styles.section}>
-              <h4 className={styles.sectionTitle}>Fee Selection</h4>
+              <h4 className={styles.sectionTitle}>Distributor Fees</h4>
               <p className={styles.sectionDescription}>
                 Select which fees apply to this calculation.
               </p>
 
-              <div className={styles.feeCheckboxes}>
-                {/* Basic Fees */}
-                {distributor.fee_structure.pallet_cost && (
-                  <Checkbox
-                    label={`Pallet Cost ($${distributor.fee_structure.pallet_cost})`}
-                    checked={palletCost}
-                    onChange={(e) => setPalletCost(e.target.checked)}
-                  />
-                )}
-
-                {distributor.fee_structure.warehouse_services && (
-                  <Checkbox
-                    label={`Warehouse Services ($${distributor.fee_structure.warehouse_services})`}
-                    checked={warehouseServices}
-                    onChange={(e) => setWarehouseServices(e.target.checked)}
-                  />
-                )}
-
-                {distributor.fee_structure.pallet_build && (
-                  <Checkbox
-                    label={`Pallet Build ($${distributor.fee_structure.pallet_build})`}
-                    checked={palletBuild}
-                    onChange={(e) => setPalletBuild(e.target.checked)}
-                  />
-                )}
-
-                {/* Floor Space */}
-                {(distributor.fee_structure.floor_space_full_day ||
-                  distributor.fee_structure.floor_space_half_day) && (
-                  <div className={styles.floorSpaceSection}>
-                    <h5 className={styles.subsectionTitle}>Floor Space</h5>
-                    <div className={styles.radioGroup}>
-                      <Radio
-                        label="None"
-                        name="floorSpace"
-                        value="none"
-                        checked={floorSpace === 'none'}
-                        onChange={() => setFloorSpace('none')}
+              {distributor.fee_structure.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>No fees configured for this distributor. Edit the distributor to add fees.</p>
+                </div>
+              ) : (
+                <div className={styles.feeCheckboxes}>
+                  {distributor.fee_structure.map((fee) => (
+                    <div key={fee.id} className={styles.feeCheckboxRow}>
+                      <Checkbox
+                        label={`${fee.description} ($${fee.amount} ${getUnitLabel(fee.unit)})`}
+                        checked={feeSelections[fee.id]?.selected || false}
+                        onChange={() => toggleFee(fee.id)}
                       />
-                      {distributor.fee_structure.floor_space_full_day && (
-                        <Radio
-                          label={`Full Day ($${distributor.fee_structure.floor_space_full_day})`}
-                          name="floorSpace"
-                          value="full_day"
-                          checked={floorSpace === 'full_day'}
-                          onChange={() => setFloorSpace('full_day')}
-                        />
-                      )}
-                      {distributor.fee_structure.floor_space_half_day && (
-                        <Radio
-                          label={`Half Day ($${distributor.fee_structure.floor_space_half_day})`}
-                          name="floorSpace"
-                          value="half_day"
-                          checked={floorSpace === 'half_day'}
-                          onChange={() => setFloorSpace('half_day')}
-                        />
+
+                      {feeSelections[fee.id]?.selected && needsQuantityInput(fee.unit) && (
+                        <div className={styles.feeQuantityInput}>
+                          <Input
+                            label="Days"
+                            type="number"
+                            step="1"
+                            min="1"
+                            value={feeSelections[fee.id].quantity || '1'}
+                            onChange={(e) => updateFeeQuantity(fee.id, e.target.value)}
+                            error={errors[`fee_${fee.id}_quantity`]}
+                            placeholder="1"
+                          />
+                        </div>
                       )}
                     </div>
-                    {floorSpace !== 'none' && (
-                      <Input
-                        label="Number of Days"
-                        type="number"
-                        step="1"
-                        min="1"
-                        value={floorSpaceDays}
-                        onChange={(e) => setFloorSpaceDays(e.target.value)}
-                        error={errors.floorSpaceDays}
-                        placeholder="1"
-                        fullWidth
-                      />
-                    )}
-                  </div>
-                )}
-
-                {/* Truck Transfer */}
-                {(distributor.fee_structure.truck_transfer_zone1 ||
-                  distributor.fee_structure.truck_transfer_zone2) && (
-                  <div className={styles.truckTransferSection}>
-                    <h5 className={styles.subsectionTitle}>Truck Transfer</h5>
-                    <div className={styles.radioGroup}>
-                      <Radio
-                        label="None"
-                        name="truckTransfer"
-                        value="none"
-                        checked={truckTransferZone === 'none'}
-                        onChange={() => setTruckTransferZone('none')}
-                      />
-                      {distributor.fee_structure.truck_transfer_zone1 && (
-                        <Radio
-                          label={`Zone 1 ($${distributor.fee_structure.truck_transfer_zone1})`}
-                          name="truckTransfer"
-                          value="zone1"
-                          checked={truckTransferZone === 'zone1'}
-                          onChange={() => setTruckTransferZone('zone1')}
-                        />
-                      )}
-                      {distributor.fee_structure.truck_transfer_zone2 && (
-                        <Radio
-                          label={`Zone 2 ($${distributor.fee_structure.truck_transfer_zone2})`}
-                          name="truckTransfer"
-                          value="zone2"
-                          checked={truckTransferZone === 'zone2'}
-                          onChange={() => setTruckTransferZone('zone2')}
-                        />
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Custom Fees */}
-                {customFeesAvailable.length > 0 && (
-                  <div className={styles.customFeesSection}>
-                    <h5 className={styles.subsectionTitle}>Custom Fees</h5>
-                    <div className={styles.customFeeCheckboxes}>
-                      {customFeesAvailable.map((feeName) => (
-                        <Checkbox
-                          key={feeName}
-                          label={`${feeName} ($${distributor.fee_structure.custom_fees![feeName]})`}
-                          checked={selectedCustomFees.includes(feeName)}
-                          onChange={() => toggleCustomFee(feeName)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* MSRP Markup */}
+            {/* MSRP Markup (Optional) */}
             <div className={styles.section}>
               <h4 className={styles.sectionTitle}>MSRP Calculation (Optional)</h4>
+              <p className={styles.sectionDescription}>
+                Add a markup percentage to calculate MSRP from wholesale price.
+              </p>
+
               <Input
                 label="MSRP Markup Percentage"
                 type="number"
-                step="0.01"
+                step="0.1"
                 min="0"
-                max="1000"
                 value={msrpMarkupPercentage}
                 onChange={(e) => setMsrpMarkupPercentage(e.target.value)}
                 error={errors.msrpMarkupPercentage}
-                iconAfter={<span>%</span>}
                 placeholder="50"
-                helperText="Markup from wholesale to retail (e.g., 50 for 50%)"
-                fullWidth
+                helperText="e.g., 50 for 50% markup"
+                iconAfter={<span>%</span>}
               />
             </div>
           </div>

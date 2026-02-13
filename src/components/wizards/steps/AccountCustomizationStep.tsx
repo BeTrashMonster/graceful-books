@@ -112,6 +112,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   const [currentPart, setCurrentPart] = useState(1)
   const [initialized, setInitialized] = useState(false)
   const [equipmentErrors, setEquipmentErrors] = useState<Set<string>>(new Set())
+  const [isGeneratingCustomizations, setIsGeneratingCustomizations] = useState(false)
 
   // Part 1: Bank Accounts
   const [bankAccounts, setBankAccounts] = useState<BankAccountEntry[]>([
@@ -191,8 +192,9 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   }, [initialized, savedFormData])
 
   // Save form data continuously to support "Save and finish later"
+  // BUT don't run this when we're generating final customizations (to prevent overwriting)
   useEffect(() => {
-    if (initialized) {
+    if (initialized && !isGeneratingCustomizations) {
       const formData = {
         currentPart,
         bankAccounts,
@@ -208,11 +210,14 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         commonExpenses,
         customExpenses,
       }
-      // Update the wizard data immediately with current form state
+
+      // During parts 1-6, save form data with empty customizations
+      // Customizations will be generated when user clicks "Continue to review"
       onUpdate([], formData)
     }
   }, [
     initialized,
+    isGeneratingCustomizations,
     currentPart,
     bankAccounts,
     includeCash,
@@ -266,6 +271,8 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       setCurrentPart(currentPart + 1)
     } else {
       // Generate customizations and call onNext
+      // Set flag to prevent continuous-save useEffect from overwriting
+      setIsGeneratingCustomizations(true)
       generateCustomizations()
       onNext()
     }
@@ -280,54 +287,43 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   }
 
   const generateCustomizations = () => {
-    const customizationsList: AccountCustomization[] = []
-    let accountNumber = 1000
+    // Step 1: Collect accounts by type and sub-category (without account numbers yet)
+    const bankAccounts_sorted: Omit<AccountCustomization, 'accountNumber'>[] = []
+    const equipmentAccounts: Omit<AccountCustomization, 'accountNumber'>[] = []
+    const liabilityAccounts: Omit<AccountCustomization, 'accountNumber'>[] = []
+    const incomeAccounts: Omit<AccountCustomization, 'accountNumber'>[] = []
+    const expenseAccounts: Omit<AccountCustomization, 'accountNumber'>[] = []
 
-    // Bank accounts
+    // ASSETS - Sub-categorized for specific ordering
+    // Bank/Cash accounts (will be sorted alphabetically)
     bankAccounts.forEach((account) => {
       if (account.name.trim()) {
-        customizationsList.push({
+        bankAccounts_sorted.push({
           templateAccountName: 'Business Checking',
           name: account.name.trim(),
-          accountNumber: String(accountNumber),
           isIncluded: true,
           type: 'asset',
         })
-        accountNumber += 10
       }
     })
 
     // Cash
     if (includeCash && cashName.trim()) {
-      customizationsList.push({
+      bankAccounts_sorted.push({
         templateAccountName: 'Cash on Hand',
         name: cashName.trim(),
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'asset',
-      })
-      accountNumber += 10
-    }
-
-    // Accounts Receivable (if included)
-    if (includeAR) {
-      customizationsList.push({
-        templateAccountName: 'Accounts Receivable',
-        name: 'Accounts Receivable',
-        accountNumber: '1200',
         isIncluded: true,
         type: 'asset',
       })
     }
 
-    // Equipment
+    // Equipment (will be sorted alphabetically separately)
     if (includeEquipment) {
       equipmentItems.forEach((item) => {
         if (item.name.trim()) {
-          customizationsList.push({
+          equipmentAccounts.push({
             templateAccountName: 'Equipment',
             name: item.name.trim(),
-            accountNumber: '1500',
             isIncluded: true,
             type: 'asset',
           })
@@ -335,262 +331,284 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       })
     }
 
-    // Inventory
-    if (includeInventory && inventoryName.trim()) {
-      customizationsList.push({
-        templateAccountName: 'Inventory',
-        name: inventoryName.trim(),
-        accountNumber: '1400',
-        isIncluded: true,
-        type: 'asset',
-      })
-    }
-
-    // Accounts Payable (required)
-    customizationsList.push({
+    // LIABILITIES
+    // Accounts Payable
+    liabilityAccounts.push({
       templateAccountName: 'Accounts Payable',
       name: 'Accounts Payable',
-      accountNumber: '2000',
       isIncluded: true,
       type: 'liability',
     })
 
     // Credit Cards
-    accountNumber = 2100
     creditCards.forEach((card) => {
       if (card.name.trim()) {
-        customizationsList.push({
+        liabilityAccounts.push({
           templateAccountName: 'Credit Card',
           name: card.name.trim(),
-          accountNumber: String(accountNumber),
           isIncluded: true,
           type: 'liability',
         })
-        accountNumber += 10
       }
     })
 
     // Loans
-    accountNumber = 2600
     loans.forEach((loan) => {
       if (loan.name.trim()) {
-        customizationsList.push({
+        liabilityAccounts.push({
           templateAccountName: 'Loan',
           name: loan.name.trim(),
-          accountNumber: String(accountNumber),
           description: loan.balance ? `Current balance: $${loan.balance}` : undefined,
           isIncluded: true,
           type: 'liability',
         })
-        accountNumber += 10
       }
+    })
+
+    // INCOME
+    incomeSources.forEach((income) => {
+      if (income.name.trim()) {
+        incomeAccounts.push({
+          templateAccountName: 'Income',
+          name: income.name.trim(),
+          isIncluded: true,
+          type: 'income',
+        })
+      }
+    })
+
+    // EXPENSES
+    // Common expenses
+    if (commonExpenses.bankFees) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Bank Fees',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.businessLicense) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Business License + Permits',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.continuingEducation) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Continuing Education',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.contractLabor) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Contract Labor',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.insurance) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Insurance',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.marketing) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Marketing + Advertising',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.merchantFees) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Merchant Fees',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.officeSupplies) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Office Supplies',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.phoneInternet) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Phone + Internet',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.postageDelivery) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Postage + Delivery',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.professionalFees) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Professional Fees',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.rent) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Rent',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.repairsMaintenance) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Repairs + Maintenance',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.software) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Software + Subscriptions',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.suppliesMaterials) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Supplies + Materials',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.travel) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Travel',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+    if (commonExpenses.utilities) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Utilities',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
+
+    // Custom expenses
+    customExpenses.forEach((expense) => {
+      if (expense.name.trim()) {
+        expenseAccounts.push({
+          templateAccountName: 'Expense',
+          name: expense.name.trim(),
+          isIncluded: true,
+          type: 'expense',
+        })
+      }
+    })
+
+    // Step 2: Sort sub-categories alphabetically
+    bankAccounts_sorted.sort((a, b) => a.name.localeCompare(b.name))
+    equipmentAccounts.sort((a, b) => a.name.localeCompare(b.name))
+    liabilityAccounts.sort((a, b) => a.name.localeCompare(b.name))
+    incomeAccounts.sort((a, b) => a.name.localeCompare(b.name))
+    expenseAccounts.sort((a, b) => a.name.localeCompare(b.name))
+
+    // Step 3: Assign account numbers in specific order
+    const customizationsList: AccountCustomization[] = []
+
+    // ASSETS in specific order:
+    // 1. Bank/Cash accounts (alphabetically)
+    // 2. Accounts Receivable
+    // 3. Equipment (alphabetically)
+    // 4. Inventory
+    let accountNumber = 1000
+
+    // 1. Bank/Cash accounts
+    bankAccounts_sorted.forEach(account => {
+      customizationsList.push({ ...account, accountNumber: String(accountNumber) })
+      accountNumber += 10
+    })
+
+    // 2. Accounts Receivable
+    if (includeAR) {
+      customizationsList.push({
+        templateAccountName: 'Accounts Receivable',
+        name: 'Accounts Receivable',
+        isIncluded: true,
+        type: 'asset',
+        accountNumber: String(accountNumber),
+      })
+      accountNumber += 10
+    }
+
+    // 3. Equipment
+    equipmentAccounts.forEach(account => {
+      customizationsList.push({ ...account, accountNumber: String(accountNumber) })
+      accountNumber += 10
+    })
+
+    // 4. Inventory
+    if (includeInventory && inventoryName.trim()) {
+      customizationsList.push({
+        templateAccountName: 'Inventory',
+        name: inventoryName.trim(),
+        isIncluded: true,
+        type: 'asset',
+        accountNumber: String(accountNumber),
+      })
+      accountNumber += 10
+    }
+
+    // LIABILITIES (alphabetically)
+    accountNumber = 2000
+    liabilityAccounts.forEach(account => {
+      customizationsList.push({ ...account, accountNumber: String(accountNumber) })
+      accountNumber += 10
     })
 
     // NOTE: Equity accounts (Member Capital, Distributions, Retained Earnings)
     // are auto-generated by the wizard based on entity type.
     // See ChartOfAccountsWizard.tsx handleCreateAccounts() -> generateEquityAccounts()
 
-    // Income
+    // INCOME (alphabetically)
     accountNumber = 4000
-    incomeSources.forEach((income) => {
-      if (income.name.trim()) {
-        customizationsList.push({
-          templateAccountName: 'Income',
-          name: income.name.trim(),
-          accountNumber: String(accountNumber),
-          isIncluded: true,
-          type: 'income',
-        })
-        accountNumber += 100
-      }
+    incomeAccounts.forEach(account => {
+      customizationsList.push({ ...account, accountNumber: String(accountNumber) })
+      accountNumber += 100
     })
 
-    // Expenses - Common checkboxes (in alphabetical order)
+    // EXPENSES (alphabetically - includes both common checkboxes and custom entries)
     accountNumber = 6000
-    if (commonExpenses.bankFees) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Bank Fees',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
+    expenseAccounts.forEach(account => {
+      customizationsList.push({ ...account, accountNumber: String(accountNumber) })
       accountNumber += 100
-    }
-    if (commonExpenses.businessLicense) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Business License + Permits',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-    if (commonExpenses.continuingEducation) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Continuing Education',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-    if (commonExpenses.contractLabor) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Contract Labor',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-    if (commonExpenses.insurance) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Insurance',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-    if (commonExpenses.marketing) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Marketing + Advertising',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-    if (commonExpenses.merchantFees) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Merchant Fees',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-    if (commonExpenses.officeSupplies) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Office Supplies',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-    if (commonExpenses.phoneInternet) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Phone + Internet',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-    if (commonExpenses.postageDelivery) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Postage + Delivery',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-    if (commonExpenses.professionalFees) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Professional Fees',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-    if (commonExpenses.rent) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Rent',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-    if (commonExpenses.repairsMaintenance) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Repairs + Maintenance',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-    if (commonExpenses.software) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Software + Subscriptions',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-    if (commonExpenses.suppliesMaterials) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Supplies + Materials',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-    if (commonExpenses.travel) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Travel',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-    if (commonExpenses.utilities) {
-      customizationsList.push({
-        templateAccountName: 'Expense',
-        name: 'Utilities',
-        accountNumber: String(accountNumber),
-        isIncluded: true,
-        type: 'expense',
-      })
-      accountNumber += 100
-    }
-
-    // Custom expenses
-    customExpenses.forEach((expense) => {
-      if (expense.name.trim()) {
-        customizationsList.push({
-          templateAccountName: 'Expense',
-          name: expense.name.trim(),
-          accountNumber: String(accountNumber),
-          isIncluded: true,
-          type: 'expense',
-        })
-        accountNumber += 100
-      }
     })
+
+    console.log('=== generateCustomizations COMPLETE ===')
+    console.log('Total accounts generated:', customizationsList.length)
+    console.log('Customizations:', customizationsList)
 
     // Pass the formData along with customizations to preserve equipment/loan opening balances
     const formData = {
