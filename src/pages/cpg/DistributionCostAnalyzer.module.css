@@ -99,13 +99,14 @@
   text-align: center;
 }
 
-.successModalHeader {
-  background: linear-gradient(135deg, #5b21b6 0%, #6d28d9 100%);
-  color: white;
+.successModalHeaderGreen {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important;
+  color: #065f46 !important;
   padding: 1.5rem;
   border-radius: 0.5rem;
   margin: -1.5rem -1.5rem 0;
-  box-shadow: 0 4px 6px -1px rgba(91, 33, 182, 0.4);
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3) !important;
+  border: 2px solid #34d399 !important;
 }
 
 .successModalTitle {
@@ -116,17 +117,20 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  color: #065f46 !important;
 }
 
 .successIcon {
   font-size: 2rem;
+  color: #065f46 !important;
 }
 
 .successModalMessage {
   margin: 1rem 0 0;
   font-size: 1rem;
-  color: #374151;
+  color: #1f2937;
   line-height: 1.6;
+  font-weight: 500;
 }
 
 .successLink {

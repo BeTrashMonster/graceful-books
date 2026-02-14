@@ -414,7 +414,7 @@ export default function DistributionCostAnalyzer() {
           size="sm"
         >
           <div className={styles.successModal}>
-            <div className={styles.successModalHeader}>
+            <div className={styles.successModalHeaderGreen}>
               <h2 className={styles.successModalTitle}>
                 <span className={styles.successIcon}>✓</span>
                 Success!

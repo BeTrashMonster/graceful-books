@@ -18,7 +18,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
 import type { CPGDistributor, CPGDistributionCalculation } from '../../db/schema/cpg.schema';
 import { DistributionCostCalculatorService } from '../../services/cpg/distributionCostCalculator.service';
-import { AddDistributorModal } from './modals/AddDistributorModal';
 import { DistributorProfileForm, type DistributorFormData } from './DistributorProfileForm';
 import styles from './DistributorManager.module.css';
 
@@ -239,6 +238,32 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
       loadDistributors();
     } catch (error) {
       console.error('Error deleting distributor:', error);
+    }
+  };
+
+  const handleCreateSubmit = async (formData: DistributorFormData) => {
+    if (!companyId || !deviceId) return;
+
+    setIsSaving(true);
+    try {
+      const distributor = await calculatorService.createDistributor(
+        companyId,
+        formData.name,
+        formData.description,
+        formData.contact_info,
+        formData.fee_structure,
+        deviceId,
+        formData.last_fee_update_date,
+        formData.typical_update_frequency
+      );
+
+      window.dispatchEvent(new CustomEvent('cpg-data-updated', { detail: { type: 'distributor' } }));
+      setShowAddModal(false);
+      loadDistributors();
+    } catch (error) {
+      console.error('Error creating distributor:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -562,14 +587,19 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
       )}
 
       {/* Add Distributor Modal */}
-      <AddDistributorModal
+      <Modal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
-        onSuccess={() => {
-          setShowAddModal(false);
-          loadDistributors();
-        }}
-      />
+        title="Add New Distributor"
+        size="xl"
+        closeOnBackdropClick={false}
+      >
+        <DistributorProfileForm
+          onSubmit={handleCreateSubmit}
+          onCancel={() => setShowAddModal(false)}
+          loading={isSaving}
+        />
+      </Modal>
 
       {/* Edit Distributor Modal */}
       <Modal

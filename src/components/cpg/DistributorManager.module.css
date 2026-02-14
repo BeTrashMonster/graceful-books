@@ -563,7 +563,7 @@
   box-shadow: 0 4px 6px rgba(91, 33, 182, 0.3);
 }
 
-/* Success Message */
+/* Success Message - Enhanced Contrast */
 .successMessage {
   display: flex;
   align-items: center;
@@ -572,11 +572,16 @@
   background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
   border: 2px solid #34d399;
   border-radius: 0.5rem;
-  color: #052e16;
+  color: #052e16 !important;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 600 !important;
   margin-bottom: 0.75rem;
   animation: slideIn 0.3s ease-out;
+}
+
+.successMessage span {
+  color: #052e16;
+  font-weight: 600;
 }
 
 @keyframes slideIn {

@@ -183,3 +183,141 @@
     width: 100%;
   }
 }
+
+/* Variant Field Styles */
+.variantField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.variantLabel {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.variantInput {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: #111827;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.variantInput:hover {
+  border-color: #9ca3af;
+}
+
+.variantInput:focus {
+  outline: none;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.variantInputAmount {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  padding-left: 2rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: #111827;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.variantInputAmount:hover {
+  border-color: #9ca3af;
+}
+
+.variantInputAmount:focus {
+  outline: none;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* Amount Wrapper for Currency Inputs */
+.amountWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currencySymbol {
+  position: absolute;
+  left: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  pointer-events: none;
+}
+
+/* Remove Variant Button */
+.removeVariantButton {
+  margin-top: 1.5rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  border-radius: 0.25rem;
+  font-size: 1.25rem;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.removeVariantButton:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+  transform: scale(1.1);
+}
+
+/* Empty State */
+.emptyState {
+  padding: 2rem;
+  background-color: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 0.375rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.emptyState p {
+  margin: 0;
+}
+
+/* Loading Text */
+.loadingText {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Fee Checkbox Row */
+.feeCheckboxRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feeQuantityInput {
+  width: 5rem;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+}
