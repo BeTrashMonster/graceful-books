@@ -69,6 +69,10 @@ export default function Distribution() {
   const [showSaveScenarioModal, setShowSaveScenarioModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successModalMessage, setSuccessModalMessage] = useState('');
+  const [showUnsavedWarningModal, setShowUnsavedWarningModal] = useState(false);
+
+  // Track unsaved calculation results
+  const [hasUnsavedResults, setHasUnsavedResults] = useState(false);
 
   // Loading and error states
   const [loading, setLoading] = useState(true);
@@ -93,6 +97,19 @@ export default function Distribution() {
   useEffect(() => {
     loadDistributors();
   }, []);
+
+  // Warn before closing/refreshing if there are unsaved results
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedResults) {
+        e.preventDefault();
+        e.returnValue = ''; // Chrome requires returnValue to be set
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedResults]);
 
   // Update selected distributor when selection changes
   useEffect(() => {
@@ -198,6 +215,7 @@ export default function Distribution() {
       const results = await calculatorService.calculateDistributionCost(params);
       setCalculationResults(results);
       setLastCalculationParams(params); // Store params for saving later
+      setHasUnsavedResults(true); // Mark as unsaved
 
       // Scroll to results after a brief delay to allow DOM to update
       setTimeout(() => {
@@ -212,6 +230,20 @@ export default function Distribution() {
     } finally {
       setCalculating(false);
     }
+  };
+
+  const handleTabSwitch = (newTab: ViewMode) => {
+    if (hasUnsavedResults && viewMode === 'calculations') {
+      setShowUnsavedWarningModal(true);
+    } else {
+      setViewMode(newTab);
+    }
+  };
+
+  const confirmTabSwitch = (newTab: ViewMode) => {
+    setHasUnsavedResults(false);
+    setShowUnsavedWarningModal(false);
+    setViewMode(newTab);
   };
 
   const handleSaveScenario = async () => {
@@ -249,6 +281,7 @@ export default function Distribution() {
       console.log('All calculations in DB for this company:', allCalcs);
 
       setShowSaveScenarioModal(false);
+      setHasUnsavedResults(false); // Mark as saved
       // Show success modal
       setSuccessModalMessage('Calculation saved successfully! You can view it in the Analytics tab under "Distributor Costs".');
       setShowSuccessModal(true);
@@ -292,7 +325,7 @@ export default function Distribution() {
         <button
           role="tab"
           aria-selected={viewMode === 'calculations'}
-          onClick={() => setViewMode('calculations')}
+          onClick={() => handleTabSwitch('calculations')}
           className={viewMode === 'calculations' ? styles.tabActive : styles.tab}
         >
           Cost Calculations
@@ -300,7 +333,7 @@ export default function Distribution() {
         <button
           role="tab"
           aria-selected={viewMode === 'manage'}
-          onClick={() => setViewMode('manage')}
+          onClick={() => handleTabSwitch('manage')}
           className={viewMode === 'manage' ? styles.tabActive : styles.tab}
         >
           Manage Distributors
@@ -362,6 +395,7 @@ export default function Distribution() {
                   results={calculationResults}
                   params={lastCalculationParams}
                   onSave={() => setShowSaveScenarioModal(true)}
+                  onRecalculate={handleCalculate}
                   saving={savingScenario}
                   showSaveButton={true}
                 />
@@ -467,7 +501,7 @@ export default function Distribution() {
           size="sm"
         >
           <div className={styles.successModal}>
-            <div className={styles.successModalHeader}>
+            <div className={styles.successModalHeaderGreen}>
               <h2 className={styles.successModalTitle}>
                 <span className={styles.successIcon}>✓</span>
                 Success!
@@ -478,12 +512,12 @@ export default function Distribution() {
                 <>
                   {successModalMessage.split('Distributor Costs')[0]}
                   <a
-                    href="/cpg/analytics?tab=distributor"
+                    href={`/cpg/analytics?tab=distributor&distributor=${calculationResults?.distributorId || ''}`}
                     className={styles.successLink}
                     onClick={(e) => {
                       e.preventDefault();
                       setShowSuccessModal(false);
-                      window.location.href = '/cpg/analytics?tab=distributor';
+                      window.location.href = `/cpg/analytics?tab=distributor&distributor=${calculationResults?.distributorId || ''}`;
                     }}
                   >
                     Distributor Costs
@@ -500,6 +534,48 @@ export default function Distribution() {
                 onClick={() => setShowSuccessModal(false)}
               >
                 OK
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {showUnsavedWarningModal && (
+        <Modal
+          isOpen={showUnsavedWarningModal}
+          onClose={() => setShowUnsavedWarningModal(false)}
+          title=""
+          closeOnBackdropClick={false}
+          size="sm"
+        >
+          <div className={styles.confirmModal}>
+            <div className={styles.confirmModalHeader}>
+              <h2 className={styles.confirmModalTitle}>Unsaved Calculation</h2>
+            </div>
+            <p className={styles.confirmModalMessage}>
+              You have unsaved calculation results. If you leave now, your results will be lost.
+            </p>
+            <div className={styles.modalActions}>
+              <Button
+                variant="outline"
+                onClick={() => setShowUnsavedWarningModal(false)}
+              >
+                Stay Here
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowSaveScenarioModal(true);
+                  setShowUnsavedWarningModal(false);
+                }}
+              >
+                Save First
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => confirmTabSwitch('manage')}
+              >
+                Leave Anyway
               </Button>
             </div>
           </div>

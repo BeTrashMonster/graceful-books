@@ -11,13 +11,17 @@ export interface DistributionResultsDisplayProps {
    */
   results: DistributionCostResult;
   /**
-   * Calculation parameters (to show base CPU)
+   * Calculation parameters (to show base CPU and fee details)
    */
   params?: DistributionCalcParams;
   /**
    * Callback when "Save Calculation" is clicked
    */
   onSave?: () => void;
+  /**
+   * Callback when fee quantity is adjusted (for sliders)
+   */
+  onRecalculate?: (updatedParams: DistributionCalcParams) => void;
   /**
    * Whether save is in progress
    */
@@ -60,11 +64,62 @@ export function DistributionResultsDisplay({
   results,
   params,
   onSave,
+  onRecalculate,
   saving = false,
   showSaveButton = true,
 }: DistributionResultsDisplayProps) {
   const variantNames = Object.keys(results.variantResults);
   const distributionCostPerUnit = new Decimal(results.distributionCostPerUnit);
+
+  // Helper to get unit label
+  const getUnitLabel = (unit: string): string => {
+    const labels: Record<string, string> = {
+      per_pallet: 'per pallet',
+      per_case: 'per case',
+      per_day_full: 'per full day',
+      per_day_half: 'per half day',
+      per_shipment: 'per shipment',
+      per_zone: 'per zone',
+      flat_fee: 'flat fee',
+      percentage: '%',
+    };
+    return labels[unit] || unit;
+  };
+
+  // Helper to check if fee needs quantity input
+  const isVariableFee = (unit: string): boolean => {
+    return unit === 'per_day_full' || unit === 'per_day_half' || unit.includes('per_day') || unit === 'percentage';
+  };
+
+  // Handle quantity change from slider
+  const handleQuantityChange = (feeId: string, newQuantity: number) => {
+    if (!params || !onRecalculate) return;
+
+    const updatedFees = params.selectedFees.map(fee =>
+      fee.feeId === feeId ? { ...fee, quantity: newQuantity.toString() } : fee
+    );
+
+    onRecalculate({
+      ...params,
+      selectedFees: updatedFees,
+    });
+  };
+
+  // Match fee breakdown with params to get full details
+  const getEnrichedFeeBreakdown = () => {
+    if (!params) return results.feeBreakdown;
+
+    return results.feeBreakdown.map((fee) => {
+      const matchedFee = params.selectedFees.find(sf => sf.feeId === fee.feeId);
+      return {
+        ...fee,
+        unit: matchedFee?.unit || 'flat_fee',
+        quantity: matchedFee?.quantity || undefined,
+      };
+    });
+  };
+
+  const enrichedFees = getEnrichedFeeBreakdown();
 
   return (
     <Card variant="elevated" padding="lg">
@@ -183,20 +238,44 @@ export function DistributionResultsDisplay({
                   <thead>
                     <tr>
                       <th>Fee Name</th>
+                      <th>Unit</th>
+                      {onRecalculate && <th>Quantity</th>}
                       <th className={styles.rightAlign}>Amount</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {results.feeBreakdown.map((fee, index) => (
+                    {enrichedFees.map((fee, index) => (
                       <tr key={index}>
                         <td>{fee.feeName}</td>
+                        <td className={styles.unitCell}>{getUnitLabel(fee.unit)}</td>
+                        {onRecalculate && (
+                          <td>
+                            {isVariableFee(fee.unit) && fee.quantity ? (
+                              <div className={styles.sliderWrapper}>
+                                <input
+                                  type="range"
+                                  min={fee.unit === 'percentage' ? '-100' : '1'}
+                                  max={fee.unit === 'percentage' ? '100' : '30'}
+                                  value={fee.quantity}
+                                  onChange={(e) => handleQuantityChange(fee.feeId, parseInt(e.target.value))}
+                                  className={styles.slider}
+                                />
+                                <span className={styles.sliderValue}>
+                                  {fee.quantity}{fee.unit === 'percentage' ? '%' : ' days'}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className={styles.fixedQuantity}>—</span>
+                            )}
+                          </td>
+                        )}
                         <td className={styles.rightAlign}>
                           ${parseFloat(fee.feeAmount).toFixed(2)}
                         </td>
                       </tr>
                     ))}
                     <tr className={styles.totalRow}>
-                      <td>
+                      <td colSpan={onRecalculate ? 3 : 2}>
                         <strong>Total</strong>
                       </td>
                       <td className={styles.rightAlign}>

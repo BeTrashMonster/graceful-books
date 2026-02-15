@@ -65,6 +65,7 @@ export interface DistributionCalcParams {
     amount: string;
     unit: 'per_pallet' | 'per_case' | 'per_day_full' | 'per_day_half' | 'per_shipment' | 'per_zone' | 'flat_fee' | 'percentage';
     quantity?: string; // For per_day fees, etc.
+    percentage_basis?: 'product_value' | 'distribution_cost' | 'discount';
   }>;
 
   // Optional MSRP calculation
@@ -93,6 +94,7 @@ export interface DistributionCostResult {
 
   // Fee breakdown for transparency
   feeBreakdown: {
+    feeId: string;
     feeName: string;
     feeAmount: string;
   }[];
@@ -242,7 +244,8 @@ export class DistributionCostCalculatorService {
     // Calculate total distribution fees
     const { totalFees, feeBreakdown } = this.calculateTotalFees(
       params.selectedFees,
-      params.numPallets
+      params.numPallets,
+      params.variantData
     );
 
     // Calculate distribution cost per unit
@@ -386,35 +389,48 @@ export class DistributionCostCalculatorService {
    */
   private calculateTotalFees(
     selectedFees: DistributionCalcParams['selectedFees'],
-    numPallets: string
+    numPallets: string,
+    variantData: DistributionCalcParams['variantData']
   ): {
     totalFees: Decimal;
-    feeBreakdown: { feeName: string; feeAmount: string }[];
+    feeBreakdown: { feeId: string; feeName: string; feeAmount: string }[];
   } {
     let totalFees = new Decimal(0);
-    const feeBreakdown: { feeName: string; feeAmount: string }[] = [];
+    const feeBreakdown: { feeId: string; feeName: string; feeAmount: string }[] = [];
     const pallets = new Decimal(numPallets);
 
+    // Calculate total product value for percentage fees
+    let totalProductValue = new Decimal(0);
+    for (const [_, variant] of Object.entries(variantData)) {
+      const price = new Decimal(variant.price_per_unit);
+      totalProductValue = totalProductValue.plus(price);
+    }
+
+    // First pass: calculate all non-percentage fees
+    let nonPercentageFees = new Decimal(0);
+    const percentageFees: typeof selectedFees = [];
+
     for (const fee of selectedFees) {
+      if (fee.unit === 'percentage') {
+        percentageFees.push(fee);
+        continue;
+      }
+
       const feeAmount = new Decimal(fee.amount);
       let totalFeeAmount: Decimal;
       let feeName = fee.description;
 
       switch (fee.unit) {
         case 'per_pallet':
-          // Multiply by number of pallets
           totalFeeAmount = feeAmount.times(pallets);
           break;
 
         case 'per_case':
-          // For now, treat same as per_pallet (user would need to adjust pallet count)
-          // Future enhancement: add separate case count input
           totalFeeAmount = feeAmount.times(pallets);
           break;
 
         case 'per_day_full':
         case 'per_day_half':
-          // Multiply by quantity (number of days)
           const days = fee.quantity ? new Decimal(fee.quantity) : new Decimal(1);
           totalFeeAmount = feeAmount.times(days);
           if (days.greaterThan(1)) {
@@ -425,23 +441,56 @@ export class DistributionCostCalculatorService {
         case 'per_shipment':
         case 'per_zone':
         case 'flat_fee':
-          // Fixed fee - no multiplication
-          totalFeeAmount = feeAmount;
-          break;
-
-        case 'percentage':
-          // Percentage fee - would need base amount to calculate
-          // For now, treat as flat fee (enhancement: add base amount input)
           totalFeeAmount = feeAmount;
           break;
 
         default:
-          // Unknown unit type - treat as flat fee
           totalFeeAmount = feeAmount;
+      }
+
+      nonPercentageFees = nonPercentageFees.plus(totalFeeAmount);
+      totalFees = totalFees.plus(totalFeeAmount);
+      feeBreakdown.push({
+        feeId: fee.feeId,
+        feeName,
+        feeAmount: totalFeeAmount.toFixed(2),
+      });
+    }
+
+    // Second pass: calculate percentage fees
+    for (const fee of percentageFees) {
+      const percentage = new Decimal(fee.quantity || fee.amount);
+      let totalFeeAmount: Decimal;
+      let feeName = fee.description;
+
+      switch (fee.percentage_basis) {
+        case 'product_value':
+          // Calculate percentage of total product value
+          totalFeeAmount = totalProductValue.times(percentage).dividedBy(100);
+          feeName = `${feeName} (${percentage}% of product value)`;
+          break;
+
+        case 'distribution_cost':
+          // Calculate percentage of distribution cost (non-percentage fees)
+          totalFeeAmount = nonPercentageFees.times(percentage).dividedBy(100);
+          feeName = `${feeName} (${percentage}% of distribution cost)`;
+          break;
+
+        case 'discount':
+          // Calculate negative percentage of distribution cost
+          totalFeeAmount = nonPercentageFees.times(percentage).dividedBy(100).negated();
+          feeName = `${feeName} (${percentage}% discount)`;
+          break;
+
+        default:
+          // Default to product value if not specified
+          totalFeeAmount = totalProductValue.times(percentage).dividedBy(100);
+          feeName = `${feeName} (${percentage}%)`;
       }
 
       totalFees = totalFees.plus(totalFeeAmount);
       feeBreakdown.push({
+        feeId: fee.feeId,
         feeName,
         feeAmount: totalFeeAmount.toFixed(2),
       });

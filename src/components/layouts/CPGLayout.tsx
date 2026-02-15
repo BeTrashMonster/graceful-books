@@ -8,24 +8,28 @@ import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { CPGActionBar } from '../cpg/CPGActionBar';
 import { AddCategoryModal } from '../cpg/modals/AddCategoryModal';
-import { AddDistributorModal } from '../cpg/modals/AddDistributorModal';
 import { AddInvoiceModal } from '../cpg/modals/AddInvoiceModal';
 import { AddProductModal } from '../cpg/modals/AddProductModal';
+import { DistributorProfileForm } from '../cpg/DistributorProfileForm';
+import type { DistributorFormData } from '../cpg/DistributorProfileForm';
 import { CategoryManager } from '../cpg/CategoryManager';
 import { DistributorManager } from '../cpg/DistributorManager';
+import { Modal } from '../modals/Modal';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
 import type { CPGCategory } from '../../db/schema/cpg.schema';
+import { v4 as uuidv4 } from 'uuid';
 import styles from './CPGLayout.module.css';
 
 type ModalType = 'add-invoice' | 'add-product' | 'add-distributor' | 'add-category' | 'manage-categories' | 'manage-distributors' | null;
 
 export function CPGLayout() {
   const location = useLocation();
-  const { companyId } = useAuth();
+  const { companyId, deviceId } = useAuth();
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [returnToModal, setReturnToModal] = useState<ModalType>(null);
   const [categories, setCategories] = useState<CPGCategory[]>([]);
+  const [savingDistributor, setSavingDistributor] = useState(false);
 
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path);
 
@@ -145,6 +149,41 @@ export function CPGLayout() {
     window.dispatchEvent(new CustomEvent('cpg-data-updated', { detail: { type: 'category' } }));
   };
 
+  const handleCreateDistributor = async (data: DistributorFormData) => {
+    if (!companyId) return;
+
+    setSavingDistributor(true);
+    try {
+      const distributor = {
+        id: uuidv4(),
+        company_id: companyId,
+        device_id: deviceId || 'default',
+        name: data.name,
+        description: data.description,
+        contact_info: data.contact_info,
+        fee_structure: data.fee_structure,
+        last_fee_update_date: data.last_fee_update_date,
+        typical_update_frequency: data.typical_update_frequency,
+        active: true,
+        created_at: Date.now(),
+        updated_at: Date.now(),
+        deleted_at: null,
+      };
+
+      await db.cpgDistributors.add(distributor);
+
+      // Trigger a custom event to notify all CPG pages to refresh their data
+      window.dispatchEvent(new CustomEvent('cpg-data-updated', { detail: { type: 'distributor' } }));
+
+      closeModal();
+    } catch (error) {
+      console.error('Error creating distributor:', error);
+      throw error;
+    } finally {
+      setSavingDistributor(false);
+    }
+  };
+
   return (
     <div className={styles.layout}>
       <nav className={styles.sidebar}>
@@ -261,13 +300,21 @@ export function CPGLayout() {
           onClose={closeModal}
           onSuccess={handleProductSuccess}
         />
-        <AddDistributorModal
-          isOpen={activeModal === 'add-distributor'}
-          onClose={closeModal}
-          onSuccess={() => {
-            console.log('Distributor added successfully');
-          }}
-        />
+        {activeModal === 'add-distributor' && (
+          <Modal
+            isOpen={activeModal === 'add-distributor'}
+            onClose={closeModal}
+            title="Add New Distributor"
+            closeOnBackdropClick={false}
+            size="lg"
+          >
+            <DistributorProfileForm
+              onSubmit={handleCreateDistributor}
+              onCancel={closeModal}
+              loading={savingDistributor}
+            />
+          </Modal>
+        )}
         <AddInvoiceModal
           isOpen={activeModal === 'add-invoice'}
           onClose={closeModal}

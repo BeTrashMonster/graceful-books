@@ -1,358 +1,539 @@
+/**
+ * Distribution Calculator Form - Redesigned
+ *
+ * Flexible calculator for distribution costs with:
+ * - Multi-product pallets
+ * - Per-pallet and per-shipment fees
+ * - Dynamic zone selection
+ * - Zone comparison feature
+ */
+
 import { useState, useEffect } from 'react';
 import { Input } from '../forms/Input';
 import { Checkbox } from '../forms/Checkbox';
 import { Button } from '../core/Button';
-import { Card, CardHeader, CardBody, CardFooter } from '../ui/Card';
+import { Card, CardHeader, CardBody } from '../ui/Card';
 import { Select } from '../forms/Select';
 import { db } from '../../db/database';
 import { useAuth } from '../../contexts/AuthContext';
-import type { CPGDistributor, CPGCategory, CPGInvoice } from '../../db/schema/cpg.schema';
+import type { CPGDistributor } from '../../db/schema/cpg.schema';
 import type { DistributionCalcParams } from '../../services/cpg/distributionCostCalculator.service';
 import Decimal from 'decimal.js';
 import styles from './DistributionCalculatorForm.module.css';
 
 export interface DistributionCalculatorFormProps {
-  /**
-   * Selected distributor
-   */
   distributor: CPGDistributor;
-  /**
-   * Callback when calculation is requested
-   */
   onCalculate: (params: DistributionCalcParams) => void;
-  /**
-   * Loading state
-   */
   loading?: boolean;
-  /**
-   * Latest base CPUs (from invoices) to auto-populate
-   */
-  latestBaseCPUs?: Record<string, string>;
 }
 
-interface VariantInput {
+// Product within a pallet
+interface PalletProduct {
   id: string;
-  variantName: string;
+  productName: string;
+  quantity: string; // number of units of this product
   pricePerUnit: string;
   baseCPU: string;
 }
 
-interface VariantOption {
-  type: 'product' | 'category-variant';
-  productId?: string;
+// A single pallet configuration
+interface Pallet {
+  id: string;
+  products: PalletProduct[];
+  isExpanded: boolean;
+}
+
+// Available product options
+interface ProductOption {
   productName: string;
-  categoryName?: string;
-  variantName?: string;
   latestPrice: string | null;
   latestCPU: string | null;
 }
 
-// Track which fees are selected and any associated quantities
+// Fee selection with quantities
 interface FeeSelection {
   feeId: string;
   selected: boolean;
-  quantity?: string; // For per_day fees, etc.
+  quantity?: string;
 }
 
-/**
- * DistributionCalculatorForm Component
- *
- * Form with inputs and checkboxes for distribution cost calculation.
- *
- * Requirements: Group C2 - Distribution Cost Analyzer
- *
- * Inputs:
- * - Number of pallets
- * - Units per pallet
- * - Price per unit - per variant
- * - Base CPU - per variant (auto-populate from latest invoice)
- * - MSRP markup % (optional)
- *
- * Fee Selection (dynamic based on distributor's fee_structure):
- * - Each fee can be selected via checkbox
- * - Some fees may need quantity inputs (e.g., days for per_day fees)
- *
- * @example
- * ```tsx
- * <DistributionCalculatorForm
- *   distributor={selectedDistributor}
- *   onCalculate={(params) => runCalculation(params)}
- *   latestBaseCPUs={{ "8oz": "2.15", "16oz": "3.20" }}
- * />
- * ```
- */
 export function DistributionCalculatorForm({
   distributor,
   onCalculate,
   loading = false,
-  latestBaseCPUs = {},
 }: DistributionCalculatorFormProps) {
   const { companyId: authCompanyId } = useAuth();
   const companyId = authCompanyId || 'company-1';
 
+  // ===== FORM STATE KEY (per distributor) =====
+  const formStateKey = `distribution-calc-${distributor.id}`;
+
+  // ===== SHIPMENT CONFIGURATION =====
   const [numPallets, setNumPallets] = useState('1');
-  const [unitsPerPallet, setUnitsPerPallet] = useState('');
-  const [msrpMarkupPercentage, setMsrpMarkupPercentage] = useState('');
+  const [defaultUnitsPerPallet, setDefaultUnitsPerPallet] = useState('100');
 
-  // Available variants from CPG categories
-  const [availableVariants, setAvailableVariants] = useState<VariantOption[]>([]);
-  const [loadingVariants, setLoadingVariants] = useState(true);
-
-  // Variants - user can add multiple
-  const [variants, setVariants] = useState<VariantInput[]>([
+  // ===== PALLET BUILDER =====
+  const [pallets, setPallets] = useState<Pallet[]>([
     {
-      id: Math.random().toString(36).substr(2, 9),
-      variantName: '',
-      pricePerUnit: '',
-      baseCPU: '',
+      id: generateId(),
+      products: [createEmptyProduct()],
+      isExpanded: true,
     },
   ]);
 
-  // Fee selections - dynamic based on distributor fees
+  // ===== PRODUCT OPTIONS =====
+  const [availableProducts, setAvailableProducts] = useState<ProductOption[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+
+  // ===== FEE SELECTION =====
   const [feeSelections, setFeeSelections] = useState<Record<string, FeeSelection>>({});
 
+  // ===== ZONE SELECTION =====
+  const [selectedZone, setSelectedZone] = useState<string>('');
+  const [numPalletsToZone, setNumPalletsToZone] = useState('');
+
+  // ===== ERRORS =====
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Initialize fee selections when distributor changes
+  // ===== HELPER FUNCTIONS =====
+  function generateId(): string {
+    return Math.random().toString(36).substring(2, 11);
+  }
+
+  function createEmptyProduct(): PalletProduct {
+    return {
+      id: generateId(),
+      productName: '',
+      quantity: '',
+      pricePerUnit: '',
+      baseCPU: '',
+    };
+  }
+
+  // ===== LOAD SAVED FORM STATE WHEN DISTRIBUTOR CHANGES =====
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(formStateKey);
+      if (saved) {
+        const savedState = JSON.parse(saved);
+        // Load saved data for this distributor
+        setNumPallets(savedState.numPallets || '1');
+        setDefaultUnitsPerPallet(savedState.defaultUnitsPerPallet || '100');
+        setPallets(savedState.pallets || [
+          {
+            id: generateId(),
+            products: [createEmptyProduct()],
+            isExpanded: true,
+          },
+        ]);
+        setSelectedZone(savedState.selectedZone || '');
+      } else {
+        // New distributor - reset to blank slate
+        setNumPallets('1');
+        setDefaultUnitsPerPallet('100');
+        setPallets([
+          {
+            id: generateId(),
+            products: [createEmptyProduct()],
+            isExpanded: true,
+          },
+        ]);
+        setSelectedZone('');
+      }
+    } catch (error) {
+      console.error('Error loading saved form state:', error);
+      // On error, reset to blank slate
+      setNumPallets('1');
+      setDefaultUnitsPerPallet('100');
+      setPallets([
+        {
+          id: generateId(),
+          products: [createEmptyProduct()],
+          isExpanded: true,
+        },
+      ]);
+      setSelectedZone('');
+    }
+  }, [distributor.id, formStateKey]);
+
+  // ===== UPDATE NUMBER OF PALLETS =====
+  useEffect(() => {
+    const count = parseInt(numPallets) || 1;
+    const currentCount = pallets.length;
+
+    if (count > currentCount) {
+      // Add more pallets
+      const newPallets = [...pallets];
+      for (let i = currentCount; i < count; i++) {
+        newPallets.push({
+          id: generateId(),
+          products: [createEmptyProduct()],
+          isExpanded: true, // Auto-expand new pallets
+        });
+      }
+      setPallets(newPallets);
+    } else if (count < currentCount) {
+      // Remove pallets
+      setPallets(pallets.slice(0, count));
+    }
+  }, [numPallets]);
+
+  // ===== INITIALIZE FEE SELECTIONS =====
   useEffect(() => {
     const initialSelections: Record<string, FeeSelection> = {};
     distributor.fee_structure.forEach(fee => {
       initialSelections[fee.id] = {
         feeId: fee.id,
         selected: false,
-        quantity: fee.unit.includes('day') ? '1' : undefined,
+        // Percentage uses amount as quantity, day-based uses '1', others undefined
+        quantity: fee.unit === 'percentage'
+          ? fee.amount
+          : (needsQuantityInput(fee.unit) ? '1' : undefined),
       };
     });
     setFeeSelections(initialSelections);
   }, [distributor]);
 
-  // Load available variants from finished products
+  // ===== SAVE FORM STATE TO LOCALSTORAGE =====
   useEffect(() => {
-    const loadVariants = async () => {
-      try {
-        setLoadingVariants(true);
+    const stateToSave = {
+      numPallets,
+      defaultUnitsPerPallet,
+      pallets,
+      selectedZone,
+    };
+    try {
+      localStorage.setItem(formStateKey, JSON.stringify(stateToSave));
+    } catch (error) {
+      console.error('Error saving form state:', error);
+    }
+  }, [numPallets, defaultUnitsPerPallet, pallets, selectedZone, formStateKey]);
 
-        if (!companyId || companyId === '') {
-          setAvailableVariants([]);
-          setLoadingVariants(false);
-          return;
-        }
+  // ===== LOAD AVAILABLE PRODUCTS =====
+  useEffect(() => {
+    loadProducts();
+  }, [companyId]);
 
-        const allProducts = await db.cpgFinishedProducts
-          .where('company_id')
-          .equals(companyId)
+  async function loadProducts() {
+    try {
+      setLoadingProducts(true);
+
+      if (!companyId) {
+        setAvailableProducts([]);
+        return;
+      }
+
+      const products = await db.cpgFinishedProducts
+        .where('company_id')
+        .equals(companyId)
+        .and(p => p.active && !p.deleted_at)
+        .toArray();
+
+      const productOptions: ProductOption[] = [];
+
+      for (const product of products) {
+        // Get latest CPU from recipes/invoices
+        const recipes = await db.cpgRecipes
+          .where('[company_id+finished_product_id]')
+          .equals([companyId, product.id])
+          .and(r => r.active && !r.deleted_at)
           .toArray();
 
-        const products = allProducts.filter((p) => p.active && !p.deleted_at);
+        let calculatedCPU: string | null = null;
 
-        const variantOptions: VariantOption[] = [];
+        if (recipes.length > 0) {
+          let totalCPU = new Decimal(0);
 
-        for (const product of products) {
-          const recipes = await db.cpgRecipes
-            .where('[company_id+finished_product_id]')
-            .equals([companyId, product.id])
-            .and((r) => r.active && !r.deleted_at)
-            .toArray();
+          for (const recipe of recipes) {
+            const category = await db.cpgCategories.get(recipe.category_id);
+            if (!category) continue;
 
-          let calculatedCPU: string | null = null;
+            const invoices = await db.cpgInvoices
+              .where('company_id')
+              .equals(companyId)
+              .and(inv => !inv.deleted_at)
+              .reverse()
+              .sortBy('invoice_date');
 
-          if (recipes.length > 0) {
-            let totalCPU = new Decimal(0);
+            for (const invoice of invoices) {
+              if (invoice.calculated_cpus) {
+                const cpuKey = recipe.variant
+                  ? `${category.id}_${recipe.variant}`
+                  : category.id;
 
-            for (const recipe of recipes) {
-              const category = await db.cpgCategories.get(recipe.category_id);
-              if (!category) continue;
-
-              const invoices = await db.cpgInvoices
-                .where('company_id')
-                .equals(companyId)
-                .and((inv) => !inv.deleted_at)
-                .reverse()
-                .sortBy('invoice_date');
-
-              let componentCPU: string | null = null;
-
-              for (const invoice of invoices) {
-                if (invoice.calculated_cpus) {
-                  const cpuKey = recipe.variant
-                    ? `${category.id}_${recipe.variant}`
-                    : category.id;
-                  componentCPU = invoice.calculated_cpus[cpuKey] || null;
-                  if (componentCPU) break;
+                if (invoice.calculated_cpus[cpuKey]) {
+                  const componentCPU = new Decimal(invoice.calculated_cpus[cpuKey])
+                    .times(recipe.quantity);
+                  totalCPU = totalCPU.plus(componentCPU);
+                  break;
                 }
               }
-
-              if (componentCPU) {
-                const quantity = new Decimal(recipe.quantity);
-                const cpu = new Decimal(componentCPU);
-                totalCPU = totalCPU.plus(quantity.times(cpu));
-              }
-            }
-
-            if (totalCPU.greaterThan(0)) {
-              calculatedCPU = totalCPU.toFixed(2);
             }
           }
 
-          variantOptions.push({
-            type: 'product',
-            productId: product.id,
-            productName: product.name,
-            latestPrice: product.msrp || null,
-            latestCPU: calculatedCPU,
-          });
+          if (totalCPU.greaterThan(0)) {
+            calculatedCPU = totalCPU.toFixed(2);
+          }
         }
 
-        variantOptions.sort((a, b) => a.productName.localeCompare(b.productName));
-        setAvailableVariants(variantOptions);
-      } catch (error) {
-        console.error('Error loading variants:', error);
-      } finally {
-        setLoadingVariants(false);
+        productOptions.push({
+          productName: product.name,
+          latestPrice: product.msrp || null,
+          latestCPU: calculatedCPU,
+        });
       }
-    };
 
-    loadVariants();
-  }, [companyId]);
-
-  // Auto-populate base CPUs when available
-  useEffect(() => {
-    if (Object.keys(latestBaseCPUs).length > 0) {
-      setVariants(
-        Object.entries(latestBaseCPUs).map(([variantName, baseCPU]) => ({
-          id: Math.random().toString(36).substr(2, 9),
-          variantName,
-          pricePerUnit: '',
-          baseCPU,
-        }))
-      );
+      setAvailableProducts(productOptions);
+      console.log('Loaded products:', productOptions);
+    } catch (error) {
+      console.error('Error loading products:', error);
+    } finally {
+      setLoadingProducts(false);
     }
-  }, [latestBaseCPUs]);
+  }
 
-  const addVariant = () => {
-    setVariants([
-      ...variants,
-      {
-        id: Math.random().toString(36).substr(2, 9),
-        variantName: '',
-        pricePerUnit: '',
-        baseCPU: '',
-      },
-    ]);
-  };
+  // ===== PALLET MANAGEMENT =====
+  function updatePallet(palletId: string, updates: Partial<Pallet>) {
+    setPallets(pallets.map(p => p.id === palletId ? { ...p, ...updates } : p));
+  }
 
-  const removeVariant = (id: string) => {
-    if (variants.length > 1) {
-      setVariants(variants.filter((v) => v.id !== id));
-    }
-  };
+  function togglePalletExpanded(palletId: string) {
+    updatePallet(palletId, { isExpanded: !pallets.find(p => p.id === palletId)?.isExpanded });
+  }
 
-  const updateVariant = (id: string, field: keyof VariantInput, value: string) => {
-    setVariants(variants.map((v) => (v.id === id ? { ...v, [field]: value } : v)));
-  };
+  function addProductToPallet(palletId: string) {
+    const pallet = pallets.find(p => p.id === palletId);
+    if (!pallet) return;
 
-  const handleVariantSelect = (id: string, selectedOption: string) => {
-    const selected = availableVariants.find((opt) => {
-      if (opt.type === 'product') {
-        return opt.productName === selectedOption;
+    updatePallet(palletId, {
+      products: [...pallet.products, createEmptyProduct()],
+    });
+  }
+
+  function removeProductFromPallet(palletId: string, productId: string) {
+    const pallet = pallets.find(p => p.id === palletId);
+    if (!pallet || pallet.products.length === 1) return;
+
+    updatePallet(palletId, {
+      products: pallet.products.filter(p => p.id !== productId),
+    });
+  }
+
+  function updateProduct(palletId: string, productId: string, field: keyof PalletProduct, value: string) {
+    const pallet = pallets.find(p => p.id === palletId);
+    if (!pallet) return;
+
+    const updatedProducts = pallet.products.map(product => {
+      if (product.id === productId) {
+        return { ...product, [field]: value };
       }
-      return false;
+      return product;
     });
 
-    if (selected) {
-      // Update all fields at once to avoid state batching issues
-      setVariants(variants.map((v) => {
-        if (v.id === id) {
-          return {
-            ...v,
-            variantName: selected.productName,
-            pricePerUnit: selected.latestPrice || v.pricePerUnit,
-            baseCPU: selected.latestCPU || v.baseCPU,
-          };
-        }
-        return v;
-      }));
+    updatePallet(palletId, { products: updatedProducts });
+  }
+
+  function handleProductSelect(palletId: string, productId: string, selectedName: string) {
+    const product = availableProducts.find(p => p.productName === selectedName);
+    if (!product) return;
+
+    const pallet = pallets.find(p => p.id === palletId);
+    if (!pallet) return;
+
+    const updatedProducts = pallet.products.map(p => {
+      if (p.id === productId) {
+        return {
+          ...p,
+          productName: product.productName,
+          pricePerUnit: product.latestPrice || p.pricePerUnit,
+          baseCPU: product.latestCPU || p.baseCPU,
+          // Auto-fill quantity with default units per pallet if it's the first product
+          quantity: pallet.products.length === 1 && !p.quantity ? defaultUnitsPerPallet : p.quantity,
+        };
+      }
+      return p;
+    });
+
+    updatePallet(palletId, { products: updatedProducts });
+  }
+
+  // ===== VALIDATION =====
+  function getTotalUnitsInPallet(pallet: Pallet): number {
+    return pallet.products.reduce((sum, product) => {
+      return sum + (parseInt(product.quantity) || 0);
+    }, 0);
+  }
+
+  function validatePallet(pallet: Pallet, index: number): string[] {
+    const errors: string[] = [];
+    const totalUnits = getTotalUnitsInPallet(pallet);
+    const maxUnits = parseInt(defaultUnitsPerPallet) || 0;
+
+    if (totalUnits > maxUnits) {
+      errors.push(`Pallet ${index + 1}: Total units (${totalUnits}) exceeds capacity (${maxUnits})`);
     }
-  };
 
-  const toggleFee = (feeId: string) => {
-    setFeeSelections(prev => ({
-      ...prev,
-      [feeId]: {
-        ...prev[feeId],
-        selected: !prev[feeId].selected,
-      },
-    }));
-  };
+    pallet.products.forEach((product, pIdx) => {
+      if (!product.productName) {
+        errors.push(`Pallet ${index + 1}, Product ${pIdx + 1}: Product name required`);
+      }
+      if (!product.quantity || parseInt(product.quantity) <= 0) {
+        errors.push(`Pallet ${index + 1}, Product ${pIdx + 1}: Quantity required`);
+      }
+      if (!product.pricePerUnit || parseFloat(product.pricePerUnit) <= 0) {
+        errors.push(`Pallet ${index + 1}, Product ${pIdx + 1}: Price required`);
+      }
+      if (!product.baseCPU || parseFloat(product.baseCPU) <= 0) {
+        errors.push(`Pallet ${index + 1}, Product ${pIdx + 1}: Base CPU required`);
+      }
+    });
 
-  const updateFeeQuantity = (feeId: string, quantity: string) => {
-    setFeeSelections(prev => ({
-      ...prev,
-      [feeId]: {
-        ...prev[feeId],
-        quantity,
-      },
-    }));
-  };
+    return errors;
+  }
 
-  const validate = (): boolean => {
+  function validate(): boolean {
     const newErrors: Record<string, string> = {};
 
-    if (!numPallets || parseFloat(numPallets) <= 0) {
-      newErrors.numPallets = 'Number of pallets must be greater than 0';
+    if (!numPallets || parseInt(numPallets) <= 0) {
+      newErrors.numPallets = 'Number of pallets required';
     }
 
-    if (!unitsPerPallet || parseFloat(unitsPerPallet) <= 0) {
-      newErrors.unitsPerPallet = 'Units per pallet must be greater than 0';
+    if (!defaultUnitsPerPallet || parseInt(defaultUnitsPerPallet) <= 0) {
+      newErrors.defaultUnitsPerPallet = 'Units per pallet required';
     }
 
-    variants.forEach((variant, index) => {
-      if (!variant.variantName.trim()) {
-        newErrors[`variant_${variant.id}_name`] = 'Product name is required';
-      }
-      if (!variant.pricePerUnit || parseFloat(variant.pricePerUnit) <= 0) {
-        newErrors[`variant_${variant.id}_price`] = 'Price must be greater than 0';
-      }
-      if (!variant.baseCPU || parseFloat(variant.baseCPU) < 0) {
-        newErrors[`variant_${variant.id}_cpu`] = 'Base CPU is required';
-      }
+    // Validate all pallets
+    const allPalletErrors: string[] = [];
+    pallets.forEach((pallet, index) => {
+      const palletErrors = validatePallet(pallet, index);
+      allPalletErrors.push(...palletErrors);
     });
 
-    // Validate fee quantities where needed
-    Object.entries(feeSelections).forEach(([feeId, selection]) => {
-      if (selection.selected && selection.quantity !== undefined) {
-        const qty = parseFloat(selection.quantity);
-        if (isNaN(qty) || qty <= 0) {
-          newErrors[`fee_${feeId}_quantity`] = 'Quantity must be greater than 0';
-        }
-      }
-    });
+    if (allPalletErrors.length > 0) {
+      newErrors.pallets = allPalletErrors.join('; ');
+    }
 
-    if (msrpMarkupPercentage && parseFloat(msrpMarkupPercentage) < 0) {
-      newErrors.msrpMarkupPercentage = 'MSRP markup cannot be negative';
+    // Validate zone selection
+    const zoneFieldFees = distributor.fee_structure.filter(f =>
+      f.unit === 'per_zone' || f.description.toLowerCase().includes('zone')
+    );
+
+    if (zoneFieldFees.length > 0 && !selectedZone) {
+      newErrors.zone = 'Please select a delivery zone';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }
 
-  const handleCalculate = (e: React.FormEvent) => {
+  // ===== FEE HELPERS =====
+  function needsQuantityInput(unit: string): boolean {
+    // Only day-based fees need quantity input in the fee selection
+    // Percentage gets its value from the fee amount and only adjusts via slider in results
+    return unit === 'per_day_full' || unit === 'per_day_half' || unit.includes('per_day');
+  }
+
+  function getFeeDisplayName(description: string): string {
+    // Rename specific fees for better clarity
+    if (description.toLowerCase().includes('warehouse services')) {
+      return 'Short Term Storage';
+    }
+    return description;
+  }
+
+  function getUnitLabel(unit: string): string {
+    const labels: Record<string, string> = {
+      per_pallet: 'per pallet',
+      per_case: 'per case',
+      per_day_full: 'per full day',
+      per_day_half: 'per half day',
+      per_shipment: 'per shipment',
+      per_zone: 'per zone',
+      flat_fee: 'flat fee',
+      percentage: '%',
+    };
+    return labels[unit] || unit;
+  }
+
+  function toggleFee(feeId: string) {
+    setFeeSelections({
+      ...feeSelections,
+      [feeId]: {
+        ...feeSelections[feeId],
+        selected: !feeSelections[feeId].selected,
+      },
+    });
+  }
+
+  function updateFeeQuantity(feeId: string, quantity: string) {
+    setFeeSelections({
+      ...feeSelections,
+      [feeId]: {
+        ...feeSelections[feeId],
+        quantity,
+      },
+    });
+  }
+
+  // ===== EXTRACT ZONES FROM FEES =====
+  function getAvailableZones(): Array<{ id: string; name: string; baseFee: string }> {
+    const zones: Array<{ id: string; name: string; baseFee: string }> = [];
+
+    distributor.fee_structure.forEach(fee => {
+      if (fee.unit === 'per_zone' || fee.description.toLowerCase().includes('zone')) {
+        // Extract zone name/number from description (e.g., "Zone 1", "Zone 2")
+        const match = fee.description.match(/zone\s+(\d+)/i);
+        let zoneName: string;
+
+        if (match) {
+          // Has a number - use it
+          zoneName = `Zone ${match[1]}`;
+        } else {
+          // No number - use the full description
+          zoneName = fee.description;
+        }
+
+        zones.push({
+          id: fee.id,
+          name: zoneName,
+          baseFee: fee.amount,
+        });
+      }
+    });
+
+    return zones;
+  }
+
+  // ===== CALCULATE =====
+  function handleCalculate(e: React.FormEvent) {
     e.preventDefault();
 
     if (!validate()) {
       return;
     }
 
-    // Build variant data
-    const variantData: Record<string, { price_per_unit: string; base_cpu: string }> = {};
-    variants.forEach((variant) => {
-      variantData[variant.variantName] = {
-        price_per_unit: variant.pricePerUnit,
-        base_cpu: variant.baseCPU,
-      };
+    // Build variant data from all pallets
+    const variantData: Record<string, { price_per_unit: string; base_cpu: string; quantity: number }> = {};
+
+    pallets.forEach(pallet => {
+      pallet.products.forEach(product => {
+        const key = product.productName;
+        const qty = parseInt(product.quantity) || 0;
+
+        if (variantData[key]) {
+          // Aggregate quantities if same product appears in multiple pallets
+          variantData[key].quantity += qty;
+        } else {
+          variantData[key] = {
+            price_per_unit: product.pricePerUnit,
+            base_cpu: product.baseCPU,
+            quantity: qty,
+          };
+        }
+      });
     });
 
-    // Build selected fees with their configurations
+    // Build selected fees
     const selectedFees = Object.entries(feeSelections)
       .filter(([_, selection]) => selection.selected)
       .map(([feeId, selection]) => {
@@ -363,131 +544,155 @@ export function DistributionCalculatorForm({
           amount: fee!.amount,
           unit: fee!.unit,
           quantity: selection.quantity,
+          percentage_basis: fee!.percentage_basis,
         };
       });
+
+    // Add selected zone fee (all pallets go to the selected zone)
+    if (selectedZone) {
+      const zoneFee = distributor.fee_structure.find(f => f.id === selectedZone);
+      if (zoneFee) {
+        selectedFees.push({
+          feeId: zoneFee.id,
+          description: zoneFee.description,
+          amount: zoneFee.amount,
+          unit: zoneFee.unit,
+          quantity: numPallets, // Use total pallets since all go to selected zone
+          percentage_basis: zoneFee.percentage_basis,
+        });
+      }
+    }
 
     const params: DistributionCalcParams = {
       distributorId: distributor.id,
       numPallets,
-      unitsPerPallet,
-      variantData,
-      selectedFees, // Pass the flexible fee selections
-      msrpMarkupPercentage: msrpMarkupPercentage || null,
+      unitsPerPallet: defaultUnitsPerPallet,
+      variantData: Object.fromEntries(
+        Object.entries(variantData).map(([key, val]) => [
+          key,
+          { price_per_unit: val.price_per_unit, base_cpu: val.base_cpu },
+        ])
+      ),
+      selectedFees,
+      msrpMarkupPercentage: null,
     };
 
     onCalculate(params);
-  };
+  }
 
-  const needsQuantityInput = (unit: string): boolean => {
-    return unit === 'per_day_full' || unit === 'per_day_half';
-  };
-
-  const getUnitLabel = (unit: string): string => {
-    const labels: Record<string, string> = {
-      per_pallet: 'per pallet',
-      per_case: 'per case',
-      per_day_full: 'per day (full)',
-      per_day_half: 'per day (half)',
-      per_shipment: 'per shipment',
-      per_zone: 'per zone',
-      flat_fee: 'flat fee',
-      percentage: '%',
-    };
-    return labels[unit] || unit;
-  };
+  // ===== RENDER =====
+  const availableZones = getAvailableZones();
 
   return (
-    <Card variant="bordered" padding="lg">
-      <form onSubmit={handleCalculate}>
+    <form onSubmit={handleCalculate} className={styles.formGrid}>
+      {/* ===== SHIPMENT CONFIGURATION ===== */}
+      <Card>
         <CardHeader>
-          <h3 className={styles.formTitle}>Distribution Cost Calculator</h3>
-          <p className={styles.formDescription}>
-            Calculate distribution costs and profit margins for {distributor.name}.
+          <h3 className={styles.sectionTitle}>Shipment Configuration</h3>
+          <p className={styles.sectionDescription}>
+            Configure your shipment details and pallet capacity
           </p>
         </CardHeader>
-
         <CardBody>
-          <div className={styles.formGrid}>
-            {/* Basic Calculation Inputs */}
-            <div className={styles.section}>
-              <h4 className={styles.sectionTitle}>Shipment Details</h4>
+          <div className={styles.inputRow}>
+            <Input
+              label="Number of Pallets"
+              type="number"
+              min="1"
+              value={numPallets}
+              onChange={(e) => setNumPallets(e.target.value)}
+              error={errors.numPallets}
+              required
+              fullWidth
+            />
+            <Input
+              label="Standard Units per Pallet"
+              type="number"
+              min="1"
+              value={defaultUnitsPerPallet}
+              onChange={(e) => setDefaultUnitsPerPallet(e.target.value)}
+              error={errors.defaultUnitsPerPallet}
+              helperText="Default capacity for each pallet"
+              required
+              fullWidth
+            />
+          </div>
+        </CardBody>
+      </Card>
 
-              <div className={styles.inputRow}>
-                <Input
-                  label="Number of Pallets"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={numPallets}
-                  onChange={(e) => setNumPallets(e.target.value)}
-                  error={errors.numPallets}
-                  required
-                  placeholder="1.00"
-                />
+      {/* ===== PALLET BUILDER ===== */}
+      {pallets.map((pallet, index) => {
+        const totalUnits = getTotalUnitsInPallet(pallet);
+        const maxUnits = parseInt(defaultUnitsPerPallet) || 0;
+        const isOverCapacity = totalUnits > maxUnits;
 
-                <Input
-                  label="Units per Pallet"
-                  type="number"
-                  step="1"
-                  min="0"
-                  value={unitsPerPallet}
-                  onChange={(e) => setUnitsPerPallet(e.target.value)}
-                  error={errors.unitsPerPallet}
-                  required
-                  placeholder="100"
-                  helperText="Total number of individual units on each pallet"
-                />
-              </div>
-            </div>
-
-            {/* Products / Variants */}
-            <div className={styles.section}>
+        return (
+          <Card key={pallet.id}>
+            <CardHeader>
               <div className={styles.sectionHeader}>
-                <h4 className={styles.sectionTitle}>Products</h4>
+                <div>
+                  <h3 className={styles.sectionTitle}>
+                    Pallet {index + 1}
+                    <span className={`${styles.unitsIndicator} ${isOverCapacity ? styles.overCapacity : ''}`}>
+                      {totalUnits} / {maxUnits} units
+                    </span>
+                  </h3>
+                  <p className={styles.sectionDescription}>
+                    Configure products and quantities for this pallet
+                  </p>
+                </div>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
-                  onClick={addVariant}
-                  iconBefore={<span>+</span>}
+                  onClick={() => togglePalletExpanded(pallet.id)}
                 >
-                  Add Product
+                  {pallet.isExpanded ? '−' : '+'}
                 </Button>
               </div>
+            </CardHeader>
 
-              {loadingVariants && (
-                <p className={styles.loadingText}>Loading products...</p>
-              )}
-
-              <div className={styles.variantsList}>
-                {variants.map((variant, index) => (
-                  <div key={variant.id} className={styles.variantRow}>
-                    <div className={styles.variantNumber}>{index + 1}</div>
+            {pallet.isExpanded && (
+              <CardBody>
+                {pallet.products.map((product, pIdx) => (
+                  <div key={product.id} className={styles.variantRow}>
+                    <div className={styles.variantNumber}>{pIdx + 1}</div>
                     <div className={styles.variantFields}>
                       <div className={styles.variantField}>
                         <label className={styles.variantLabel}>Product</label>
-                        {availableVariants.length > 0 ? (
+                        {availableProducts.length > 0 ? (
                           <Select
-                            value={variant.variantName}
-                            onChange={(e) => handleVariantSelect(variant.id, e.target.value)}
+                            value={product.productName}
+                            onChange={(e) => handleProductSelect(pallet.id, product.id, e.target.value)}
                             options={[
                               { value: '', label: 'Select a product...' },
-                              ...availableVariants.map((opt) => ({
-                                value: opt.productName,
-                                label: opt.productName,
+                              ...availableProducts.map(p => ({
+                                value: p.productName,
+                                label: p.productName,
                               })),
                             ]}
-                            error={errors[`variant_${variant.id}_name`]}
                           />
                         ) : (
                           <input
                             type="text"
-                            value={variant.variantName}
-                            onChange={(e) => updateVariant(variant.id, 'variantName', e.target.value)}
+                            value={product.productName}
+                            onChange={(e) => updateProduct(pallet.id, product.id, 'productName', e.target.value)}
                             placeholder="ex: 8oz Body Oil"
                             className={styles.variantInput}
                           />
                         )}
+                      </div>
+
+                      <div className={styles.variantField}>
+                        <label className={styles.variantLabel}>Quantity</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={product.quantity}
+                          onChange={(e) => updateProduct(pallet.id, product.id, 'quantity', e.target.value)}
+                          placeholder="0"
+                          className={styles.variantInput}
+                        />
                       </div>
 
                       <div className={styles.variantField}>
@@ -498,15 +703,12 @@ export function DistributionCalculatorForm({
                             type="number"
                             step="0.01"
                             min="0"
-                            value={variant.pricePerUnit}
-                            onChange={(e) => updateVariant(variant.id, 'pricePerUnit', e.target.value)}
+                            value={product.pricePerUnit}
+                            onChange={(e) => updateProduct(pallet.id, product.id, 'pricePerUnit', e.target.value)}
                             placeholder="0.00"
                             className={styles.variantInputAmount}
                           />
                         </div>
-                        {errors[`variant_${variant.id}_price`] && (
-                          <span className={styles.errorText}>{errors[`variant_${variant.id}_price`]}</span>
-                        )}
                       </div>
 
                       <div className={styles.variantField}>
@@ -517,24 +719,20 @@ export function DistributionCalculatorForm({
                             type="number"
                             step="0.01"
                             min="0"
-                            value={variant.baseCPU}
-                            onChange={(e) => updateVariant(variant.id, 'baseCPU', e.target.value)}
+                            value={product.baseCPU}
+                            onChange={(e) => updateProduct(pallet.id, product.id, 'baseCPU', e.target.value)}
                             placeholder="0.00"
                             className={styles.variantInputAmount}
                           />
                         </div>
-                        {errors[`variant_${variant.id}_cpu`] && (
-                          <span className={styles.errorText}>{errors[`variant_${variant.id}_cpu`]}</span>
-                        )}
                       </div>
 
-                      {variants.length > 1 && (
+                      {pallet.products.length > 1 && (
                         <button
                           type="button"
-                          onClick={() => removeVariant(variant.id)}
+                          onClick={() => removeProductFromPallet(pallet.id, product.id)}
                           className={styles.removeVariantButton}
                           aria-label="Remove product"
-                          title="Remove product"
                         >
                           ✕
                         </button>
@@ -542,87 +740,106 @@ export function DistributionCalculatorForm({
                     </div>
                   </div>
                 ))}
-              </div>
-            </div>
 
-            {/* Fee Selection - Dynamic */}
-            <div className={styles.section}>
-              <h4 className={styles.sectionTitle}>Distributor Fees</h4>
-              <p className={styles.sectionDescription}>
-                Select which fees apply to this calculation.
-              </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addProductToPallet(pallet.id)}
+                >
+                  + Add Product to Pallet {index + 1}
+                </Button>
 
-              {distributor.fee_structure.length === 0 ? (
-                <div className={styles.emptyState}>
-                  <p>No fees configured for this distributor. Edit the distributor to add fees.</p>
+                {isOverCapacity && (
+                  <div className={styles.errorText}>
+                    ⚠️ Total units ({totalUnits}) exceeds pallet capacity ({maxUnits})
+                  </div>
+                )}
+              </CardBody>
+            )}
+          </Card>
+        );
+      })}
+
+      {/* ===== FEE SELECTION ===== */}
+      <Card>
+        <CardHeader>
+          <h3 className={styles.sectionTitle}>Fee Selection</h3>
+          <p className={styles.sectionDescription}>
+            Select applicable distributor fees
+          </p>
+        </CardHeader>
+        <CardBody>
+          <div className={styles.feeCheckboxes}>
+            {distributor.fee_structure
+              .filter(fee => fee.unit !== 'per_zone' && !fee.description.toLowerCase().includes('zone'))
+              .map(fee => (
+                <div key={fee.id} className={styles.feeCheckboxRow}>
+                  <Checkbox
+                    label={`${getFeeDisplayName(fee.description)} - ${fee.unit === 'percentage' ? '' : '$'}${fee.amount}${fee.unit === 'percentage' ? '%' : ` ${getUnitLabel(fee.unit)}`}`}
+                    checked={feeSelections[fee.id]?.selected || false}
+                    onChange={() => toggleFee(fee.id)}
+                  />
+                  {feeSelections[fee.id]?.selected && needsQuantityInput(fee.unit) && (
+                    <Input
+                      type="number"
+                      min={fee.unit === 'percentage' ? '-100' : '1'}
+                      max={fee.unit === 'percentage' ? '100' : undefined}
+                      step={fee.unit === 'percentage' ? '1' : '1'}
+                      value={feeSelections[fee.id]?.quantity || (fee.unit === 'percentage' ? '0' : '1')}
+                      onChange={(e) => updateFeeQuantity(fee.id, e.target.value)}
+                      placeholder={fee.unit === 'percentage' ? '%' : 'Days'}
+                      className={styles.feeQuantityInput}
+                    />
+                  )}
                 </div>
-              ) : (
-                <div className={styles.feeCheckboxes}>
-                  {distributor.fee_structure.map((fee) => (
-                    <div key={fee.id} className={styles.feeCheckboxRow}>
-                      <Checkbox
-                        label={`${fee.description} ($${fee.amount} ${getUnitLabel(fee.unit)})`}
-                        checked={feeSelections[fee.id]?.selected || false}
-                        onChange={() => toggleFee(fee.id)}
-                      />
-
-                      {feeSelections[fee.id]?.selected && needsQuantityInput(fee.unit) && (
-                        <div className={styles.feeQuantityInput}>
-                          <Input
-                            label="Days"
-                            type="number"
-                            step="1"
-                            min="1"
-                            value={feeSelections[fee.id].quantity || '1'}
-                            onChange={(e) => updateFeeQuantity(fee.id, e.target.value)}
-                            error={errors[`fee_${fee.id}_quantity`]}
-                            placeholder="1"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* MSRP Markup (Optional) */}
-            <div className={styles.section}>
-              <h4 className={styles.sectionTitle}>MSRP Calculation (Optional)</h4>
-              <p className={styles.sectionDescription}>
-                Add a markup percentage to calculate MSRP from wholesale price.
-              </p>
-
-              <Input
-                label="MSRP Markup Percentage"
-                type="number"
-                step="0.1"
-                min="0"
-                value={msrpMarkupPercentage}
-                onChange={(e) => setMsrpMarkupPercentage(e.target.value)}
-                error={errors.msrpMarkupPercentage}
-                placeholder="50"
-                helperText="e.g., 50 for 50% markup"
-                iconAfter={<span>%</span>}
-              />
-            </div>
+              ))}
           </div>
         </CardBody>
+      </Card>
 
-        <CardFooter>
-          <div className={styles.formActions}>
-            <Button
-              type="submit"
-              variant="primary"
-              loading={loading}
-              disabled={loading}
-              size="lg"
-            >
-              Calculate Distribution Costs
-            </Button>
-          </div>
-        </CardFooter>
-      </form>
-    </Card>
+      {/* ===== ZONE SELECTION ===== */}
+      {availableZones.length > 0 && (
+        <Card>
+          <CardHeader>
+            <h3 className={styles.sectionTitle}>Delivery Zone</h3>
+            <p className={styles.sectionDescription}>
+              Select the delivery zone for this shipment
+            </p>
+          </CardHeader>
+          <CardBody>
+            <div className={styles.radioGroup}>
+              {availableZones.map(zone => (
+                <label key={zone.id} className={styles.radioOption}>
+                  <input
+                    type="radio"
+                    name="zone"
+                    value={zone.id}
+                    checked={selectedZone === zone.id}
+                    onChange={(e) => setSelectedZone(e.target.value)}
+                  />
+                  <span>{zone.name} - ${zone.baseFee} {getUnitLabel(distributor.fee_structure.find(f => f.id === zone.id)?.unit || 'per_zone')}</span>
+                </label>
+              ))}
+            </div>
+
+            {errors.zone && <div className={styles.errorText}>{errors.zone}</div>}
+          </CardBody>
+        </Card>
+      )}
+
+      {/* ===== ACTIONS ===== */}
+      <div className={styles.formActions}>
+        <Button type="submit" variant="primary" loading={loading} disabled={loading}>
+          Calculate Distribution Costs
+        </Button>
+      </div>
+
+      {errors.pallets && (
+        <div className={styles.errorAlert} role="alert">
+          {errors.pallets}
+        </div>
+      )}
+    </form>
   );
 }

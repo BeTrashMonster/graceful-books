@@ -70,7 +70,12 @@ export function DistributorSelector({
     (d) => d.active && d.deleted_at === null
   );
 
-  const selectOptions = activeDistributors.map((distributor) => ({
+  // Sort distributors alphabetically by name
+  const sortedDistributors = [...activeDistributors].sort((a, b) =>
+    a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+  );
+
+  const selectOptions = sortedDistributors.map((distributor) => ({
     value: distributor.id,
     label: distributor.name,
   }));

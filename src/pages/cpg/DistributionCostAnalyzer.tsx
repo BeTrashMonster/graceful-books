@@ -264,7 +264,7 @@ export default function DistributionCostAnalyzer() {
       {/* Page Header */}
       <div className={styles.header}>
         <div className={styles.headerContent}>
-          <h1 className={styles.title}>Distribution Cost Analyzer</h1>
+          <h1 className={styles.title}>Distribution Cost Analyzer ✅ NEW BUILD</h1>
           <p className={styles.description}>
             Calculate distribution costs and profit margins across different distributors.
             Compare scenarios to find the most profitable distribution strategy.
@@ -322,6 +322,7 @@ export default function DistributionCostAnalyzer() {
               results={calculationResults}
               params={lastCalculationParams}
               onSave={() => setShowSaveScenarioModal(true)}
+              onRecalculate={handleCalculate}
               saving={savingScenario}
               showSaveButton={true}
             />

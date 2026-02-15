@@ -5,7 +5,7 @@
  * Users type in their actual accounts rather than checking boxes.
  */
 
-import { type FC, useState, useEffect } from 'react'
+import { type FC, useState, useEffect, useRef } from 'react'
 import { Button } from '../../core/Button'
 import { Input } from '../../forms/Input'
 import { Checkbox } from '../../forms/Checkbox'
@@ -112,7 +112,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   const [currentPart, setCurrentPart] = useState(1)
   const [initialized, setInitialized] = useState(false)
   const [equipmentErrors, setEquipmentErrors] = useState<Set<string>>(new Set())
-  const [isGeneratingCustomizations, setIsGeneratingCustomizations] = useState(false)
+  const isGeneratingCustomizationsRef = useRef(false)
 
   // Part 1: Bank Accounts
   const [bankAccounts, setBankAccounts] = useState<BankAccountEntry[]>([
@@ -192,9 +192,9 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   }, [initialized, savedFormData])
 
   // Save form data continuously to support "Save and finish later"
-  // BUT don't run this when we're generating final customizations (to prevent overwriting)
+  // BUT don't run when generating final customizations (checked via ref for synchronous access)
   useEffect(() => {
-    if (initialized && !isGeneratingCustomizations) {
+    if (initialized && !isGeneratingCustomizationsRef.current) {
       const formData = {
         currentPart,
         bankAccounts,
@@ -212,12 +212,12 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       }
 
       // During parts 1-6, save form data with empty customizations
-      // Customizations will be generated when user clicks "Continue to review"
+      // Customizations will be generated when user clicks "Continue to review" from part 6
+      console.log('=== useEffect saving form data, part', currentPart)
       onUpdate([], formData)
     }
   }, [
     initialized,
-    isGeneratingCustomizations,
     currentPart,
     bankAccounts,
     includeCash,
@@ -271,8 +271,9 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       setCurrentPart(currentPart + 1)
     } else {
       // Generate customizations and call onNext
-      // Set flag to prevent continuous-save useEffect from overwriting
-      setIsGeneratingCustomizations(true)
+      // Set ref flag to prevent continuous-save useEffect from overwriting (using ref for synchronous access)
+      isGeneratingCustomizationsRef.current = true
+      console.log('=== About to call generateCustomizations, flag set to true')
       generateCustomizations()
       onNext()
     }
@@ -287,12 +288,16 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   }
 
   const generateCustomizations = () => {
+    console.log('=== generateCustomizations START ===')
+
     // Step 1: Collect accounts by type and sub-category (without account numbers yet)
     const bankAccounts_sorted: Omit<AccountCustomization, 'accountNumber'>[] = []
     const equipmentAccounts: Omit<AccountCustomization, 'accountNumber'>[] = []
     const liabilityAccounts: Omit<AccountCustomization, 'accountNumber'>[] = []
     const incomeAccounts: Omit<AccountCustomization, 'accountNumber'>[] = []
     const expenseAccounts: Omit<AccountCustomization, 'accountNumber'>[] = []
+
+    console.log('Step 1: Arrays initialized')
 
     // ASSETS - Sub-categorized for specific ordering
     // Bank/Cash accounts (will be sorted alphabetically)
