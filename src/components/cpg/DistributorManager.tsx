@@ -118,15 +118,15 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
   /**
    * Generate smart cost information from actual calculation data
    */
-  const getSmartCostInfo = (distributorId: string): string => {
+  const getSmartCostInfo = (distributorId: string, distributorName: string): string => {
     const data = calculationData[distributorId];
 
     if (data) {
-      // Show average from actual calculations
+      // Blended format: Lead with cost, concise calc count
       if (data.calcCount === 1) {
-        return `Distribution cost: $${data.avgCostPerUnit}/unit`;
+        return `$${data.avgCostPerUnit}/unit`;
       } else {
-        return `Avg distribution cost: $${data.avgCostPerUnit}/unit (${data.calcCount} calculations)`;
+        return `$${data.avgCostPerUnit}/unit (${data.calcCount} calcs)`;
       }
     } else {
       // No calculations yet
@@ -478,7 +478,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                             <span className={styles.costIcon}>💰</span>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
                               {calculationData[distributor.id] && (
-                                <span className={styles.costText}>{getSmartCostInfo(distributor.id)}</span>
+                                <span className={styles.costText}>{getSmartCostInfo(distributor.id, distributor.name)}</span>
                               )}
                               {!calculationData[distributor.id] && (
                                 <button
@@ -489,7 +489,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                                   className={styles.costLink}
                                   style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
                                 >
-                                  Run calculation to see distribution cost per unit →
+                                  Calculate cost per unit →
                                 </button>
                               )}
                               {calculationData[distributor.id] && needsRecalculation(distributor) && (
@@ -501,7 +501,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                                   className={styles.updateLink}
                                   style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
                                 >
-                                  Run calculation with updated fees →
+                                  Run updated fees →
                                 </button>
                               )}
                             </div>
