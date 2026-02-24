@@ -146,6 +146,74 @@ This project uses GitHub Actions for continuous integration and deployment:
 
 See [.github/workflows/README.md](.github/workflows/README.md) for full CI/CD documentation.
 
+### Security CI/CD Pipeline
+
+Automated security checks run on every pull request to ensure code security:
+
+**Security Workflows:**
+- **Security Test Suite** (333 comprehensive tests)
+  - IDOR prevention and authorization checks
+  - XSS prevention and sanitization
+  - Injection prevention (SQL, command, path traversal)
+  - RBAC and permission enforcement
+  - Session security and CSRF protection
+  - Rate limiting and DDoS mitigation
+  - Cryptographic operations validation
+  - Input validation and boundary testing
+
+- **Dependency Vulnerability Scanning**
+  - `npm audit` checks for critical and high-severity vulnerabilities
+  - Automated Dependabot updates for security patches
+  - Daily security-only dependency checks
+  - Weekly comprehensive dependency updates
+  - PRs blocked if critical/high vulnerabilities found
+
+- **CodeQL Analysis**
+  - Static application security testing (SAST)
+  - Pattern-based vulnerability detection
+  - Security-extended query suite
+
+- **Secret Detection**
+  - TruffleHog for committed secrets
+  - GitHub native secret scanning
+  - Common secret pattern detection (API keys, tokens)
+
+- **Static Analysis**
+  - ESLint with security rules
+  - TypeScript type safety enforcement
+  - Unsafe crypto pattern detection
+  - eval() and dangerous function detection
+
+**Merge Requirements:**
+All PRs must pass these security checks before merge:
+- ✅ Security test suite (all tests passing)
+- ✅ No critical or high-severity vulnerabilities
+- ✅ No secrets detected in code
+- ✅ CodeQL analysis passing
+- ✅ Static security analysis passing
+
+**Automated Security Updates:**
+Dependabot is configured to:
+- Check for security updates daily
+- Group security patches for faster review
+- Create PRs for vulnerable dependencies
+- Auto-merge patch updates when tests pass
+
+**Manual Security Testing:**
+```bash
+# Run security test suite
+npm test -- --run src/__tests__/security
+
+# Run dependency audit
+npm audit --audit-level=high
+
+# Run all security checks
+npm run lint && npm audit && npm test -- --run src/__tests__/security
+```
+
+**For Security Researchers:**
+See [SECURITY.md](SECURITY.md) for responsible disclosure guidelines.
+
 ## Project Structure
 
 ```

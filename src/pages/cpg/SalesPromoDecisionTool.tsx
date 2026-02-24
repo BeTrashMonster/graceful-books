@@ -47,10 +47,6 @@ export default function SalesPromoDecisionTool() {
   const { companyId, deviceId } = useAuth();
   // Database is imported as singleton
 
-  // Fallback to demo IDs if not authenticated (development only)
-  const activeCompanyId = companyId || 'demo-company-id';
-  const activeDeviceId = deviceId || 'demo-device-id';
-
   // Check if we're editing an existing promo
   const editPromoId = searchParams.get('edit');
 
@@ -154,7 +150,7 @@ export default function SalesPromoDecisionTool() {
         // Get all active finished products
         const products = await db.cpgFinishedProducts
           .where('company_id')
-          .equals(activeCompanyId)
+          .equals(companyId)
           .filter(p => p.active && p.deleted_at === null)
           .toArray();
 
@@ -175,7 +171,7 @@ export default function SalesPromoDecisionTool() {
           try {
             const cpuBreakdown = await cpuCalculatorService.getFinishedProductCPUBreakdown(
               product.id,
-              activeCompanyId
+              companyId
             );
             if (cpuBreakdown.cpu) {
               cpuMap[variantName] = cpuBreakdown.cpu;
@@ -211,7 +207,7 @@ export default function SalesPromoDecisionTool() {
     };
 
     loadProductsAndCPUs();
-  }, [activeCompanyId]);
+  }, [companyId]);
 
   // Load draft promo if editing
   useEffect(() => {
@@ -291,7 +287,7 @@ export default function SalesPromoDecisionTool() {
       // Create promo record
       const promo = await service.createPromo(
         {
-          companyId: activeCompanyId,
+          companyId: companyId,
           promoName: formData.promoName,
           retailerName: formData.retailerName,
           promoStartDate: formData.promoStartDate ? new Date(formData.promoStartDate).getTime() : undefined,
@@ -300,7 +296,7 @@ export default function SalesPromoDecisionTool() {
           producerPaybackPercentage: formData.producerPaybackPercentage,
           demoHoursEntries: formData.demoHoursEntries,
         },
-        activeDeviceId
+        deviceId
       );
 
       // Filter to only include selected variants
@@ -317,7 +313,7 @@ export default function SalesPromoDecisionTool() {
           promoId: promo.id,
           variantPromoData: selectedVariantData,
         },
-        activeDeviceId
+        deviceId
       );
 
       setAnalysisResult(result);
@@ -375,7 +371,7 @@ export default function SalesPromoDecisionTool() {
           status: 'approved',
           notes: notes || null,
         },
-        activeDeviceId
+        deviceId
       );
 
       // Clear the analysis and form to show success state
@@ -433,7 +429,7 @@ export default function SalesPromoDecisionTool() {
           status: 'declined',
           notes: notes || null,
         },
-        activeDeviceId
+        deviceId
       );
 
       // Clear the analysis and form to show success state
@@ -476,7 +472,7 @@ export default function SalesPromoDecisionTool() {
           status: 'draft',
           notes: notes || null,
         },
-        activeDeviceId
+        deviceId
       );
 
       // Clear the analysis and form to show success state

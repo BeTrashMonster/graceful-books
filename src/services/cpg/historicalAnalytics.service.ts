@@ -40,7 +40,7 @@ Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_UP });
 /**
  * Date range presets
  */
-export type DateRangePreset = '3mo' | '6mo' | '1yr' | 'all';
+export type DateRangePreset = '3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all';
 
 /**
  * CPU trend data point
@@ -171,6 +171,8 @@ export class HistoricalAnalyticsService {
   /**
    * Get CPU trend analysis over a date range
    *
+   * SECURITY: Accepts companyId parameter and filters all CPG queries by it
+   *
    * @param companyId - Company ID
    * @param variant - Variant name (or null for no variant)
    * @param categoryId - Optional category ID to filter
@@ -189,6 +191,7 @@ export class HistoricalAnalyticsService {
       // Calculate date range
       const { startDate, endDate } = this.calculateDateRange(dateRange);
 
+      // SECURITY: Filter by companyId to ensure data isolation
       // Fetch invoices in date range
       let invoices = await this.db.cpgInvoices
         .where('company_id')
@@ -252,6 +255,8 @@ export class HistoricalAnalyticsService {
    *
    * Analyzes CPU data to identify seasonal patterns (e.g., "Oil costs increase 15% in summer")
    *
+   * SECURITY: Accepts companyId parameter and passes it to getCPUTrend which filters data
+   *
    * @param companyId - Company ID
    * @param variant - Variant name (or null for no variant)
    * @param categoryId - Optional category ID to filter
@@ -267,6 +272,7 @@ export class HistoricalAnalyticsService {
     try {
       serviceLogger.info('Detecting seasonal patterns', { companyId, variant, categoryId });
 
+      // SECURITY: getCPUTrend filters by companyId
       // Get all-time data
       const allTimeData = await this.getCPUTrend(companyId, variant, categoryId, 'all');
 
@@ -406,15 +412,19 @@ export class HistoricalAnalyticsService {
    *
    * Analyzes distribution cost changes month-over-month for a specific distributor
    *
+   * SECURITY: Accepts companyId parameter and uses compound index to filter data
+   *
    * @param companyId - Company ID
    * @param distributorId - Distributor ID
    * @param dateRange - Date range preset or custom range
+   * @param includeDrafts - Whether to include draft scenarios (default: false)
    * @returns Distributor cost trend analysis
    */
   async getDistributorCostTrend(
     companyId: string,
     distributorId: string,
-    dateRange: DateRangePreset | { start: number; end: number } = '1yr'
+    dateRange: DateRangePreset | { start: number; end: number } = '1yr',
+    includeDrafts: boolean = false
   ): Promise<DistributorCostTrend> {
     try {
       serviceLogger.info('Getting distributor cost trend', { companyId, distributorId });
@@ -428,6 +438,7 @@ export class HistoricalAnalyticsService {
         throw new Error(`Distributor not found: ${distributorId}`);
       }
 
+      // SECURITY: Verify distributor belongs to company (implicit via compound index)
       // Fetch distribution calculations in date range
       console.log('Querying calculations with:', {
         companyId,
@@ -436,6 +447,7 @@ export class HistoricalAnalyticsService {
         endDate,
       });
 
+      // SECURITY: Use compound index [company_id+distributor_id] to ensure data isolation
       const calculations = await this.db.cpgDistributionCalculations
         .where('[company_id+distributor_id]')
         .equals([companyId, distributorId])
@@ -444,7 +456,8 @@ export class HistoricalAnalyticsService {
             calc.deleted_at === null &&
             calc.active &&
             calc.calculation_date >= startDate &&
-            calc.calculation_date <= endDate
+            calc.calculation_date <= endDate &&
+            (includeDrafts || calc.is_draft === false || calc.is_draft === undefined)
         )
         .sortBy('calculation_date');
 
@@ -460,6 +473,10 @@ export class HistoricalAnalyticsService {
         num_pallets: calc.num_pallets,
         units_per_pallet: calc.units_per_pallet,
       }));
+
+      // Use actual date range from data when available (fixes "All Time" showing Dec 31, 1969)
+      const actualStartDate = dataPoints.length > 0 ? dataPoints[0].date : startDate;
+      const actualEndDate = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].date : endDate;
 
       // Calculate statistics
       if (dataPoints.length === 0) {
@@ -516,8 +533,8 @@ export class HistoricalAnalyticsService {
       return {
         distributor_id: distributorId,
         distributor_name: distributor.name,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: actualStartDate,
+        end_date: actualEndDate,
         data_points: dataPoints,
         statistics: {
           average_total_cost: avgTotalCost.toFixed(2),
@@ -540,6 +557,8 @@ export class HistoricalAnalyticsService {
    * Calculates ROI for trade spend promotions
    * Formula: ((Revenue After - Revenue Before) - Promo Cost) / Promo Cost × 100
    *
+   * SECURITY: Accepts companyId parameter and filters all queries by it
+   *
    * @param companyId - Company ID
    * @param dateRange - Date range preset or custom range
    * @returns Trade spend ROI summary
@@ -554,6 +573,7 @@ export class HistoricalAnalyticsService {
       // Calculate date range
       const { startDate, endDate } = this.calculateDateRange(dateRange);
 
+      // SECURITY: Filter by companyId to ensure data isolation
       // Fetch promos in date range
       const promos = await this.db.cpgSalesPromos
         .where('company_id')
@@ -679,12 +699,17 @@ export class HistoricalAnalyticsService {
   ): { startDate: number; endDate: number } {
     const now = Date.now();
 
+    // Use end of today (23:59:59.999) to include all calculations from today
+    const today = new Date();
+    const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999).getTime();
+
     if (typeof dateRange === 'object' && 'start' in dateRange) {
       return { startDate: dateRange.start, endDate: dateRange.end };
     }
 
     const preset = dateRange as DateRangePreset;
     let startDate: number;
+    let endDate: number = endOfToday;
 
     switch (preset) {
       case '3mo':
@@ -693,17 +718,33 @@ export class HistoricalAnalyticsService {
       case '6mo':
         startDate = now - 6 * 30.44 * 24 * 60 * 60 * 1000; // ~6 months
         break;
-      case '1yr':
-        startDate = now - 365.25 * 24 * 60 * 60 * 1000; // 1 year
+      case '12mo':
+        startDate = now - 365.25 * 24 * 60 * 60 * 1000; // 12 months (365 days)
+        break;
+      case 'last-calendar-year':
+        // January 1 to December 31 of last year
+        const lastYear = new Date().getFullYear() - 1;
+        startDate = new Date(lastYear, 0, 1).getTime(); // Jan 1
+        endDate = new Date(lastYear, 11, 31, 23, 59, 59, 999).getTime(); // Dec 31
+        break;
+      case 'this-calendar-year':
+        // January 1 of this year to now
+        const thisYear = new Date().getFullYear();
+        startDate = new Date(thisYear, 0, 1).getTime(); // Jan 1
+        endDate = now;
         break;
       case 'all':
         startDate = 0; // All time
         break;
+      case 'custom':
+        // Custom should be handled by passing { start, end } object
+        startDate = now - 365.25 * 24 * 60 * 60 * 1000; // Default to 12 months
+        break;
       default:
-        startDate = now - 365.25 * 24 * 60 * 60 * 1000; // Default to 1 year
+        startDate = now - 365.25 * 24 * 60 * 60 * 1000; // Default to 12 months
     }
 
-    return { startDate, endDate: now };
+    return { startDate, endDate };
   }
 
   /**

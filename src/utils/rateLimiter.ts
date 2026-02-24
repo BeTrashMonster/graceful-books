@@ -1,14 +1,18 @@
 /**
- * Rate Limiter for Crypto Operations
+ * Rate Limiter for Security-Critical Operations
  *
- * Implements sliding window rate limiting to prevent client-side DoS attacks
- * through computationally expensive encryption operations.
+ * Implements sliding window rate limiting to prevent:
+ * - Client-side DoS attacks through expensive encryption operations
+ * - Brute force attacks on login
+ * - Data scraping through excessive queries
+ * - Resource exhaustion through batch operations
  *
- * Security Fix M-4: Rate Limiting on Encryption Operations
- * - Prevents abuse of key derivation (5 ops/minute)
- * - Prevents abuse of batch encryption (10 ops/minute)
- * - Prevents abuse of file encryption (20 ops/minute)
+ * Security Fixes:
+ * - M-4: Rate Limiting on Encryption Operations
+ * - S5-3: Rate Limiting Enhancement (login, data access, batch queries, CPG calculations)
  */
+
+import type { logRateLimitExceeded, RateLimitExceededDetails, SecurityLogDatabase } from './securityLogger'
 
 /**
  * Configuration for rate limiting an operation
@@ -83,6 +87,41 @@ export const CRYPTO_RATE_LIMITS = {
 } as const;
 
 /**
+ * Pre-configured rate limits for security operations (S5-3)
+ */
+export const SECURITY_RATE_LIMITS = {
+  /** Login attempts: 5 per minute per user (prevent brute force) */
+  login: {
+    maxOperations: 5,
+    windowMs: 60 * 1000, // 1 minute
+  } as RateLimitConfig,
+
+  /** Data access operations: 100 per minute per user (prevent data scraping) */
+  dataAccess: {
+    maxOperations: 100,
+    windowMs: 60 * 1000, // 1 minute
+  } as RateLimitConfig,
+
+  /** Batch queries: 10 per minute per user (prevent resource exhaustion) */
+  batchQuery: {
+    maxOperations: 10,
+    windowMs: 60 * 1000, // 1 minute
+  } as RateLimitConfig,
+
+  /** CPG calculations: 50 per hour per user (prevent computational abuse) */
+  cpgCalculation: {
+    maxOperations: 50,
+    windowMs: 60 * 60 * 1000, // 1 hour
+  } as RateLimitConfig,
+
+  /** Data exports: 10 per hour per user (S7-3: prevent bulk data scraping via export) */
+  dataExport: {
+    maxOperations: 10,
+    windowMs: 60 * 60 * 1000, // 1 hour
+  } as RateLimitConfig,
+} as const;
+
+/**
  * Sliding window rate limiter
  *
  * Uses a sliding window algorithm to track operation timestamps and
@@ -129,6 +168,7 @@ export class RateLimiter {
    *
    * @param operationKey - Unique identifier for the operation type
    * @param config - Rate limit configuration
+   * @param userId - Optional user ID for user-specific rate limiting
    * @returns Promise resolving to rate limit result
    *
    * @example
@@ -143,19 +183,25 @@ export class RateLimiter {
    * } else {
    *   showError(`Please wait ${result.waitTimeMs}ms`);
    * }
+   *
+   * // User-specific rate limiting
+   * const loginResult = await limiter.check('login', SECURITY_RATE_LIMITS.login, 'user-123');
    * ```
    */
-  async check(operationKey: string, config: RateLimitConfig): Promise<RateLimitResult> {
+  async check(operationKey: string, config: RateLimitConfig, userId?: string): Promise<RateLimitResult> {
     // If rate limiting is disabled, always allow
     if (!this.enabled) {
       return { allowed: true, remaining: config.maxOperations };
     }
 
+    // Create a composite key if userId is provided
+    const key = userId ? `${operationKey}:${userId}` : operationKey;
+
     const now = Date.now();
     const windowStart = now - config.windowMs;
 
     // Get existing timestamps for this operation
-    let timestamps = this.operations.get(operationKey) || [];
+    let timestamps = this.operations.get(key) || [];
 
     // Filter out timestamps outside the current window (sliding window)
     timestamps = timestamps.filter((ts) => ts > windowStart);
@@ -176,7 +222,7 @@ export class RateLimiter {
 
     // Record this operation
     timestamps.push(now);
-    this.operations.set(operationKey, timestamps);
+    this.operations.set(key, timestamps);
 
     return {
       allowed: true,
@@ -193,6 +239,7 @@ export class RateLimiter {
    *
    * @param operationKey - Unique identifier for the operation type
    * @param config - Rate limit configuration
+   * @param userId - Optional user ID for user-specific rate limiting
    * @throws RateLimitError if rate limit is exceeded
    *
    * @example
@@ -207,8 +254,115 @@ export class RateLimiter {
    * }
    * ```
    */
-  async checkOrThrow(operationKey: string, config: RateLimitConfig): Promise<void> {
-    const result = await this.check(operationKey, config);
+  async checkOrThrow(operationKey: string, config: RateLimitConfig, userId?: string): Promise<void> {
+    const result = await this.check(operationKey, config, userId);
+    if (!result.allowed) {
+      throw new RateLimitError(operationKey, result.waitTimeMs || 0);
+    }
+  }
+
+  /**
+   * Check rate limit with security logging integration
+   *
+   * This method checks the rate limit and logs violations to the security audit log.
+   * Integrates with S5-2 Security Event Logging.
+   *
+   * @param operationKey - Unique identifier for the operation type
+   * @param config - Rate limit configuration
+   * @param options - Options for security logging
+   * @returns Promise resolving to rate limit result
+   *
+   * @example
+   * ```typescript
+   * const result = await limiter.checkWithLogging(
+   *   'login',
+   *   SECURITY_RATE_LIMITS.login,
+   *   {
+   *     userId: 'user-123',
+   *     db: database,
+   *     logRateLimitExceeded,
+   *     endpoint: '/api/auth/login'
+   *   }
+   * );
+   *
+   * if (!result.allowed) {
+   *   return { error: 'Too many login attempts. Please wait before trying again.' };
+   * }
+   * ```
+   */
+  async checkWithLogging(
+    operationKey: string,
+    config: RateLimitConfig,
+    options: {
+      userId?: string;
+      db?: SecurityLogDatabase;
+      logRateLimitExceeded?: typeof logRateLimitExceeded;
+      endpoint?: string;
+    }
+  ): Promise<RateLimitResult> {
+    const result = await this.check(operationKey, config, options.userId);
+
+    // Log rate limit violation if exceeded and logging is configured
+    if (!result.allowed && options.db && options.logRateLimitExceeded) {
+      const details: RateLimitExceededDetails = {
+        endpoint: options.endpoint,
+        limit: config.maxOperations,
+        windowSeconds: Math.floor(config.windowMs / 1000),
+        attemptCount: config.maxOperations + 1, // They exceeded by at least 1
+      };
+
+      // Log asynchronously - don't block the rate limit check
+      options.logRateLimitExceeded(details, options.db).catch((error) => {
+        // Ignore logging errors - they shouldn't prevent rate limiting from working
+        console.error('Failed to log rate limit violation:', error);
+      });
+    }
+
+    return result;
+  }
+
+  /**
+   * Check rate limit with security logging and throw if exceeded
+   *
+   * Combines checkWithLogging and checkOrThrow for convenience.
+   *
+   * @param operationKey - Unique identifier for the operation type
+   * @param config - Rate limit configuration
+   * @param options - Options for security logging
+   * @throws RateLimitError if rate limit is exceeded
+   *
+   * @example
+   * ```typescript
+   * try {
+   *   await limiter.checkWithLoggingOrThrow(
+   *     'login',
+   *     SECURITY_RATE_LIMITS.login,
+   *     {
+   *       userId: email,
+   *       db: database,
+   *       logRateLimitExceeded,
+   *       endpoint: '/api/auth/login'
+   *     }
+   *   );
+   *   // Proceed with login
+   * } catch (error) {
+   *   if (error instanceof RateLimitError) {
+   *     return { error: 'Too many attempts. Please wait.' };
+   *   }
+   * }
+   * ```
+   */
+  async checkWithLoggingOrThrow(
+    operationKey: string,
+    config: RateLimitConfig,
+    options: {
+      userId?: string;
+      db?: SecurityLogDatabase;
+      logRateLimitExceeded?: typeof logRateLimitExceeded;
+      endpoint?: string;
+    }
+  ): Promise<void> {
+    const result = await this.checkWithLogging(operationKey, config, options);
     if (!result.allowed) {
       throw new RateLimitError(operationKey, result.waitTimeMs || 0);
     }
@@ -222,6 +376,7 @@ export class RateLimiter {
    *
    * @param operationKey - Unique identifier for the operation type
    * @param config - Rate limit configuration
+   * @param userId - Optional user ID for user-specific rate limiting
    * @returns Current quota status
    *
    * @example
@@ -232,7 +387,8 @@ export class RateLimiter {
    */
   getQuotaStatus(
     operationKey: string,
-    config: RateLimitConfig
+    config: RateLimitConfig,
+    userId?: string
   ): {
     remaining: number;
     maxOperations: number;
@@ -246,10 +402,13 @@ export class RateLimiter {
       };
     }
 
+    // Create a composite key if userId is provided
+    const key = userId ? `${operationKey}:${userId}` : operationKey;
+
     const now = Date.now();
     const windowStart = now - config.windowMs;
 
-    let timestamps = this.operations.get(operationKey) || [];
+    let timestamps = this.operations.get(key) || [];
     timestamps = timestamps.filter((ts) => ts > windowStart);
 
     const remaining = Math.max(0, config.maxOperations - timestamps.length);

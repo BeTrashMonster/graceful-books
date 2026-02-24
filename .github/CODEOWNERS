@@ -15,10 +15,36 @@
 /src/store/** @graceful-books/backend-team
 /src/services/** @graceful-books/backend-team
 
-# Encryption & Security (requires security team review)
+# Security-Critical Files (requires senior security review)
+# These files handle authentication, authorization, encryption, and data access
+/src/auth/** @graceful-books/security-team
+/src/crypto/** @graceful-books/security-team
+/src/utils/authorization.ts @graceful-books/security-team
+/src/utils/sanitize.ts @graceful-books/security-team
+/src/utils/validation.ts @graceful-books/security-team
+/src/utils/securityLogger.ts @graceful-books/security-team
 /src/services/encryption* @graceful-books/security-team
-/src/services/auditLog* @graceful-books/security-team
+/src/services/audit* @graceful-books/security-team
+/src/services/rbac* @graceful-books/security-team
+/src/services/rateLimit* @graceful-books/security-team
+/src/services/session* @graceful-books/security-team
 **/security/** @graceful-books/security-team
+
+# Data Access Layer (requires security-aware review for IDOR prevention)
+/src/store/** @graceful-books/backend-team @graceful-books/security-team
+/src/db/schema/** @graceful-books/backend-team @graceful-books/security-team
+
+# Security Documentation (requires security team review)
+/docs/SECURITY*.md @graceful-books/security-team
+/docs/CODE_REVIEW_SECURITY_CHECKLIST.md @graceful-books/security-team
+/docs/RBAC*.md @graceful-books/security-team
+/docs/*PENTEST*.md @graceful-books/security-team
+/docs/INCIDENT_RESPONSE.md @graceful-books/security-team
+/SECURITY.md @graceful-books/security-team
+/.github/SECURITY.md @graceful-books/security-team
+
+# Security Tests (requires security team awareness)
+/src/__tests__/security/** @graceful-books/security-team @graceful-books/qa-team
 
 # UI Components & User Experience
 /src/components/** @graceful-books/frontend-team

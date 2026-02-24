@@ -305,6 +305,12 @@ export function PromoDetailsForm({
       setTimeout(() => {
         // Look for error messages specifically within this form
         const form = e.currentTarget as HTMLFormElement;
+
+        // Null check: form might be unmounted during test cleanup
+        if (!form || !form.querySelectorAll) {
+          return;
+        }
+
         const errorElements = form.querySelectorAll('[class*="errorMessage"], [class*="error"][role="alert"], input[aria-invalid="true"]');
 
         if (errorElements.length > 0) {

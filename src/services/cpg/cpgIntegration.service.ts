@@ -169,7 +169,11 @@ class CPGIntegrationService {
       // Step 2: Get or create vendor contact
       let vendorContact: Contact | null = null;
       if (params.vendor_id) {
-        vendorContact = (await db.contacts.get(params.vendor_id)) || null;
+        // SECURITY: Verify vendor belongs to this company
+        const contact = await db.contacts.get(params.vendor_id);
+        if (contact && contact.company_id === params.company_id) {
+          vendorContact = contact;
+        }
       } else if (params.vendor_name) {
         // Try to find existing vendor by name
         const existingVendors = await db.contacts
@@ -278,6 +282,7 @@ class CPGIntegrationService {
         );
 
         // Get product for description
+        // SECURITY: Product link already verified to belong to company via linkValidation
         const product = await db.products.get(link.product_id);
 
         // Debit: Inventory (asset increases)
@@ -324,6 +329,7 @@ class CPGIntegrationService {
       }
 
       // Credit: Accounts Payable (liability increases)
+      // SECURITY: getAccountsPayableAccount already filters by companyId
       const apAccount = await this.getAccountsPayableAccount(params.company_id);
       if (!apAccount) {
         return {
@@ -359,6 +365,7 @@ class CPGIntegrationService {
       // Step 7: Create journal entry previews
       for (const lineItem of lineItems) {
         if (parseFloat(lineItem.debit) > 0) {
+          // SECURITY: Account verified via product link which belongs to company
           const debitAccount = await db.accounts.get(lineItem.account_id);
           const creditAccount = apAccount;
 
@@ -544,9 +551,12 @@ class CPGIntegrationService {
 
   /**
    * Get financial data for CPG analysis
+   *
+   * SECURITY: Accepts companyId parameter and uses it to filter all account queries
    */
   async getFinancialDataForCPG(companyId: string): Promise<DatabaseResult<CPGFinancialData>> {
     try {
+      // SECURITY: All queries filter by companyId using indexed compound keys
       // Get all income accounts (Revenue)
       const incomeAccounts = await db.accounts
         .where('[company_id+type]')
@@ -742,8 +752,11 @@ class CPGIntegrationService {
 
   /**
    * Get Accounts Payable account
+   *
+   * SECURITY: Filters by companyId to ensure account belongs to the company
    */
   private async getAccountsPayableAccount(companyId: string): Promise<Account | null> {
+    // SECURITY: Use compound index to filter by companyId first
     const apAccounts = await db.accounts
       .where('[company_id+type]')
       .equals([companyId, 'LIABILITY'])

@@ -11,9 +11,12 @@ Comprehensive monitoring and alerting infrastructure for Graceful Books, providi
 ## Quick Links
 
 - **Health Dashboard:** [monitoring/dashboards/health-dashboard.html](./dashboards/health-dashboard.html)
+- **Security Dashboard:** [monitoring/dashboards/security-dashboard.html](./dashboards/security-dashboard.html) ⭐ NEW
 - **On-Call Schedule:** [ON_CALL_SCHEDULE.md](./ON_CALL_SCHEDULE.md)
 - **Alert Thresholds:** [alerts/thresholds.yml](./alerts/thresholds.yml)
 - **Runbooks:** [runbooks/](./runbooks/)
+- **Security Monitoring Setup:** [SECURITY_MONITORING_SETUP.md](./SECURITY_MONITORING_SETUP.md) ⭐ NEW
+- **Security Alert Testing:** [SECURITY_ALERT_TESTING_GUIDE.md](./SECURITY_ALERT_TESTING_GUIDE.md) ⭐ NEW
 
 ### External Services
 
@@ -26,7 +29,37 @@ Comprehensive monitoring and alerting infrastructure for Graceful Books, providi
 
 ## Monitoring Stack
 
-### 1. Application Performance Monitoring (APM)
+### 1. Security Event Monitoring (S5-8) ⭐ NEW
+
+**Purpose:** Real-time detection and alerting for security events
+
+**Implementation:** [config/security-monitoring.ts](./config/security-monitoring.ts)
+
+**Events Monitored:**
+- Failed login attempts (brute force detection)
+- Authorization failures (IDOR attack detection)
+- Rate limit violations (DoS/scraping detection)
+- Suspicious activity (anomaly detection)
+- Account lockouts (mass attack detection)
+- Session anomalies (hijacking detection)
+
+**Alert Thresholds:**
+```yaml
+Failed Logins:       10/min (warning), 50/min (critical)
+Auth Failures:       20/min (warning), 100/min (critical)
+Rate Limit Hits:     10/min (warning), 50/min (critical)
+Suspicious Activity: Score 50 (warning), 80 (critical)
+```
+
+**Dashboard:** [dashboards/security-dashboard.html](./dashboards/security-dashboard.html)
+
+**Setup Guide:** [SECURITY_MONITORING_SETUP.md](./SECURITY_MONITORING_SETUP.md)
+
+**Testing Guide:** [SECURITY_ALERT_TESTING_GUIDE.md](./SECURITY_ALERT_TESTING_GUIDE.md)
+
+---
+
+### 2. Application Performance Monitoring (APM)
 
 **Cloudflare Workers Analytics**
 - Built into Workers platform
@@ -44,7 +77,7 @@ Comprehensive monitoring and alerting infrastructure for Graceful Books, providi
 - Database query performance
 - Cache hit rate
 
-### 2. Error Tracking
+### 3. Error Tracking
 
 **Sentry**
 - Captures all JavaScript and API errors
@@ -62,7 +95,7 @@ Comprehensive monitoring and alerting infrastructure for Graceful Books, providi
 - Release tracking
 - Error grouping and deduplication
 
-### 3. Uptime Monitoring
+### 4. Uptime Monitoring
 
 **External Monitoring (UptimeRobot recommended)**
 - Checks from multiple global locations
@@ -79,7 +112,7 @@ Comprehensive monitoring and alerting infrastructure for Graceful Books, providi
 - SSL certificates
 - DNS resolution
 
-### 4. Alert Routing
+### 5. Alert Routing
 
 **Multi-Channel Alerting**
 - PagerDuty for critical alerts
@@ -99,6 +132,16 @@ Comprehensive monitoring and alerting infrastructure for Graceful Books, providi
 ---
 
 ## Key Metrics
+
+### Security Metrics (S5-8) ⭐ NEW
+
+| Metric | Target | Warning | Critical |
+|--------|--------|---------|----------|
+| Failed Logins (per min) | < 5 | > 10 | > 50 |
+| Auth Failures (per min) | < 10 | > 20 | > 100 |
+| Rate Limit Hits (per min) | < 5 | > 10 | > 50 |
+| Suspicious Activity Score | < 20 | > 50 | > 80 |
+| Account Lockouts (per hour) | < 2 | > 5 | > 20 |
 
 ### SLA Metrics
 
@@ -187,6 +230,38 @@ Comprehensive monitoring and alerting infrastructure for Graceful Books, providi
 ---
 
 ## Getting Started
+
+### For Security Engineers ⭐ NEW
+
+1. **Review security monitoring setup:**
+   ```bash
+   # Read setup guide
+   cat monitoring/SECURITY_MONITORING_SETUP.md
+
+   # Configure environment variables
+   SLACK_WEBHOOK_SECURITY=https://hooks.slack.com/services/...
+   PAGERDUTY_INTEGRATION_KEY=your_key
+   SECURITY_EMAIL=security@gracefulbooks.com
+   ```
+
+2. **Initialize security monitoring:**
+   ```typescript
+   import { initializeSecurityMonitoring } from '@/monitoring/config/security-monitoring';
+
+   const monitor = initializeSecurityMonitoring();
+   // Monitor will check for security events every 60 seconds
+   ```
+
+3. **Access security dashboard:**
+   ```bash
+   open https://gracefulbooks.com/monitoring/security-dashboard.html
+   ```
+
+4. **Test alerts:**
+   ```bash
+   # Follow testing guide
+   cat monitoring/SECURITY_ALERT_TESTING_GUIDE.md
+   ```
 
 ### For Developers
 

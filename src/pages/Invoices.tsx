@@ -19,11 +19,17 @@ import {
   deleteInvoice,
 } from '../store/invoices';
 import { getCustomers } from '../store/contacts';
+import { useAuth } from '../contexts/AuthContext';
 import type { Invoice, InvoiceLineItem } from '../db/schema/invoices.schema';
 import { generateInvoiceNumber, calculateInvoiceTotals } from '../db/schema/invoices.schema';
 import { nanoid } from 'nanoid';
 
 export default function Invoices() {
+  const { companyId: authCompanyId } = useAuth();
+
+  // SECURITY: Use companyId from auth context (with fallback for development)
+  const companyId = authCompanyId || 'demo-company';
+
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,8 +54,6 @@ export default function Invoices() {
   const [taxRate, setTaxRate] = useState(0);
   const [currentStep, setCurrentStep] = useState<'details' | 'items' | 'template' | 'preview'>('details');
 
-  const companyId = 'demo-company'; // TODO: Get from auth context
-
   useEffect(() => {
     loadData();
   }, []);
@@ -57,8 +61,9 @@ export default function Invoices() {
   const loadData = async () => {
     setLoading(true);
     try {
+      // SECURITY: Pass companyId for authorization
       const [invoicesResult, customersResult] = await Promise.all([
-        getInvoices({ company_id: companyId }),
+        getInvoices(companyId),
         getCustomers(companyId),
       ]);
 
@@ -118,7 +123,8 @@ export default function Invoices() {
       return;
     }
 
-    const result = await deleteInvoice(id);
+    // SECURITY: Pass companyId for authorization
+    const result = await deleteInvoice(id, companyId);
 
     if (result.success) {
       setInvoices(invoices.filter((inv) => inv.id !== id));

@@ -69,6 +69,8 @@ export class HierarchyService {
    * Validates the assignment to prevent circular references and depth violations,
    * then updates the contact's parent_id, account_type, and hierarchy_level.
    *
+   * SECURITY: Validates that both child and parent contacts belong to the specified company.
+   *
    * @param contactId - ID of contact to assign parent to
    * @param parentId - ID of parent contact (null to make standalone)
    * @param companyId - Company ID for security check
@@ -89,13 +91,18 @@ export class HierarchyService {
     parentId: string | null,
     companyId: string
   ): Promise<Contact> {
+    // SECURITY: Validate companyId parameter
+    if (!companyId || companyId.trim() === '') {
+      throw new Error('Company ID is required');
+    }
+
     // Get the contact
     const contact = await db.contacts.get(contactId);
     if (!contact) {
       throw new Error(`Contact with ID ${contactId} not found`);
     }
 
-    // Verify contact belongs to company
+    // SECURITY: Verify contact belongs to company (IDOR prevention)
     if (contact.company_id !== companyId) {
       throw new Error('Contact does not belong to this company');
     }
@@ -156,6 +163,10 @@ export class HierarchyService {
    * Gets all direct children of a parent contact
    *
    * Returns only immediate children, not descendants.
+   *
+   * NOTE: This method does not validate companyId ownership because it's called internally
+   * by other methods that already validate ownership. External callers should use
+   * methods that accept companyId (like getAllHierarchyTrees).
    *
    * @param parentId - ID of parent contact
    * @param options - Query options (include inactive, deleted)
@@ -271,6 +282,8 @@ export class HierarchyService {
    *
    * Returns all standalone and parent contacts that have no parent.
    *
+   * SECURITY: Filters contacts by companyId to prevent unauthorized access.
+   *
    * @param companyId - Company ID to filter by
    * @param options - Query options
    * @returns Array of root contacts
@@ -284,6 +297,12 @@ export class HierarchyService {
     companyId: string,
     options: HierarchyQueryOptions = {}
   ): Promise<Contact[]> {
+    // SECURITY: Validate companyId parameter
+    if (!companyId || companyId.trim() === '') {
+      throw new Error('Company ID is required');
+    }
+
+    // SECURITY: Query only contacts belonging to the specified company
     const contacts = await db.contacts
       .where('company_id')
       .equals(companyId)
@@ -297,6 +316,8 @@ export class HierarchyService {
    * Gets all hierarchy trees for a company
    *
    * Returns an array of tree structures, one for each root contact.
+   *
+   * SECURITY: Filters contacts by companyId through getRootContacts.
    *
    * @param companyId - Company ID to filter by
    * @param options - Query options
@@ -315,6 +336,7 @@ export class HierarchyService {
     companyId: string,
     options: HierarchyQueryOptions = {}
   ): Promise<HierarchyNode[]> {
+    // SECURITY: getRootContacts validates companyId and filters by company
     const roots = await this.getRootContacts(companyId, options);
 
     return Promise.all(
@@ -369,6 +391,8 @@ export class HierarchyService {
    *
    * Gets all hierarchy trees and flattens them into a single sorted list.
    *
+   * SECURITY: Filters contacts by companyId through getAllHierarchyTrees.
+   *
    * @param companyId - Company ID to filter by
    * @param options - Query options
    * @returns Flattened array of all hierarchy items
@@ -382,6 +406,7 @@ export class HierarchyService {
     companyId: string,
     options: HierarchyQueryOptions = {}
   ): Promise<FlatHierarchyItem[]> {
+    // SECURITY: getAllHierarchyTrees validates companyId and filters by company
     const trees = await this.getAllHierarchyTrees(companyId, options);
 
     return trees.flatMap(tree => this.flattenHierarchy(tree));
@@ -488,6 +513,8 @@ export class HierarchyService {
    *
    * Provides aggregate statistics about the hierarchy structure.
    *
+   * SECURITY: Filters contacts by companyId.
+   *
    * @param companyId - Company ID to analyze
    * @param options - Query options
    * @returns Hierarchy statistics
@@ -503,6 +530,12 @@ export class HierarchyService {
     companyId: string,
     options: HierarchyQueryOptions = {}
   ): Promise<HierarchyStatistics> {
+    // SECURITY: Validate companyId parameter
+    if (!companyId || companyId.trim() === '') {
+      throw new Error('Company ID is required');
+    }
+
+    // SECURITY: Query only contacts belonging to the specified company
     const allContacts = await db.contacts
       .where('company_id')
       .equals(companyId)
@@ -583,6 +616,8 @@ export class HierarchyService {
    * Validates the move, then updates the contact's parent. All descendants
    * automatically maintain their relative positions in the hierarchy.
    *
+   * SECURITY: Delegates to assignParent which validates companyId ownership.
+   *
    * @param contactId - ID of contact to move
    * @param newParentId - ID of new parent (null to make standalone)
    * @param companyId - Company ID for security check
@@ -604,7 +639,7 @@ export class HierarchyService {
     newParentId: string | null,
     companyId: string
   ): Promise<Contact> {
-    // This is the same as assignParent, but explicitly named for clarity
+    // SECURITY: This delegates to assignParent which validates companyId ownership
     // The descendants automatically move because they reference this contact's ID
     return this.assignParent(contactId, newParentId, companyId);
   }
@@ -613,6 +648,8 @@ export class HierarchyService {
    * Removes parent from a contact, making it standalone
    *
    * If the contact has children, they move up with it (maintaining their relative structure).
+   *
+   * SECURITY: Delegates to assignParent which validates companyId ownership.
    *
    * @param contactId - ID of contact to make standalone
    * @param companyId - Company ID for security check
@@ -627,6 +664,7 @@ export class HierarchyService {
     contactId: string,
     companyId: string
   ): Promise<Contact> {
+    // SECURITY: Delegates to assignParent which validates companyId ownership
     return this.assignParent(contactId, null, companyId);
   }
 

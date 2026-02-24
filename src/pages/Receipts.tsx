@@ -17,6 +17,7 @@ import { ReceiptUpload } from '../components/receipts/ReceiptUpload'
 import { ReceiptGallery } from '../components/receipts/ReceiptGallery'
 import { ReceiptViewer } from '../components/receipts/ReceiptViewer'
 import { ReceiptLinkModal, type Transaction } from '../components/receipts/ReceiptLinkModal'
+import { useAuth } from '../contexts/AuthContext'
 import type { Receipt } from '../types'
 import {
   uploadReceipt,
@@ -31,6 +32,11 @@ import styles from './Receipts.module.css'
  * Receipts Page Component
  */
 export default function Receipts() {
+  const { companyId: authCompanyId } = useAuth()
+
+  // SECURITY: Use companyId from auth context (with fallback for development)
+  const companyId = authCompanyId || 'mock-company-id'
+
   const [receipts, setReceipts] = useState<Receipt[]>([])
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null)
@@ -40,9 +46,6 @@ export default function Receipts() {
   const [isLinking, setIsLinking] = useState(false)
   const [uploadError, setUploadError] = useState<string | undefined>()
   const [uploadSuccess, setUploadSuccess] = useState<string | undefined>()
-
-  // Mock company ID - in real app this would come from auth context
-  const companyId = 'mock-company-id'
 
   // Load receipts on mount
   useEffect(() => {

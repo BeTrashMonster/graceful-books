@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # npm dependencies
+  # npm dependencies - Production
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -21,11 +21,6 @@ updates:
       prefix-minor: "chore(deps)"
       prefix-patch: "chore(deps)"
       include: "scope"
-    # Patch and minor updates auto-merge if tests pass
-    auto-merge:
-      auto-merge-strategy: "squash"
-      # Only auto-merge if all status checks pass and PR reviews pass
-      auto-merge-threshold: "all"
     allow:
       - dependency-type: "production"
       - dependency-type: "development"
@@ -37,8 +32,43 @@ updates:
     pull-request-branch-name:
       separator: "/"
     rebase-strategy: "auto"
-    # Consolidate multiple updates into single PR
-    consolidate-multiple-dependabot-prs: true
+    # Group security updates together for faster review
+    groups:
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      production-dependencies:
+        applies-to: version-updates
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+      development-dependencies:
+        applies-to: version-updates
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # npm dependencies - Security-only updates (daily check)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "security"
+      - "dependencies"
+      - "critical"
+    commit-message:
+      prefix: "security(deps)"
+      include: "scope"
+    # Only security updates in this configuration
+    target-branch: "main"
+    pull-request-branch-name:
+      separator: "/security/"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"

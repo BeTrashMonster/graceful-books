@@ -79,3 +79,31 @@ export {
   type RateLimitConfig,
   type RateLimitResult,
 } from './rateLimiter'
+
+// HTML sanitization (XSS prevention)
+export {
+  sanitizeHtml,
+  sanitizeHtmlStrict,
+  sanitizeUrl,
+  sanitizeEmailHtml,
+} from './sanitize'
+
+// Security event logging
+export {
+  logSecurityEvent,
+  logFailedLogin,
+  logAuthorizationFailure,
+  logRateLimitExceeded,
+  logSuspiciousActivity,
+  logAccountLockout,
+  querySecurityEvents,
+  getSecurityEventStats,
+  SecurityEventType,
+  type SecurityEvent,
+  type FailedLoginDetails,
+  type AuthorizationFailureDetails,
+  type RateLimitExceededDetails,
+  type SuspiciousActivityDetails,
+  type AccountLockoutDetails,
+  type SecurityEventDetails,
+} from './securityLogger'

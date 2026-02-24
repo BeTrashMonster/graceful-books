@@ -33,6 +33,7 @@ import { createTransaction } from '../../store/transactions'
 import { getEntityConfig } from '../../data/demoEntityConfig'
 import { generateOpeningBalanceJournalEntries, parseDollarsToCents, type OpeningBalanceItem } from '../../utils/openingBalances'
 import { generateEquityAccounts } from '../../utils/equityAccounts'
+import { useAuth } from '../../contexts/AuthContext'
 import { WelcomeStep } from './steps/WelcomeStep'
 import { TemplateSelectionStep } from './steps/TemplateSelectionStep'
 import { AccountCustomizationStep } from './steps/AccountCustomizationStep'
@@ -96,11 +97,16 @@ const WIZARD_STEPS = [
  * Chart of Accounts Setup Wizard Component
  */
 export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
-  companyId,
+  companyId: propsCompanyId,
   onComplete,
   onCancel,
   isModal = false,
 }) => {
+  const { companyId: authCompanyId } = useAuth()
+
+  // SECURITY: Use companyId from auth context (with props as fallback for compatibility)
+  const companyId = authCompanyId || propsCompanyId
+
   const [wizardState, setWizardState] = useState<WizardState>(() => {
     // Try to load saved progress
     const saved = loadWizardProgress(WIZARD_ID, companyId)
@@ -292,8 +298,9 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
         return a.name.localeCompare(b.name)
       })
 
+      // SECURITY: Pass companyId for authorization check
       // Create accounts in batch
-      const result = await batchCreateAccounts(accountsToCreate)
+      const result = await batchCreateAccounts(companyId, accountsToCreate)
 
       if (result.failed.length > 0) {
         console.error('Some accounts failed to create:', result.failed)

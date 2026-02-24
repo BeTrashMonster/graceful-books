@@ -157,6 +157,8 @@ export interface CPGProfitLossReport {
  * - Trade spend (sales promos)
  * - Gross margin % by product line
  *
+ * SECURITY: Accepts companyId parameter and filters all queries by it
+ *
  * @param companyId - Company ID
  * @param startDate - Report start date (timestamp)
  * @param endDate - Report end date (timestamp)
@@ -170,6 +172,7 @@ export async function generateCPGProfitLoss(
   try {
     reportLogger.info('Generating CPG P&L report', { companyId, startDate, endDate });
 
+    // SECURITY: All queries filter by companyId to ensure data isolation
     // Fetch CPG invoices for the period
     const invoices = await db.cpgInvoices
       .where('company_id')
@@ -355,6 +358,8 @@ export async function generateCPGProfitLoss(
  * Returns table view of products with:
  * - Product | Variant | Revenue | CPU | Gross Margin % | Margin Quality
  *
+ * SECURITY: Accepts companyId parameter and filters all queries by it
+ *
  * @param companyId - Company ID
  * @param filters - Optional filters
  * @returns Array of gross margin data
@@ -366,6 +371,7 @@ export async function getGrossMarginByProduct(
   try {
     reportLogger.info('Getting gross margin by product', { companyId, filters });
 
+    // SECURITY: Filter by companyId to ensure data isolation
     // Fetch all invoices with calculated CPUs
     const invoices = await db.cpgInvoices
       .where('company_id')
@@ -458,6 +464,8 @@ export async function getGrossMarginByProduct(
  * - Identifies most cost-effective distributor
  * - Fee breakdown by distributor
  *
+ * SECURITY: Accepts companyId parameter and validates all distributors belong to company
+ *
  * @param companyId - Company ID
  * @param distributorIds - Array of distributor IDs to compare
  * @returns Distributor comparison data
@@ -473,6 +481,7 @@ export async function compareDistributors(
 
     for (const distId of distributorIds) {
       const distributor = await db.cpgDistributors.get(distId);
+      // SECURITY: Verify distributor belongs to this company
       if (!distributor || distributor.company_id !== companyId) continue;
 
       // Fetch all calculations for this distributor
@@ -572,6 +581,8 @@ export async function compareDistributors(
  * - Recommendation summary
  * - Margin impact
  *
+ * SECURITY: Accepts companyId parameter and filters all queries by it
+ *
  * @param companyId - Company ID
  * @param startDate - Start date (timestamp)
  * @param endDate - End date (timestamp)
@@ -585,6 +596,7 @@ export async function getTradeSpendSummary(
   try {
     reportLogger.info('Getting trade spend summary', { companyId, startDate, endDate });
 
+    // SECURITY: Filter by companyId to ensure data isolation
     // Fetch promos for the period
     const promos = await db.cpgSalesPromos
       .where('company_id')

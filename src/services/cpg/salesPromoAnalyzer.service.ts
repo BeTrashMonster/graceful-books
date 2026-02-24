@@ -41,6 +41,15 @@ import {
   validateCPGSalesPromo,
   getProfitMarginQuality,
 } from '../../db/schema/cpg.schema';
+import {
+  validatePromoAnalysisParams,
+  validateCreatePromoParams,
+  detectSuspiciousCalculation,
+  formatValidationError,
+} from '../../utils/validation';
+import { logger } from '../../utils/logger';
+
+const serviceLogger = logger.child('SalesPromoAnalyzerService');
 
 // ============================================================================
 // Types
@@ -148,6 +157,17 @@ export class SalesPromoAnalyzerService {
     params: CreatePromoParams,
     deviceId: string
   ): Promise<CPGSalesPromo> {
+    // S6-4: Validate parameters with Zod schema
+    const validation = validateCreatePromoParams(params);
+    if (!validation.success) {
+      const errorMessage = formatValidationError(validation.error);
+      serviceLogger.error('Promo creation validation failed', {
+        errors: errorMessage,
+        params,
+      });
+      throw new Error(`Validation failed: ${errorMessage}`);
+    }
+
     const id = nanoid();
     const defaultPromo = createDefaultCPGSalesPromo(
       params.companyId,
@@ -273,6 +293,17 @@ export class SalesPromoAnalyzerService {
     params: PromoAnalysisParams,
     deviceId: string
   ): Promise<PromoAnalysisResult> {
+    // S6-4: Validate parameters with Zod schema
+    const validation = validatePromoAnalysisParams(params);
+    if (!validation.success) {
+      const errorMessage = formatValidationError(validation.error);
+      serviceLogger.error('Promo analysis validation failed', {
+        errors: errorMessage,
+        params,
+      });
+      throw new Error(`Validation failed: ${errorMessage}`);
+    }
+
     // Get promo record
     const promo = await this.db.cpgSalesPromos.get(params.promoId);
     if (!promo) {
@@ -415,6 +446,39 @@ export class SalesPromoAnalyzerService {
 
     // Determine recommendation based on margins
     const { recommendation, reason } = this.determineRecommendation(margins);
+
+    // S6-4: Check for suspicious calculation patterns
+    for (const [variantName, variantData] of Object.entries(params.variantPromoData)) {
+      const result = variantResults[variantName];
+      const margin = parseFloat(
+        result.netProfitMarginWithLabor || result.netProfitMarginWithPromo
+      );
+      const suspicious = detectSuspiciousCalculation({
+        type: 'promo',
+        values: {
+          retailPrice: parseFloat(variantData.retailPrice),
+          baseCPU: parseFloat(variantData.baseCPU),
+          cpuWithPromo: parseFloat(result.cpuWithPromo),
+          totalPromoCost: totalPromoCost.toNumber(),
+          margin,
+        },
+      });
+
+      if (suspicious.suspicious) {
+        serviceLogger.warn('Suspicious promo calculation detected', {
+          promoId: params.promoId,
+          promoName: promo.promo_name,
+          variantName,
+          reasons: suspicious.reasons,
+          params: {
+            retailPrice: variantData.retailPrice,
+            baseCPU: variantData.baseCPU,
+            cpuWithPromo: result.cpuWithPromo,
+            margin: margin.toFixed(2),
+          },
+        });
+      }
+    }
 
     // Update promo record with results
     await this.updatePromo(

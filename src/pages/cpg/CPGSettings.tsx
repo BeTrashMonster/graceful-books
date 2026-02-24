@@ -20,10 +20,6 @@ import styles from './CPGSettings.module.css';
 export function CPGSettings() {
   const { companyId, deviceId } = useAuth();
 
-  // Fallback to demo IDs if not authenticated (development only)
-  const activeCompanyId = companyId || 'demo-company-id';
-  const activeDeviceId = deviceId || 'demo-device-id';
-
   const [settings, setSettings] = useState<CPGSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -92,8 +88,8 @@ export function CPGSettings() {
       try {
         const service = new CPGSettingsService(db);
         const loadedSettings = await service.getOrCreateSettings(
-          activeCompanyId,
-          activeDeviceId
+          companyId,
+          deviceId
         );
 
         setSettings(loadedSettings);
@@ -151,7 +147,7 @@ export function CPGSettings() {
     };
 
     loadSettings();
-  }, [activeCompanyId, activeDeviceId]);
+  }, [companyId, deviceId]);
 
   /**
    * Save settings
@@ -234,7 +230,7 @@ export function CPGSettings() {
    * Fix purple color (one-time migration helper)
    */
   const handleFixPurple = async () => {
-    if (!settings || !activeDeviceId) return;
+    if (!settings || !deviceId) return;
 
     setIsSaving(true);
     setErrorMessage(null);
@@ -247,7 +243,7 @@ export function CPGSettings() {
         {
           color_best: '#7c3aed', // Royal purple
         },
-        activeDeviceId
+        deviceId
       );
 
       setSettings(updated);
@@ -267,7 +263,7 @@ export function CPGSettings() {
    * Reset to defaults
    */
   const handleReset = async () => {
-    if (!activeCompanyId || !deviceId) return;
+    if (!companyId || !deviceId) return;
 
     if (
       !window.confirm(
@@ -284,7 +280,7 @@ export function CPGSettings() {
     try {
       const service = new CPGSettingsService(db);
       const updated = await service.resetToDefaults(
-        activeCompanyId,
+        companyId,
         deviceId
       );
 

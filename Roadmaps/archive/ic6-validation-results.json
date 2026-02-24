@@ -1,0 +1,240 @@
+{
+  "metadata": {
+    "date": "2026-01-20T00:02:05.866Z",
+    "duration": "0.02s",
+    "totalChecks": 36,
+    "passingChecks": 6,
+    "failingChecks": 0,
+    "manualChecks": 30,
+    "passRate": "100.0%"
+  },
+  "results": {
+    "performance": [
+      {
+        "check": "Page load < 2s (Lighthouse)",
+        "passed": null,
+        "details": "MANUAL: Run \"npm run build && npx lhci autorun\" with dev server running",
+        "time": null
+      },
+      {
+        "check": "IC1 conflict modal < 500ms",
+        "passed": null,
+        "details": "MANUAL: Open ConflictListModal and measure time to render",
+        "time": null
+      },
+      {
+        "check": "IC2 billing calculation < 1s",
+        "passed": null,
+        "details": "MANUAL: Test calculateAdvisorMonthlyCost() with 100 clients, 10 users",
+        "time": null
+      },
+      {
+        "check": "IC4 email queuing < 100ms",
+        "passed": null,
+        "details": "MANUAL: Test emailService.queueEmail() and measure time",
+        "time": null
+      },
+      {
+        "check": "Dashboard < 3s (cold load)",
+        "passed": null,
+        "details": "MANUAL: Clear cache, load /dashboard, measure time",
+        "time": null
+      },
+      {
+        "check": "No memory leaks (10-min)",
+        "passed": null,
+        "details": "MANUAL: Chrome DevTools Memory Profiler, 10-min session, check for growth",
+        "time": null
+      },
+      {
+        "check": "API endpoints < 1s (p95)",
+        "passed": null,
+        "details": "MANUAL: Monitor API response times during load testing",
+        "time": null
+      }
+    ],
+    "security": [
+      {
+        "check": "IC2 Stripe webhook signature validation",
+        "passed": true,
+        "details": "Found signature validation",
+        "time": null
+      },
+      {
+        "check": "IC3 admin endpoints return 403",
+        "passed": true,
+        "details": "AdminRoute checks role",
+        "time": null
+      },
+      {
+        "check": "IC3 CSRF protection enabled",
+        "passed": null,
+        "details": "MANUAL: Verify CSRF tokens in admin forms",
+        "time": null
+      },
+      {
+        "check": "IC4 email templates sanitize XSS",
+        "passed": true,
+        "details": "Found sanitizeHtml function",
+        "time": null
+      },
+      {
+        "check": "IC2 billing data not logged",
+        "passed": null,
+        "details": "MANUAL: Check server logs for absence of card numbers, amounts",
+        "time": null
+      },
+      {
+        "check": "Session timeout (30 min)",
+        "passed": null,
+        "details": "MANUAL: Idle 30 minutes, verify auto-logout",
+        "time": null
+      },
+      {
+        "check": "Rate limiting on auth",
+        "passed": null,
+        "details": "MANUAL: 10 failed logins, verify temporary block",
+        "time": null
+      },
+      {
+        "check": "Non-admin blocked from charity mgmt",
+        "passed": null,
+        "details": "MANUAL: Test as non-admin user, verify 403 on /admin/charities",
+        "time": null
+      }
+    ],
+    "accessibility": [
+      {
+        "check": "IC1 modal keyboard navigable",
+        "passed": null,
+        "details": "MANUAL: Tab through modal, Esc to close",
+        "time": null
+      },
+      {
+        "check": "IC1 screen reader announces",
+        "passed": true,
+        "details": "Found aria-live",
+        "time": null
+      },
+      {
+        "check": "IC3 admin panel WAVE check",
+        "passed": null,
+        "details": "MANUAL: Run WAVE extension on /admin/charities",
+        "time": null
+      },
+      {
+        "check": "IC4 email contrast 4.5:1",
+        "passed": null,
+        "details": "MANUAL: Check email templates with WebAIM contrast checker",
+        "time": null
+      },
+      {
+        "check": "All forms have visible labels",
+        "passed": null,
+        "details": "MANUAL: Verify labels not just placeholders",
+        "time": null
+      },
+      {
+        "check": "Focus indicators visible",
+        "passed": null,
+        "details": "MANUAL: Tab through app, verify blue outline on focus",
+        "time": null
+      },
+      {
+        "check": "Errors use aria-describedby",
+        "passed": null,
+        "details": "MANUAL: Trigger form errors, verify aria-describedby",
+        "time": null
+      }
+    ],
+    "integration": [
+      {
+        "check": "E2E: Subscription → Charity → Email",
+        "passed": null,
+        "details": "MANUAL: Create subscription, verify charity calculation, check email sent",
+        "time": null
+      },
+      {
+        "check": "E2E: Charity verification workflow",
+        "passed": null,
+        "details": "MANUAL: Admin verify charity, user select, verify tracked",
+        "time": null
+      },
+      {
+        "check": "E2E: @mention → Notification → Email",
+        "passed": null,
+        "details": "MANUAL: Comment with @mention, verify notification, check email",
+        "time": null
+      },
+      {
+        "check": "IC1 + I1: Conflict UI + Service",
+        "passed": true,
+        "details": "Both files exist",
+        "time": null
+      },
+      {
+        "check": "IC2 + H1: Team member billing",
+        "passed": true,
+        "details": "Found team member billing",
+        "time": null
+      },
+      {
+        "check": "IC4 + IC2: Billing emails from webhooks",
+        "passed": null,
+        "details": "MANUAL: Trigger Stripe webhook, verify email sent",
+        "time": null
+      }
+    ],
+    "crossBrowser": [
+      {
+        "check": "IC1 components in Chrome",
+        "passed": null,
+        "details": "MANUAL: Test ConflictListModal in Chrome",
+        "time": null
+      },
+      {
+        "check": "IC1 components in Firefox",
+        "passed": null,
+        "details": "MANUAL: Test ConflictListModal in Firefox",
+        "time": null
+      },
+      {
+        "check": "IC1 components in Safari",
+        "passed": null,
+        "details": "MANUAL: Test ConflictListModal in Safari",
+        "time": null
+      },
+      {
+        "check": "IC1 components in Edge",
+        "passed": null,
+        "details": "MANUAL: Test ConflictListModal in Edge",
+        "time": null
+      },
+      {
+        "check": "IC2 Stripe checkout all browsers",
+        "passed": null,
+        "details": "MANUAL: Test Stripe Elements in Chrome/Firefox/Safari/Edge",
+        "time": null
+      },
+      {
+        "check": "IC3 admin panel tablet (1024x768)",
+        "passed": null,
+        "details": "MANUAL: Test /admin/charities at 1024x768 resolution",
+        "time": null
+      },
+      {
+        "check": "IC4 emails Gmail/Outlook/Apple",
+        "passed": null,
+        "details": "MANUAL: Send test emails, verify rendering in all 3 clients",
+        "time": null
+      },
+      {
+        "check": "Mobile responsive (375px)",
+        "passed": null,
+        "details": "MANUAL: Test dashboard at 375px width",
+        "time": null
+      }
+    ]
+  },
+  "recommendation": "PROCEED to manual validation"
+}

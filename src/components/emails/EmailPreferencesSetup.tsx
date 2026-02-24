@@ -3,10 +3,13 @@
  *
  * Per D3: Weekly Email Summary Setup
  * Allows users to configure weekly email summaries with preview functionality.
+ *
+ * SECURITY: Email preview uses sanitizeEmailHtml to prevent XSS attacks (S4-4)
  */
 
 import React, { useState, useEffect } from 'react';
 import type { DayOfWeek, EmailFrequency, EmailContentSection } from '../../types/email.types';
+import { sanitizeEmailHtml } from '../../utils/sanitize';
 
 interface EmailPreferencesSetupProps {
   userId: string;
@@ -339,7 +342,11 @@ const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
         // For now, show placeholder
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        setPreviewHTML('<div style="padding: 20px; text-align: center;">Email preview coming soon...</div>');
+        // SECURITY: Sanitize email HTML before setting state to prevent XSS
+        // Even though this is placeholder content, we sanitize to establish the pattern
+        // When real email preview service is implemented, sanitization will already be in place
+        const unsafeHTML = '<div style="padding: 20px; text-align: center;">Email preview coming soon...</div>';
+        setPreviewHTML(sanitizeEmailHtml(unsafeHTML));
       } catch (err) {
         setError('We couldn\'t generate the preview. Please try again.');
       } finally {
@@ -377,6 +384,8 @@ const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
           {!loading && !error && (
             <div
               className="email-preview-container"
+              // SECURITY: previewHTML is sanitized with sanitizeEmailHtml() before setState
+              // This prevents XSS attacks in email preview content
               dangerouslySetInnerHTML={{ __html: previewHTML }}
             />
           )}

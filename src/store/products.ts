@@ -19,6 +19,7 @@ import type {
   VersionVector,
   BatchResult,
 } from './types'
+import { requireCompanyOwnership, validateCompanyId } from '../utils/authorization'
 
 /**
  * Generate current device ID (stored in localStorage)
@@ -177,9 +178,20 @@ export async function createProduct(
       }
     }
 
-    // Validate income account exists
+    // Validate income account exists and belongs to same company
     const incomeAccount = await db.accounts.get(product.incomeAccountId)
     if (!incomeAccount || incomeAccount.deletedAt) {
+      return {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid income account ID',
+        },
+      }
+    }
+
+    // SECURITY: Verify income account belongs to same company
+    if (incomeAccount.companyId !== product.companyId) {
       return {
         success: false,
         error: {
@@ -193,6 +205,17 @@ export async function createProduct(
     if (product.expenseAccountId) {
       const expenseAccount = await db.accounts.get(product.expenseAccountId)
       if (!expenseAccount || expenseAccount.deletedAt) {
+        return {
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid expense account ID',
+          },
+        }
+      }
+
+      // SECURITY: Verify expense account belongs to same company
+      if (expenseAccount.companyId !== product.companyId) {
         return {
           success: false,
           error: {
@@ -259,26 +282,33 @@ export async function createProduct(
 
 /**
  * Get product by ID
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function getProduct(
   id: string,
+  companyId: string,
   context?: EncryptionContext
 ): Promise<DatabaseResult<Product>> {
   try {
-    const entity = await db.products.get(id)
-
-    if (!entity) {
-      return {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: `Product not found: ${id}`,
-        },
-      }
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
     }
 
+    const entity = await db.products.get(id)
+
+    // SECURITY: Verify resource ownership before allowing access
+    const authCheck = requireCompanyOwnership(entity, companyId)
+    if (!authCheck.authorized) {
+      return { success: false, error: authCheck.error }
+    }
+
+    const authorizedEntity = authCheck.resource
+
     // Check if soft deleted
-    if (entity.deletedAt) {
+    if (authorizedEntity.deletedAt) {
       return {
         success: false,
         error: {
@@ -289,14 +319,14 @@ export async function getProduct(
     }
 
     // Decrypt if service provided
-    let result = entity
+    let result = authorizedEntity
     if (context?.encryptionService) {
       const { encryptionService } = context
       result = {
-        ...entity,
-        name: await encryptionService.decrypt(entity.name),
-        description: entity.description
-          ? await encryptionService.decrypt(entity.description)
+        ...authorizedEntity,
+        name: await encryptionService.decrypt(authorizedEntity.name),
+        description: authorizedEntity.description
+          ? await encryptionService.decrypt(authorizedEntity.description)
           : undefined,
       }
     }
@@ -316,26 +346,33 @@ export async function getProduct(
 
 /**
  * Update an existing product
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function updateProduct(
   id: string,
+  companyId: string,
   updates: Partial<Omit<Product, 'id' | 'companyId' | 'createdAt'>>,
   context?: EncryptionContext
 ): Promise<DatabaseResult<Product>> {
   try {
-    const existing = await db.products.get(id)
-
-    if (!existing) {
-      return {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: `Product not found: ${id}`,
-        },
-      }
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
     }
 
-    if (existing.deletedAt) {
+    const existing = await db.products.get(id)
+
+    // SECURITY: Verify resource ownership before allowing access
+    const authCheck = requireCompanyOwnership(existing, companyId)
+    if (!authCheck.authorized) {
+      return { success: false, error: authCheck.error }
+    }
+
+    const authorizedEntity = authCheck.resource
+
+    if (authorizedEntity.deletedAt) {
       return {
         success: false,
         error: {
@@ -368,11 +405,11 @@ export async function updateProduct(
     }
 
     // Check for duplicate SKU if updating SKU
-    if (updates.sku && updates.sku !== existing.sku) {
+    if (updates.sku && updates.sku !== authorizedEntity.sku) {
       const duplicate = await db.products
         .where('sku')
         .equals(updates.sku)
-        .and((p) => p.companyId === existing.companyId && p.id !== id && !p.deletedAt)
+        .and((p) => p.companyId === authorizedEntity.companyId && p.id !== id && !p.deletedAt)
         .first()
 
       if (duplicate) {
@@ -391,13 +428,13 @@ export async function updateProduct(
     const deviceId = getDeviceId()
 
     const updated: ProductEntity = {
-      ...existing,
+      ...authorizedEntity,
       ...updates,
       id, // Ensure ID doesn't change
-      companyId: existing.companyId, // Ensure companyId doesn't change
-      createdAt: existing.createdAt, // Preserve creation date
+      companyId: authorizedEntity.companyId, // Ensure companyId doesn't change
+      createdAt: authorizedEntity.createdAt, // Preserve creation date
       updatedAt: now,
-      versionVector: incrementVersionVector(existing.versionVector),
+      versionVector: incrementVersionVector(authorizedEntity.versionVector),
       lastModifiedBy: deviceId,
       lastModifiedAt: now,
     }
@@ -446,24 +483,31 @@ export async function updateProduct(
 
 /**
  * Delete a product (soft delete with tombstone)
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function deleteProduct(
-  id: string
+  id: string,
+  companyId: string
 ): Promise<DatabaseResult<void>> {
   try {
-    const existing = await db.products.get(id)
-
-    if (!existing) {
-      return {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: `Product not found: ${id}`,
-        },
-      }
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
     }
 
-    if (existing.deletedAt) {
+    const existing = await db.products.get(id)
+
+    // SECURITY: Verify resource ownership before allowing access
+    const authCheck = requireCompanyOwnership(existing, companyId)
+    if (!authCheck.authorized) {
+      return { success: false, error: authCheck.error }
+    }
+
+    const authorizedEntity = authCheck.resource
+
+    if (authorizedEntity.deletedAt) {
       return { success: true, data: undefined } // Already deleted
     }
 
@@ -473,7 +517,7 @@ export async function deleteProduct(
 
     await db.products.update(id, {
       deletedAt: now,
-      versionVector: incrementVersionVector(existing.versionVector),
+      versionVector: incrementVersionVector(authorizedEntity.versionVector),
       lastModifiedBy: deviceId,
       lastModifiedAt: now,
     })
@@ -493,33 +537,38 @@ export async function deleteProduct(
 
 /**
  * Query products with filters
+ *
+ * SECURITY: Requires companyId as mandatory parameter to prevent unauthorized cross-company access
  */
 export async function queryProducts(
-  filter: ProductFilter,
+  companyId: string,
+  filter?: Omit<ProductFilter, 'companyId'>,
   context?: EncryptionContext
 ): Promise<DatabaseResult<Product[]>> {
   try {
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
+    }
+
     let query = db.products.toCollection()
 
-    // Apply filters
-    if (filter.companyId) {
-      query = db.products.where('companyId').equals(filter.companyId)
-    }
-
-    if (filter.type && filter.companyId) {
+    // SECURITY: Always filter by companyId first (required)
+    if (filter?.type) {
       query = db.products
         .where('[companyId+type]')
-        .equals([filter.companyId, filter.type])
-    }
-
-    if (filter.isActive !== undefined && filter.companyId) {
+        .equals([companyId, filter.type])
+    } else if (filter?.isActive !== undefined) {
       query = db.products
         .where('[companyId+isActive]')
-        .equals([filter.companyId, filter.isActive] as any)
+        .equals([companyId, filter.isActive] as any)
+    } else {
+      query = db.products.where('companyId').equals(companyId)
     }
 
     // Filter out deleted unless explicitly requested
-    if (!filter.includeDeleted) {
+    if (!filter?.includeDeleted) {
       query = query.and((product) => !product.deletedAt)
     }
 
@@ -564,7 +613,8 @@ export async function getProducts(
   context?: EncryptionContext
 ): Promise<DatabaseResult<Product[]>> {
   return queryProducts(
-    { companyId, type: 'product', isActive: true },
+    companyId,
+    { type: 'product', isActive: true },
     context
   )
 }
@@ -577,7 +627,8 @@ export async function getServices(
   context?: EncryptionContext
 ): Promise<DatabaseResult<Product[]>> {
   return queryProducts(
-    { companyId, type: 'service', isActive: true },
+    companyId,
+    { type: 'service', isActive: true },
     context
   )
 }
@@ -635,14 +686,58 @@ export async function getProductBySKU(
 
 /**
  * Batch create products
+ *
+ * SECURITY: Validates all products have same companyId to prevent bulk unauthorized writes
  */
 export async function batchCreateProducts(
+  companyId: string,
   products: Array<Omit<Product, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>>,
   context?: EncryptionContext
 ): Promise<BatchResult<Product>> {
   const successful: Product[] = []
   const failed: Array<{ item: Product; error: DatabaseError }> = []
 
+  // SECURITY: Validate companyId is provided
+  const companyIdError = validateCompanyId(companyId)
+  if (companyIdError) {
+    // Return all items as failed with validation error
+    return {
+      successful: [],
+      failed: products.map((product) => ({
+        item: {
+          ...product,
+          id: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        error: companyIdError,
+      })),
+    }
+  }
+
+  // SECURITY: Verify all products have correct companyId before processing
+  const invalidItems = products.filter((product) => product.companyId !== companyId)
+  if (invalidItems.length > 0) {
+    const mismatchError: DatabaseError = {
+      code: 'VALIDATION_ERROR',
+      message: `Company ID mismatch detected in batch operation. All items must belong to company: ${companyId}`,
+    }
+    // Return all items as failed - reject entire batch
+    return {
+      successful: [],
+      failed: products.map((product) => ({
+        item: {
+          ...product,
+          id: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        error: mismatchError,
+      })),
+    }
+  }
+
+  // All items validated - proceed with batch creation
   for (const product of products) {
     const result = await createProduct(product, context)
     if (result.success) {

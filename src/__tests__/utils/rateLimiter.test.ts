@@ -11,6 +11,7 @@ import {
   RateLimiter,
   RateLimitError,
   CRYPTO_RATE_LIMITS,
+  SECURITY_RATE_LIMITS,
   rateLimiter,
   withRateLimit,
   formatWaitTime,
@@ -475,5 +476,330 @@ describe('singleton rateLimiter', () => {
     });
 
     expect(status.remaining).toBe(1);
+  });
+});
+
+describe('SECURITY_RATE_LIMITS', () => {
+  it('should have correct login limits', () => {
+    expect(SECURITY_RATE_LIMITS.login.maxOperations).toBe(5);
+    expect(SECURITY_RATE_LIMITS.login.windowMs).toBe(60000); // 1 minute
+  });
+
+  it('should have correct data access limits', () => {
+    expect(SECURITY_RATE_LIMITS.dataAccess.maxOperations).toBe(100);
+    expect(SECURITY_RATE_LIMITS.dataAccess.windowMs).toBe(60000); // 1 minute
+  });
+
+  it('should have correct batch query limits', () => {
+    expect(SECURITY_RATE_LIMITS.batchQuery.maxOperations).toBe(10);
+    expect(SECURITY_RATE_LIMITS.batchQuery.windowMs).toBe(60000); // 1 minute
+  });
+
+  it('should have correct CPG calculation limits', () => {
+    expect(SECURITY_RATE_LIMITS.cpgCalculation.maxOperations).toBe(50);
+    expect(SECURITY_RATE_LIMITS.cpgCalculation.windowMs).toBe(3600000); // 1 hour
+  });
+});
+
+describe('User-specific rate limiting (S5-3)', () => {
+  let limiter: RateLimiter;
+
+  beforeEach(() => {
+    limiter = new RateLimiter(1000);
+  });
+
+  afterEach(() => {
+    limiter.destroy();
+  });
+
+  describe('userId parameter support', () => {
+    const testConfig: RateLimitConfig = {
+      maxOperations: 3,
+      windowMs: 1000,
+    };
+
+    it('should rate limit different users independently', async () => {
+      // User A uses up their quota
+      await limiter.check('login', testConfig, 'user-a');
+      await limiter.check('login', testConfig, 'user-a');
+      await limiter.check('login', testConfig, 'user-a');
+
+      // User A should be blocked
+      const resultA = await limiter.check('login', testConfig, 'user-a');
+      expect(resultA.allowed).toBe(false);
+
+      // User B should still be allowed
+      const resultB = await limiter.check('login', testConfig, 'user-b');
+      expect(resultB.allowed).toBe(true);
+      expect(resultB.remaining).toBe(2);
+    });
+
+    it('should track quota status per user', async () => {
+      await limiter.check('dataAccess', testConfig, 'user-a');
+      await limiter.check('dataAccess', testConfig, 'user-a');
+      await limiter.check('dataAccess', testConfig, 'user-b');
+
+      const statusA = limiter.getQuotaStatus('dataAccess', testConfig, 'user-a');
+      const statusB = limiter.getQuotaStatus('dataAccess', testConfig, 'user-b');
+
+      expect(statusA.remaining).toBe(1);
+      expect(statusB.remaining).toBe(2);
+    });
+
+    it('should handle checkOrThrow with userId', async () => {
+      await limiter.checkOrThrow('test', testConfig, 'user-a');
+      await limiter.checkOrThrow('test', testConfig, 'user-a');
+      await limiter.checkOrThrow('test', testConfig, 'user-a');
+
+      await expect(limiter.checkOrThrow('test', testConfig, 'user-a')).rejects.toThrow(
+        RateLimitError
+      );
+
+      // Different user should not throw
+      await expect(limiter.checkOrThrow('test', testConfig, 'user-b')).resolves.not.toThrow();
+    });
+
+    it('should work without userId (backward compatibility)', async () => {
+      await limiter.check('test', testConfig);
+      await limiter.check('test', testConfig);
+      await limiter.check('test', testConfig);
+
+      const result = await limiter.check('test', testConfig);
+      expect(result.allowed).toBe(false);
+    });
+  });
+
+  describe('checkWithLogging', () => {
+    const testConfig: RateLimitConfig = {
+      maxOperations: 2,
+      windowMs: 1000,
+    };
+
+    it('should check rate limit without logging when under limit', async () => {
+      const mockLogFn = vi.fn().mockResolvedValue('log-id');
+      const mockDb = {
+        audit_logs: { add: vi.fn().mockResolvedValue('log-id') },
+      };
+
+      const result = await limiter.checkWithLogging('login', testConfig, {
+        userId: 'user-a',
+        db: mockDb,
+        logRateLimitExceeded: mockLogFn,
+        endpoint: '/api/auth/login',
+      });
+
+      expect(result.allowed).toBe(true);
+      expect(mockLogFn).not.toHaveBeenCalled();
+    });
+
+    it('should log when rate limit is exceeded', async () => {
+      const mockLogFn = vi.fn().mockResolvedValue('log-id');
+      const mockDb = {
+        audit_logs: { add: vi.fn().mockResolvedValue('log-id') },
+      };
+
+      // Use up quota
+      await limiter.checkWithLogging('login', testConfig, {
+        userId: 'user-a',
+        db: mockDb,
+        logRateLimitExceeded: mockLogFn,
+        endpoint: '/api/auth/login',
+      });
+
+      await limiter.checkWithLogging('login', testConfig, {
+        userId: 'user-a',
+        db: mockDb,
+        logRateLimitExceeded: mockLogFn,
+        endpoint: '/api/auth/login',
+      });
+
+      // This should exceed the limit and log
+      const result = await limiter.checkWithLogging('login', testConfig, {
+        userId: 'user-a',
+        db: mockDb,
+        logRateLimitExceeded: mockLogFn,
+        endpoint: '/api/auth/login',
+      });
+
+      expect(result.allowed).toBe(false);
+
+      // Wait a bit for async logging
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(mockLogFn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          endpoint: '/api/auth/login',
+          limit: 2,
+          windowSeconds: 1,
+          attemptCount: 3,
+        }),
+        mockDb
+      );
+    });
+
+    it('should work without db/logging configured', async () => {
+      await limiter.checkWithLogging('test', testConfig, { userId: 'user-a' });
+      await limiter.checkWithLogging('test', testConfig, { userId: 'user-a' });
+
+      const result = await limiter.checkWithLogging('test', testConfig, { userId: 'user-a' });
+
+      expect(result.allowed).toBe(false);
+    });
+
+    it('should not throw if logging fails', async () => {
+      const mockLogFn = vi.fn().mockRejectedValue(new Error('Logging failed'));
+      const mockDb = {
+        audit_logs: { add: vi.fn().mockResolvedValue('log-id') },
+      };
+
+      // Use up quota
+      await limiter.checkWithLogging('test', testConfig, {
+        userId: 'user-a',
+        db: mockDb,
+        logRateLimitExceeded: mockLogFn,
+      });
+      await limiter.checkWithLogging('test', testConfig, {
+        userId: 'user-a',
+        db: mockDb,
+        logRateLimitExceeded: mockLogFn,
+      });
+
+      // Should still return rate limit result even if logging fails
+      const result = await limiter.checkWithLogging('test', testConfig, {
+        userId: 'user-a',
+        db: mockDb,
+        logRateLimitExceeded: mockLogFn,
+      });
+
+      expect(result.allowed).toBe(false);
+    });
+  });
+
+  describe('checkWithLoggingOrThrow', () => {
+    const testConfig: RateLimitConfig = {
+      maxOperations: 2,
+      windowMs: 1000,
+    };
+
+    it('should not throw when within limit', async () => {
+      const mockLogFn = vi.fn().mockResolvedValue('log-id');
+      const mockDb = {
+        audit_logs: { add: vi.fn().mockResolvedValue('log-id') },
+      };
+
+      await expect(
+        limiter.checkWithLoggingOrThrow('test', testConfig, {
+          userId: 'user-a',
+          db: mockDb,
+          logRateLimitExceeded: mockLogFn,
+        })
+      ).resolves.not.toThrow();
+    });
+
+    it('should throw and log when limit exceeded', async () => {
+      const mockLogFn = vi.fn().mockResolvedValue('log-id');
+      const mockDb = {
+        audit_logs: { add: vi.fn().mockResolvedValue('log-id') },
+      };
+
+      // Use up quota
+      await limiter.checkWithLoggingOrThrow('test', testConfig, {
+        userId: 'user-a',
+        db: mockDb,
+        logRateLimitExceeded: mockLogFn,
+      });
+      await limiter.checkWithLoggingOrThrow('test', testConfig, {
+        userId: 'user-a',
+        db: mockDb,
+        logRateLimitExceeded: mockLogFn,
+      });
+
+      // Should throw
+      await expect(
+        limiter.checkWithLoggingOrThrow('test', testConfig, {
+          userId: 'user-a',
+          db: mockDb,
+          logRateLimitExceeded: mockLogFn,
+        })
+      ).rejects.toThrow(RateLimitError);
+
+      // Wait for async logging
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(mockLogFn).toHaveBeenCalled();
+    });
+  });
+
+  describe('Security scenarios (S5-3)', () => {
+    it('should prevent brute force login attacks', async () => {
+      const userId = 'attacker@example.com';
+
+      // Simulate 5 failed login attempts
+      for (let i = 0; i < 5; i++) {
+        await limiter.check('login', SECURITY_RATE_LIMITS.login, userId);
+      }
+
+      // 6th attempt should be blocked
+      const result = await limiter.check('login', SECURITY_RATE_LIMITS.login, userId);
+      expect(result.allowed).toBe(false);
+      expect(result.waitTimeMs).toBeGreaterThan(0);
+    });
+
+    it('should prevent data scraping', async () => {
+      const userId = 'scraper-123';
+
+      // Simulate 100 data access operations
+      for (let i = 0; i < 100; i++) {
+        await limiter.check('dataAccess', SECURITY_RATE_LIMITS.dataAccess, userId);
+      }
+
+      // 101st request should be blocked
+      const result = await limiter.check('dataAccess', SECURITY_RATE_LIMITS.dataAccess, userId);
+      expect(result.allowed).toBe(false);
+    });
+
+    it('should prevent batch query abuse', async () => {
+      const userId = 'user-123';
+
+      // Simulate 10 batch queries
+      for (let i = 0; i < 10; i++) {
+        await limiter.check('batchQuery', SECURITY_RATE_LIMITS.batchQuery, userId);
+      }
+
+      // 11th batch query should be blocked
+      const result = await limiter.check('batchQuery', SECURITY_RATE_LIMITS.batchQuery, userId);
+      expect(result.allowed).toBe(false);
+    });
+
+    it('should prevent CPG calculation abuse', async () => {
+      const userId = 'user-123';
+
+      // Simulate 50 CPG calculations
+      for (let i = 0; i < 50; i++) {
+        await limiter.check('cpgCalculation', SECURITY_RATE_LIMITS.cpgCalculation, userId);
+      }
+
+      // 51st calculation should be blocked
+      const result = await limiter.check(
+        'cpgCalculation',
+        SECURITY_RATE_LIMITS.cpgCalculation,
+        userId
+      );
+      expect(result.allowed).toBe(false);
+    });
+
+    it('should allow legitimate rapid usage within limits', async () => {
+      const userId = 'legitimate-user';
+
+      // 4 login attempts should be allowed (limit is 5)
+      const results = await Promise.all([
+        limiter.check('login', SECURITY_RATE_LIMITS.login, userId),
+        limiter.check('login', SECURITY_RATE_LIMITS.login, userId),
+        limiter.check('login', SECURITY_RATE_LIMITS.login, userId),
+        limiter.check('login', SECURITY_RATE_LIMITS.login, userId),
+      ]);
+
+      expect(results.every((r) => r.allowed)).toBe(true);
+    });
   });
 });

@@ -36,7 +36,6 @@ interface ExpandedState {
 
 export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
   const { companyId } = useAuth();
-  const activeCompanyId = companyId || 'demo-company-id';
 
   const [products, setProducts] = useState<FinishedProductCPUBreakdown[]>([]);
   const [expanded, setExpanded] = useState<ExpandedState>({});
@@ -50,7 +49,7 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
 
   useEffect(() => {
     loadFinishedProductCPUs();
-  }, [activeCompanyId]);
+  }, [companyId]);
 
   // Listen for data updates (e.g., invoice edited, recipe changed)
   useEffect(() => {
@@ -61,7 +60,7 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
 
     window.addEventListener('cpg-data-updated', handleDataUpdate);
     return () => window.removeEventListener('cpg-data-updated', handleDataUpdate);
-  }, [activeCompanyId]);
+  }, [companyId]);
 
   const loadFinishedProductCPUs = async () => {
     try {
@@ -70,7 +69,7 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
       // Get all finished products for this company
       const finishedProducts = await db.cpgFinishedProducts
         .where('company_id')
-        .equals(activeCompanyId)
+        .equals(companyId)
         .filter(product => product.active && product.deleted_at === null)
         .toArray();
 
@@ -80,7 +79,7 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
         try {
           const cpuBreakdown = await cpuCalculatorService.getFinishedProductCPUBreakdown(
             product.id,
-            activeCompanyId
+            companyId
           );
           productCPUs.push(cpuBreakdown);
         } catch (error) {
@@ -346,7 +345,7 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
           }}
           categoryId={selectedComponent.categoryId}
           variant={selectedComponent.variant}
-          companyId={activeCompanyId}
+          companyId={companyId}
           onViewInvoice={handleViewInvoice}
         />
       )}

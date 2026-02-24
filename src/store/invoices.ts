@@ -26,6 +26,7 @@ import {
 } from '../db/schema/invoices.schema';
 import { getDeviceId } from '../utils/device';
 import { incrementVersionVector } from '../db/crdt';
+import { validateCompanyId } from '../utils/authorization';
 
 /**
  * Initialize version vector for a new entity
@@ -66,6 +67,27 @@ export async function createInvoice(
       templateId = 'classic',
       taxRate = 0,
     } = invoiceData;
+
+    // SECURITY: Verify customer belongs to same company
+    const customer = await db.contacts.get(customerId);
+    if (!customer || customer.deletedAt) {
+      return {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid customer ID',
+        },
+      };
+    }
+    if (customer.companyId !== companyId) {
+      return {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid customer ID',
+        },
+      };
+    }
 
     // Validate line items
     for (const lineItem of lineItems) {
@@ -157,20 +179,41 @@ export async function createInvoice(
 
 /**
  * Get invoice by ID
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function getInvoice(
   id: string,
+  companyId: string,
   context?: EncryptionContext
 ): Promise<DatabaseResult<Invoice>> {
   try {
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId);
+    if (companyIdError) {
+      return { success: false, error: companyIdError };
+    }
+
     const entity = await db.invoices.get(id);
 
+    // SECURITY: Verify resource ownership before allowing access
     if (!entity) {
       return {
         success: false,
         error: {
           code: 'NOT_FOUND',
-          message: `Invoice not found: ${id}`,
+          message: 'Resource not found',
+        },
+      };
+    }
+
+    if (entity.company_id !== companyId) {
+      // Security: Don't reveal that resource exists, return NOT_FOUND instead
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Resource not found',
         },
       };
     }
@@ -217,9 +260,12 @@ export async function getInvoice(
 
 /**
  * Update an invoice (only allowed if status is DRAFT)
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function updateInvoice(
   id: string,
+  companyId: string,
   updates: {
     lineItems?: InvoiceLineItem[];
     notes?: string;
@@ -231,14 +277,32 @@ export async function updateInvoice(
   context?: EncryptionContext
 ): Promise<DatabaseResult<Invoice>> {
   try {
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId);
+    if (companyIdError) {
+      return { success: false, error: companyIdError };
+    }
+
     const existing = await db.invoices.get(id);
 
+    // SECURITY: Verify resource ownership before allowing access
     if (!existing) {
       return {
         success: false,
         error: {
           code: 'NOT_FOUND',
-          message: `Invoice not found: ${id}`,
+          message: 'Resource not found',
+        },
+      };
+    }
+
+    if (existing.company_id !== companyId) {
+      // Security: Don't reveal that resource exists, return NOT_FOUND instead
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Resource not found',
         },
       };
     }
@@ -358,20 +422,41 @@ export async function updateInvoice(
 
 /**
  * Send an invoice (change status from DRAFT to SENT)
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function sendInvoice(
   id: string,
+  companyId: string,
   _email: string
 ): Promise<DatabaseResult<Invoice>> {
   try {
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId);
+    if (companyIdError) {
+      return { success: false, error: companyIdError };
+    }
+
     const existing = await db.invoices.get(id);
 
+    // SECURITY: Verify resource ownership before allowing access
     if (!existing) {
       return {
         success: false,
         error: {
           code: 'NOT_FOUND',
-          message: `Invoice not found: ${id}`,
+          message: 'Resource not found',
+        },
+      };
+    }
+
+    if (existing.company_id !== companyId) {
+      // Security: Don't reveal that resource exists, return NOT_FOUND instead
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Resource not found',
         },
       };
     }
@@ -415,21 +500,42 @@ export async function sendInvoice(
 
 /**
  * Mark invoice as paid and create accounting transaction
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function markInvoicePaid(
   id: string,
+  companyId: string,
   paymentDate: number,
   transactionId?: string
 ): Promise<DatabaseResult<Invoice>> {
   try {
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId);
+    if (companyIdError) {
+      return { success: false, error: companyIdError };
+    }
+
     const existing = await db.invoices.get(id);
 
+    // SECURITY: Verify resource ownership before allowing access
     if (!existing) {
       return {
         success: false,
         error: {
           code: 'NOT_FOUND',
-          message: `Invoice not found: ${id}`,
+          message: 'Resource not found',
+        },
+      };
+    }
+
+    if (existing.company_id !== companyId) {
+      // Security: Don't reveal that resource exists, return NOT_FOUND instead
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Resource not found',
         },
       };
     }
@@ -480,17 +586,40 @@ export async function markInvoicePaid(
 
 /**
  * Void an invoice
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
-export async function voidInvoice(id: string): Promise<DatabaseResult<Invoice>> {
+export async function voidInvoice(
+  id: string,
+  companyId: string
+): Promise<DatabaseResult<Invoice>> {
   try {
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId);
+    if (companyIdError) {
+      return { success: false, error: companyIdError };
+    }
+
     const existing = await db.invoices.get(id);
 
+    // SECURITY: Verify resource ownership before allowing access
     if (!existing) {
       return {
         success: false,
         error: {
           code: 'NOT_FOUND',
-          message: `Invoice not found: ${id}`,
+          message: 'Resource not found',
+        },
+      };
+    }
+
+    if (existing.company_id !== companyId) {
+      // Security: Don't reveal that resource exists, return NOT_FOUND instead
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Resource not found',
         },
       };
     }
@@ -526,17 +655,40 @@ export async function voidInvoice(id: string): Promise<DatabaseResult<Invoice>> 
 
 /**
  * Delete an invoice (soft delete, only for drafts)
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
-export async function deleteInvoice(id: string): Promise<DatabaseResult<void>> {
+export async function deleteInvoice(
+  id: string,
+  companyId: string
+): Promise<DatabaseResult<void>> {
   try {
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId);
+    if (companyIdError) {
+      return { success: false, error: companyIdError };
+    }
+
     const existing = await db.invoices.get(id);
 
+    // SECURITY: Verify resource ownership before allowing access
     if (!existing) {
       return {
         success: false,
         error: {
           code: 'NOT_FOUND',
-          message: `Invoice not found: ${id}`,
+          message: 'Resource not found',
+        },
+      };
+    }
+
+    if (existing.company_id !== companyId) {
+      // Security: Don't reveal that resource exists, return NOT_FOUND instead
+      return {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Resource not found',
         },
       };
     }
@@ -580,29 +732,34 @@ export async function deleteInvoice(id: string): Promise<DatabaseResult<void>> {
 
 /**
  * Query invoices with filters
+ *
+ * SECURITY: Requires companyId as mandatory parameter to prevent unauthorized cross-company access
  */
 export async function getInvoices(
-  query: GetInvoicesQuery,
+  companyId: string,
+  query?: Omit<GetInvoicesQuery, 'company_id'>,
   context?: EncryptionContext
 ): Promise<DatabaseResult<Invoice[]>> {
   try {
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId);
+    if (companyIdError) {
+      return { success: false, error: companyIdError };
+    }
+
     let collection = db.invoices.toCollection();
 
-    // Apply filters
-    if (query.company_id) {
-      collection = db.invoices.where('company_id').equals(query.company_id);
-    }
-
-    if (query.status && query.company_id) {
+    // SECURITY: Always filter by company_id first (required)
+    if (query?.status) {
       collection = db.invoices
         .where('[company_id+status]')
-        .equals([query.company_id, query.status]);
-    }
-
-    if (query.customer_id && query.company_id) {
+        .equals([companyId, query.status]);
+    } else if (query?.customer_id) {
       collection = db.invoices
         .where('[company_id+customer_id]')
-        .equals([query.company_id, query.customer_id]);
+        .equals([companyId, query.customer_id]);
+    } else {
+      collection = db.invoices.where('company_id').equals(companyId);
     }
 
     if (query.date_from && query.date_to) {
@@ -670,18 +827,21 @@ export async function getCustomerInvoices(
   customerId: string,
   context?: EncryptionContext
 ): Promise<DatabaseResult<Invoice[]>> {
-  return getInvoices({ company_id: companyId, customer_id: customerId }, context);
+  return getInvoices(companyId, { customer_id: customerId }, context);
 }
 
 /**
  * Get invoice line items (parsed)
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function getInvoiceLineItems(
   id: string,
+  companyId: string,
   context?: EncryptionContext
 ): Promise<DatabaseResult<InvoiceLineItem[]>> {
   try {
-    const invoiceResult = await getInvoice(id, context);
+    const invoiceResult = await getInvoice(id, companyId, context);
 
     if (!invoiceResult.success) {
       return {

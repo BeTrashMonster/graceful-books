@@ -23,6 +23,7 @@ import {
   queryContacts,
   batchCreateContacts,
 } from '../store/contacts'
+import { useAuth } from '../contexts/AuthContext'
 import type { Contact } from '../types'
 import type {
   ContactFilter,
@@ -110,28 +111,36 @@ function searchCustomers(customers: Contact[], query: string): Contact[] {
  * ```
  */
 export function useCustomers(options: UseCustomersOptions = {}): UseCustomersReturn {
+  const { companyId: authCompanyId } = useAuth()
+
   const {
-    companyId,
+    companyId: optionsCompanyId,
     isActive,
     includeDeleted = false,
   } = options
 
-  // Build filter object
-  const filter: ContactFilter = useMemo(
+  // Use companyId from options if provided, otherwise use auth companyId
+  const companyId = optionsCompanyId || authCompanyId
+
+  // Build filter object (without companyId since it's now a required parameter)
+  const filter = useMemo(
     () => ({
-      companyId,
-      type: 'customer', // Only get customers
+      type: 'customer' as const, // Only get customers
       isActive,
       includeDeleted,
     }),
-    [companyId, isActive, includeDeleted]
+    [isActive, includeDeleted]
   )
 
   // Use live query for real-time updates
   const customers = useLiveQuery(async () => {
-    const result = await queryContacts(filter)
+    // SECURITY: Guard against missing companyId
+    if (!companyId) {
+      return []
+    }
+    const result = await queryContacts(companyId, filter)
     return result?.success ? result.data : []
-  }, [filter], [])
+  }, [companyId, filter], [])
 
   const isLoading = customers === undefined
 
@@ -152,8 +161,18 @@ export function useCustomers(options: UseCustomersOptions = {}): UseCustomersRet
 
   // Get customer by ID
   const get = useCallback(async (id: string) => {
-    return await getContact(id)
-  }, [])
+    // SECURITY: Require companyId for authorization
+    if (!companyId) {
+      return {
+        success: false as const,
+        error: {
+          code: 'VALIDATION_ERROR' as const,
+          message: 'Not authenticated - companyId required',
+        },
+      }
+    }
+    return await getContact(id, companyId)
+  }, [companyId])
 
   // Update customer
   const update = useCallback(
@@ -161,15 +180,35 @@ export function useCustomers(options: UseCustomersOptions = {}): UseCustomersRet
       id: string,
       updates: Partial<Omit<Contact, 'id' | 'companyId' | 'createdAt'>>
     ) => {
-      return await updateContact(id, updates)
+      // SECURITY: Require companyId for authorization
+      if (!companyId) {
+        return {
+          success: false as const,
+          error: {
+            code: 'VALIDATION_ERROR' as const,
+            message: 'Not authenticated - companyId required',
+          },
+        }
+      }
+      return await updateContact(id, companyId, updates)
     },
-    []
+    [companyId]
   )
 
   // Delete customer (soft delete)
   const remove = useCallback(async (id: string) => {
-    return await deleteContact(id)
-  }, [])
+    // SECURITY: Require companyId for authorization
+    if (!companyId) {
+      return {
+        success: false as const,
+        error: {
+          code: 'VALIDATION_ERROR' as const,
+          message: 'Not authenticated - companyId required',
+        },
+      }
+    }
+    return await deleteContact(id, companyId)
+  }, [companyId])
 
   // Batch create customers
   const batchCreate = useCallback(

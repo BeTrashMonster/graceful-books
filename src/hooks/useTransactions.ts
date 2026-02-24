@@ -9,6 +9,7 @@
 
 import { useState, useCallback } from 'react'
 import { nanoid } from 'nanoid'
+import { useAuth } from '../contexts/AuthContext'
 import type { JournalEntry, JournalEntryLine, TransactionStatus } from '../types'
 import { validateTransaction, calculateBalance } from '../utils/transactionValidation'
 import {
@@ -65,6 +66,7 @@ export interface UseTransactionsReturn {
  * Custom hook for transaction operations
  */
 export function useTransactions(): UseTransactionsReturn {
+  const { companyId } = useAuth()
   const [transactions, setTransactions] = useState<JournalEntry[]>([])
   const [currentTransaction, setCurrentTransaction] = useState<JournalEntry | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -78,7 +80,16 @@ export function useTransactions(): UseTransactionsReturn {
     setError(null)
 
     try {
-      const result = await queryTransactions(filter)
+      // SECURITY: Require companyId for authorization
+      const targetCompanyId = filter.companyId || companyId
+      if (!targetCompanyId) {
+        setError('Not authenticated - companyId required')
+        return
+      }
+
+      // Remove companyId from filter as it's now a required parameter
+      const { companyId: _, ...filterWithoutCompanyId } = filter
+      const result = await queryTransactions(targetCompanyId, filterWithoutCompanyId)
 
       if (result.success) {
         setTransactions(result.data)
@@ -90,7 +101,7 @@ export function useTransactions(): UseTransactionsReturn {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [companyId])
 
   /**
    * Load a single transaction by ID
@@ -100,7 +111,13 @@ export function useTransactions(): UseTransactionsReturn {
     setError(null)
 
     try {
-      const result = await getTransaction(id)
+      // SECURITY: Require companyId for authorization
+      if (!companyId) {
+        setError('Not authenticated - companyId required')
+        return
+      }
+
+      const result = await getTransaction(id, companyId)
 
       if (result.success) {
         setCurrentTransaction(result.data)
@@ -112,7 +129,7 @@ export function useTransactions(): UseTransactionsReturn {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [companyId])
 
   /**
    * Create a new transaction
@@ -160,6 +177,12 @@ export function useTransactions(): UseTransactionsReturn {
       setError(null)
 
       try {
+        // SECURITY: Require companyId for authorization
+        if (!companyId) {
+          setError('Not authenticated - companyId required')
+          return null
+        }
+
         // If updating lines, validate them
         if (updates.lines) {
           const validation = validateTransaction(updates.lines)
@@ -169,7 +192,7 @@ export function useTransactions(): UseTransactionsReturn {
           }
         }
 
-        const result = await updateTransaction(id, updates)
+        const result = await updateTransaction(id, companyId, updates)
 
         if (result.success) {
           setCurrentTransaction(result.data)
@@ -185,7 +208,7 @@ export function useTransactions(): UseTransactionsReturn {
         setIsLoading(false)
       }
     },
-    []
+    [companyId]
   )
 
   /**
@@ -196,7 +219,13 @@ export function useTransactions(): UseTransactionsReturn {
     setError(null)
 
     try {
-      const result = await deleteTransaction(id)
+      // SECURITY: Require companyId for authorization
+      if (!companyId) {
+        setError('Not authenticated - companyId required')
+        return false
+      }
+
+      const result = await deleteTransaction(id, companyId)
 
       if (result.success) {
         if (currentTransaction?.id === id) {
@@ -213,7 +242,7 @@ export function useTransactions(): UseTransactionsReturn {
     } finally {
       setIsLoading(false)
     }
-  }, [currentTransaction])
+  }, [companyId, currentTransaction])
 
   /**
    * Post a transaction (change status from draft to posted)
@@ -223,7 +252,13 @@ export function useTransactions(): UseTransactionsReturn {
     setError(null)
 
     try {
-      const result = await postTransactionAPI(id)
+      // SECURITY: Require companyId for authorization
+      if (!companyId) {
+        setError('Not authenticated - companyId required')
+        return false
+      }
+
+      const result = await postTransactionAPI(id, companyId)
 
       if (result.success) {
         setCurrentTransaction(result.data)
@@ -238,7 +273,7 @@ export function useTransactions(): UseTransactionsReturn {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [companyId])
 
   /**
    * Void a transaction
@@ -248,7 +283,13 @@ export function useTransactions(): UseTransactionsReturn {
     setError(null)
 
     try {
-      const result = await voidTransactionAPI(id)
+      // SECURITY: Require companyId for authorization
+      if (!companyId) {
+        setError('Not authenticated - companyId required')
+        return false
+      }
+
+      const result = await voidTransactionAPI(id, companyId)
 
       if (result.success) {
         setCurrentTransaction(result.data)
@@ -263,7 +304,7 @@ export function useTransactions(): UseTransactionsReturn {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [companyId])
 
   /**
    * Validate the current transaction

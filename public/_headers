@@ -1,6 +1,35 @@
-# Cache Control Headers for Graceful Books
-# Cloudflare Pages automatically applies these headers
-# Updated: 2026-01-23
+# HTTP Security and Cache Control Headers for Graceful Books
+# Cloudflare Pages / Netlify automatically applies these headers
+# Updated: 2026-02-23
+
+# SECURITY HEADERS (Applied to all routes)
+# These headers protect against XSS, clickjacking, and other web vulnerabilities
+/*
+  # Content Security Policy - Prevents XSS and data injection attacks
+  # Note: More restrictive than dev mode (no 'unsafe-inline', 'unsafe-eval')
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+
+  # X-Frame-Options - Prevents clickjacking (DENY = cannot be framed by any site)
+  X-Frame-Options: DENY
+
+  # X-Content-Type-Options - Prevents MIME type sniffing
+  X-Content-Type-Options: nosniff
+
+  # X-XSS-Protection - Legacy XSS protection for older browsers
+  X-XSS-Protection: 1; mode=block
+
+  # Strict-Transport-Security - Forces HTTPS connections (31536000 seconds = 1 year)
+  # includeSubDomains: applies to all subdomains
+  # preload: eligible for browser HSTS preload list
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+  # Referrer-Policy - Controls referrer information disclosure
+  # strict-origin-when-cross-origin: send full URL to same origin, only origin to cross-origin
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Permissions-Policy - Restricts browser feature access
+  # Denies access to geolocation, microphone, and camera (not needed for accounting app)
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
 
 # HTML - Never cache (always check for updates)
 # This ensures users always get the latest version of the app

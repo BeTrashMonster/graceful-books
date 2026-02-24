@@ -182,6 +182,13 @@ export const getAuditActionDisplay = (action: AuditAction): string => {
     LOGOUT: 'Logged out',
     EXPORT: 'Exported',
     IMPORT: 'Imported',
+    FAILED_LOGIN: 'Failed login attempt',
+    AUTHORIZATION_FAILURE: 'Authorization failure',
+    RATE_LIMIT_EXCEEDED: 'Rate limit exceeded',
+    SUSPICIOUS_ACTIVITY: 'Suspicious activity detected',
+    ACCOUNT_LOCKOUT: 'Account locked out',
+    SETTINGS_CHANGE: 'Changed settings',
+    VIEW: 'Viewed',
   };
   return displays[action];
 };
@@ -201,6 +208,11 @@ export const getEntityTypeDisplay = (entityType: AuditEntityType): string => {
     RECONCILIATION_PATTERN: 'Reconciliation Pattern',
     RECONCILIATION_RECORD: 'Reconciliation Record',
     RECONCILIATION_STREAK: 'Reconciliation Streak',
+    SECURITY: 'Security Event',
+    SETTINGS: 'Settings',
+    INVOICE: 'Invoice',
+    VENDOR: 'Vendor',
+    REPORT: 'Report',
   };
   return displays[entityType];
 };

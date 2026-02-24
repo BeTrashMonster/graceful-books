@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Dashboard - Graceful Books</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e293b 100%);
+      color: #f1f5f9;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: #f1f5f9;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      font-size: 1rem;
+    }
+
+    .last-updated {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-top: 10px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #94a3b8;
+    }
+
+    .card-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #f1f5f9;
+    }
+
+    .card-trend {
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .trend-up {
+      color: #ef4444;
+    }
+
+    .trend-down {
+      color: #22c55e;
+    }
+
+    .trend-neutral {
+      color: #64748b;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .status-safe {
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+    }
+
+    .status-warning {
+      background: #f59e0b;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }
+
+    .status-danger {
+      background: #ef4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    .chart-container {
+      height: 200px;
+      margin-top: 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    .bar {
+      flex: 1;
+      background: linear-gradient(180deg, #3b82f6 0%, #1e40af 100%);
+      border-radius: 4px 4px 0 0;
+      min-height: 4px;
+      transition: height 0.3s ease;
+      position: relative;
+    }
+
+    .bar.high {
+      background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+    }
+
+    .bar.medium {
+      background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .alert-list {
+      margin-top: 16px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .alert-item {
+      background: rgba(0, 0, 0, 0.2);
+      border-left: 3px solid #3b82f6;
+      padding: 12px;
+      margin-bottom: 8px;
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+
+    .alert-item.critical {
+      border-left-color: #ef4444;
+    }
+
+    .alert-item.high {
+      border-left-color: #f59e0b;
+    }
+
+    .alert-item.medium {
+      border-left-color: #3b82f6;
+    }
+
+    .alert-time {
+      color: #64748b;
+      font-size: 0.75rem;
+      margin-top: 4px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #94a3b8;
+    }
+
+    .error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      padding: 16px;
+      color: #fca5a5;
+      margin-top: 20px;
+    }
+
+    .refresh-info {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.875rem;
+      margin-top: 20px;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔒 Security Dashboard</h1>
+      <p class="subtitle">Real-time security event monitoring</p>
+      <p class="last-updated" id="lastUpdated">Loading...</p>
+    </header>
+
+    <div id="content">
+      <div class="loading">Loading security metrics...</div>
+    </div>
+
+    <div class="refresh-info">
+      Auto-refresh every 60 seconds
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const METRICS_ENDPOINT = '/metrics/security';
+    const REFRESH_INTERVAL = 60000; // 60 seconds
+    const CHART_HOURS = 24; // Show last 24 hours
+
+    // State
+    let metricsData = null;
+    let refreshTimer = null;
+
+    /**
+     * Initialize dashboard
+     */
+    async function init() {
+      await loadMetrics();
+      startAutoRefresh();
+    }
+
+    /**
+     * Load security metrics from API
+     */
+    async function loadMetrics() {
+      try {
+        const response = await fetch(`${METRICS_ENDPOINT}?hours=${CHART_HOURS}`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        metricsData = await response.json();
+        renderDashboard();
+        updateLastUpdated();
+      } catch (error) {
+        console.error('Error loading metrics:', error);
+        renderError(error.message);
+      }
+    }
+
+    /**
+     * Render the complete dashboard
+     */
+    function renderDashboard() {
+      if (!metricsData) return;
+
+      const { events, trends } = metricsData;
+
+      const html = `
+        <div class="grid">
+          <!-- Total Security Events -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Total Security Events</span>
+              <span class="status-indicator ${getStatusClass(events.total, 100, 500)}"></span>
+            </div>
+            <div class="card-value">${formatNumber(events.total)}</div>
+            <div class="card-trend ${getTrendClass(0)}">
+              Last 24 hours
+            </div>
+          </div>
+
+          <!-- Failed Logins -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Failed Logins</span>
+              <span class="status-indicator ${getStatusClass(events.failedLogins, 50, 200)}"></span>
+            </div>
+            <div class="card-value">${formatNumber(events.failedLogins)}</div>
+            <div class="card-trend ${getTrendClass(trends.failedLogins)}">
+              ${formatTrend(trends.failedLogins)} from previous period
+            </div>
+          </div>
+
+          <!-- Authorization Failures -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Authorization Failures</span>
+              <span class="status-indicator ${getStatusClass(events.authorizationFailures, 100, 400)}"></span>
+            </div>
+            <div class="card-value">${formatNumber(events.authorizationFailures)}</div>
+            <div class="card-trend ${getTrendClass(trends.authorizationFailures)}">
+              ${formatTrend(trends.authorizationFailures)} from previous period
+            </div>
+          </div>
+
+          <!-- Rate Limit Violations -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Rate Limit Violations</span>
+              <span class="status-indicator ${getStatusClass(events.rateLimitExceeded, 50, 200)}"></span>
+            </div>
+            <div class="card-value">${formatNumber(events.rateLimitExceeded)}</div>
+            <div class="card-trend ${getTrendClass(trends.rateLimitExceeded)}">
+              ${formatTrend(trends.rateLimitExceeded)} from previous period
+            </div>
+          </div>
+
+          <!-- Suspicious Activity -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Suspicious Activity</span>
+              <span class="status-indicator ${getStatusClass(events.suspiciousActivity, 10, 50)}"></span>
+            </div>
+            <div class="card-value">${formatNumber(events.suspiciousActivity)}</div>
+            <div class="card-trend trend-neutral">
+              Requires review
+            </div>
+          </div>
+
+          <!-- Account Lockouts -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Account Lockouts</span>
+              <span class="status-indicator ${getStatusClass(events.accountLockouts, 5, 20)}"></span>
+            </div>
+            <div class="card-value">${formatNumber(events.accountLockouts)}</div>
+            <div class="card-trend trend-neutral">
+              Active lockouts
+            </div>
+          </div>
+        </div>
+
+        <!-- Event Distribution Chart -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Security Event Distribution</span>
+          </div>
+          <div class="chart-container">
+            ${renderChart(events)}
+          </div>
+        </div>
+
+        <!-- Recent High Priority Events -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Security Alerts</span>
+          </div>
+          <div class="alert-list" id="alertList">
+            ${renderRecentAlerts()}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('content').innerHTML = html;
+    }
+
+    /**
+     * Render chart bars
+     */
+    function renderChart(events) {
+      const total = events.total || 1; // Avoid division by zero
+
+      const data = [
+        { label: 'Failed Logins', value: events.failedLogins, max: total },
+        { label: 'Auth Failures', value: events.authorizationFailures, max: total },
+        { label: 'Rate Limits', value: events.rateLimitExceeded, max: total },
+        { label: 'Suspicious', value: events.suspiciousActivity, max: total },
+        { label: 'Lockouts', value: events.accountLockouts, max: total },
+      ];
+
+      return data.map(item => {
+        const percentage = (item.value / item.max) * 100;
+        const severity = getSeverityClass(item.value, item.max);
+        return `<div class="bar ${severity}" style="height: ${percentage}%" title="${item.label}: ${item.value}"></div>`;
+      }).join('');
+    }
+
+    /**
+     * Get severity class for chart bars
+     */
+    function getSeverityClass(value, max) {
+      const percentage = (value / max) * 100;
+      if (percentage > 30) return 'high';
+      if (percentage > 10) return 'medium';
+      return '';
+    }
+
+    /**
+     * Render recent alerts (placeholder)
+     */
+    function renderRecentAlerts() {
+      // In production, this would fetch actual alerts from the API
+      return `
+        <div class="alert-item medium">
+          <strong>No critical alerts</strong>
+          <div class="alert-time">System is operating normally</div>
+        </div>
+        <div style="text-align: center; padding: 20px; color: #64748b; font-size: 0.875rem;">
+          Alert history will appear here when security events trigger thresholds
+        </div>
+      `;
+    }
+
+    /**
+     * Render error message
+     */
+    function renderError(message) {
+      const html = `
+        <div class="error">
+          <strong>Error loading security metrics</strong>
+          <p>${message}</p>
+          <p style="margin-top: 8px; font-size: 0.875rem;">
+            Make sure the security metrics endpoint is configured and accessible.
+          </p>
+        </div>
+      `;
+      document.getElementById('content').innerHTML = html;
+    }
+
+    /**
+     * Get status indicator class based on thresholds
+     */
+    function getStatusClass(value, warningThreshold, criticalThreshold) {
+      if (value >= criticalThreshold) return 'status-danger';
+      if (value >= warningThreshold) return 'status-warning';
+      return 'status-safe';
+    }
+
+    /**
+     * Get trend class based on percentage change
+     */
+    function getTrendClass(percentage) {
+      if (percentage > 10) return 'trend-up';
+      if (percentage < -10) return 'trend-down';
+      return 'trend-neutral';
+    }
+
+    /**
+     * Format trend percentage
+     */
+    function formatTrend(percentage) {
+      const abs = Math.abs(percentage);
+      const sign = percentage > 0 ? '↑' : percentage < 0 ? '↓' : '→';
+      return `${sign} ${abs.toFixed(1)}%`;
+    }
+
+    /**
+     * Format number with commas
+     */
+    function formatNumber(num) {
+      return num.toLocaleString();
+    }
+
+    /**
+     * Update last updated timestamp
+     */
+    function updateLastUpdated() {
+      const now = new Date();
+      document.getElementById('lastUpdated').textContent =
+        `Last updated: ${now.toLocaleTimeString()}`;
+    }
+
+    /**
+     * Start auto-refresh
+     */
+    function startAutoRefresh() {
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+      }
+      refreshTimer = setInterval(loadMetrics, REFRESH_INTERVAL);
+    }
+
+    /**
+     * Stop auto-refresh
+     */
+    function stopAutoRefresh() {
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+      }
+    }
+
+    // Handle visibility change (pause refresh when tab is hidden)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopAutoRefresh();
+      } else {
+        startAutoRefresh();
+        loadMetrics(); // Refresh immediately when tab becomes visible
+      }
+    });
+
+    // Initialize on page load
+    init();
+  </script>
+</body>
+</html>

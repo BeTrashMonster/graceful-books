@@ -21,6 +21,7 @@ import type {
   BatchResult,
 } from './types'
 import type { JournalEntry, JournalEntryLine, TransactionStatus } from '../types'
+import { requireCompanyOwnership, validateCompanyId } from '../utils/authorization'
 
 /**
  * Generate current device ID (stored in localStorage)
@@ -178,7 +179,7 @@ export async function createTransaction(
       }
     }
 
-    // Validate all accounts exist
+    // Validate all accounts exist and belong to same company
     const accountIds = transaction.lines.map((line) => line.accountId)
     const accounts = await db.accounts.bulkGet(accountIds)
 
@@ -192,6 +193,21 @@ export async function createTransaction(
         error: {
           code: 'VALIDATION_ERROR',
           message: `Invalid account IDs: ${missingAccounts.join(', ')}`,
+        },
+      }
+    }
+
+    // SECURITY: Verify all accounts belong to same company
+    const wrongCompanyAccounts = accountIds.filter(
+      (_id, index) => accounts[index] && accounts[index]!.companyId !== transaction.companyId
+    )
+
+    if (wrongCompanyAccounts.length > 0) {
+      return {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: `Invalid account IDs: ${wrongCompanyAccounts.join(', ')}`,
         },
       }
     }
@@ -240,26 +256,33 @@ export async function createTransaction(
 
 /**
  * Get transaction by ID
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function getTransaction(
   id: string,
+  companyId: string,
   context?: EncryptionContext
 ): Promise<DatabaseResult<JournalEntry>> {
   try {
-    const entity = await db.transactions.get(id)
-
-    if (!entity) {
-      return {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: `Transaction not found: ${id}`,
-        },
-      }
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
     }
 
+    const entity = await db.transactions.get(id)
+
+    // SECURITY: Verify resource ownership before allowing access
+    const authCheck = requireCompanyOwnership(entity, companyId)
+    if (!authCheck.authorized) {
+      return { success: false, error: authCheck.error }
+    }
+
+    const authorizedEntity = authCheck.resource
+
     // Check if soft deleted
-    if (entity.deletedAt) {
+    if (authorizedEntity.deletedAt) {
       return {
         success: false,
         error: {
@@ -270,13 +293,13 @@ export async function getTransaction(
     }
 
     // Decrypt if service provided
-    let result = entity
+    let result = authorizedEntity
     if (context?.encryptionService) {
       const { encryptionService } = context
       result = {
-        ...entity,
-        memo: entity.memo
-          ? await encryptionService.decrypt(entity.memo)
+        ...authorizedEntity,
+        memo: authorizedEntity.memo
+          ? await encryptionService.decrypt(authorizedEntity.memo)
           : undefined,
       }
     }
@@ -296,26 +319,33 @@ export async function getTransaction(
 
 /**
  * Update a transaction (only allowed if status is 'draft')
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function updateTransaction(
   id: string,
+  companyId: string,
   updates: Partial<Omit<JournalEntry, 'id' | 'companyId' | 'createdAt' | 'createdBy'>>,
   context?: EncryptionContext
 ): Promise<DatabaseResult<JournalEntry>> {
   try {
-    const existing = await db.transactions.get(id)
-
-    if (!existing) {
-      return {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: `Transaction not found: ${id}`,
-        },
-      }
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
     }
 
-    if (existing.deletedAt) {
+    const existing = await db.transactions.get(id)
+
+    // SECURITY: Verify resource ownership before allowing access
+    const authCheck = requireCompanyOwnership(existing, companyId)
+    if (!authCheck.authorized) {
+      return { success: false, error: authCheck.error }
+    }
+
+    const authorizedEntity = authCheck.resource
+
+    if (authorizedEntity.deletedAt) {
       return {
         success: false,
         error: {
@@ -326,7 +356,7 @@ export async function updateTransaction(
     }
 
     // Only allow updates to draft transactions
-    if (existing.status !== 'draft') {
+    if (authorizedEntity.status !== 'draft') {
       return {
         success: false,
         error: {
@@ -337,7 +367,7 @@ export async function updateTransaction(
     }
 
     // If updating lines, validate balance
-    const newLines = updates.lines || existing.lines
+    const newLines = updates.lines || authorizedEntity.lines
     const { isBalanced, totalDebits, totalCredits } = validateBalance(newLines)
 
     if (!isBalanced) {
@@ -361,15 +391,15 @@ export async function updateTransaction(
     }))
 
     const updated: TransactionEntity = {
-      ...existing,
+      ...authorizedEntity,
       ...updates,
       lines: linesWithIds,
       id, // Ensure ID doesn't change
-      companyId: existing.companyId, // Ensure companyId doesn't change
-      createdBy: existing.createdBy, // Preserve creator
-      createdAt: existing.createdAt, // Preserve creation date
+      companyId: authorizedEntity.companyId, // Ensure companyId doesn't change
+      createdBy: authorizedEntity.createdBy, // Preserve creator
+      createdAt: authorizedEntity.createdAt, // Preserve creation date
       updatedAt: now,
-      versionVector: incrementVersionVector(existing.versionVector),
+      versionVector: incrementVersionVector(authorizedEntity.versionVector),
       lastModifiedBy: deviceId,
       lastModifiedAt: now,
       linesHash: generateLinesHash(linesWithIds),
@@ -416,24 +446,31 @@ export async function updateTransaction(
 
 /**
  * Post a transaction (change status from draft to posted)
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function postTransaction(
-  id: string
+  id: string,
+  companyId: string
 ): Promise<DatabaseResult<JournalEntry>> {
   try {
-    const existing = await db.transactions.get(id)
-
-    if (!existing) {
-      return {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: `Transaction not found: ${id}`,
-        },
-      }
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
     }
 
-    if (existing.status !== 'draft') {
+    const existing = await db.transactions.get(id)
+
+    // SECURITY: Verify resource ownership before allowing access
+    const authCheck = requireCompanyOwnership(existing, companyId)
+    if (!authCheck.authorized) {
+      return { success: false, error: authCheck.error }
+    }
+
+    const authorizedEntity = authCheck.resource
+
+    if (authorizedEntity.status !== 'draft') {
       return {
         success: false,
         error: {
@@ -443,7 +480,7 @@ export async function postTransaction(
       }
     }
 
-    if (!existing.isBalanced) {
+    if (!authorizedEntity.isBalanced) {
       return {
         success: false,
         error: {
@@ -459,7 +496,7 @@ export async function postTransaction(
     await db.transactions.update(id, {
       status: 'posted' as TransactionStatus,
       updatedAt: now,
-      versionVector: incrementVersionVector(existing.versionVector),
+      versionVector: incrementVersionVector(authorizedEntity.versionVector),
       lastModifiedBy: deviceId,
       lastModifiedAt: now,
     })
@@ -480,25 +517,32 @@ export async function postTransaction(
 
 /**
  * Void a transaction (instead of deleting)
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function voidTransaction(
-  id: string
+  id: string,
+  companyId: string
 ): Promise<DatabaseResult<JournalEntry>> {
   try {
-    const existing = await db.transactions.get(id)
-
-    if (!existing) {
-      return {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: `Transaction not found: ${id}`,
-        },
-      }
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
     }
 
-    if (existing.status === 'void') {
-      return { success: true, data: fromTransactionEntity(existing) }
+    const existing = await db.transactions.get(id)
+
+    // SECURITY: Verify resource ownership before allowing access
+    const authCheck = requireCompanyOwnership(existing, companyId)
+    if (!authCheck.authorized) {
+      return { success: false, error: authCheck.error }
+    }
+
+    const authorizedEntity = authCheck.resource
+
+    if (authorizedEntity.status === 'void') {
+      return { success: true, data: fromTransactionEntity(authorizedEntity) }
     }
 
     const now = new Date()
@@ -507,7 +551,7 @@ export async function voidTransaction(
     await db.transactions.update(id, {
       status: 'void' as TransactionStatus,
       updatedAt: now,
-      versionVector: incrementVersionVector(existing.versionVector),
+      versionVector: incrementVersionVector(authorizedEntity.versionVector),
       lastModifiedBy: deviceId,
       lastModifiedAt: now,
     })
@@ -528,29 +572,36 @@ export async function voidTransaction(
 
 /**
  * Delete a transaction (soft delete with tombstone, only for drafts)
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function deleteTransaction(
-  id: string
+  id: string,
+  companyId: string
 ): Promise<DatabaseResult<void>> {
   try {
-    const existing = await db.transactions.get(id)
-
-    if (!existing) {
-      return {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: `Transaction not found: ${id}`,
-        },
-      }
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
     }
 
-    if (existing.deletedAt) {
+    const existing = await db.transactions.get(id)
+
+    // SECURITY: Verify resource ownership before allowing access
+    const authCheck = requireCompanyOwnership(existing, companyId)
+    if (!authCheck.authorized) {
+      return { success: false, error: authCheck.error }
+    }
+
+    const authorizedEntity = authCheck.resource
+
+    if (authorizedEntity.deletedAt) {
       return { success: true, data: undefined } // Already deleted
     }
 
     // Only allow deleting draft transactions
-    if (existing.status !== 'draft') {
+    if (authorizedEntity.status !== 'draft') {
       return {
         success: false,
         error: {
@@ -566,7 +617,7 @@ export async function deleteTransaction(
 
     await db.transactions.update(id, {
       deletedAt: now,
-      versionVector: incrementVersionVector(existing.versionVector),
+      versionVector: incrementVersionVector(authorizedEntity.versionVector),
       lastModifiedBy: deviceId,
       lastModifiedAt: now,
     })
@@ -586,42 +637,47 @@ export async function deleteTransaction(
 
 /**
  * Query transactions with filters
+ *
+ * SECURITY: Requires companyId as mandatory parameter to prevent unauthorized cross-company access
  */
 export async function queryTransactions(
-  filter: TransactionFilter,
+  companyId: string,
+  filter?: Omit<TransactionFilter, 'companyId'>,
   context?: EncryptionContext
 ): Promise<DatabaseResult<JournalEntry[]>> {
   try {
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
+    }
+
     let query = db.transactions.toCollection()
 
-    // Apply filters
-    if (filter.companyId) {
-      query = db.transactions.where('companyId').equals(filter.companyId)
-    }
-
-    if (filter.status && filter.companyId) {
+    // SECURITY: Always filter by companyId first (required)
+    if (filter?.status) {
       query = db.transactions
         .where('[companyId+status]')
-        .equals([filter.companyId, filter.status])
-    }
-
-    if (filter.fromDate && filter.toDate && filter.companyId) {
+        .equals([companyId, filter.status])
+    } else if (filter?.fromDate && filter?.toDate) {
       query = db.transactions
         .where('[companyId+date]')
         .between(
-          [filter.companyId, filter.fromDate],
-          [filter.companyId, filter.toDate]
+          [companyId, filter.fromDate],
+          [companyId, filter.toDate]
         )
+    } else {
+      query = db.transactions.where('companyId').equals(companyId)
     }
 
-    if (filter.accountId) {
+    if (filter?.accountId) {
       query = query.and((txn) =>
         txn.lines.some((line) => line.accountId === filter.accountId)
       )
     }
 
     // Filter out deleted unless explicitly requested
-    if (!filter.includeDeleted) {
+    if (!filter?.includeDeleted) {
       query = query.and((txn) => !txn.deletedAt)
     }
 
@@ -665,19 +721,63 @@ export async function getAccountTransactions(
   companyId: string,
   context?: EncryptionContext
 ): Promise<DatabaseResult<JournalEntry[]>> {
-  return queryTransactions({ companyId, accountId }, context)
+  return queryTransactions(companyId, { accountId }, context)
 }
 
 /**
  * Batch create transactions
+ *
+ * SECURITY: Validates all transactions have same companyId to prevent bulk unauthorized writes
  */
 export async function batchCreateTransactions(
+  companyId: string,
   transactions: Array<Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>>,
   context?: EncryptionContext
 ): Promise<BatchResult<JournalEntry>> {
   const successful: JournalEntry[] = []
   const failed: Array<{ item: JournalEntry; error: DatabaseError }> = []
 
+  // SECURITY: Validate companyId is provided
+  const companyIdError = validateCompanyId(companyId)
+  if (companyIdError) {
+    // Return all items as failed with validation error
+    return {
+      successful: [],
+      failed: transactions.map((transaction) => ({
+        item: {
+          ...transaction,
+          id: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        error: companyIdError,
+      })),
+    }
+  }
+
+  // SECURITY: Verify all transactions have correct companyId before processing
+  const invalidItems = transactions.filter((transaction) => transaction.companyId !== companyId)
+  if (invalidItems.length > 0) {
+    const mismatchError: DatabaseError = {
+      code: 'VALIDATION_ERROR',
+      message: `Company ID mismatch detected in batch operation. All items must belong to company: ${companyId}`,
+    }
+    // Return all items as failed - reject entire batch
+    return {
+      successful: [],
+      failed: transactions.map((transaction) => ({
+        item: {
+          ...transaction,
+          id: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        error: mismatchError,
+      })),
+    }
+  }
+
+  // All items validated - proceed with batch creation
   for (const transaction of transactions) {
     const result = await createTransaction(transaction, context)
     if (result.success) {

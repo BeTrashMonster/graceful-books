@@ -23,6 +23,7 @@ import {
   getAccountsHierarchy,
   batchCreateAccounts,
 } from '../store/accounts'
+import { useAuth } from '../contexts/AuthContext'
 import type { Account } from '../types'
 import type {
   AccountFilter,
@@ -176,31 +177,39 @@ function buildAccountTree(accounts: Account[]): AccountTreeNode[] {
  * ```
  */
 export function useAccounts(options: UseAccountsOptions = {}): UseAccountsReturn {
+  const { companyId: authCompanyId } = useAuth()
+
   const {
-    companyId,
+    companyId: optionsCompanyId,
     type,
     isActive,
     parentAccountId,
     includeDeleted = false,
   } = options
 
-  // Build filter object
-  const filter: AccountFilter = useMemo(
+  // Use companyId from options if provided, otherwise use auth companyId
+  const companyId = optionsCompanyId || authCompanyId
+
+  // Build filter object (without companyId since it's now a required parameter)
+  const filter = useMemo(
     () => ({
-      companyId,
       type,
       isActive,
       parentAccountId: parentAccountId === null ? undefined : parentAccountId,
       includeDeleted,
     }),
-    [companyId, type, isActive, parentAccountId, includeDeleted]
+    [type, isActive, parentAccountId, includeDeleted]
   )
 
   // Use live query for real-time updates
   const accounts = useLiveQuery(async () => {
-    const result = await queryAccounts(filter)
+    // SECURITY: Guard against missing companyId
+    if (!companyId) {
+      return []
+    }
+    const result = await queryAccounts(companyId, filter)
     return result?.success ? result.data : []
-  }, [filter], [])
+  }, [companyId, filter], [])
 
   const isLoading = accounts === undefined
 
@@ -216,8 +225,18 @@ export function useAccounts(options: UseAccountsOptions = {}): UseAccountsReturn
 
   // Get account by ID
   const get = useCallback(async (id: string) => {
-    return await getAccount(id)
-  }, [])
+    // SECURITY: Require companyId for authorization
+    if (!companyId) {
+      return {
+        success: false as const,
+        error: {
+          code: 'VALIDATION_ERROR' as const,
+          message: 'Not authenticated - companyId required',
+        },
+      }
+    }
+    return await getAccount(id, companyId)
+  }, [companyId])
 
   // Update account
   const update = useCallback(
@@ -225,15 +244,35 @@ export function useAccounts(options: UseAccountsOptions = {}): UseAccountsReturn
       id: string,
       updates: Partial<Omit<Account, 'id' | 'companyId' | 'createdAt'>>
     ) => {
-      return await updateAccount(id, updates)
+      // SECURITY: Require companyId for authorization
+      if (!companyId) {
+        return {
+          success: false as const,
+          error: {
+            code: 'VALIDATION_ERROR' as const,
+            message: 'Not authenticated - companyId required',
+          },
+        }
+      }
+      return await updateAccount(id, companyId, updates)
     },
-    []
+    [companyId]
   )
 
   // Delete account (soft delete)
   const remove = useCallback(async (id: string) => {
-    return await deleteAccount(id)
-  }, [])
+    // SECURITY: Require companyId for authorization
+    if (!companyId) {
+      return {
+        success: false as const,
+        error: {
+          code: 'VALIDATION_ERROR' as const,
+          message: 'Not authenticated - companyId required',
+        },
+      }
+    }
+    return await deleteAccount(id, companyId)
+  }, [companyId])
 
   // Batch create accounts
   const batchCreate = useCallback(

@@ -20,6 +20,7 @@ import type {
   BatchResult,
 } from './types'
 import type { Account, AccountType } from '../types'
+import { requireCompanyOwnership, validateCompanyId } from '../utils/authorization'
 
 /**
  * Generate current device ID (stored in localStorage)
@@ -153,6 +154,16 @@ export async function createAccount(
           },
         }
       }
+      // SECURITY: Verify parent account belongs to same company
+      if (parent.companyId !== account.companyId) {
+        return {
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Parent account not found',
+          },
+        }
+      }
       if (parent.type !== account.type) {
         return {
           success: false,
@@ -203,26 +214,33 @@ export async function createAccount(
 
 /**
  * Get account by ID
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function getAccount(
   id: string,
+  companyId: string,
   context?: EncryptionContext
 ): Promise<DatabaseResult<Account>> {
   try {
-    const entity = await db.accounts.get(id)
-
-    if (!entity) {
-      return {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: `Account not found: ${id}`,
-        },
-      }
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
     }
 
+    const entity = await db.accounts.get(id)
+
+    // SECURITY: Verify resource ownership before allowing access
+    const authCheck = requireCompanyOwnership(entity, companyId)
+    if (!authCheck.authorized) {
+      return { success: false, error: authCheck.error }
+    }
+
+    const authorizedEntity = authCheck.resource
+
     // Check if soft deleted
-    if (entity.deletedAt) {
+    if (authorizedEntity.deletedAt) {
       return {
         success: false,
         error: {
@@ -233,14 +251,14 @@ export async function getAccount(
     }
 
     // Decrypt if service provided
-    let result = entity
+    let result = authorizedEntity
     if (context?.encryptionService) {
       const { encryptionService } = context
       result = {
-        ...entity,
-        name: await encryptionService.decrypt(entity.name),
-        description: entity.description
-          ? await encryptionService.decrypt(entity.description)
+        ...authorizedEntity,
+        name: await encryptionService.decrypt(authorizedEntity.name),
+        description: authorizedEntity.description
+          ? await encryptionService.decrypt(authorizedEntity.description)
           : undefined,
       }
     }
@@ -260,26 +278,33 @@ export async function getAccount(
 
 /**
  * Update an existing account
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function updateAccount(
   id: string,
+  companyId: string,
   updates: Partial<Omit<Account, 'id' | 'companyId' | 'createdAt'>>,
   context?: EncryptionContext
 ): Promise<DatabaseResult<Account>> {
   try {
-    const existing = await db.accounts.get(id)
-
-    if (!existing) {
-      return {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: `Account not found: ${id}`,
-        },
-      }
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
     }
 
-    if (existing.deletedAt) {
+    const existing = await db.accounts.get(id)
+
+    // SECURITY: Verify resource ownership before allowing access
+    const authCheck = requireCompanyOwnership(existing, companyId)
+    if (!authCheck.authorized) {
+      return { success: false, error: authCheck.error }
+    }
+
+    const authorizedEntity = authCheck.resource
+
+    if (authorizedEntity.deletedAt) {
       return {
         success: false,
         error: {
@@ -290,7 +315,7 @@ export async function updateAccount(
     }
 
     // Validate type change (if changing type)
-    if (updates.type && updates.type !== existing.type) {
+    if (updates.type && updates.type !== authorizedEntity.type) {
       // Check if account has children
       const children = await db.accounts
         .where('parentAccountId')
@@ -314,13 +339,13 @@ export async function updateAccount(
     const deviceId = getDeviceId()
 
     const updated: AccountEntity = {
-      ...existing,
+      ...authorizedEntity,
       ...updates,
       id, // Ensure ID doesn't change
-      companyId: existing.companyId, // Ensure companyId doesn't change
-      createdAt: existing.createdAt, // Preserve creation date
+      companyId: authorizedEntity.companyId, // Ensure companyId doesn't change
+      createdAt: authorizedEntity.createdAt, // Preserve creation date
       updatedAt: now,
-      versionVector: incrementVersionVector(existing.versionVector),
+      versionVector: incrementVersionVector(authorizedEntity.versionVector),
       lastModifiedBy: deviceId,
       lastModifiedAt: now,
     }
@@ -372,24 +397,31 @@ export async function updateAccount(
 
 /**
  * Delete an account (soft delete with tombstone)
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function deleteAccount(
-  id: string
+  id: string,
+  companyId: string
 ): Promise<DatabaseResult<void>> {
   try {
-    const existing = await db.accounts.get(id)
-
-    if (!existing) {
-      return {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: `Account not found: ${id}`,
-        },
-      }
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
     }
 
-    if (existing.deletedAt) {
+    const existing = await db.accounts.get(id)
+
+    // SECURITY: Verify resource ownership before allowing access
+    const authCheck = requireCompanyOwnership(existing, companyId)
+    if (!authCheck.authorized) {
+      return { success: false, error: authCheck.error }
+    }
+
+    const authorizedEntity = authCheck.resource
+
+    if (authorizedEntity.deletedAt) {
       return { success: true, data: undefined } // Already deleted
     }
 
@@ -456,36 +488,45 @@ export async function deleteAccount(
 
 /**
  * Query accounts with filters
+ *
+ * SECURITY: Requires companyId as mandatory parameter to prevent unauthorized cross-company access
  */
 export async function queryAccounts(
-  filter: AccountFilter,
+  companyId: string,
+  filter?: Omit<AccountFilter, 'companyId'>,
   context?: EncryptionContext
 ): Promise<DatabaseResult<Account[]>> {
   try {
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
+    }
+
     let query = db.accounts.toCollection()
 
-    // Apply primary index filter first (companyId or companyId+type)
-    if (filter.type && filter.companyId) {
+    // SECURITY: Always filter by companyId first (required)
+    if (filter?.type) {
       // Use compound index for companyId+type
       query = db.accounts
         .where('[companyId+type]')
-        .equals([filter.companyId, filter.type])
-    } else if (filter.companyId) {
+        .equals([companyId, filter.type])
+    } else {
       // Use single companyId index
-      query = db.accounts.where('companyId').equals(filter.companyId)
+      query = db.accounts.where('companyId').equals(companyId)
     }
 
     // Chain additional filters using .and() - avoid boolean compound indexes
-    if (filter.isActive !== undefined) {
+    if (filter?.isActive !== undefined) {
       query = query.and((acc) => acc.isActive === filter.isActive)
     }
 
-    if (filter.parentAccountId !== undefined) {
+    if (filter?.parentAccountId !== undefined) {
       query = query.and((acc) => acc.parentAccountId === filter.parentAccountId)
     }
 
     // Filter out deleted unless explicitly requested
-    if (!filter.includeDeleted) {
+    if (!filter?.includeDeleted) {
       query = query.and((acc) => !acc.deletedAt)
     }
 
@@ -530,7 +571,8 @@ export async function getAccountsHierarchy(
   context?: EncryptionContext
 ): Promise<DatabaseResult<Account[]>> {
   const result = await queryAccounts(
-    { companyId, includeDeleted: false },
+    companyId,
+    { includeDeleted: false },
     context
   )
 
@@ -554,14 +596,48 @@ export async function getAccountsHierarchy(
 
 /**
  * Batch create accounts
+ *
+ * SECURITY: Validates all accounts have same companyId to prevent bulk unauthorized writes
  */
 export async function batchCreateAccounts(
+  companyId: string,
   accounts: Array<Omit<Account, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'balance'>>,
   context?: EncryptionContext
 ): Promise<BatchResult<Account>> {
   const successful: Account[] = []
   const failed: Array<{ item: Account; error: DatabaseError }> = []
 
+  // SECURITY: Validate companyId is provided
+  const companyIdError = validateCompanyId(companyId)
+  if (companyIdError) {
+    // Return all items as failed with validation error
+    return {
+      successful: [],
+      failed: accounts.map((account) => ({
+        item: { ...account, id: '', createdAt: new Date(), updatedAt: new Date(), balance: 0 },
+        error: companyIdError,
+      })),
+    }
+  }
+
+  // SECURITY: Verify all accounts have correct companyId before processing
+  const invalidItems = accounts.filter((account) => account.companyId !== companyId)
+  if (invalidItems.length > 0) {
+    const mismatchError: DatabaseError = {
+      code: 'VALIDATION_ERROR',
+      message: `Company ID mismatch detected in batch operation. All items must belong to company: ${companyId}`,
+    }
+    // Return all items as failed - reject entire batch
+    return {
+      successful: [],
+      failed: accounts.map((account) => ({
+        item: { ...account, id: '', createdAt: new Date(), updatedAt: new Date(), balance: 0 },
+        error: mismatchError,
+      })),
+    }
+  }
+
+  // All items validated - proceed with batch creation
   for (const account of accounts) {
     const result = await createAccount(account, context)
     if (result.success) {

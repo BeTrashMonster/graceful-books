@@ -39,6 +39,14 @@ import type {
   CPGDistributor,
   CPGDistributionCalculation,
 } from '../../db/schema/cpg.schema';
+import {
+  validateDistributionCalcParams,
+  detectSuspiciousCalculation,
+  formatValidationError,
+} from '../../utils/validation';
+import { logger } from '../../utils/logger';
+
+const serviceLogger = logger.child('DistributionCostCalculatorService');
 
 /**
  * Distribution calculation input parameters
@@ -46,15 +54,29 @@ import type {
 export interface DistributionCalcParams {
   distributorId: string;
   numPallets: string; // Decimal as string for precision
-  unitsPerPallet: string;
+  unitsPerPallet: string; // DEPRECATED: Use pallet_data instead
+
+  // Actual pallet structure - stores exact configuration of each pallet
+  pallet_data: Array<{
+    pallet_number: number;
+    units_per_pallet: number;
+    products: Array<{
+      product_name: string;
+      quantity: number;
+      price_per_unit: string;
+      base_cpu: string;
+    }>;
+  }>;
 
   // Variant-specific pricing and costs
-  // Example: { "8oz": { price_per_unit: "3.38", base_cpu: "2.15" }, "16oz": { ... } }
+  // Example: { "8oz": { price_per_unit: "3.38", base_cpu: "2.15", quantity: 100 }, "16oz": { ... } }
+  // NOTE: This is aggregated data - use pallet_data for accurate per-pallet breakdown
   variantData: Record<
     string,
     {
       price_per_unit: string;
       base_cpu: string; // From CPG Invoice calculations
+      quantity: number; // Total quantity of this product across all pallets
     }
   >;
 
@@ -232,7 +254,18 @@ export class DistributionCostCalculatorService {
     params: DistributionCalcParams,
     thresholds: MarginThresholds = DEFAULT_MARGIN_THRESHOLDS
   ): Promise<DistributionCostResult> {
-    // Validate parameters
+    // S6-4: Validate parameters with Zod schema
+    const validation = validateDistributionCalcParams(params);
+    if (!validation.success) {
+      const errorMessage = formatValidationError(validation.error);
+      serviceLogger.error('Distribution calculation validation failed', {
+        errors: errorMessage,
+        params,
+      });
+      throw new Error(`Validation failed: ${errorMessage}`);
+    }
+
+    // Legacy validation for backwards compatibility
     this.validateDistributionParams(params);
 
     // Get distributor
@@ -249,13 +282,33 @@ export class DistributionCostCalculatorService {
     );
 
     // Calculate distribution cost per unit
-    const numPallets = new Decimal(params.numPallets);
-    const unitsPerPallet = new Decimal(params.unitsPerPallet);
-    const totalUnits = numPallets.times(unitsPerPallet);
+    // Use pallet_data for accurate total units (handles different units per pallet)
+    let totalUnits = new Decimal(0);
+
+    if (params.pallet_data && params.pallet_data.length > 0) {
+      // Calculate from actual pallet data
+      console.log('Calculating total units from pallet_data:');
+      params.pallet_data.forEach(pallet => {
+        let palletUnits = 0;
+        pallet.products.forEach(product => {
+          palletUnits += product.quantity;
+          totalUnits = totalUnits.plus(new Decimal(product.quantity));
+        });
+        console.log(`  Pallet ${pallet.pallet_number}: ${palletUnits} units`);
+      });
+      console.log(`Total units (from pallet_data): ${totalUnits.toFixed(0)}`);
+    } else {
+      // Fallback to old calculation for backwards compatibility
+      const numPallets = new Decimal(params.numPallets);
+      const unitsPerPallet = new Decimal(params.unitsPerPallet);
+      totalUnits = numPallets.times(unitsPerPallet);
+      console.log(`Total units (fallback): ${params.numPallets} pallets × ${params.unitsPerPallet} units = ${totalUnits.toFixed(0)}`);
+    }
 
     let distributionCostPerUnit = new Decimal(0);
     if (totalUnits.greaterThan(0)) {
       distributionCostPerUnit = totalFees.dividedBy(totalUnits);
+      console.log(`Distribution cost per unit: $${totalFees.toFixed(2)} ÷ ${totalUnits.toFixed(0)} units = $${distributionCostPerUnit.toFixed(2)}/unit`);
     }
 
     // Calculate results per variant
@@ -300,6 +353,37 @@ export class DistributionCostCalculatorService {
       };
     }
 
+    // S6-4: Check for suspicious calculation patterns
+    for (const [variantName, variantData] of Object.entries(params.variantData)) {
+      const result = variantResults[variantName];
+      const suspicious = detectSuspiciousCalculation({
+        type: 'distribution',
+        values: {
+          numPallets: parseFloat(params.numPallets),
+          unitsPerPallet: parseFloat(params.unitsPerPallet),
+          totalCPU: parseFloat(result.total_cpu),
+          price: parseFloat(variantData.price_per_unit),
+          baseCPU: parseFloat(variantData.base_cpu),
+          distributionCost: totalFees.toNumber(),
+        },
+      });
+
+      if (suspicious.suspicious) {
+        serviceLogger.warn('Suspicious distribution calculation detected', {
+          distributorId: params.distributorId,
+          variantName,
+          reasons: suspicious.reasons,
+          params: {
+            numPallets: params.numPallets,
+            totalFees: totalFees.toFixed(2),
+            pricePerUnit: variantData.price_per_unit,
+            baseCPU: variantData.base_cpu,
+            totalCPU: result.total_cpu,
+          },
+        });
+      }
+    }
+
     return {
       distributorId: params.distributorId,
       totalDistributionCost: totalFees.toFixed(2),
@@ -326,25 +410,63 @@ export class DistributionCostCalculatorService {
     companyId: string,
     calculationName: string | null,
     deviceId: string,
-    notes: string | null = null
+    notes: string | null = null,
+    calculationTimestamp: number | null = null,
+    invoiceData?: {
+      invoice_number: string;
+      invoice_total_amount: string;
+      invoice_due_date: number | null;
+      payment_status: 'unpaid' | 'partially_paid' | 'paid';
+      amount_paid: string | null;
+      payment_date: number | null;
+      payment_method: string | null;
+      payment_account_id: string | null;
+      check_number: string | null;
+    },
+    isDraft: boolean = false
   ): Promise<CPGDistributionCalculation> {
     const now = Date.now();
+    const calcDate = calculationTimestamp || now;
+
+    // Generate per-pallet product breakdown for reporting
+    const palletBreakdown = this.generatePalletBreakdown(
+      params.numPallets,
+      params.unitsPerPallet,
+      params.variantData
+    );
+
+    console.log('Saving calculation with pallet_data:', params.pallet_data);
 
     const calculation: CPGDistributionCalculation = {
       id: nanoid(),
       company_id: companyId,
       distributor_id: params.distributorId,
       calculation_name: calculationName,
-      calculation_date: now,
+      calculation_date: calcDate,
       num_pallets: params.numPallets,
       units_per_pallet: params.unitsPerPallet,
+      pallet_data: params.pallet_data || [], // Store actual pallet structure
       variant_data: params.variantData,
       selected_fees: params.selectedFees,
+      fee_breakdown: result.feeBreakdown,
       total_distribution_cost: result.totalDistributionCost,
       distribution_cost_per_unit: result.distributionCostPerUnit,
       variant_results: result.variantResults,
       msrp_markup_percentage: params.msrpMarkupPercentage || null,
+      pallet_breakdown: palletBreakdown,
       notes,
+      is_draft: isDraft,
+      // Invoice & payment data
+      invoice_number: invoiceData?.invoice_number || null,
+      invoice_total_amount: invoiceData?.invoice_total_amount || null,
+      invoice_due_date: invoiceData?.invoice_due_date || null,
+      payment_status: invoiceData?.payment_status || null,
+      amount_paid: invoiceData?.amount_paid || null,
+      payment_date: invoiceData?.payment_date || null,
+      payment_method: invoiceData?.payment_method || null,
+      payment_account_id: invoiceData?.payment_account_id || null,
+      check_number: invoiceData?.check_number || null,
+      linked_journal_entry_id: null, // Will be set when we create the GL entry
       active: true,
       created_at: now,
       updated_at: now,
@@ -353,7 +475,142 @@ export class DistributionCostCalculatorService {
     };
 
     await this.db.cpgDistributionCalculations.add(calculation);
+
+    // Create journal entry if this is an invoice (not a draft)
+    if (!isDraft && invoiceData) {
+      try {
+        const journalEntryId = await this.createJournalEntryForInvoice(
+          calculation,
+          companyId,
+          deviceId
+        );
+
+        // Update calculation with linked journal entry ID
+        if (journalEntryId) {
+          await this.db.cpgDistributionCalculations.update(calculation.id, {
+            linked_journal_entry_id: journalEntryId,
+            updated_at: Date.now(),
+          });
+          calculation.linked_journal_entry_id = journalEntryId;
+        }
+      } catch (journalError) {
+        console.warn('Failed to create journal entry, but calculation was saved:', journalError);
+        // Don't fail the whole save if journal entry fails
+      }
+    }
+
     return calculation;
+  }
+
+  /**
+   * Update existing distribution calculation
+   */
+  async updateCalculation(
+    calculationId: string,
+    result: DistributionCostResult,
+    params: DistributionCalcParams,
+    companyId: string,
+    calculationName: string | null,
+    deviceId: string,
+    notes: string | null = null,
+    calculationTimestamp: number | null = null,
+    invoiceData?: {
+      invoice_number: string;
+      invoice_total_amount: string;
+      invoice_due_date: number | null;
+      payment_status: 'unpaid' | 'partially_paid' | 'paid';
+      amount_paid: string | null;
+      payment_date: number | null;
+      payment_method: string | null;
+      payment_account_id: string | null;
+      check_number: string | null;
+    },
+    isDraft: boolean = false
+  ): Promise<CPGDistributionCalculation> {
+    const now = Date.now();
+    const calcDate = calculationTimestamp || now;
+
+    // Get existing calculation
+    const existing = await this.db.cpgDistributionCalculations.get(calculationId);
+    if (!existing) {
+      throw new Error(`Calculation not found: ${calculationId}`);
+    }
+
+    // Generate per-pallet product breakdown for reporting
+    const palletBreakdown = this.generatePalletBreakdown(
+      params.numPallets,
+      params.unitsPerPallet,
+      params.variantData
+    );
+
+    // Increment version vector
+    const currentVersion = existing.version_vector[deviceId] || 0;
+
+    // Update the calculation
+    await this.db.cpgDistributionCalculations.update(calculationId, {
+      distributor_id: params.distributorId,
+      calculation_name: calculationName,
+      calculation_date: calcDate,
+      num_pallets: params.numPallets,
+      units_per_pallet: params.unitsPerPallet,
+      pallet_data: params.pallet_data, // Store actual pallet structure
+      variant_data: params.variantData,
+      selected_fees: params.selectedFees,
+      fee_breakdown: result.feeBreakdown,
+      total_distribution_cost: result.totalDistributionCost,
+      distribution_cost_per_unit: result.distributionCostPerUnit,
+      variant_results: result.variantResults,
+      msrp_markup_percentage: params.msrpMarkupPercentage || null,
+      pallet_breakdown: palletBreakdown,
+      notes,
+      is_draft: isDraft,
+      // Invoice & payment data
+      invoice_number: invoiceData?.invoice_number || null,
+      invoice_total_amount: invoiceData?.invoice_total_amount || null,
+      invoice_due_date: invoiceData?.invoice_due_date || null,
+      payment_status: invoiceData?.payment_status || null,
+      amount_paid: invoiceData?.amount_paid || null,
+      payment_date: invoiceData?.payment_date || null,
+      payment_method: invoiceData?.payment_method || null,
+      payment_account_id: invoiceData?.payment_account_id || null,
+      check_number: invoiceData?.check_number || null,
+      updated_at: now,
+      version_vector: {
+        ...existing.version_vector,
+        [deviceId]: currentVersion + 1,
+      },
+    });
+
+    // Get updated record
+    const updated = await this.db.cpgDistributionCalculations.get(calculationId);
+    if (!updated) {
+      throw new Error('Failed to retrieve updated calculation');
+    }
+
+    // Create journal entry if this is an invoice (not a draft) and doesn't have one yet
+    if (!isDraft && invoiceData && !updated.linked_journal_entry_id) {
+      try {
+        const journalEntryId = await this.createJournalEntryForInvoice(
+          updated,
+          companyId,
+          deviceId
+        );
+
+        // Update calculation with linked journal entry ID
+        if (journalEntryId) {
+          await this.db.cpgDistributionCalculations.update(calculationId, {
+            linked_journal_entry_id: journalEntryId,
+            updated_at: Date.now(),
+          });
+          updated.linked_journal_entry_id = journalEntryId;
+        }
+      } catch (journalError) {
+        console.warn('Failed to create journal entry, but calculation was saved:', journalError);
+        // Don't fail the whole save if journal entry fails
+      }
+    }
+
+    return updated;
   }
 
   /**
@@ -399,12 +656,16 @@ export class DistributionCostCalculatorService {
     const feeBreakdown: { feeId: string; feeName: string; feeAmount: string }[] = [];
     const pallets = new Decimal(numPallets);
 
-    // Calculate total product value for percentage fees
+    // Calculate total product value for percentage fees (weighted by unit count)
     let totalProductValue = new Decimal(0);
-    for (const [_, variant] of Object.entries(variantData)) {
+    for (const [productName, variant] of Object.entries(variantData)) {
       const price = new Decimal(variant.price_per_unit);
-      totalProductValue = totalProductValue.plus(price);
+      const quantity = new Decimal(variant.quantity || 0);
+      const productValue = price.times(quantity);
+      console.log(`Product "${productName}": ${quantity} units × $${price} = $${productValue.toFixed(2)} total value`);
+      totalProductValue = totalProductValue.plus(productValue);
     }
+    console.log(`Total product value (unit-weighted): $${totalProductValue.toFixed(2)}`);
 
     // First pass: calculate all non-percentage fees
     let nonPercentageFees = new Decimal(0);
@@ -523,6 +784,54 @@ export class DistributionCostCalculatorService {
   }
 
   /**
+   * Generate per-pallet product breakdown for reporting
+   * Distributes units evenly across products, handling remainders
+   *
+   * @param numPallets - Number of pallets
+   * @param unitsPerPallet - Units per pallet
+   * @param variantData - Variant data with product names
+   * @returns Array of pallet breakdown
+   */
+  private generatePalletBreakdown(
+    numPallets: string,
+    unitsPerPallet: string,
+    variantData: DistributionCalcParams['variantData']
+  ): Array<{ pallet_number: number; products: Record<string, number> }> {
+    const pallets = parseInt(numPallets, 10);
+    const unitsPerPalletNum = parseInt(unitsPerPallet, 10);
+    const productNames = Object.keys(variantData);
+    const numProducts = productNames.length;
+
+    if (numProducts === 0 || pallets === 0 || unitsPerPalletNum === 0) {
+      return [];
+    }
+
+    const breakdown: Array<{ pallet_number: number; products: Record<string, number> }> = [];
+
+    // Calculate base units per product and remainder
+    const baseUnitsPerProduct = Math.floor(unitsPerPalletNum / numProducts);
+    const remainder = unitsPerPalletNum % numProducts;
+
+    // For each pallet, distribute units across products
+    for (let palletNum = 1; palletNum <= pallets; palletNum++) {
+      const palletProducts: Record<string, number> = {};
+
+      productNames.forEach((productName, index) => {
+        // First 'remainder' products get one extra unit
+        const units = baseUnitsPerProduct + (index < remainder ? 1 : 0);
+        palletProducts[productName] = units;
+      });
+
+      breakdown.push({
+        pallet_number: palletNum,
+        products: palletProducts,
+      });
+    }
+
+    return breakdown;
+  }
+
+  /**
    * Validate distribution calculation parameters
    *
    * @param params - Distribution calculation parameters
@@ -592,5 +901,278 @@ export class DistributionCostCalculatorService {
     if (errors.length > 0) {
       throw new Error(`Validation failed: ${errors.join(', ')}`);
     }
+  }
+
+  /**
+   * Create journal entry for distribution invoice
+   *
+   * Creates accounting entries when saving as invoice:
+   * 1. Debit COGS - Distribution Costs
+   * 2. Credit Accounts Payable
+   * 3. If paid/partially paid, also create payment transaction
+   *
+   * SECURITY: Accepts companyId parameter and ensures all accounts belong to company
+   *
+   * @param calculation - The saved distribution calculation
+   * @param companyId - Company ID
+   * @param deviceId - Device ID for version vector
+   * @returns Transaction ID of created journal entry
+   */
+  async createJournalEntryForInvoice(
+    calculation: CPGDistributionCalculation,
+    companyId: string,
+    deviceId: string
+  ): Promise<string | null> {
+    // Only create journal entry if this is an invoice (not a draft)
+    if (calculation.is_draft) {
+      return null;
+    }
+
+    try {
+      // SECURITY: Both helper methods filter by companyId
+      // Find or create Distribution Costs account
+      const distributionCostsAccount = await this.findOrCreateDistributionCostsAccount(companyId, deviceId);
+
+      // Find Accounts Payable account
+      const accountsPayableAccount = await this.findAccountsPayableAccount(companyId);
+
+      if (!distributionCostsAccount || !accountsPayableAccount) {
+        console.error('Could not find required accounts for journal entry');
+        return null;
+      }
+
+      const amount = calculation.invoice_total_amount || calculation.total_distribution_cost;
+
+      // Generate transaction number
+      const year = new Date(calculation.calculation_date).getFullYear();
+      const sequence = await this.getNextTransactionSequence(companyId, year, 'JOURNAL_ENTRY');
+      const transactionNumber = `JE-${year}-${sequence.toString().padStart(4, '0')}`;
+
+      const now = Date.now();
+      const transactionId = nanoid();
+
+      // Create journal entry transaction
+      const journalEntry = {
+        id: transactionId,
+        company_id: companyId,
+        transaction_number: transactionNumber,
+        transaction_date: calculation.calculation_date,
+        type: 'JOURNAL_ENTRY' as const,
+        status: 'POSTED' as const,
+        description: `Distribution costs - ${calculation.calculation_name || 'Invoice'}`,
+        reference: calculation.invoice_number || null,
+        memo: `Distributor invoice for ${calculation.num_pallets} pallets`,
+        attachments: [],
+        created_at: now,
+        updated_at: now,
+        deleted_at: null,
+        version_vector: { [deviceId]: 1 },
+      };
+
+      // Create line items
+      const lineItems = [
+        {
+          id: nanoid(),
+          transaction_id: transactionId,
+          account_id: distributionCostsAccount.id,
+          debit: amount,
+          credit: '0.00',
+          description: 'Distribution costs',
+          contact_id: null,
+          product_id: null,
+          created_at: now,
+          updated_at: now,
+          deleted_at: null,
+          version_vector: { [deviceId]: 1 },
+        },
+        {
+          id: nanoid(),
+          transaction_id: transactionId,
+          account_id: accountsPayableAccount.id,
+          debit: '0.00',
+          credit: amount,
+          description: 'Accounts payable - Distributor',
+          contact_id: null,
+          product_id: null,
+          created_at: now,
+          updated_at: now,
+          deleted_at: null,
+          version_vector: { [deviceId]: 1 },
+        },
+      ];
+
+      // Save to database
+      await this.db.transactions.add(journalEntry);
+      await this.db.transactionLineItems.bulkAdd(lineItems);
+
+      // If paid or partially paid, create payment transaction
+      if (calculation.payment_status === 'paid' || calculation.payment_status === 'partially_paid') {
+        await this.createPaymentTransaction(
+          calculation,
+          companyId,
+          deviceId,
+          accountsPayableAccount.id
+        );
+      }
+
+      return transactionId;
+    } catch (error) {
+      console.error('Error creating journal entry for distribution invoice:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Create payment transaction when invoice is paid
+   */
+  private async createPaymentTransaction(
+    calculation: CPGDistributionCalculation,
+    companyId: string,
+    deviceId: string,
+    accountsPayableId: string
+  ): Promise<void> {
+    if (!calculation.amount_paid || !calculation.payment_account_id) {
+      return;
+    }
+
+    const year = new Date(calculation.payment_date || calculation.calculation_date).getFullYear();
+    const sequence = await this.getNextTransactionSequence(companyId, year, 'PAYMENT');
+    const transactionNumber = `PMT-${year}-${sequence.toString().padStart(4, '0')}`;
+
+    const now = Date.now();
+    const transactionId = nanoid();
+
+    const paymentTransaction = {
+      id: transactionId,
+      company_id: companyId,
+      transaction_number: transactionNumber,
+      transaction_date: calculation.payment_date || calculation.calculation_date,
+      type: 'PAYMENT' as const,
+      status: 'POSTED' as const,
+      description: `Payment for distribution invoice${calculation.check_number ? ` - Check #${calculation.check_number}` : ''}`,
+      reference: calculation.invoice_number || null,
+      memo: calculation.check_number ? `Check #${calculation.check_number}` : null,
+      attachments: [],
+      created_at: now,
+      updated_at: now,
+      deleted_at: null,
+      version_vector: { [deviceId]: 1 },
+    };
+
+    const lineItems = [
+      {
+        id: nanoid(),
+        transaction_id: transactionId,
+        account_id: accountsPayableId,
+        debit: calculation.amount_paid,
+        credit: '0.00',
+        description: 'Payment to distributor',
+        contact_id: null,
+        product_id: null,
+        created_at: now,
+        updated_at: now,
+        deleted_at: null,
+        version_vector: { [deviceId]: 1 },
+      },
+      {
+        id: nanoid(),
+        transaction_id: transactionId,
+        account_id: calculation.payment_account_id,
+        debit: '0.00',
+        credit: calculation.amount_paid,
+        description: 'Payment from account',
+        contact_id: null,
+        product_id: null,
+        created_at: now,
+        updated_at: now,
+        deleted_at: null,
+        version_vector: { [deviceId]: 1 },
+      },
+    ];
+
+    await this.db.transactions.add(paymentTransaction);
+    await this.db.transactionLineItems.bulkAdd(lineItems);
+  }
+
+  /**
+   * Find or create COGS - Distribution Costs account
+   *
+   * SECURITY: Filters by companyId to ensure account belongs to company
+   */
+  private async findOrCreateDistributionCostsAccount(
+    companyId: string,
+    deviceId: string
+  ) {
+    // SECURITY: Use compound index to filter by companyId first
+    // Try to find existing Distribution Costs account
+    const existing = await this.db.accounts
+      .where('[company_id+type]')
+      .equals([companyId, 'COGS'])
+      .and((acc) => acc.active && !acc.deleted_at && acc.name.toLowerCase().includes('distribution'))
+      .first();
+
+    if (existing) {
+      return existing;
+    }
+
+    // Create standalone COGS - Distribution Costs account (NOT a sub-account)
+    const now = Date.now();
+    const newAccount = {
+      id: nanoid(),
+      company_id: companyId,
+      account_number: '5100',
+      name: 'COGS - Distribution Costs',
+      type: 'COGS' as const,
+      subType: null,
+      parent_id: null, // Standalone account, not a sub-account
+      description: 'Costs associated with product distribution',
+      balance: '0.00',
+      active: true,
+      created_at: now,
+      updated_at: now,
+      deleted_at: null,
+      version_vector: { [deviceId]: 1 },
+    };
+
+    await this.db.accounts.add(newAccount);
+    return newAccount;
+  }
+
+  /**
+   * Find Accounts Payable account
+   *
+   * SECURITY: Filters by companyId to ensure account belongs to company
+   */
+  private async findAccountsPayableAccount(companyId: string) {
+    // SECURITY: Use compound index to filter by companyId first
+    return await this.db.accounts
+      .where('[company_id+type]')
+      .equals([companyId, 'LIABILITY'])
+      .and((acc) =>
+        acc.active &&
+        !acc.deleted_at &&
+        (acc.name.toLowerCase().includes('accounts payable') || acc.account_number === '2000')
+      )
+      .first();
+  }
+
+  /**
+   * Get next transaction sequence number
+   */
+  private async getNextTransactionSequence(
+    companyId: string,
+    year: number,
+    type: 'JOURNAL_ENTRY' | 'PAYMENT'
+  ): Promise<number> {
+    const startOfYear = new Date(year, 0, 1).getTime();
+    const endOfYear = new Date(year, 11, 31, 23, 59, 59, 999).getTime();
+
+    const count = await this.db.transactions
+      .where('[company_id+type]')
+      .equals([companyId, type])
+      .and((t) => t.transaction_date >= startOfYear && t.transaction_date <= endOfYear)
+      .count();
+
+    return count + 1;
   }
 }

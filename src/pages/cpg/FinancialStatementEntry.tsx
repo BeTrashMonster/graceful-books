@@ -34,8 +34,7 @@ import {
 import styles from './FinancialStatementEntry.module.css';
 
 export default function FinancialStatementEntry() {
-  const { companyId: authCompanyId } = useAuth();
-  const companyId = authCompanyId || 'demo-company-id';
+  const { companyId } = useAuth();
   const navigate = useNavigate();
 
   // Tab state

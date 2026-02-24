@@ -97,8 +97,7 @@ export default function ScenarioPlanning() {
   const [service] = useState(() => new ScenarioPlanningService(db));
 
   // Get company ID from auth context
-  const { companyId: authCompanyId } = useAuth();
-  const companyId = authCompanyId || 'demo-company-id';
+  const { companyId } = useAuth();
 
   // Load distributors
   useEffect(() => {

@@ -35,7 +35,6 @@ import styles from './CPUTracker.module.css';
 
 export default function CPUTracker() {
   const { companyId } = useAuth();
-  const activeCompanyId = companyId || 'demo-company-id';
 
   // State
   const [categories, setCategories] = useState<CPGCategory[]>([]);
@@ -58,7 +57,7 @@ export default function CPUTracker() {
   // Load data
   useEffect(() => {
     loadData();
-  }, [activeCompanyId, showArchived]);
+  }, [companyId, showArchived]);
 
   // Listen for data updates from modals (e.g., category added from Getting Started card)
   useEffect(() => {
@@ -69,7 +68,7 @@ export default function CPUTracker() {
 
     window.addEventListener('cpg-data-updated', handleDataUpdate);
     return () => window.removeEventListener('cpg-data-updated', handleDataUpdate);
-  }, [activeCompanyId]);
+  }, [companyId]);
 
   const loadData = async () => {
     try {
@@ -79,7 +78,7 @@ export default function CPUTracker() {
       // Load categories
       const categoriesData = await db.cpgCategories
         .where('company_id')
-        .equals(activeCompanyId)
+        .equals(companyId)
         .filter(cat => cat.active && cat.deleted_at === null)
         .sortBy('sort_order');
 
@@ -88,7 +87,7 @@ export default function CPUTracker() {
       // Load invoices (include archived if showArchived is true)
       const invoicesData = await db.cpgInvoices
         .where('company_id')
-        .equals(activeCompanyId)
+        .equals(companyId)
         .filter(inv => showArchived || (inv.active && inv.deleted_at === null))
         .reverse()
         .sortBy('invoice_date');
@@ -99,7 +98,7 @@ export default function CPUTracker() {
       const invoicesNeedingRecalculation = invoicesData.filter(inv => !inv.calculated_cpus);
       if (invoicesNeedingRecalculation.length > 0) {
         console.log(`🔧 Found ${invoicesNeedingRecalculation.length} invoices without CPU calculations. Recalculating...`);
-        await cpuCalculatorService.recalculateAllCPUs(activeCompanyId);
+        await cpuCalculatorService.recalculateAllCPUs(companyId);
         // Notify other components to reload
         window.dispatchEvent(new CustomEvent('cpg-data-updated', { detail: { type: 'auto-recalculation' } }));
       }
@@ -107,7 +106,7 @@ export default function CPUTracker() {
       // Load finished products
       const productsData = await db.cpgFinishedProducts
         .where('company_id')
-        .equals(activeCompanyId)
+        .equals(companyId)
         .filter(prod => prod.active && prod.deleted_at === null)
         .toArray();
 
@@ -115,7 +114,7 @@ export default function CPUTracker() {
 
       // Load CPU history
       const history = await cpuCalculatorService.getCPUHistory(
-        activeCompanyId,
+        companyId,
         selectedCategoryFilter,
         showArchived
       );
@@ -144,7 +143,7 @@ export default function CPUTracker() {
     // Reload history with new filter
     try {
       const history = await cpuCalculatorService.getCPUHistory(
-        activeCompanyId,
+        companyId,
         categoryId,
         showArchived
       );
@@ -158,7 +157,7 @@ export default function CPUTracker() {
     setIsRecalculating(true);
     try {
       console.log('🔧 Manually recalculating all CPUs...');
-      await cpuCalculatorService.recalculateAllCPUs(activeCompanyId);
+      await cpuCalculatorService.recalculateAllCPUs(companyId);
       console.log('✅ Recalculation complete!');
 
       // Dispatch event to notify CPUDisplay and other components
@@ -410,7 +409,7 @@ export default function CPUTracker() {
       {/* Category Manager Modal */}
       {showCategoryManager && (
         <CategoryManager
-          companyId={activeCompanyId}
+          companyId={companyId}
           categories={categories}
           onClose={() => setShowCategoryManager(false)}
           onSaved={handleCategoriesUpdated}

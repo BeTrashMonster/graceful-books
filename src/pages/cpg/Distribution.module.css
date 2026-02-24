@@ -125,6 +125,11 @@
   box-shadow: 0 2px 4px rgba(91, 33, 182, 0.3);
 }
 
+/* Scenarios Section */
+.scenariosSection {
+  /* Full width - no constraints */
+}
+
 /* Manage Section */
 .manageSection {
   /* Full width - no constraints */

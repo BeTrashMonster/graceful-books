@@ -20,6 +20,7 @@ import type {
   BatchResult,
 } from './types'
 import type { Contact, ContactType } from '../types'
+import { requireCompanyOwnership, validateCompanyId } from '../utils/authorization'
 
 /**
  * Generate current device ID (stored in localStorage)
@@ -208,26 +209,33 @@ export async function createContact(
 
 /**
  * Get contact by ID
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function getContact(
   id: string,
+  companyId: string,
   context?: EncryptionContext
 ): Promise<DatabaseResult<Contact>> {
   try {
-    const entity = await db.contacts.get(id)
-
-    if (!entity) {
-      return {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: `Contact not found: ${id}`,
-        },
-      }
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
     }
 
+    const entity = await db.contacts.get(id)
+
+    // SECURITY: Verify resource ownership before allowing access
+    const authCheck = requireCompanyOwnership(entity, companyId)
+    if (!authCheck.authorized) {
+      return { success: false, error: authCheck.error }
+    }
+
+    const authorizedEntity = authCheck.resource
+
     // Check if soft deleted
-    if (entity.deletedAt) {
+    if (authorizedEntity.deletedAt) {
       return {
         success: false,
         error: {
@@ -238,28 +246,28 @@ export async function getContact(
     }
 
     // Decrypt if service provided
-    let result = entity
+    let result = authorizedEntity
     if (context?.encryptionService) {
       const { encryptionService } = context
       result = {
-        ...entity,
-        name: await encryptionService.decrypt(entity.name),
-        email: entity.email
-          ? await encryptionService.decrypt(entity.email)
+        ...authorizedEntity,
+        name: await encryptionService.decrypt(authorizedEntity.name),
+        email: authorizedEntity.email
+          ? await encryptionService.decrypt(authorizedEntity.email)
           : undefined,
-        phone: entity.phone
-          ? await encryptionService.decrypt(entity.phone)
+        phone: authorizedEntity.phone
+          ? await encryptionService.decrypt(authorizedEntity.phone)
           : undefined,
-        address: entity.address
+        address: authorizedEntity.address
           ? JSON.parse(
-              await encryptionService.decrypt(JSON.stringify(entity.address))
+              await encryptionService.decrypt(JSON.stringify(authorizedEntity.address))
             )
           : undefined,
-        taxId: entity.taxId
-          ? await encryptionService.decrypt(entity.taxId)
+        taxId: authorizedEntity.taxId
+          ? await encryptionService.decrypt(authorizedEntity.taxId)
           : undefined,
-        notes: entity.notes
-          ? await encryptionService.decrypt(entity.notes)
+        notes: authorizedEntity.notes
+          ? await encryptionService.decrypt(authorizedEntity.notes)
           : undefined,
       }
     }
@@ -279,26 +287,33 @@ export async function getContact(
 
 /**
  * Update an existing contact
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function updateContact(
   id: string,
+  companyId: string,
   updates: Partial<Omit<Contact, 'id' | 'companyId' | 'createdAt'>>,
   context?: EncryptionContext
 ): Promise<DatabaseResult<Contact>> {
   try {
-    const existing = await db.contacts.get(id)
-
-    if (!existing) {
-      return {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: `Contact not found: ${id}`,
-        },
-      }
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
     }
 
-    if (existing.deletedAt) {
+    const existing = await db.contacts.get(id)
+
+    // SECURITY: Verify resource ownership before allowing access
+    const authCheck = requireCompanyOwnership(existing, companyId)
+    if (!authCheck.authorized) {
+      return { success: false, error: authCheck.error }
+    }
+
+    const authorizedEntity = authCheck.resource
+
+    if (authorizedEntity.deletedAt) {
       return {
         success: false,
         error: {
@@ -327,13 +342,13 @@ export async function updateContact(
     const deviceId = getDeviceId()
 
     const updated: ContactEntity = {
-      ...existing,
+      ...authorizedEntity,
       ...updates,
       id, // Ensure ID doesn't change
-      companyId: existing.companyId, // Ensure companyId doesn't change
-      createdAt: existing.createdAt, // Preserve creation date
+      companyId: authorizedEntity.companyId, // Ensure companyId doesn't change
+      createdAt: authorizedEntity.createdAt, // Preserve creation date
       updatedAt: now,
-      versionVector: incrementVersionVector(existing.versionVector),
+      versionVector: incrementVersionVector(authorizedEntity.versionVector),
       lastModifiedBy: deviceId,
       lastModifiedAt: now,
     }
@@ -418,24 +433,31 @@ export async function updateContact(
 
 /**
  * Delete a contact (soft delete with tombstone)
+ *
+ * SECURITY: Requires companyId for authorization to prevent IDOR attacks
  */
 export async function deleteContact(
-  id: string
+  id: string,
+  companyId: string
 ): Promise<DatabaseResult<void>> {
   try {
-    const existing = await db.contacts.get(id)
-
-    if (!existing) {
-      return {
-        success: false,
-        error: {
-          code: 'NOT_FOUND',
-          message: `Contact not found: ${id}`,
-        },
-      }
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
     }
 
-    if (existing.deletedAt) {
+    const existing = await db.contacts.get(id)
+
+    // SECURITY: Verify resource ownership before allowing access
+    const authCheck = requireCompanyOwnership(existing, companyId)
+    if (!authCheck.authorized) {
+      return { success: false, error: authCheck.error }
+    }
+
+    const authorizedEntity = authCheck.resource
+
+    if (authorizedEntity.deletedAt) {
       return { success: true, data: undefined } // Already deleted
     }
 
@@ -445,7 +467,7 @@ export async function deleteContact(
 
     await db.contacts.update(id, {
       deletedAt: now,
-      versionVector: incrementVersionVector(existing.versionVector),
+      versionVector: incrementVersionVector(authorizedEntity.versionVector),
       lastModifiedBy: deviceId,
       lastModifiedAt: now,
     })
@@ -465,33 +487,38 @@ export async function deleteContact(
 
 /**
  * Query contacts with filters
+ *
+ * SECURITY: Requires companyId as mandatory parameter to prevent unauthorized cross-company access
  */
 export async function queryContacts(
-  filter: ContactFilter,
+  companyId: string,
+  filter?: Omit<ContactFilter, 'companyId'>,
   context?: EncryptionContext
 ): Promise<DatabaseResult<Contact[]>> {
   try {
+    // SECURITY: Validate companyId is provided
+    const companyIdError = validateCompanyId(companyId)
+    if (companyIdError) {
+      return { success: false, error: companyIdError }
+    }
+
     let query = db.contacts.toCollection()
 
-    // Apply filters
-    if (filter.companyId) {
-      query = db.contacts.where('companyId').equals(filter.companyId)
-    }
-
-    if (filter.type && filter.companyId) {
+    // SECURITY: Always filter by companyId first (required)
+    if (filter?.type) {
       query = db.contacts
         .where('[companyId+type]')
-        .equals([filter.companyId, filter.type])
-    }
-
-    if (filter.isActive !== undefined && filter.companyId) {
+        .equals([companyId, filter.type])
+    } else if (filter?.isActive !== undefined) {
       query = db.contacts
         .where('[companyId+isActive]')
-        .equals([filter.companyId, filter.isActive] as any)
+        .equals([companyId, filter.isActive] as any)
+    } else {
+      query = db.contacts.where('companyId').equals(companyId)
     }
 
     // Filter out deleted unless explicitly requested
-    if (!filter.includeDeleted) {
+    if (!filter?.includeDeleted) {
       query = query.and((contact) => !contact.deletedAt)
     }
 
@@ -550,7 +577,8 @@ export async function getCustomers(
   context?: EncryptionContext
 ): Promise<DatabaseResult<Contact[]>> {
   return queryContacts(
-    { companyId, type: 'customer', isActive: true },
+    companyId,
+    { type: 'customer', isActive: true },
     context
   )
 }
@@ -563,7 +591,8 @@ export async function getVendors(
   context?: EncryptionContext
 ): Promise<DatabaseResult<Contact[]>> {
   return queryContacts(
-    { companyId, type: 'vendor', isActive: true },
+    companyId,
+    { type: 'vendor', isActive: true },
     context
   )
 }
@@ -576,7 +605,8 @@ export async function get1099Vendors(
   context?: EncryptionContext
 ): Promise<DatabaseResult<Contact[]>> {
   const result = await queryContacts(
-    { companyId, type: 'vendor', isActive: true },
+    companyId,
+    { type: 'vendor', isActive: true },
     context
   )
 
@@ -590,14 +620,58 @@ export async function get1099Vendors(
 
 /**
  * Batch create contacts
+ *
+ * SECURITY: Validates all contacts have same companyId to prevent bulk unauthorized writes
  */
 export async function batchCreateContacts(
+  companyId: string,
   contacts: Array<Omit<Contact, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>>,
   context?: EncryptionContext
 ): Promise<BatchResult<Contact>> {
   const successful: Contact[] = []
   const failed: Array<{ item: Contact; error: DatabaseError }> = []
 
+  // SECURITY: Validate companyId is provided
+  const companyIdError = validateCompanyId(companyId)
+  if (companyIdError) {
+    // Return all items as failed with validation error
+    return {
+      successful: [],
+      failed: contacts.map((contact) => ({
+        item: {
+          ...contact,
+          id: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        error: companyIdError,
+      })),
+    }
+  }
+
+  // SECURITY: Verify all contacts have correct companyId before processing
+  const invalidItems = contacts.filter((contact) => contact.companyId !== companyId)
+  if (invalidItems.length > 0) {
+    const mismatchError: DatabaseError = {
+      code: 'VALIDATION_ERROR',
+      message: `Company ID mismatch detected in batch operation. All items must belong to company: ${companyId}`,
+    }
+    // Return all items as failed - reject entire batch
+    return {
+      successful: [],
+      failed: contacts.map((contact) => ({
+        item: {
+          ...contact,
+          id: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        error: mismatchError,
+      })),
+    }
+  }
+
+  // All items validated - proceed with batch creation
   for (const contact of contacts) {
     const result = await createContact(contact, context)
     if (result.success) {

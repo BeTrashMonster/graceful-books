@@ -45,7 +45,7 @@ jobs:
   security-tests:
     name: Security Test Suite
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       contents: read
 
@@ -61,6 +61,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Run comprehensive security test suite
+        run: npx vitest run --reporter=verbose src/__tests__/security/**/*.test.ts src/__tests__/security/**/*.test.tsx
 
       - name: Run crypto tests
         run: npx vitest run --reporter=verbose src/crypto/**/*.test.ts
@@ -80,6 +83,12 @@ jobs:
       - name: Run key rotation tests
         run: npx vitest run --reporter=verbose src/services/multiUser/keyRotation.enhanced.service.test.ts
 
+      - name: Run validation tests
+        run: npx vitest run --reporter=verbose src/utils/validation.test.ts
+
+      - name: Run sanitization tests
+        run: npx vitest run --reporter=verbose src/utils/sanitize.test.ts
+
       - name: Security test summary
         if: always()
         run: |
@@ -87,12 +96,17 @@ jobs:
           echo "All critical security tests completed." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Test Coverage:" >> $GITHUB_STEP_SUMMARY
-          echo "- Cryptographic operations (encryption, key derivation)" >> $GITHUB_STEP_SUMMARY
-          echo "- Security headers configuration" >> $GITHUB_STEP_SUMMARY
-          echo "- Constant-time comparison utilities" >> $GITHUB_STEP_SUMMARY
-          echo "- Secure storage mechanisms" >> $GITHUB_STEP_SUMMARY
-          echo "- Rate limiting protection" >> $GITHUB_STEP_SUMMARY
-          echo "- Key rotation for multi-user access" >> $GITHUB_STEP_SUMMARY
+          echo "- **IDOR Prevention:** Authorization checks, data isolation, batch operations" >> $GITHUB_STEP_SUMMARY
+          echo "- **XSS Prevention:** Input sanitization, output encoding, DOMPurify integration" >> $GITHUB_STEP_SUMMARY
+          echo "- **Injection Prevention:** SQL injection, command injection, path traversal" >> $GITHUB_STEP_SUMMARY
+          echo "- **Authorization & RBAC:** Role-based access control, permission checks" >> $GITHUB_STEP_SUMMARY
+          echo "- **Session Security:** Token management, session fixation, CSRF protection" >> $GITHUB_STEP_SUMMARY
+          echo "- **Rate Limiting:** Brute force protection, DDoS mitigation" >> $GITHUB_STEP_SUMMARY
+          echo "- **Cryptographic Operations:** Encryption, key derivation, constant-time comparison" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security Headers:** CSP, HSTS, X-Frame-Options configuration" >> $GITHUB_STEP_SUMMARY
+          echo "- **Secure Storage:** Client-side encryption, key management" >> $GITHUB_STEP_SUMMARY
+          echo "- **Input Validation:** Zod schemas, type checking, boundary testing" >> $GITHUB_STEP_SUMMARY
+          echo "- **Key Rotation:** Multi-user access, key management lifecycle" >> $GITHUB_STEP_SUMMARY
 
   dependency-audit:
     name: Dependency Vulnerability Scan
@@ -133,27 +147,65 @@ jobs:
           echo "- Critical: $CRITICAL" >> $GITHUB_STEP_SUMMARY
           echo "- High: $HIGH" >> $GITHUB_STEP_SUMMARY
 
-      - name: Fail on critical vulnerabilities
-        if: steps.parse_audit.outputs.critical > 0
+      - name: Fail on critical or high vulnerabilities
+        if: steps.parse_audit.outputs.critical > 0 || steps.parse_audit.outputs.high > 0
         run: |
-          echo "CRITICAL: Found ${{ steps.parse_audit.outputs.critical }} critical vulnerabilities"
-          echo "Critical vulnerabilities must be addressed before merging."
-          npm audit
+          echo "CRITICAL: Found vulnerabilities that must be addressed:"
+          echo "- Critical: ${{ steps.parse_audit.outputs.critical }}"
+          echo "- High: ${{ steps.parse_audit.outputs.high }}"
+          echo ""
+          echo "Critical and high-severity vulnerabilities must be addressed before merging."
+          echo "Run 'npm audit fix' or update dependencies manually."
+          echo ""
+          npm audit --audit-level=high
           exit 1
 
-      - name: Report high vulnerabilities
-        if: steps.parse_audit.outputs.high > 0 && github.event_name == 'pull_request'
+      - name: Comment on PR with vulnerability details
+        if: (steps.parse_audit.outputs.critical > 0 || steps.parse_audit.outputs.high > 0) && github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
             const auditOutput = fs.readFileSync('audit-output.txt', 'utf8');
+            const critical = '${{ steps.parse_audit.outputs.critical }}';
+            const high = '${{ steps.parse_audit.outputs.high }}';
+
+            const message = [
+              '## 🚨 Security Alert: Vulnerabilities Detected',
+              '',
+              'This PR introduces or is based on code with security vulnerabilities:',
+              '- Critical: ' + critical,
+              '- High: ' + high,
+              '',
+              '### Action Required',
+              '',
+              'Critical and high-severity vulnerabilities must be resolved before merging.',
+              '',
+              '**Steps to resolve:**',
+              '1. Run `npm audit` locally to see details',
+              '2. Run `npm audit fix` to automatically fix compatible issues',
+              '3. For remaining issues, update dependencies manually:',
+              '   ```bash',
+              '   npm update [package-name]',
+              '   ```',
+              '4. Push the changes and wait for checks to pass',
+              '',
+              '**Detailed Audit Report:**',
+              '```',
+              auditOutput.substring(0, 8000),
+              '```',
+              '',
+              '**Note:** This PR will be blocked from merging until all critical and high-severity vulnerabilities are resolved.',
+              '',
+              'For more information, see our [Security Policy](../../SECURITY.md).'
+            ].join('\n');
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## Security Alert: High Severity Vulnerabilities Detected\n\nThis PR introduces or is based on code with **${{ steps.parse_audit.outputs.high }} high-severity vulnerabilities**.\n\nPlease review and address these vulnerabilities. High-severity issues require justification in the PR description before merging.\n\n\`\`\`\n${auditOutput}\n\`\`\`\n\n**Action Required:**\n- [ ] Run \`npm audit fix\` locally and push changes\n- [ ] Or add justification in PR description if vulnerabilities are unavoidable\n- [ ] Or create a follow-up issue to address in next sprint`
+              body: message
             })
 
       - name: Upload audit report
@@ -401,23 +453,25 @@ jobs:
               'cancelled': '🛑'
             };
 
-            const body = `## Security Scanning Results
-
-| Check | Status |
-|-------|--------|
-| CodeQL Analysis | ${statusEmoji[codeql]} ${codeql} |
-| Security Tests | ${statusEmoji[secTests]} ${secTests} |
-| Dependency Audit | ${statusEmoji[depAudit]} ${depAudit} |
-| Secret Detection | ${statusEmoji[secretScan]} ${secretScan} |
-| Static Analysis | ${statusEmoji[staticAnalysis]} ${staticAnalysis} |
-| Dependency Check | ${statusEmoji[depCheck]} ${depCheck} |
-
-**Security artifacts are available in the Actions tab.**
-
-For detailed reports, see:
-- npm audit report
-- Software Bill of Materials (SBOM)
-- CodeQL analysis (Security tab)`;
+            const body = [
+              '## Security Scanning Results',
+              '',
+              '| Check | Status |',
+              '|-------|--------|',
+              '| CodeQL Analysis | ' + statusEmoji[codeql] + ' ' + codeql + ' |',
+              '| Security Tests | ' + statusEmoji[secTests] + ' ' + secTests + ' |',
+              '| Dependency Audit | ' + statusEmoji[depAudit] + ' ' + depAudit + ' |',
+              '| Secret Detection | ' + statusEmoji[secretScan] + ' ' + secretScan + ' |',
+              '| Static Analysis | ' + statusEmoji[staticAnalysis] + ' ' + staticAnalysis + ' |',
+              '| Dependency Check | ' + statusEmoji[depCheck] + ' ' + depCheck + ' |',
+              '',
+              '**Security artifacts are available in the Actions tab.**',
+              '',
+              'For detailed reports, see:',
+              '- npm audit report',
+              '- Software Bill of Materials (SBOM)',
+              '- CodeQL analysis (Security tab)'
+            ].join('\n');
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,

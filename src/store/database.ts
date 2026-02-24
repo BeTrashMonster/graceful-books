@@ -31,6 +31,8 @@ import type { TutorialProgress } from '../types/tutorial.types'
 import type { ReconciliationPattern, ReconciliationStreak, ReconciliationRecord } from '../types/reconciliation.types'
 import { reconciliationPatternsSchema } from '../db/schema/reconciliationPatterns.schema'
 import { reconciliationStreaksSchema } from '../db/schema/reconciliationStreaks.schema'
+import type { RetentionPolicy, DeletionLog } from '../types/retention.types'
+import { retentionPoliciesSchema, deletionLogsSchema } from '../db/schema/retention.schema'
 
 /**
  * GracefulBooksDB - Main database class extending Dexie
@@ -70,6 +72,8 @@ export class GracefulBooksDB extends Dexie {
   emailNotificationPreferences!: Table<any, string>
   companyUsers!: Table<any, string>
   sessions!: Table<any, string>
+  retention_policies!: Table<RetentionPolicy, string>
+  deletion_logs!: Table<DeletionLog, string>
 
   constructor() {
     super('GracefulBooksDB')
@@ -407,6 +411,17 @@ export class GracefulBooksDB extends Dexie {
         updated_at,
         deleted_at
       `,
+    })
+
+    // Version 5: Add retention policies and deletion logs tables
+    this.version(5).stores({
+      // Retention Policies table (configurable data retention)
+      // Indexes for querying by company, entity type, and active status
+      retention_policies: retentionPoliciesSchema,
+
+      // Deletion Logs table (audit trail for secure deletions)
+      // Indexes for querying by company, entity type, entity, and deletion time
+      deletion_logs: deletionLogsSchema,
     })
   }
 

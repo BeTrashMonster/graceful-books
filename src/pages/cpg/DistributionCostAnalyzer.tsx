@@ -69,16 +69,12 @@ export default function DistributionCostAnalyzer() {
   const [savingScenario, setSavingScenario] = useState(false);
 
   // Auth context
-  const { companyId: authCompanyId, deviceId: authDeviceId, currentCompany, isLoading: authLoading } = useAuth();
+  const { companyId, deviceId, currentCompany, isLoading: authLoading } = useAuth();
 
   // Service
   const [calculatorService] = useState(
     () => new DistributionCostCalculatorService(db)
   );
-
-  // Use auth values (fallback to defaults for development if not authenticated)
-  const companyId = authCompanyId || 'company-1';
-  const deviceId = authDeviceId || 'device-1';
 
   // Load distributors
   useEffect(() => {

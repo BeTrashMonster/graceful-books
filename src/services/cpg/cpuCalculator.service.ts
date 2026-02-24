@@ -33,6 +33,11 @@ import {
   normalizeVariant,
 } from '../../db/schema/cpg.schema';
 import { logger } from '../../utils/logger';
+import {
+  validateCPGInvoiceInput,
+  detectSuspiciousCalculation,
+  formatValidationError,
+} from '../../utils/validation';
 
 // Configure Decimal.js for currency precision (2 decimal places for currency)
 Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_UP });
@@ -237,7 +242,18 @@ export class CPUCalculatorService {
     try {
       serviceLogger.info('Creating CPG invoice', { company_id: params.company_id });
 
-      // Validate required fields
+      // S6-4: Validate parameters with Zod schema
+      const validation = validateCPGInvoiceInput(params);
+      if (!validation.success) {
+        const errorMessage = formatValidationError(validation.error);
+        serviceLogger.error('CPG invoice validation failed', {
+          errors: errorMessage,
+          params,
+        });
+        throw new Error(`Validation failed: ${errorMessage}`);
+      }
+
+      // Legacy validation for backwards compatibility
       if (!params.company_id) {
         throw new Error('company_id is required');
       }
@@ -268,6 +284,34 @@ export class CPUCalculatorService {
         normalizedAttribution,
         params.additional_costs || null
       );
+
+      // S6-4: Check for suspicious calculation patterns
+      for (const [key, attr] of Object.entries(normalizedAttribution)) {
+        const unitPrice = parseFloat(attr.unit_price);
+        const quantity = parseFloat(attr.units_purchased);
+        const suspicious = detectSuspiciousCalculation({
+          type: 'invoice',
+          values: {
+            totalPaid: parseFloat(totalPaid),
+            unitPrice,
+            quantity,
+          },
+        });
+
+        if (suspicious.suspicious) {
+          serviceLogger.warn('Suspicious invoice calculation detected', {
+            company_id: params.company_id,
+            invoice_number: params.invoice_number,
+            lineItem: key,
+            reasons: suspicious.reasons,
+            params: {
+              unitPrice: attr.unit_price,
+              quantity: attr.units_purchased,
+              totalPaid,
+            },
+          });
+        }
+      }
 
       // Create invoice entity
       const invoiceId = nanoid();

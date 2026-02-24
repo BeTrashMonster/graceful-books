@@ -174,23 +174,73 @@ rate_limiting:
     warning: 10          # Low alert
     critical: 50         # Medium alert
 
-# Security
+# Security Events (S5-2: Security Event Logging, S5-8: Production Monitoring)
 security:
-  # Failed authentication attempts
-  auth_failures:
+  # Failed login attempts
+  failed_logins:
     per_minute:
-      warning: 10        # Medium alert
-      critical: 50       # High alert (brute force?)
+      warning: 10        # Medium alert (possible brute force)
+      critical: 50       # Critical alert (active brute force attack)
 
     per_ip_per_hour:
       warning: 5         # Low alert
-      critical: 20       # Medium alert
+      critical: 10       # High alert (targeted brute force)
 
-  # WAF blocks
+    consecutive_per_ip:
+      warning: 5         # Low alert
+      critical: 10       # High alert (persistent attempts)
+
+  # Authorization failures (IDOR attempts)
+  authorization_failures:
+    per_minute:
+      warning: 20        # Medium alert (possible enumeration)
+      critical: 100      # Critical alert (active IDOR attack)
+
+    per_user_per_hour:
+      warning: 10        # Low alert
+      critical: 50       # High alert (user attempting enumeration)
+
+  # Rate limiting violations
+  rate_limit_violations:
+    per_minute:
+      warning: 10        # Medium alert (aggressive client)
+      critical: 50       # Critical alert (possible DoS/scraping)
+
+    unique_ips_per_minute:
+      warning: 5         # Low alert
+      critical: 20       # High alert (distributed attack)
+
+  # Suspicious activity
+  suspicious_activity:
+    score_threshold:
+      warning: 50        # Medium alert (moderate suspicion)
+      critical: 80       # Critical alert (high suspicion)
+
+    events_per_hour:
+      warning: 5         # Low alert
+      critical: 20       # High alert (pattern of suspicious behavior)
+
+  # Account lockouts
+  account_lockouts:
+    per_hour:
+      warning: 5         # Medium alert (multiple accounts locked)
+      critical: 20       # Critical alert (mass lockout/attack)
+
+  # Session anomalies
+  session_anomalies:
+    concurrent_sessions_per_user:
+      warning: 5         # Low alert (possible session sharing)
+      critical: 10       # High alert (compromised account?)
+
+    session_hijack_attempts:
+      warning: 1         # High alert (any attempt is serious)
+      critical: 5        # Critical alert (active session hijacking)
+
+  # WAF blocks (if using Cloudflare WAF)
   waf_blocks:
     per_minute:
       warning: 10        # Low alert
-      critical: 100      # Medium alert (attack?)
+      critical: 100      # Medium alert (coordinated attack?)
 
 # Cache Performance
 cache:

@@ -23,6 +23,14 @@ Before considering your task complete, run through each section below. Check off
 - [ ] **Session validation** - Protected operations check for valid session before executing
 - [ ] **Rate limiting preserved** - Any new endpoints or login attempts should be rate-limited
 
+### Authorization & Access Control (IDOR Prevention)
+- [ ] **All data access requires companyId** - Functions like `getAccount()`, `updateTransaction()` must accept `companyId` parameter
+- [ ] **Use authorization helpers** - Call `requireCompanyOwnership()` for single entity checks, `requireBatchCompanyOwnership()` for arrays
+- [ ] **Validate companyId parameter** - Call `validateCompanyId(companyId)` before database queries
+- [ ] **Batch queries secure** - Functions like `queryAccounts()` require `companyId` as first parameter (not optional in filter)
+- [ ] **Return NOT_FOUND for unauthorized** - Never reveal whether a resource exists if user doesn't own it
+- [ ] **No direct database access** - Always filter by companyId before fetching entities
+
 ### Input Validation
 - [ ] **User input sanitized** - All user input validated before use
 - [ ] **SQL/NoSQL injection prevented** - Using parameterized queries or ORM methods (Dexie handles this)
@@ -42,6 +50,7 @@ Before considering your task complete, run through each section below. Check off
   - Logging: Use `logger` from `src/utils/logger.ts`
   - Errors: Use `ErrorCode`, `AppError` from `src/utils/errors.ts`
   - Encryption: Use `IEncryptionService` from `src/crypto/service.ts`
+  - Authorization: Use `requireCompanyOwnership()`, `requireBatchCompanyOwnership()`, `validateCompanyId()` from `src/utils/authorization.ts`
   - Audit logging: Use functions from `src/services/audit.ts`
 
 - [ ] **Follow existing structure** - New files placed in appropriate directories:
@@ -73,6 +82,7 @@ Before considering your task complete, run through each section below. Check off
 ### TypeScript Best Practices
 - [ ] **No `any` types** - Use specific types or `unknown` with type guards
 - [ ] **Proper generics** - Use generics for reusable functions (`DatabaseResult<T>`)
+- [ ] **Authorization result types** - Use `AuthorizationResult<T>` pattern for ownership checks
 - [ ] **Nullable handling** - Use optional chaining (`?.`) and nullish coalescing (`??`)
 - [ ] **Type imports** - Use `import type` for type-only imports
 
@@ -80,6 +90,7 @@ Before considering your task complete, run through each section below. Check off
 - [ ] **Specific error codes** - Use descriptive error codes, not just `'UNKNOWN_ERROR'`
   - `'VALIDATION_ERROR'` - Input validation failed
   - `'NOT_FOUND'` - Entity doesn't exist
+  - `'AUTHORIZATION_FAILED'` - User lacks permission to access resource
   - `'CONSTRAINT_VIOLATION'` - Business rule violated
   - `'ENCRYPTION_ERROR'` - Crypto operation failed
   - `'DECRYPTION_FAILED'` - Decryption failed (wrong key?)
@@ -226,6 +237,8 @@ message: "Nothing here yet. When you add your first transaction, it'll show up r
 ### Required Tests
 - [ ] **Unit tests for utilities** - Pure functions tested with edge cases
 - [ ] **Component tests** - Interactive components tested with React Testing Library
+- [ ] **IDOR prevention tests** - Data access functions tested with different companyIds to verify isolation
+- [ ] **Authorization tests** - Verify unauthorized access returns NOT_FOUND, not actual errors
 - [ ] **Accessibility tests** - Consider using `jest-axe` for automated checks
 
 ### Test File Location
@@ -269,6 +282,9 @@ npm run test:coverage # Coverage report
 | Custom device ID | Use `getDeviceId()` from `src/utils/device.ts` |
 | Custom base64 | Use functions from `src/utils/encoding.ts` |
 | Missing audit log | Use `logCreate()`/`logUpdate()` from `src/services/audit.ts` |
+| Missing companyId parameter | Add to function signature, validate with `validateCompanyId()` |
+| Direct database query | Use authorization helpers before returning data |
+| Exposing unauthorized data | Return NOT_FOUND instead of detailed error |
 
 ---
 

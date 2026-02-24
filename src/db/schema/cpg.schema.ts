@@ -195,6 +195,7 @@ export interface CPGDistributor extends BaseEntity {
     description: string; // e.g., "Pallet Cost", "Warehouse Services", "Custom handling fee"
     amount: string; // e.g., "45.00"
     unit: 'per_pallet' | 'per_case' | 'per_day_full' | 'per_day_half' | 'per_shipment' | 'per_zone' | 'flat_fee' | 'percentage';
+    percentage_basis?: 'product_value' | 'distribution_cost' | 'discount'; // For percentage fees only
   }>;
 
   // Fee update tracking
@@ -254,10 +255,23 @@ export interface CPGDistributionCalculation extends BaseEntity {
 
   // Input parameters
   num_pallets: string; // e.g., "1.00"
-  units_per_pallet: string; // e.g., "100"
+  units_per_pallet: string; // e.g., "100" - DEPRECATED: Use pallet_data instead
+
+  // Actual pallet structure - stores exact configuration of each pallet
+  pallet_data: Array<{
+    pallet_number: number; // 1, 2, 3, etc.
+    units_per_pallet: number; // Each pallet can have different unit counts
+    products: Array<{
+      product_name: string;
+      quantity: number;
+      price_per_unit: string;
+      base_cpu: string;
+    }>;
+  }>;
 
   // Pricing and costs per variant (flexible to support any number of variants)
   // Example: { "8oz": { price: "3.38", baseCPU: "2.15" }, "16oz": { price: "5.50", baseCPU: "3.20" } }
+  // NOTE: This is aggregated data - use pallet_data for accurate per-pallet breakdown
   variant_data: Record<
     string,
     {
@@ -273,6 +287,14 @@ export interface CPGDistributionCalculation extends BaseEntity {
     amount: string;
     unit: 'per_pallet' | 'per_case' | 'per_day_full' | 'per_day_half' | 'per_shipment' | 'per_zone' | 'flat_fee' | 'percentage';
     quantity?: string; // For per_day fees, etc.
+    percentage_basis?: 'product_value' | 'distribution_cost' | 'discount';
+  }>;
+
+  // Calculated fee breakdown with actual totals
+  fee_breakdown: Array<{
+    feeId: string;
+    feeName: string;
+    feeAmount: string; // Calculated total for this fee
   }>;
 
   // Calculated results
@@ -292,7 +314,32 @@ export interface CPGDistributionCalculation extends BaseEntity {
   >;
   msrp_markup_percentage: string | null; // e.g., "50" for 50%
 
+  // Per-pallet product breakdown (for reporting)
+  // Example: [{ pallet_number: 1, products: { "Small": 33, "Medium": 33, "Large": 34 } }, ...]
+  pallet_breakdown?: Array<{
+    pallet_number: number;
+    products: Record<string, number>; // Variant name -> units count
+  }>;
+
   notes: string | null;
+
+  // Draft vs Invoice
+  is_draft: boolean; // true = saved scenario (no accounting impact), false = actual invoice (creates GL entry)
+
+  // Invoice & Payment Information (for accounting integration - only for is_draft=false)
+  invoice_number: string | null; // Distributor's invoice number
+  invoice_total_amount: string | null; // Actual amount on invoice (may differ from calculated)
+  invoice_due_date: number | null; // Payment due date timestamp
+  payment_status: 'unpaid' | 'partially_paid' | 'paid' | null;
+  amount_paid: string | null; // Amount paid so far (for partial payments)
+  payment_date: number | null; // Date payment was made (or first payment if partial)
+  payment_method: string | null; // Check, ACH, Credit Card, etc.
+  payment_account_id: string | null; // GL account ID for payment (Cash, Bank, Credit Card)
+  check_number: string | null; // Check number (if applicable)
+
+  // Link to accounting transaction
+  linked_journal_entry_id: string | null; // Journal entry ID in general ledger
+
   active: boolean;
   created_at: number;
   updated_at: number;
@@ -301,7 +348,7 @@ export interface CPGDistributionCalculation extends BaseEntity {
 }
 
 export const cpgDistributionCalculationsSchema =
-  'id, company_id, distributor_id, [company_id+distributor_id], calculation_date, active, updated_at, deleted_at';
+  'id, company_id, distributor_id, [company_id+distributor_id], [company_id+is_draft], calculation_date, is_draft, active, updated_at, deleted_at';
 
 export const createDefaultCPGDistributionCalculation = (
   companyId: string,
@@ -316,8 +363,10 @@ export const createDefaultCPGDistributionCalculation = (
     calculation_date: now,
     num_pallets: '1.00',
     units_per_pallet: '0',
+    pallet_data: [], // Actual pallet structure
     variant_data: {}, // Will be populated by user
     selected_fees: [], // Empty array - fees selected by user
+    fee_breakdown: [], // Calculated fee breakdown
     total_distribution_cost: '0.00',
     distribution_cost_per_unit: '0.00',
     variant_results: {}, // Calculated results per variant

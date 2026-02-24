@@ -8,7 +8,7 @@
  * - Zone comparison feature
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Input } from '../forms/Input';
 import { Checkbox } from '../forms/Checkbox';
 import { Button } from '../core/Button';
@@ -25,6 +25,8 @@ export interface DistributionCalculatorFormProps {
   distributor: CPGDistributor;
   onCalculate: (params: DistributionCalcParams) => void;
   loading?: boolean;
+  initialValues?: DistributionCalcParams;
+  onFormChange?: () => void; // Callback when any form field changes
 }
 
 // Product within a pallet
@@ -41,6 +43,7 @@ interface Pallet {
   id: string;
   products: PalletProduct[];
   isExpanded: boolean;
+  maxUnits: number;  // Max capacity for this specific pallet
 }
 
 // Available product options
@@ -61,9 +64,10 @@ export function DistributionCalculatorForm({
   distributor,
   onCalculate,
   loading = false,
+  initialValues,
+  onFormChange,
 }: DistributionCalculatorFormProps) {
-  const { companyId: authCompanyId } = useAuth();
-  const companyId = authCompanyId || 'company-1';
+  const { companyId } = useAuth();
 
   // ===== FORM STATE KEY (per distributor) =====
   const formStateKey = `distribution-calc-${distributor.id}`;
@@ -78,6 +82,7 @@ export function DistributionCalculatorForm({
       id: generateId(),
       products: [createEmptyProduct()],
       isExpanded: true,
+      maxUnits: 100,  // Default max capacity
     },
   ]);
 
@@ -112,6 +117,145 @@ export function DistributionCalculatorForm({
 
   // ===== LOAD SAVED FORM STATE WHEN DISTRIBUTOR CHANGES =====
   useEffect(() => {
+    // If initialValues provided, use those (for loading scenarios)
+    if (initialValues) {
+      try {
+        setNumPallets(initialValues.numPallets);
+        setDefaultUnitsPerPallet(initialValues.unitsPerPallet);
+
+        // Load pallet structure
+        const loadedPallets: Pallet[] = [];
+
+        console.log('Loading pallets from initialValues:', {
+          has_pallet_data: !!initialValues.pallet_data,
+          pallet_data_length: initialValues.pallet_data?.length,
+          pallet_data: initialValues.pallet_data
+        });
+
+        // NEW: If pallet_data exists, use it (accurate saved structure)
+        if (initialValues.pallet_data && initialValues.pallet_data.length > 0) {
+          console.log('Using pallet_data to load pallets');
+          initialValues.pallet_data.forEach((pallet, index) => {
+            const palletProducts: PalletProduct[] = pallet.products.map(product => ({
+              id: generateId(),
+              productName: product.product_name,
+              quantity: product.quantity.toString(),
+              pricePerUnit: product.price_per_unit,
+              baseCPU: product.base_cpu,
+            }));
+
+            console.log(`Loaded pallet ${index + 1} with products:`, palletProducts);
+
+            loadedPallets.push({
+              id: generateId(),
+              products: palletProducts.length > 0 ? palletProducts : [createEmptyProduct()],
+              isExpanded: index === 0, // Only expand first pallet
+              maxUnits: pallet.units_per_pallet,  // Use saved max capacity
+            });
+          });
+        } else {
+          console.log('No pallet_data, using fallback logic');
+          // FALLBACK: Old invoices without pallet_data - use guessing logic (backwards compatibility)
+          const variantEntries = Object.entries(initialValues.variantData);
+          const numPalletsInt = parseInt(initialValues.numPallets) || 1;
+          const unitsPerPallet = parseInt(initialValues.unitsPerPallet) || 100;
+
+          // If we have multiple pallets and multiple products, distribute them
+          if (numPalletsInt > 1 && variantEntries.length > 1) {
+            // Distribute products across pallets (one product per pallet, round-robin if needed)
+            for (let i = 0; i < numPalletsInt; i++) {
+              const palletProducts: PalletProduct[] = [];
+
+              // Assign products to this pallet using round-robin distribution
+              variantEntries.forEach(([productName, data], index) => {
+                // Assign this product to pallet (index % numPalletsInt)
+                if (index % numPalletsInt === i) {
+                  palletProducts.push({
+                    id: generateId(),
+                    productName,
+                    quantity: unitsPerPallet.toString(),
+                    pricePerUnit: data.price_per_unit,
+                    baseCPU: data.base_cpu,
+                  });
+                }
+              });
+
+              loadedPallets.push({
+                id: generateId(),
+                products: palletProducts.length > 0 ? palletProducts : [createEmptyProduct()],
+                isExpanded: i === 0, // Only expand first pallet
+                maxUnits: unitsPerPallet,  // Use standard capacity for old data
+              });
+            }
+          } else {
+            // Single pallet or single product - put all products on all pallets
+            for (let i = 0; i < numPalletsInt; i++) {
+              const palletProducts: PalletProduct[] = variantEntries.map(([productName, data]) => ({
+                id: generateId(),
+                productName,
+                quantity: (unitsPerPallet / variantEntries.length).toString(),
+                pricePerUnit: data.price_per_unit,
+                baseCPU: data.base_cpu,
+              }));
+
+              loadedPallets.push({
+                id: generateId(),
+                products: palletProducts.length > 0 ? palletProducts : [createEmptyProduct()],
+                isExpanded: i === 0, // Only expand first pallet
+                maxUnits: unitsPerPallet,  // Use standard capacity for old data
+              });
+            }
+          }
+        }
+
+        setPallets(loadedPallets.length > 0 ? loadedPallets : [{
+          id: generateId(),
+          products: [createEmptyProduct()],
+          isExpanded: true,
+          maxUnits: parseInt(initialValues.unitsPerPallet) || 100,
+        }]);
+
+        // Load fee selections
+        const loadedFeeSelections: Record<string, FeeSelection> = {};
+        initialValues.selectedFees.forEach(fee => {
+          loadedFeeSelections[fee.feeId] = {
+            feeId: fee.feeId,
+            selected: true,
+            quantity: fee.quantity,
+          };
+        });
+
+        // Initialize unselected fees
+        distributor.fee_structure.forEach(fee => {
+          if (!loadedFeeSelections[fee.id]) {
+            loadedFeeSelections[fee.id] = {
+              feeId: fee.id,
+              selected: false,
+              quantity: fee.unit === 'percentage'
+                ? fee.amount
+                : (needsQuantityInput(fee.unit) ? '1' : undefined),
+            };
+          }
+        });
+
+        setFeeSelections(loadedFeeSelections);
+
+        // Load selected zone if any zone fee was selected
+        const zoneFee = initialValues.selectedFees.find(fee =>
+          fee.unit === 'per_zone' || fee.description.toLowerCase().includes('zone')
+        );
+        if (zoneFee) {
+          setSelectedZone(zoneFee.feeId);
+        } else {
+          setSelectedZone('');
+        }
+      } catch (error) {
+        console.error('Error loading initialValues:', error);
+      }
+      return;
+    }
+
+    // Otherwise, load from localStorage
     try {
       const saved = localStorage.getItem(formStateKey);
       if (saved) {
@@ -124,6 +268,7 @@ export function DistributionCalculatorForm({
             id: generateId(),
             products: [createEmptyProduct()],
             isExpanded: true,
+            maxUnits: 100,
           },
         ]);
         setSelectedZone(savedState.selectedZone || '');
@@ -136,6 +281,7 @@ export function DistributionCalculatorForm({
             id: generateId(),
             products: [createEmptyProduct()],
             isExpanded: true,
+            maxUnits: 100,
           },
         ]);
         setSelectedZone('');
@@ -154,7 +300,7 @@ export function DistributionCalculatorForm({
       ]);
       setSelectedZone('');
     }
-  }, [distributor.id, formStateKey]);
+  }, [distributor.id, formStateKey, initialValues]);
 
   // ===== UPDATE NUMBER OF PALLETS =====
   useEffect(() => {
@@ -169,6 +315,7 @@ export function DistributionCalculatorForm({
           id: generateId(),
           products: [createEmptyProduct()],
           isExpanded: true, // Auto-expand new pallets
+          maxUnits: parseInt(defaultUnitsPerPallet) || 100,  // Use standard capacity for new pallets
         });
       }
       setPallets(newPallets);
@@ -180,6 +327,11 @@ export function DistributionCalculatorForm({
 
   // ===== INITIALIZE FEE SELECTIONS =====
   useEffect(() => {
+    // Skip if initialValues provided (they will be loaded separately)
+    if (initialValues) {
+      return;
+    }
+
     const initialSelections: Record<string, FeeSelection> = {};
     distributor.fee_structure.forEach(fee => {
       initialSelections[fee.id] = {
@@ -192,7 +344,7 @@ export function DistributionCalculatorForm({
       };
     });
     setFeeSelections(initialSelections);
-  }, [distributor]);
+  }, [distributor, initialValues]);
 
   // ===== SAVE FORM STATE TO LOCALSTORAGE =====
   useEffect(() => {
@@ -208,6 +360,36 @@ export function DistributionCalculatorForm({
       console.error('Error saving form state:', error);
     }
   }, [numPallets, defaultUnitsPerPallet, pallets, selectedZone, formStateKey]);
+
+  // ===== NOTIFY PARENT OF FORM CHANGES =====
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const previousInitialValuesRef = useRef<typeof initialValues>(undefined);
+  const onFormChangeRef = useRef(onFormChange);
+
+  // Update ref when callback changes
+  useEffect(() => {
+    onFormChangeRef.current = onFormChange;
+  }, [onFormChange]);
+
+  useEffect(() => {
+    // Skip the first render (initial load)
+    if (isInitialLoad) {
+      setIsInitialLoad(false);
+      previousInitialValuesRef.current = initialValues;
+      return;
+    }
+
+    // Skip if initialValues just changed (loading a scenario)
+    if (initialValues !== previousInitialValuesRef.current) {
+      previousInitialValuesRef.current = initialValues;
+      return;
+    }
+
+    // Notify parent that form has changed
+    if (onFormChangeRef.current) {
+      onFormChangeRef.current();
+    }
+  }, [numPallets, pallets, feeSelections, selectedZone, isInitialLoad, initialValues]);
 
   // ===== LOAD AVAILABLE PRODUCTS =====
   useEffect(() => {
@@ -512,7 +694,28 @@ export function DistributionCalculatorForm({
       return;
     }
 
-    // Build variant data from all pallets
+    // Build pallet data with exact structure
+    const palletData = pallets.map((pallet, index) => {
+      const palletProducts = pallet.products.map(product => ({
+        product_name: product.productName,
+        quantity: parseInt(product.quantity) || 0,
+        price_per_unit: product.pricePerUnit,
+        base_cpu: product.baseCPU,
+      }));
+
+      // Calculate total units for this pallet
+      const unitsInPallet = palletProducts.reduce((sum, p) => sum + p.quantity, 0);
+
+      return {
+        pallet_number: index + 1,
+        units_per_pallet: unitsInPallet,
+        products: palletProducts,
+      };
+    });
+
+    console.log('Built pallet data:', palletData);
+
+    // Build variant data from all pallets (aggregated)
     const variantData: Record<string, { price_per_unit: string; base_cpu: string; quantity: number }> = {};
 
     pallets.forEach(pallet => {
@@ -533,22 +736,34 @@ export function DistributionCalculatorForm({
       });
     });
 
-    // Build selected fees
+    // Build selected fees from checkboxes
+    // IMPORTANT: Exclude zone fees from checkboxes - they come from the Zone Selection radio buttons
     const selectedFees = Object.entries(feeSelections)
       .filter(([_, selection]) => selection.selected)
       .map(([feeId, selection]) => {
         const fee = distributor.fee_structure.find(f => f.id === feeId);
+        if (!fee) {
+          console.warn(`Fee with ID ${feeId} not found in distributor fee structure`);
+          return null;
+        }
+
+        // Skip zone fees - they're handled separately via selectedZone
+        if (fee.unit === 'per_zone' || fee.description.toLowerCase().includes('zone')) {
+          return null;
+        }
+
         return {
           feeId,
-          description: fee!.description,
-          amount: fee!.amount,
-          unit: fee!.unit,
+          description: fee.description,
+          amount: fee.amount,
+          unit: fee.unit,
           quantity: selection.quantity,
-          percentage_basis: fee!.percentage_basis,
+          percentage_basis: fee.percentage_basis,
         };
-      });
+      })
+      .filter((fee): fee is NonNullable<typeof fee> => fee !== null);
 
-    // Add selected zone fee (all pallets go to the selected zone)
+    // Add selected zone fee from radio buttons (all pallets go to the selected zone)
     if (selectedZone) {
       const zoneFee = distributor.fee_structure.find(f => f.id === selectedZone);
       if (zoneFee) {
@@ -567,10 +782,11 @@ export function DistributionCalculatorForm({
       distributorId: distributor.id,
       numPallets,
       unitsPerPallet: defaultUnitsPerPallet,
+      pallet_data: palletData, // Actual pallet structure
       variantData: Object.fromEntries(
         Object.entries(variantData).map(([key, val]) => [
           key,
-          { price_per_unit: val.price_per_unit, base_cpu: val.base_cpu },
+          { price_per_unit: val.price_per_unit, base_cpu: val.base_cpu, quantity: val.quantity },
         ])
       ),
       selectedFees,
@@ -623,7 +839,7 @@ export function DistributionCalculatorForm({
       {/* ===== PALLET BUILDER ===== */}
       {pallets.map((pallet, index) => {
         const totalUnits = getTotalUnitsInPallet(pallet);
-        const maxUnits = parseInt(defaultUnitsPerPallet) || 0;
+        const maxUnits = pallet.maxUnits || 100;  // Use pallet's own max capacity
         const isOverCapacity = totalUnits > maxUnits;
 
         return (
@@ -654,6 +870,21 @@ export function DistributionCalculatorForm({
 
             {pallet.isExpanded && (
               <CardBody>
+                <div className={styles.palletCapacityRow}>
+                  <label className={styles.variantLabel}>Max Units for this Pallet:</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={pallet.maxUnits}
+                    onChange={(e) => {
+                      const newMaxUnits = parseInt(e.target.value) || 100;
+                      updatePallet(pallet.id, { maxUnits: newMaxUnits });
+                    }}
+                    className={styles.variantInput}
+                    style={{ width: '120px', marginBottom: '1rem' }}
+                  />
+                </div>
+
                 {pallet.products.map((product, pIdx) => (
                   <div key={product.id} className={styles.variantRow}>
                     <div className={styles.variantNumber}>{pIdx + 1}</div>
