@@ -22,26 +22,37 @@ import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
 import { HelpTooltip } from '../help/HelpTooltip';
 import { CPUBreakdownModal } from './modals/CPUBreakdownModal';
+import { ProductBreakdownModal } from './modals/ProductBreakdownModal';
 import { InvoiceDetailsModal } from './modals/InvoiceDetailsModal';
 import { AddInvoiceModal } from './modals/AddInvoiceModal';
 import styles from './CPUDisplay.module.css';
 
 export interface CPUDisplayProps {
   isLoading?: boolean;
+  searchFilter?: string;
+  statusFilter?: 'all' | 'complete' | 'incomplete';
+  sortBy?: 'name' | 'cpu-asc' | 'cpu-desc' | 'missing';
 }
 
-interface ExpandedState {
-  [productId: string]: boolean;
-}
-
-export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
+export function CPUDisplay({
+  isLoading = false,
+  searchFilter = '',
+  statusFilter = 'all',
+  sortBy = 'name'
+}: CPUDisplayProps) {
   const { companyId } = useAuth();
 
   const [products, setProducts] = useState<FinishedProductCPUBreakdown[]>([]);
-  const [expanded, setExpanded] = useState<ExpandedState>({});
   const [loading, setLoading] = useState(true);
+
+  // Component breakdown modal (for individual raw materials)
   const [showBreakdownModal, setShowBreakdownModal] = useState(false);
   const [selectedComponent, setSelectedComponent] = useState<{ categoryId: string; variant: string | null } | null>(null);
+
+  // Product breakdown modal (for entire product)
+  const [showProductBreakdown, setShowProductBreakdown] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<FinishedProductCPUBreakdown | null>(null);
+
   const [showInvoiceDetails, setShowInvoiceDetails] = useState(false);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
@@ -95,11 +106,9 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
     }
   };
 
-  const toggleExpanded = (index: number) => {
-    setExpanded(prev => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
+  const handleShowProductBreakdown = (product: FinishedProductCPUBreakdown) => {
+    setSelectedProduct(product);
+    setShowProductBreakdown(true);
   };
 
   const handleComponentClick = (categoryId: string, variant: string | null) => {
@@ -155,11 +164,59 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
     );
   }
 
+  // Apply filters and sorting
+  let filteredProducts = products.filter((product) => {
+    // Search filter
+    if (searchFilter) {
+      const searchLower = searchFilter.toLowerCase();
+      const matchesName = product.productName.toLowerCase().includes(searchLower);
+      const matchesSKU = product.sku?.toLowerCase().includes(searchLower);
+      if (!matchesName && !matchesSKU) return false;
+    }
+
+    // Status filter
+    if (statusFilter === 'complete' && !product.isComplete) return false;
+    if (statusFilter === 'incomplete' && product.isComplete) return false;
+
+    return true;
+  });
+
+  // Apply sorting
+  filteredProducts = [...filteredProducts].sort((a, b) => {
+    switch (sortBy) {
+      case 'name':
+        return a.productName.localeCompare(b.productName);
+      case 'cpu-asc': {
+        const aCPU = a.cpu ? parseFloat(a.cpu) : Infinity;
+        const bCPU = b.cpu ? parseFloat(b.cpu) : Infinity;
+        return aCPU - bCPU;
+      }
+      case 'cpu-desc': {
+        const aCPU = a.cpu ? parseFloat(a.cpu) : -Infinity;
+        const bCPU = b.cpu ? parseFloat(b.cpu) : -Infinity;
+        return bCPU - aCPU;
+      }
+      case 'missing':
+        return b.missingComponents.length - a.missingComponents.length;
+      default:
+        return 0;
+    }
+  });
+
   return (
     <div className={styles.container}>
-      <div className={styles.grid}>
-        {products.map((product, index) => {
-          const isExpanded = expanded[index] || false;
+      {filteredProducts.length === 0 ? (
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon} aria-hidden="true">
+            🔍
+          </div>
+          <p className={styles.emptyText}>
+            No products match your filters. Try adjusting your search or filters.
+          </p>
+        </div>
+      ) : (
+        <div className={styles.grid}>
+          {filteredProducts.map((product, index) => {
           const hasRecipe = product.breakdown.length > 0;
           const statusColor = product.isComplete ? '#10b981' : '#f59e0b'; // green : amber
 
@@ -224,105 +281,25 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
               </div>
 
               {hasRecipe && (
-                <>
-                  <button
-                    className={styles.breakdownToggle}
-                    onClick={() => toggleExpanded(index)}
-                    aria-expanded={isExpanded}
-                    aria-controls={`breakdown-${index}`}
-                  >
-                    <span>{isExpanded ? 'Hide' : 'Show'} Breakdown</span>
-                    <span className={styles.toggleIcon} aria-hidden="true">
-                      {isExpanded ? '▲' : '▼'}
-                    </span>
-                  </button>
-
-                  {isExpanded && (
-                    <div
-                      id={`breakdown-${index}`}
-                      className={styles.breakdown}
-                      role="region"
-                      aria-label="Cost breakdown"
-                    >
-                      <div className={styles.breakdownHeader}>
-                        <span className={styles.breakdownTitle}>Component Costs:</span>
-                      </div>
-                      <ul className={styles.breakdownList}>
-                        {product.breakdown.map((component, idx) => (
-                          <li
-                            key={idx}
-                            className={`${styles.breakdownItem} ${component.hasCostData ? styles.clickable : ''}`}
-                            onClick={() => component.hasCostData && component.categoryId && handleComponentClick(component.categoryId, component.variant || null)}
-                            role={component.hasCostData ? 'button' : undefined}
-                            tabIndex={component.hasCostData ? 0 : undefined}
-                            onKeyDown={(e) => {
-                              if (component.hasCostData && component.categoryId && (e.key === 'Enter' || e.key === ' ')) {
-                                e.preventDefault();
-                                handleComponentClick(component.categoryId, component.variant || null);
-                              }
-                            }}
-                            style={{ cursor: component.hasCostData ? 'pointer' : 'default' }}
-                            title={component.hasCostData ? 'Click to see detailed cost breakdown' : undefined}
-                          >
-                            <div className={styles.componentInfo}>
-                              <span className={styles.componentName}>
-                                {component.categoryName}
-                                {component.variant && ` (${component.variant})`}
-                                {component.hasCostData && (
-                                  <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: '#4a90e2' }}>
-                                    🔍
-                                  </span>
-                                )}
-                              </span>
-                              <span className={styles.componentQty}>
-                                {component.quantity} {component.unitOfMeasure}
-                              </span>
-                            </div>
-                            <div className={styles.componentCost}>
-                              {component.hasCostData && component.subtotal ? (
-                                <span className={styles.costValue}>${component.subtotal}</span>
-                              ) : (
-                                <span className={styles.awaitingData} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                  <span className={styles.warningIcon} aria-hidden="true">⚠️</span>
-                                  <span>Add invoices to calculate</span>
-                                  <HelpTooltip
-                                    content={`Once you enter invoices for ${component.categoryName}${component.variant ? ` (${component.variant})` : ''}, we'll automatically calculate the cost per unit. Go to the Invoice Timeline to add your invoices.`}
-                                    position="left"
-                                  />
-                                </span>
-                              )}
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-
-                      {!product.isComplete && product.missingComponents.length > 0 && (
-                        <div className={styles.missingData}>
-                          <p className={styles.missingDataTitle}>
-                            <span className={styles.warningIcon} aria-hidden="true">⚠️</span>
-                            Missing cost data for:
-                          </p>
-                          <ul className={styles.missingList}>
-                            {product.missingComponents.map((component, idx) => (
-                              <li key={idx} className={styles.missingItem}>{component}</li>
-                            ))}
-                          </ul>
-                          <p className={styles.missingHelp}>
-                            Enter an invoice for these raw materials to complete CPU calculation.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </>
+                <button
+                  className={styles.breakdownToggle}
+                  onClick={() => handleShowProductBreakdown(product)}
+                  aria-label={`View cost breakdown for ${product.productName}`}
+                >
+                  <span>Show Breakdown</span>
+                  <span className={styles.toggleIcon} aria-hidden="true">
+                    →
+                  </span>
+                </button>
               )}
             </article>
           );
         })}
-      </div>
+        </div>
+      )}
 
       {/* Summary Section */}
-      {products.length > 0 && (
+      {filteredProducts.length > 0 && (
         <div className={styles.summary}>
           <div className={styles.summaryContent}>
             <span className={styles.summaryIcon} aria-hidden="true">
@@ -373,6 +350,24 @@ export function CPUDisplay({ isLoading = false }: CPUDisplayProps) {
           }}
           onSuccess={handleInvoiceSaved}
           invoiceId={editingInvoiceId || undefined}
+        />
+      )}
+
+      {/* Product Breakdown Modal */}
+      {showProductBreakdown && selectedProduct && (
+        <ProductBreakdownModal
+          isOpen={showProductBreakdown}
+          onClose={() => {
+            setShowProductBreakdown(false);
+            setSelectedProduct(null);
+          }}
+          productName={selectedProduct.name}
+          totalCPU={selectedProduct.totalCPU}
+          isComplete={selectedProduct.isComplete}
+          breakdown={selectedProduct.breakdown}
+          missingComponents={selectedProduct.missingComponents}
+          msrp={selectedProduct.msrp}
+          onComponentClick={handleComponentClick}
         />
       )}
     </div>

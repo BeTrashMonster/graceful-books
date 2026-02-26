@@ -33,8 +33,13 @@ import type { CPGCategory, CPGInvoice } from '../../db/schema/cpg.schema';
 import type { CPUHistoryEntry } from '../../services/cpg/cpuCalculator.service';
 import styles from './CPUTracker.module.css';
 
+type CPUTrackerTab = 'products' | 'raw-materials' | 'comparison';
+
 export default function CPUTracker() {
   const { companyId } = useAuth();
+
+  // Tab State
+  const [activeTab, setActiveTab] = useState<CPUTrackerTab>('products');
 
   // State
   const [categories, setCategories] = useState<CPGCategory[]>([]);
@@ -53,6 +58,23 @@ export default function CPUTracker() {
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | undefined>(undefined);
   const [showArchived, setShowArchived] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
+
+  // Product filters for Tab 1
+  const [productSearchFilter, setProductSearchFilter] = useState<string>('');
+  const [productStatusFilter, setProductStatusFilter] = useState<'all' | 'complete' | 'incomplete'>('all');
+  const [productSortBy, setProductSortBy] = useState<'name' | 'cpu-asc' | 'cpu-desc' | 'missing'>('name');
+
+  // Raw materials filters for Tab 2
+  const [rawMaterialsDateRange, setRawMaterialsDateRange] = useState<{ start: string; end: string }>({
+    start: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 90 days ago
+    end: new Date().toISOString().split('T')[0], // today
+  });
+  const [rawMaterialsCategoryFilter, setRawMaterialsCategoryFilter] = useState<string | undefined>(undefined);
+  const [rawMaterialsVariantFilter, setRawMaterialsVariantFilter] = useState<string>('');
+  const [rawMaterialsVendorFilter, setRawMaterialsVendorFilter] = useState<string>('');
+
+  // Product comparison for Tab 3
+  const [selectedProductsForComparison, setSelectedProductsForComparison] = useState<Set<string>>(new Set());
 
   // Load data
   useEffect(() => {
@@ -307,71 +329,475 @@ export default function CPUTracker() {
         {/* Main Content - Show if categories exist */}
         {categories.length > 0 && (
           <>
-            {/* Current CPU Display */}
-            <section className={styles.section} aria-labelledby="current-cpu-heading">
-              <h2 id="current-cpu-heading" className={styles.sectionTitle}>
+            {/* Tab Navigation */}
+            <div className={styles.tabs} role="tablist">
+              <button
+                role="tab"
+                aria-selected={activeTab === 'products'}
+                aria-controls="products-panel"
+                onClick={() => setActiveTab('products')}
+                className={activeTab === 'products' ? styles.tabActive : styles.tab}
+              >
                 Product Manufacturing Costs
-              </h2>
-              <CPUDisplay
-                isLoading={isLoading}
-              />
-            </section>
+              </button>
+              <button
+                role="tab"
+                aria-selected={activeTab === 'raw-materials'}
+                aria-controls="raw-materials-panel"
+                onClick={() => setActiveTab('raw-materials')}
+                className={activeTab === 'raw-materials' ? styles.tabActive : styles.tab}
+              >
+                Raw Material Costs
+              </button>
+              <button
+                role="tab"
+                aria-selected={activeTab === 'comparison'}
+                aria-controls="comparison-panel"
+                onClick={() => setActiveTab('comparison')}
+                className={activeTab === 'comparison' ? styles.tabActive : styles.tab}
+              >
+                Product Comparison
+              </button>
+            </div>
 
-            {/* Historical Timeline */}
-            <section className={styles.section} aria-labelledby="history-heading">
-              <div className={styles.sectionHeader}>
-                <h2 id="history-heading" className={styles.sectionTitle}>
-                  Cost History
-                </h2>
+            {/* Tab 1: Product Manufacturing Costs */}
+            {activeTab === 'products' && (
+              <div id="products-panel" role="tabpanel" aria-labelledby="products-tab">
+                {/* Current CPU Display */}
+                <section className={styles.section} aria-labelledby="current-cpu-heading">
+                  <div className={styles.sectionHeader}>
+                    <h2 id="current-cpu-heading" className={styles.sectionTitle}>
+                      Product Manufacturing Costs
+                    </h2>
 
-                {/* Category Filter */}
-                {categories.length > 1 && (
-                  <div className={styles.filterGroup}>
-                    <label htmlFor="category-filter" className={styles.filterLabel}>
-                      Filter by category:
-                    </label>
-                    <select
-                      id="category-filter"
-                      value={selectedCategoryFilter || ''}
-                      onChange={(e) => handleCategoryFilterChange(e.target.value || undefined)}
-                      className={styles.filterSelect}
-                    >
-                      <option value="">All Categories</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </option>
-                      ))}
-                    </select>
+                    {/* Product Filters */}
+                    <div className={styles.productFilters}>
+                      {/* Search */}
+                      <input
+                        type="search"
+                        placeholder="Search products..."
+                        value={productSearchFilter}
+                        onChange={(e) => setProductSearchFilter(e.target.value)}
+                        className={styles.searchInput}
+                        aria-label="Search products"
+                      />
+
+                      {/* Status Filter */}
+                      <select
+                        value={productStatusFilter}
+                        onChange={(e) => setProductStatusFilter(e.target.value as 'all' | 'complete' | 'incomplete')}
+                        className={styles.filterSelect}
+                        aria-label="Filter by completion status"
+                      >
+                        <option value="all">All Products</option>
+                        <option value="complete">Complete Only</option>
+                        <option value="incomplete">Incomplete Only</option>
+                      </select>
+
+                      {/* Sort */}
+                      <select
+                        value={productSortBy}
+                        onChange={(e) => setProductSortBy(e.target.value as any)}
+                        className={styles.filterSelect}
+                        aria-label="Sort products"
+                      >
+                        <option value="name">Sort: Name (A-Z)</option>
+                        <option value="cpu-asc">Sort: CPU (Low to High)</option>
+                        <option value="cpu-desc">Sort: CPU (High to Low)</option>
+                        <option value="missing">Sort: Missing Components</option>
+                      </select>
+                    </div>
                   </div>
-                )}
+
+                  <CPUDisplay
+                    isLoading={isLoading}
+                    searchFilter={productSearchFilter}
+                    statusFilter={productStatusFilter}
+                    sortBy={productSortBy}
+                  />
+                </section>
+
+                {/* Historical Timeline */}
+                <section className={styles.section} aria-labelledby="history-heading">
+                  <div className={styles.sectionHeader}>
+                    <h2 id="history-heading" className={styles.sectionTitle}>
+                      Cost History
+                    </h2>
+
+                    {/* Category Filter */}
+                    {categories.length > 1 && (
+                      <div className={styles.filterGroup}>
+                        <label htmlFor="category-filter" className={styles.filterLabel}>
+                          Filter by category:
+                        </label>
+                        <select
+                          id="category-filter"
+                          value={selectedCategoryFilter || ''}
+                          onChange={(e) => handleCategoryFilterChange(e.target.value || undefined)}
+                          className={styles.filterSelect}
+                        >
+                          <option value="">All Categories</option>
+                          {categories.map((cat) => (
+                            <option key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Show Archived Toggle */}
+                  {invoices.some(inv => inv.deleted_at !== null) && (
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={showArchived}
+                          onChange={(e) => setShowArchived(e.target.checked)}
+                        />
+                        <span>Show Archived Invoices</span>
+                      </label>
+                    </div>
+                  )}
+
+                  <CPUTimeline
+                    history={cpuHistory}
+                    categories={categories}
+                    onInvoiceClick={(invoiceId) => {
+                      setSelectedInvoiceId(invoiceId);
+                      setShowInvoiceDetails(true);
+                    }}
+                    onArchiveInvoice={handleArchiveInvoice}
+                    onUnarchiveInvoice={handleUnarchiveInvoice}
+                  />
+                </section>
               </div>
+            )}
 
-              {/* Show Archived Toggle */}
-              {invoices.some(inv => inv.deleted_at !== null) && (
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={showArchived}
-                      onChange={(e) => setShowArchived(e.target.checked)}
-                    />
-                    <span>Show Archived Invoices</span>
-                  </label>
-                </div>
-              )}
+            {/* Tab 2: Raw Material Costs (Invoice History) */}
+            {activeTab === 'raw-materials' && (
+              <div id="raw-materials-panel" role="tabpanel" aria-labelledby="raw-materials-tab">
+                <section className={styles.section}>
+                  <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>Raw Material Invoice History</h2>
 
-              <CPUTimeline
-                history={cpuHistory}
-                categories={categories}
-                onInvoiceClick={(invoiceId) => {
-                  setSelectedInvoiceId(invoiceId);
-                  setShowInvoiceDetails(true);
-                }}
-                onArchiveInvoice={handleArchiveInvoice}
-                onUnarchiveInvoice={handleUnarchiveInvoice}
-              />
-            </section>
+                    {/* Raw Materials Filters */}
+                    <div className={styles.rawMaterialsFilters}>
+                      {/* Date Range */}
+                      <div className={styles.dateRangeFilter}>
+                        <label htmlFor="start-date" className={styles.filterLabel}>From:</label>
+                        <input
+                          type="date"
+                          id="start-date"
+                          value={rawMaterialsDateRange.start}
+                          onChange={(e) => setRawMaterialsDateRange(prev => ({ ...prev, start: e.target.value }))}
+                          className={styles.dateInput}
+                        />
+                        <label htmlFor="end-date" className={styles.filterLabel}>To:</label>
+                        <input
+                          type="date"
+                          id="end-date"
+                          value={rawMaterialsDateRange.end}
+                          onChange={(e) => setRawMaterialsDateRange(prev => ({ ...prev, end: e.target.value }))}
+                          className={styles.dateInput}
+                        />
+                      </div>
+
+                      {/* Category Filter */}
+                      <select
+                        value={rawMaterialsCategoryFilter || ''}
+                        onChange={(e) => setRawMaterialsCategoryFilter(e.target.value || undefined)}
+                        className={styles.filterSelect}
+                        aria-label="Filter by category"
+                      >
+                        <option value="">All Categories</option>
+                        {categories.map((cat) => (
+                          <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                      </select>
+
+                      {/* Variant Filter */}
+                      <input
+                        type="search"
+                        placeholder="Filter by variant..."
+                        value={rawMaterialsVariantFilter}
+                        onChange={(e) => setRawMaterialsVariantFilter(e.target.value)}
+                        className={styles.searchInput}
+                        aria-label="Filter by variant"
+                        style={{ minWidth: '150px' }}
+                      />
+
+                      {/* Vendor Filter */}
+                      <input
+                        type="search"
+                        placeholder="Filter by vendor..."
+                        value={rawMaterialsVendorFilter}
+                        onChange={(e) => setRawMaterialsVendorFilter(e.target.value)}
+                        className={styles.searchInput}
+                        aria-label="Filter by vendor"
+                        style={{ minWidth: '150px' }}
+                      />
+                    </div>
+                  </div>
+
+                  <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>
+                    View all vendor invoices and track raw material costs over time.
+                  </p>
+
+                  {/* Invoice History Table */}
+                  <div className={styles.invoiceTable}>
+                    {invoices.filter(inv => {
+                      // Date filter
+                      const invDate = new Date(inv.invoice_date);
+                      const startDate = new Date(rawMaterialsDateRange.start);
+                      const endDate = new Date(rawMaterialsDateRange.end);
+                      if (invDate < startDate || invDate > endDate) return false;
+
+                      // Vendor filter
+                      if (rawMaterialsVendorFilter && !inv.vendor_name.toLowerCase().includes(rawMaterialsVendorFilter.toLowerCase())) {
+                        return false;
+                      }
+
+                      // Category filter
+                      if (rawMaterialsCategoryFilter && !inv.cost_attribution?.some(attr => attr.category_id === rawMaterialsCategoryFilter)) {
+                        return false;
+                      }
+
+                      // Variant filter
+                      if (rawMaterialsVariantFilter && !inv.cost_attribution?.some(attr =>
+                        attr.variants?.some(v => v.variant_name?.toLowerCase().includes(rawMaterialsVariantFilter.toLowerCase()))
+                      )) {
+                        return false;
+                      }
+
+                      return true;
+                    }).length === 0 ? (
+                      <div className={styles.emptyState}>
+                        <div className={styles.emptyIcon} aria-hidden="true">📄</div>
+                        <p className={styles.emptyText}>
+                          No invoices found matching your filters.
+                        </p>
+                      </div>
+                    ) : (
+                      <table className={styles.table}>
+                        <thead>
+                          <tr>
+                            <th>Date</th>
+                            <th>Vendor</th>
+                            <th>Invoice #</th>
+                            <th>Categories</th>
+                            <th>Total Paid</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {invoices.filter(inv => {
+                            // Date filter
+                            const invDate = new Date(inv.invoice_date);
+                            const startDate = new Date(rawMaterialsDateRange.start);
+                            const endDate = new Date(rawMaterialsDateRange.end);
+                            if (invDate < startDate || invDate > endDate) return false;
+
+                            // Vendor filter
+                            if (rawMaterialsVendorFilter && !inv.vendor_name.toLowerCase().includes(rawMaterialsVendorFilter.toLowerCase())) {
+                              return false;
+                            }
+
+                            // Category filter
+                            if (rawMaterialsCategoryFilter && !inv.cost_attribution?.some(attr => attr.category_id === rawMaterialsCategoryFilter)) {
+                              return false;
+                            }
+
+                            // Variant filter
+                            if (rawMaterialsVariantFilter && !inv.cost_attribution?.some(attr =>
+                              attr.variants?.some(v => v.variant_name?.toLowerCase().includes(rawMaterialsVariantFilter.toLowerCase()))
+                            )) {
+                              return false;
+                            }
+
+                            return true;
+                          }).map((invoice) => (
+                            <tr key={invoice.id}>
+                              <td>{new Date(invoice.invoice_date).toLocaleDateString()}</td>
+                              <td>{invoice.vendor_name}</td>
+                              <td>{invoice.invoice_number || '-'}</td>
+                              <td>
+                                {invoice.cost_attribution?.map(attr => {
+                                  const category = categories.find(c => c.id === attr.category_id);
+                                  return category?.name || 'Unknown';
+                                }).join(', ') || '-'}
+                              </td>
+                              <td>${invoice.total_paid?.toFixed(2) || '0.00'}</td>
+                              <td>
+                                <button
+                                  className={styles.actionButton}
+                                  onClick={() => {
+                                    setSelectedInvoiceId(invoice.id);
+                                    setShowInvoiceDetails(true);
+                                  }}
+                                  aria-label={`View invoice ${invoice.invoice_number}`}
+                                >
+                                  View
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                </section>
+              </div>
+            )}
+
+            {/* Tab 3: Product Comparison */}
+            {activeTab === 'comparison' && (
+              <div id="comparison-panel" role="tabpanel" aria-labelledby="comparison-tab">
+                <section className={styles.section}>
+                  <h2 className={styles.sectionTitle}>Product Comparison</h2>
+                  <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>
+                    Select products to compare manufacturing costs, margins, and pricing side-by-side.
+                  </p>
+
+                  {finishedProducts.length === 0 ? (
+                    <div className={styles.emptyState}>
+                      <div className={styles.emptyIcon} aria-hidden="true">📦</div>
+                      <p className={styles.emptyText}>
+                        No finished products defined yet. Add your first product to start comparing.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Product Selection */}
+                      <div className={styles.comparisonSelection}>
+                        <h3 className={styles.subsectionTitle}>Select Products to Compare</h3>
+                        <div className={styles.productCheckboxes}>
+                          {finishedProducts.map((product) => {
+                            const isSelected = selectedProductsForComparison.has(product.id);
+                            return (
+                              <label key={product.id} className={styles.checkboxLabel}>
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={(e) => {
+                                    const newSet = new Set(selectedProductsForComparison);
+                                    if (e.target.checked) {
+                                      newSet.add(product.id);
+                                    } else {
+                                      newSet.delete(product.id);
+                                    }
+                                    setSelectedProductsForComparison(newSet);
+                                  }}
+                                  className={styles.checkbox}
+                                />
+                                <span>{product.name}</span>
+                                {product.sku && (
+                                  <span className={styles.skuBadge}>{product.sku}</span>
+                                )}
+                              </label>
+                            );
+                          })}
+                        </div>
+                        {selectedProductsForComparison.size > 0 && (
+                          <button
+                            onClick={() => setSelectedProductsForComparison(new Set())}
+                            className={styles.clearButton}
+                          >
+                            Clear Selection ({selectedProductsForComparison.size})
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Comparison Table */}
+                      {selectedProductsForComparison.size === 0 ? (
+                        <div className={styles.selectPrompt}>
+                          <p>Select at least one product above to see the comparison.</p>
+                        </div>
+                      ) : (
+                        <div className={styles.comparisonTable}>
+                          <h3 className={styles.subsectionTitle}>
+                            Comparison Results ({selectedProductsForComparison.size} {selectedProductsForComparison.size === 1 ? 'Product' : 'Products'})
+                          </h3>
+                          <div className={styles.tableContainer}>
+                            <table className={styles.table}>
+                              <thead>
+                                <tr>
+                                  <th>Metric</th>
+                                  {Array.from(selectedProductsForComparison).map((productId) => {
+                                    const product = finishedProducts.find(p => p.id === productId);
+                                    return (
+                                      <th key={productId}>
+                                        <div className={styles.productHeader}>
+                                          <span className={styles.productName}>{product?.name}</span>
+                                          {product?.sku && (
+                                            <span className={styles.skuBadge}>{product.sku}</span>
+                                          )}
+                                        </div>
+                                      </th>
+                                    );
+                                  })}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {/* MSRP Row */}
+                                <tr>
+                                  <td className={styles.metricLabel}>MSRP</td>
+                                  {Array.from(selectedProductsForComparison).map((productId) => {
+                                    const product = finishedProducts.find(p => p.id === productId);
+                                    return (
+                                      <td key={productId}>
+                                        {product?.msrp ? `$${product.msrp.toFixed(2)}` : '-'}
+                                      </td>
+                                    );
+                                  })}
+                                </tr>
+
+                                {/* Status Row */}
+                                <tr>
+                                  <td className={styles.metricLabel}>Cost Data Status</td>
+                                  {Array.from(selectedProductsForComparison).map((productId) => {
+                                    const product = finishedProducts.find(p => p.id === productId);
+                                    const hasRecipe = product?.recipe && product.recipe.length > 0;
+                                    // Check if all components have cost data (simplified check)
+                                    const isComplete = hasRecipe;
+                                    return (
+                                      <td key={productId}>
+                                        <span className={isComplete ? styles.statusComplete : styles.statusIncomplete}>
+                                          {isComplete ? '✓ Complete' : '⚠ Incomplete'}
+                                        </span>
+                                      </td>
+                                    );
+                                  })}
+                                </tr>
+
+                                {/* Recipe Components Count */}
+                                <tr>
+                                  <td className={styles.metricLabel}>Components</td>
+                                  {Array.from(selectedProductsForComparison).map((productId) => {
+                                    const product = finishedProducts.find(p => p.id === productId);
+                                    const componentCount = product?.recipe?.length || 0;
+                                    return (
+                                      <td key={productId}>{componentCount}</td>
+                                    );
+                                  })}
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+
+                          {/* Help Text */}
+                          <div className={styles.comparisonHelp}>
+                            <span style={{ marginRight: '0.5rem' }}>ℹ️</span>
+                            To see detailed CPU calculations and margins, ensure all products have complete recipe definitions and raw material cost data entered through vendor invoices.
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </section>
+              </div>
+            )}
           </>
         )}
 

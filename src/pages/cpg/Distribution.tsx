@@ -19,9 +19,10 @@ import type {
 } from '../../services/cpg/distributionCostCalculator.service';
 import { DistributionCostCalculatorService } from '../../services/cpg/distributionCostCalculator.service';
 import type { DistributorFormData } from '../../components/cpg/DistributorProfileForm';
+import HistoricalAnalytics from './HistoricalAnalytics';
 import styles from './Distribution.module.css';
 
-type ViewMode = 'calculations' | 'scenarios' | 'manage';
+type ViewMode = 'manage' | 'costs' | 'calculations' | 'scenarios';
 
 /**
  * Distribution Page
@@ -42,11 +43,11 @@ type ViewMode = 'calculations' | 'scenarios' | 'manage';
 export default function Distribution() {
   const [searchParams] = useSearchParams();
 
-  // Get initial tab from URL parameter, default to 'calculations'
+  // Get initial tab from URL parameter, default to 'manage'
   const tabParam = searchParams.get('tab') as ViewMode | null;
-  const initialTab = tabParam && ['calculations', 'scenarios', 'manage'].includes(tabParam)
+  const initialTab = tabParam && ['manage', 'costs', 'calculations', 'scenarios'].includes(tabParam)
     ? tabParam
-    : 'calculations';
+    : 'manage';
 
   // Get initial distributor and calculation from URL parameters
   const distributorParam = searchParams.get('distributor');
@@ -975,6 +976,22 @@ export default function Distribution() {
       <div className={styles.tabs} role="tablist">
         <button
           role="tab"
+          aria-selected={viewMode === 'manage'}
+          onClick={() => handleTabSwitch('manage')}
+          className={viewMode === 'manage' ? styles.tabActive : styles.tab}
+        >
+          Manage Distributors
+        </button>
+        <button
+          role="tab"
+          aria-selected={viewMode === 'costs'}
+          onClick={() => handleTabSwitch('costs')}
+          className={viewMode === 'costs' ? styles.tabActive : styles.tab}
+        >
+          Distributor Costs
+        </button>
+        <button
+          role="tab"
           aria-selected={viewMode === 'calculations'}
           onClick={() => handleTabSwitch('calculations')}
           className={viewMode === 'calculations' ? styles.tabActive : styles.tab}
@@ -989,18 +1006,28 @@ export default function Distribution() {
         >
           Saved Scenarios
         </button>
-        <button
-          role="tab"
-          aria-selected={viewMode === 'manage'}
-          onClick={() => handleTabSwitch('manage')}
-          className={viewMode === 'manage' ? styles.tabActive : styles.tab}
-        >
-          Manage Distributors
-        </button>
       </div>
 
       {/* Main Content */}
       <div className={styles.content}>
+        {/* Manage Distributors Tab */}
+        {viewMode === 'manage' && (
+          <div className={styles.manageSection}>
+            <DistributorManager
+              isOpen={true}
+              onClose={() => {}}
+              embedded={true}
+            />
+          </div>
+        )}
+
+        {/* Distributor Costs Tab */}
+        {viewMode === 'costs' && (
+          <div className={styles.costsSection}>
+            <HistoricalAnalytics initialTab="distributor-cost" hideNavigation={true} />
+          </div>
+        )}
+
         {/* Cost Calculations Tab */}
         {viewMode === 'calculations' && (
           <>
@@ -1112,17 +1139,6 @@ export default function Distribution() {
               deviceId={deviceId}
               onLoadScenario={handleLoadScenario}
               onConvertToInvoice={handleConvertToInvoice}
-            />
-          </div>
-        )}
-
-        {/* Manage Distributors Tab */}
-        {viewMode === 'manage' && (
-          <div className={styles.manageSection}>
-            <DistributorManager
-              isOpen={true}
-              onClose={() => {}}
-              embedded={true}
             />
           </div>
         )}

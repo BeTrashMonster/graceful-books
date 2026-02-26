@@ -760,8 +760,8 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
     console.log('deviceId:', deviceId);
     console.log('paymentAmount:', paymentAmount);
 
-    if (!payingInvoiceId || !deviceId) {
-      console.log('❌ Missing payingInvoiceId or deviceId');
+    if (!payingInvoiceId) {
+      console.log('❌ Missing payingInvoiceId');
       return;
     }
 
@@ -805,20 +805,27 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
 
       console.log('New status:', newStatus);
 
-      // Update invoice
-      console.log('🔄 Updating invoice...');
-      await db.cpgDistributionCalculations.update(payingInvoiceId, {
+      // Prepare update object
+      const updateData: any = {
         payment_status: newStatus,
         amount_paid: newTotalPaid.toFixed(2),
         payment_date: Date.now(),
         payment_method: paymentMethod || null,
         check_number: checkNumber || null,
         updated_at: Date.now(),
-        version_vector: {
+      };
+
+      // Only update version_vector if deviceId is available
+      if (deviceId) {
+        updateData.version_vector = {
           ...invoice.version_vector,
           [deviceId]: (invoice.version_vector[deviceId] || 0) + 1,
-        },
-      });
+        };
+      }
+
+      // Update invoice
+      console.log('🔄 Updating invoice...');
+      await db.cpgDistributionCalculations.update(payingInvoiceId, updateData);
 
       console.log('✅ Invoice updated successfully');
 
@@ -1951,88 +1958,91 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                   </div>
                 </div>
 
-                {/* Controls: Date Filter and Export */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <label htmlFor="drawer-date-filter" style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: 500 }}>
-                        Show invoices from:
-                      </label>
-                      <select
-                        id="drawer-date-filter"
-                        value={dateRangeFilter}
-                        onChange={(e) => setDateRangeFilter(e.target.value as typeof dateRangeFilter)}
-                        style={{
-                          padding: '0.5rem 0.75rem',
-                          border: '1px solid #d1d5db',
-                          borderRadius: '6px',
-                          fontSize: '0.875rem',
-                          color: '#374151',
-                          background: 'white',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <optgroup label="Recent Activity">
-                          <option value="today">Today</option>
-                          <option value="yesterday">Yesterday</option>
-                          <option value="7days">Last 7 Days</option>
-                          <option value="30days">Last 30 Days</option>
-                        </optgroup>
-                        <optgroup label="Calendar Periods">
-                          <option value="thisMonth">This Month</option>
-                          <option value="lastMonth">Last Month</option>
-                          <option value="thisQuarter">This Quarter</option>
-                          <option value="lastQuarter">Last Quarter</option>
-                          <option value="thisYear">This Year</option>
-                          <option value="lastYear">Last Year</option>
-                        </optgroup>
-                        <optgroup label="Longer Trends">
-                          <option value="6mo">Last 6 Months</option>
-                          <option value="12mo">Last 12 Months</option>
-                          <option value="24mo">Last 24 Months</option>
-                        </optgroup>
-                        <optgroup label="All Data">
-                          <option value="all">All Time</option>
-                          <option value="custom">Custom Range</option>
-                        </optgroup>
-                      </select>
-                    </div>
-
-                    {/* Custom Date Pickers */}
-                    {dateRangeFilter === 'custom' && (
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginLeft: '0.5rem' }}>
-                        <input
-                          type="date"
-                          value={customStartDate}
-                          onChange={(e) => setCustomStartDate(e.target.value)}
-                          onBlur={(e) => handleDateBlur(e.target.value, setCustomStartDate)}
-                          placeholder="Start date"
-                          style={{
-                            padding: '0.375rem 0.5rem',
-                            border: '1px solid #d1d5db',
-                            borderRadius: '4px',
-                            fontSize: '0.8125rem',
-                          }}
-                        />
-                        <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>to</span>
-                        <input
-                          type="date"
-                          value={customEndDate}
-                          onChange={(e) => setCustomEndDate(e.target.value)}
-                          onBlur={(e) => handleDateBlur(e.target.value, setCustomEndDate)}
-                          placeholder="End date"
-                          style={{
-                            padding: '0.375rem 0.5rem',
-                            border: '1px solid #d1d5db',
-                            borderRadius: '4px',
-                            fontSize: '0.8125rem',
-                          }}
-                        />
-                      </div>
-                    )}
+                {/* Controls: Date Filter */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <label htmlFor="drawer-date-filter" style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: 500 }}>
+                      Show invoices from:
+                    </label>
+                    <select
+                      id="drawer-date-filter"
+                      value={dateRangeFilter}
+                      onChange={(e) => setDateRangeFilter(e.target.value as typeof dateRangeFilter)}
+                      style={{
+                        padding: '0.5rem 0.75rem',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        fontSize: '0.875rem',
+                        color: '#374151',
+                        background: 'white',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <optgroup label="Recent Activity">
+                        <option value="today">Today</option>
+                        <option value="yesterday">Yesterday</option>
+                        <option value="7days">Last 7 Days</option>
+                        <option value="30days">Last 30 Days</option>
+                      </optgroup>
+                      <optgroup label="Calendar Periods">
+                        <option value="thisMonth">This Month</option>
+                        <option value="lastMonth">Last Month</option>
+                        <option value="thisQuarter">This Quarter</option>
+                        <option value="lastQuarter">Last Quarter</option>
+                        <option value="thisYear">This Year</option>
+                        <option value="lastYear">Last Year</option>
+                      </optgroup>
+                      <optgroup label="Longer Trends">
+                        <option value="6mo">Last 6 Months</option>
+                        <option value="12mo">Last 12 Months</option>
+                        <option value="24mo">Last 24 Months</option>
+                      </optgroup>
+                      <optgroup label="All Data">
+                        <option value="all">All Time</option>
+                        <option value="custom">Custom Range</option>
+                      </optgroup>
+                    </select>
                   </div>
 
-                  {/* Export Dropdown */}
+                  {/* Custom Date Pickers */}
+                  {dateRangeFilter === 'custom' && (
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginLeft: '0.5rem' }}>
+                      <input
+                        type="date"
+                        value={customStartDate}
+                        onChange={(e) => setCustomStartDate(e.target.value)}
+                        onBlur={(e) => handleDateBlur(e.target.value, setCustomStartDate)}
+                        placeholder="Start date"
+                        style={{
+                          padding: '0.375rem 0.5rem',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '4px',
+                          fontSize: '0.8125rem',
+                        }}
+                      />
+                      <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>to</span>
+                      <input
+                        type="date"
+                        value={customEndDate}
+                        onChange={(e) => setCustomEndDate(e.target.value)}
+                        onBlur={(e) => handleDateBlur(e.target.value, setCustomEndDate)}
+                        placeholder="End date"
+                        style={{
+                          padding: '0.375rem 0.5rem',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '4px',
+                          fontSize: '0.8125rem',
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Content */}
+              <div style={{ flex: 1, overflow: 'auto', padding: '2rem' }}>
+                {/* Export Button */}
+                <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
                   <div style={{ position: 'relative' }}>
                     <button
                       onClick={() => setShowExportMenu(!showExportMenu)}
@@ -2197,10 +2207,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                     )}
                   </div>
                 </div>
-              </div>
 
-              {/* Content */}
-              <div style={{ flex: 1, overflow: 'auto', padding: '2rem' }}>
                 {invoices.length > 0 ? (
                   <>
                     {invoices.length > 20 && (
