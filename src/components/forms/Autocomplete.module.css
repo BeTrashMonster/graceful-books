@@ -1,0 +1,199 @@
+/**
+ * Autocomplete Component Styles
+ * Matches Input.module.css design system
+ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  width: 100%;
+  position: relative;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.required {
+  color: #dc2626;
+  font-weight: 600;
+  margin-left: 0.25rem;
+}
+
+.inputWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.625rem 0.875rem;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #1f2937;
+  background-color: #ffffff;
+  border: 2px solid #d1d5db;
+  border-radius: 0.375rem;
+  outline: none;
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+}
+
+.input::placeholder {
+  color: #9ca3af;
+  opacity: 1;
+}
+
+.input:focus {
+  border-color: #4a90e2;
+}
+
+.input:disabled {
+  background-color: #f3f4f6;
+  border-color: #e5e7eb;
+  cursor: not-allowed;
+  color: #6b7280;
+}
+
+.inputError {
+  border-color: #dc2626;
+}
+
+.inputError:focus {
+  border-color: #dc2626;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  margin-top: 0.25rem;
+  padding: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  list-style: none;
+}
+
+.option {
+  padding: 0.75rem 0.875rem;
+  cursor: pointer;
+  transition: background-color 100ms ease-out;
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+.option:hover {
+  background-color: #f3f4f6;
+}
+
+.optionHighlighted {
+  background-color: #eff6ff;
+  color: #1e40af;
+}
+
+.optionCreate {
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.createPrompt {
+  font-weight: 500;
+  color: #4a90e2;
+}
+
+.createValue {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.helperText {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #6b7280;
+  margin: 0;
+}
+
+.errorText {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #dc2626;
+  margin: 0;
+}
+
+.errorText::before {
+  content: '⚠';
+  font-size: 1rem;
+}
+
+/* Scrollbar styling for dropdown */
+.dropdown::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dropdown::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.dropdown::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.dropdown::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .option {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .input {
+    border-width: 3px;
+  }
+
+  .label {
+    font-weight: 600;
+  }
+
+  .dropdown {
+    border-width: 2px;
+  }
+}
+
+/* Touch targets for mobile */
+@media (max-width: 640px) {
+  .input {
+    min-height: 48px;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+
+  .option {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+  }
+}

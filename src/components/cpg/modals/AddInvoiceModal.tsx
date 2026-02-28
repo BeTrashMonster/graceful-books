@@ -25,7 +25,8 @@ export interface AddInvoiceModalProps {
   onClose: () => void;
   onSuccess?: () => void;
   onNeedCategories?: () => void;
-  invoiceId?: string; // If provided, modal is in edit mode
+  invoiceId?: string; // If provided, modal is in edit or duplicate mode
+  mode?: 'new' | 'edit' | 'duplicate'; // Determines the modal behavior
 }
 
 interface CostAttributionItem {
@@ -40,7 +41,7 @@ interface CostAttributionItem {
   showAdvanced?: boolean; // Toggle for advanced fields
 }
 
-export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, invoiceId }: AddInvoiceModalProps) {
+export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, invoiceId, mode = 'new' }: AddInvoiceModalProps) {
   const auth = useAuth();
   console.log('AddInvoiceModal - Full auth object:', auth);
   console.log('AddInvoiceModal - auth keys:', Object.keys(auth));
@@ -68,7 +69,8 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(false);
   const errorAlertRef = useRef<HTMLDivElement>(null);
 
-  const isEditMode = !!invoiceId;
+  const isEditMode = mode === 'edit';
+  const isDuplicateMode = mode === 'duplicate';
 
   // Scroll to error when errors are set
   useEffect(() => {
@@ -379,8 +381,8 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
     // Save to database using cpuCalculatorService (which calculates CPUs)
     setIsSubmitting(true);
     try {
-      if (isEditMode && invoiceId) {
-        // Update existing invoice
+      if (isEditMode && invoiceId && !isDuplicateMode) {
+        // Update existing invoice (not duplicate)
         const { totalPaid, calculatedCPUs } = cpuCalculatorService.calculateInvoiceCPUs(
           costAttribution,
           null
@@ -419,8 +421,8 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
       onSuccess?.();
       onClose();
     } catch (error) {
-      console.error(`Error ${isEditMode ? 'updating' : 'adding'} invoice:`, error);
-      setErrors({ form: `Failed to ${isEditMode ? 'update' : 'save'} invoice. Please try again.` });
+      console.error(`Error ${isEditMode ? 'updating' : isDuplicateMode ? 'duplicating' : 'adding'} invoice:`, error);
+      setErrors({ form: `Failed to ${isEditMode ? 'update' : isDuplicateMode ? 'duplicate' : 'save'} invoice. Please try again.` });
     } finally {
       setIsSubmitting(false);
     }
@@ -493,7 +495,11 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={isEditMode ? 'Edit Raw Material Purchase' : 'Enter Raw Material Purchases'}
+      title={
+        isEditMode ? 'Edit Raw Material Purchase' :
+        isDuplicateMode ? 'Duplicate Raw Material Purchase' :
+        'Enter Raw Material Purchases'
+      }
       size="xl"
       closeOnBackdropClick={false}
       footer={
@@ -502,7 +508,10 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
             Cancel
           </Button>
           <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting || isLoadingInvoice}>
-            {isSubmitting ? (isEditMode ? 'Updating...' : 'Adding...') : (isEditMode ? 'Update Invoice' : 'Add Invoice')}
+            {isSubmitting
+              ? (isEditMode ? 'Updating...' : isDuplicateMode ? 'Duplicating...' : 'Adding...')
+              : (isEditMode ? 'Update Invoice' : isDuplicateMode ? 'Duplicate Invoice' : 'Add Invoice')
+            }
           </Button>
         </div>
       }
