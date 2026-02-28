@@ -77,6 +77,7 @@ export interface CPGInvoice extends BaseEntity {
   invoice_number: string | null; // Optional user-provided reference
   invoice_date: number;
   vendor_name: string | null;
+  payment_method: string | null; // How the invoice was paid (Cash, Credit Card, account name, etc.)
   notes: string | null;
 
   // Attribution tracking - flexible JSON for different category allocations
@@ -128,6 +129,7 @@ export const createDefaultCPGInvoice = (
     invoice_number: null,
     invoice_date: invoiceDate,
     vendor_name: null,
+    payment_method: null,
     notes: null,
     cost_attribution: {},
     additional_costs: null,
@@ -145,6 +147,50 @@ export const validateCPGInvoice = (invoice: Partial<CPGInvoice>): string[] => {
   const errors: string[] = [];
   if (!invoice.company_id) errors.push('company_id is required');
   if (!invoice.invoice_date) errors.push('invoice_date is required');
+  return errors;
+};
+
+// ============================================================================
+// CPG Vendor - Raw material suppliers/vendors
+// ============================================================================
+
+export interface CPGVendor extends BaseEntity {
+  id: string;
+  company_id: string;
+  name: string;
+  notes: string | null;
+  active: boolean;
+  created_at: number;
+  updated_at: number;
+  deleted_at: number | null;
+  version_vector: Record<string, number>;
+}
+
+export const cpgVendorsSchema =
+  'id, company_id, name, [company_id+name], active, updated_at, deleted_at';
+
+export const createDefaultCPGVendor = (
+  companyId: string,
+  name: string,
+  deviceId: string
+): Partial<CPGVendor> => {
+  const now = Date.now();
+  return {
+    company_id: companyId,
+    name: name.trim(),
+    notes: null,
+    active: true,
+    created_at: now,
+    updated_at: now,
+    deleted_at: null,
+    version_vector: { [deviceId]: 1 },
+  };
+};
+
+export const validateCPGVendor = (vendor: Partial<CPGVendor>): string[] => {
+  const errors: string[] = [];
+  if (!vendor.company_id) errors.push('company_id is required');
+  if (!vendor.name || vendor.name.trim() === '') errors.push('name is required');
   return errors;
 };
 

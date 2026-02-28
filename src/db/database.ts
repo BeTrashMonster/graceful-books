@@ -202,6 +202,7 @@ import {
 import {
   cpgCategoriesSchema,
   cpgInvoicesSchema,
+  cpgVendorsSchema,
   cpgDistributorsSchema,
   cpgDistributionCalculationsSchema,
   cpgSalesPromosSchema,
@@ -212,6 +213,7 @@ import {
 import type {
   CPGCategory,
   CPGInvoice,
+  CPGVendor,
   CPGDistributor,
   CPGDistributionCalculation,
   CPGSalesPromo,
@@ -305,6 +307,7 @@ export class TreasureChestDB extends Dexie {
   exchangeRates!: Table<ExchangeRate, string>;
   cpgCategories!: Table<CPGCategory, string>;
   cpgInvoices!: Table<CPGInvoice, string>;
+  cpgVendors!: Table<CPGVendor, string>;
   cpgDistributors!: Table<CPGDistributor, string>;
   cpgDistributionCalculations!: Table<CPGDistributionCalculation, string>;
   cpgSalesPromos!: Table<CPGSalesPromo, string>;
@@ -1066,6 +1069,7 @@ export class TreasureChestDB extends Dexie {
       exchangeRates: exchangeRatesSchema,
       cpgCategories: cpgCategoriesSchema,
       cpgInvoices: cpgInvoicesSchema,
+      cpgVendors: cpgVendorsSchema,
       cpgDistributors: cpgDistributorsSchema,
       cpgDistributionCalculations: cpgDistributionCalculationsSchema,
       cpgSalesPromos: cpgSalesPromosSchema,
@@ -1353,6 +1357,7 @@ export class TreasureChestDB extends Dexie {
       exchangeRates: exchangeRatesSchema,
       cpgCategories: cpgCategoriesSchema,
       cpgInvoices: cpgInvoicesSchema,
+      cpgVendors: cpgVendorsSchema,
       cpgDistributors: cpgDistributorsSchema,
       cpgDistributionCalculations: cpgDistributionCalculationsSchema,
       cpgSalesPromos: cpgSalesPromosSchema,
@@ -1482,6 +1487,7 @@ export class TreasureChestDB extends Dexie {
     this.exchangeRates.hook('updating', updateTimestamp);
     this.cpgCategories.hook('updating', updateTimestamp);
     this.cpgInvoices.hook('updating', updateTimestamp);
+    this.cpgVendors.hook('updating', updateTimestamp);
     this.cpgDistributors.hook('updating', updateTimestamp);
     this.cpgDistributionCalculations.hook('updating', updateTimestamp);
     this.cpgSalesPromos.hook('updating', updateTimestamp);

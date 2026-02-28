@@ -139,6 +139,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
       onClose={onClose}
       title="Invoice Details"
       size="lg"
+      closeOnBackdropClick={false}
       footer={
         <div className={styles.modalFooter}>
           {onEdit && !invoice?.deleted_at && (
@@ -199,7 +200,14 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {lineItems.map((item) => {
                 const categoryName = getCategoryName(item.category_id);
-                const lineTotal = parseFloat(item.units_purchased) * parseFloat(item.unit_price);
+                const unitsPurchased = parseFloat(item.units_purchased);
+                const unitsReceived = item.units_received ? parseFloat(item.units_received) : unitsPurchased;
+                const hasReconciliation = unitsReceived !== unitsPurchased;
+
+                // Use manual line total if available, otherwise calculate
+                const lineTotal = item.manual_line_total
+                  ? parseFloat(item.manual_line_total)
+                  : unitsPurchased * parseFloat(item.unit_price);
 
                 return (
                   <div key={item.key} className={styles.categoryRow}>
@@ -211,14 +219,9 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
                             <span style={{ fontWeight: 400, color: '#64748b' }}> - {item.variant}</span>
                           )}
                         </div>
-                        {item.description && (
-                          <div style={{ marginTop: '0.25rem', color: '#64748b', fontSize: '0.875rem' }}>
-                            {item.description}
-                          </div>
-                        )}
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontWeight: 600, color: '#4b006e' }}>
+                        <div style={{ fontWeight: 600, color: '#4b006e', fontSize: '1.125rem' }}>
                           {formatCurrency(lineTotal.toFixed(2))}
                         </div>
                       </div>
@@ -234,20 +237,31 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
                       fontSize: '0.875rem',
                     }}>
                       <div>
-                        <div style={{ color: '#64748b', marginBottom: '0.25rem' }}>Units Purchased</div>
-                        <div style={{ fontWeight: 500 }}>{parseFloat(item.units_purchased).toFixed(2)}</div>
+                        <div style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Units Purchased</div>
+                        <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{unitsPurchased.toFixed(2)}</div>
                       </div>
                       <div>
-                        <div style={{ color: '#64748b', marginBottom: '0.25rem' }}>Unit Price</div>
-                        <div style={{ fontWeight: 500 }}>{formatCurrency(item.unit_price)}</div>
+                        <div style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Unit Price</div>
+                        <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{formatCurrency(item.unit_price)}</div>
                       </div>
                       <div>
-                        <div style={{ color: '#64748b', marginBottom: '0.25rem' }}>Units Received</div>
-                        <div style={{ fontWeight: 500 }}>
-                          {item.units_received
-                            ? parseFloat(item.units_received).toFixed(2)
-                            : parseFloat(item.units_purchased).toFixed(2)
-                          }
+                        <div style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Units Received</div>
+                        <div style={{
+                          fontWeight: 600,
+                          fontSize: '0.9375rem',
+                          color: hasReconciliation ? '#f59e0b' : 'inherit'
+                        }}>
+                          {unitsReceived.toFixed(2)}
+                          {hasReconciliation && (
+                            <span style={{
+                              marginLeft: '0.375rem',
+                              fontSize: '0.75rem',
+                              color: '#f59e0b',
+                              fontWeight: 500
+                            }}>
+                              ({(unitsPurchased - unitsReceived).toFixed(0)} short)
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -278,16 +292,53 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
         {/* Calculated CPUs */}
         {invoice.calculated_cpus && Object.keys(invoice.calculated_cpus).length > 0 && (
           <div>
-            <div className={styles.sectionHeader}>Cost Per Unit (CPU) Breakdown</div>
-            <div className={styles.exampleBox}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {Object.entries(invoice.calculated_cpus).map(([variant, cpu]) => (
-                  <div key={variant} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: '#64748b' }}>{variant}:</span>
-                    <strong style={{ color: '#4b006e' }}>{formatCurrency(cpu)}</strong>
+            <div className={styles.sectionHeader}>
+              True Cost Per Unit
+              <span style={{
+                marginLeft: '0.5rem',
+                fontSize: '0.75rem',
+                fontWeight: 400,
+                color: '#64748b',
+                fontStyle: 'italic'
+              }}>
+                (based on units received)
+              </span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {Object.entries(invoice.calculated_cpus).map(([categoryVariantKey, cpu]) => {
+                // Parse the key to extract category ID and variant
+                const lastUnderscoreIndex = categoryVariantKey.lastIndexOf('_');
+                let categoryId: string;
+                let variant: string | null = null;
+
+                if (lastUnderscoreIndex !== -1) {
+                  categoryId = categoryVariantKey.substring(0, lastUnderscoreIndex);
+                  variant = categoryVariantKey.substring(lastUnderscoreIndex + 1);
+                } else {
+                  categoryId = categoryVariantKey;
+                }
+
+                const categoryName = getCategoryName(categoryId);
+                const displayName = variant ? `${categoryName} (${variant})` : categoryName;
+
+                return (
+                  <div
+                    key={categoryVariantKey}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '0.75rem 1rem',
+                      background: '#f9fafb',
+                      borderRadius: '6px',
+                      border: '1px solid #e5e7eb',
+                    }}
+                  >
+                    <span style={{ fontWeight: 500, color: '#374151' }}>{displayName}</span>
+                    <strong style={{ color: '#4b006e', fontSize: '1.125rem' }}>{formatCurrency(cpu)}</strong>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           </div>
         )}

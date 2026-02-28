@@ -185,7 +185,7 @@ export function CPUBreakdownModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Cost Breakdown: ${category.name}${variant ? ` (${variant})` : ''}`}
+      title={`${category.name}${variant ? ` (${variant})` : ''}`}
       size="lg"
       closeOnBackdropClick={false}
       footer={
@@ -197,183 +197,175 @@ export function CPUBreakdownModal({
       }
     >
       <div className={styles.form}>
-        {/* Summary */}
-        <div className={styles.exampleBox}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontWeight: 500, color: '#64748b' }}>Category:</span>
-              <strong>{category.name}</strong>
-            </div>
-            {variant && (
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontWeight: 500, color: '#64748b' }}>Variant:</span>
-                <strong>{variant}</strong>
-              </div>
-            )}
-            <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.75rem', borderTop: '1px solid #e2e8f0' }}>
-              <span style={{ fontWeight: 500, color: '#64748b' }}>Total Units Received:</span>
-              <strong>{totalUnits.toFixed(2)}</strong>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontWeight: 500, color: '#64748b' }}>Total Cost Paid:</span>
-              <strong>{formatCurrency(totalCost)}</strong>
-            </div>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              paddingTop: '0.75rem',
-              borderTop: '2px solid #4b006e',
-            }}>
-              <span style={{ fontWeight: 600, color: '#4b006e', fontSize: '1.125rem' }}>Cost Per Unit:</span>
-              <strong style={{ color: '#4b006e', fontSize: '1.25rem' }}>
-                {formatCurrency(costPerUnit)}
-              </strong>
-            </div>
+        {/* Hero Answer */}
+        <div style={{
+          padding: '1.5rem',
+          background: 'linear-gradient(135deg, #4b006e 0%, #6b1a8f 100%)',
+          borderRadius: '12px',
+          textAlign: 'center',
+          color: 'white',
+        }}>
+          <div style={{ fontSize: '0.875rem', opacity: 0.9, marginBottom: '0.5rem' }}>
+            Current Cost Per Unit
+          </div>
+          <div style={{ fontSize: '3rem', fontWeight: 700, lineHeight: 1 }}>
+            {formatCurrency(costPerUnit)}
+          </div>
+          <div style={{ fontSize: '0.875rem', opacity: 0.8, marginTop: '0.75rem' }}>
+            {totalUnits.toFixed(0)} units from {contributions.length} {contributions.length === 1 ? 'invoice' : 'invoices'}
           </div>
         </div>
 
-        {/* Calculation Explanation */}
-        <div style={{ padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '8px', fontSize: '0.9375rem' }}>
-          <div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#4b006e' }}>
-            How this was calculated:
+        {/* Invoice Table */}
+        {contributions.length === 0 ? (
+          <div style={{
+            textAlign: 'center',
+            padding: '3rem 2rem',
+            background: '#f9fafb',
+            borderRadius: '8px',
+            border: '2px dashed #e5e7eb',
+          }}>
+            <span style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }}>📋</span>
+            <span style={{ color: '#64748b', fontSize: '1.125rem', display: 'block', marginBottom: '0.5rem' }}>
+              No invoices found
+            </span>
+            <p style={{ margin: 0, fontSize: '0.875rem', color: '#94a3b8' }}>
+              Add invoices to calculate costs for this item
+            </p>
           </div>
-          <div style={{ color: '#64748b' }}>
-            Cost Per Unit = Total Cost Paid ÷ Total Units Received
-            <br />
-            {formatCurrency(costPerUnit)} = {formatCurrency(totalCost)} ÷ {totalUnits.toFixed(2)} units
-          </div>
-        </div>
+        ) : (
+          <>
+            <div>
+              <div className={styles.sectionHeader}>Invoice Breakdown</div>
+              <div style={{
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                overflow: 'hidden',
+              }}>
+                {/* Table Header */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1.5fr 1.5fr 1.2fr 1.2fr auto',
+                  gap: '1rem',
+                  padding: '0.75rem 1rem',
+                  background: '#f9fafb',
+                  borderBottom: '2px solid #e5e7eb',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  color: '#64748b',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.025em',
+                }}>
+                  <div>Vendor / Invoice</div>
+                  <div>Date</div>
+                  <div>Units</div>
+                  <div>Cost</div>
+                  <div></div>
+                </div>
 
-        {/* Invoice Contributions */}
-        <div>
-          <div className={styles.sectionHeader}>
-            Invoice Contributions ({contributions.length} {contributions.length === 1 ? 'invoice' : 'invoices'})
-          </div>
+                {/* Table Rows */}
+                {contributions.map((contribution) => {
+                  const hasReconciliation = contribution.unitsReceived !== contribution.unitsPurchased;
+                  const contributionPercent = totalCost > 0 ? (contribution.totalCost / totalCost) * 100 : 0;
 
-          {contributions.length === 0 ? (
-            <div className={styles.categoryRow} style={{ textAlign: 'center' }}>
-              <span style={{ color: '#64748b' }}>No invoices found for this category/variant</span>
-              <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#94a3b8' }}>
-                Add invoices in the "New Invoice" section to calculate costs.
-              </p>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {contributions.map((contribution, index) => (
-                <div key={contribution.invoice.id} className={styles.categoryRow}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                    <div>
-                      <div className={styles.categoryHeader}>
-                        Invoice #{index + 1}
-                        {contribution.invoice.invoice_number && (
-                          <span style={{ fontWeight: 400, color: '#64748b', marginLeft: '0.5rem' }}>
-                            ({contribution.invoice.invoice_number})
-                          </span>
+                  return (
+                    <div
+                      key={contribution.invoice.id}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1.5fr 1.5fr 1.2fr 1.2fr auto',
+                        gap: '1rem',
+                        padding: '1rem',
+                        background: 'white',
+                        borderBottom: '1px solid #f0f0f0',
+                        alignItems: 'center',
+                        transition: 'background-color 150ms',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fafafa'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                    >
+                      {/* Vendor / Invoice Number */}
+                      <div>
+                        <div style={{ fontWeight: 600, color: '#1f2937', fontSize: '0.9375rem' }}>
+                          {contribution.invoice.vendor_name || 'No Vendor'}
+                        </div>
+                        <div style={{ fontSize: '0.8125rem', color: '#64748b', marginTop: '0.125rem' }}>
+                          Invoice #{contribution.invoice.invoice_number || 'N/A'}
+                        </div>
+                      </div>
+
+                      {/* Date */}
+                      <div style={{ color: '#64748b', fontSize: '0.9375rem' }}>
+                        {formatDate(contribution.invoice.invoice_date)}
+                      </div>
+
+                      {/* Units */}
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>
+                          {contribution.unitsReceived.toFixed(0)}
+                        </div>
+                        {hasReconciliation && (
+                          <div style={{ fontSize: '0.75rem', color: '#f59e0b', marginTop: '0.125rem' }}>
+                            ({(contribution.unitsPurchased - contribution.unitsReceived).toFixed(0)} short)
+                          </div>
                         )}
                       </div>
-                      <div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>
-                        {formatDate(contribution.invoice.invoice_date)}
-                        {contribution.invoice.vendor_name && ` • ${contribution.invoice.vendor_name}`}
-                      </div>
-                      {contribution.description && (
-                        <div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem', fontStyle: 'italic' }}>
-                          {contribution.description}
+
+                      {/* Cost with percentage bar */}
+                      <div>
+                        <div style={{ fontWeight: 600, color: '#4b006e', fontSize: '0.9375rem' }}>
+                          {formatCurrency(contribution.totalCost)}
                         </div>
+                        <div
+                          style={{
+                            marginTop: '0.375rem',
+                            height: '4px',
+                            background: '#e5e7eb',
+                            borderRadius: '2px',
+                            overflow: 'hidden',
+                            cursor: 'help',
+                          }}
+                          title={`${contributionPercent.toFixed(1)}% of total cost`}
+                        >
+                          <div style={{
+                            width: `${contributionPercent}%`,
+                            height: '100%',
+                            background: '#4b006e',
+                            transition: 'width 300ms ease-out',
+                          }} />
+                        </div>
+                      </div>
+
+                      {/* View Button */}
+                      {onViewInvoice && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onViewInvoice(contribution.invoice.id)}
+                          style={{ whiteSpace: 'nowrap' }}
+                        >
+                          View
+                        </Button>
                       )}
                     </div>
-                    {onViewInvoice && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onViewInvoice(contribution.invoice.id)}
-                      >
-                        View Invoice
-                      </Button>
-                    )}
-                  </div>
-
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr 1fr',
-                    gap: '1rem',
-                    padding: '0.75rem',
-                    backgroundColor: '#f8fafc',
-                    borderRadius: '6px',
-                  }}>
-                    <div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
-                        Units Purchased
-                      </div>
-                      <div style={{ fontWeight: 600 }}>
-                        {contribution.unitsPurchased.toFixed(2)}
-                      </div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
-                        Unit Price
-                      </div>
-                      <div style={{ fontWeight: 600 }}>
-                        {formatCurrency(contribution.unitPrice)}
-                      </div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
-                        Units Received
-                      </div>
-                      <div style={{ fontWeight: 600 }}>
-                        {contribution.unitsReceived.toFixed(2)}
-                      </div>
-                    </div>
-                  </div>
-
-                  {contribution.hasManualOverride && (
-                    <div style={{
-                      marginTop: '0.75rem',
-                      padding: '0.5rem',
-                      backgroundColor: '#fef3c7',
-                      border: '1px solid #fde68a',
-                      borderRadius: '4px',
-                      fontSize: '0.8125rem',
-                    }}>
-                      <div style={{ fontWeight: 600, color: '#92400e', marginBottom: '0.25rem' }}>
-                        ⚠️ Manual Total Override Applied
-                      </div>
-                      <div style={{ color: '#78350f', fontSize: '0.75rem' }}>
-                        Calculated: {formatCurrency(contribution.calculatedTotal)} → Actual: {formatCurrency(contribution.totalCost)}
-                      </div>
-                    </div>
-                  )}
-
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginTop: '0.75rem',
-                    paddingTop: '0.75rem',
-                    borderTop: '1px solid #e2e8f0',
-                  }}>
-                    <span style={{ fontWeight: 500, color: '#64748b' }}>Cost from this invoice:</span>
-                    <span style={{ fontWeight: 600, color: '#4b006e' }}>
-                      {formatCurrency(contribution.totalCost)}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                  );
+                })}
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* Help Text */}
-        <div style={{ padding: '1rem', backgroundColor: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', fontSize: '0.875rem' }}>
-          <div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#92400e' }}>
-            💡 How we calculate Cost Per Unit:
-          </div>
-          <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#78350f' }}>
-            <li>We use <strong>Units Received</strong> (not Units Purchased) for CPU calculation</li>
-            <li>Manual line total overrides affect the total cost</li>
-            <li>Only active, non-archived invoices are included</li>
-            <li>All invoices contributing to this category/variant are shown above</li>
-          </ul>
-        </div>
+            {/* Simple Calculation */}
+            <div style={{
+              padding: '1rem 1.25rem',
+              background: '#f9fafb',
+              borderRadius: '8px',
+              fontSize: '0.9375rem',
+              color: '#64748b',
+            }}>
+              <strong style={{ color: '#4b006e' }}>Calculation:</strong>{' '}
+              {formatCurrency(totalCost)} total cost ÷ {totalUnits.toFixed(0)} units received = {formatCurrency(costPerUnit)} per unit
+            </div>
+          </>
+        )}
       </div>
     </Modal>
   );

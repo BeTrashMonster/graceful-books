@@ -8,13 +8,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { Modal } from '../../modals/Modal';
 import { Input } from '../../forms/Input';
+import { Autocomplete } from '../../forms/Autocomplete';
 import { Button } from '../../core/Button';
 import { useAuth } from '../../../contexts/AuthContext';
 import { db } from '../../../db/database';
-import { createDefaultCPGInvoice, validateCPGInvoice } from '../../../db/schema/cpg.schema';
-import type { CPGCategory } from '../../../db/schema/cpg.schema';
+import { createDefaultCPGInvoice, validateCPGInvoice, createDefaultCPGVendor } from '../../../db/schema/cpg.schema';
+import type { CPGCategory, CPGVendor } from '../../../db/schema/cpg.schema';
 import { cpuCalculatorService } from '../../../services/cpg/cpuCalculator.service';
 import { v4 as uuidv4 } from 'uuid';
+import { processMathInput } from '../../../utils/mathParser';
+import { processDateInput } from '../../../utils/dateUtils';
 import styles from './CPGModals.module.css';
 
 export interface AddInvoiceModalProps {
@@ -34,16 +37,31 @@ interface CostAttributionItem {
   unit_price: string;
   units_received: string;
   manual_line_total?: string; // Optional override for rounding issues
+  showAdvanced?: boolean; // Toggle for advanced fields
 }
 
 export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, invoiceId }: AddInvoiceModalProps) {
-  const { companyId, deviceId } = useAuth();
+  const auth = useAuth();
+  console.log('AddInvoiceModal - Full auth object:', auth);
+  console.log('AddInvoiceModal - auth keys:', Object.keys(auth));
+  const companyId = auth.companyId;
+  const deviceId = auth.deviceId || 'default-device';
+  console.log('AddInvoiceModal - Extracted values:', { companyId, deviceId });
   const [invoiceNumber, setInvoiceNumber] = useState('');
-  const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
+  const [invoiceDate, setInvoiceDate] = useState(() => {
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const year = today.getFullYear();
+    return `${month}/${day}/${year}`;
+  });
   const [vendorName, setVendorName] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
   const [notes, setNotes] = useState('');
   const [totalInvoiceAmount, setTotalInvoiceAmount] = useState('');
   const [categories, setCategories] = useState<CPGCategory[]>([]);
+  const [vendors, setVendors] = useState<CPGVendor[]>([]);
+  const [paymentAccounts, setPaymentAccounts] = useState<Array<{id: string; name: string}>>([]);
   const [costItems, setCostItems] = useState<CostAttributionItem[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,29 +77,95 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
     }
   }, [errors]);
 
+  // Apply purple header styling when modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const timer = setTimeout(() => {
+      // Find elements using more specific selectors (CSS Modules generate unique class names)
+      const dialog = document.querySelector('[role="dialog"]');
+      if (!dialog) {
+        console.log('Dialog not found');
+        return;
+      }
+
+      // Modal header is the first child with h2 inside
+      const modalTitle = dialog.querySelector('#modal-title') as HTMLElement;
+      const modalHeader = modalTitle?.parentElement as HTMLElement;
+      const closeButton = dialog.querySelector('[aria-label="Close modal"]') as HTMLElement;
+
+      console.log('Found elements:', { modalHeader, modalTitle, closeButton });
+
+      if (modalHeader) {
+        modalHeader.style.backgroundColor = '#4b006e';
+        modalHeader.style.padding = '0.75rem 1.5rem';
+        modalHeader.style.borderBottom = 'none';
+        console.log('Applied header styles');
+      }
+
+      if (modalTitle) {
+        modalTitle.style.color = '#ffffff';
+        console.log('Applied title styles');
+      }
+
+      if (closeButton) {
+        closeButton.style.color = '#ffffff';
+        console.log('Applied button styles');
+      }
+    }, 100); // Increased delay to ensure modal is fully rendered
+
+    return () => clearTimeout(timer);
+  }, [isOpen]);
+
   // Load categories
   useEffect(() => {
     if (!isOpen || !companyId) return;
 
-    const loadCategories = async () => {
+    const loadData = async () => {
       try {
+        // Load categories (alphabetically)
         const cats = await db.cpgCategories
           .where('company_id')
           .equals(companyId)
           .filter(c => c.active && !c.deleted_at)
-          .sortBy('sort_order');
+          .sortBy('name'); // Alphabetical order by name
         setCategories(cats);
+
+        // Load vendors
+        const vendorsList = await db.cpgVendors
+          .where('company_id')
+          .equals(companyId)
+          .filter(v => v.active && !v.deleted_at)
+          .sortBy('name');
+        console.log('Loaded vendors:', vendorsList.map(v => v.name));
+        setVendors(vendorsList);
+
+        // Load payment accounts (for full bookkeeping mode)
+        // Check if accounts table exists (full bookkeeping software)
+        if (db.accounts) {
+          try {
+            const accounts = await db.accounts
+              .where('company_id')
+              .equals(companyId)
+              .filter(a => !a.deleted_at && (a.type === 'Bank' || a.type === 'Credit Card'))
+              .toArray();
+            setPaymentAccounts(accounts.map(a => ({ id: a.id, name: a.name })));
+          } catch (e) {
+            // Accounts table doesn't exist or error - standalone mode
+            setPaymentAccounts([]);
+          }
+        }
 
         // Auto-add first cost item if none exist
         if (costItems.length === 0 && cats.length > 0) {
           addCostItem();
         }
       } catch (error) {
-        console.error('Error loading categories:', error);
+        console.error('Error loading data:', error);
       }
     };
 
-    loadCategories();
+    loadData();
   }, [isOpen, companyId]);
 
   // Load existing invoice data when in edit mode
@@ -100,8 +184,13 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
 
         // Populate form fields
         setInvoiceNumber(invoice.invoice_number || '');
-        setInvoiceDate(new Date(invoice.invoice_date).toISOString().split('T')[0]);
+        const date = new Date(invoice.invoice_date);
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const year = date.getFullYear();
+        setInvoiceDate(`${month}/${day}/${year}`);
         setVendorName(invoice.vendor_name || '');
+        setPaymentMethod(invoice.payment_method || '');
         setNotes(invoice.notes || '');
         setTotalInvoiceAmount(invoice.total_paid || '');
 
@@ -148,16 +237,16 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
     setCostItems(prev => prev.filter(item => item.id !== id));
   };
 
-  const updateCostItem = (id: string, field: keyof CostAttributionItem, value: string | null) => {
+  const updateCostItem = (id: string, field: keyof CostAttributionItem, value: any) => {
     setCostItems(prev =>
       prev.map(item => {
         if (item.id === id) {
           const updated = { ...item, [field]: value };
           // Auto-fill units_received when units_purchased changes
           // Update if: empty, or was previously synced with units_purchased
-          if (field === 'units_purchased') {
+          if (field === 'units_purchased' && typeof value === 'string') {
             if (!item.units_received || item.units_received === item.units_purchased) {
-              updated.units_received = value as string;
+              updated.units_received = value;
             }
           }
           return updated;
@@ -197,6 +286,23 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
       return;
     }
 
+    console.log('Invoice date value:', invoiceDate, typeof invoiceDate);
+
+    if (!invoiceDate) {
+      setErrors({ form: 'Please enter an invoice date' });
+      return;
+    }
+
+    // Convert date to ISO format and then to timestamp
+    const { iso } = processDateInput(invoiceDate);
+    const invoiceDateTimestamp = new Date(iso).getTime();
+    console.log('Invoice date ISO:', iso, 'timestamp:', invoiceDateTimestamp, 'isValid:', !isNaN(invoiceDateTimestamp) && invoiceDateTimestamp > 0);
+
+    if (isNaN(invoiceDateTimestamp) || invoiceDateTimestamp <= 0) {
+      setErrors({ form: `Invalid invoice date: ${invoiceDate}. Please use MM/DD/YYYY format.` });
+      return;
+    }
+
     if (!totalInvoiceAmount || parseFloat(totalInvoiceAmount) <= 0) {
       setErrors({ form: 'Please enter a total invoice amount' });
       return;
@@ -231,6 +337,17 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         hasErrors = true;
         return;
       }
+
+      const category = getCategory(item.category_id);
+      if (!category) return;
+
+      // If category has variants, variant must be selected
+      if (category.variants && category.variants.length > 0 && !item.variant) {
+        setErrors(prev => ({ ...prev, [`item_${index}_variant`]: 'Variant required' }));
+        hasErrors = true;
+        return;
+      }
+
       if (!item.units_purchased || parseFloat(item.units_purchased) <= 0) {
         setErrors(prev => ({ ...prev, [`item_${index}_units`]: 'Units purchased required' }));
         hasErrors = true;
@@ -241,9 +358,6 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         hasErrors = true;
         return;
       }
-
-      const category = getCategory(item.category_id);
-      if (!category) return;
 
       const key = item.variant
         ? `${category.name.replace(/[^a-zA-Z0-9]/g, '')}_${item.variant.replace(/[^a-zA-Z0-9]/g, '')}`
@@ -273,9 +387,10 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         );
 
         await db.cpgInvoices.update(invoiceId, {
-          invoice_date: new Date(invoiceDate).getTime(),
+          invoice_date: invoiceDateTimestamp,
           invoice_number: invoiceNumber || undefined,
           vendor_name: vendorName || undefined,
+          payment_method: paymentMethod || undefined,
           notes: notes || undefined,
           cost_attribution: costAttribution,
           total_paid: totalPaid,
@@ -286,9 +401,10 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         // Create new invoice
         await cpuCalculatorService.createInvoice({
           company_id: companyId,
-          invoice_date: new Date(invoiceDate).getTime(),
+          invoice_date: invoiceDateTimestamp,
           invoice_number: invoiceNumber || undefined,
           vendor_name: vendorName || undefined,
+          payment_method: paymentMethod || undefined,
           notes: notes || undefined,
           cost_attribution: costAttribution,
           device_id: deviceId || 'default',
@@ -312,8 +428,13 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
 
   const resetForm = () => {
     setInvoiceNumber('');
-    setInvoiceDate(new Date().toISOString().split('T')[0]);
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const year = today.getFullYear();
+    setInvoiceDate(`${month}/${day}/${year}`);
     setVendorName('');
+    setPaymentMethod('');
     setNotes('');
     setTotalInvoiceAmount('');
     setCostItems([]);
@@ -323,6 +444,49 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
   const handleClose = () => {
     resetForm();
     onClose();
+  };
+
+  const handleCreateVendor = async (name: string) => {
+    console.log('handleCreateVendor called with:', { name, companyId, deviceId, hasAuth: !!auth });
+
+    if (!companyId) {
+      console.error('Cannot create vendor: missing companyId', { companyId, deviceId });
+      return;
+    }
+
+    try {
+      // Check if vendor already exists (case-insensitive)
+      const existingVendor = vendors.find(v => v.name.toLowerCase() === name.toLowerCase());
+
+      if (existingVendor) {
+        console.log('Vendor already exists:', existingVendor.name);
+        // Use the existing vendor's exact name (preserves original casing)
+        setVendorName(existingVendor.name);
+        return;
+      }
+
+      console.log('Creating new vendor:', name);
+      const vendor = createDefaultCPGVendor(companyId, name, deviceId);
+      const id = uuidv4();
+      console.log('Vendor object created:', { id, vendor });
+
+      await db.cpgVendors.add({ id, ...vendor } as CPGVendor);
+      console.log('Vendor saved to database:', id);
+
+      // Reload vendors
+      const vendorsList = await db.cpgVendors
+        .where('company_id')
+        .equals(companyId)
+        .filter(v => v.active && !v.deleted_at)
+        .sortBy('name');
+      setVendors(vendorsList);
+      console.log('Vendors reloaded:', vendorsList.length, vendorsList.map(v => v.name));
+
+      setVendorName(name);
+      console.log('Vendor name set in form:', name);
+    } catch (error) {
+      console.error('Error creating vendor:', error);
+    }
   };
 
   return (
@@ -344,10 +508,6 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
       }
     >
       <form onSubmit={handleSubmit} className={styles.form}>
-        <div style={{ marginBottom: '1rem', color: '#64748b', fontSize: '0.9375rem' }}>
-          Track ingredients and packaging you buy to make your products
-        </div>
-
         {errors.form && (
           <div ref={errorAlertRef} className={styles.errorAlert} role="alert">
             {errors.form}
@@ -385,46 +545,114 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
           </div>
         )}
 
-        <Input
-          label="Total Invoice Amount"
-          type="number"
-          step="0.01"
-          placeholder="0.00"
-          value={totalInvoiceAmount}
-          onChange={(e) => setTotalInvoiceAmount(e.target.value)}
-          iconBefore="$"
-          required
-          fullWidth
-        />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+          <Autocomplete
+            label="Vendor Name"
+            placeholder="ex: ABC Supplies"
+            value={vendorName}
+            onChange={(value) => {
+              console.log('Vendor name changed to:', value);
+              setVendorName(value);
+            }}
+            onCreateNew={handleCreateVendor}
+            options={(() => {
+              const opts = vendors.map(v => ({ value: v.name, label: v.name }));
+              console.log('Vendor options for Autocomplete:', opts);
+              return opts;
+            })()}
+            allowCreate={true}
+            createPrompt="Create new vendor:"
+          />
 
-        <div className={styles.feeRow}>
           <Input
-            label="Invoice Number (Optional)"
+            label="Invoice Number"
             placeholder="ex: INV-001"
             value={invoiceNumber}
             onChange={(e) => setInvoiceNumber(e.target.value)}
             fullWidth
           />
+
           <Input
             label="Invoice Date"
-            type="date"
+            type="text"
+            placeholder="MM/DD/YYYY or MMDDYY"
             value={invoiceDate}
-            onChange={(e) => setInvoiceDate(e.target.value)}
+            onChange={(e) => {
+              setInvoiceDate(e.target.value);
+            }}
+            onBlur={(e) => {
+              const { formatted } = processDateInput(e.target.value);
+              if (formatted !== e.target.value) {
+                console.log('Date formatted:', e.target.value, '->', formatted);
+                setInvoiceDate(formatted);
+              }
+            }}
             required
             fullWidth
           />
         </div>
 
-        <Input
-          label="Vendor Name (Optional)"
-          placeholder="ex: ABC Supplies"
-          value={vendorName}
-          onChange={(e) => setVendorName(e.target.value)}
-          fullWidth
-        />
+        <div className={styles.feeRow}>
+          <Input
+            label="Total Invoice Amount"
+            type="text"
+            placeholder="0.00"
+            value={totalInvoiceAmount}
+            onChange={(e) => setTotalInvoiceAmount(e.target.value)}
+            onBlur={(e) => {
+              const { value, calculated } = processMathInput(e.target.value, true);
+              if (calculated || e.target.value !== value) {
+                setTotalInvoiceAmount(value);
+              }
+            }}
+            iconBefore="$"
+            required
+            fullWidth
+          />
+
+          {paymentAccounts.length > 0 ? (
+            <Autocomplete
+              label="Paid With"
+              placeholder="Select account..."
+              value={paymentMethod}
+              onChange={setPaymentMethod}
+              options={paymentAccounts.map(a => ({ value: a.name, label: a.name }))}
+              allowCreate={false}
+            />
+          ) : (
+            <div style={{ flex: 1 }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.875rem', color: '#374151' }}>
+                Paid With
+              </label>
+              <select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                style={{
+                  width: '100%',
+                  minHeight: '44px',
+                  padding: '0.625rem 0.875rem',
+                  border: '2px solid #d1d5db',
+                  borderRadius: '0.375rem',
+                  fontSize: '1rem',
+                  backgroundColor: '#ffffff',
+                  outline: 'none',
+                  transition: 'border-color 150ms ease-out',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <option value="">Select...</option>
+                <option value="Cash">Cash</option>
+                <option value="Credit Card">Credit Card</option>
+                <option value="Check">Check</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          )}
+        </div>
 
         <div className={styles.costAttributionSection}>
-          <div className={styles.sectionHeader}>Cost Attribution</div>
+          <div className={styles.sectionHeader}>What Did You Buy?</div>
 
           {costItems.map((item, index) => {
             const category = getCategory(item.category_id);
@@ -432,31 +660,37 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
 
             return (
               <div key={item.id} className={styles.categoryRow}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div className={styles.categoryHeader}>Item {index + 1}</div>
-                  {costItems.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeCostItem(item.id)}
-                    >
-                      Remove
-                    </Button>
-                  )}
-                </div>
+                {costItems.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeCostItem(item.id)}
+                    style={{
+                      position: 'absolute',
+                      right: '1rem',
+                      top: '0.75rem',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '0.25rem',
+                      fontSize: '1.25rem',
+                      color: '#9ca3af',
+                      transition: 'color 150ms ease-out',
+                      lineHeight: 1,
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = '#9ca3af'}
+                    aria-label="Remove item"
+                    title="Remove item"
+                  >
+                    🗑️
+                  </button>
+                )}
 
-                <Input
-                  label="Description (Optional)"
-                  placeholder="ex: Bulk lavender oil from ABC Supplier"
-                  value={item.description}
-                  onChange={(e) => updateCostItem(item.id, 'description', e.target.value)}
-                  fullWidth
-                />
-
-                <div className={styles.feeRow}>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                {/* All main fields on one compact row */}
+                <div style={{ display: 'grid', gridTemplateColumns: hasVariants ? '1.5fr 1fr 0.8fr 0.8fr 1.2fr' : '1.5fr 0.8fr 0.8fr 1.5fr', gap: '0.5rem', alignItems: 'start' }}>
+                  {/* Category */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
                       Category *
                     </label>
                     <select
@@ -467,14 +701,18 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                       }}
                       style={{
                         width: '100%',
-                        padding: '0.75rem',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '8px',
+                        minHeight: '38px',
+                        padding: '0.5rem 0.75rem',
+                        border: '2px solid #d1d5db',
+                        borderRadius: '0.375rem',
                         fontSize: '0.9375rem',
+                        backgroundColor: '#ffffff',
+                        outline: 'none',
+                        transition: 'border-color 150ms ease-out',
                       }}
                       required
                     >
-                      <option value="">Select category...</option>
+                      <option value="">Select...</option>
                       {categories.map(cat => (
                         <option key={cat.id} value={cat.id}>
                           {cat.name}
@@ -483,142 +721,243 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                     </select>
                   </div>
 
+                  {/* Variant (if needed) */}
                   {hasVariants && (
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
-                        Variant
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
+                        Variant *
                       </label>
                       <select
                         value={item.variant || ''}
                         onChange={(e) => updateCostItem(item.id, 'variant', e.target.value || null)}
                         style={{
                           width: '100%',
-                          padding: '0.75rem',
-                          border: '1px solid #e2e8f0',
-                          borderRadius: '8px',
+                          minHeight: '38px',
+                          padding: '0.5rem 0.75rem',
+                          border: errors[`item_${index}_variant`] ? '2px solid #dc2626' : '2px solid #d1d5db',
+                          borderRadius: '0.375rem',
                           fontSize: '0.9375rem',
+                          backgroundColor: '#ffffff',
+                          outline: 'none',
+                          transition: 'border-color 150ms ease-out',
                         }}
+                        required
                       >
-                        <option value="">No variant</option>
+                        <option value="">Select...</option>
                         {category?.variants?.map(variant => (
                           <option key={variant} value={variant}>
                             {variant}
                           </option>
                         ))}
                       </select>
+                      {errors[`item_${index}_variant`] && (
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#dc2626' }}>
+                          {errors[`item_${index}_variant`]}
+                        </p>
+                      )}
                     </div>
                   )}
-                </div>
 
-                <div className={styles.variantInputs}>
-                  <Input
-                    label="Units Purchased"
-                    type="number"
-                    step="0.01"
-                    placeholder="0"
-                    value={item.units_purchased}
-                    onChange={(e) => updateCostItem(item.id, 'units_purchased', e.target.value)}
-                    onBlur={(e) => {
-                      // Normalize decimal format
-                      const val = e.target.value.trim();
-                      if (val && !isNaN(parseFloat(val))) {
-                        const normalized = parseFloat(val).toString();
-                        if (normalized !== val) {
-                          updateCostItem(item.id, 'units_purchased', normalized);
+                  {/* Units Purchased */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
+                      Units *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="0"
+                      value={item.units_purchased}
+                      onChange={(e) => updateCostItem(item.id, 'units_purchased', e.target.value)}
+                      onBlur={(e) => {
+                        const { value } = processMathInput(e.target.value, false);
+                        if (value !== e.target.value) {
+                          updateCostItem(item.id, 'units_purchased', value);
                         }
-                      }
-                    }}
-                    error={errors[`item_${index}_units`]}
-                    required
-                    fullWidth
-                  />
-                  <Input
-                    label="Unit Price"
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={item.unit_price}
-                    onChange={(e) => updateCostItem(item.id, 'unit_price', e.target.value)}
-                    onBlur={(e) => {
-                      // Normalize decimal format (e.g., ".5" becomes "0.5", "-.2" becomes "-0.2")
-                      const val = e.target.value.trim();
-                      if (val && !isNaN(parseFloat(val))) {
-                        const normalized = parseFloat(val).toString();
-                        if (normalized !== val) {
-                          updateCostItem(item.id, 'unit_price', normalized);
-                        }
-                      }
-                    }}
-                    error={errors[`item_${index}_price`]}
-                    iconBefore="$"
-                    helperText="Enter price per unit (e.g., 3.50 for $3.50)"
-                    required
-                    fullWidth
-                  />
-                  <Input
-                    label="Units Received (Optional)"
-                    type="number"
-                    step="0.01"
-                    placeholder="Same as purchased"
-                    value={item.units_received}
-                    onChange={(e) => updateCostItem(item.id, 'units_received', e.target.value)}
-                    helperText="For reconciliation"
-                    fullWidth
-                  />
-                </div>
+                      }}
+                      style={{
+                        width: '100%',
+                        minHeight: '38px',
+                        padding: '0.5rem 0.75rem',
+                        border: errors[`item_${index}_units`] ? '2px solid #dc2626' : '2px solid #d1d5db',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.9375rem',
+                        backgroundColor: '#ffffff',
+                        outline: 'none',
+                        transition: 'border-color 150ms ease-out',
+                      }}
+                      required
+                    />
+                  </div>
 
-                {/* Line subtotal with optional manual override */}
-                {item.units_purchased && item.unit_price && (
-                  <div style={{
-                    marginTop: '0.75rem',
-                    padding: '0.75rem',
-                    backgroundColor: '#f8fafc',
-                    borderRadius: '6px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.5rem',
-                    fontSize: '0.9375rem'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: '#64748b', fontWeight: 500 }}>Calculated Total:</span>
-                      <span style={{ color: '#64748b', fontWeight: 600, fontSize: '0.9375rem' }}>
-                        ${(parseFloat(item.units_purchased) * parseFloat(item.unit_price)).toFixed(2)}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                      <span style={{ color: '#64748b', fontWeight: 500, whiteSpace: 'nowrap' }}>Actual Total (if different):</span>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        placeholder="Leave blank if exact"
-                        value={item.manual_line_total || ''}
-                        onChange={(e) => updateCostItem(item.id, 'manual_line_total', e.target.value || undefined)}
+                  {/* Unit Price */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
+                      Unit Price *
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', fontSize: '0.9375rem', fontWeight: 500 }}>$</span>
+                      <input
+                        type="text"
+                        placeholder="0.00"
+                        value={item.unit_price}
+                        onChange={(e) => updateCostItem(item.id, 'unit_price', e.target.value)}
                         onBlur={(e) => {
-                          const val = e.target.value.trim();
-                          if (val && !isNaN(parseFloat(val))) {
-                            const normalized = parseFloat(val).toFixed(2);
-                            if (normalized !== val) {
-                              updateCostItem(item.id, 'manual_line_total', normalized);
-                            }
+                          const { value } = processMathInput(e.target.value, true);
+                          if (value !== e.target.value) {
+                            updateCostItem(item.id, 'unit_price', value);
                           }
                         }}
-                        iconBefore="$"
-                        fullWidth
-                        style={{ maxWidth: '150px' }}
+                        style={{
+                          width: '100%',
+                          minHeight: '38px',
+                          padding: '0.5rem 0.75rem 0.5rem 1.75rem',
+                          border: errors[`item_${index}_price`] ? '2px solid #dc2626' : '2px solid #d1d5db',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.9375rem',
+                          backgroundColor: '#ffffff',
+                          outline: 'none',
+                          transition: 'border-color 150ms ease-out',
+                        }}
+                        required
                       />
                     </div>
-                    {item.manual_line_total && parseFloat(item.manual_line_total) > 0 && (
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        paddingTop: '0.5rem',
-                        borderTop: '1px solid #e2e8f0'
-                      }}>
-                        <span style={{ color: '#0f172a', fontWeight: 600 }}>Line Total:</span>
+                  </div>
+
+                  {/* Description (Optional) */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#6b7280' }}>
+                      Description
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Optional notes..."
+                      value={item.description}
+                      onChange={(e) => updateCostItem(item.id, 'description', e.target.value)}
+                      style={{
+                        width: '100%',
+                        minHeight: '38px',
+                        padding: '0.5rem 0.75rem',
+                        border: '2px solid #e5e7eb',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.9375rem',
+                        backgroundColor: '#ffffff',
+                        outline: 'none',
+                        transition: 'border-color 150ms ease-out',
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Line total - expandable version */}
+                {item.units_purchased && item.unit_price && (
+                  <div style={{
+                    marginTop: '0.5rem',
+                    padding: '0.625rem 0.875rem',
+                    backgroundColor: '#E5F6DF',
+                    borderRadius: '0.375rem',
+                    border: '1px solid #c8e1ba',
+                  }}>
+                    {/* Always visible: Line total + Adjust button */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ color: '#6b7280', fontWeight: 500, fontSize: '0.8125rem' }}>Line Total:</span>
                         <span style={{ color: '#0f172a', fontWeight: 700, fontSize: '1rem' }}>
-                          ${parseFloat(item.manual_line_total).toFixed(2)}
+                          ${item.manual_line_total && parseFloat(item.manual_line_total) > 0
+                            ? parseFloat(item.manual_line_total).toFixed(2)
+                            : (parseFloat(item.units_purchased) * parseFloat(item.unit_price)).toFixed(2)
+                          }
                         </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => updateCostItem(item.id, 'showAdvanced', !item.showAdvanced)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#7c3aed',
+                          fontSize: '0.8125rem',
+                          fontWeight: 500,
+                          cursor: 'pointer',
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '0.25rem',
+                          transition: 'background-color 150ms ease-out',
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(124, 58, 237, 0.1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      >
+                        {item.showAdvanced ? '▲ Hide' : '▼ Adjust'}
+                      </button>
+                    </div>
+
+                    {/* Expandable: Advanced fields */}
+                    {item.showAdvanced && (
+                      <div style={{
+                        marginTop: '0.75rem',
+                        paddingTop: '0.75rem',
+                        borderTop: '1px solid #e9d5ff',
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: '0.75rem'
+                      }}>
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.75rem', color: '#6b7280' }}>
+                            Units Received (if different)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder={item.units_purchased}
+                            value={item.units_received}
+                            onChange={(e) => updateCostItem(item.id, 'units_received', e.target.value)}
+                            onBlur={(e) => {
+                              const { value } = processMathInput(e.target.value, false);
+                              if (value !== e.target.value) {
+                                updateCostItem(item.id, 'units_received', value);
+                              }
+                            }}
+                            style={{
+                              width: '100%',
+                              minHeight: '36px',
+                              padding: '0.5rem 0.75rem',
+                              border: '2px solid #e5e7eb',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.875rem',
+                              backgroundColor: '#ffffff',
+                              outline: 'none',
+                            }}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.75rem', color: '#6b7280' }}>
+                            Override Total (for rounding)
+                          </label>
+                          <div style={{ position: 'relative' }}>
+                            <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', fontSize: '0.875rem' }}>$</span>
+                            <input
+                              type="text"
+                              placeholder="Leave blank if exact"
+                              value={item.manual_line_total || ''}
+                              onChange={(e) => updateCostItem(item.id, 'manual_line_total', e.target.value || undefined)}
+                              onBlur={(e) => {
+                                const { value } = processMathInput(e.target.value, true);
+                                if (value !== e.target.value) {
+                                  updateCostItem(item.id, 'manual_line_total', value || undefined);
+                                }
+                              }}
+                              style={{
+                                width: '100%',
+                                minHeight: '36px',
+                                padding: '0.5rem 0.75rem 0.5rem 1.75rem',
+                                border: '2px solid #e5e7eb',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.875rem',
+                                backgroundColor: '#ffffff',
+                                outline: 'none',
+                              }}
+                            />
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>

@@ -56,6 +56,7 @@ export interface CreateInvoiceParams {
   invoice_number?: string;
   invoice_date: number;
   vendor_name?: string;
+  payment_method?: string;
   notes?: string;
   cost_attribution: Record<
     string,
@@ -323,6 +324,7 @@ export class CPUCalculatorService {
         invoice_number: params.invoice_number || null,
         invoice_date: params.invoice_date,
         vendor_name: params.vendor_name || null,
+        payment_method: params.payment_method || null,
         notes: params.notes || null,
         cost_attribution: normalizedAttribution,
         additional_costs: params.additional_costs || null,

@@ -5,6 +5,13 @@
  * WCAG 2.1 AA compliant
  */
 
+/* Page Layout */
+.pageContainer {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  padding: 2rem;
+}
+
 /* Header */
 .headerContent {
   display: flex;

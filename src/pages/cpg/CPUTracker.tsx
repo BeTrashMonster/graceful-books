@@ -233,7 +233,7 @@ export default function CPUTracker() {
 
   if (isLoading) {
     return (
-      <div className="page">
+      <div className={styles.pageContainer}>
         <div className="page-content" style={{ textAlign: 'center', padding: '3rem' }}>
           <div className={styles.loader} role="status" aria-label="Loading CPU tracker">
             <span className={styles.spinner} />
@@ -247,14 +247,16 @@ export default function CPUTracker() {
   }
 
   return (
-    <div className="page">
+    <div className={styles.pageContainer}>
       <div className="page-header">
         <div className={styles.headerContent}>
           <div>
             <h1 className="page-title">Cost Per Unit Tracker</h1>
-            <p className="page-description">
-              Track your true costs with ease. Enter invoices once, and we'll calculate your Cost Per Unit (CPU) for each product variant automatically.
-            </p>
+            {invoices.length === 0 && (
+              <p className="page-description">
+                Track your true costs with ease. Enter invoices once, and we'll calculate your Cost Per Unit (CPU) for each product variant automatically.
+              </p>
+            )}
           </div>
 
           <div className={styles.headerActions}>
@@ -338,7 +340,7 @@ export default function CPUTracker() {
                 onClick={() => setActiveTab('products')}
                 className={activeTab === 'products' ? styles.tabActive : styles.tab}
               >
-                Product Manufacturing Costs
+                Product Costs
               </button>
               <button
                 role="tab"
@@ -360,14 +362,14 @@ export default function CPUTracker() {
               </button>
             </div>
 
-            {/* Tab 1: Product Manufacturing Costs */}
+            {/* Tab 1: Product Costs */}
             {activeTab === 'products' && (
               <div id="products-panel" role="tabpanel" aria-labelledby="products-tab">
                 {/* Current CPU Display */}
                 <section className={styles.section} aria-labelledby="current-cpu-heading">
                   <div className={styles.sectionHeader}>
                     <h2 id="current-cpu-heading" className={styles.sectionTitle}>
-                      Product Manufacturing Costs
+                      Product Costs
                     </h2>
 
                     {/* Product Filters */}
@@ -414,62 +416,6 @@ export default function CPUTracker() {
                     searchFilter={productSearchFilter}
                     statusFilter={productStatusFilter}
                     sortBy={productSortBy}
-                  />
-                </section>
-
-                {/* Historical Timeline */}
-                <section className={styles.section} aria-labelledby="history-heading">
-                  <div className={styles.sectionHeader}>
-                    <h2 id="history-heading" className={styles.sectionTitle}>
-                      Cost History
-                    </h2>
-
-                    {/* Category Filter */}
-                    {categories.length > 1 && (
-                      <div className={styles.filterGroup}>
-                        <label htmlFor="category-filter" className={styles.filterLabel}>
-                          Filter by category:
-                        </label>
-                        <select
-                          id="category-filter"
-                          value={selectedCategoryFilter || ''}
-                          onChange={(e) => handleCategoryFilterChange(e.target.value || undefined)}
-                          className={styles.filterSelect}
-                        >
-                          <option value="">All Categories</option>
-                          {categories.map((cat) => (
-                            <option key={cat.id} value={cat.id}>
-                              {cat.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Show Archived Toggle */}
-                  {invoices.some(inv => inv.deleted_at !== null) && (
-                    <div style={{ marginBottom: '1rem' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                        <input
-                          type="checkbox"
-                          checked={showArchived}
-                          onChange={(e) => setShowArchived(e.target.checked)}
-                        />
-                        <span>Show Archived Invoices</span>
-                      </label>
-                    </div>
-                  )}
-
-                  <CPUTimeline
-                    history={cpuHistory}
-                    categories={categories}
-                    onInvoiceClick={(invoiceId) => {
-                      setSelectedInvoiceId(invoiceId);
-                      setShowInvoiceDetails(true);
-                    }}
-                    onArchiveInvoice={handleArchiveInvoice}
-                    onUnarchiveInvoice={handleUnarchiveInvoice}
                   />
                 </section>
               </div>
@@ -623,12 +569,14 @@ export default function CPUTracker() {
                               <td>{invoice.vendor_name}</td>
                               <td>{invoice.invoice_number || '-'}</td>
                               <td>
-                                {invoice.cost_attribution?.map(attr => {
-                                  const category = categories.find(c => c.id === attr.category_id);
-                                  return category?.name || 'Unknown';
-                                }).join(', ') || '-'}
+                                {invoice.cost_attribution
+                                  ? Object.values(invoice.cost_attribution).map(attr => {
+                                      const category = categories.find(c => c.id === attr.category_id);
+                                      return category?.name || 'Unknown';
+                                    }).join(', ')
+                                  : '-'}
                               </td>
-                              <td>${invoice.total_paid?.toFixed(2) || '0.00'}</td>
+                              <td>${typeof invoice.total_paid === 'number' ? invoice.total_paid.toFixed(2) : parseFloat(invoice.total_paid || '0').toFixed(2)}</td>
                               <td>
                                 <button
                                   className={styles.actionButton}
@@ -657,7 +605,7 @@ export default function CPUTracker() {
                 <section className={styles.section}>
                   <h2 className={styles.sectionTitle}>Product Comparison</h2>
                   <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>
-                    Select products to compare manufacturing costs, margins, and pricing side-by-side.
+                    Select products to compare product costs, margins, and pricing side-by-side.
                   </p>
 
                   {finishedProducts.length === 0 ? (

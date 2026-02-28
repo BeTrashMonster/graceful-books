@@ -23,14 +23,15 @@ import { z } from 'zod';
 
 /**
  * Company ID validation
- * UUIDs are 36 characters (including hyphens)
+ * UUIDs are 36 characters (including hyphens), but also allow demo/test IDs
  */
-const companyIdSchema = z.string().length(36, 'Invalid company ID format');
+const companyIdSchema = z.string().min(1, 'Company ID is required').max(100, 'Company ID too long');
 
 /**
  * UUID validation for entity IDs
+ * UUIDs are 36 characters, but also allow demo/test IDs and short identifiers
  */
-const uuidSchema = z.string().length(36, 'Invalid ID format');
+const uuidSchema = z.string().min(1, 'ID is required').max(100, 'ID too long');
 
 /**
  * Decimal string for monetary values
