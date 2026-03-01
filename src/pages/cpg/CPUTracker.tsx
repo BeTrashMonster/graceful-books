@@ -86,7 +86,10 @@ export default function CPUTracker() {
   const [comparisonCategoryFilter, setComparisonCategoryFilter] = useState<string>('all');
   const [comparisonVariantFilter, setComparisonVariantFilter] = useState<string>('all');
   const [comparisonDateRange, setComparisonDateRange] = useState<'3mo' | '6mo' | '12mo' | 'all'>('6mo');
-  const [productCPUData, setProductCPUData] = useState<Map<string, { cpu: string | null; margin: number | null; trend: 'up' | 'down' | 'stable'; trendValue: string | null; topDriver: string | null; isComplete: boolean }>>(new Map());
+  const [productCPUData, setProductCPUData] = useState<Map<string, { cpu: string | null; margin: number | null; trend: 'up' | 'down' | 'stable'; trendValue: string | null; topDriver: string | null; isComplete: boolean; breakdown: any[] }>>(new Map());
+  const [intelligenceTab, setIntelligenceTab] = useState<'scenario' | 'trends' | 'vendors' | 'alerts'>('scenario');
+  const [scenarioAdjustments, setScenarioAdjustments] = useState<Map<string, Map<string, number>>>(new Map()); // productId -> componentId -> adjustment %
+  const [scenarioMSRP, setScenarioMSRP] = useState<Map<string, number>>(new Map()); // productId -> new MSRP
 
   // Handle date preset changes for Raw Materials tab
   const handleRawMaterialsDatePresetChange = (preset: DateRangePreset) => {
@@ -281,7 +284,7 @@ export default function CPUTracker() {
     }
 
     try {
-      const cpuDataMap = new Map<string, { cpu: string | null; margin: number | null; trend: 'up' | 'down' | 'stable'; trendValue: string | null; topDriver: string | null; isComplete: boolean }>();
+      const cpuDataMap = new Map<string, { cpu: string | null; margin: number | null; trend: 'up' | 'down' | 'stable'; trendValue: string | null; topDriver: string | null; isComplete: boolean; breakdown: any[] }>();
 
       for (const productId of productIds) {
         const product = finishedProducts.find(p => p.id === productId);
@@ -317,7 +320,8 @@ export default function CPUTracker() {
           trend: 'stable',
           trendValue: null,
           topDriver,
-          isComplete: cpuResult.isComplete
+          isComplete: cpuResult.isComplete,
+          breakdown: cpuResult.breakdown
         });
       }
 
@@ -406,6 +410,40 @@ export default function CPUTracker() {
 
       return true;
     });
+  };
+
+  // Calculate scenario CPU for a product based on component adjustments
+  const calculateScenarioCPU = (productId: string): { cpu: number; components: any[] } | null => {
+    const data = productCPUData.get(productId);
+    if (!data || !data.breakdown || data.breakdown.length === 0) return null;
+
+    const adjustments = scenarioAdjustments.get(productId) || new Map();
+    let totalCPU = 0;
+    const components = data.breakdown.map(component => {
+      const baseSubtotal = component.subtotal ? parseFloat(component.subtotal) : 0;
+      const adjustment = adjustments.get(component.categoryId) || 0;
+      const adjustedSubtotal = baseSubtotal * (1 + adjustment / 100);
+      totalCPU += adjustedSubtotal;
+
+      return {
+        ...component,
+        adjustment,
+        adjustedSubtotal
+      };
+    });
+
+    return { cpu: totalCPU, components };
+  };
+
+  // Calculate scenario margin
+  const calculateScenarioMargin = (productId: string, scenarioCPU: number): number | null => {
+    const product = finishedProducts.find(p => p.id === productId);
+    if (!product) return null;
+
+    const msrp = scenarioMSRP.get(productId) || (product.msrp ? parseFloat(product.msrp) : null);
+    if (!msrp) return null;
+
+    return ((msrp - scenarioCPU) / msrp) * 100;
   };
 
   const handleArchiveInvoice = async (invoiceId: string) => {
@@ -1968,27 +2006,367 @@ export default function CPUTracker() {
                             })}
                           </div>
 
-                          {/* Trend Chart Placeholder */}
+                          {/* Intelligence Tabs */}
                           <div style={{
                             background: 'white',
                             border: '1px solid #e5e7eb',
                             borderRadius: '12px',
-                            padding: '1.5rem',
+                            overflow: 'hidden',
                           }}>
-                            <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>
-                              CPU Trends ({comparisonDateRange === '3mo' ? 'Last 3 Months' : comparisonDateRange === '6mo' ? 'Last 6 Months' : comparisonDateRange === '12mo' ? 'Last 12 Months' : 'All Time'})
-                            </h3>
+                            {/* Tab Navigation */}
                             <div style={{
-                              padding: '3rem',
-                              textAlign: 'center',
-                              color: '#64748b',
+                              display: 'flex',
+                              borderBottom: '1px solid #e5e7eb',
                               background: '#f8fafc',
-                              borderRadius: '8px',
                             }}>
-                              <p style={{ marginBottom: '0.5rem' }}>📈 CPU Trend Chart</p>
-                              <p style={{ fontSize: '0.875rem' }}>
-                                Trend visualization coming soon - will show CPU changes over time for selected products
-                              </p>
+                              <button
+                                onClick={() => setIntelligenceTab('scenario')}
+                                style={{
+                                  flex: 1,
+                                  padding: '1rem',
+                                  border: 'none',
+                                  background: intelligenceTab === 'scenario' ? 'white' : 'transparent',
+                                  borderBottom: intelligenceTab === 'scenario' ? '2px solid #4b006e' : '2px solid transparent',
+                                  fontWeight: intelligenceTab === 'scenario' ? 600 : 400,
+                                  color: intelligenceTab === 'scenario' ? '#4b006e' : '#64748b',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                Scenario Builder
+                              </button>
+                              <button
+                                onClick={() => setIntelligenceTab('trends')}
+                                style={{
+                                  flex: 1,
+                                  padding: '1rem',
+                                  border: 'none',
+                                  background: intelligenceTab === 'trends' ? 'white' : 'transparent',
+                                  borderBottom: intelligenceTab === 'trends' ? '2px solid #4b006e' : '2px solid transparent',
+                                  fontWeight: intelligenceTab === 'trends' ? 600 : 400,
+                                  color: intelligenceTab === 'trends' ? '#4b006e' : '#64748b',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                CPU Trends
+                              </button>
+                              <button
+                                onClick={() => setIntelligenceTab('vendors')}
+                                style={{
+                                  flex: 1,
+                                  padding: '1rem',
+                                  border: 'none',
+                                  background: intelligenceTab === 'vendors' ? 'white' : 'transparent',
+                                  borderBottom: intelligenceTab === 'vendors' ? '2px solid #4b006e' : '2px solid transparent',
+                                  fontWeight: intelligenceTab === 'vendors' ? 600 : 400,
+                                  color: intelligenceTab === 'vendors' ? '#4b006e' : '#64748b',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                Vendor Intel
+                              </button>
+                              <button
+                                onClick={() => setIntelligenceTab('alerts')}
+                                style={{
+                                  flex: 1,
+                                  padding: '1rem',
+                                  border: 'none',
+                                  background: intelligenceTab === 'alerts' ? 'white' : 'transparent',
+                                  borderBottom: intelligenceTab === 'alerts' ? '2px solid #4b006e' : '2px solid transparent',
+                                  fontWeight: intelligenceTab === 'alerts' ? 600 : 400,
+                                  color: intelligenceTab === 'alerts' ? '#4b006e' : '#64748b',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                Smart Alerts
+                              </button>
+                            </div>
+
+                            {/* Tab Content */}
+                            <div style={{ padding: '1.5rem' }}>
+                              {/* Scenario Builder Tab */}
+                              {intelligenceTab === 'scenario' && (
+                                <div>
+                                  <p style={{ color: '#64748b', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
+                                    Adjust component costs to model scenarios like tariffs, vendor changes, or seasonal pricing.
+                                  </p>
+
+                                  {Array.from(selectedProductsForComparison).map(productId => {
+                                    const product = finishedProducts.find(p => p.id === productId);
+                                    const cpuData = productCPUData.get(productId);
+                                    if (!product || !cpuData || !cpuData.breakdown || cpuData.breakdown.length === 0) return null;
+
+                                    const baseCPU = cpuData.cpu ? parseFloat(cpuData.cpu) : 0;
+                                    const baseMSRP = product.msrp ? parseFloat(product.msrp) : 0;
+                                    const baseMargin = cpuData.margin || 0;
+
+                                    const scenario = calculateScenarioCPU(productId);
+                                    const scenarioCPUValue = scenario?.cpu || baseCPU;
+                                    const scenarioMSRPValue = scenarioMSRP.get(productId) || baseMSRP;
+                                    const scenarioMarginValue = calculateScenarioMargin(productId, scenarioCPUValue) || baseMargin;
+
+                                    const hasAdjustments = (scenarioAdjustments.get(productId)?.size || 0) > 0 || scenarioMSRP.has(productId);
+
+                                    return (
+                                      <div key={productId} style={{
+                                        marginBottom: '2rem',
+                                        border: '1px solid #e5e7eb',
+                                        borderRadius: '8px',
+                                        padding: '1.5rem',
+                                      }}>
+                                        <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>
+                                          {product.name}
+                                        </h4>
+
+                                        {/* Current vs Scenario Comparison */}
+                                        <div style={{
+                                          display: 'grid',
+                                          gridTemplateColumns: '1fr 1fr',
+                                          gap: '1rem',
+                                          marginBottom: '1.5rem',
+                                          padding: '1rem',
+                                          background: '#f8fafc',
+                                          borderRadius: '8px',
+                                        }}>
+                                          <div>
+                                            <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem' }}>CURRENT</div>
+                                            <div style={{ fontSize: '1.25rem', fontWeight: 700 }}>
+                                              CPU: ${formatNumberWithCommas(baseCPU)}
+                                            </div>
+                                            <div style={{ fontSize: '0.875rem', color: '#64748b' }}>
+                                              Margin: {baseMargin.toFixed(1)}%
+                                            </div>
+                                          </div>
+                                          <div style={{
+                                            borderLeft: hasAdjustments ? '3px solid #4b006e' : '3px solid #e5e7eb',
+                                            paddingLeft: '1rem',
+                                          }}>
+                                            <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem' }}>YOUR SCENARIO</div>
+                                            <div style={{
+                                              fontSize: '1.25rem',
+                                              fontWeight: 700,
+                                              color: hasAdjustments ? '#4b006e' : '#1e293b',
+                                            }}>
+                                              CPU: ${formatNumberWithCommas(scenarioCPUValue)}
+                                            </div>
+                                            <div style={{ fontSize: '0.875rem', color: hasAdjustments ? '#4b006e' : '#64748b' }}>
+                                              Margin: {scenarioMarginValue.toFixed(1)}%
+                                              {hasAdjustments && (
+                                                <span style={{ marginLeft: '0.5rem' }}>
+                                                  ({scenarioMarginValue > baseMargin ? '+' : ''}{(scenarioMarginValue - baseMargin).toFixed(1)}%)
+                                                </span>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        {/* MSRP Adjustment */}
+                                        <div style={{ marginBottom: '1.5rem' }}>
+                                          <label style={{
+                                            display: 'block',
+                                            fontSize: '0.875rem',
+                                            fontWeight: 600,
+                                            marginBottom: '0.5rem',
+                                          }}>
+                                            MSRP: ${scenarioMSRPValue.toFixed(2)}
+                                          </label>
+                                          <input
+                                            type="range"
+                                            min={baseMSRP * 0.7}
+                                            max={baseMSRP * 1.5}
+                                            step={0.25}
+                                            value={scenarioMSRPValue}
+                                            onChange={(e) => {
+                                              const newMSRP = parseFloat(e.target.value);
+                                              setScenarioMSRP(prev => new Map(prev).set(productId, newMSRP));
+                                            }}
+                                            style={{
+                                              width: '100%',
+                                              height: '6px',
+                                              borderRadius: '3px',
+                                              background: '#e5e7eb',
+                                              outline: 'none',
+                                              cursor: 'pointer',
+                                            }}
+                                          />
+                                          <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            fontSize: '0.75rem',
+                                            color: '#64748b',
+                                            marginTop: '0.25rem',
+                                          }}>
+                                            <span>-30%</span>
+                                            <span>+50%</span>
+                                          </div>
+                                        </div>
+
+                                        {/* Component Adjustments */}
+                                        <div>
+                                          <div style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.75rem' }}>
+                                            Component Costs
+                                          </div>
+                                          {cpuData.breakdown.map((component, idx) => {
+                                            const baseSubtotal = component.subtotal ? parseFloat(component.subtotal) : 0;
+                                            const currentAdj = scenarioAdjustments.get(productId)?.get(component.categoryId) || 0;
+                                            const adjustedSubtotal = baseSubtotal * (1 + currentAdj / 100);
+
+                                            return (
+                                              <div key={idx} style={{
+                                                marginBottom: '1rem',
+                                                padding: '0.75rem',
+                                                background: currentAdj !== 0 ? '#fef3c7' : 'white',
+                                                border: '1px solid #e5e7eb',
+                                                borderRadius: '6px',
+                                              }}>
+                                                <div style={{
+                                                  display: 'flex',
+                                                  justifyContent: 'space-between',
+                                                  marginBottom: '0.5rem',
+                                                }}>
+                                                  <div style={{ fontWeight: 500, fontSize: '0.875rem' }}>
+                                                    {component.categoryName}
+                                                  </div>
+                                                  <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>
+                                                    ${formatNumberWithCommas(adjustedSubtotal)}
+                                                    {currentAdj !== 0 && (
+                                                      <span style={{
+                                                        fontSize: '0.75rem',
+                                                        color: currentAdj > 0 ? '#dc2626' : '#16a34a',
+                                                        marginLeft: '0.5rem',
+                                                      }}>
+                                                        ({currentAdj > 0 ? '+' : ''}{currentAdj}%)
+                                                      </span>
+                                                    )}
+                                                  </div>
+                                                </div>
+                                                <input
+                                                  type="range"
+                                                  min={-50}
+                                                  max={100}
+                                                  step={5}
+                                                  value={currentAdj}
+                                                  onChange={(e) => {
+                                                    const adj = parseInt(e.target.value);
+                                                    setScenarioAdjustments(prev => {
+                                                      const newMap = new Map(prev);
+                                                      const productAdj = newMap.get(productId) || new Map();
+                                                      if (adj === 0) {
+                                                        productAdj.delete(component.categoryId);
+                                                      } else {
+                                                        productAdj.set(component.categoryId, adj);
+                                                      }
+                                                      newMap.set(productId, productAdj);
+                                                      return newMap;
+                                                    });
+                                                  }}
+                                                  style={{
+                                                    width: '100%',
+                                                    height: '6px',
+                                                    borderRadius: '3px',
+                                                    background: '#e5e7eb',
+                                                    outline: 'none',
+                                                    cursor: 'pointer',
+                                                  }}
+                                                />
+                                                <div style={{
+                                                  display: 'flex',
+                                                  justifyContent: 'space-between',
+                                                  fontSize: '0.75rem',
+                                                  color: '#64748b',
+                                                  marginTop: '0.25rem',
+                                                }}>
+                                                  <span>-50% (cheaper vendor)</span>
+                                                  <span>+100% (tariff/shortage)</span>
+                                                </div>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+
+                                        {/* Reset Button */}
+                                        {hasAdjustments && (
+                                          <button
+                                            onClick={() => {
+                                              setScenarioAdjustments(prev => {
+                                                const newMap = new Map(prev);
+                                                newMap.delete(productId);
+                                                return newMap;
+                                              });
+                                              setScenarioMSRP(prev => {
+                                                const newMap = new Map(prev);
+                                                newMap.delete(productId);
+                                                return newMap;
+                                              });
+                                            }}
+                                            style={{
+                                              marginTop: '1rem',
+                                              padding: '0.5rem 1rem',
+                                              background: 'white',
+                                              border: '1px solid #e5e7eb',
+                                              borderRadius: '6px',
+                                              fontSize: '0.875rem',
+                                              cursor: 'pointer',
+                                            }}
+                                          >
+                                            Reset to Current
+                                          </button>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+
+                              {/* Trends Tab */}
+                              {intelligenceTab === 'trends' && (
+                                <div style={{
+                                  padding: '2rem',
+                                  textAlign: 'center',
+                                  color: '#64748b',
+                                }}>
+                                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📈</div>
+                                  <p style={{ fontSize: '1.125rem', fontWeight: 500, marginBottom: '0.5rem' }}>
+                                    CPU Trend Analysis
+                                  </p>
+                                  <p style={{ fontSize: '0.875rem' }}>
+                                    Coming soon: Interactive charts showing cost trends over time with driver annotations
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* Vendors Tab */}
+                              {intelligenceTab === 'vendors' && (
+                                <div style={{
+                                  padding: '2rem',
+                                  textAlign: 'center',
+                                  color: '#64748b',
+                                }}>
+                                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏪</div>
+                                  <p style={{ fontSize: '1.125rem', fontWeight: 500, marginBottom: '0.5rem' }}>
+                                    Vendor Intelligence
+                                  </p>
+                                  <p style={{ fontSize: '0.875rem' }}>
+                                    Coming soon: Vendor price comparison and savings opportunities
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* Alerts Tab */}
+                              {intelligenceTab === 'alerts' && (
+                                <div style={{
+                                  padding: '2rem',
+                                  textAlign: 'center',
+                                  color: '#64748b',
+                                }}>
+                                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔔</div>
+                                  <p style={{ fontSize: '1.125rem', fontWeight: 500, marginBottom: '0.5rem' }}>
+                                    Smart Alerts
+                                  </p>
+                                  <p style={{ fontSize: '0.875rem' }}>
+                                    Coming soon: Automated recommendations and margin alerts
+                                  </p>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
