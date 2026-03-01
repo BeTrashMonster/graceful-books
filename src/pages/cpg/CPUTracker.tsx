@@ -307,8 +307,8 @@ export default function CPUTracker() {
       const endDate = new Date(rawMaterialsDateRange.end);
       if (invDate < startDate || invDate > endDate) return false;
 
-      // Vendor filter
-      if (rawMaterialsVendorFilter && !inv.vendor_name.toLowerCase().includes(rawMaterialsVendorFilter.toLowerCase())) {
+      // Vendor filter (exact match, case-insensitive)
+      if (rawMaterialsVendorFilter && inv.vendor_name.toLowerCase() !== rawMaterialsVendorFilter.toLowerCase()) {
         return false;
       }
 
@@ -996,8 +996,8 @@ export default function CPUTracker() {
                     </div>
                   )}
 
-                  {/* Top Vendor by Spend */}
-                  {rawMaterialStats.topVendor && (
+                  {/* Top Vendor by Spend (only show when NO vendor filter active) */}
+                  {rawMaterialStats.topVendor && !rawMaterialsVendorFilter && (
                     <div style={{
                       background: 'white',
                       border: '1px solid #e5e7eb',
