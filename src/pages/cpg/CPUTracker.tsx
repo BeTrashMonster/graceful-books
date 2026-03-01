@@ -425,11 +425,66 @@ export default function CPUTracker() {
       }
     });
 
+    // Top category by spend (calculate from date-filtered only, ignore category filter for context)
+    const allCategoriesSpend = new Map<string, { name: string; total: number }>();
+    dateFilteredInvoices.forEach(inv => {
+      if (inv.cost_attribution) {
+        Object.values(inv.cost_attribution).forEach(attr => {
+          const category = categories.find(c => c.id === attr.category_id);
+          if (category) {
+            const lineTotal = attr.manual_line_total
+              ? parseFloat(attr.manual_line_total)
+              : parseFloat(attr.units_purchased) * parseFloat(attr.unit_price);
+
+            const existing = allCategoriesSpend.get(category.id);
+            if (existing) {
+              existing.total += lineTotal;
+            } else {
+              allCategoriesSpend.set(category.id, { name: category.name, total: lineTotal });
+            }
+          }
+        });
+      }
+    });
+
+    let topCategory: { name: string; total: number } | null = null;
+    allCategoriesSpend.forEach((categoryData) => {
+      if (!topCategory || categoryData.total > topCategory.total) {
+        topCategory = categoryData;
+      }
+    });
+
+    // Top variant by spend (calculate from date-filtered only, ignore variant filter for context)
+    const allVariantsSpend = new Map<string, number>();
+    dateFilteredInvoices.forEach(inv => {
+      if (inv.cost_attribution) {
+        Object.values(inv.cost_attribution).forEach(attr => {
+          if (attr.variant) {
+            const lineTotal = attr.manual_line_total
+              ? parseFloat(attr.manual_line_total)
+              : parseFloat(attr.units_purchased) * parseFloat(attr.unit_price);
+
+            const existing = allVariantsSpend.get(attr.variant);
+            allVariantsSpend.set(attr.variant, (existing || 0) + lineTotal);
+          }
+        });
+      }
+    });
+
+    let topVariant: { name: string; total: number } | null = null;
+    allVariantsSpend.forEach((total, name) => {
+      if (!topVariant || total > topVariant.total) {
+        topVariant = { name, total };
+      }
+    });
+
     return {
       totalSpent,
       invoiceCount,
       averageInvoiceAmount,
       topVendor,
+      topCategory,
+      topVariant,
       spentOnSelectedCategory,
       spendByCategoryMap: spendByCategory,
     };
@@ -843,6 +898,67 @@ export default function CPUTracker() {
                     </>
                   )}
 
+                  {/* Category Filter */}
+                  <select
+                    value={rawMaterialsCategoryFilter || ''}
+                    onChange={(e) => setRawMaterialsCategoryFilter(e.target.value || undefined)}
+                    className={styles.filterSelect}
+                    aria-label="Filter by category"
+                    style={{
+                      padding: '0.5rem 0.75rem',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '6px',
+                      fontSize: '0.875rem',
+                    }}
+                  >
+                    <option value="">All Categories</option>
+                    {[...categories].sort((a, b) => a.name.localeCompare(b.name)).map((cat) => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+
+                  {/* Variant Filter */}
+                  <select
+                    value={rawMaterialsVariantFilter}
+                    onChange={(e) => setRawMaterialsVariantFilter(e.target.value)}
+                    className={styles.filterSelect}
+                    aria-label="Filter by variant"
+                    style={{
+                      padding: '0.5rem 0.75rem',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '6px',
+                      fontSize: '0.875rem',
+                    }}
+                  >
+                    <option value="">All Variants</option>
+                    {availableVariants.map((variant) => (
+                      <option key={variant} value={variant}>{variant}</option>
+                    ))}
+                  </select>
+
+                  {/* Vendor Filter */}
+                  <input
+                    type="search"
+                    placeholder="Filter by vendor..."
+                    value={rawMaterialsVendorFilter}
+                    onChange={(e) => setRawMaterialsVendorFilter(e.target.value)}
+                    className={styles.searchInput}
+                    aria-label="Filter by vendor"
+                    style={{
+                      minWidth: '150px',
+                      padding: '0.5rem 0.75rem',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '6px',
+                      fontSize: '0.875rem',
+                    }}
+                    list="vendor-suggestions"
+                  />
+                  <datalist id="vendor-suggestions">
+                    {Array.from(new Set(invoices.map(inv => inv.vendor_name))).sort().map(vendor => (
+                      <option key={vendor} value={vendor} />
+                    ))}
+                  </datalist>
+
                   {/* Export Dropdown */}
                   <div style={{ marginLeft: 'auto', position: 'relative' }}>
                     <button
@@ -954,6 +1070,53 @@ export default function CPUTracker() {
                   </div>
                 </div>
 
+                {/* Filter Status Banner */}
+                {(rawMaterialsCategoryFilter || rawMaterialsVariantFilter || rawMaterialsVendorFilter) && (
+                  <div style={{
+                    padding: '0.75rem 1rem',
+                    background: '#f0f9ff',
+                    border: '1px solid #bae6fd',
+                    borderRadius: '6px',
+                    marginBottom: '1.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    fontSize: '0.875rem',
+                  }}
+                  role="status"
+                  aria-live="polite"
+                  >
+                    <span style={{ color: '#0c4a6e' }}>
+                      Showing {filteredRawMaterialInvoices.length} of {invoices.length} invoices
+                      {rawMaterialsDatePreset !== 'all' && ` • ${new Date(rawMaterialsDateRange.start).toLocaleDateString()} - ${new Date(rawMaterialsDateRange.end).toLocaleDateString()}`}
+                      {rawMaterialsCategoryFilter && ` • Category: ${categories.find(c => c.id === rawMaterialsCategoryFilter)?.name}`}
+                      {rawMaterialsVariantFilter && ` • Variant: "${rawMaterialsVariantFilter}"`}
+                      {rawMaterialsVendorFilter && ` • Vendor: "${rawMaterialsVendorFilter}"`}
+                    </span>
+                    <button
+                      onClick={() => {
+                        setRawMaterialsCategoryFilter(undefined);
+                        setRawMaterialsVariantFilter('');
+                        setRawMaterialsVendorFilter('');
+                      }}
+                      style={{
+                        marginLeft: 'auto',
+                        padding: '0.25rem 0.75rem',
+                        background: 'transparent',
+                        border: '1px solid #0c4a6e',
+                        borderRadius: '4px',
+                        color: '#0c4a6e',
+                        fontSize: '0.75rem',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                      }}
+                      aria-label="Clear all filters"
+                    >
+                      Clear Filters
+                    </button>
+                  </div>
+                )}
+
                 {/* Stat Boxes */}
                 <div style={{
                   display: 'grid',
@@ -999,8 +1162,42 @@ export default function CPUTracker() {
                     </div>
                   )}
 
-                  {/* Top Vendor by Spend (always show for context) */}
-                  {rawMaterialStats.topVendor && (
+                  {/* Top Category by Spend (show when category filter active, otherwise Top Vendor) */}
+                  {rawMaterialsCategoryFilter && rawMaterialStats.topCategory ? (
+                    <div style={{
+                      background: 'white',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '12px',
+                      padding: '1.5rem',
+                    }}>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500, marginBottom: '0.5rem' }}>
+                        Top Category by Spend
+                      </div>
+                      <div style={{ fontSize: '2rem', fontWeight: 700, color: '#4b006e', lineHeight: 1 }}>
+                        ${formatNumberWithCommas(rawMaterialStats.topCategory.total)}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.5rem' }}>
+                        {rawMaterialStats.topCategory.name}
+                      </div>
+                    </div>
+                  ) : rawMaterialsVariantFilter && rawMaterialStats.topVariant ? (
+                    <div style={{
+                      background: 'white',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '12px',
+                      padding: '1.5rem',
+                    }}>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500, marginBottom: '0.5rem' }}>
+                        Top Variant by Spend
+                      </div>
+                      <div style={{ fontSize: '2rem', fontWeight: 700, color: '#4b006e', lineHeight: 1 }}>
+                        ${formatNumberWithCommas(rawMaterialStats.topVariant.total)}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.5rem' }}>
+                        {rawMaterialStats.topVariant.name}
+                      </div>
+                    </div>
+                  ) : rawMaterialStats.topVendor && (
                     <div style={{
                       background: 'white',
                       border: '1px solid #e5e7eb',
@@ -1015,23 +1212,6 @@ export default function CPUTracker() {
                       </div>
                       <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.5rem' }}>
                         {rawMaterialStats.topVendor.name}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Spent on Selected Category (if filter active) */}
-                  {rawMaterialStats.spentOnSelectedCategory !== null && rawMaterialsCategoryFilter && (
-                    <div style={{
-                      background: 'white',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '12px',
-                      padding: '1.5rem',
-                    }}>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500, marginBottom: '0.5rem' }}>
-                        Spent on {categories.find(c => c.id === rawMaterialsCategoryFilter)?.name}
-                      </div>
-                      <div style={{ fontSize: '2rem', fontWeight: 700, color: '#4b006e', lineHeight: 1 }}>
-                        ${formatNumberWithCommas(rawMaterialStats.spentOnSelectedCategory)}
                       </div>
                     </div>
                   )}
@@ -1084,105 +1264,6 @@ export default function CPUTracker() {
                           );
                         })}
                     </div>
-                  </div>
-                )}
-
-                {/* Filters */}
-                <div style={{
-                  display: 'flex',
-                  gap: '0.75rem',
-                  marginBottom: '1rem',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                }}>
-                  {/* Category Filter */}
-                  <select
-                    value={rawMaterialsCategoryFilter || ''}
-                    onChange={(e) => setRawMaterialsCategoryFilter(e.target.value || undefined)}
-                    className={styles.filterSelect}
-                    aria-label="Filter by category"
-                  >
-                    <option value="">All Categories</option>
-                    {[...categories].sort((a, b) => a.name.localeCompare(b.name)).map((cat) => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                  </select>
-
-                  {/* Variant Filter */}
-                  <select
-                    value={rawMaterialsVariantFilter}
-                    onChange={(e) => setRawMaterialsVariantFilter(e.target.value)}
-                    className={styles.filterSelect}
-                    aria-label="Filter by variant"
-                  >
-                    <option value="">All Variants</option>
-                    {availableVariants.map((variant) => (
-                      <option key={variant} value={variant}>{variant}</option>
-                    ))}
-                  </select>
-
-                  {/* Vendor Filter with autocomplete support */}
-                  <input
-                    type="search"
-                    placeholder="Filter by vendor..."
-                    value={rawMaterialsVendorFilter}
-                    onChange={(e) => setRawMaterialsVendorFilter(e.target.value)}
-                    className={styles.searchInput}
-                    aria-label="Filter by vendor"
-                    style={{ minWidth: '150px' }}
-                    list="vendor-suggestions"
-                  />
-                  <datalist id="vendor-suggestions">
-                    {Array.from(new Set(invoices.map(inv => inv.vendor_name))).sort().map(vendor => (
-                      <option key={vendor} value={vendor} />
-                    ))}
-                  </datalist>
-                </div>
-
-                {/* Filter Status Banner */}
-                {(rawMaterialsCategoryFilter || rawMaterialsVariantFilter || rawMaterialsVendorFilter) && (
-                  <div style={{
-                    padding: '0.75rem 1rem',
-                    background: '#f0f9ff',
-                    border: '1px solid #bae6fd',
-                    borderRadius: '6px',
-                    marginBottom: '1rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    fontSize: '0.875rem',
-                  }}
-                  role="status"
-                  aria-live="polite"
-                  >
-                    <span style={{ color: '#0c4a6e' }}>
-                      Showing {filteredRawMaterialInvoices.length} of {invoices.length} invoices
-                      {rawMaterialsDatePreset !== 'all' && ` • ${new Date(rawMaterialsDateRange.start).toLocaleDateString()} - ${new Date(rawMaterialsDateRange.end).toLocaleDateString()}`}
-                      {rawMaterialsCategoryFilter && ` • Category: ${categories.find(c => c.id === rawMaterialsCategoryFilter)?.name}`}
-                      {rawMaterialsVariantFilter && ` • Variant: "${rawMaterialsVariantFilter}"`}
-                      {rawMaterialsVendorFilter && ` • Vendor: "${rawMaterialsVendorFilter}"`}
-                    </span>
-                    <button
-                      onClick={() => {
-                        setRawMaterialsCategoryFilter(undefined);
-                        setRawMaterialsVariantFilter('');
-                        setRawMaterialsVendorFilter('');
-                      }}
-                      style={{
-                        marginLeft: 'auto',
-                        padding: '0.25rem 0.75rem',
-                        background: 'white',
-                        border: '1px solid #bae6fd',
-                        borderRadius: '4px',
-                        fontSize: '0.75rem',
-                        fontWeight: 500,
-                        color: '#0c4a6e',
-                        cursor: 'pointer',
-                      }}
-                      aria-label="Clear all filters"
-                    >
-                      Clear Filters
-                    </button>
                   </div>
                 )}
 
