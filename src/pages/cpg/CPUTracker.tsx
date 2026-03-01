@@ -128,13 +128,20 @@ export default function CPUTracker() {
   const handleRawMaterialsDateBlur = (value: string, setter: (val: string) => void) => {
     if (!value) return;
 
-    // Check if it's a partial date entry (e.g., "26-02-28" when user typed "26" for year)
     const parts = value.split('-');
-    if (parts.length === 3 && parts[0].length === 2) {
-      // User entered 2-digit year, convert to 4-digit (26 -> 2026)
+    if (parts.length === 3) {
       const year = parseInt(parts[0], 10);
-      const fullYear = year >= 0 && year <= 99 ? `20${parts[0].padStart(2, '0')}` : parts[0];
-      setter(`${fullYear}-${parts[1]}-${parts[2]}`);
+
+      // Handle 2-digit years (26 -> 2026)
+      if (parts[0].length === 2 && year >= 0 && year <= 99) {
+        const fullYear = `20${parts[0].padStart(2, '0')}`;
+        setter(`${fullYear}-${parts[1]}-${parts[2]}`);
+      }
+      // Handle browser-converted 4-digit years like "0026" -> "2026"
+      else if (parts[0].length === 4 && year >= 0 && year <= 99) {
+        const fullYear = `20${year.toString().padStart(2, '0')}`;
+        setter(`${fullYear}-${parts[1]}-${parts[2]}`);
+      }
     }
   };
 
