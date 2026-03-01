@@ -58,7 +58,6 @@ import {
   getContact,
   updateContact,
   deleteContact,
-  queryContacts,
 } from '../../store/contacts'
 // Product store imports removed - testing authorization pattern instead of full implementation
 import { db } from '../../store/database'
@@ -66,8 +65,6 @@ import { db } from '../../store/database'
 // Authorization and RBAC
 import {
   requireCompanyOwnership,
-  requireBatchCompanyOwnership,
-  validateCompanyId,
 } from '../../utils/authorization'
 import {
   checkPermission,
@@ -147,8 +144,14 @@ function createMockCompanyUser(
  */
 function createMockEncryptionContext(): EncryptionContext {
   return {
-    encrypt: async (data: string) => data, // Pass-through for testing
-    decrypt: async (data: string) => data, // Pass-through for testing
+    companyId: nanoid(),
+    userId: nanoid(),
+    encryptionService: {
+      encrypt: async (data: string) => data, // Pass-through for testing
+      decrypt: async (data: string) => data, // Pass-through for testing
+      encryptField: async <T>(field: T) => JSON.stringify(field),
+      decryptField: async <T>(encrypted: string) => JSON.parse(encrypted) as T,
+    },
   }
 }
 
@@ -175,8 +178,8 @@ async function createTestAccount(
 
   const result = await createAccount(accountData, createMockEncryptionContext())
 
-  if (!result.success || !result.data) {
-    throw new Error(`Failed to create test account: ${result.error?.message}`)
+  if (!result.success) {
+    throw new Error(`Failed to create test account: ${result.error.message}`)
   }
 
   return result.data
@@ -222,8 +225,8 @@ async function createTestTransaction(
 
   const result = await createTransaction(transactionData, createMockEncryptionContext())
 
-  if (!result.success || !result.data) {
-    throw new Error(`Failed to create test transaction: ${result.error?.message}`)
+  if (!result.success) {
+    throw new Error(`Failed to create test transaction: ${result.error.message}`)
   }
 
   return result.data
@@ -271,9 +274,11 @@ describe('Integration: Complete User Journey with Cross-Company Access', () => {
     )
 
     expect(readResult.success).toBe(false)
-    expect(readResult.error?.code).toBe('NOT_FOUND')
-    expect(readResult.error?.message).not.toContain(companyB)
-    expect(readResult.error?.message).not.toContain('permission')
+    if (!readResult.success) {
+      expect(readResult.error.code).toBe('NOT_FOUND')
+      expect(readResult.error.message).not.toContain(companyB)
+      expect(readResult.error.message).not.toContain('permission')
+    }
 
     // Company A tries to update Company B's account
     const updateResult = await updateAccount(

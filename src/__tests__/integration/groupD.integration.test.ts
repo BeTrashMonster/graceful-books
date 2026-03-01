@@ -187,7 +187,7 @@ describe('Group D Integration Tests', () => {
       expect(createResult.createdAccounts).toBeDefined()
 
       // Verify accounts were created in database
-      const accountsResult = await queryAccounts({ companyId: testCompanyId })
+      const accountsResult = await queryAccounts(testCompanyId)
       expect(accountsResult.success).toBe(true)
       if (!accountsResult.success) throw new Error(accountsResult.error.message)
       expect(accountsResult.data.length).toBe(createResult.accountsCreated)
@@ -227,7 +227,7 @@ describe('Group D Integration Tests', () => {
       expect(expenseTxn).toBeDefined()
 
       // Verify transactions were created
-      const transactionsResult = await queryTransactions({ companyId: testCompanyId })
+      const transactionsResult = await queryTransactions(testCompanyId)
       expect(transactionsResult.success).toBe(true)
       if (!transactionsResult.success) throw new Error(transactionsResult.error.message)
       expect(transactionsResult.data.length).toBe(2)
@@ -330,7 +330,7 @@ describe('Group D Integration Tests', () => {
       expect(result.success).toBe(true)
 
       // Verify customization was applied
-      const accountsResult = await queryAccounts({ companyId: testCompanyId })
+      const accountsResult = await queryAccounts(testCompanyId)
       expect(accountsResult.success).toBe(true)
       if (!accountsResult.success) throw new Error(accountsResult.error.message)
 
@@ -688,8 +688,7 @@ describe('Group D Integration Tests', () => {
       expect(vendorsResult.length).toBe(2)
 
       // STEP 5: Query expenses for a vendor
-      const vendor1Expenses = await queryTransactions({
-        companyId: testCompanyId,
+      const vendor1Expenses = await queryTransactions(testCompanyId, {
         fromDate: new Date('2024-01-01'),
         toDate: new Date('2024-01-31'),
       })
@@ -988,11 +987,11 @@ describe('Group D Integration Tests', () => {
         },
       ]
 
-      const createResult = await batchCreateAccounts(accounts)
+      const createResult = await batchCreateAccounts(testCompanyId, accounts)
       expect(createResult.successful.length).toBe(2)
 
       // STEP 2: Verify persistence by querying
-      const queryResult = await queryAccounts({ companyId: testCompanyId })
+      const queryResult = await queryAccounts(testCompanyId)
       expect(queryResult.success).toBe(true)
       if (!queryResult.success) throw new Error(queryResult.error.message)
       expect(queryResult.data.length).toBe(2)
@@ -1002,7 +1001,7 @@ describe('Group D Integration Tests', () => {
       await db.open()
 
       // STEP 4: Query again to verify data persisted
-      const queryAfterReopen = await queryAccounts({ companyId: testCompanyId })
+      const queryAfterReopen = await queryAccounts(testCompanyId)
       expect(queryAfterReopen.success).toBe(true)
       if (!queryAfterReopen.success) throw new Error(queryAfterReopen.error.message)
       expect(queryAfterReopen.data.length).toBe(2)
@@ -1158,7 +1157,7 @@ describe('Group D Integration Tests', () => {
       const coaResult = await createAccountsFromWizard(testCompanyId, wizardData)
       expect(coaResult.success).toBe(true)
 
-      const accountsResult = await queryAccounts({ companyId: testCompanyId })
+      const accountsResult = await queryAccounts(testCompanyId)
       if (!accountsResult.success) throw new Error(accountsResult.error.message)
       const accounts = accountsResult.data
       const cashAccount = accounts.find((a: Account) => a.name.toLowerCase().includes('cash') || a.name.toLowerCase().includes('checking'))

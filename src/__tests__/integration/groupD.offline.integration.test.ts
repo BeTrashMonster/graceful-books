@@ -68,7 +68,7 @@ describe('Group D Offline Integration Tests', () => {
       if (!accountResult.success) return
 
       // Query accounts to verify persistence
-      const queryResult = await queryAccounts({ companyId: testCompanyId })
+      const queryResult = await queryAccounts(testCompanyId)
       expect(queryResult.success).toBe(true)
       if (!queryResult.success) return
 
@@ -151,7 +151,7 @@ describe('Group D Offline Integration Tests', () => {
       expect(account2.success).toBe(true)
 
       // Verify all persisted
-      const queryResult = await queryAccounts({ companyId: testCompanyId })
+      const queryResult = await queryAccounts(testCompanyId)
       expect(queryResult.success).toBe(true)
       if (!queryResult.success) return
 

@@ -49,6 +49,9 @@ import { createAccount } from '../../store/accounts';
 import { createTransaction } from '../../store/transactions';
 
 // Types
+import type { ParsedStatement } from '../../types/reconciliation.types';
+
+// Types
 import type { JournalEntry, Account } from '../../types';
 
 /**

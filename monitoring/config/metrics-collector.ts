@@ -384,14 +384,15 @@ export class MetricsManager {
     const summary = this.getSummary();
     const metricNames = this.collector.getMetricNames();
 
+    const details: Record<string, unknown> = {};
+    for (const name of metricNames) {
+      details[name] = this.collector.getAggregation(name);
+    }
+
     const metrics: Record<string, unknown> = {
       summary,
-      details: {},
+      details,
     };
-
-    for (const name of metricNames) {
-      metrics.details[name] = this.collector.getAggregation(name);
-    }
 
     return metrics;
   }
