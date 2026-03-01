@@ -368,6 +368,9 @@ export default function CPUTracker() {
       return sum + amount;
     }, 0);
 
+    // Invoice count (for filtered invoices)
+    const invoiceCount = filteredRawMaterialInvoices.length;
+
     // Spend by category (all categories)
     const spendByCategory = new Map<string, { name: string; total: number }>();
     filteredRawMaterialInvoices.forEach(inv => {
@@ -400,37 +403,37 @@ export default function CPUTracker() {
       ? (spendByCategory.get(rawMaterialsCategoryFilter)?.total || 0)
       : null;
 
-    // Spend by vendor (all vendors)
-    const spendByVendor = new Map<string, number>();
-    filteredRawMaterialInvoices.forEach(inv => {
-      const amount = typeof inv.total_paid === 'number' ? inv.total_paid : parseFloat(inv.total_paid || '0');
-      const existing = spendByVendor.get(inv.vendor_name);
-      spendByVendor.set(inv.vendor_name, (existing || 0) + amount);
+    // Top vendor by spend (calculate from date-filtered only, ignore vendor filter for context)
+    const dateFilteredInvoices = invoices.filter(inv => {
+      const invDate = new Date(inv.invoice_date);
+      const startDate = new Date(rawMaterialsDateRange.start);
+      const endDate = new Date(rawMaterialsDateRange.end);
+      return invDate >= startDate && invDate <= endDate;
     });
 
-    // Top vendor by spend
+    const allVendorsSpend = new Map<string, number>();
+    dateFilteredInvoices.forEach(inv => {
+      const amount = typeof inv.total_paid === 'number' ? inv.total_paid : parseFloat(inv.total_paid || '0');
+      const existing = allVendorsSpend.get(inv.vendor_name);
+      allVendorsSpend.set(inv.vendor_name, (existing || 0) + amount);
+    });
+
     let topVendor: { name: string; total: number } | null = null;
-    spendByVendor.forEach((total, name) => {
+    allVendorsSpend.forEach((total, name) => {
       if (!topVendor || total > topVendor.total) {
         topVendor = { name, total };
       }
     });
 
-    // Spend by selected vendor (if filter active)
-    const spentOnSelectedVendor = rawMaterialsVendorFilter
-      ? (spendByVendor.get(rawMaterialsVendorFilter) || null)
-      : null;
-
     return {
       totalSpent,
+      invoiceCount,
       averageInvoiceAmount,
       topVendor,
       spentOnSelectedCategory,
-      spentOnSelectedVendor,
       spendByCategoryMap: spendByCategory,
-      spendByVendorMap: spendByVendor,
     };
-  }, [filteredRawMaterialInvoices, categories, rawMaterialsCategoryFilter, rawMaterialsVendorFilter]);
+  }, [filteredRawMaterialInvoices, categories, rawMaterialsCategoryFilter, rawMaterialsDateRange, invoices]);
 
   // Get all unique variants from invoices for dropdown
   const availableVariants = useMemo(() => {
@@ -996,8 +999,8 @@ export default function CPUTracker() {
                     </div>
                   )}
 
-                  {/* Top Vendor by Spend (only show when NO vendor filter active) */}
-                  {rawMaterialStats.topVendor && !rawMaterialsVendorFilter && (
+                  {/* Top Vendor by Spend (always show for context) */}
+                  {rawMaterialStats.topVendor && (
                     <div style={{
                       background: 'white',
                       border: '1px solid #e5e7eb',
@@ -1029,23 +1032,6 @@ export default function CPUTracker() {
                       </div>
                       <div style={{ fontSize: '2rem', fontWeight: 700, color: '#4b006e', lineHeight: 1 }}>
                         ${formatNumberWithCommas(rawMaterialStats.spentOnSelectedCategory)}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Spent on Selected Vendor (if filter active) */}
-                  {rawMaterialStats.spentOnSelectedVendor !== null && rawMaterialsVendorFilter && (
-                    <div style={{
-                      background: 'white',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '12px',
-                      padding: '1.5rem',
-                    }}>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500, marginBottom: '0.5rem' }}>
-                        Spent with {rawMaterialsVendorFilter}
-                      </div>
-                      <div style={{ fontSize: '2rem', fontWeight: 700, color: '#4b006e', lineHeight: 1 }}>
-                        ${formatNumberWithCommas(rawMaterialStats.spentOnSelectedVendor)}
                       </div>
                     </div>
                   )}
