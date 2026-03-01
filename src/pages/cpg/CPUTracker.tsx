@@ -1890,122 +1890,6 @@ export default function CPUTracker() {
                         </div>
                       ) : (
                         <div>
-                          {/* Comparison Cards */}
-                          <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                            gap: '1.5rem',
-                            marginBottom: '2rem',
-                          }}>
-                            {Array.from(selectedProductsForComparison).map(productId => {
-                              const product = finishedProducts.find(p => p.id === productId);
-                              if (!product) return null;
-
-                              const cpuData = productCPUData.get(productId);
-                              const cpu = cpuData?.cpu ? parseFloat(cpuData.cpu) : null;
-                              const msrp = product.msrp ? parseFloat(product.msrp) : null;
-                              const margin = cpuData?.margin;
-
-                              // Determine margin color
-                              let marginColor = '#64748b';
-                              if (margin !== null && margin !== undefined) {
-                                if (margin >= 70) marginColor = '#16a34a'; // Green
-                                else if (margin >= 50) marginColor = '#eab308'; // Yellow
-                                else marginColor = '#dc2626'; // Red
-                              }
-
-                              return (
-                                <div
-                                  key={productId}
-                                  style={{
-                                    background: 'white',
-                                    border: '1px solid #e5e7eb',
-                                    borderRadius: '12px',
-                                    padding: '1.5rem',
-                                  }}
-                                >
-                                  <div style={{ marginBottom: '1rem' }}>
-                                    <h3 style={{
-                                      fontSize: '1rem',
-                                      fontWeight: 700,
-                                      color: '#1e293b',
-                                      marginBottom: '0.25rem',
-                                    }}>
-                                      {product.name}
-                                    </h3>
-                                    {product.sku && (
-                                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                                        SKU: {product.sku}
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                    {/* Current CPU */}
-                                    <div>
-                                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
-                                        Current CPU
-                                      </div>
-                                      <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#4b006e' }}>
-                                        {cpu !== null ? `$${formatNumberWithCommas(cpu)}` : 'N/A'}
-                                      </div>
-                                    </div>
-
-                                    {/* MSRP */}
-                                    <div>
-                                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
-                                        MSRP
-                                      </div>
-                                      <div style={{ fontSize: '1.125rem', fontWeight: 600 }}>
-                                        {msrp !== null ? `$${formatNumberWithCommas(msrp)}` : 'Not set'}
-                                      </div>
-                                    </div>
-
-                                    {/* Margin */}
-                                    <div>
-                                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
-                                        Gross Margin
-                                      </div>
-                                      <div style={{ fontSize: '1.5rem', fontWeight: 700, color: marginColor }}>
-                                        {margin !== null && margin !== undefined ? `${margin.toFixed(1)}%` : 'N/A'}
-                                        {margin !== null && margin !== undefined && (
-                                          <span style={{ fontSize: '0.875rem', marginLeft: '0.5rem' }}>
-                                            {margin >= 70 ? '✓' : margin >= 50 ? '⚠' : '⚠'}
-                                          </span>
-                                        )}
-                                      </div>
-                                    </div>
-
-                                    {/* Top Cost Driver */}
-                                    {cpuData?.topDriver && (
-                                      <div>
-                                        <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
-                                          Top Cost Driver
-                                        </div>
-                                        <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
-                                          {cpuData.topDriver}
-                                        </div>
-                                      </div>
-                                    )}
-
-                                    {/* Data Status */}
-                                    <div style={{
-                                      marginTop: '0.5rem',
-                                      padding: '0.5rem',
-                                      background: cpuData?.isComplete ? '#f0fdf4' : '#fef3c7',
-                                      borderRadius: '6px',
-                                      fontSize: '0.75rem',
-                                      fontWeight: 500,
-                                      color: cpuData?.isComplete ? '#16a34a' : '#d97706',
-                                    }}>
-                                      {cpuData?.isComplete ? '✓ Complete Cost Data' : '⚠ Incomplete Cost Data'}
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-
                           {/* Intelligence Tabs */}
                           <div style={{
                             background: 'white',
@@ -2086,10 +1970,6 @@ export default function CPUTracker() {
                               {/* Scenario Builder Tab */}
                               {intelligenceTab === 'scenario' && (
                                 <div>
-                                  <p style={{ color: '#64748b', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
-                                    Adjust component costs to model scenarios like tariffs, vendor changes, or seasonal pricing.
-                                  </p>
-
                                   {Array.from(selectedProductsForComparison).map(productId => {
                                     const product = finishedProducts.find(p => p.id === productId);
                                     const cpuData = productCPUData.get(productId);
@@ -2108,12 +1988,12 @@ export default function CPUTracker() {
 
                                     return (
                                       <div key={productId} style={{
-                                        marginBottom: '2rem',
+                                        marginBottom: '1.5rem',
                                         border: '1px solid #e5e7eb',
                                         borderRadius: '8px',
-                                        padding: '1.5rem',
+                                        padding: '1rem',
                                       }}>
-                                        <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>
+                                        <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.75rem' }}>
                                           {product.name}
                                         </h4>
 
@@ -2121,11 +2001,11 @@ export default function CPUTracker() {
                                         <div style={{
                                           display: 'grid',
                                           gridTemplateColumns: '1fr 1fr',
-                                          gap: '1rem',
-                                          marginBottom: '1.5rem',
-                                          padding: '1rem',
+                                          gap: '0.75rem',
+                                          marginBottom: '1rem',
+                                          padding: '0.75rem',
                                           background: '#f8fafc',
-                                          borderRadius: '8px',
+                                          borderRadius: '6px',
                                         }}>
                                           <div>
                                             <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem' }}>CURRENT</div>
@@ -2160,12 +2040,12 @@ export default function CPUTracker() {
                                         </div>
 
                                         {/* MSRP Adjustment */}
-                                        <div style={{ marginBottom: '1.5rem' }}>
+                                        <div style={{ marginBottom: '1rem' }}>
                                           <label style={{
                                             display: 'block',
                                             fontSize: '0.875rem',
                                             fontWeight: 600,
-                                            marginBottom: '0.5rem',
+                                            marginBottom: '0.25rem',
                                           }}>
                                             MSRP: ${scenarioMSRPValue.toFixed(2)}
                                           </label>
@@ -2188,22 +2068,12 @@ export default function CPUTracker() {
                                               cursor: 'pointer',
                                             }}
                                           />
-                                          <div style={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            fontSize: '0.75rem',
-                                            color: '#64748b',
-                                            marginTop: '0.25rem',
-                                          }}>
-                                            <span>-30%</span>
-                                            <span>+50%</span>
-                                          </div>
                                         </div>
 
                                         {/* Component Adjustments */}
                                         <div>
-                                          <div style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-                                            Component Costs
+                                          <div style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+                                            Components
                                           </div>
                                           {cpuData.breakdown.map((component, idx) => {
                                             const baseSubtotal = component.subtotal ? parseFloat(component.subtotal) : 0;
@@ -2212,11 +2082,11 @@ export default function CPUTracker() {
 
                                             return (
                                               <div key={idx} style={{
-                                                marginBottom: '1rem',
-                                                padding: '0.75rem',
+                                                marginBottom: '0.5rem',
+                                                padding: '0.5rem',
                                                 background: currentAdj !== 0 ? '#fef3c7' : 'white',
                                                 border: '1px solid #e5e7eb',
-                                                borderRadius: '6px',
+                                                borderRadius: '4px',
                                               }}>
                                                 <div style={{
                                                   display: 'flex',
@@ -2268,16 +2138,6 @@ export default function CPUTracker() {
                                                     cursor: 'pointer',
                                                   }}
                                                 />
-                                                <div style={{
-                                                  display: 'flex',
-                                                  justifyContent: 'space-between',
-                                                  fontSize: '0.75rem',
-                                                  color: '#64748b',
-                                                  marginTop: '0.25rem',
-                                                }}>
-                                                  <span>-50% (cheaper vendor)</span>
-                                                  <span>+100% (tariff/shortage)</span>
-                                                </div>
                                               </div>
                                             );
                                           })}
