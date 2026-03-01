@@ -80,8 +80,13 @@ export default function CPUTracker() {
   const [rawMaterialsSortBy, setRawMaterialsSortBy] = useState<'date-asc' | 'date-desc' | 'vendor' | 'total-asc' | 'total-desc'>('date-desc');
   const [showRawMaterialsExportMenu, setShowRawMaterialsExportMenu] = useState(false);
 
-  // Product comparison for Tab 3
+  // Cost Intelligence (Tab 3) - Product comparison with trends
   const [selectedProductsForComparison, setSelectedProductsForComparison] = useState<Set<string>>(new Set());
+  const [comparisonSearchTerm, setComparisonSearchTerm] = useState<string>('');
+  const [comparisonCategoryFilter, setComparisonCategoryFilter] = useState<string>('all');
+  const [comparisonVariantFilter, setComparisonVariantFilter] = useState<string>('all');
+  const [comparisonDateRange, setComparisonDateRange] = useState<'3mo' | '6mo' | '12mo' | 'all'>('6mo');
+  const [productCPUData, setProductCPUData] = useState<Map<string, { cpu: string | null; margin: number | null; trend: 'up' | 'down' | 'stable'; trendValue: string | null; topDriver: string | null; isComplete: boolean }>>(new Map());
 
   // Handle date preset changes for Raw Materials tab
   const handleRawMaterialsDatePresetChange = (preset: DateRangePreset) => {
@@ -266,6 +271,141 @@ export default function CPUTracker() {
     } finally {
       setIsRecalculating(false);
     }
+  };
+
+  // Load CPU data for selected products (Cost Intelligence tab)
+  const loadProductCPUData = async (productIds: string[]) => {
+    if (productIds.length === 0) {
+      setProductCPUData(new Map());
+      return;
+    }
+
+    try {
+      const cpuDataMap = new Map<string, { cpu: string | null; margin: number | null; trend: 'up' | 'down' | 'stable'; trendValue: string | null; topDriver: string | null; isComplete: boolean }>();
+
+      for (const productId of productIds) {
+        const product = finishedProducts.find(p => p.id === productId);
+        if (!product) continue;
+
+        // Calculate current CPU
+        const cpuResult = await cpuCalculatorService.calculateFinishedProductCPU(productId, companyId);
+
+        // Calculate margin if MSRP exists
+        let margin: number | null = null;
+        if (product.msrp && cpuResult.cpu) {
+          const msrpNum = parseFloat(product.msrp);
+          const cpuNum = parseFloat(cpuResult.cpu);
+          margin = ((msrpNum - cpuNum) / msrpNum) * 100;
+        }
+
+        // Find top cost driver
+        let topDriver: string | null = null;
+        if (cpuResult.breakdown.length > 0) {
+          const sorted = [...cpuResult.breakdown]
+            .filter(b => b.subtotal !== null)
+            .sort((a, b) => parseFloat(b.subtotal!) - parseFloat(a.subtotal!));
+          if (sorted.length > 0) {
+            topDriver = sorted[0].categoryName;
+          }
+        }
+
+        // For now, set trend as stable (we'll calculate actual trends later)
+        // TODO: Calculate actual CPU trend from historical data
+        cpuDataMap.set(productId, {
+          cpu: cpuResult.cpu,
+          margin,
+          trend: 'stable',
+          trendValue: null,
+          topDriver,
+          isComplete: cpuResult.isComplete
+        });
+      }
+
+      setProductCPUData(cpuDataMap);
+    } catch (err) {
+      console.error('Failed to load product CPU data:', err);
+    }
+  };
+
+  // Load CPU data when selected products change
+  useEffect(() => {
+    if (activeTab === 'comparison' && selectedProductsForComparison.size > 0) {
+      loadProductCPUData(Array.from(selectedProductsForComparison));
+    }
+  }, [selectedProductsForComparison, activeTab, finishedProducts]);
+
+  // Quick select functions for Cost Intelligence tab
+  const selectAllProducts = () => {
+    const filtered = getFilteredProducts();
+    setSelectedProductsForComparison(new Set(filtered.map(p => p.id)));
+  };
+
+  const selectTopMarginProducts = (count: number = 5) => {
+    const productsWithMargin = finishedProducts
+      .map(p => {
+        const data = productCPUData.get(p.id);
+        return { id: p.id, margin: data?.margin ?? -999 };
+      })
+      .sort((a, b) => b.margin - a.margin)
+      .slice(0, count)
+      .map(p => p.id);
+
+    setSelectedProductsForComparison(new Set(productsWithMargin));
+  };
+
+  const selectBottomMarginProducts = (count: number = 5) => {
+    const productsWithMargin = finishedProducts
+      .filter(p => {
+        const data = productCPUData.get(p.id);
+        return data?.margin !== null && data?.margin !== undefined;
+      })
+      .map(p => {
+        const data = productCPUData.get(p.id);
+        return { id: p.id, margin: data?.margin ?? 999 };
+      })
+      .sort((a, b) => a.margin - b.margin)
+      .slice(0, count)
+      .map(p => p.id);
+
+    setSelectedProductsForComparison(new Set(productsWithMargin));
+  };
+
+  const selectMissingCostData = () => {
+    const productsWithMissingData = finishedProducts
+      .filter(p => {
+        const data = productCPUData.get(p.id);
+        return !data?.isComplete;
+      })
+      .map(p => p.id);
+
+    setSelectedProductsForComparison(new Set(productsWithMissingData));
+  };
+
+  // Get filtered products for Cost Intelligence tab
+  const getFilteredProducts = () => {
+    return finishedProducts.filter(product => {
+      // Search filter
+      if (comparisonSearchTerm) {
+        const searchLower = comparisonSearchTerm.toLowerCase();
+        const matchesName = product.name.toLowerCase().includes(searchLower);
+        const matchesSKU = product.sku?.toLowerCase().includes(searchLower);
+        if (!matchesName && !matchesSKU) return false;
+      }
+
+      // Category filter
+      if (comparisonCategoryFilter !== 'all') {
+        // TODO: Filter by product category when we have that data
+        // For now, skip this filter
+      }
+
+      // Variant filter
+      if (comparisonVariantFilter !== 'all') {
+        // TODO: Filter by product variant when we have that data
+        // For now, skip this filter
+      }
+
+      return true;
+    });
   };
 
   const handleArchiveInvoice = async (invoiceId: string) => {
@@ -762,7 +902,7 @@ export default function CPUTracker() {
                 onClick={() => setActiveTab('comparison')}
                 className={activeTab === 'comparison' ? styles.tabActive : styles.tab}
               >
-                Product Comparison
+                Cost Intelligence
               </button>
             </div>
 
@@ -1479,145 +1619,377 @@ export default function CPUTracker() {
               </div>
             )}
 
-            {/* Tab 3: Product Comparison */}
+            {/* Tab 3: Cost Intelligence */}
             {activeTab === 'comparison' && (
               <div id="comparison-panel" role="tabpanel" aria-labelledby="comparison-tab">
                 <section className={styles.section}>
-                  <h2 className={styles.sectionTitle}>Product Comparison</h2>
+                  <h2 className={styles.sectionTitle}>Cost Intelligence</h2>
                   <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>
-                    Select products to compare product costs, margins, and pricing side-by-side.
+                    Compare product costs, margins, and pricing trends side-by-side to identify your most profitable products.
                   </p>
 
                   {finishedProducts.length === 0 ? (
                     <div className={styles.emptyState}>
                       <div className={styles.emptyIcon} aria-hidden="true">📦</div>
                       <p className={styles.emptyText}>
-                        No finished products defined yet. Add your first product to start comparing.
+                        No finished products defined yet. Add your first product to start analyzing profitability.
                       </p>
                     </div>
                   ) : (
                     <>
-                      {/* Product Selection */}
-                      <div className={styles.comparisonSelection}>
-                        <h3 className={styles.subsectionTitle}>Select Products to Compare</h3>
-                        <div className={styles.productCheckboxes}>
-                          {finishedProducts.map((product) => {
-                            const isSelected = selectedProductsForComparison.has(product.id);
-                            return (
-                              <label key={product.id} className={styles.checkboxLabel}>
-                                <input
-                                  type="checkbox"
-                                  checked={isSelected}
-                                  onChange={(e) => {
-                                    const newSet = new Set(selectedProductsForComparison);
-                                    if (e.target.checked) {
-                                      newSet.add(product.id);
-                                    } else {
-                                      newSet.delete(product.id);
-                                    }
-                                    setSelectedProductsForComparison(newSet);
-                                  }}
-                                  className={styles.checkbox}
-                                />
-                                <span>{product.name}</span>
-                                {product.sku && (
-                                  <span className={styles.skuBadge}>{product.sku}</span>
-                                )}
-                              </label>
-                            );
-                          })}
-                        </div>
-                        {selectedProductsForComparison.size > 0 && (
-                          <button
-                            onClick={() => setSelectedProductsForComparison(new Set())}
-                            className={styles.clearButton}
+                      {/* Product Selector with Filters */}
+                      <div style={{
+                        background: 'white',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '12px',
+                        padding: '1.5rem',
+                        marginBottom: '2rem',
+                      }}>
+                        <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                          {/* Search Input */}
+                          <input
+                            type="search"
+                            placeholder="🔍 Type to search products..."
+                            value={comparisonSearchTerm}
+                            onChange={(e) => setComparisonSearchTerm(e.target.value)}
+                            style={{
+                              flex: '1 1 300px',
+                              padding: '0.75rem 1rem',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '8px',
+                              fontSize: '0.875rem',
+                            }}
+                          />
+
+                          {/* Category Filter */}
+                          <select
+                            value={comparisonCategoryFilter}
+                            onChange={(e) => setComparisonCategoryFilter(e.target.value)}
+                            style={{
+                              padding: '0.75rem',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '8px',
+                              fontSize: '0.875rem',
+                              background: 'white',
+                              cursor: 'pointer',
+                            }}
                           >
-                            Clear Selection ({selectedProductsForComparison.size})
-                          </button>
+                            <option value="all">All Categories</option>
+                            {categories.map(cat => (
+                              <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            ))}
+                          </select>
+
+                          {/* Date Range for Trends */}
+                          <select
+                            value={comparisonDateRange}
+                            onChange={(e) => setComparisonDateRange(e.target.value as any)}
+                            style={{
+                              padding: '0.75rem',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '8px',
+                              fontSize: '0.875rem',
+                              background: 'white',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <option value="3mo">Last 3 Months</option>
+                            <option value="6mo">Last 6 Months</option>
+                            <option value="12mo">Last 12 Months</option>
+                            <option value="all">All Time</option>
+                          </select>
+                        </div>
+
+                        {/* Selected Products (Chips) */}
+                        {selectedProductsForComparison.size > 0 && (
+                          <div style={{ marginBottom: '1rem' }}>
+                            <div style={{
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              color: '#64748b',
+                              marginBottom: '0.5rem',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.05em'
+                            }}>
+                              Comparing ({selectedProductsForComparison.size})
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                              {Array.from(selectedProductsForComparison).map(productId => {
+                                const product = finishedProducts.find(p => p.id === productId);
+                                if (!product) return null;
+                                return (
+                                  <div
+                                    key={productId}
+                                    style={{
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '0.5rem',
+                                      padding: '0.375rem 0.75rem',
+                                      background: '#f3e8ff',
+                                      color: '#4b006e',
+                                      borderRadius: '6px',
+                                      fontSize: '0.875rem',
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {product.name}
+                                    <button
+                                      onClick={() => {
+                                        const newSet = new Set(selectedProductsForComparison);
+                                        newSet.delete(productId);
+                                        setSelectedProductsForComparison(newSet);
+                                      }}
+                                      style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        padding: 0,
+                                        cursor: 'pointer',
+                                        fontSize: '1.125rem',
+                                        lineHeight: 1,
+                                        color: '#4b006e',
+                                        opacity: 0.7,
+                                      }}
+                                      aria-label={`Remove ${product.name}`}
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                              <button
+                                onClick={() => setSelectedProductsForComparison(new Set())}
+                                style={{
+                                  padding: '0.375rem 0.75rem',
+                                  background: 'none',
+                                  border: '1px solid #e5e7eb',
+                                  borderRadius: '6px',
+                                  fontSize: '0.75rem',
+                                  cursor: 'pointer',
+                                  color: '#64748b',
+                                }}
+                              >
+                                Clear All
+                              </button>
+                            </div>
+                          </div>
                         )}
+
+                        {/* Quick Select Buttons */}
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                          <button
+                            onClick={selectAllProducts}
+                            style={{
+                              padding: '0.5rem 1rem',
+                              background: 'white',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '6px',
+                              fontSize: '0.875rem',
+                              cursor: 'pointer',
+                              fontWeight: 500,
+                            }}
+                          >
+                            All Products
+                          </button>
+                          <button
+                            onClick={() => selectTopMarginProducts(5)}
+                            style={{
+                              padding: '0.5rem 1rem',
+                              background: 'white',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '6px',
+                              fontSize: '0.875rem',
+                              cursor: 'pointer',
+                              fontWeight: 500,
+                            }}
+                          >
+                            Top 5 by Margin
+                          </button>
+                          <button
+                            onClick={() => selectBottomMarginProducts(5)}
+                            style={{
+                              padding: '0.5rem 1rem',
+                              background: 'white',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '6px',
+                              fontSize: '0.875rem',
+                              cursor: 'pointer',
+                              fontWeight: 500,
+                            }}
+                          >
+                            Bottom 5 by Margin
+                          </button>
+                          <button
+                            onClick={selectMissingCostData}
+                            style={{
+                              padding: '0.5rem 1rem',
+                              background: 'white',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '6px',
+                              fontSize: '0.875rem',
+                              cursor: 'pointer',
+                              fontWeight: 500,
+                            }}
+                          >
+                            Missing Cost Data
+                          </button>
+                        </div>
                       </div>
 
-                      {/* Comparison Table */}
+                      {/* Comparison Display */}
                       {selectedProductsForComparison.size === 0 ? (
-                        <div className={styles.selectPrompt}>
-                          <p>Select at least one product above to see the comparison.</p>
+                        <div style={{
+                          textAlign: 'center',
+                          padding: '4rem 2rem',
+                          color: '#64748b',
+                        }}>
+                          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📊</div>
+                          <p style={{ fontSize: '1.125rem', fontWeight: 500, marginBottom: '0.5rem' }}>
+                            Select products to compare
+                          </p>
+                          <p style={{ fontSize: '0.875rem' }}>
+                            Use the search bar above or click a quick select button to get started
+                          </p>
                         </div>
                       ) : (
-                        <div className={styles.comparisonTable}>
-                          <h3 className={styles.subsectionTitle}>
-                            Comparison Results ({selectedProductsForComparison.size} {selectedProductsForComparison.size === 1 ? 'Product' : 'Products'})
-                          </h3>
-                          <div className={styles.tableContainer}>
-                            <table className={styles.table}>
-                              <thead>
-                                <tr>
-                                  <th>Metric</th>
-                                  {Array.from(selectedProductsForComparison).map((productId) => {
-                                    const product = finishedProducts.find(p => p.id === productId);
-                                    return (
-                                      <th key={productId}>
-                                        <div className={styles.productHeader}>
-                                          <span className={styles.productName}>{product?.name}</span>
-                                          {product?.sku && (
-                                            <span className={styles.skuBadge}>{product.sku}</span>
-                                          )}
+                        <div>
+                          {/* Comparison Cards */}
+                          <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                            gap: '1.5rem',
+                            marginBottom: '2rem',
+                          }}>
+                            {Array.from(selectedProductsForComparison).map(productId => {
+                              const product = finishedProducts.find(p => p.id === productId);
+                              if (!product) return null;
+
+                              const cpuData = productCPUData.get(productId);
+                              const cpu = cpuData?.cpu ? parseFloat(cpuData.cpu) : null;
+                              const msrp = product.msrp ? parseFloat(product.msrp) : null;
+                              const margin = cpuData?.margin;
+
+                              // Determine margin color
+                              let marginColor = '#64748b';
+                              if (margin !== null && margin !== undefined) {
+                                if (margin >= 70) marginColor = '#16a34a'; // Green
+                                else if (margin >= 50) marginColor = '#eab308'; // Yellow
+                                else marginColor = '#dc2626'; // Red
+                              }
+
+                              return (
+                                <div
+                                  key={productId}
+                                  style={{
+                                    background: 'white',
+                                    border: '1px solid #e5e7eb',
+                                    borderRadius: '12px',
+                                    padding: '1.5rem',
+                                  }}
+                                >
+                                  <div style={{ marginBottom: '1rem' }}>
+                                    <h3 style={{
+                                      fontSize: '1rem',
+                                      fontWeight: 700,
+                                      color: '#1e293b',
+                                      marginBottom: '0.25rem',
+                                    }}>
+                                      {product.name}
+                                    </h3>
+                                    {product.sku && (
+                                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                                        SKU: {product.sku}
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                    {/* Current CPU */}
+                                    <div>
+                                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
+                                        Current CPU
+                                      </div>
+                                      <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#4b006e' }}>
+                                        {cpu !== null ? `$${formatNumberWithCommas(cpu)}` : 'N/A'}
+                                      </div>
+                                    </div>
+
+                                    {/* MSRP */}
+                                    <div>
+                                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
+                                        MSRP
+                                      </div>
+                                      <div style={{ fontSize: '1.125rem', fontWeight: 600 }}>
+                                        {msrp !== null ? `$${formatNumberWithCommas(msrp)}` : 'Not set'}
+                                      </div>
+                                    </div>
+
+                                    {/* Margin */}
+                                    <div>
+                                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
+                                        Gross Margin
+                                      </div>
+                                      <div style={{ fontSize: '1.5rem', fontWeight: 700, color: marginColor }}>
+                                        {margin !== null && margin !== undefined ? `${margin.toFixed(1)}%` : 'N/A'}
+                                        {margin !== null && margin !== undefined && (
+                                          <span style={{ fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+                                            {margin >= 70 ? '✓' : margin >= 50 ? '⚠' : '⚠'}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* Top Cost Driver */}
+                                    {cpuData?.topDriver && (
+                                      <div>
+                                        <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
+                                          Top Cost Driver
                                         </div>
-                                      </th>
-                                    );
-                                  })}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {/* MSRP Row */}
-                                <tr>
-                                  <td className={styles.metricLabel}>MSRP</td>
-                                  {Array.from(selectedProductsForComparison).map((productId) => {
-                                    const product = finishedProducts.find(p => p.id === productId);
-                                    return (
-                                      <td key={productId}>
-                                        {product?.msrp ? `$${product.msrp.toFixed(2)}` : '-'}
-                                      </td>
-                                    );
-                                  })}
-                                </tr>
+                                        <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                          {cpuData.topDriver}
+                                        </div>
+                                      </div>
+                                    )}
 
-                                {/* Status Row */}
-                                <tr>
-                                  <td className={styles.metricLabel}>Cost Data Status</td>
-                                  {Array.from(selectedProductsForComparison).map((productId) => {
-                                    const product = finishedProducts.find(p => p.id === productId);
-                                    const hasRecipe = product?.recipe && product.recipe.length > 0;
-                                    // Check if all components have cost data (simplified check)
-                                    const isComplete = hasRecipe;
-                                    return (
-                                      <td key={productId}>
-                                        <span className={isComplete ? styles.statusComplete : styles.statusIncomplete}>
-                                          {isComplete ? '✓ Complete' : '⚠ Incomplete'}
-                                        </span>
-                                      </td>
-                                    );
-                                  })}
-                                </tr>
-
-                                {/* Recipe Components Count */}
-                                <tr>
-                                  <td className={styles.metricLabel}>Components</td>
-                                  {Array.from(selectedProductsForComparison).map((productId) => {
-                                    const product = finishedProducts.find(p => p.id === productId);
-                                    const componentCount = product?.recipe?.length || 0;
-                                    return (
-                                      <td key={productId}>{componentCount}</td>
-                                    );
-                                  })}
-                                </tr>
-                              </tbody>
-                            </table>
+                                    {/* Data Status */}
+                                    <div style={{
+                                      marginTop: '0.5rem',
+                                      padding: '0.5rem',
+                                      background: cpuData?.isComplete ? '#f0fdf4' : '#fef3c7',
+                                      borderRadius: '6px',
+                                      fontSize: '0.75rem',
+                                      fontWeight: 500,
+                                      color: cpuData?.isComplete ? '#16a34a' : '#d97706',
+                                    }}>
+                                      {cpuData?.isComplete ? '✓ Complete Cost Data' : '⚠ Incomplete Cost Data'}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
 
-                          {/* Help Text */}
-                          <div className={styles.comparisonHelp}>
-                            <span style={{ marginRight: '0.5rem' }}>ℹ️</span>
-                            To see detailed CPU calculations and margins, ensure all products have complete recipe definitions and raw material cost data entered through vendor invoices.
+                          {/* Trend Chart Placeholder */}
+                          <div style={{
+                            background: 'white',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '12px',
+                            padding: '1.5rem',
+                          }}>
+                            <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>
+                              CPU Trends ({comparisonDateRange === '3mo' ? 'Last 3 Months' : comparisonDateRange === '6mo' ? 'Last 6 Months' : comparisonDateRange === '12mo' ? 'Last 12 Months' : 'All Time'})
+                            </h3>
+                            <div style={{
+                              padding: '3rem',
+                              textAlign: 'center',
+                              color: '#64748b',
+                              background: '#f8fafc',
+                              borderRadius: '8px',
+                            }}>
+                              <p style={{ marginBottom: '0.5rem' }}>📈 CPU Trend Chart</p>
+                              <p style={{ fontSize: '0.875rem' }}>
+                                Trend visualization coming soon - will show CPU changes over time for selected products
+                              </p>
+                            </div>
                           </div>
                         </div>
                       )}
