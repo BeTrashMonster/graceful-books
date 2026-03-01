@@ -1319,7 +1319,7 @@ export default function CPUTracker() {
                               setRawMaterialsCategoryFilter(undefined);
                               setRawMaterialsVariantFilter('');
                               setRawMaterialsVendorFilter('');
-                              setRawMaterialsDatePreset('all');
+                              handleRawMaterialsDatePresetChange('all');
                             }}
                             style={{
                               padding: '0.5rem 1rem',
