@@ -688,7 +688,7 @@ export default function CPUTracker() {
                 onClick={() => setActiveTab('raw-materials')}
                 className={activeTab === 'raw-materials' ? styles.tabActive : styles.tab}
               >
-                Raw Material Costs
+                Invoices
               </button>
               <button
                 role="tab"
@@ -1117,7 +1117,7 @@ export default function CPUTracker() {
                     aria-label="Filter by category"
                   >
                     <option value="">All Categories</option>
-                    {categories.map((cat) => (
+                    {[...categories].sort((a, b) => a.name.localeCompare(b.name)).map((cat) => (
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
                   </select>
@@ -1147,7 +1147,7 @@ export default function CPUTracker() {
                     list="vendor-suggestions"
                   />
                   <datalist id="vendor-suggestions">
-                    {Array.from(new Set(invoices.map(inv => inv.vendor_name))).map(vendor => (
+                    {Array.from(new Set(invoices.map(inv => inv.vendor_name))).sort().map(vendor => (
                       <option key={vendor} value={vendor} />
                     ))}
                   </datalist>
@@ -1351,7 +1351,7 @@ export default function CPUTracker() {
                                 ) : '-'}
                               </td>
                               <td style={{ fontWeight: 600, color: '#4b006e' }}>
-                                ${typeof invoice.total_paid === 'number' ? invoice.total_paid.toFixed(2) : parseFloat(invoice.total_paid || '0').toFixed(2)}
+                                ${formatNumberWithCommas(typeof invoice.total_paid === 'number' ? invoice.total_paid : parseFloat(invoice.total_paid || '0'))}
                               </td>
                               <td>
                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
