@@ -88,11 +88,10 @@ export default function CPUTracker() {
       setIsLoading(true);
       setError(null);
 
-      // Load categories
+      // Load categories (include archived - CategoryManager handles filtering)
       const categoriesData = await db.cpgCategories
         .where('company_id')
         .equals(companyId)
-        .filter(cat => cat.active && cat.deleted_at === null)
         .sortBy('sort_order');
 
       setCategories(categoriesData);
