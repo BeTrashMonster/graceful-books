@@ -13,7 +13,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProductsTab from './ProductsTab';
 
@@ -40,7 +40,6 @@ describe('ProductsTab', () => {
     it('renders the Products tab heading', () => {
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -52,7 +51,6 @@ describe('ProductsTab', () => {
     it('renders with empty products list', () => {
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={[]}
           isLoading={false}
         />
@@ -65,7 +63,6 @@ describe('ProductsTab', () => {
     it('renders with products', () => {
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -77,7 +74,6 @@ describe('ProductsTab', () => {
     it('passes loading state to CPUDisplay', () => {
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={true}
         />
@@ -91,7 +87,6 @@ describe('ProductsTab', () => {
     it('shows "All Products" when no selection', () => {
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -105,7 +100,6 @@ describe('ProductsTab', () => {
       const user = userEvent.setup();
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -123,7 +117,6 @@ describe('ProductsTab', () => {
       const user = userEvent.setup();
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -141,7 +134,6 @@ describe('ProductsTab', () => {
       const user = userEvent.setup();
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -161,7 +153,6 @@ describe('ProductsTab', () => {
       const user = userEvent.setup();
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -181,7 +172,6 @@ describe('ProductsTab', () => {
       const user = userEvent.setup();
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -203,7 +193,6 @@ describe('ProductsTab', () => {
       const user = userEvent.setup();
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -223,7 +212,6 @@ describe('ProductsTab', () => {
       const user = userEvent.setup();
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -247,7 +235,6 @@ describe('ProductsTab', () => {
     it('renders status filter dropdown', () => {
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -262,7 +249,6 @@ describe('ProductsTab', () => {
       const user = userEvent.setup();
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -279,7 +265,6 @@ describe('ProductsTab', () => {
       const user = userEvent.setup();
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -296,7 +281,6 @@ describe('ProductsTab', () => {
       const user = userEvent.setup();
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -315,7 +299,6 @@ describe('ProductsTab', () => {
     it('renders sort dropdown', () => {
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -330,7 +313,6 @@ describe('ProductsTab', () => {
       const user = userEvent.setup();
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -347,7 +329,6 @@ describe('ProductsTab', () => {
       const user = userEvent.setup();
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -364,7 +345,6 @@ describe('ProductsTab', () => {
       const user = userEvent.setup();
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -382,7 +362,6 @@ describe('ProductsTab', () => {
     it('renders CPUDisplay component', () => {
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -394,7 +373,6 @@ describe('ProductsTab', () => {
     it('passes correct props to CPUDisplay', () => {
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={true}
         />
@@ -410,7 +388,6 @@ describe('ProductsTab', () => {
       const user = userEvent.setup();
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -431,7 +408,6 @@ describe('ProductsTab', () => {
     it('has proper ARIA labels on product selector', () => {
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -445,7 +421,6 @@ describe('ProductsTab', () => {
       const user = userEvent.setup();
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -460,7 +435,6 @@ describe('ProductsTab', () => {
     it('has ARIA labels on all controls', () => {
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -474,7 +448,6 @@ describe('ProductsTab', () => {
     it('has proper heading hierarchy', () => {
       render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />
@@ -488,7 +461,6 @@ describe('ProductsTab', () => {
     it('has proper tab panel role', () => {
       const { container } = render(
         <ProductsTab
-          companyId="company-123"
           finishedProducts={mockFinishedProducts}
           isLoading={false}
         />

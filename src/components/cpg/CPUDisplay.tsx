@@ -34,6 +34,10 @@ export interface CPUDisplayProps {
   selectedProducts?: Set<string>;
   statusFilter?: 'all' | 'complete' | 'incomplete';
   sortBy?: 'name' | 'cpu-asc' | 'cpu-desc' | 'missing';
+  finishedProducts?: any[];
+  onProductSelectionChange?: (selected: Set<string>) => void;
+  onStatusFilterChange?: (status: 'all' | 'complete' | 'incomplete') => void;
+  onSortByChange?: (sortBy: 'name' | 'cpu-asc' | 'cpu-desc' | 'missing') => void;
 }
 
 type DateRangePreset = '3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all';
@@ -45,7 +49,11 @@ export function CPUDisplay({
   isLoading = false,
   selectedProducts = new Set(),
   statusFilter = 'all',
-  sortBy = 'name'
+  sortBy = 'name',
+  finishedProducts = [],
+  onProductSelectionChange,
+  onStatusFilterChange,
+  onSortByChange
 }: CPUDisplayProps) {
   const { companyId } = useAuth();
 
@@ -72,6 +80,9 @@ export function CPUDisplay({
   const [cardColors, setCardColors] = useState<Record<string, string>>({});
   const [showColorPicker, setShowColorPicker] = useState<string | null>(null);
   const colorPickerRef = useRef<HTMLDivElement>(null);
+
+  // Product selector dropdown
+  const [showProductSelector, setShowProductSelector] = useState(false);
 
   // Drag and drop
   const [cardOrder, setCardOrder] = useState<string[]>([]);
@@ -681,7 +692,7 @@ export function CPUDisplay({
 
   return (
     <div className={styles.container}>
-      {/* Date Range & Export Controls */}
+      {/* All Filters in One Row: Date Range | All Products | Status | Sort | Export */}
       <div style={{
         display: 'flex',
         gap: '1rem',
@@ -752,6 +763,173 @@ export function CPUDisplay({
               />
             </div>
           </>
+        )}
+
+        {/* All Products Selector */}
+        {onProductSelectionChange && (
+          <div style={{ position: 'relative', minWidth: '200px' }}>
+            <button
+              onClick={() => setShowProductSelector(!showProductSelector)}
+              style={{
+                width: '100%',
+                padding: '0.5rem 0.75rem',
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                fontSize: '0.875rem',
+                background: 'white',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+              aria-label="Select products to display"
+              aria-expanded={showProductSelector}
+            >
+              <span>
+                {selectedProducts.size === 0
+                  ? 'All Products'
+                  : selectedProducts.size === finishedProducts.length
+                  ? 'All Products Selected'
+                  : `${selectedProducts.size} Product${selectedProducts.size === 1 ? '' : 's'} Selected`}
+              </span>
+              <span aria-hidden="true">{showProductSelector ? '▲' : '▼'}</span>
+            </button>
+
+            {showProductSelector && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                marginTop: '0.25rem',
+                background: 'white',
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                zIndex: 20,
+                maxHeight: '300px',
+                overflowY: 'auto',
+              }}
+              role="menu"
+              >
+                {/* Select All / Clear All */}
+                <div style={{
+                  padding: '0.5rem',
+                  borderBottom: '1px solid #e5e7eb',
+                  display: 'flex',
+                  gap: '0.5rem',
+                }}>
+                  <button
+                    onClick={() => onProductSelectionChange(new Set(finishedProducts.map((p: any) => p.id)))}
+                    style={{
+                      flex: 1,
+                      padding: '0.25rem 0.5rem',
+                      background: '#4b006e',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                    aria-label="Select all products"
+                  >
+                    Select All
+                  </button>
+                  <button
+                    onClick={() => onProductSelectionChange(new Set())}
+                    style={{
+                      flex: 1,
+                      padding: '0.25rem 0.5rem',
+                      background: '#f8fafc',
+                      color: '#64748b',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                    aria-label="Clear all product selections"
+                  >
+                    Clear All
+                  </button>
+                </div>
+
+                {/* Product List */}
+                {finishedProducts.map((product: any) => (
+                  <label
+                    key={product.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '0.5rem 0.75rem',
+                      cursor: 'pointer',
+                      borderBottom: '1px solid #f8fafc',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedProducts.has(product.id)}
+                      onChange={(e) => {
+                        const newSet = new Set(selectedProducts);
+                        if (e.target.checked) {
+                          newSet.add(product.id);
+                        } else {
+                          newSet.delete(product.id);
+                        }
+                        onProductSelectionChange(newSet);
+                      }}
+                      style={{ marginRight: '0.5rem' }}
+                      aria-label={`Select ${product.name}`}
+                    />
+                    <span style={{ fontSize: '0.875rem' }}>{product.name}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Status Filter */}
+        {onStatusFilterChange && (
+          <select
+            value={statusFilter}
+            onChange={(e) => onStatusFilterChange(e.target.value as 'all' | 'complete' | 'incomplete')}
+            style={{
+              padding: '0.5rem 0.75rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              fontSize: '0.875rem',
+            }}
+            aria-label="Filter by completion status"
+          >
+            <option value="all">Status: All</option>
+            <option value="complete">Status: Complete</option>
+            <option value="incomplete">Status: Incomplete</option>
+          </select>
+        )}
+
+        {/* Sort */}
+        {onSortByChange && (
+          <select
+            value={sortBy}
+            onChange={(e) => onSortByChange(e.target.value as 'name' | 'cpu-asc' | 'cpu-desc' | 'missing')}
+            style={{
+              padding: '0.5rem 0.75rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              fontSize: '0.875rem',
+            }}
+            aria-label="Sort products"
+          >
+            <option value="name">Sort: Name (A-Z)</option>
+            <option value="cpu-asc">Sort: CPU (Low to High)</option>
+            <option value="cpu-desc">Sort: CPU (High to Low)</option>
+            <option value="missing">Sort: Missing Components</option>
+          </select>
         )}
 
         {/* Export Dropdown */}

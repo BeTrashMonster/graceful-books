@@ -360,7 +360,6 @@ export default function CPUTracker() {
             {/* Tab 1: Product Costs */}
             {activeTab === 'products' && (
               <ProductsTab
-                companyId={companyId}
                 finishedProducts={finishedProducts}
                 isLoading={isLoading}
               />
