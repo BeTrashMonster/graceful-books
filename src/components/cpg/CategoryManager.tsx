@@ -22,7 +22,6 @@ import { nanoid } from 'nanoid';
 import { Modal } from '../modals/Modal';
 import { Button } from '../core/Button';
 import { Input } from '../forms/Input';
-import { HelpTooltip } from '../help/HelpTooltip';
 import { db } from '../../db/database';
 import type { CPGCategory } from '../../db/schema/cpg.schema';
 import {
@@ -330,12 +329,54 @@ export function CategoryManager({
     <Modal
       isOpen={true}
       onClose={onClose}
-      title="Manage Categories"
       size="lg"
       closeOnBackdropClick={false}
       aria-labelledby="category-manager-title"
     >
-      <div className={styles.container}>
+      {/* Custom Header */}
+      <div style={{
+        background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+        padding: '1rem 1.5rem',
+        margin: '-1.5rem -1.5rem 0 -1.5rem',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
+        <h2 style={{
+          margin: 0,
+          fontSize: '1.25rem',
+          fontWeight: 700,
+          color: 'white',
+        }}>
+          Manage Categories
+        </h2>
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minWidth: '44px',
+            minHeight: '44px',
+            padding: '0.5rem',
+            fontSize: '1.5rem',
+            color: 'white',
+            background: 'none',
+            border: 'none',
+            borderRadius: '0.375rem',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          aria-label="Close modal"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className={styles.container} style={{ paddingTop: '1rem' }}>
         {error && (
           <div className={styles.errorBanner} role="alert" aria-live="polite">
             <span aria-hidden="true">⚠️</span>
@@ -361,36 +402,39 @@ export function CategoryManager({
             </div>
 
             <div className={styles.editorContent}>
-              <Input
-                label="Category Name"
-                type="text"
-                value={editingCategory.name}
-                onChange={(e) =>
-                  setEditingCategory({ ...editingCategory, name: e.target.value })
-                }
-                placeholder="ex: Ingredients, Packaging, Labels"
-                required
-                error={validationErrors.name}
-                fullWidth
-              />
+              {/* Name and Description on one line */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <Input
+                  label="Category Name"
+                  type="text"
+                  value={editingCategory.name}
+                  onChange={(e) =>
+                    setEditingCategory({ ...editingCategory, name: e.target.value })
+                  }
+                  placeholder="ex: Ingredients, Packaging, Labels"
+                  required
+                  error={validationErrors.name}
+                />
 
-              <Input
-                label="Description (Optional)"
-                type="text"
-                value={editingCategory.description}
-                onChange={(e) =>
-                  setEditingCategory({ ...editingCategory, description: e.target.value })
-                }
-                placeholder="Brief description of this category"
-                fullWidth
-              />
+                <Input
+                  label="Description (Optional)"
+                  type="text"
+                  value={editingCategory.description}
+                  onChange={(e) =>
+                    setEditingCategory({ ...editingCategory, description: e.target.value })
+                  }
+                  placeholder="Brief description of this category"
+                />
+              </div>
 
               <div className={styles.variantsSection}>
                 <div className={styles.variantsHeader}>
                   <label className={styles.variantsLabel}>
                     Variants (Optional)
-                    <HelpTooltip content="Define different sizes or types for this category. For example: '8oz', '16oz', '32oz' or 'Small', 'Large'. Leave empty if this category doesn't have variants." />
                   </label>
+                  <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: '0.25rem 0 0 0', lineHeight: '1.5' }}>
+                    Define different sizes or types for this category. For example: '8oz', '16oz', '32oz' or 'Small', 'Large'. Leave empty if this category doesn't have variants.
+                  </p>
                 </div>
 
                 {editingCategory.variants.length > 0 && (
@@ -459,42 +503,56 @@ export function CategoryManager({
         ) : (
           /* Category List (when not editing) */
           <>
-            <div className={styles.actions}>
-              <Button
-                variant="primary"
-                size="md"
-                onClick={handleAddCategory}
-                iconBefore={<span>+</span>}
-              >
-                Add Category
-              </Button>
-
-              {categories.length === 0 && (
-                <Button
-                  variant="outline"
-                  size="md"
-                  onClick={handleAddDefaultCategories}
-                  loading={isSaving}
-                  disabled={isSaving}
+            {/* Action Bar */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '0.5rem'
+            }}>
+              {/* Archive Toggle - Subtle Text Link */}
+              {categories.some(c => c.deleted_at !== null) && (
+                <button
+                  type="button"
+                  onClick={() => setShowArchived(!showArchived)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#6b7280',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    padding: 0,
+                  }}
                 >
-                  Add Default Categories
-                </Button>
+                  {showArchived ? '← Back to Active' : 'View Archived'}
+                </button>
               )}
-            </div>
 
-            {/* Show Archived Toggle */}
-            {categories.some(c => c.deleted_at !== null) && (
-              <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={showArchived}
-                    onChange={(e) => setShowArchived(e.target.checked)}
-                  />
-                  <span>Show Archived</span>
-                </label>
+              {/* Right side buttons */}
+              <div style={{ display: 'flex', gap: '0.75rem', marginLeft: 'auto' }}>
+                {categories.length === 0 && (
+                  <Button
+                    variant="outline"
+                    size="md"
+                    onClick={handleAddDefaultCategories}
+                    loading={isSaving}
+                    disabled={isSaving}
+                  >
+                    Add Default Categories
+                  </Button>
+                )}
+
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={handleAddCategory}
+                  iconBefore={<span>+</span>}
+                >
+                  Add Category
+                </Button>
               </div>
-            )}
+            </div>
 
             {categories.length === 0 ? (
               <div className={styles.emptyState}>
@@ -510,7 +568,7 @@ export function CategoryManager({
             ) : (
               <div className={styles.categoryList} role="list" aria-label="Categories">
                 {categories
-                  .filter((cat) => showArchived || cat.deleted_at === null)
+                  .filter((cat) => showArchived ? cat.deleted_at !== null : cat.deleted_at === null)
                   .map((category) => {
                     const isArchived = category.deleted_at !== null;
                     return (
@@ -518,20 +576,31 @@ export function CategoryManager({
                         key={category.id}
                         className={`${styles.categoryCard} ${isArchived ? styles.archived : ''}`}
                         role="listitem"
-                        style={isArchived ? { opacity: 0.6, backgroundColor: '#f8f9fa' } : {}}
+                        style={{
+                          justifyContent: (!category.variants || category.variants.length === 0) ? 'center' : 'flex-start',
+                        }}
                       >
-                        <div className={styles.categoryHeader}>
+                        <div className={styles.categoryHeader} style={{
+                          flex: (!category.variants || category.variants.length === 0) ? 'none' : '1',
+                          marginBottom: (!category.variants || category.variants.length === 0) ? '0' : '0.5rem',
+                        }}>
                           <div className={styles.categoryInfo}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                              <h4 className={styles.categoryName}>{category.name}</h4>
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.5rem',
+                              flexWrap: 'wrap',
+                            }}>
+                              <h4 className={styles.categoryName} style={{ margin: 0 }}>{category.name}</h4>
                               {isArchived && (
                                 <span
                                   style={{
-                                    padding: '0.25rem 0.5rem',
-                                    fontSize: '0.75rem',
+                                    padding: '0.2rem 0.5rem',
+                                    fontSize: '0.7rem',
                                     backgroundColor: '#6c757d',
                                     color: 'white',
                                     borderRadius: '4px',
+                                    fontWeight: 600,
                                   }}
                                 >
                                   Archived
@@ -539,7 +608,7 @@ export function CategoryManager({
                               )}
                             </div>
                             {category.description && (
-                              <p className={styles.categoryDescription}>
+                              <p className={styles.categoryDescription} style={{ marginTop: '0.25rem' }}>
                                 {category.description}
                               </p>
                             )}

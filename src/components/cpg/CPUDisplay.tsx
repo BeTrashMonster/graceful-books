@@ -31,7 +31,7 @@ import styles from './CPUDisplay.module.css';
 
 export interface CPUDisplayProps {
   isLoading?: boolean;
-  searchFilter?: string;
+  selectedProducts?: Set<string>;
   statusFilter?: 'all' | 'complete' | 'incomplete';
   sortBy?: 'name' | 'cpu-asc' | 'cpu-desc' | 'missing';
 }
@@ -43,7 +43,7 @@ type SortDirection = 'asc' | 'desc';
 
 export function CPUDisplay({
   isLoading = false,
-  searchFilter = '',
+  selectedProducts = new Set(),
   statusFilter = 'all',
   sortBy = 'name'
 }: CPUDisplayProps) {
@@ -95,7 +95,7 @@ export function CPUDisplay({
 
   useEffect(() => {
     loadFinishedProductCPUs();
-  }, [companyId]);
+  }, [companyId, dateRangeFilter]);
 
   // Load card order from localStorage
   useEffect(() => {
@@ -166,13 +166,17 @@ export function CPUDisplay({
         .filter(product => product.active && product.deleted_at === null)
         .toArray();
 
+      // Get date range for filtering
+      const dateRange = getDateRangeTimestamps();
+
       // Calculate CPU for each product
       const productCPUs: FinishedProductCPUBreakdown[] = [];
       for (const product of finishedProducts) {
         try {
           const cpuBreakdown = await cpuCalculatorService.getFinishedProductCPUBreakdown(
             product.id,
-            companyId
+            companyId,
+            dateRange
           );
           productCPUs.push(cpuBreakdown);
         } catch (error) {
@@ -232,6 +236,17 @@ export function CPUDisplay({
       if (yearNum >= 0 && yearNum <= 99) {
         year = '20' + String(yearNum).padStart(2, '0');
         setter(`${year}-${month}-${day}`);
+      }
+    }
+
+    // Reload data when user finishes entering date
+    // Check if both dates are set before reloading
+    if (dateRangeFilter === 'custom') {
+      const startDate = setter === setCustomStartDate ? value : customStartDate;
+      const endDate = setter === setCustomEndDate ? value : customEndDate;
+
+      if (startDate && endDate) {
+        loadFinishedProductCPUs();
       }
     }
   };
@@ -532,12 +547,9 @@ export function CPUDisplay({
 
   // Apply filters and sorting
   let filteredProducts = products.filter((product) => {
-    // Search filter
-    if (searchFilter) {
-      const searchLower = searchFilter.toLowerCase();
-      const matchesName = product.productName.toLowerCase().includes(searchLower);
-      const matchesSKU = product.sku?.toLowerCase().includes(searchLower);
-      if (!matchesName && !matchesSKU) return false;
+    // Selected products filter - if no products selected, show all
+    if (selectedProducts.size > 0 && !selectedProducts.has(product.productId)) {
+      return false;
     }
 
     // Status filter
@@ -748,10 +760,10 @@ export function CPUDisplay({
             onClick={() => setShowExportMenu(!showExportMenu)}
             style={{
               padding: '0.5rem 1rem',
-              background: 'white',
-              border: '2px solid #4b006e',
+              background: '#4b006e',
+              border: 'none',
               borderRadius: '6px',
-              color: '#4b006e',
+              color: 'white',
               fontWeight: 600,
               cursor: 'pointer',
               fontSize: '0.875rem',

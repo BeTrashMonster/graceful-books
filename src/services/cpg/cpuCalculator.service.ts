@@ -682,6 +682,7 @@ export class CPUCalculatorService {
    * @param categoryId Raw material category ID
    * @param variant Raw material variant (e.g., "1oz", "5oz")
    * @param companyId Company ID
+   * @param dateRange Optional date range to filter invoices
    * @returns CPU as string or null if no invoices found
    *
    * @example
@@ -691,21 +692,30 @@ export class CPUCalculatorService {
   async calculateRawMaterialCPU(
     categoryId: string,
     variant: string | null,
-    companyId: string
+    companyId: string,
+    dateRange?: { start: number; end: number } | null
   ): Promise<string | null> {
     try {
       serviceLogger.info('Calculating raw material CPU', {
         categoryId,
         variant,
-        companyId
+        companyId,
+        dateRange
       });
 
       // Get all active invoices for this company
-      const invoices = await this.db.cpgInvoices
+      let invoices = await this.db.cpgInvoices
         .where('company_id')
         .equals(companyId)
         .filter(inv => inv.active && inv.deleted_at === null)
         .toArray();
+
+      // Apply date range filter if provided
+      if (dateRange) {
+        invoices = invoices.filter(inv =>
+          inv.invoice_date >= dateRange.start && inv.invoice_date <= dateRange.end
+        );
+      }
 
       if (invoices.length === 0) {
         serviceLogger.debug('No invoices found for company', { companyId });
@@ -815,7 +825,8 @@ export class CPUCalculatorService {
    */
   async calculateFinishedProductCPU(
     productId: string,
-    companyId: string
+    companyId: string,
+    dateRange?: { start: number; end: number } | null
   ): Promise<FinishedProductCPUResult> {
     try {
       serviceLogger.info('Calculating finished product CPU', {
@@ -872,7 +883,8 @@ export class CPUCalculatorService {
         const unitCost = await this.calculateRawMaterialCPU(
           recipeLine.category_id,
           recipeLine.variant,
-          companyId
+          companyId,
+          dateRange
         );
 
         const hasCostData = unitCost !== null;
@@ -957,7 +969,8 @@ export class CPUCalculatorService {
    */
   async getFinishedProductCPUBreakdown(
     productId: string,
-    companyId: string
+    companyId: string,
+    dateRange?: { start: number; end: number } | null
   ): Promise<FinishedProductCPUBreakdown> {
     try {
       serviceLogger.info('Getting finished product CPU breakdown', {
@@ -976,7 +989,8 @@ export class CPUCalculatorService {
       // Calculate CPU
       const cpuResult = await this.calculateFinishedProductCPU(
         productId,
-        companyId
+        companyId,
+        dateRange
       );
 
       // Build list of missing components
