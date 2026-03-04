@@ -125,13 +125,14 @@ export default function CPUTracker() {
 
       setFinishedProducts(productsData);
 
+      // TODO: Reserved for future CPU Timeline feature
       // Load CPU history
-      const history = await cpuCalculatorService.getCPUHistory(
-        companyId,
-        selectedCategoryFilter,
-        showArchived
-      );
-      setCPUHistory(history);
+      // const history = await cpuCalculatorService.getCPUHistory(
+      //   companyId,
+      //   selectedCategoryFilter,
+      //   showArchived
+      // );
+      // setCPUHistory(history);
 
     } catch (err) {
       console.error('Failed to load CPU tracker data:', err);
