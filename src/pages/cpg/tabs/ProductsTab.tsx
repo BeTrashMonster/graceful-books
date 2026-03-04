@@ -181,9 +181,9 @@ export default function ProductsTab({
               className={styles.filterSelect}
               aria-label="Filter by completion status"
             >
-              <option value="all">All Products</option>
-              <option value="complete">Complete Only</option>
-              <option value="incomplete">Incomplete Only</option>
+              <option value="all">Status: All</option>
+              <option value="complete">Status: Complete</option>
+              <option value="incomplete">Status: Incomplete</option>
             </select>
 
             {/* Sort */}
