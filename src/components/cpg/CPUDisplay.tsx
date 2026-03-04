@@ -875,14 +875,14 @@ export function CPUDisplay({
           }}>
             {/* First Stat - Dual Metrics */}
             <div style={{
-              background: 'white',
-              border: '1px solid #e5e7eb',
+              background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
               borderRadius: '12px',
               padding: '1.5rem',
               display: 'flex',
               gap: '1.5rem',
               position: 'relative',
               overflow: 'hidden',
+              color: 'white',
             }}>
               {/* Left Metric */}
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 0 }}>
@@ -891,31 +891,31 @@ export function CPUDisplay({
                   onChange={(e) => setFirstStatLeftMetric(e.target.value as StatMetric)}
                   style={{
                     fontSize: '0.75rem',
-                    color: '#64748b',
+                    color: 'white',
                     fontWeight: 500,
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
                     borderRadius: '4px',
-                    background: 'white',
+                    background: 'rgba(255, 255, 255, 0.1)',
                     cursor: 'pointer',
                     padding: '0.25rem 0.5rem',
                     maxWidth: '100%',
                   }}
                 >
-                  <option value="total">Total Products</option>
-                  <option value="avg-cpu">Average CPU</option>
-                  <option value="avg-profit-dollars">Average Profit ($)</option>
-                  <option value="avg-profit-percent">Average Profit (%)</option>
-                  <option value="highest-cost">Most Expensive</option>
-                  <option value="lowest-cost">Least Expensive</option>
-                  <option value="avg-components">Avg Components</option>
+                  <option value="total" style={{ color: '#1f2937' }}>Total Products</option>
+                  <option value="avg-cpu" style={{ color: '#1f2937' }}>Average CPU</option>
+                  <option value="avg-profit-dollars" style={{ color: '#1f2937' }}>Average Profit ($)</option>
+                  <option value="avg-profit-percent" style={{ color: '#1f2937' }}>Average Profit (%)</option>
+                  <option value="highest-cost" style={{ color: '#1f2937' }}>Most Expensive</option>
+                  <option value="lowest-cost" style={{ color: '#1f2937' }}>Least Expensive</option>
+                  <option value="avg-components" style={{ color: '#1f2937' }}>Avg Components</option>
                 </select>
-                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#1f2937', lineHeight: 1 }}>
+                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'white', lineHeight: 1 }}>
                   {renderStatMetric(firstStatLeftMetric).value}
                 </div>
                 {renderStatMetric(firstStatLeftMetric).subtext && (
                   <div style={{
                     fontSize: '0.75rem',
-                    color: '#64748b',
+                    color: 'rgba(255, 255, 255, 0.9)',
                     marginTop: '0.25rem',
                     lineHeight: 1.4,
                     wordWrap: 'break-word',
@@ -930,7 +930,7 @@ export function CPUDisplay({
               {/* Divider */}
               <div style={{
                 width: '1px',
-                background: '#e5e7eb',
+                background: 'rgba(255, 255, 255, 0.3)',
                 margin: '-1.5rem 0',
               }} />
 
@@ -941,31 +941,31 @@ export function CPUDisplay({
                   onChange={(e) => setFirstStatRightMetric(e.target.value as StatMetric)}
                   style={{
                     fontSize: '0.75rem',
-                    color: '#64748b',
+                    color: 'white',
                     fontWeight: 500,
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
                     borderRadius: '4px',
-                    background: 'white',
+                    background: 'rgba(255, 255, 255, 0.1)',
                     cursor: 'pointer',
                     padding: '0.25rem 0.5rem',
                     maxWidth: '100%',
                   }}
                 >
-                  <option value="total">Total Products</option>
-                  <option value="avg-cpu">Average CPU</option>
-                  <option value="avg-profit-dollars">Average Profit ($)</option>
-                  <option value="avg-profit-percent">Average Profit (%)</option>
-                  <option value="highest-cost">Most Expensive</option>
-                  <option value="lowest-cost">Least Expensive</option>
-                  <option value="avg-components">Avg Components</option>
+                  <option value="total" style={{ color: '#1f2937' }}>Total Products</option>
+                  <option value="avg-cpu" style={{ color: '#1f2937' }}>Average CPU</option>
+                  <option value="avg-profit-dollars" style={{ color: '#1f2937' }}>Average Profit ($)</option>
+                  <option value="avg-profit-percent" style={{ color: '#1f2937' }}>Average Profit (%)</option>
+                  <option value="highest-cost" style={{ color: '#1f2937' }}>Most Expensive</option>
+                  <option value="lowest-cost" style={{ color: '#1f2937' }}>Least Expensive</option>
+                  <option value="avg-components" style={{ color: '#1f2937' }}>Avg Components</option>
                 </select>
-                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#1f2937', lineHeight: 1 }}>
+                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'white', lineHeight: 1 }}>
                   {renderStatMetric(firstStatRightMetric).value}
                 </div>
                 {renderStatMetric(firstStatRightMetric).subtext && (
                   <div style={{
                     fontSize: '0.75rem',
-                    color: '#64748b',
+                    color: 'rgba(255, 255, 255, 0.9)',
                     marginTop: '0.25rem',
                     lineHeight: 1.4,
                     wordWrap: 'break-word',
@@ -981,24 +981,24 @@ export function CPUDisplay({
             {/* Top Performer(s) - Handle Ties */}
             {topPerformers.length > 0 && (
               <div style={{
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                background: '#f3e8ff',
+                border: '2px solid #9333ea',
                 borderRadius: '12px',
                 padding: '1.5rem',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '0.5rem',
-                color: 'white',
               }}>
-                <div style={{ fontSize: '0.875rem', opacity: 0.9, fontWeight: 500 }}>
+                <div style={{ fontSize: '0.875rem', color: '#6b21a8', fontWeight: 600 }}>
                   Top Performer{topPerformers.length > 1 ? 's' : ''}
                 </div>
-                <div style={{ fontSize: '1.125rem', fontWeight: 600, lineHeight: 1.3 }}>
+                <div style={{ fontSize: '1.125rem', fontWeight: 600, lineHeight: 1.3, color: '#4b006e' }}>
                   {topPerformers.map(p => p.productName).join(', ')}
                 </div>
-                <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
+                <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1, color: '#4b006e' }}>
                   {topPerformers[0].marginPercent?.toFixed(1)}%
                 </div>
-                <div style={{ fontSize: '0.875rem', opacity: 0.8 }}>
+                <div style={{ fontSize: '0.875rem', color: '#6b21a8' }}>
                   margin
                 </div>
               </div>
@@ -1007,24 +1007,24 @@ export function CPUDisplay({
             {/* Opportunity/Opportunities - Handle Ties */}
             {opportunities.length > 0 && (
               <div style={{
-                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                background: '#dcfce7',
+                border: '2px solid #16a34a',
                 borderRadius: '12px',
                 padding: '1.5rem',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '0.5rem',
-                color: 'white',
               }}>
-                <div style={{ fontSize: '0.875rem', opacity: 0.9, fontWeight: 500 }}>
+                <div style={{ fontSize: '0.875rem', color: '#15803d', fontWeight: 600 }}>
                   Opportunit{opportunities.length > 1 ? 'ies' : 'y'}
                 </div>
-                <div style={{ fontSize: '1.125rem', fontWeight: 600, lineHeight: 1.3 }}>
+                <div style={{ fontSize: '1.125rem', fontWeight: 600, lineHeight: 1.3, color: '#166534' }}>
                   {opportunities.map(p => p.productName).join(', ')}
                 </div>
-                <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
+                <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1, color: '#166534' }}>
                   {opportunities[0].marginPercent?.toFixed(1)}%
                 </div>
-                <div style={{ fontSize: '0.875rem', opacity: 0.8 }}>
+                <div style={{ fontSize: '0.875rem', color: '#15803d' }}>
                   margin
                 </div>
               </div>

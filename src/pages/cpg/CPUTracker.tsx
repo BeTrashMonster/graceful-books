@@ -366,7 +366,7 @@ export default function CPUTracker() {
               />
             )}
 
-            {/* Tab 2: Raw Material Costs (Invoice History) */}
+            {/* Tab 2: Invoices (Invoice History) */}
             {activeTab === 'raw-materials' && (
               <RawMaterialsTab
                 companyId={companyId}
