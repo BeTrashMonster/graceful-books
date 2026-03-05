@@ -49,6 +49,7 @@ export interface ScenarioBuilderTabProps {
   selectedProducts: Set<string>;
   productCPUData: Map<string, ProductCPUData>;
   finishedProducts: any[]; // TODO: Add proper type from schema
+  dateRange?: '3mo' | '6mo' | '12mo' | 'all';
 }
 
 export default function ScenarioBuilderTab({

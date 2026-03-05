@@ -27,6 +27,7 @@ export interface VendorIntelTabProps {
   productCPUData: Map<string, ProductCPUData>;
   invoices: CPGInvoice[];
   categories: CPGCategory[];
+  dateRange?: '3mo' | '6mo' | '12mo' | 'all';
 }
 
 interface ProductCPUData {

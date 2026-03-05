@@ -16,7 +16,7 @@
  * - Type-safe props and state management
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { CPGCategory, CPGInvoice } from '../../../db/schema/cpg.schema';
 import { cpuCalculatorService } from '../../../services/cpg/cpuCalculator.service';
 import CPUTrendsTab from './intelligence/CPUTrendsTab';
@@ -58,9 +58,16 @@ export default function CostIntelligenceTab({
 
   // Product CPU data
   const [productCPUData, setProductCPUData] = useState<Map<string, ProductCPUData>>(new Map());
+  const [isLoadingCPUData, setIsLoadingCPUData] = useState(false);
 
   // Sub-tab navigation
   const [intelligenceTab, setIntelligenceTab] = useState<IntelligenceSubTab>('scenario');
+
+  // Track if user has chosen an analysis type (for progressive disclosure)
+  const [hasChosenAnalysis, setHasChosenAnalysis] = useState(false);
+
+  // Ref for focus management - scroll to content after selection
+  const analysisContentRef = useRef<HTMLDivElement>(null);
 
   // TODO: Phase 3A - Uncomment when Scenario Builder component is created
   // const [scenarioAdjustments, setScenarioAdjustments] = useState<Map<string, Map<string, number>>>(new Map());
@@ -72,10 +79,12 @@ export default function CostIntelligenceTab({
   const loadProductCPUData = useCallback(async (productIds: string[]) => {
     if (productIds.length === 0) {
       setProductCPUData(new Map());
+      setIsLoadingCPUData(false);
       return;
     }
 
     try {
+      setIsLoadingCPUData(true);
       const cpuDataMap = new Map<string, ProductCPUData>();
 
       for (const productId of productIds) {
@@ -118,6 +127,8 @@ export default function CostIntelligenceTab({
       setProductCPUData(cpuDataMap);
     } catch (err) {
       console.error('Failed to load product CPU data:', err);
+    } finally {
+      setIsLoadingCPUData(false);
     }
   }, [finishedProducts, companyId]);
 
@@ -127,6 +138,16 @@ export default function CostIntelligenceTab({
       loadProductCPUData(Array.from(selectedProductsForComparison));
     }
   }, [selectedProductsForComparison, loadProductCPUData]);
+
+  // Focus management: Scroll to analysis content after selection
+  useEffect(() => {
+    if (selectedProductsForComparison.size > 0 && !isLoadingCPUData && analysisContentRef.current) {
+      // Wait a tiny moment for render to complete, then scroll
+      setTimeout(() => {
+        analysisContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [selectedProductsForComparison.size, isLoadingCPUData]);
 
   // Get filtered products based on category filter
   const getFilteredProducts = useCallback(() => {
@@ -241,6 +262,34 @@ export default function CostIntelligenceTab({
     );
   }
 
+  // Analysis type descriptions
+  const analysisTypes = {
+    scenario: {
+      title: 'Scenario Builder',
+      icon: '🎯',
+      description: 'Run "what-if" scenarios by adjusting component costs and pricing to see the impact on margins',
+      color: '#4b006e',
+    },
+    trends: {
+      title: 'CPU Trends',
+      icon: '📈',
+      description: 'Track how your costs have changed over time and identify components with the biggest increases',
+      color: '#7c3aed',
+    },
+    vendors: {
+      title: 'Vendor Intel',
+      icon: '🏭',
+      description: 'Compare prices across vendors to find savings opportunities and better deals',
+      color: '#6366f1',
+    },
+    alerts: {
+      title: 'Smart Alerts',
+      icon: '🔔',
+      description: 'Get notified about price spikes, savings opportunities, and unusual cost changes',
+      color: '#8b5cf6',
+    },
+  };
+
   return (
     <div id="comparison-panel" role="tabpanel" aria-labelledby="comparison-tab">
       <section className={styles.section}>
@@ -249,7 +298,145 @@ export default function CostIntelligenceTab({
           Compare product costs, margins, and pricing trends side-by-side to identify your most profitable products.
         </p>
 
-        {/* Product Selector with Filters */}
+        {/* Step 1: Choose Analysis Type (if not chosen yet) */}
+        {!hasChosenAnalysis ? (
+          <div>
+            <h3 style={{
+              fontSize: '1.125rem',
+              fontWeight: 600,
+              marginBottom: '1.5rem',
+              color: '#1f2937'
+            }}>
+              Choose an analysis type to get started
+            </h3>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '1.5rem',
+              marginBottom: '2rem',
+            }}>
+              {(Object.keys(analysisTypes) as IntelligenceSubTab[]).map((type) => {
+                const analysis = analysisTypes[type];
+                return (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      setIntelligenceTab(type);
+                      setHasChosenAnalysis(true);
+                    }}
+                    style={{
+                      background: 'white',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '12px',
+                      padding: '2rem',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      position: 'relative',
+                      overflow: 'hidden',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = analysis.color;
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                      e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#e5e7eb';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
+                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{analysis.icon}</div>
+                    <h4 style={{
+                      fontSize: '1.25rem',
+                      fontWeight: 700,
+                      marginBottom: '0.5rem',
+                      color: analysis.color,
+                    }}>
+                      {analysis.title}
+                    </h4>
+                    <p style={{
+                      fontSize: '0.875rem',
+                      color: '#64748b',
+                      lineHeight: '1.5',
+                      margin: 0,
+                    }}>
+                      {analysis.description}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          /* Step 2: Product Selector + Analysis (after type chosen) */
+          <>
+            {/* Analysis Type Switcher (Smaller Tabs) */}
+            <div className="cost-intelligence-analysis-tabs" style={{
+              display: 'flex',
+              gap: '0.5rem',
+              marginBottom: '1.5rem',
+              flexWrap: 'wrap',
+            }}>
+              {(Object.keys(analysisTypes) as IntelligenceSubTab[]).map((type) => {
+                const analysis = analysisTypes[type];
+                const isActive = intelligenceTab === type;
+                return (
+                  <button
+                    key={type}
+                    className="cost-intelligence-analysis-tab"
+                    onClick={() => setIntelligenceTab(type)}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      background: isActive ? analysis.color : 'white',
+                      color: isActive ? 'white' : '#64748b',
+                      border: isActive ? 'none' : '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    <span>{analysis.icon}</span>
+                    <span>{analysis.title}</span>
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => {
+                  setHasChosenAnalysis(false);
+                  setSelectedProductsForComparison(new Set());
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: 'transparent',
+                  color: '#64748b',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  marginLeft: 'auto',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#f8fafc';
+                  e.currentTarget.style.color = '#475569';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = '#64748b';
+                }}
+              >
+                ← Change Analysis Type
+              </button>
+            </div>
+
+            {/* Product Selector with Filters */}
         <div style={{
           background: 'white',
           border: '1px solid #e5e7eb',
@@ -258,7 +445,7 @@ export default function CostIntelligenceTab({
           marginBottom: '2rem',
         }}>
           <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-            {/* Product Dropdown Selector */}
+            {/* Product Dropdown Selector - PRIMARY */}
             <div style={{ position: 'relative', flex: '1 1 300px' }}>
               <button
                 onClick={() => setShowProductDropdown(!showProductDropdown)}
@@ -266,16 +453,20 @@ export default function CostIntelligenceTab({
                 aria-label="Select products for comparison"
                 style={{
                   width: '100%',
-                  padding: '0.75rem 1rem',
-                  border: '1px solid #e5e7eb',
+                  padding: '1rem 1.25rem',
+                  border: '2px solid #4b006e',
                   borderRadius: '8px',
-                  fontSize: '0.875rem',
-                  background: 'white',
+                  fontSize: '0.9375rem',
+                  fontWeight: 600,
+                  background: selectedProductsForComparison.size > 0 ? '#4b006e' : 'white',
+                  color: selectedProductsForComparison.size > 0 ? 'white' : '#4b006e',
                   textAlign: 'left',
                   cursor: 'pointer',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
+                  transition: 'all 0.2s',
+                  boxShadow: '0 2px 4px rgba(75, 0, 110, 0.1)',
                 }}
               >
                 <span>
@@ -303,7 +494,7 @@ export default function CostIntelligenceTab({
                   maxHeight: '300px',
                   overflowY: 'auto',
                 }}>
-                  {/* Select All / Clear All */}
+                  {/* Select All / Clear All - PRIMARY & SECONDARY */}
                   <div style={{
                     padding: '0.5rem',
                     borderBottom: '1px solid #e5e7eb',
@@ -315,15 +506,19 @@ export default function CostIntelligenceTab({
                       aria-label="Select all products"
                       style={{
                         flex: 1,
-                        padding: '0.5rem',
+                        padding: '0.625rem',
                         background: '#4b006e',
                         color: 'white',
                         border: 'none',
-                        borderRadius: '4px',
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
+                        borderRadius: '6px',
+                        fontSize: '0.8125rem',
+                        fontWeight: 700,
                         cursor: 'pointer',
+                        boxShadow: '0 2px 4px rgba(75, 0, 110, 0.2)',
+                        transition: 'all 0.2s',
                       }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = '#6b21a8'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = '#4b006e'}
                     >
                       Select All
                     </button>
@@ -332,14 +527,23 @@ export default function CostIntelligenceTab({
                       aria-label="Clear all selected products"
                       style={{
                         flex: 1,
-                        padding: '0.5rem',
-                        background: '#f8fafc',
+                        padding: '0.625rem',
+                        background: 'white',
                         color: '#64748b',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '4px',
-                        fontSize: '0.75rem',
+                        border: '2px solid #e5e7eb',
+                        borderRadius: '6px',
+                        fontSize: '0.8125rem',
                         fontWeight: 600,
                         cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = '#cbd5e1';
+                        e.currentTarget.style.background = '#f8fafc';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = '#e5e7eb';
+                        e.currentTarget.style.background = 'white';
                       }}
                     >
                       Clear All
@@ -382,39 +586,49 @@ export default function CostIntelligenceTab({
               )}
             </div>
 
-            {/* Category Filter */}
+            {/* Category Filter - SECONDARY */}
             <select
               value={comparisonCategoryFilter}
               onChange={(e) => setComparisonCategoryFilter(e.target.value)}
               aria-label="Filter by category"
               style={{
-                padding: '0.75rem',
-                border: '1px solid #e5e7eb',
+                padding: '0.75rem 1rem',
+                border: '1.5px solid #cbd5e1',
                 borderRadius: '8px',
                 fontSize: '0.875rem',
+                fontWeight: 500,
                 background: 'white',
+                color: '#475569',
                 cursor: 'pointer',
+                transition: 'all 0.2s',
               }}
+              onFocus={(e) => e.currentTarget.style.borderColor = '#94a3b8'}
+              onBlur={(e) => e.currentTarget.style.borderColor = '#cbd5e1'}
             >
               <option value="all">All Categories</option>
-              {categories.map(cat => (
+              {categories.filter(cat => !cat.deleted_at).map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
 
-            {/* Date Range for Trends */}
+            {/* Date Range for Analysis - SECONDARY */}
             <select
               value={comparisonDateRange}
               onChange={(e) => setComparisonDateRange(e.target.value as any)}
               aria-label="Select date range for analysis"
               style={{
-                padding: '0.75rem',
-                border: '1px solid #e5e7eb',
+                padding: '0.75rem 1rem',
+                border: '1.5px solid #cbd5e1',
                 borderRadius: '8px',
                 fontSize: '0.875rem',
+                fontWeight: 500,
                 background: 'white',
+                color: '#475569',
                 cursor: 'pointer',
+                transition: 'all 0.2s',
               }}
+              onFocus={(e) => e.currentTarget.style.borderColor = '#94a3b8'}
+              onBlur={(e) => e.currentTarget.style.borderColor = '#cbd5e1'}
             >
               <option value="3mo">Last 3 Months</option>
               <option value="6mo">Last 6 Months</option>
@@ -431,12 +645,14 @@ export default function CostIntelligenceTab({
                 fontWeight: 600,
                 color: '#64748b',
                 marginBottom: '0.5rem',
-                textTransform: 'uppercase',
                 letterSpacing: '0.05em'
               }}>
                 Comparing ({selectedProductsForComparison.size})
+                <span className="cost-intelligence-chips-badge" style={{ display: 'none', marginLeft: '0.5rem' }}>
+                  {selectedProductsForComparison.size} selected
+                </span>
               </div>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <div className="cost-intelligence-product-chips" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
                 {Array.from(selectedProductsForComparison).map(productId => {
                   const product = finishedProducts.find(p => p.id === productId);
                   if (!product) return null;
@@ -484,12 +700,22 @@ export default function CostIntelligenceTab({
                   aria-label="Clear all selected products"
                   style={{
                     padding: '0.375rem 0.75rem',
-                    background: 'none',
-                    border: '1px solid #e5e7eb',
+                    background: 'transparent',
+                    border: 'none',
                     borderRadius: '6px',
                     fontSize: '0.75rem',
                     cursor: 'pointer',
                     color: '#64748b',
+                    fontWeight: 500,
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#f8fafc';
+                    e.currentTarget.style.color = '#475569';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = '#64748b';
                   }}
                 >
                   Clear All
@@ -498,66 +724,163 @@ export default function CostIntelligenceTab({
             </div>
           )}
 
-          {/* Quick Select Buttons */}
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <button
-              onClick={selectAllProducts}
-              style={{
-                padding: '0.5rem 1rem',
-                background: 'white',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                fontSize: '0.875rem',
-                cursor: 'pointer',
-                fontWeight: 500,
-              }}
-            >
-              All Products
-            </button>
-            <button
-              onClick={() => selectTopMarginProducts(5)}
-              style={{
-                padding: '0.5rem 1rem',
-                background: 'white',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                fontSize: '0.875rem',
-                cursor: 'pointer',
-                fontWeight: 500,
-              }}
-            >
-              Top 5 by Margin
-            </button>
-            <button
-              onClick={() => selectBottomMarginProducts(5)}
-              style={{
-                padding: '0.5rem 1rem',
-                background: 'white',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                fontSize: '0.875rem',
-                cursor: 'pointer',
-                fontWeight: 500,
-              }}
-            >
-              Bottom 5 by Margin
-            </button>
-            <button
-              onClick={selectMissingCostData}
-              style={{
-                padding: '0.5rem 1rem',
-                background: 'white',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                fontSize: '0.875rem',
-                cursor: 'pointer',
-                fontWeight: 500,
-              }}
-            >
-              Missing Cost Data
-            </button>
-          </div>
+          {/* Refine Selection - TERTIARY (Ghost style) */}
+          {selectedProductsForComparison.size > 0 && (
+            <div className="cost-intelligence-refine-buttons" style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
+              <div style={{
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                color: '#64748b',
+                marginBottom: '0.75rem',
+              }}>
+                Refine Selection
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <button
+                  onClick={selectAllProducts}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: 'transparent',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '0.8125rem',
+                    cursor: 'pointer',
+                    fontWeight: 500,
+                    color: '#64748b',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#f8fafc';
+                    e.currentTarget.style.color = '#475569';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = '#64748b';
+                  }}
+                >
+                  All Products
+                </button>
+                <button
+                  onClick={() => selectTopMarginProducts(5)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: 'transparent',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '0.8125rem',
+                    cursor: 'pointer',
+                    fontWeight: 500,
+                    color: '#64748b',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#f8fafc';
+                    e.currentTarget.style.color = '#475569';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = '#64748b';
+                  }}
+                >
+                  Highest Margin Products
+                </button>
+                <button
+                  onClick={() => selectBottomMarginProducts(5)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: 'transparent',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '0.8125rem',
+                    cursor: 'pointer',
+                    fontWeight: 500,
+                    color: '#64748b',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#f8fafc';
+                    e.currentTarget.style.color = '#475569';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = '#64748b';
+                  }}
+                >
+                  Lowest Margin Products
+                </button>
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Loading State for CPU Calculations */}
+        {isLoadingCPUData && (
+          <div style={{
+            background: 'linear-gradient(135deg, #f3e8ff 0%, #ddd6fe 100%)',
+            border: '2px dashed #9333ea',
+            borderRadius: '12px',
+            padding: '2rem',
+            textAlign: 'center',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '1rem',
+          }}>
+            <div style={{
+              width: '32px',
+              height: '32px',
+              border: '4px solid #e9d5ff',
+              borderTop: '4px solid #7c3aed',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+            }}></div>
+            <span style={{
+              fontSize: '1rem',
+              fontWeight: 600,
+              color: '#4b006e',
+            }}>
+              Analyzing costs...
+            </span>
+            <style>{`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+
+              /* Mobile Responsive Styles */
+              @media (max-width: 768px) {
+                .cost-intelligence-analysis-tabs {
+                  flex-direction: column !important;
+                  gap: 0.5rem !important;
+                }
+
+                .cost-intelligence-analysis-tab {
+                  flex: none !important;
+                  width: 100% !important;
+                }
+
+                .cost-intelligence-product-chips {
+                  display: none !important;
+                }
+
+                .cost-intelligence-chips-badge {
+                  display: inline-block !important;
+                  padding: 0.25rem 0.75rem;
+                  background: #f3e8ff;
+                  color: #4b006e;
+                  border-radius: 99px;
+                  font-size: 0.75rem;
+                  fontWeight: 600;
+                }
+
+                .cost-intelligence-refine-buttons {
+                  display: none !important;
+                }
+              }
+            `}</style>
+          </div>
+        )}
 
         {/* Comparison Display */}
         {selectedProductsForComparison.size === 0 ? (
@@ -575,7 +898,7 @@ export default function CostIntelligenceTab({
             </p>
           </div>
         ) : (
-          <div>
+          <div ref={analysisContentRef}>
             {/* Intelligence Sub-Tabs */}
             <div style={{
               background: 'white',
@@ -685,6 +1008,7 @@ export default function CostIntelligenceTab({
                     selectedProducts={selectedProductsForComparison}
                     productCPUData={productCPUData}
                     finishedProducts={finishedProducts}
+                    dateRange={comparisonDateRange}
                   />
                 )}
 
@@ -695,6 +1019,7 @@ export default function CostIntelligenceTab({
                     productCPUData={productCPUData}
                     categories={categories}
                     invoices={invoices}
+                    dateRange={comparisonDateRange}
                   />
                 )}
 
@@ -705,6 +1030,7 @@ export default function CostIntelligenceTab({
                     productCPUData={productCPUData}
                     invoices={invoices}
                     categories={categories}
+                    dateRange={comparisonDateRange}
                   />
                 )}
 
@@ -715,11 +1041,14 @@ export default function CostIntelligenceTab({
                     productCPUData={productCPUData}
                     categories={categories}
                     invoices={invoices}
+                    dateRange={comparisonDateRange}
                   />
                 )}
               </div>
             </div>
           </div>
+        )}
+          </>
         )}
       </section>
     </div>

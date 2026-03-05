@@ -28,6 +28,7 @@ export interface SmartAlertsTabProps {
   productCPUData: Map<string, ProductCPUData>;
   categories: CPGCategory[];
   invoices: CPGInvoice[];
+  dateRange?: '3mo' | '6mo' | '12mo' | 'all';
 }
 
 interface ProductCPUData {
