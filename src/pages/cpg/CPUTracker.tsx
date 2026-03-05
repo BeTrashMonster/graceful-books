@@ -32,6 +32,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import { db } from '../../db/database';
 import type { CPGCategory, CPGInvoice } from '../../db/schema/cpg.schema';
+import {
+  importWorksheetData,
+  parseWorksheetFile,
+} from '../../services/cpg/worksheetImporter.service';
 import styles from './CPUTracker.module.css';
 
 type CPUTrackerTab = 'products' | 'raw-materials' | 'comparison';
@@ -60,6 +64,10 @@ export default function CPUTracker() {
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | undefined>(undefined);
   const [showArchived] = useState(false); // Reserved for future archive feature
   const [isRecalculating, setIsRecalculating] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importSuccess, setImportSuccess] = useState<string | null>(null);
 
   // Load data
   useEffect(() => {
@@ -186,6 +194,59 @@ export default function CPUTracker() {
     }
   };
 
+  // Handle worksheet import
+  const handleWorksheetImport = async (file: File) => {
+    setIsImporting(true);
+    setImportError(null);
+    setImportSuccess(null);
+
+    try {
+      // Parse JSON file
+      const worksheetData = await parseWorksheetFile(file);
+      if (!worksheetData) {
+        setImportError('Failed to parse JSON file. Please check the file format.');
+        return;
+      }
+
+      // Get device ID (for version vector)
+      const deviceId = localStorage.getItem('deviceId') || 'unknown-device';
+
+      // Import data
+      const result = await importWorksheetData(worksheetData, companyId, deviceId);
+
+      if (!result.success) {
+        setImportError(
+          `Import failed: ${result.errors.join(', ')}`
+        );
+        return;
+      }
+
+      // Success!
+      setImportSuccess(
+        `Successfully imported: ${result.counts.categories} categories, ${result.counts.products} products, ${result.counts.recipes} recipes, ${result.counts.invoices} invoices`
+      );
+
+      // Reload data and close modal
+      await loadData();
+      setTimeout(() => {
+        setShowImportModal(false);
+        setImportSuccess(null);
+      }, 3000);
+
+      // Dispatch event to notify other components
+      window.dispatchEvent(
+        new CustomEvent('cpg-data-updated', { detail: { type: 'import' } })
+      );
+    } catch (err) {
+      console.error('Worksheet import error:', err);
+      setImportError(
+        err instanceof Error ? err.message : 'Unknown error during import'
+      );
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   // TODO: Reserved for future Invoice Archive feature
   // const handleArchiveInvoice = async (invoiceId: string) => {
   //   try {
@@ -273,6 +334,15 @@ export default function CPUTracker() {
               iconBefore={<span aria-hidden="true">⚙️</span>}
             >
               Manage Categories
+            </Button>
+
+            <Button
+              variant="outline"
+              size="md"
+              onClick={() => setShowImportModal(true)}
+              iconBefore={<span aria-hidden="true">📥</span>}
+            >
+              Import Worksheet
             </Button>
 
             <Button
@@ -465,6 +535,81 @@ export default function CPUTracker() {
             setShowInvoiceForm(true);
           }}
         />
+      )}
+
+      {/* Import Worksheet Modal */}
+      {showImportModal && (
+        <div className={styles.modalOverlay} onClick={() => !isImporting && setShowImportModal(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>Import CPG Quick Start Worksheet</h2>
+              <button
+                className={styles.modalClose}
+                onClick={() => setShowImportModal(false)}
+                disabled={isImporting}
+                aria-label="Close modal"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              <p style={{ marginBottom: '1.5rem', color: 'var(--text-gray)' }}>
+                Upload your completed worksheet JSON file to import categories, products, recipes, and invoices.
+              </p>
+
+              {importError && (
+                <div className={styles.errorBanner} role="alert" style={{ marginBottom: '1.5rem' }}>
+                  <span aria-hidden="true">⚠️</span>
+                  <span>{importError}</span>
+                </div>
+              )}
+
+              {importSuccess && (
+                <div className={styles.successBanner} role="alert" style={{ marginBottom: '1.5rem' }}>
+                  <span aria-hidden="true">✓</span>
+                  <span>{importSuccess}</span>
+                </div>
+              )}
+
+              <input
+                type="file"
+                accept=".json"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleWorksheetImport(file);
+                  }
+                }}
+                disabled={isImporting}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '1rem',
+                  border: '2px dashed var(--border-gray)',
+                  borderRadius: '8px',
+                  cursor: isImporting ? 'not-allowed' : 'pointer',
+                }}
+              />
+
+              {isImporting && (
+                <div style={{ marginTop: '1rem', textAlign: 'center', color: 'var(--text-gray)' }}>
+                  Importing... Please wait.
+                </div>
+              )}
+            </div>
+
+            <div className={styles.modalFooter}>
+              <Button
+                variant="outline"
+                onClick={() => setShowImportModal(false)}
+                disabled={isImporting}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
