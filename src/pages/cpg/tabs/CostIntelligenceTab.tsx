@@ -54,13 +54,16 @@ export default function CostIntelligenceTab({
 }: CostIntelligenceTabProps) {
   // Product selection state
   const [selectedProductsForComparison, setSelectedProductsForComparison] = useState<Set<string>>(new Set());
-  const [comparisonCategoryFilter, setComparisonCategoryFilter] = useState<string>('all');
-  const [comparisonVariantFilter, setComparisonVariantFilter] = useState<string>('all');
-  const [comparisonVendorFilter, setComparisonVendorFilter] = useState<string>('all');
+  const [comparisonCategoryFilter, setComparisonCategoryFilter] = useState<Set<string>>(new Set());
+  const [comparisonVariantFilter, setComparisonVariantFilter] = useState<Set<string>>(new Set());
+  const [comparisonVendorFilter, setComparisonVendorFilter] = useState<Set<string>>(new Set());
   const [comparisonDateRange, setComparisonDateRange] = useState<'3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all'>('6mo');
   const [comparisonCustomStartDate, setComparisonCustomStartDate] = useState<string>('');
   const [comparisonCustomEndDate, setComparisonCustomEndDate] = useState<string>('');
   const [showProductDropdown, setShowProductDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [showVariantDropdown, setShowVariantDropdown] = useState(false);
+  const [showVendorDropdown, setShowVendorDropdown] = useState(false);
 
   // Product CPU data
   const [productCPUData, setProductCPUData] = useState<Map<string, ProductCPUData>>(new Map());
@@ -232,9 +235,9 @@ export default function CostIntelligenceTab({
   // Get filtered products based on category, variant, and vendor filters
   // This determines which PRODUCTS to show, not which components within products
   const getFilteredProducts = useCallback(() => {
-    if (comparisonCategoryFilter === 'all' &&
-        comparisonVariantFilter === 'all' &&
-        comparisonVendorFilter === 'all') {
+    if (comparisonCategoryFilter.size === 0 &&
+        comparisonVariantFilter.size === 0 &&
+        comparisonVendorFilter.size === 0) {
       return finishedProducts;
     }
 
@@ -246,26 +249,26 @@ export default function CostIntelligenceTab({
         return false;
       }
 
-      // Category filter - product must have at least one component from this category
-      if (comparisonCategoryFilter !== 'all') {
-        const hasCategory = cpuData.breakdown.some(b => b.categoryId === comparisonCategoryFilter);
+      // Category filter - product must have at least one component from selected categories
+      if (comparisonCategoryFilter.size > 0) {
+        const hasCategory = cpuData.breakdown.some(b => comparisonCategoryFilter.has(b.categoryId));
         if (!hasCategory) return false;
       }
 
-      // Variant filter - check if product's recipe specifies this variant
-      if (comparisonVariantFilter !== 'all') {
+      // Variant filter - check if product's recipe specifies one of the selected variants
+      if (comparisonVariantFilter.size > 0) {
         const productRecipes = recipes.filter(r => r.finished_product_id === product.id);
         const hasVariant = productRecipes.some(recipe => {
           const recipeVariant = recipe.variant || '';
-          return recipeVariant === comparisonVariantFilter;
+          return comparisonVariantFilter.has(recipeVariant);
         });
         if (!hasVariant) return false;
       }
 
-      // Vendor filter - product must use items from this vendor
-      if (comparisonVendorFilter !== 'all') {
+      // Vendor filter - product must use items from one of the selected vendors
+      if (comparisonVendorFilter.size > 0) {
         const hasVendor = invoices.some(invoice => {
-          if (invoice.deleted_at || invoice.vendor_name !== comparisonVendorFilter) return false;
+          if (invoice.deleted_at || !comparisonVendorFilter.has(invoice.vendor_name || '')) return false;
           if (!invoice.cost_attribution) return false;
 
           return Object.values(invoice.cost_attribution).some(attr => {
@@ -697,79 +700,395 @@ export default function CostIntelligenceTab({
             </div>
 
             {/* Category Filter */}
-            <select
-              value={comparisonCategoryFilter}
-              onChange={(e) => setComparisonCategoryFilter(e.target.value)}
-              aria-label="Filter by category"
-              style={{
-                flex: '1 1 auto',
-                minWidth: '120px',
-                padding: '0.625rem 0.875rem',
-                border: '1px solid #cbd5e1',
-                borderRadius: '6px',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                background: 'white',
-                color: '#475569',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-            >
-              <option value="all">Categories</option>
-              {categories.filter(cat => !cat.deleted_at).map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </select>
+            <div style={{ position: 'relative', flex: '1 1 auto', minWidth: '120px' }}>
+              <button
+                onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                aria-expanded={showCategoryDropdown}
+                aria-label="Filter by categories"
+                style={{
+                  width: '100%',
+                  padding: '0.625rem 0.875rem',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  background: 'white',
+                  color: '#475569',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <span>
+                  {comparisonCategoryFilter.size === 0
+                    ? 'Categories'
+                    : `${comparisonCategoryFilter.size} Selected`}
+                </span>
+                <span aria-hidden="true" style={{ fontSize: '0.75rem' }}>{showCategoryDropdown ? '▲' : '▼'}</span>
+              </button>
+
+              {showCategoryDropdown && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  marginTop: '0.25rem',
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                  zIndex: 1000,
+                  maxHeight: '250px',
+                  overflowY: 'auto',
+                }}>
+                  {/* Select All / Clear All */}
+                  <div style={{
+                    padding: '0.375rem',
+                    borderBottom: '1px solid #e5e7eb',
+                    display: 'flex',
+                    gap: '0.375rem',
+                  }}>
+                    <button
+                      onClick={() => {
+                        const allCategories = categories.filter(cat => !cat.deleted_at).map(cat => cat.id);
+                        setComparisonCategoryFilter(new Set(allCategories));
+                        setShowCategoryDropdown(false);
+                      }}
+                      aria-label="Select all categories"
+                      style={{
+                        flex: 1,
+                        padding: '0.5rem',
+                        background: '#f8fafc',
+                        color: '#475569',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={() => setComparisonCategoryFilter(new Set())}
+                      aria-label="Clear all categories"
+                      style={{
+                        flex: 1,
+                        padding: '0.5rem',
+                        background: 'white',
+                        color: '#64748b',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      Clear All
+                    </button>
+                  </div>
+
+                  {/* Category List */}
+                  {categories.filter(cat => !cat.deleted_at).map(cat => (
+                    <label
+                      key={cat.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '0.4rem 0.625rem',
+                        cursor: 'pointer',
+                        borderBottom: '1px solid #f8fafc',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={comparisonCategoryFilter.has(cat.id)}
+                        onChange={(e) => {
+                          const newSet = new Set(comparisonCategoryFilter);
+                          if (e.target.checked) {
+                            newSet.add(cat.id);
+                          } else {
+                            newSet.delete(cat.id);
+                          }
+                          setComparisonCategoryFilter(newSet);
+                        }}
+                        style={{ marginRight: '0.5rem' }}
+                        aria-label={`Select ${cat.name}`}
+                      />
+                      <span style={{ fontSize: '0.8125rem' }}>{cat.name}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Variant Filter */}
-            <select
-              value={comparisonVariantFilter}
-              onChange={(e) => setComparisonVariantFilter(e.target.value)}
-              aria-label="Filter by variant"
-              style={{
-                flex: '1 1 auto',
-                minWidth: '110px',
-                padding: '0.625rem 0.875rem',
-                border: '1px solid #cbd5e1',
-                borderRadius: '6px',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                background: 'white',
-                color: '#475569',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-            >
-              <option value="all">Variants</option>
-              {availableVariants.map(variant => (
-                <option key={variant} value={variant}>{variant}</option>
-              ))}
-            </select>
+            <div style={{ position: 'relative', flex: '1 1 auto', minWidth: '110px' }}>
+              <button
+                onClick={() => setShowVariantDropdown(!showVariantDropdown)}
+                aria-expanded={showVariantDropdown}
+                aria-label="Filter by variants"
+                style={{
+                  width: '100%',
+                  padding: '0.625rem 0.875rem',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  background: 'white',
+                  color: '#475569',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <span>
+                  {comparisonVariantFilter.size === 0
+                    ? 'Variants'
+                    : `${comparisonVariantFilter.size} Selected`}
+                </span>
+                <span aria-hidden="true" style={{ fontSize: '0.75rem' }}>{showVariantDropdown ? '▲' : '▼'}</span>
+              </button>
+
+              {showVariantDropdown && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  marginTop: '0.25rem',
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                  zIndex: 1000,
+                  maxHeight: '250px',
+                  overflowY: 'auto',
+                }}>
+                  {/* Select All / Clear All */}
+                  <div style={{
+                    padding: '0.375rem',
+                    borderBottom: '1px solid #e5e7eb',
+                    display: 'flex',
+                    gap: '0.375rem',
+                  }}>
+                    <button
+                      onClick={() => {
+                        setComparisonVariantFilter(new Set(availableVariants));
+                        setShowVariantDropdown(false);
+                      }}
+                      aria-label="Select all variants"
+                      style={{
+                        flex: 1,
+                        padding: '0.5rem',
+                        background: '#f8fafc',
+                        color: '#475569',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={() => setComparisonVariantFilter(new Set())}
+                      aria-label="Clear all variants"
+                      style={{
+                        flex: 1,
+                        padding: '0.5rem',
+                        background: 'white',
+                        color: '#64748b',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      Clear All
+                    </button>
+                  </div>
+
+                  {/* Variant List */}
+                  {availableVariants.map(variant => (
+                    <label
+                      key={variant}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '0.4rem 0.625rem',
+                        cursor: 'pointer',
+                        borderBottom: '1px solid #f8fafc',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={comparisonVariantFilter.has(variant)}
+                        onChange={(e) => {
+                          const newSet = new Set(comparisonVariantFilter);
+                          if (e.target.checked) {
+                            newSet.add(variant);
+                          } else {
+                            newSet.delete(variant);
+                          }
+                          setComparisonVariantFilter(newSet);
+                        }}
+                        style={{ marginRight: '0.5rem' }}
+                        aria-label={`Select ${variant}`}
+                      />
+                      <span style={{ fontSize: '0.8125rem' }}>{variant}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Vendor Filter */}
-            <select
-              value={comparisonVendorFilter}
-              onChange={(e) => setComparisonVendorFilter(e.target.value)}
-              aria-label="Filter by vendor"
-              style={{
-                flex: '1 1 auto',
-                minWidth: '110px',
-                padding: '0.625rem 0.875rem',
-                border: '1px solid #cbd5e1',
-                borderRadius: '6px',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                background: 'white',
-                color: '#475569',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-            >
-              <option value="all">Vendors</option>
-              {availableVendors.map(vendor => (
-                <option key={vendor} value={vendor}>{vendor}</option>
-              ))}
-            </select>
+            <div style={{ position: 'relative', flex: '1 1 auto', minWidth: '110px' }}>
+              <button
+                onClick={() => setShowVendorDropdown(!showVendorDropdown)}
+                aria-expanded={showVendorDropdown}
+                aria-label="Filter by vendors"
+                style={{
+                  width: '100%',
+                  padding: '0.625rem 0.875rem',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  background: 'white',
+                  color: '#475569',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <span>
+                  {comparisonVendorFilter.size === 0
+                    ? 'Vendors'
+                    : `${comparisonVendorFilter.size} Selected`}
+                </span>
+                <span aria-hidden="true" style={{ fontSize: '0.75rem' }}>{showVendorDropdown ? '▲' : '▼'}</span>
+              </button>
+
+              {showVendorDropdown && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  marginTop: '0.25rem',
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                  zIndex: 1000,
+                  maxHeight: '250px',
+                  overflowY: 'auto',
+                }}>
+                  {/* Select All / Clear All */}
+                  <div style={{
+                    padding: '0.375rem',
+                    borderBottom: '1px solid #e5e7eb',
+                    display: 'flex',
+                    gap: '0.375rem',
+                  }}>
+                    <button
+                      onClick={() => {
+                        setComparisonVendorFilter(new Set(availableVendors));
+                        setShowVendorDropdown(false);
+                      }}
+                      aria-label="Select all vendors"
+                      style={{
+                        flex: 1,
+                        padding: '0.5rem',
+                        background: '#f8fafc',
+                        color: '#475569',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={() => setComparisonVendorFilter(new Set())}
+                      aria-label="Clear all vendors"
+                      style={{
+                        flex: 1,
+                        padding: '0.5rem',
+                        background: 'white',
+                        color: '#64748b',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      Clear All
+                    </button>
+                  </div>
+
+                  {/* Vendor List */}
+                  {availableVendors.map(vendor => (
+                    <label
+                      key={vendor}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '0.4rem 0.625rem',
+                        cursor: 'pointer',
+                        borderBottom: '1px solid #f8fafc',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={comparisonVendorFilter.has(vendor)}
+                        onChange={(e) => {
+                          const newSet = new Set(comparisonVendorFilter);
+                          if (e.target.checked) {
+                            newSet.add(vendor);
+                          } else {
+                            newSet.delete(vendor);
+                          }
+                          setComparisonVendorFilter(newSet);
+                        }}
+                        style={{ marginRight: '0.5rem' }}
+                        aria-label={`Select ${vendor}`}
+                      />
+                      <span style={{ fontSize: '0.8125rem' }}>{vendor}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Date Range for Analysis */}
             <select

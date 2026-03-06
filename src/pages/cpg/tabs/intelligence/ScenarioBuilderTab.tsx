@@ -51,9 +51,9 @@ export interface ScenarioBuilderTabProps {
   productCPUData: Map<string, ProductCPUData>;
   finishedProducts: any[]; // TODO: Add proper type from schema
   dateRange?: '3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all';
-  categoryFilter?: string;
-  variantFilter?: string;
-  vendorFilter?: string;
+  categoryFilter?: Set<string>;
+  variantFilter?: Set<string>;
+  vendorFilter?: Set<string>;
   recipes?: any[];
   invoices?: any[];
 }
@@ -63,9 +63,9 @@ export default function ScenarioBuilderTab({
   selectedProducts,
   productCPUData,
   finishedProducts,
-  categoryFilter = 'all',
-  variantFilter = 'all',
-  vendorFilter = 'all',
+  categoryFilter = new Set(),
+  variantFilter = new Set(),
+  vendorFilter = new Set(),
   recipes = [],
   invoices = [],
 }: ScenarioBuilderTabProps) {
@@ -93,59 +93,36 @@ export default function ScenarioBuilderTab({
   const filterComponents = useCallback((productId: string, components: ComponentBreakdown[]): ComponentBreakdown[] => {
     if (!components) return [];
 
-    console.log('🔍 Filtering components for product:', productId);
-    console.log('Active filters:', { categoryFilter, variantFilter, vendorFilter });
-    console.log('Total recipes received:', recipes?.length || 0);
-    console.log('Recipes array:', recipes);
-
     return components.filter(component => {
-      console.log(`  Checking component: ${component.categoryName} (${component.categoryId})`);
-
-      // Category filter
-      if (categoryFilter !== 'all' && component.categoryId !== categoryFilter) {
-        console.log('    ❌ Category mismatch');
+      // Category filter - if any categories selected, component must match one of them
+      if (categoryFilter.size > 0 && !categoryFilter.has(component.categoryId)) {
         return false;
       }
 
-      // Variant filter - check if THIS product uses this variant for this component
-      if (variantFilter !== 'all') {
+      // Variant filter - if any variants selected, check if THIS product uses one of those variants for this component
+      if (variantFilter.size > 0) {
         const productRecipes = recipes.filter(r => r.finished_product_id === productId);
-        console.log(`    Product has ${productRecipes.length} recipes`);
-
         const componentRecipe = productRecipes.find(r => r.category_id === component.categoryId);
-        console.log('    Component recipe:', componentRecipe);
 
-        if (!componentRecipe) {
-          console.log('    ❌ No recipe found for this component');
-          return false;
-        }
+        if (!componentRecipe) return false;
 
         const recipeVariant = componentRecipe.variant || '';
-        console.log(`    Recipe variant: "${recipeVariant}" vs Filter: "${variantFilter}"`);
-
-        if (recipeVariant !== variantFilter) {
-          console.log('    ❌ Variant mismatch');
-          return false;
-        }
+        if (!variantFilter.has(recipeVariant)) return false;
       }
 
-      // Vendor filter - check if this component has been purchased from the selected vendor
-      if (vendorFilter !== 'all') {
+      // Vendor filter - if any vendors selected, check if this component has been purchased from one of them
+      if (vendorFilter.size > 0) {
         const hasVendor = invoices.some(invoice => {
-          if (invoice.deleted_at || invoice.vendor_name !== vendorFilter) return false;
+          if (invoice.deleted_at || !vendorFilter.has(invoice.vendor_name || '')) return false;
           if (!invoice.cost_attribution) return false;
 
           return Object.values(invoice.cost_attribution).some((attr: any) => {
             return attr.category_id === component.categoryId;
           });
         });
-        if (!hasVendor) {
-          console.log('    ❌ Vendor mismatch');
-          return false;
-        }
+        if (!hasVendor) return false;
       }
 
-      console.log('    ✅ Component passes filter');
       return true;
     });
   }, [categoryFilter, variantFilter, vendorFilter, recipes, invoices]);
