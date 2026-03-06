@@ -409,8 +409,12 @@ export default function ScenarioBuilderTab({
                         {component.categoryName}
                       </div>
 
-                      {/* Slider in the middle */}
+                      {/* Slider immediately after name */}
                       <div className={styles.componentSliderWrapper}>
+                        <div className={styles.sliderLabels}>
+                          <span>{minLabel}</span>
+                          <span>{maxLabel}</span>
+                        </div>
                         <input
                           id={`component-slider-${productId}-${component.categoryId}`}
                           type="range"
@@ -429,25 +433,25 @@ export default function ScenarioBuilderTab({
                           aria-valuetext={displayAdjustment || 'No adjustment'}
                           className={styles.slider}
                         />
-                        <div className={styles.sliderLabels}>
-                          <span>{minLabel}</span>
-                          <span>{maxLabel}</span>
-                        </div>
                       </div>
 
-                      {/* Value on the right */}
+                      {/* Value */}
                       <div className={styles.componentValue}>
                         ${formatNumberWithCommas(adjustedSubtotal)}
-                        {displayAdjustment && (
-                          <span
-                            className={`${styles.componentAdjustmentBadge} ${
-                              currentAdj > 0 ? styles.increase : styles.decrease
-                            }`}
-                          >
-                            {displayAdjustment}
-                          </span>
-                        )}
                       </div>
+
+                      {/* Badge (if adjusted) */}
+                      {displayAdjustment ? (
+                        <span
+                          className={`${styles.componentAdjustmentBadge} ${
+                            currentAdj > 0 ? styles.increase : styles.decrease
+                          }`}
+                        >
+                          {displayAdjustment}
+                        </span>
+                      ) : (
+                        <span style={{ width: '60px' }}></span>
+                      )}
 
                       {/* Mode toggle buttons */}
                       <div className={styles.componentModeToggle}>
