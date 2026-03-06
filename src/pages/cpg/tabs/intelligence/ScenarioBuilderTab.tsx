@@ -265,39 +265,28 @@ export default function ScenarioBuilderTab({
 
         return (
           <div key={productId} className={styles.productCard}>
-            <h3 className={styles.productName}>
-              {product.name}
-              {hasAdjustments && <span className={styles.productBadge}>Modified</span>}
-            </h3>
-
-            <div className={styles.cardContent}>
-              {/* Current vs Scenario Comparison */}
-              <div className={styles.comparison}>
-              <div className={styles.comparisonColumn}>
-                <div className={styles.comparisonLabel}>Current</div>
-                <div className={styles.comparisonValue}>
-                  ${formatNumberWithCommas(baseCPU)}
-                </div>
-                <div className={styles.comparisonMetric}>
-                  Margin: {baseMargin.toFixed(1)}%
-                </div>
+            <div className={styles.productName}>
+              <div className={styles.productTitle}>
+                {product.name}
+                {hasAdjustments && <span className={styles.productBadge}>Modified</span>}
               </div>
-              <div className={`${styles.comparisonColumn} ${styles.scenario} ${hasAdjustments ? styles.hasChanges : ''}`}>
-                <div className={styles.comparisonLabel}>Your Scenario</div>
-                <div className={`${styles.comparisonValue} ${hasAdjustments ? styles.highlight : ''}`}>
-                  ${formatNumberWithCommas(scenarioCPUValue)}
+              <div className={styles.productMetrics}>
+                <div className={styles.productMetric}>
+                  <div className={styles.metricLabel}>CPU</div>
+                  <div className={`${styles.metricValue} ${hasAdjustments ? styles.changed : ''}`}>
+                    ${formatNumberWithCommas(scenarioCPUValue)}
+                  </div>
                 </div>
-                <div className={styles.comparisonMetric}>
-                  Margin: {scenarioMarginValue.toFixed(1)}%
-                  {hasAdjustments && (
-                    <span className={styles.comparisonDiff}>
-                      {scenarioMarginValue > baseMargin ? '+' : ''}
-                      {(scenarioMarginValue - baseMargin).toFixed(1)}%
-                    </span>
-                  )}
+                <div className={styles.productMetric}>
+                  <div className={styles.metricLabel}>Margin</div>
+                  <div className={`${styles.metricValue} ${hasAdjustments ? styles.changed : ''}`}>
+                    {scenarioMarginValue.toFixed(1)}%
+                  </div>
                 </div>
               </div>
             </div>
+
+            <div className={styles.cardContent}>
 
               {/* MSRP Adjustment */}
               <div className={styles.sliderSection}>
