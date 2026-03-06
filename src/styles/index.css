@@ -5,9 +5,9 @@
 /* CSS Custom Properties (Design Tokens) */
 :root {
   /* Colors - Calming, reassuring palette for Steadiness profile */
-  --color-primary: #4a90e2;
-  --color-primary-hover: #357abd;
-  --color-primary-light: #e8f4fd;
+  --color-primary: #4b006e;
+  --color-primary-hover: #3a0054;
+  --color-primary-light: #f3e8ff;
 
   --color-secondary: #7b68ee;
   --color-secondary-hover: #6352d4;
