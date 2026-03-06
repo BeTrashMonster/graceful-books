@@ -84,6 +84,9 @@ export default function ScenarioBuilderTab({
   // Map<productId, new MSRP>
   const [scenarioMSRP, setScenarioMSRP] = useState<Map<string, number>>(new Map());
 
+  // State: Adjustment mode ($ or %)
+  const [adjustmentMode, setAdjustmentMode] = useState<'percentage' | 'dollar'>('percentage');
+
   // Format number with commas
   const formatNumberWithCommas = useCallback((num: number): string => {
     return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -138,7 +141,15 @@ export default function ScenarioBuilderTab({
       const components = data.breakdown.map((component) => {
         const baseSubtotal = component.subtotal ? parseFloat(component.subtotal) : 0;
         const adjustment = adjustments.get(component.categoryId) || 0;
-        const adjustedSubtotal = baseSubtotal * (1 + adjustment / 100);
+
+        let adjustedSubtotal;
+        if (adjustmentMode === 'percentage') {
+          adjustedSubtotal = baseSubtotal * (1 + adjustment / 100);
+        } else {
+          // Dollar mode
+          adjustedSubtotal = baseSubtotal + adjustment;
+        }
+
         totalCPU += adjustedSubtotal;
 
         return {
@@ -149,7 +160,7 @@ export default function ScenarioBuilderTab({
 
       return { cpu: totalCPU, components };
     },
-    [productCPUData, scenarioAdjustments]
+    [productCPUData, scenarioAdjustments, adjustmentMode]
   );
 
   // Calculate scenario margin
@@ -259,8 +270,9 @@ export default function ScenarioBuilderTab({
               {hasAdjustments && <span className={styles.productBadge}>Modified</span>}
             </h3>
 
-            {/* Current vs Scenario Comparison */}
-            <div className={styles.comparison}>
+            <div className={styles.cardContent}>
+              {/* Current vs Scenario Comparison */}
+              <div className={styles.comparison}>
               <div className={styles.comparisonColumn}>
                 <div className={styles.comparisonLabel}>Current</div>
                 <div className={styles.comparisonValue}>
@@ -287,12 +299,11 @@ export default function ScenarioBuilderTab({
               </div>
             </div>
 
-            {/* MSRP Adjustment */}
-            <div className={styles.sliderSection}>
-              <div className={styles.sliderSectionTitle}>
-                <span className={styles.sliderSectionIcon}>💰</span>
-                Retail Price
-              </div>
+              {/* MSRP Adjustment */}
+              <div className={styles.sliderSection}>
+                <div className={styles.sliderSectionTitle}>
+                  Retail Price
+                </div>
               <div className={styles.msrpSlider}>
                 <div className={styles.msrpLabel}>
                   <span className={styles.msrpLabelText}>MSRP</span>
@@ -325,12 +336,18 @@ export default function ScenarioBuilderTab({
               </div>
             </div>
 
-            {/* Component Adjustments */}
-            <div className={styles.sliderSection}>
-              <div className={styles.sliderSectionTitle}>
-                <span className={styles.sliderSectionIcon}>🧪</span>
-                Component Costs
-              </div>
+              {/* Component Adjustments */}
+              <div className={styles.sliderSection}>
+                <div className={styles.sliderSectionTitle}>
+                  Component Costs
+                  <button
+                    onClick={() => setAdjustmentMode(adjustmentMode === 'percentage' ? 'dollar' : 'percentage')}
+                    className={styles.modeToggle}
+                    aria-label="Toggle adjustment mode"
+                  >
+                    {adjustmentMode === 'percentage' ? 'Switch to $' : 'Switch to %'}
+                  </button>
+                </div>
               {filteredComponents.length === 0 ? (
                 <div style={{
                   padding: '2rem',
@@ -345,27 +362,47 @@ export default function ScenarioBuilderTab({
                   {filteredComponents.map((component, idx) => {
                   const baseSubtotal = component.subtotal ? parseFloat(component.subtotal) : 0;
                   const currentAdj = scenarioAdjustments.get(productId)?.get(component.categoryId) || 0;
-                  const adjustedSubtotal = baseSubtotal * (1 + currentAdj / 100);
+
+                  let adjustedSubtotal;
+                  let displayAdjustment;
+                  if (adjustmentMode === 'percentage') {
+                    adjustedSubtotal = baseSubtotal * (1 + currentAdj / 100);
+                    displayAdjustment = currentAdj !== 0 ? `${currentAdj > 0 ? '+' : ''}${currentAdj}%` : null;
+                  } else {
+                    adjustedSubtotal = baseSubtotal + currentAdj;
+                    displayAdjustment = currentAdj !== 0 ? `${currentAdj > 0 ? '+' : ''}$${Math.abs(currentAdj).toFixed(2)}` : null;
+                  }
+
+                  // Slider range based on mode
+                  let sliderMin, sliderMax, sliderStep;
+                  if (adjustmentMode === 'percentage') {
+                    sliderMin = -50;
+                    sliderMax = 100;
+                    sliderStep = 5;
+                  } else {
+                    sliderMin = -baseSubtotal * 0.5;
+                    sliderMax = baseSubtotal * 1.0;
+                    sliderStep = 0.25;
+                  }
 
                   return (
                     <div
                       key={idx}
                       className={`${styles.componentItem} ${currentAdj !== 0 ? styles.adjusted : ''}`}
                     >
-                      <div className={styles.componentHeader}>
+                      <div className={styles.componentRow}>
                         <div className={styles.componentName}>
                           {component.categoryName}
                         </div>
                         <div className={styles.componentValue}>
                           ${formatNumberWithCommas(adjustedSubtotal)}
-                          {currentAdj !== 0 && (
+                          {displayAdjustment && (
                             <span
                               className={`${styles.componentAdjustmentBadge} ${
                                 currentAdj > 0 ? styles.increase : styles.decrease
                               }`}
                             >
-                              {currentAdj > 0 ? '+' : ''}
-                              {currentAdj}%
+                              {displayAdjustment}
                             </span>
                           )}
                         </div>
@@ -374,25 +411,21 @@ export default function ScenarioBuilderTab({
                         <input
                           id={`component-slider-${productId}-${component.categoryId}`}
                           type="range"
-                          min={-50}
-                          max={100}
-                          step={5}
+                          min={sliderMin}
+                          max={sliderMax}
+                          step={sliderStep}
                           value={currentAdj}
                           onChange={(e) => {
-                            const adj = parseInt(e.target.value, 10);
+                            const adj = parseFloat(e.target.value);
                             handleComponentAdjustment(productId, component.categoryId, adj);
                           }}
                           aria-label={`Adjust cost for ${component.categoryName}`}
-                          aria-valuemin={-50}
-                          aria-valuemax={100}
+                          aria-valuemin={sliderMin}
+                          aria-valuemax={sliderMax}
                           aria-valuenow={currentAdj}
-                          aria-valuetext={`${currentAdj > 0 ? '+' : ''}${currentAdj}%`}
+                          aria-valuetext={displayAdjustment || 'No adjustment'}
                           className={styles.slider}
                         />
-                      </div>
-                      <div className={styles.sliderLabels}>
-                        <span>-50%</span>
-                        <span>+100%</span>
                       </div>
                     </div>
                   );
@@ -401,17 +434,18 @@ export default function ScenarioBuilderTab({
               )}
             </div>
 
-            {/* Reset Button */}
-            {hasAdjustments && (
-              <button
-                onClick={() => resetProductScenario(productId)}
-                aria-label={`Reset scenario to current values for ${product.name}`}
-                className={styles.resetButton}
-              >
-                <span aria-hidden="true">↺</span>
-                Reset to Current
-              </button>
-            )}
+              {/* Reset Button */}
+              {hasAdjustments && (
+                <button
+                  onClick={() => resetProductScenario(productId)}
+                  aria-label={`Reset scenario to current values for ${product.name}`}
+                  className={styles.resetButton}
+                >
+                  <span aria-hidden="true">↺</span>
+                  Reset to Current
+                </button>
+              )}
+            </div>
           </div>
         );
       })}
