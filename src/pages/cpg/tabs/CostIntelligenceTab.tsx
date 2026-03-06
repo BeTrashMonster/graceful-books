@@ -16,9 +16,10 @@
  * - Type-safe props and state management
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import type { CPGCategory, CPGInvoice } from '../../../db/schema/cpg.schema';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import type { CPGCategory, CPGInvoice, CPGRecipe } from '../../../db/schema/cpg.schema';
 import { cpuCalculatorService } from '../../../services/cpg/cpuCalculator.service';
+import { db } from '../../../db/database';
 import CPUTrendsTab from './intelligence/CPUTrendsTab';
 import VendorIntelTab from './intelligence/VendorIntelTab';
 import SmartAlertsTab from './intelligence/SmartAlertsTab';
@@ -30,6 +31,7 @@ export interface CostIntelligenceTabProps {
   finishedProducts: any[]; // TODO: Add proper type from schema
   categories: CPGCategory[];
   invoices: CPGInvoice[];
+  recipes?: any[]; // Product recipes that define which variant each product uses
 }
 
 type IntelligenceSubTab = 'scenario' | 'trends' | 'vendors' | 'alerts';
@@ -53,12 +55,19 @@ export default function CostIntelligenceTab({
   // Product selection state
   const [selectedProductsForComparison, setSelectedProductsForComparison] = useState<Set<string>>(new Set());
   const [comparisonCategoryFilter, setComparisonCategoryFilter] = useState<string>('all');
-  const [comparisonDateRange, setComparisonDateRange] = useState<'3mo' | '6mo' | '12mo' | 'all'>('6mo');
+  const [comparisonVariantFilter, setComparisonVariantFilter] = useState<string>('all');
+  const [comparisonVendorFilter, setComparisonVendorFilter] = useState<string>('all');
+  const [comparisonDateRange, setComparisonDateRange] = useState<'3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all'>('6mo');
+  const [comparisonCustomStartDate, setComparisonCustomStartDate] = useState<string>('');
+  const [comparisonCustomEndDate, setComparisonCustomEndDate] = useState<string>('');
   const [showProductDropdown, setShowProductDropdown] = useState(false);
 
   // Product CPU data
   const [productCPUData, setProductCPUData] = useState<Map<string, ProductCPUData>>(new Map());
   const [isLoadingCPUData, setIsLoadingCPUData] = useState(false);
+
+  // Product recipes (defines which variant each product uses for each component)
+  const [recipes, setRecipes] = useState<CPGRecipe[]>([]);
 
   // Sub-tab navigation
   const [intelligenceTab, setIntelligenceTab] = useState<IntelligenceSubTab>('scenario');
@@ -132,12 +141,61 @@ export default function CostIntelligenceTab({
     }
   }, [finishedProducts, companyId]);
 
-  // Load CPU data when selected products change
+  // Handle date blur to convert 2-digit years to 20xx
+  const handleDateBlur = useCallback((value: string, setter: (value: string) => void) => {
+    if (!value) return;
+
+    const parts = value.split('-');
+    if (parts.length === 3) {
+      let [year, month, day] = parts;
+
+      // Parse year as integer
+      const yearNum = parseInt(year, 10);
+
+      // If year is 0-99, assume 20xx
+      if (yearNum >= 0 && yearNum <= 99) {
+        year = '20' + String(yearNum).padStart(2, '0');
+        setter(`${year}-${month}-${day}`);
+      }
+    }
+  }, []);
+
+  // Load recipes for filtering
+  useEffect(() => {
+    const loadRecipes = async () => {
+      try {
+        const allRecipes = await db.cpgRecipes
+          .where('company_id')
+          .equals(companyId)
+          .and(r => !r.deleted_at)
+          .toArray();
+        console.log('📚 Loaded recipes:', allRecipes.length, allRecipes);
+        setRecipes(allRecipes);
+      } catch (err) {
+        console.error('Failed to load recipes:', err);
+      }
+    };
+
+    loadRecipes();
+  }, [companyId]);
+
+  // Load CPU data for ALL products on mount (needed for filtering)
+  useEffect(() => {
+    if (finishedProducts.length > 0) {
+      loadProductCPUData(finishedProducts.map(p => p.id));
+    }
+  }, [finishedProducts, loadProductCPUData]);
+
+  // Reload when selected products change (in case new products added)
   useEffect(() => {
     if (selectedProductsForComparison.size > 0) {
-      loadProductCPUData(Array.from(selectedProductsForComparison));
+      const selectedIds = Array.from(selectedProductsForComparison);
+      const missingData = selectedIds.filter(id => !productCPUData.has(id));
+      if (missingData.length > 0) {
+        loadProductCPUData(missingData);
+      }
     }
-  }, [selectedProductsForComparison, loadProductCPUData]);
+  }, [selectedProductsForComparison, productCPUData, loadProductCPUData]);
 
   // Focus management: Scroll to analysis content after selection
   useEffect(() => {
@@ -149,18 +207,78 @@ export default function CostIntelligenceTab({
     }
   }, [selectedProductsForComparison.size, isLoadingCPUData]);
 
-  // Get filtered products based on category filter
+  // Get unique variants from categories
+  const availableVariants = useMemo(() => {
+    const variants = new Set<string>();
+    categories.forEach(cat => {
+      if (!cat.deleted_at && cat.variants) {
+        cat.variants.forEach(v => variants.add(v));
+      }
+    });
+    return Array.from(variants).sort();
+  }, [categories]);
+
+  // Get unique vendors from invoices
+  const availableVendors = useMemo(() => {
+    const vendors = new Set<string>();
+    invoices.forEach(inv => {
+      if (!inv.deleted_at && inv.vendor_name) {
+        vendors.add(inv.vendor_name);
+      }
+    });
+    return Array.from(vendors).sort();
+  }, [invoices]);
+
+  // Get filtered products based on category, variant, and vendor filters
+  // This determines which PRODUCTS to show, not which components within products
   const getFilteredProducts = useCallback(() => {
-    return finishedProducts.filter(_product => {
-      // Category filter
+    if (comparisonCategoryFilter === 'all' &&
+        comparisonVariantFilter === 'all' &&
+        comparisonVendorFilter === 'all') {
+      return finishedProducts;
+    }
+
+    return finishedProducts.filter(product => {
+      const cpuData = productCPUData.get(product.id);
+
+      // If no CPU data yet, exclude (can't filter without data)
+      if (!cpuData || !cpuData.breakdown || cpuData.breakdown.length === 0) {
+        return false;
+      }
+
+      // Category filter - product must have at least one component from this category
       if (comparisonCategoryFilter !== 'all') {
-        // TODO: Filter by product category when we have that data
-        // For now, skip this filter
+        const hasCategory = cpuData.breakdown.some(b => b.categoryId === comparisonCategoryFilter);
+        if (!hasCategory) return false;
+      }
+
+      // Variant filter - check if product's recipe specifies this variant
+      if (comparisonVariantFilter !== 'all') {
+        const productRecipes = recipes.filter(r => r.finished_product_id === product.id);
+        const hasVariant = productRecipes.some(recipe => {
+          const recipeVariant = recipe.variant || '';
+          return recipeVariant === comparisonVariantFilter;
+        });
+        if (!hasVariant) return false;
+      }
+
+      // Vendor filter - product must use items from this vendor
+      if (comparisonVendorFilter !== 'all') {
+        const hasVendor = invoices.some(invoice => {
+          if (invoice.deleted_at || invoice.vendor_name !== comparisonVendorFilter) return false;
+          if (!invoice.cost_attribution) return false;
+
+          return Object.values(invoice.cost_attribution).some(attr => {
+            return cpuData.breakdown.some(b => b.categoryId === attr.category_id);
+          });
+        });
+        if (!hasVendor) return false;
       }
 
       return true;
     });
-  }, [finishedProducts, comparisonCategoryFilter]);
+  }, [finishedProducts, comparisonCategoryFilter, comparisonVariantFilter, comparisonVendorFilter, productCPUData, invoices, recipes]);
+
 
   // Quick select functions
   const selectAllProducts = useCallback(() => {
@@ -440,43 +558,43 @@ export default function CostIntelligenceTab({
         <div style={{
           background: 'white',
           border: '1px solid #e5e7eb',
-          borderRadius: '12px',
-          padding: '1.5rem',
-          marginBottom: '2rem',
+          borderRadius: '8px',
+          padding: '1rem',
+          marginBottom: '1.5rem',
         }}>
-          <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-            {/* Product Dropdown Selector - PRIMARY */}
-            <div style={{ position: 'relative', flex: '1 1 300px' }}>
+          {/* Filter Row */}
+          <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+            {/* Product Dropdown Selector */}
+            <div style={{ position: 'relative', flex: '1 1 auto', minWidth: '120px' }}>
               <button
                 onClick={() => setShowProductDropdown(!showProductDropdown)}
                 aria-expanded={showProductDropdown}
                 aria-label="Select products for comparison"
                 style={{
                   width: '100%',
-                  padding: '1rem 1.25rem',
-                  border: '2px solid #4b006e',
-                  borderRadius: '8px',
-                  fontSize: '0.9375rem',
-                  fontWeight: 600,
-                  background: selectedProductsForComparison.size > 0 ? '#4b006e' : 'white',
-                  color: selectedProductsForComparison.size > 0 ? 'white' : '#4b006e',
+                  padding: '0.625rem 0.875rem',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  background: 'white',
+                  color: '#475569',
                   textAlign: 'left',
                   cursor: 'pointer',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   transition: 'all 0.2s',
-                  boxShadow: '0 2px 4px rgba(75, 0, 110, 0.1)',
                 }}
               >
                 <span>
                   {selectedProductsForComparison.size === 0
-                    ? '📦 Select Products...'
+                    ? 'Products'
                     : selectedProductsForComparison.size === finishedProducts.length
-                    ? `All Products (${finishedProducts.length})`
-                    : `${selectedProductsForComparison.size} Product${selectedProductsForComparison.size === 1 ? '' : 's'} Selected`}
+                    ? `All (${finishedProducts.length})`
+                    : `${selectedProductsForComparison.size} Selected`}
                 </span>
-                <span aria-hidden="true">{showProductDropdown ? '▲' : '▼'}</span>
+                <span aria-hidden="true" style={{ fontSize: '0.75rem' }}>{showProductDropdown ? '▲' : '▼'}</span>
               </button>
 
               {showProductDropdown && (
@@ -488,37 +606,37 @@ export default function CostIntelligenceTab({
                   marginTop: '0.25rem',
                   background: 'white',
                   border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
+                  borderRadius: '6px',
                   boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                   zIndex: 1000,
-                  maxHeight: '300px',
+                  maxHeight: '250px',
                   overflowY: 'auto',
                 }}>
-                  {/* Select All / Clear All - PRIMARY & SECONDARY */}
+                  {/* Select All / Clear All */}
                   <div style={{
-                    padding: '0.5rem',
+                    padding: '0.375rem',
                     borderBottom: '1px solid #e5e7eb',
                     display: 'flex',
-                    gap: '0.5rem',
+                    gap: '0.375rem',
                   }}>
                     <button
-                      onClick={() => setSelectedProductsForComparison(new Set(finishedProducts.map(p => p.id)))}
+                      onClick={() => {
+                        setSelectedProductsForComparison(new Set(finishedProducts.map(p => p.id)));
+                        setShowProductDropdown(false);
+                      }}
                       aria-label="Select all products"
                       style={{
                         flex: 1,
-                        padding: '0.625rem',
-                        background: '#4b006e',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '0.8125rem',
-                        fontWeight: 700,
+                        padding: '0.5rem',
+                        background: '#f8fafc',
+                        color: '#475569',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
                         cursor: 'pointer',
-                        boxShadow: '0 2px 4px rgba(75, 0, 110, 0.2)',
                         transition: 'all 0.2s',
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = '#6b21a8'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = '#4b006e'}
                     >
                       Select All
                     </button>
@@ -527,23 +645,15 @@ export default function CostIntelligenceTab({
                       aria-label="Clear all selected products"
                       style={{
                         flex: 1,
-                        padding: '0.625rem',
+                        padding: '0.5rem',
                         background: 'white',
                         color: '#64748b',
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '6px',
-                        fontSize: '0.8125rem',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
                         fontWeight: 600,
                         cursor: 'pointer',
                         transition: 'all 0.2s',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = '#cbd5e1';
-                        e.currentTarget.style.background = '#f8fafc';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = '#e5e7eb';
-                        e.currentTarget.style.background = 'white';
                       }}
                     >
                       Clear All
@@ -557,7 +667,7 @@ export default function CostIntelligenceTab({
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        padding: '0.5rem 0.75rem',
+                        padding: '0.4rem 0.625rem',
                         cursor: 'pointer',
                         borderBottom: '1px solid #f8fafc',
                       }}
@@ -579,22 +689,24 @@ export default function CostIntelligenceTab({
                         style={{ marginRight: '0.5rem' }}
                         aria-label={`Select ${product.name}`}
                       />
-                      <span style={{ fontSize: '0.875rem' }}>{product.name}</span>
+                      <span style={{ fontSize: '0.8125rem' }}>{product.name}</span>
                     </label>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Category Filter - SECONDARY */}
+            {/* Category Filter */}
             <select
               value={comparisonCategoryFilter}
               onChange={(e) => setComparisonCategoryFilter(e.target.value)}
               aria-label="Filter by category"
               style={{
-                padding: '0.75rem 1rem',
-                border: '1.5px solid #cbd5e1',
-                borderRadius: '8px',
+                flex: '1 1 auto',
+                minWidth: '120px',
+                padding: '0.625rem 0.875rem',
+                border: '1px solid #cbd5e1',
+                borderRadius: '6px',
                 fontSize: '0.875rem',
                 fontWeight: 500,
                 background: 'white',
@@ -602,24 +714,24 @@ export default function CostIntelligenceTab({
                 cursor: 'pointer',
                 transition: 'all 0.2s',
               }}
-              onFocus={(e) => e.currentTarget.style.borderColor = '#94a3b8'}
-              onBlur={(e) => e.currentTarget.style.borderColor = '#cbd5e1'}
             >
-              <option value="all">All Categories</option>
+              <option value="all">Categories</option>
               {categories.filter(cat => !cat.deleted_at).map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
 
-            {/* Date Range for Analysis - SECONDARY */}
+            {/* Variant Filter */}
             <select
-              value={comparisonDateRange}
-              onChange={(e) => setComparisonDateRange(e.target.value as any)}
-              aria-label="Select date range for analysis"
+              value={comparisonVariantFilter}
+              onChange={(e) => setComparisonVariantFilter(e.target.value)}
+              aria-label="Filter by variant"
               style={{
-                padding: '0.75rem 1rem',
-                border: '1.5px solid #cbd5e1',
-                borderRadius: '8px',
+                flex: '1 1 auto',
+                minWidth: '110px',
+                padding: '0.625rem 0.875rem',
+                border: '1px solid #cbd5e1',
+                borderRadius: '6px',
                 fontSize: '0.875rem',
                 fontWeight: 500,
                 background: 'white',
@@ -627,14 +739,183 @@ export default function CostIntelligenceTab({
                 cursor: 'pointer',
                 transition: 'all 0.2s',
               }}
-              onFocus={(e) => e.currentTarget.style.borderColor = '#94a3b8'}
-              onBlur={(e) => e.currentTarget.style.borderColor = '#cbd5e1'}
+            >
+              <option value="all">Variants</option>
+              {availableVariants.map(variant => (
+                <option key={variant} value={variant}>{variant}</option>
+              ))}
+            </select>
+
+            {/* Vendor Filter */}
+            <select
+              value={comparisonVendorFilter}
+              onChange={(e) => setComparisonVendorFilter(e.target.value)}
+              aria-label="Filter by vendor"
+              style={{
+                flex: '1 1 auto',
+                minWidth: '110px',
+                padding: '0.625rem 0.875rem',
+                border: '1px solid #cbd5e1',
+                borderRadius: '6px',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                background: 'white',
+                color: '#475569',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              <option value="all">Vendors</option>
+              {availableVendors.map(vendor => (
+                <option key={vendor} value={vendor}>{vendor}</option>
+              ))}
+            </select>
+
+            {/* Date Range for Analysis */}
+            <select
+              value={comparisonDateRange}
+              onChange={(e) => setComparisonDateRange(e.target.value as any)}
+              aria-label="Select date range for analysis"
+              style={{
+                flex: '1 1 auto',
+                minWidth: '140px',
+                padding: '0.625rem 0.875rem',
+                border: '1px solid #cbd5e1',
+                borderRadius: '6px',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                background: 'white',
+                color: '#475569',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
             >
               <option value="3mo">Last 3 Months</option>
               <option value="6mo">Last 6 Months</option>
               <option value="12mo">Last 12 Months</option>
+              <option value="last-calendar-year">Last Calendar Year ({new Date().getFullYear() - 1})</option>
+              <option value="this-calendar-year">This Calendar Year ({new Date().getFullYear()})</option>
+              <option value="custom">Custom Range...</option>
               <option value="all">All Time</option>
             </select>
+
+            {/* Custom Date Inputs - shown when custom is selected */}
+            {comparisonDateRange === 'custom' && (
+              <>
+                <input
+                  type="date"
+                  value={comparisonCustomStartDate}
+                  onChange={(e) => setComparisonCustomStartDate(e.target.value)}
+                  onBlur={(e) => handleDateBlur(e.target.value, setComparisonCustomStartDate)}
+                  aria-label="Start date"
+                  style={{
+                    flex: '0 1 140px',
+                    padding: '0.625rem 0.875rem',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '6px',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    background: 'white',
+                    color: '#475569',
+                    cursor: 'pointer',
+                  }}
+                />
+                <input
+                  type="date"
+                  value={comparisonCustomEndDate}
+                  onChange={(e) => setComparisonCustomEndDate(e.target.value)}
+                  onBlur={(e) => handleDateBlur(e.target.value, setComparisonCustomEndDate)}
+                  aria-label="End date"
+                  style={{
+                    flex: '0 1 140px',
+                    padding: '0.625rem 0.875rem',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '6px',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    background: 'white',
+                    color: '#475569',
+                    cursor: 'pointer',
+                  }}
+                />
+              </>
+            )}
+          </div>
+
+          {/* Quick Filter Buttons (without heading) */}
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+            <button
+              onClick={selectAllProducts}
+              style={{
+                padding: '0.5rem 0.875rem',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                fontWeight: 500,
+                color: '#64748b',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f8fafc';
+                e.currentTarget.style.color = '#475569';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#64748b';
+              }}
+            >
+              All Products
+            </button>
+            <button
+              onClick={() => selectTopMarginProducts(5)}
+              style={{
+                padding: '0.5rem 0.875rem',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                fontWeight: 500,
+                color: '#64748b',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f8fafc';
+                e.currentTarget.style.color = '#475569';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#64748b';
+              }}
+            >
+              Highest Margin Products
+            </button>
+            <button
+              onClick={() => selectBottomMarginProducts(5)}
+              style={{
+                padding: '0.5rem 0.875rem',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                fontWeight: 500,
+                color: '#64748b',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f8fafc';
+                e.currentTarget.style.color = '#475569';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#64748b';
+              }}
+            >
+              Lowest Margin Products
+            </button>
           </div>
 
           {/* Selected Products (Chips) */}
@@ -724,93 +1005,6 @@ export default function CostIntelligenceTab({
             </div>
           )}
 
-          {/* Refine Selection - TERTIARY (Ghost style) */}
-          {selectedProductsForComparison.size > 0 && (
-            <div className="cost-intelligence-refine-buttons" style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
-              <div style={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                color: '#64748b',
-                marginBottom: '0.75rem',
-              }}>
-                Refine Selection
-              </div>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <button
-                  onClick={selectAllProducts}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '0.8125rem',
-                    cursor: 'pointer',
-                    fontWeight: 500,
-                    color: '#64748b',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#f8fafc';
-                    e.currentTarget.style.color = '#475569';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = '#64748b';
-                  }}
-                >
-                  All Products
-                </button>
-                <button
-                  onClick={() => selectTopMarginProducts(5)}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '0.8125rem',
-                    cursor: 'pointer',
-                    fontWeight: 500,
-                    color: '#64748b',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#f8fafc';
-                    e.currentTarget.style.color = '#475569';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = '#64748b';
-                  }}
-                >
-                  Highest Margin Products
-                </button>
-                <button
-                  onClick={() => selectBottomMarginProducts(5)}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '0.8125rem',
-                    cursor: 'pointer',
-                    fontWeight: 500,
-                    color: '#64748b',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#f8fafc';
-                    e.currentTarget.style.color = '#475569';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = '#64748b';
-                  }}
-                >
-                  Lowest Margin Products
-                </button>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Loading State for CPU Calculations */}
@@ -899,117 +1093,27 @@ export default function CostIntelligenceTab({
           </div>
         ) : (
           <div ref={analysisContentRef}>
-            {/* Intelligence Sub-Tabs */}
-            <div style={{
-              background: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '12px',
-              overflow: 'hidden',
-            }}>
-              {/* Tab Navigation */}
-              <div
-                role="tablist"
-                aria-label="Cost Intelligence analysis types"
-                style={{
-                  display: 'flex',
-                  gap: '0.5rem',
-                  padding: '0.75rem',
-                  background: '#f8fafc',
-                  borderBottom: '2px solid #e5e7eb',
-                }}
-              >
-                <button
-                  role="tab"
-                  aria-selected={intelligenceTab === 'scenario'}
-                  aria-controls="scenario-panel"
-                  onClick={() => setIntelligenceTab('scenario')}
-                  style={{
-                    flex: 1,
-                    padding: '0.75rem 1rem',
-                    border: 'none',
-                    background: intelligenceTab === 'scenario' ? '#4b006e' : 'white',
-                    borderRadius: '8px',
-                    fontWeight: 600,
-                    color: intelligenceTab === 'scenario' ? 'white' : '#64748b',
-                    cursor: 'pointer',
-                    fontSize: '0.875rem',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  Scenario Builder
-                </button>
-                <button
-                  role="tab"
-                  aria-selected={intelligenceTab === 'trends'}
-                  aria-controls="trends-panel"
-                  onClick={() => setIntelligenceTab('trends')}
-                  style={{
-                    flex: 1,
-                    padding: '0.75rem 1rem',
-                    border: 'none',
-                    background: intelligenceTab === 'trends' ? '#4b006e' : 'white',
-                    borderRadius: '8px',
-                    fontWeight: 600,
-                    color: intelligenceTab === 'trends' ? 'white' : '#64748b',
-                    cursor: 'pointer',
-                    fontSize: '0.875rem',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  CPU Trends
-                </button>
-                <button
-                  role="tab"
-                  aria-selected={intelligenceTab === 'vendors'}
-                  aria-controls="vendors-panel"
-                  onClick={() => setIntelligenceTab('vendors')}
-                  style={{
-                    flex: 1,
-                    padding: '0.75rem 1rem',
-                    border: 'none',
-                    background: intelligenceTab === 'vendors' ? '#4b006e' : 'white',
-                    borderRadius: '8px',
-                    fontWeight: 600,
-                    color: intelligenceTab === 'vendors' ? 'white' : '#64748b',
-                    cursor: 'pointer',
-                    fontSize: '0.875rem',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  Vendor Intel
-                </button>
-                <button
-                  role="tab"
-                  aria-selected={intelligenceTab === 'alerts'}
-                  aria-controls="alerts-panel"
-                  onClick={() => setIntelligenceTab('alerts')}
-                  style={{
-                    flex: 1,
-                    padding: '0.75rem 1rem',
-                    border: 'none',
-                    background: intelligenceTab === 'alerts' ? '#4b006e' : 'white',
-                    borderRadius: '8px',
-                    fontWeight: 600,
-                    color: intelligenceTab === 'alerts' ? 'white' : '#64748b',
-                    cursor: 'pointer',
-                    fontSize: '0.875rem',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  Smart Alerts
-                </button>
-              </div>
-
-              {/* Tab Content - Placeholders for sub-components */}
-              <div style={{ padding: '1.5rem' }}>
-                {intelligenceTab === 'scenario' && (
-                  <ScenarioBuilderTab
-                    companyId={companyId}
-                    selectedProducts={selectedProductsForComparison}
-                    productCPUData={productCPUData}
-                    finishedProducts={finishedProducts}
-                    dateRange={comparisonDateRange}
-                  />
+            {/* Tab Content */}
+            {intelligenceTab === 'scenario' && (
+                  <>
+                    {console.log('🎯 Passing to ScenarioBuilderTab:', {
+                      recipesCount: recipes.length,
+                      recipes: recipes.slice(0, 3),
+                      filters: { categoryFilter: comparisonCategoryFilter, variantFilter: comparisonVariantFilter }
+                    })}
+                    <ScenarioBuilderTab
+                      companyId={companyId}
+                      selectedProducts={selectedProductsForComparison}
+                      productCPUData={productCPUData}
+                      finishedProducts={finishedProducts}
+                      dateRange={comparisonDateRange}
+                      categoryFilter={comparisonCategoryFilter}
+                      variantFilter={comparisonVariantFilter}
+                      vendorFilter={comparisonVendorFilter}
+                      recipes={recipes}
+                      invoices={invoices}
+                    />
+                  </>
                 )}
 
                 {intelligenceTab === 'trends' && (
@@ -1044,8 +1148,6 @@ export default function CostIntelligenceTab({
                     dateRange={comparisonDateRange}
                   />
                 )}
-              </div>
-            </div>
           </div>
         )}
           </>

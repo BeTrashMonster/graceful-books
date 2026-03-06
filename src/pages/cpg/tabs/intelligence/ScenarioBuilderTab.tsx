@@ -25,6 +25,7 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
+import styles from './ScenarioBuilderTab.module.css';
 
 // Product CPU data structure
 export interface ProductCPUData {
@@ -49,7 +50,12 @@ export interface ScenarioBuilderTabProps {
   selectedProducts: Set<string>;
   productCPUData: Map<string, ProductCPUData>;
   finishedProducts: any[]; // TODO: Add proper type from schema
-  dateRange?: '3mo' | '6mo' | '12mo' | 'all';
+  dateRange?: '3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all';
+  categoryFilter?: string;
+  variantFilter?: string;
+  vendorFilter?: string;
+  recipes?: any[];
+  invoices?: any[];
 }
 
 export default function ScenarioBuilderTab({
@@ -57,6 +63,11 @@ export default function ScenarioBuilderTab({
   selectedProducts,
   productCPUData,
   finishedProducts,
+  categoryFilter = 'all',
+  variantFilter = 'all',
+  vendorFilter = 'all',
+  recipes = [],
+  invoices = [],
 }: ScenarioBuilderTabProps) {
   // Validate companyId exists (security requirement)
   if (!companyId || typeof companyId !== 'string') {
@@ -77,6 +88,67 @@ export default function ScenarioBuilderTab({
   const formatNumberWithCommas = useCallback((num: number): string => {
     return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }, []);
+
+  // Filter components based on active filters
+  const filterComponents = useCallback((productId: string, components: ComponentBreakdown[]): ComponentBreakdown[] => {
+    if (!components) return [];
+
+    console.log('🔍 Filtering components for product:', productId);
+    console.log('Active filters:', { categoryFilter, variantFilter, vendorFilter });
+    console.log('Total recipes received:', recipes?.length || 0);
+    console.log('Recipes array:', recipes);
+
+    return components.filter(component => {
+      console.log(`  Checking component: ${component.categoryName} (${component.categoryId})`);
+
+      // Category filter
+      if (categoryFilter !== 'all' && component.categoryId !== categoryFilter) {
+        console.log('    ❌ Category mismatch');
+        return false;
+      }
+
+      // Variant filter - check if THIS product uses this variant for this component
+      if (variantFilter !== 'all') {
+        const productRecipes = recipes.filter(r => r.finished_product_id === productId);
+        console.log(`    Product has ${productRecipes.length} recipes`);
+
+        const componentRecipe = productRecipes.find(r => r.category_id === component.categoryId);
+        console.log('    Component recipe:', componentRecipe);
+
+        if (!componentRecipe) {
+          console.log('    ❌ No recipe found for this component');
+          return false;
+        }
+
+        const recipeVariant = componentRecipe.variant || '';
+        console.log(`    Recipe variant: "${recipeVariant}" vs Filter: "${variantFilter}"`);
+
+        if (recipeVariant !== variantFilter) {
+          console.log('    ❌ Variant mismatch');
+          return false;
+        }
+      }
+
+      // Vendor filter - check if this component has been purchased from the selected vendor
+      if (vendorFilter !== 'all') {
+        const hasVendor = invoices.some(invoice => {
+          if (invoice.deleted_at || invoice.vendor_name !== vendorFilter) return false;
+          if (!invoice.cost_attribution) return false;
+
+          return Object.values(invoice.cost_attribution).some((attr: any) => {
+            return attr.category_id === component.categoryId;
+          });
+        });
+        if (!hasVendor) {
+          console.log('    ❌ Vendor mismatch');
+          return false;
+        }
+      }
+
+      console.log('    ✅ Component passes filter');
+      return true;
+    });
+  }, [categoryFilter, variantFilter, vendorFilter, recipes, invoices]);
 
   // Calculate scenario CPU for a product based on component adjustments
   const calculateScenarioCPU = useCallback(
@@ -170,20 +242,14 @@ export default function ScenarioBuilderTab({
   // Empty state
   if (productsToDisplay.length === 0) {
     return (
-      <div
-        style={{
-          padding: '2rem',
-          textAlign: 'center',
-          color: '#64748b',
-        }}
-      >
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }} aria-hidden="true">
+      <div className={styles.emptyState}>
+        <div className={styles.emptyIcon} aria-hidden="true">
           🎯
         </div>
-        <p style={{ fontSize: '1.125rem', fontWeight: 500, marginBottom: '0.5rem' }}>
+        <p className={styles.emptyTitle}>
           No Products Selected
         </p>
-        <p style={{ fontSize: '0.875rem' }}>
+        <p className={styles.emptyDescription}>
           Select products above to build cost and pricing scenarios
         </p>
       </div>
@@ -191,13 +257,16 @@ export default function ScenarioBuilderTab({
   }
 
   return (
-    <div role="tabpanel" id="scenario-panel" aria-labelledby="scenario-tab">
+    <div className={styles.container} role="tabpanel" id="scenario-panel" aria-labelledby="scenario-tab">
       {productsToDisplay.map(({ productId, product, cpuData }) => {
         if (!product || !cpuData) return null;
 
         const baseCPU = cpuData.cpu ? parseFloat(cpuData.cpu) : 0;
         const baseMSRP = product.msrp ? parseFloat(product.msrp) : 0;
         const baseMargin = cpuData.margin || 0;
+
+        // Filter components based on active filters
+        const filteredComponents = filterComponents(productId, cpuData.breakdown);
 
         const scenario = calculateScenarioCPU(productId);
         const scenarioCPUValue = scenario?.cpu || baseCPU;
@@ -207,92 +276,34 @@ export default function ScenarioBuilderTab({
         const hasAdjustments = (scenarioAdjustments.get(productId)?.size || 0) > 0 || scenarioMSRP.has(productId);
 
         return (
-          <div
-            key={productId}
-            style={{
-              marginBottom: '1.5rem',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              padding: '1rem',
-            }}
-          >
-            <h3
-              style={{
-                fontSize: '1rem',
-                fontWeight: 700,
-                marginBottom: '0.75rem',
-                marginTop: 0,
-              }}
-            >
+          <div key={productId} className={styles.productCard}>
+            <h3 className={styles.productName}>
               {product.name}
+              {hasAdjustments && <span className={styles.productBadge}>Modified</span>}
             </h3>
 
             {/* Current vs Scenario Comparison */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '0.75rem',
-                marginBottom: '1rem',
-                padding: '0.75rem',
-                background: '#f8fafc',
-                borderRadius: '6px',
-              }}
-            >
-              <div>
-                <div
-                  style={{
-                    fontSize: '0.75rem',
-                    color: '#64748b',
-                    marginBottom: '0.5rem',
-                    fontWeight: 600,
-                  }}
-                >
-                  CURRENT
+            <div className={styles.comparison}>
+              <div className={styles.comparisonColumn}>
+                <div className={styles.comparisonLabel}>Current</div>
+                <div className={styles.comparisonValue}>
+                  ${formatNumberWithCommas(baseCPU)}
                 </div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-                  CPU: ${formatNumberWithCommas(baseCPU)}
-                </div>
-                <div style={{ fontSize: '0.875rem', color: '#64748b' }}>
+                <div className={styles.comparisonMetric}>
                   Margin: {baseMargin.toFixed(1)}%
                 </div>
               </div>
-              <div
-                style={{
-                  borderLeft: hasAdjustments ? '3px solid #4b006e' : '3px solid #e5e7eb',
-                  paddingLeft: '1rem',
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: '0.75rem',
-                    color: '#64748b',
-                    marginBottom: '0.5rem',
-                    fontWeight: 600,
-                  }}
-                >
-                  YOUR SCENARIO
+              <div className={`${styles.comparisonColumn} ${styles.scenario} ${hasAdjustments ? styles.hasChanges : ''}`}>
+                <div className={styles.comparisonLabel}>Your Scenario</div>
+                <div className={`${styles.comparisonValue} ${hasAdjustments ? styles.highlight : ''}`}>
+                  ${formatNumberWithCommas(scenarioCPUValue)}
                 </div>
-                <div
-                  style={{
-                    fontSize: '1.25rem',
-                    fontWeight: 700,
-                    color: hasAdjustments ? '#4b006e' : '#1e293b',
-                  }}
-                >
-                  CPU: ${formatNumberWithCommas(scenarioCPUValue)}
-                </div>
-                <div
-                  style={{
-                    fontSize: '0.875rem',
-                    color: hasAdjustments ? '#4b006e' : '#64748b',
-                  }}
-                >
+                <div className={styles.comparisonMetric}>
                   Margin: {scenarioMarginValue.toFixed(1)}%
                   {hasAdjustments && (
-                    <span style={{ marginLeft: '0.5rem' }}>
-                      ({scenarioMarginValue > baseMargin ? '+' : ''}
-                      {(scenarioMarginValue - baseMargin).toFixed(1)}%)
+                    <span className={styles.comparisonDiff}>
+                      {scenarioMarginValue > baseMargin ? '+' : ''}
+                      {(scenarioMarginValue - baseMargin).toFixed(1)}%
                     </span>
                   )}
                 </div>
@@ -300,126 +311,117 @@ export default function ScenarioBuilderTab({
             </div>
 
             {/* MSRP Adjustment */}
-            <div style={{ marginBottom: '1rem' }}>
-              <label
-                htmlFor={`msrp-slider-${productId}`}
-                style={{
-                  display: 'block',
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  marginBottom: '0.25rem',
-                }}
-              >
-                MSRP: ${scenarioMSRPValue.toFixed(2)}
-              </label>
-              <input
-                id={`msrp-slider-${productId}`}
-                type="range"
-                min={baseMSRP * 0.7}
-                max={baseMSRP * 1.5}
-                step={0.25}
-                value={scenarioMSRPValue}
-                onChange={(e) => {
-                  const newMSRP = parseFloat(e.target.value);
-                  handleMSRPAdjustment(productId, newMSRP);
-                }}
-                aria-label={`Adjust MSRP for ${product.name}`}
-                aria-valuemin={baseMSRP * 0.7}
-                aria-valuemax={baseMSRP * 1.5}
-                aria-valuenow={scenarioMSRPValue}
-                aria-valuetext={`$${scenarioMSRPValue.toFixed(2)}`}
-                style={{
-                  width: '100%',
-                  height: '6px',
-                  borderRadius: '3px',
-                  background: '#e5e7eb',
-                  outline: 'none',
-                  cursor: 'pointer',
-                }}
-              />
+            <div className={styles.sliderSection}>
+              <div className={styles.sliderSectionTitle}>
+                <span className={styles.sliderSectionIcon}>💰</span>
+                Retail Price
+              </div>
+              <div className={styles.msrpSlider}>
+                <div className={styles.msrpLabel}>
+                  <span className={styles.msrpLabelText}>MSRP</span>
+                  <span className={styles.msrpValue}>${scenarioMSRPValue.toFixed(2)}</span>
+                </div>
+                <div className={styles.sliderWrapper}>
+                  <input
+                    id={`msrp-slider-${productId}`}
+                    type="range"
+                    min={baseMSRP * 0.7}
+                    max={baseMSRP * 1.5}
+                    step={0.25}
+                    value={scenarioMSRPValue}
+                    onChange={(e) => {
+                      const newMSRP = parseFloat(e.target.value);
+                      handleMSRPAdjustment(productId, newMSRP);
+                    }}
+                    aria-label={`Adjust MSRP for ${product.name}`}
+                    aria-valuemin={baseMSRP * 0.7}
+                    aria-valuemax={baseMSRP * 1.5}
+                    aria-valuenow={scenarioMSRPValue}
+                    aria-valuetext={`$${scenarioMSRPValue.toFixed(2)}`}
+                    className={styles.slider}
+                  />
+                </div>
+                <div className={styles.sliderLabels}>
+                  <span>${(baseMSRP * 0.7).toFixed(2)}</span>
+                  <span>${(baseMSRP * 1.5).toFixed(2)}</span>
+                </div>
+              </div>
             </div>
 
             {/* Component Adjustments */}
-            <div>
-              <div
-                style={{
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  marginBottom: '0.5rem',
-                }}
-              >
-                Components
+            <div className={styles.sliderSection}>
+              <div className={styles.sliderSectionTitle}>
+                <span className={styles.sliderSectionIcon}>🧪</span>
+                Component Costs
               </div>
-              {cpuData.breakdown.map((component, idx) => {
-                const baseSubtotal = component.subtotal ? parseFloat(component.subtotal) : 0;
-                const currentAdj = scenarioAdjustments.get(productId)?.get(component.categoryId) || 0;
-                const adjustedSubtotal = baseSubtotal * (1 + currentAdj / 100);
+              {filteredComponents.length === 0 ? (
+                <div style={{
+                  padding: '2rem',
+                  textAlign: 'center',
+                  color: 'var(--color-text-secondary, #64748b)',
+                  fontSize: '0.875rem',
+                }}>
+                  No components match the current filters
+                </div>
+              ) : (
+                <div className={styles.componentList}>
+                  {filteredComponents.map((component, idx) => {
+                  const baseSubtotal = component.subtotal ? parseFloat(component.subtotal) : 0;
+                  const currentAdj = scenarioAdjustments.get(productId)?.get(component.categoryId) || 0;
+                  const adjustedSubtotal = baseSubtotal * (1 + currentAdj / 100);
 
-                return (
-                  <div
-                    key={idx}
-                    style={{
-                      marginBottom: '0.5rem',
-                      padding: '0.5rem',
-                      background: currentAdj !== 0 ? '#fef3c7' : 'white',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '4px',
-                    }}
-                  >
+                  return (
                     <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginBottom: '0.5rem',
-                      }}
+                      key={idx}
+                      className={`${styles.componentItem} ${currentAdj !== 0 ? styles.adjusted : ''}`}
                     >
-                      <div style={{ fontWeight: 500, fontSize: '0.875rem' }}>
-                        {component.categoryName}
+                      <div className={styles.componentHeader}>
+                        <div className={styles.componentName}>
+                          {component.categoryName}
+                        </div>
+                        <div className={styles.componentValue}>
+                          ${formatNumberWithCommas(adjustedSubtotal)}
+                          {currentAdj !== 0 && (
+                            <span
+                              className={`${styles.componentAdjustmentBadge} ${
+                                currentAdj > 0 ? styles.increase : styles.decrease
+                              }`}
+                            >
+                              {currentAdj > 0 ? '+' : ''}
+                              {currentAdj}%
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>
-                        ${formatNumberWithCommas(adjustedSubtotal)}
-                        {currentAdj !== 0 && (
-                          <span
-                            style={{
-                              fontSize: '0.75rem',
-                              color: currentAdj > 0 ? '#dc2626' : '#16a34a',
-                              marginLeft: '0.5rem',
-                            }}
-                          >
-                            ({currentAdj > 0 ? '+' : ''}
-                            {currentAdj}%)
-                          </span>
-                        )}
+                      <div className={styles.sliderWrapper}>
+                        <input
+                          id={`component-slider-${productId}-${component.categoryId}`}
+                          type="range"
+                          min={-50}
+                          max={100}
+                          step={5}
+                          value={currentAdj}
+                          onChange={(e) => {
+                            const adj = parseInt(e.target.value, 10);
+                            handleComponentAdjustment(productId, component.categoryId, adj);
+                          }}
+                          aria-label={`Adjust cost for ${component.categoryName}`}
+                          aria-valuemin={-50}
+                          aria-valuemax={100}
+                          aria-valuenow={currentAdj}
+                          aria-valuetext={`${currentAdj > 0 ? '+' : ''}${currentAdj}%`}
+                          className={styles.slider}
+                        />
+                      </div>
+                      <div className={styles.sliderLabels}>
+                        <span>-50%</span>
+                        <span>+100%</span>
                       </div>
                     </div>
-                    <input
-                      id={`component-slider-${productId}-${component.categoryId}`}
-                      type="range"
-                      min={-50}
-                      max={100}
-                      step={5}
-                      value={currentAdj}
-                      onChange={(e) => {
-                        const adj = parseInt(e.target.value, 10);
-                        handleComponentAdjustment(productId, component.categoryId, adj);
-                      }}
-                      aria-label={`Adjust cost for ${component.categoryName}`}
-                      aria-valuemin={-50}
-                      aria-valuemax={100}
-                      aria-valuenow={currentAdj}
-                      aria-valuetext={`${currentAdj > 0 ? '+' : ''}${currentAdj}%`}
-                      style={{
-                        width: '100%',
-                        height: '6px',
-                        borderRadius: '3px',
-                        background: '#e5e7eb',
-                        outline: 'none',
-                        cursor: 'pointer',
-                      }}
-                    />
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
+              )}
             </div>
 
             {/* Reset Button */}
@@ -427,18 +429,9 @@ export default function ScenarioBuilderTab({
               <button
                 onClick={() => resetProductScenario(productId)}
                 aria-label={`Reset scenario to current values for ${product.name}`}
-                style={{
-                  marginTop: '1rem',
-                  padding: '0.5rem 1rem',
-                  background: 'white',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  fontSize: '0.875rem',
-                  cursor: 'pointer',
-                  fontWeight: 500,
-                  color: '#64748b',
-                }}
+                className={styles.resetButton}
               >
+                <span aria-hidden="true">↺</span>
                 Reset to Current
               </button>
             )}
