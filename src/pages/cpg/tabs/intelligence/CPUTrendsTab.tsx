@@ -1,31 +1,30 @@
 /**
  * CPU Trends Tab Component
  *
- * Displays historical price tracking and volatility analysis for product components.
+ * Displays component price trends grouped by product.
  *
  * Features:
- * - Historical price tracking table with sortable columns
- * - Volatility detection (low/medium/high indicators)
- * - Price change trends with visual indicators
- * - Date range selector for trend analysis (3mo, 6mo, 12mo, all)
+ * - Product-centric view showing CPU, Margin, MSRP
+ * - Component trends: Current, Average, % Change, Last Buy, Status
+ * - Smart recommendations based on price trends
  * - CSV/PDF export for trends
- * - Quick filter buttons for high volatility and price changes
  *
  * Requirements:
- * - WCAG 2.1 AA compliance (sortable headers, ARIA labels)
+ * - WCAG 2.1 AA compliance
  * - Type safety with proper error codes
  * - Performance: useMemo for trend calculations
  * - Security: CompanyId validation
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import type { CPGCategory, CPGInvoice } from '../../../../db/schema/cpg.schema';
+import type { CPGCategory, CPGInvoice, FinishedProduct } from '../../../../db/schema/cpg.schema';
 import styles from './CPUTrendsTab.module.css';
 
 export interface CPUTrendsTabProps {
   companyId: string;
   selectedProducts: Set<string>;
   productCPUData: Map<string, ProductCPUData>;
+  products: FinishedProduct[];
   categories: CPGCategory[];
   invoices: CPGInvoice[];
   dateRange: '3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all';
@@ -37,6 +36,7 @@ export interface CPUTrendsTabProps {
 interface ProductCPUData {
   cpu: string | null;
   margin: number | null;
+  msrp: string | null;
   trend: 'up' | 'down' | 'stable';
   trendValue: string | null;
   topDriver: string | null;
@@ -47,30 +47,36 @@ interface ProductCPUData {
 interface ComponentBreakdown {
   categoryId: string;
   categoryName: string;
+  variant?: string;
   subtotal: string | null;
   isComplete: boolean;
 }
 
-interface TrendData {
-  currentPrice: number;
-  avgPrice: number;
-  minPrice: number;
-  maxPrice: number;
-  priceChange: number;
-  volatility: 'low' | 'medium' | 'high';
-  coefficientOfVariation: number;
-  invoiceCount: number;
-  lastBuyDate: number;
-  prices: number[];
-  dates: number[];
+interface ComponentTrendData {
+  componentName: string;
+  current: number;
+  avg: number;
+  change: number;
+  lastBuyDays: number;
+  status: string;
 }
 
-type TrendSortColumn = 'component' | 'current' | 'avg' | 'change' | 'volatility';
+interface ProductTrendData {
+  productId: string;
+  productName: string;
+  cpu: string;
+  margin: string;
+  msrp: string;
+  components: ComponentTrendData[];
+}
+
+type SortColumn = 'component' | 'current' | 'avg' | 'change' | 'lastBuy' | 'status';
 
 export default function CPUTrendsTab({
   companyId,
   selectedProducts,
   productCPUData,
+  products,
   categories,
   invoices,
   dateRange,
@@ -78,64 +84,30 @@ export default function CPUTrendsTab({
   variantFilter = new Set(),
   vendorFilter = new Set(),
 }: CPUTrendsTabProps) {
-  // State
-  const [trendData, setTrendData] = useState<Map<string, TrendData>>(new Map());
   const [showExportMenu, setShowExportMenu] = useState(false);
-  const [trendSortColumn, setTrendSortColumn] = useState<TrendSortColumn>('component');
-  const [trendSortDirection, setTrendSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [activeFilter, setActiveFilter] = useState<'none' | 'high-volatility' | 'price-increasing' | 'price-decreasing'>('none');
+  const [productTrends, setProductTrends] = useState<ProductTrendData[]>([]);
+  const [sortColumn, setSortColumn] = useState<SortColumn>('component');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   // Load trend data when dependencies change
   useEffect(() => {
-    loadTrendData();
+    loadProductTrends();
   }, [dateRange, selectedProducts, productCPUData, invoices, categoryFilter, variantFilter, vendorFilter]);
 
   /**
-   * Load and calculate trend data for selected products
+   * Load and calculate trend data for each selected product
    */
-  const loadTrendData = async () => {
+  const loadProductTrends = async () => {
     if (selectedProducts.size === 0) {
-      setTrendData(new Map());
+      setProductTrends([]);
       return;
     }
 
     try {
-      const trendMap = new Map<string, TrendData>();
-
-      // Get all unique component categories from selected products
-      const componentCategories = new Set<string>();
-      selectedProducts.forEach(productId => {
-        const cpuData = productCPUData.get(productId);
-        if (cpuData?.breakdown) {
-          cpuData.breakdown.forEach(comp => {
-            // Apply category filter
-            if (categoryFilter.size > 0 && !categoryFilter.has(comp.categoryId)) {
-              console.log('🚫 Filtering out category:', comp.categoryName, '- not in filter');
-              return;
-            }
-
-            // Apply variant filter
-            if (variantFilter.size > 0 && !variantFilter.has(comp.variant || '')) {
-              console.log('🚫 Filtering out variant:', comp.variant, 'for', comp.categoryName);
-              return;
-            }
-
-            console.log('✅ Including component:', comp.categoryName, comp.variant);
-            componentCategories.add(comp.categoryId);
-          });
-        }
-      });
-
-      console.log('📊 CPU Trends Debug:', {
-        selectedProducts: Array.from(selectedProducts),
-        categoryFilter: Array.from(categoryFilter),
-        variantFilter: Array.from(variantFilter),
-        vendorFilter: Array.from(vendorFilter),
-        componentCategories: Array.from(componentCategories)
-      });
-
-      // Calculate date range for trend analysis
+      const trends: ProductTrendData[] = [];
       const today = Date.now();
+
+      // Calculate date range
       let startDate = 0;
       switch (dateRange) {
         case '3mo':
@@ -148,115 +120,214 @@ export default function CPUTrendsTab({
           startDate = today - (365 * 24 * 60 * 60 * 1000);
           break;
         case 'last-calendar-year':
-          // January 1 to December 31 of last year
           const lastYear = new Date().getFullYear() - 1;
           startDate = new Date(lastYear, 0, 1).getTime();
-          const endOfLastYear = new Date(lastYear, 11, 31, 23, 59, 59).getTime();
-          // Note: We'll need to filter by end date too, but for now using start
           break;
         case 'this-calendar-year':
-          // January 1 of this year to now
           const thisYear = new Date().getFullYear();
           startDate = new Date(thisYear, 0, 1).getTime();
           break;
         case 'custom':
-          // Custom date range - parent should handle this
-          startDate = 0;
-          break;
         case 'all':
           startDate = 0;
           break;
       }
 
-      // Analyze each component
-      for (const categoryId of componentCategories) {
-        const relevantInvoices = invoices.filter(inv => {
-          if (startDate > 0 && inv.invoice_date < startDate) return false;
+      // Process each selected product
+      for (const productId of selectedProducts) {
+        const product = products.find(p => p.id === productId);
+        const cpuData = productCPUData.get(productId);
 
-          // Apply vendor filter
-          if (vendorFilter.size > 0 && !vendorFilter.has(inv.vendor_name || '')) {
-            return false;
+        if (!product || !cpuData || !cpuData.breakdown) continue;
+
+        const componentTrends: ComponentTrendData[] = [];
+
+        // Process each component in the product's breakdown
+        for (const component of cpuData.breakdown) {
+          // Apply filters
+          if (categoryFilter.size > 0 && !categoryFilter.has(component.categoryId)) {
+            continue;
+          }
+          if (variantFilter.size > 0 && !variantFilter.has(component.variant || '')) {
+            continue;
           }
 
-          // Check if this category appears in cost_attribution
-          return Object.entries(inv.cost_attribution || {}).some(([key, attr]) =>
-            attr.category_id === categoryId
-          );
-        });
-
-        if (relevantInvoices.length === 0) continue;
-
-        // Get all prices for this component
-        const prices: number[] = [];
-        const dates: number[] = [];
-        relevantInvoices.forEach(inv => {
-          Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
-            if (attr.category_id === categoryId) {
-              const unitPrice = parseFloat(attr.unit_price);
-              if (!isNaN(unitPrice) && unitPrice > 0) {
-                prices.push(unitPrice);
-                dates.push(inv.invoice_date);
-              }
+          // Find relevant invoices for this component
+          const relevantInvoices = invoices.filter(inv => {
+            if (startDate > 0 && inv.invoice_date < startDate) return false;
+            if (vendorFilter.size > 0 && !vendorFilter.has(inv.vendor_name || '')) {
+              return false;
             }
+
+            // Check if this component appears in cost_attribution
+            return Object.entries(inv.cost_attribution || {}).some(([key, attr]) => {
+              if (attr.category_id !== component.categoryId) return false;
+              // Match variant if specified
+              if (component.variant && attr.variant !== component.variant) return false;
+              return true;
+            });
           });
-        });
 
-        if (prices.length === 0) continue;
+          if (relevantInvoices.length === 0) continue;
 
-        // Calculate stats
-        const currentPrice = prices[prices.length - 1];
-        const avgPrice = prices.reduce((sum, p) => sum + p, 0) / prices.length;
-        const minPrice = Math.min(...prices);
-        const maxPrice = Math.max(...prices);
-        const priceChange = ((currentPrice - avgPrice) / avgPrice) * 100;
+          // Collect prices and dates
+          const prices: number[] = [];
+          const dates: number[] = [];
 
-        // Calculate volatility (coefficient of variation)
-        const variance = prices.reduce((sum, p) => sum + Math.pow(p - avgPrice, 2), 0) / prices.length;
-        const stdDev = Math.sqrt(variance);
-        const coefficientOfVariation = (stdDev / avgPrice) * 100;
+          relevantInvoices.forEach(inv => {
+            Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
+              if (attr.category_id === component.categoryId) {
+                // Match variant if specified
+                if (component.variant && attr.variant !== component.variant) return;
 
-        let volatility: 'low' | 'medium' | 'high';
-        if (coefficientOfVariation < 10) volatility = 'low';
-        else if (coefficientOfVariation < 25) volatility = 'medium';
-        else volatility = 'high';
+                const unitPrice = parseFloat(attr.unit_price);
+                if (!isNaN(unitPrice) && unitPrice > 0) {
+                  prices.push(unitPrice);
+                  dates.push(inv.invoice_date);
+                }
+              }
+            });
+          });
 
-        // Get last buy date
-        const lastBuyDate = Math.max(...dates);
+          if (prices.length === 0) continue;
 
-        trendMap.set(categoryId, {
-          currentPrice,
-          avgPrice,
-          minPrice,
-          maxPrice,
-          priceChange,
-          volatility,
-          coefficientOfVariation,
-          invoiceCount: relevantInvoices.length,
-          lastBuyDate,
-          prices,
-          dates,
-        });
+          // Sort by date to get most recent
+          const pricesByDate = prices.map((price, i) => ({ price, date: dates[i] }))
+            .sort((a, b) => b.date - a.date);
+
+          const currentPrice = pricesByDate[0].price;
+          const avgPrice = prices.reduce((sum, p) => sum + p, 0) / prices.length;
+          const priceChange = ((currentPrice - avgPrice) / avgPrice) * 100;
+
+          // Calculate days since last purchase
+          const lastBuyDate = Math.max(...dates);
+          const lastBuyDays = Math.floor((today - lastBuyDate) / (24 * 60 * 60 * 1000));
+
+          // Generate status recommendation
+          let status = '';
+          if (priceChange < -10) {
+            // Decreasing significantly - no recommendation (user can decide)
+            status = '';
+          } else if (currentPrice <= avgPrice * 0.95) {
+            // At or below average - good time to buy
+            status = 'At all low - good time to buy';
+          } else if (currentPrice > avgPrice * 1.05) {
+            // Above average - consider supplier review
+            status = 'At all high - consider supplier review';
+          } else {
+            // Stable - good time to buy
+            status = 'At all low - good time to buy';
+          }
+
+          componentTrends.push({
+            componentName: component.variant
+              ? `${component.categoryName} (${component.variant})`
+              : component.categoryName,
+            current: currentPrice,
+            avg: avgPrice,
+            change: priceChange,
+            lastBuyDays,
+            status,
+          });
+        }
+
+        if (componentTrends.length > 0) {
+          // Sort components alphabetically by default
+          componentTrends.sort((a, b) => a.componentName.localeCompare(b.componentName));
+
+          trends.push({
+            productId: product.id,
+            productName: product.name,
+            cpu: cpuData.cpu || 'N/A',
+            margin: cpuData.margin !== null ? `${cpuData.margin.toFixed(1)}%` : 'N/A',
+            msrp: cpuData.msrp || 'N/A',
+            components: componentTrends,
+          });
+        }
       }
 
-      setTrendData(trendMap);
+      setProductTrends(trends);
     } catch (err) {
-      console.error('Failed to load trend data:', err);
+      console.error('Failed to load product trends:', err);
     }
   };
+
+  /**
+   * Handle sort column change
+   */
+  const handleSortChange = (column: SortColumn) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  /**
+   * Sort product trends based on current sort state
+   */
+  const sortedProductTrends = useMemo(() => {
+    return productTrends.map(product => ({
+      ...product,
+      components: [...product.components].sort((a, b) => {
+        let aVal: any, bVal: any;
+
+        switch (sortColumn) {
+          case 'component':
+            aVal = a.componentName;
+            bVal = b.componentName;
+            break;
+          case 'current':
+            aVal = a.current;
+            bVal = b.current;
+            break;
+          case 'avg':
+            aVal = a.avg;
+            bVal = b.avg;
+            break;
+          case 'change':
+            aVal = a.change;
+            bVal = b.change;
+            break;
+          case 'lastBuy':
+            aVal = a.lastBuyDays;
+            bVal = b.lastBuyDays;
+            break;
+          case 'status':
+            aVal = a.status;
+            bVal = b.status;
+            break;
+          default:
+            return 0;
+        }
+
+        if (typeof aVal === 'string') {
+          return sortDirection === 'asc'
+            ? aVal.localeCompare(bVal)
+            : bVal.localeCompare(aVal);
+        }
+        return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+      })
+    }));
+  }, [productTrends, sortColumn, sortDirection]);
 
   /**
    * Export trend data as CSV
    */
   const handleExportCSV = () => {
     const rows: string[] = [];
-    rows.push('Component,Current Price,Average Price,Price Change %,Volatility,Data Points');
+    rows.push('Product,Component,Current Price,Average Price,Price Change %,Last Purchase (days ago),Volatility,Trend,Recommendation');
 
-    Array.from(trendData.entries()).forEach(([categoryId, trend]) => {
-      const category = categories.find(c => c.id === categoryId);
-      const categoryName = category?.name || 'Unknown';
-      rows.push(
-        `"${categoryName}",${trend.currentPrice.toFixed(2)},${trend.avgPrice.toFixed(2)},${trend.priceChange.toFixed(1)},${trend.volatility},${trend.invoiceCount}`
-      );
+    sortedProductTrends.forEach(product => {
+      product.components.forEach(comp => {
+        const volatility = Math.abs(comp.change) < 5 ? 'low' : Math.abs(comp.change) < 15 ? 'medium' : 'high';
+        const trend = comp.change > 5 ? 'increasing' : comp.change < -5 ? 'decreasing' : 'stable';
+
+        rows.push(
+          `"${product.productName}","${comp.componentName}","${comp.current.toFixed(2)}","${comp.avg.toFixed(2)}","${comp.change.toFixed(1)}","${comp.lastBuyDays}","${volatility}","${trend}","${comp.status}"`
+        );
+      });
     });
 
     const csv = rows.join('\n');
@@ -276,169 +347,106 @@ export default function CPUTrendsTab({
    * Export trend data as PDF
    */
   const handleExportPDF = async () => {
-    // Import jsPDF dynamically to avoid bundling issues
     const { default: jsPDF } = await import('jspdf');
     const { default: autoTable } = await import('jspdf-autotable');
 
     const doc = new jsPDF();
+    let yPos = 20;
 
     // Title
     doc.setFontSize(16);
-    doc.text('CPU Trend Analysis', 14, 20);
+    doc.setTextColor(75, 0, 110);
+    doc.text('CPU Trend Analysis', 14, yPos);
+    yPos += 8;
 
-    // Date range
+    // Metadata
     doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, yPos);
+    yPos += 5;
+
     const dateRangeText = dateRange === 'all' ? 'All Time' :
       dateRange === '3mo' ? 'Last 3 Months' :
       dateRange === '6mo' ? 'Last 6 Months' :
       dateRange === '12mo' ? 'Last 12 Months' :
       dateRange === 'last-calendar-year' ? 'Last Calendar Year' :
       dateRange === 'this-calendar-year' ? 'This Calendar Year' : 'Custom Range';
-    doc.text(`Date Range: ${dateRangeText}`, 14, 28);
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 34);
+    doc.text(`Period: ${dateRangeText}`, 14, yPos);
+    yPos += 10;
 
-    // Table data
-    const tableData = Array.from(trendData.entries()).map(([categoryId, trend]) => {
-      const category = categories.find(c => c.id === categoryId);
-      const categoryName = category?.name || 'Unknown';
-      const changeIcon = trend.priceChange > 5 ? '↑' : trend.priceChange < -5 ? '↓' : '→';
-      return [
-        categoryName,
-        `$${trend.currentPrice.toFixed(2)}`,
-        `$${trend.avgPrice.toFixed(2)}`,
-        `${changeIcon} ${trend.priceChange > 0 ? '+' : ''}${trend.priceChange.toFixed(1)}%`,
-        trend.volatility,
-        `${trend.invoiceCount} invoices`,
-      ];
-    });
+    // Each product gets its own section
+    sortedProductTrends.forEach((product, idx) => {
+      if (idx > 0) {
+        yPos += 8; // Space between products
+      }
 
-    autoTable(doc, {
-      head: [['Component', 'Current', 'Average', 'Change', 'Volatility', 'Data Points']],
-      body: tableData,
-      startY: 40,
-      styles: { fontSize: 9 },
-      headStyles: { fillColor: [75, 0, 110] },
+      // Check if we need a new page
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      // Product header
+      doc.setFontSize(12);
+      doc.setTextColor(75, 0, 110);
+      doc.text(product.productName, 14, yPos);
+      yPos += 6;
+
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`CPU: ${product.cpu} | Margin: ${product.margin} | MSRP: ${product.msrp}`, 14, yPos);
+      yPos += 2;
+
+      // Component table
+      const tableData = product.components.map(comp => [
+        comp.componentName,
+        `$${comp.current.toFixed(2)}`,
+        `$${comp.avg.toFixed(2)}`,
+        comp.change !== 0 ? `${comp.change > 0 ? '+' : ''}${comp.change.toFixed(1)}%` : '—',
+        `${comp.lastBuyDays}d`,
+        comp.status,
+      ]);
+
+      autoTable(doc, {
+        head: [['Component', 'Current', 'Avg', '%', 'Last Buy', 'Status']],
+        body: tableData,
+        startY: yPos,
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+          lineColor: [100, 100, 100],
+          lineWidth: 0.1,
+        },
+        headStyles: {
+          fillColor: [75, 0, 110],
+          textColor: [255, 255, 255],
+          lineColor: [75, 0, 110],
+          lineWidth: 0.1,
+        },
+        bodyStyles: {
+          fillColor: [255, 255, 255], // White background for all rows
+          textColor: [0, 0, 0],
+        },
+        alternateRowStyles: {
+          fillColor: [255, 255, 255], // Same as bodyStyles - no alternating colors
+        },
+        columnStyles: {
+          0: { cellWidth: 45 },
+          1: { cellWidth: 20, halign: 'right' },
+          2: { cellWidth: 20, halign: 'right' },
+          3: { cellWidth: 20, halign: 'right' },
+          4: { cellWidth: 20, halign: 'right' },
+          5: { cellWidth: 55 },
+        },
+        margin: { left: 14, right: 14 },
+        theme: 'grid', // Grid theme adds borders to all cells
+      });
+
+      yPos = (doc as any).lastAutoTable.finalY + 5;
     });
 
     doc.save(`cpu-trends-${new Date().toISOString().split('T')[0]}.pdf`);
     setShowExportMenu(false);
-  };
-
-  /**
-   * Calculate overview statistics
-   */
-  const overviewStats = useMemo(() => {
-    if (trendData.size === 0) {
-      return {
-        totalComponents: 0,
-        highVolatilityCount: 0,
-        avgVolatility: 0,
-        biggestIncrease: null as { name: string; change: number } | null,
-        biggestDecrease: null as { name: string; change: number } | null,
-      };
-    }
-
-    const trends = Array.from(trendData.entries());
-    const highVolatilityCount = trends.filter(([_, t]) => t.volatility === 'high').length;
-    const avgVolatility = trends.reduce((sum, [_, t]) => sum + t.coefficientOfVariation, 0) / trends.length;
-
-    // Find biggest increase/decrease
-    let biggestIncrease: { name: string; change: number } | null = null;
-    let biggestDecrease: { name: string; change: number } | null = null;
-
-    trends.forEach(([categoryId, trend]) => {
-      const category = categories.find(c => c.id === categoryId);
-      const name = category?.name || 'Unknown';
-
-      if (!biggestIncrease || trend.priceChange > biggestIncrease.change) {
-        biggestIncrease = { name, change: trend.priceChange };
-      }
-      if (!biggestDecrease || trend.priceChange < biggestDecrease.change) {
-        biggestDecrease = { name, change: trend.priceChange };
-      }
-    });
-
-    return {
-      totalComponents: trendData.size,
-      highVolatilityCount,
-      avgVolatility,
-      biggestIncrease,
-      biggestDecrease,
-    };
-  }, [trendData, categories]);
-
-  /**
-   * Get filtered and sorted trend entries for display
-   */
-  const sortedTrendEntries = useMemo(() => {
-    return Array.from(trendData.entries())
-      .map(([categoryId, trend]) => {
-        const category = categories.find(c => c.id === categoryId);
-        return { categoryId, trend, categoryName: category?.name || 'Unknown' };
-      })
-      .filter(({ trend }) => {
-        // Apply active filter
-        switch (activeFilter) {
-          case 'high-volatility':
-            return trend.volatility === 'high';
-          case 'price-increasing':
-            return trend.priceChange > 5;
-          case 'price-decreasing':
-            return trend.priceChange < -5;
-          default:
-            return true;
-        }
-      })
-      .sort((a, b) => {
-        let aVal: any, bVal: any;
-        switch (trendSortColumn) {
-          case 'component':
-            aVal = a.categoryName;
-            bVal = b.categoryName;
-            break;
-          case 'current':
-            aVal = a.trend.currentPrice;
-            bVal = b.trend.currentPrice;
-            break;
-          case 'avg':
-            aVal = a.trend.avgPrice;
-            bVal = b.trend.avgPrice;
-            break;
-          case 'change':
-            aVal = a.trend.priceChange;
-            bVal = b.trend.priceChange;
-            break;
-          case 'volatility':
-            aVal = a.trend.coefficientOfVariation;
-            bVal = b.trend.coefficientOfVariation;
-            break;
-          default:
-            return 0;
-        }
-        if (typeof aVal === 'string') {
-          return trendSortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-        }
-        return trendSortDirection === 'asc' ? aVal - bVal : bVal - aVal;
-      });
-  }, [trendData, trendSortColumn, trendSortDirection, categories, activeFilter]);
-
-  /**
-   * Handle sort column change
-   */
-  const handleSortChange = (column: TrendSortColumn) => {
-    if (trendSortColumn === column) {
-      setTrendSortDirection(trendSortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setTrendSortColumn(column);
-      setTrendSortDirection('asc');
-    }
-  };
-
-  /**
-   * Toggle filter
-   */
-  const handleFilterToggle = (filter: 'high-volatility' | 'price-increasing' | 'price-decreasing') => {
-    setActiveFilter(activeFilter === filter ? 'none' : filter);
   };
 
   return (
@@ -482,86 +490,8 @@ export default function CPUTrendsTab({
         </div>
       </div>
 
-      {/* Overview Cards */}
-      {trendData.size > 0 && (
-        <div className={styles.overviewCards}>
-          <div className={styles.overviewCard}>
-            <div className={styles.overviewLabel}>Components Tracked</div>
-            <div className={styles.overviewValue}>{overviewStats.totalComponents}</div>
-            <div className={styles.overviewSubtext}>
-              {overviewStats.highVolatilityCount > 0 && (
-                <span className={styles.increase}>
-                  {overviewStats.highVolatilityCount} high volatility
-                </span>
-              )}
-              {overviewStats.highVolatilityCount === 0 && (
-                <span>All stable</span>
-              )}
-            </div>
-          </div>
-
-          <div className={styles.overviewCard}>
-            <div className={styles.overviewLabel}>Avg Volatility</div>
-            <div className={styles.overviewValue}>{overviewStats.avgVolatility.toFixed(1)}%</div>
-            <div className={styles.overviewSubtext}>
-              {overviewStats.avgVolatility < 10 ? '🟢 Low' : overviewStats.avgVolatility < 25 ? '🟡 Medium' : '🔴 High'}
-            </div>
-          </div>
-
-          {overviewStats.biggestIncrease && overviewStats.biggestIncrease.change > 0 && (
-            <div className={styles.overviewCard}>
-              <div className={styles.overviewLabel}>Biggest Increase</div>
-              <div className={styles.overviewValue}>+{overviewStats.biggestIncrease.change.toFixed(1)}%</div>
-              <div className={`${styles.overviewSubtext} ${styles.increase}`}>
-                ↑ {overviewStats.biggestIncrease.name.substring(0, 20)}{overviewStats.biggestIncrease.name.length > 20 ? '...' : ''}
-              </div>
-            </div>
-          )}
-
-          {overviewStats.biggestDecrease && overviewStats.biggestDecrease.change < 0 && (
-            <div className={styles.overviewCard}>
-              <div className={styles.overviewLabel}>Biggest Decrease</div>
-              <div className={styles.overviewValue}>{overviewStats.biggestDecrease.change.toFixed(1)}%</div>
-              <div className={`${styles.overviewSubtext} ${styles.decrease}`}>
-                ↓ {overviewStats.biggestDecrease.name.substring(0, 20)}{overviewStats.biggestDecrease.name.length > 20 ? '...' : ''}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Quick filters */}
-      {trendData.size > 0 && (
-        <div className={styles.quickFilters}>
-          <button
-            onClick={() => handleFilterToggle('high-volatility')}
-            aria-label={`Filter to ${Array.from(trendData.values()).filter(t => t.volatility === 'high').length} high volatility components`}
-            aria-pressed={activeFilter === 'high-volatility'}
-            className={`${styles.filterButton} ${styles.highVolatility} ${activeFilter === 'high-volatility' ? styles.active : ''}`}
-          >
-            High Volatility ({Array.from(trendData.values()).filter(t => t.volatility === 'high').length})
-          </button>
-          <button
-            onClick={() => handleFilterToggle('price-increasing')}
-            aria-label={`Filter to ${Array.from(trendData.values()).filter(t => t.priceChange > 5).length} price increasing components`}
-            aria-pressed={activeFilter === 'price-increasing'}
-            className={`${styles.filterButton} ${styles.priceIncreasing} ${activeFilter === 'price-increasing' ? styles.active : ''}`}
-          >
-            Price Increasing ({Array.from(trendData.values()).filter(t => t.priceChange > 5).length})
-          </button>
-          <button
-            onClick={() => handleFilterToggle('price-decreasing')}
-            aria-label={`Filter to ${Array.from(trendData.values()).filter(t => t.priceChange < -5).length} price decreasing components`}
-            aria-pressed={activeFilter === 'price-decreasing'}
-            className={`${styles.filterButton} ${styles.priceDecreasing} ${activeFilter === 'price-decreasing' ? styles.active : ''}`}
-          >
-            Price Decreasing ({Array.from(trendData.values()).filter(t => t.priceChange < -5).length})
-          </button>
-        </div>
-      )}
-
-      {/* Trends table */}
-      {trendData.size === 0 ? (
+      {/* Product trends */}
+      {sortedProductTrends.length === 0 ? (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon} aria-hidden="true">📊</div>
           <div className={styles.emptyTitle}>No trend data available</div>
@@ -570,88 +500,96 @@ export default function CPUTrendsTab({
           </div>
         </div>
       ) : (
-        <div className={styles.tableContainer}>
-          <table className={styles.trendsTable}>
-            <thead>
-              <tr>
-                <th
-                  onClick={() => handleSortChange('component')}
-                  aria-sort={trendSortColumn === 'component' ? (trendSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
-                >
-                  COMPONENT {trendSortColumn === 'component' && (trendSortDirection === 'asc' ? '↑' : '↓')}
-                </th>
-                <th
-                  onClick={() => handleSortChange('current')}
-                  className={styles.alignRight}
-                  aria-sort={trendSortColumn === 'current' ? (trendSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
-                >
-                  CURRENT {trendSortColumn === 'current' && (trendSortDirection === 'asc' ? '↑' : '↓')}
-                </th>
-                <th
-                  onClick={() => handleSortChange('avg')}
-                  className={styles.alignRight}
-                  aria-sort={trendSortColumn === 'avg' ? (trendSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
-                >
-                  AVERAGE {trendSortColumn === 'avg' && (trendSortDirection === 'asc' ? '↑' : '↓')}
-                </th>
-                <th
-                  onClick={() => handleSortChange('change')}
-                  className={styles.alignRight}
-                  aria-sort={trendSortColumn === 'change' ? (trendSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
-                >
-                  CHANGE {trendSortColumn === 'change' && (trendSortDirection === 'asc' ? '↑' : '↓')}
-                </th>
-                <th
-                  onClick={() => handleSortChange('volatility')}
-                  className={styles.alignRight}
-                  aria-sort={trendSortColumn === 'volatility' ? (trendSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
-                >
-                  VOLATILITY {trendSortColumn === 'volatility' && (trendSortDirection === 'asc' ? '↑' : '↓')}
-                </th>
-                <th className={`${styles.alignRight} ${styles.notSortable}`}>
-                  DATA POINTS
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedTrendEntries.map(({ categoryId, trend, categoryName }) => {
-                const trendIcon = trend.priceChange > 5 ? '↑' : trend.priceChange < -5 ? '↓' : '→';
-                const changeClass = trend.priceChange > 5 ? styles.increase : trend.priceChange < -5 ? styles.decrease : styles.stable;
-                const rowClass = trend.volatility === 'high' ? styles.highlightHigh : '';
+        <div className={styles.productsContainer}>
+          {sortedProductTrends.map(product => (
+            <div key={product.productId} className={styles.productSection}>
+              {/* Product header */}
+              <div className={styles.productHeader}>
+                <h4 className={styles.productName}>{product.productName}</h4>
+                <div className={styles.productMetrics}>
+                  <span>CPU: {product.cpu}</span>
+                  <span>Margin: {product.margin}</span>
+                  <span>MSRP: {product.msrp}</span>
+                </div>
+              </div>
 
-                return (
-                  <tr key={categoryId} className={rowClass}>
-                    <td className={styles.componentName}>
-                      {categoryName}
-                    </td>
-                    <td className={styles.priceValue}>
-                      ${trend.currentPrice.toFixed(2)}
-                    </td>
-                    <td className={styles.priceAverage}>
-                      ${trend.avgPrice.toFixed(2)}
-                    </td>
-                    <td>
-                      <div className={`${styles.priceChange} ${changeClass}`}>
-                        <span aria-label={`Price ${trend.priceChange > 0 ? 'increased' : 'decreased'} by ${Math.abs(trend.priceChange).toFixed(1)} percent`}>
-                          {trendIcon} {trend.priceChange > 0 ? '+' : ''}{trend.priceChange.toFixed(1)}%
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className={styles.volatilityCell}>
-                        <span className={`${styles.volatilityBadge} ${styles[trend.volatility]}`} aria-label={`${trend.volatility} volatility`}>
-                          {trend.volatility}
-                        </span>
-                      </div>
-                    </td>
-                    <td className={styles.dataPoints}>
-                      {trend.invoiceCount} invoices
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+              {/* Component table */}
+              <div className={styles.tableContainer}>
+                <table className={styles.trendsTable}>
+                  <thead>
+                    <tr>
+                      <th
+                        onClick={() => handleSortChange('component')}
+                        aria-sort={sortColumn === 'component' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        COMPONENT {sortColumn === 'component' && (sortDirection === 'asc' ? '↑' : '↓')}
+                      </th>
+                      <th
+                        onClick={() => handleSortChange('current')}
+                        className={styles.alignRight}
+                        aria-sort={sortColumn === 'current' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        CURRENT {sortColumn === 'current' && (sortDirection === 'asc' ? '↑' : '↓')}
+                      </th>
+                      <th
+                        onClick={() => handleSortChange('avg')}
+                        className={styles.alignRight}
+                        aria-sort={sortColumn === 'avg' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        AVG {sortColumn === 'avg' && (sortDirection === 'asc' ? '↑' : '↓')}
+                      </th>
+                      <th
+                        onClick={() => handleSortChange('change')}
+                        className={styles.alignRight}
+                        aria-sort={sortColumn === 'change' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        % {sortColumn === 'change' && (sortDirection === 'asc' ? '↑' : '↓')}
+                      </th>
+                      <th
+                        onClick={() => handleSortChange('lastBuy')}
+                        className={styles.alignRight}
+                        aria-sort={sortColumn === 'lastBuy' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        LAST BUY {sortColumn === 'lastBuy' && (sortDirection === 'asc' ? '↑' : '↓')}
+                      </th>
+                      <th
+                        onClick={() => handleSortChange('status')}
+                        aria-sort={sortColumn === 'status' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        STATUS {sortColumn === 'status' && (sortDirection === 'asc' ? '↑' : '↓')}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {product.components.map((comp, idx) => (
+                      <tr key={idx}>
+                        <td className={styles.componentName}>{comp.componentName}</td>
+                        <td className={styles.priceValue}>${comp.current.toFixed(2)}</td>
+                        <td className={styles.priceAverage}>${comp.avg.toFixed(2)}</td>
+                        <td className={styles.priceValue}>
+                          {comp.change !== 0 ? (
+                            <span className={comp.change > 0 ? styles.increase : styles.decrease}>
+                              {comp.change > 0 ? '+' : ''}{comp.change.toFixed(1)}%
+                            </span>
+                          ) : (
+                            <span>—</span>
+                          )}
+                        </td>
+                        <td className={styles.priceValue}>{comp.lastBuyDays}d</td>
+                        <td className={styles.statusText}>{comp.status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

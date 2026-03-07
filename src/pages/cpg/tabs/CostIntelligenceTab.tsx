@@ -287,26 +287,6 @@ export default function CostIntelligenceTab({
     });
   }, [finishedProducts, comparisonCategoryFilter, comparisonVariantFilter, comparisonVendorFilter, productCPUData, invoices, recipes]);
 
-  // Auto-filter selected products when filters change
-  useEffect(() => {
-    if (selectedProductsForComparison.size === 0) return;
-
-    // Get products that match current filters
-    const filteredProducts = getFilteredProducts();
-    const filteredIds = new Set(filteredProducts.map(p => p.id));
-
-    // Remove any selected products that don't match the current filters
-    const newSelectedProducts = new Set(
-      Array.from(selectedProductsForComparison).filter(id => filteredIds.has(id))
-    );
-
-    // Only update if something changed
-    if (newSelectedProducts.size !== selectedProductsForComparison.size) {
-      setSelectedProductsForComparison(newSelectedProducts);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [comparisonCategoryFilter, comparisonVariantFilter, comparisonVendorFilter, getFilteredProducts]);
-
   // Quick select functions
   const selectAllProducts = useCallback(() => {
     const filtered = getFilteredProducts();
@@ -1464,6 +1444,7 @@ export default function CostIntelligenceTab({
                     companyId={companyId}
                     selectedProducts={selectedProductsForComparison}
                     productCPUData={productCPUData}
+                    products={finishedProducts}
                     categories={categories}
                     invoices={invoices}
                     dateRange={comparisonDateRange}

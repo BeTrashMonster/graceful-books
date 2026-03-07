@@ -259,6 +259,7 @@
   cursor: pointer;
   transition: all 0.15s ease;
   user-select: none;
+  background: #f8fafc;
 }
 
 .trendsTable th:hover {
@@ -380,6 +381,52 @@
   font-size: 0.8125rem;
 }
 
+/* Products Container */
+.productsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.productSection {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.productHeader {
+  background: linear-gradient(135deg, var(--color-primary, #4b006e) 0%, #5e0089 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+}
+
+.productName {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: white;
+}
+
+.productMetrics {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.875rem;
+  opacity: 0.95;
+  color: white;
+}
+
+.productMetrics span {
+  font-weight: 500;
+  color: white;
+}
+
+.statusText {
+  font-size: 0.8125rem;
+  color: #64748b;
+  font-style: italic;
+}
+
 /* Empty State */
 .emptyState {
   padding: 3rem 2rem;
@@ -405,6 +452,14 @@
 .emptyDescription {
   font-size: 0.875rem;
   color: #64748b;
+}
+
+.increase {
+  color: #dc2626;
+}
+
+.decrease {
+  color: #16a34a;
 }
 
 /* Responsive */
