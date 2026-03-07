@@ -84,9 +84,9 @@ export default function ScenarioBuilderTab({
   // Map<productId, new MSRP>
   const [scenarioMSRP, setScenarioMSRP] = useState<Map<string, number>>(new Map());
 
-  // State: Adjustment mode per component ($ or %)
-  // Map<productId, Map<componentId, 'percentage' | 'dollar'>>
-  const [componentModes, setComponentModes] = useState<Map<string, Map<string, 'percentage' | 'dollar'>>>(new Map());
+  // State: Adjustment mode per product ($ or %) - applies to ALL components in that product
+  // Map<productId, 'percentage' | 'dollar'>
+  const [productModes, setProductModes] = useState<Map<string, 'percentage' | 'dollar'>>(new Map());
 
   // State: Track which value is being edited
   // Format: "productId:componentId" or "productId:msrp"
@@ -171,12 +171,11 @@ export default function ScenarioBuilderTab({
       if (!data || !data.breakdown || data.breakdown.length === 0) return null;
 
       const adjustments = scenarioAdjustments.get(productId) || new Map();
-      const modes = componentModes.get(productId) || new Map();
+      const mode = productModes.get(productId) || 'percentage';
       let totalCPU = 0;
       const components = data.breakdown.map((component) => {
         const baseSubtotal = component.subtotal ? parseFloat(component.subtotal) : 0;
         const adjustment = adjustments.get(component.categoryId) || 0;
-        const mode = modes.get(component.categoryId) || 'percentage';
 
         let adjustedSubtotal;
         if (mode === 'percentage') {
@@ -196,7 +195,7 @@ export default function ScenarioBuilderTab({
 
       return { cpu: totalCPU, components };
     },
-    [productCPUData, scenarioAdjustments, componentModes]
+    [productCPUData, scenarioAdjustments, productModes]
   );
 
   // Calculate scenario margin
@@ -238,50 +237,57 @@ export default function ScenarioBuilderTab({
     setScenarioMSRP((prev) => new Map(prev).set(productId, newMSRP));
   }, []);
 
-  // Handle component mode toggle (% or $)
-  const handleComponentModeToggle = useCallback((productId: string, componentId: string, mode: 'percentage' | 'dollar', currentAdjustedValue: number, baseValue: number) => {
-    // First, recalculate the adjustment to maintain the same adjusted value in the new mode
-    const currentMode = componentModes.get(productId)?.get(componentId) || 'percentage';
+  // Handle product mode toggle (% or $) - applies to ALL components
+  const handleProductModeToggle = useCallback((productId: string, mode: 'percentage' | 'dollar') => {
+    const currentMode = productModes.get(productId) || 'percentage';
 
     // Only recalculate if we're actually changing modes
     if (currentMode !== mode) {
-      let newAdjustment;
+      const data = productCPUData.get(productId);
+      if (!data || !data.breakdown) return;
 
-      if (mode === 'percentage') {
-        // Switching to percentage mode
-        // adjustment % = ((adjusted - base) / base) * 100
-        newAdjustment = ((currentAdjustedValue - baseValue) / baseValue) * 100;
-      } else {
-        // Switching to dollar mode
-        // adjustment $ = adjusted - base
-        newAdjustment = currentAdjustedValue - baseValue;
-      }
+      const adjustments = scenarioAdjustments.get(productId) || new Map();
+      const newAdjustments = new Map<string, number>();
 
-      // Update the adjustment to maintain the same final value
-      setScenarioAdjustments((prev) => {
-        const newMap = new Map(prev);
-        const productAdj = newMap.get(productId) || new Map();
+      // Recalculate all adjustments to maintain same adjusted values
+      data.breakdown.forEach((component) => {
+        const baseValue = component.subtotal ? parseFloat(component.subtotal) : 0;
+        const currentAdj = adjustments.get(component.categoryId) || 0;
 
-        if (Math.abs(newAdjustment) < 0.0001) {
-          productAdj.delete(componentId);
+        if (currentAdj === 0) return; // Skip unchanged components
+
+        let currentAdjustedValue;
+        if (currentMode === 'percentage') {
+          currentAdjustedValue = baseValue * (1 + currentAdj / 100);
         } else {
-          productAdj.set(componentId, newAdjustment);
+          currentAdjustedValue = baseValue + currentAdj;
         }
 
-        newMap.set(productId, productAdj);
+        let newAdjustment;
+        if (mode === 'percentage') {
+          // Switching to percentage mode
+          newAdjustment = ((currentAdjustedValue - baseValue) / baseValue) * 100;
+        } else {
+          // Switching to dollar mode
+          newAdjustment = currentAdjustedValue - baseValue;
+        }
+
+        if (Math.abs(newAdjustment) >= 0.0001) {
+          newAdjustments.set(component.categoryId, newAdjustment);
+        }
+      });
+
+      // Update all adjustments at once
+      setScenarioAdjustments((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(productId, newAdjustments);
         return newMap;
       });
     }
 
     // Update the mode
-    setComponentModes((prev) => {
-      const newMap = new Map(prev);
-      const productModes = newMap.get(productId) || new Map();
-      productModes.set(componentId, mode);
-      newMap.set(productId, productModes);
-      return newMap;
-    });
-  }, [componentModes]);
+    setProductModes((prev) => new Map(prev).set(productId, mode));
+  }, [productModes, productCPUData, scenarioAdjustments]);
 
   // Reset scenario for a product
   const resetProductScenario = useCallback((productId: string) => {
@@ -328,7 +334,7 @@ export default function ScenarioBuilderTab({
       handleMSRPAdjustment(productId, newValue);
     } else {
       // Editing component cost
-      const mode = componentModes.get(productId)?.get(componentId) || 'percentage';
+      const mode = productModes.get(productId) || 'percentage';
       let adjustment;
 
       if (mode === 'percentage') {
@@ -344,7 +350,7 @@ export default function ScenarioBuilderTab({
 
     setEditingValue(null);
     setEditingText('');
-  }, [editingValue, editingText, componentModes, handleMSRPAdjustment, handleComponentAdjustment, evaluateMathExpression]);
+  }, [editingValue, editingText, productModes, handleMSRPAdjustment, handleComponentAdjustment, evaluateMathExpression]);
 
   // Cancel editing
   const cancelEditing = useCallback(() => {
@@ -414,23 +420,23 @@ export default function ScenarioBuilderTab({
                   <div className={styles.metricLabel}>CPU</div>
                   <div className={`${styles.metricValue} ${hasAdjustments ? styles.changed : ''}`}>
                     ${formatNumberWithCommas(scenarioCPUValue)}
-                    {hasAdjustments && (
-                      <span className={styles.metricChange}>
-                        ({cpuDelta >= 0 ? '+' : ''}${cpuDelta.toFixed(2)})
-                      </span>
-                    )}
                   </div>
+                  {hasAdjustments && (
+                    <div className={styles.metricChange}>
+                      {cpuDelta >= 0 ? '+' : ''}${cpuDelta.toFixed(2)}
+                    </div>
+                  )}
                 </div>
                 <div className={styles.productMetric}>
                   <div className={styles.metricLabel}>Margin</div>
                   <div className={`${styles.metricValue} ${hasAdjustments ? styles.changed : ''}`}>
                     {scenarioMarginValue.toFixed(1)}%
-                    {hasAdjustments && (
-                      <span className={styles.metricChange}>
-                        ({marginDelta >= 0 ? '+' : ''}{marginDelta.toFixed(1)}%)
-                      </span>
-                    )}
                   </div>
+                  {hasAdjustments && (
+                    <div className={styles.metricChange}>
+                      {marginDelta >= 0 ? '+' : ''}{marginDelta.toFixed(1)}%
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -522,6 +528,22 @@ export default function ScenarioBuilderTab({
               <div className={styles.sliderSection}>
                 <div className={styles.sliderSectionTitle}>
                   Component Costs
+                  <div className={styles.componentModeToggle}>
+                    <button
+                      className={`${styles.modeButton} ${(productModes.get(productId) || 'percentage') === 'percentage' ? styles.active : ''}`}
+                      onClick={() => handleProductModeToggle(productId, 'percentage')}
+                      aria-label="Switch to percentage mode"
+                    >
+                      %
+                    </button>
+                    <button
+                      className={`${styles.modeButton} ${(productModes.get(productId) || 'percentage') === 'dollar' ? styles.active : ''}`}
+                      onClick={() => handleProductModeToggle(productId, 'dollar')}
+                      aria-label="Switch to dollar mode"
+                    >
+                      $
+                    </button>
+                  </div>
                 </div>
               {filteredComponents.length === 0 ? (
                 <div style={{
@@ -537,7 +559,7 @@ export default function ScenarioBuilderTab({
                   {filteredComponents.map((component, idx) => {
                   const baseSubtotal = component.subtotal ? parseFloat(component.subtotal) : 0;
                   const currentAdj = scenarioAdjustments.get(productId)?.get(component.categoryId) || 0;
-                  const currentMode = componentModes.get(productId)?.get(component.categoryId) || 'percentage';
+                  const currentMode = productModes.get(productId) || 'percentage';
 
                   let adjustedSubtotal;
                   let displayAdjustment;
@@ -575,7 +597,7 @@ export default function ScenarioBuilderTab({
                         {component.categoryName}
                       </div>
 
-                      {/* Slider immediately after name */}
+                      {/* Slider with badge underneath */}
                       <div className={styles.componentSliderWrapper}>
                         <div className={styles.sliderLabels}>
                           <span>{minLabel}</span>
@@ -599,76 +621,23 @@ export default function ScenarioBuilderTab({
                           aria-valuetext={displayAdjustment || 'No adjustment'}
                           className={styles.slider}
                         />
-                      </div>
-
-                      {/* Value - Editable */}
-                      <div className={styles.componentValue}>
-                        {editingValue === `${productId}:${component.categoryId}` ? (
-                          <input
-                            type="text"
-                            value={editingText}
-                            onChange={(e) => setEditingText(e.target.value)}
-                            onBlur={() => saveEditedValue(productId, component.categoryId, baseSubtotal, adjustedSubtotal)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                saveEditedValue(productId, component.categoryId, baseSubtotal, adjustedSubtotal);
-                              } else if (e.key === 'Escape') {
-                                cancelEditing();
-                              }
-                            }}
-                            autoFocus
-                            style={{
-                              width: '100%',
-                              border: '1px solid var(--color-primary, #4b006e)',
-                              borderRadius: '3px',
-                              padding: '0.25rem',
-                              fontSize: '0.9375rem',
-                              fontWeight: 700,
-                              color: 'var(--color-primary, #4b006e)',
-                              textAlign: 'right',
-                            }}
-                            placeholder="Enter value or +/- amount"
-                          />
-                        ) : (
-                          <span
-                            onClick={() => startEditing(`${productId}:${component.categoryId}`, adjustedSubtotal.toFixed(2))}
-                            style={{ cursor: 'pointer' }}
-                            title="Click to edit (supports math: +0.04, -0.5, *2, etc.)"
-                          >
-                            ${formatNumberWithCommas(adjustedSubtotal)}
-                          </span>
+                        {/* Badge shows underneath slider if adjusted */}
+                        {displayAdjustment && (
+                          <div className={styles.sliderBadgeWrapper}>
+                            <span
+                              className={`${styles.componentAdjustmentBadge} ${
+                                currentAdj > 0 ? styles.increase : styles.decrease
+                              }`}
+                            >
+                              {displayAdjustment}
+                            </span>
+                          </div>
                         )}
                       </div>
 
-                      {/* Badge (if adjusted) */}
-                      {displayAdjustment ? (
-                        <span
-                          className={`${styles.componentAdjustmentBadge} ${
-                            currentAdj > 0 ? styles.increase : styles.decrease
-                          }`}
-                        >
-                          {displayAdjustment}
-                        </span>
-                      ) : (
-                        <span style={{ width: '60px' }}></span>
-                      )}
-
-                      {/* Mode toggle buttons */}
-                      <div className={styles.componentModeToggle}>
-                        <button
-                          className={`${styles.modeButton} ${currentMode === 'percentage' ? styles.active : ''}`}
-                          onClick={() => handleComponentModeToggle(productId, component.categoryId, 'percentage', adjustedSubtotal, baseSubtotal)}
-                          aria-label="Switch to percentage mode"
-                        >
-                          %
-                        </button>
-                        <button
-                          className={`${styles.modeButton} ${currentMode === 'dollar' ? styles.active : ''}`}
-                          onClick={() => handleComponentModeToggle(productId, component.categoryId, 'dollar', adjustedSubtotal, baseSubtotal)}
-                          aria-label="Switch to dollar mode"
-                        >
-                          $
-                        </button>
+                      {/* CPU Value - right aligned */}
+                      <div className={styles.componentCPU}>
+                        ${formatNumberWithCommas(adjustedSubtotal)}
                       </div>
                     </div>
                   );
