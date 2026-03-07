@@ -98,6 +98,34 @@ export default function ScenarioBuilderTab({
     return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }, []);
 
+  // Evaluate math expressions in input (e.g., "0.81 + 0.04" or just "+ 0.04")
+  const evaluateMathExpression = useCallback((expression: string, currentValue: number): number | null => {
+    try {
+      // Remove $ and commas
+      const cleaned = expression.trim().replace(/[$,]/g, '');
+
+      // If it starts with an operator, prepend the current value
+      const mathExpression = /^[\+\-\*\/]/.test(cleaned) ? `${currentValue}${cleaned}` : cleaned;
+
+      // Simple expression validation to prevent eval abuse
+      // Only allow numbers, operators, parentheses, and decimal points
+      if (!/^[\d\.\+\-\*\/\(\)\s]+$/.test(mathExpression)) {
+        return null;
+      }
+
+      // Evaluate the expression
+      const result = eval(mathExpression);
+
+      if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
+        return result;
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   // Filter components based on active filters
   const filterComponents = useCallback((productId: string, components: ComponentBreakdown[]): ComponentBreakdown[] => {
     if (!components) return [];
@@ -211,7 +239,41 @@ export default function ScenarioBuilderTab({
   }, []);
 
   // Handle component mode toggle (% or $)
-  const handleComponentModeToggle = useCallback((productId: string, componentId: string, mode: 'percentage' | 'dollar') => {
+  const handleComponentModeToggle = useCallback((productId: string, componentId: string, mode: 'percentage' | 'dollar', currentAdjustedValue: number, baseValue: number) => {
+    // First, recalculate the adjustment to maintain the same adjusted value in the new mode
+    const currentMode = componentModes.get(productId)?.get(componentId) || 'percentage';
+
+    // Only recalculate if we're actually changing modes
+    if (currentMode !== mode) {
+      let newAdjustment;
+
+      if (mode === 'percentage') {
+        // Switching to percentage mode
+        // adjustment % = ((adjusted - base) / base) * 100
+        newAdjustment = ((currentAdjustedValue - baseValue) / baseValue) * 100;
+      } else {
+        // Switching to dollar mode
+        // adjustment $ = adjusted - base
+        newAdjustment = currentAdjustedValue - baseValue;
+      }
+
+      // Update the adjustment to maintain the same final value
+      setScenarioAdjustments((prev) => {
+        const newMap = new Map(prev);
+        const productAdj = newMap.get(productId) || new Map();
+
+        if (Math.abs(newAdjustment) < 0.0001) {
+          productAdj.delete(componentId);
+        } else {
+          productAdj.set(componentId, newAdjustment);
+        }
+
+        newMap.set(productId, productAdj);
+        return newMap;
+      });
+    }
+
+    // Update the mode
     setComponentModes((prev) => {
       const newMap = new Map(prev);
       const productModes = newMap.get(productId) || new Map();
@@ -219,7 +281,7 @@ export default function ScenarioBuilderTab({
       newMap.set(productId, productModes);
       return newMap;
     });
-  }, []);
+  }, [componentModes]);
 
   // Reset scenario for a product
   const resetProductScenario = useCallback((productId: string) => {
@@ -242,12 +304,17 @@ export default function ScenarioBuilderTab({
   }, []);
 
   // Save edited value
-  const saveEditedValue = useCallback((productId: string, componentId: string | null, baseValue: number) => {
+  const saveEditedValue = useCallback((productId: string, componentId: string | null, baseValue: number, currentValue: number) => {
     if (!editingValue) return;
 
-    // Parse the edited text
-    const cleanedText = editingText.replace(/[$,]/g, '');
-    const newValue = parseFloat(cleanedText);
+    // Try to evaluate as math expression first
+    let newValue = evaluateMathExpression(editingText, currentValue);
+
+    // If not a valid expression, try parsing as plain number
+    if (newValue === null) {
+      const cleanedText = editingText.replace(/[$,]/g, '');
+      newValue = parseFloat(cleanedText);
+    }
 
     if (isNaN(newValue) || newValue < 0) {
       // Invalid input, cancel edit
@@ -277,7 +344,7 @@ export default function ScenarioBuilderTab({
 
     setEditingValue(null);
     setEditingText('');
-  }, [editingValue, editingText, componentModes, handleMSRPAdjustment, handleComponentAdjustment]);
+  }, [editingValue, editingText, componentModes, handleMSRPAdjustment, handleComponentAdjustment, evaluateMathExpression]);
 
   // Cancel editing
   const cancelEditing = useCallback(() => {
@@ -371,10 +438,6 @@ export default function ScenarioBuilderTab({
             <div className={styles.cardContent}>
 
               {/* MSRP Adjustment */}
-              <div className={styles.sliderSection}>
-                <div className={styles.sliderSectionTitle}>
-                  MSRP
-                </div>
               <div className={styles.msrpSlider}>
                 <div className={styles.componentItem}>
                   {/* MSRP Label */}
@@ -415,10 +478,10 @@ export default function ScenarioBuilderTab({
                         type="text"
                         value={editingText}
                         onChange={(e) => setEditingText(e.target.value)}
-                        onBlur={() => saveEditedValue(productId, null, baseMSRP)}
+                        onBlur={() => saveEditedValue(productId, null, baseMSRP, scenarioMSRPValue)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
-                            saveEditedValue(productId, null, baseMSRP);
+                            saveEditedValue(productId, null, baseMSRP, scenarioMSRPValue);
                           } else if (e.key === 'Escape') {
                             cancelEditing();
                           }
@@ -434,12 +497,13 @@ export default function ScenarioBuilderTab({
                           color: 'var(--color-primary, #4b006e)',
                           textAlign: 'right',
                         }}
+                        placeholder="Enter value or +/- amount"
                       />
                     ) : (
                       <span
                         onClick={() => startEditing(`${productId}:msrp`, scenarioMSRPValue.toFixed(2))}
                         style={{ cursor: 'pointer' }}
-                        title="Click to edit"
+                        title="Click to edit (supports math: +0.50, -1.25, *2, etc.)"
                       >
                         ${scenarioMSRPValue.toFixed(2)}
                       </span>
@@ -453,7 +517,6 @@ export default function ScenarioBuilderTab({
                   <span style={{ width: 'auto' }}></span>
                 </div>
               </div>
-            </div>
 
               {/* Component Adjustments */}
               <div className={styles.sliderSection}>
@@ -545,10 +608,10 @@ export default function ScenarioBuilderTab({
                             type="text"
                             value={editingText}
                             onChange={(e) => setEditingText(e.target.value)}
-                            onBlur={() => saveEditedValue(productId, component.categoryId, baseSubtotal)}
+                            onBlur={() => saveEditedValue(productId, component.categoryId, baseSubtotal, adjustedSubtotal)}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
-                                saveEditedValue(productId, component.categoryId, baseSubtotal);
+                                saveEditedValue(productId, component.categoryId, baseSubtotal, adjustedSubtotal);
                               } else if (e.key === 'Escape') {
                                 cancelEditing();
                               }
@@ -564,12 +627,13 @@ export default function ScenarioBuilderTab({
                               color: 'var(--color-primary, #4b006e)',
                               textAlign: 'right',
                             }}
+                            placeholder="Enter value or +/- amount"
                           />
                         ) : (
                           <span
                             onClick={() => startEditing(`${productId}:${component.categoryId}`, adjustedSubtotal.toFixed(2))}
                             style={{ cursor: 'pointer' }}
-                            title="Click to edit"
+                            title="Click to edit (supports math: +0.04, -0.5, *2, etc.)"
                           >
                             ${formatNumberWithCommas(adjustedSubtotal)}
                           </span>
@@ -593,14 +657,14 @@ export default function ScenarioBuilderTab({
                       <div className={styles.componentModeToggle}>
                         <button
                           className={`${styles.modeButton} ${currentMode === 'percentage' ? styles.active : ''}`}
-                          onClick={() => handleComponentModeToggle(productId, component.categoryId, 'percentage')}
+                          onClick={() => handleComponentModeToggle(productId, component.categoryId, 'percentage', adjustedSubtotal, baseSubtotal)}
                           aria-label="Switch to percentage mode"
                         >
                           %
                         </button>
                         <button
                           className={`${styles.modeButton} ${currentMode === 'dollar' ? styles.active : ''}`}
-                          onClick={() => handleComponentModeToggle(productId, component.categoryId, 'dollar')}
+                          onClick={() => handleComponentModeToggle(productId, component.categoryId, 'dollar', adjustedSubtotal, baseSubtotal)}
                           aria-label="Switch to dollar mode"
                         >
                           $
