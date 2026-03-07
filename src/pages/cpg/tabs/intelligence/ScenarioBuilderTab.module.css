@@ -236,7 +236,7 @@
 
 .sliderLabels {
   position: absolute;
-  top: -1.25rem;
+  bottom: -1.25rem;
   left: 0;
   right: 0;
   display: flex;
@@ -318,7 +318,7 @@
   -webkit-appearance: none;
   position: relative;
   transition: all 0.2s ease;
-  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
 .slider:hover {

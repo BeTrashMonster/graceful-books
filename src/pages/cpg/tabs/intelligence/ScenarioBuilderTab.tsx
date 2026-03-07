@@ -543,7 +543,7 @@ export default function ScenarioBuilderTab({
                   let displayAdjustment;
                   if (currentMode === 'percentage') {
                     adjustedSubtotal = baseSubtotal * (1 + currentAdj / 100);
-                    displayAdjustment = currentAdj !== 0 ? `${currentAdj > 0 ? '+' : ''}${currentAdj}%` : null;
+                    displayAdjustment = currentAdj !== 0 ? `${currentAdj > 0 ? '+' : ''}${currentAdj.toFixed(2)}%` : null;
                   } else {
                     adjustedSubtotal = baseSubtotal + currentAdj;
                     displayAdjustment = currentAdj !== 0 ? `${currentAdj > 0 ? '+' : ''}$${Math.abs(currentAdj).toFixed(2)}` : null;
@@ -554,13 +554,13 @@ export default function ScenarioBuilderTab({
                   if (currentMode === 'percentage') {
                     sliderMin = -50;
                     sliderMax = 100;
-                    sliderStep = 5;
+                    sliderStep = 1;
                     minLabel = '-50%';
                     maxLabel = '+100%';
                   } else {
                     sliderMin = -baseSubtotal * 0.5;
                     sliderMax = baseSubtotal * 1.0;
-                    sliderStep = 0.25;
+                    sliderStep = 0.01;
                     minLabel = `-$${(baseSubtotal * 0.5).toFixed(2)}`;
                     maxLabel = `+$${(baseSubtotal * 1.0).toFixed(2)}`;
                   }
