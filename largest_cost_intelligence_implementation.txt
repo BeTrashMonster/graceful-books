@@ -1,0 +1,315 @@
+Largest Implementation from Line 6686 (2026-03-04T01:02:10.200Z)
+Length: 20619 chars
+
+========================================================================================================================
+
+                              {/* Vendors Tab */}
+                              {intelligenceTab === 'vendors' && (
+                                <div>
+                                  {/* Header */}
+                                  <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginBottom: '1.5rem',
+                                  }}>
+                                    <div>
+                                      <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.25rem' }}>
+                                        🏪 Vendor Intelligence
+                                      </h3>
+                                      <p style={{ fontSize: '0.875rem', color: '#64748b' }}>
+                                        Compare vendor pricing and identify savings opportunities
+                                      </p>
+                                    </div>
+                                    <div style={{ position: 'relative' }}>
+                                      <button
+                                        onClick={() => setShowVendorExportMenu(!showVendorExportMenu)}
+                                        style={{
+                                          padding: '0.5rem 1rem',
+                                          background: '#4b006e',
+                                          color: 'white',
+                                          border: 'none',
+                                          borderRadius: '6px',
+                                          fontSize: '0.875rem',
+                                          fontWeight: 600,
+                                          cursor: 'pointer',
+                                        }}
+                                      >
+                                        Export ▼
+                                      </button>
+                                      {showVendorExportMenu && (
+                                        <div style={{
+                                          position: 'absolute',
+                                          right: 0,
+                                          top: '100%',
+                                          marginTop: '0.25rem',
+                                          background: 'white',
+                                          border: '1px solid #e5e7eb',
+                                          borderRadius: '6px',
+                                          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                          zIndex: 10,
+                                          minWidth: '150px',
+                                        }}>
+                                          <button
+                                            onClick={() => {
+                                              setShowVendorExportMenu(false);
+                                            }}
+                                            style={{
+                                              width: '100%',
+                                              padding: '0.75rem 1rem',
+                                              border: 'none',
+                                              background: 'white',
+                                              textAlign: 'left',
+                                              cursor: 'pointer',
+                                              fontSize: '0.875rem',
+                                            }}
+                                          >
+                                            📄 Export CSV
+                                          </button>
+                                          <button
+                                            onClick={() => {
+                                              setShowVendorExportMenu(false);
+                                            }}
+                                            style={{
+                                              width: '100%',
+                                              padding: '0.75rem 1rem',
+                                              border: 'none',
+                                              background: 'white',
+                                              textAlign: 'left',
+                                              cursor: 'pointer',
+                                              fontSize: '0.875rem',
+                                              borderTop: '1px solid #e5e7eb',
+                                            }}
+                                          >
+                                            📕 Export PDF
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {vendorIntelData.size === 0 ? (
+                                    <div style={{
+                                      padding: '3rem',
+                                      textAlign: 'center',
+                                      color: '#64748b',
+                                      background: '#f8fafc',
+                                      borderRadius: '8px',
+                                    }}>
+                                      <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏪</div>
+                                      <p style={{ fontSize: '1rem', fontWeight: 500 }}>
+                                        Select products to analyze vendor pricing
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    <div>
+                                      {/* Vendor overview cards */}
+                                      <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                        gap: '1rem',
+                                        marginBottom: '1.5rem',
+                                      }}>
+                                        {(() => {
+                                          // Calculate overall vendor stats
+                                          const allVendors = new Set<string>();
+                                          let totalSpend = 0;
+                                          let totalInvoices = 0;
+
+                                          vendorIntelData.forEach(intel => {
+                                            intel.vendors?.forEach((_prices: any, vendor: string) => allVendors.add(vendor));
+                                          });
+
+                                          invoices.forEach(inv => {
+                                            totalInvoices++;
+                                            inv.line_items?.forEach(item => {
+                                              if (item.total) totalSpend += parseFloat(item.total);
+                                            });
+                                          });
+
+                                          return (
+                                            <>
+                                              <div style={{
+                                                padding: '1rem',
+                                                background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+                                                color: 'white',
+                                                borderRadius: '8px',
+                                              }}>
+                                                <div style={{ fontSize: '0.75rem', opacity: 0.9, marginBottom: '0.25rem' }}>TOTAL VENDORS</div>
+                                                <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{allVendors.size}</div>
+                                              </div>
+                                              <div style={{
+                                                padding: '1rem',
+                                                background: '#f8fafc',
+                                                border: '1px solid #e5e7eb',
+                                                borderRadius: '8px',
+                                              }}>
+                                                <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>TOTAL SPEND</div>
+                                                <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>${totalSpend.toFixed(2)}</div>
+                                              </div>
+                                              <div style={{
+                                                padding: '1rem',
+                                                background: '#f8fafc',
+                                                border: '1px solid #e5e7eb',
+                                                borderRadius: '8px',
+                                              }}>
+                                                <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>INVOICES</div>
+                                                <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{totalInvoices}</div>
+                                              </div>
+                                              <div style={{
+                                                padding: '1rem',
+                                                background: '#f8fafc',
+                                                border: '1px solid #e5e7eb',
+                                                borderRadius: '8px',
+                                              }}>
+                                                <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>COMPONENTS</div>
+                                                <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{vendorIntelData.size}</div>
+                                              </div>
+                                            </>
+                                          );
+                                        })()}
+                                      </div>
+
+                                      {/* Vendor comparison table */}
+                                      <div style={{
+                                        border: '1px solid #e5e7eb',
+                                        borderRadius: '8px',
+                                        overflow: 'hidden',
+                                      }}>
+                                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                          <thead>
+                                            <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e5e7eb' }}>
+                                              <th style={{
+                                                padding: '0.75rem 1rem',
+                                                textAlign: 'left',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 600,
+                                                color: '#64748b',
+                                                cursor: 'pointer',
+                                              }}
+                                                onClick={() => {
+                                                  setVendorSortColumn('component');
+                                                  setVendorSortDirection(vendorSortDirection === 'asc' ? 'desc' : 'asc');
+                                                }}
+                                              >
+                                                COMPONENT {vendorSortColumn === 'component' && (vendorSortDirection === 'asc' ? '↑' : '↓')}
+                                              </th>
+                                              <th style={{
+                                                padding: '0.75rem 1rem',
+                                                textAlign: 'right',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 600,
+                                                color: '#64748b',
+                                              }}>
+                                                VENDORS
+                                              </th>
+                                              <th style={{
+                                                padding: '0.75rem 1rem',
+                                                textAlign: 'right',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 600,
+                                                color: '#64748b',
+                                                cursor: 'pointer',
+                                              }}
+                                                onClick={() => {
+                                                  setVendorSortColumn('bestPrice');
+                                                  setVendorSortDirection(vendorSortDirection === 'asc' ? 'desc' : 'asc');
+                                                }}
+                                              >
+                                                BEST PRICE {vendorSortColumn === 'bestPrice' && (vendorSortDirection === 'asc' ? '↑' : '↓')}
+                                              </th>
+                                              <th style={{
+                                                padding: '0.75rem 1rem',
+                                                textAlign: 'right',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 600,
+                                                color: '#64748b',
+                                              }}>
+                                                AVG PRICE
+                                              </th>
+                                              <th style={{
+                                                padding: '0.75rem 1rem',
+                                                textAlign: 'right',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 600,
+                                                color: '#64748b',
+                                                cursor: 'pointer',
+                                              }}
+                                                onClick={() => {
+                                                  setVendorSortColumn('savings');
+                                                  setVendorSortDirection(vendorSortDirection === 'asc' ? 'desc' : 'asc');
+                                                }}
+                                              >
+                                                POTENTIAL SAVINGS {vendorSortColumn === 'savings' && (vendorSortDirection === 'asc' ? '↑' : '↓')}
+                                              </th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {Array.from(vendorIntelData.entries())
+                                              .map(([categoryId, intel]) => {
+                                                const category = categories.find(c => c.id === categoryId);
+                                                return { categoryId, intel, categoryName: category?.name || 'Unknown' };
+                                              })
+                                              .sort((a, b) => {
+                                                let aVal: any, bVal: any;
+                                                switch (vendorSortColumn) {
+                                                  case 'component':
+                                                    aVal = a.categoryName;
+                                                    bVal = b.categoryName;
+                                                    break;
+                                                  case 'bestPrice':
+                                                    aVal = a.intel.bestPrice;
+                                                    bVal = b.intel.bestPrice;
+                                                    break;
+                                                  case 'savings':
+                                                    aVal = a.intel.maxSavings;
+                                                    bVal = b.intel.maxSavings;
+                                                    break;
+                                                  default:
+                                                    return 0;
+                                                }
+                                                if (typeof aVal === 'string') {
+                                                  return vendorSortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                                                }
+                                                return vendorSortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+                                              })
+                                              .map(({ categoryId, intel, categoryName }) => {
+                                                const savingsPercent = intel.avgPrice > 0 ? (intel.maxSavings / intel.avgPrice) * 100 : 0;
+                                                const hasSavings = savingsPercent > 0;
+
+                                                return (
+                                                  <tr key={categoryId} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                                                    <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>
+                                                      {categoryName}
+                                                    </td>
+                                                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: '#64748b', fontSize: '0.875rem' }}>
+                                                      {intel.vendors?.size || 0}
+                                                    </td>
+                                                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: '#16a34a', fontWeight: 600 }}>
+                                                      ${intel.bestPrice.toFixed(2)}
+                                                    </td>
+                                                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: '#64748b' }}>
+                                                      ${intel.avgPrice.toFixed(2)}
+                                                    </td>
+                                                    <td style={{
+                                                      padding: '0.75rem 1rem',
+                                                      textAlign: 'right',
+                                                      color: hasSavings ? '#dc2626' : '#64748b',
+                                                      fontWeight: hasSavings ? 600 : 400,
+                                                    }}>
+                                                      {hasSavings ? (
+                                                        <>💰 ${intel.maxSavings.toFixed(2)} ({savingsPercent.toFixed(1)}%)</>
+                                                      ) : (
+                                                        '-'
+                                                      )}
+                                                    </td>
+                                                  </tr>
+                                                );
+                                              })}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              )}

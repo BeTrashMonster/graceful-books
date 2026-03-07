@@ -1,0 +1,1920 @@
+Cost Intelligence Code - Extracted from CPUTracker.tsx Edits
+Total edits extracted: 7
+========================================================================================================================
+
+
+
+=========== EDIT #1 ===========
+Line 5643 | 2026-03-03T19:39:13.198Z
+File: C:\Users\Admin\graceful_books\src\pages\cpg\CPUTracker.tsx
+Old String Length: 927 chars
+New String Length: 16259 chars
+========================================================================================================================
+
+--- OLD CODE ---
+                              {/* Alerts Tab */}
+                              {intelligenceTab === 'alerts' && (
+                                <div style={{
+                                  padding: '2rem',
+                                  textAlign: 'center',
+                                  color: '#64748b',
+                                }}>
+                                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔔</div>
+                                  <p style={{ fontSize: '1.125rem', fontWeight: 500, marginBottom: '0.5rem' }}>
+                                    Smart Alerts
+                                  </p>
+                                  <p style={{ fontSize: '0.875rem' }}>
+                                    Coming soon: Automated recommendations and margin alerts
+                                  </p>
+                                </div>
+                              )}
+
+--- NEW CODE ---
+                              {/* Alerts Tab */}
+                              {intelligenceTab === 'alerts' && (
+                                <div style={{ padding: '0.75rem' }}>
+                                  {(() => {
+                                    const alerts = generateSmartAlerts();
+
+                                    if (alerts.length === 0) {
+                                      return (
+                                        <div style={{
+                                          padding: '3rem 2rem',
+                                          textAlign: 'center',
+                                          color: '#64748b',
+                                        }}>
+                                          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
+                                          <p style={{ fontSize: '1.125rem', fontWeight: 500, marginBottom: '0.5rem' }}>
+                                            All Clear!
+                                          </p>
+                                          <p style={{ fontSize: '0.875rem' }}>
+                                            No alerts at this time. Your pricing looks stable.
+                                          </p>
+                                        </div>
+                                      );
+                                    }
+
+                                    // Alert type styling
+                                    const getAlertStyle = (type: string) => {
+                                      switch (type) {
+                                        case 'urgent':
+                                          return {
+                                            background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+                                            borderColor: '#ef4444',
+                                            iconBg: '#dc2626',
+                                          };
+                                        case 'warning':
+                                          return {
+                                            background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+                                            borderColor: '#f59e0b',
+                                            iconBg: '#d97706',
+                                          };
+                                        case 'opportunity':
+                                          return {
+                                            background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+                                            borderColor: '#10b981',
+                                            iconBg: '#059669',
+                                          };
+                                        case 'info':
+                                          return {
+                                            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                                            borderColor: '#3b82f6',
+                                            iconBg: '#2563eb',
+                                          };
+                                        default:
+                                          return {
+                                            background: '#f9fafb',
+                                            borderColor: '#e5e7eb',
+                                            iconBg: '#9ca3af',
+                                          };
+                                      }
+                                    };
+
+                                    // Count alerts by type
+                                    const urgentCount = alerts.filter(a => a.type === 'urgent').length;
+                                    const warningCount = alerts.filter(a => a.type === 'warning').length;
+                                    const opportunityCount = alerts.filter(a => a.type === 'opportunity').length;
+                                    const infoCount = alerts.filter(a => a.type === 'info').length;
+
+                                    return (
+                                      <>
+                                        {/* Alert Summary */}
+                                        <div style={{
+                                          display: 'grid',
+                                          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                          gap: '1rem',
+                                          marginBottom: '1.5rem',
+                                        }}>
+                                          {urgentCount > 0 && (
+                                            <div style={{
+                                              background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+                                              color: 'white',
+                                              padding: '1rem',
+                                              borderRadius: '12px',
+                                              textAlign: 'center',
+                                            }}>
+                                              <div style={{ fontSize: '2rem', fontWeight: 700 }}>{urgentCount}</div>
+                                              <div style={{ fontSize: '0.875rem', opacity: 0.9 }}>Urgent Alert{urgentCount !== 1 ? 's' : ''}</div>
+                                            </div>
+                                          )}
+                                          {warningCount > 0 && (
+                                            <div style={{
+                                              background: 'linear-gradient(135deg, #d97706 0%, #92400e 100%)',
+                                              color: 'white',
+                                              padding: '1rem',
+                                              borderRadius: '12px',
+                                              textAlign: 'center',
+                                            }}>
+                                              <div style={{ fontSize: '2rem', fontWeight: 700 }}>{warningCount}</div>
+                                              <div style={{ fontSize: '0.875rem', opacity: 0.9 }}>Warning{warningCount !== 1 ? 's' : ''}</div>
+                                            </div>
+                                          )}
+                                          {opportunityCount > 0 && (
+                                            <div style={{
+                                              background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                                              color: 'white',
+                                              padding: '1rem',
+                                              borderRadius: '12px',
+                                              textAlign: 'center',
+                                            }}>
+                                              <div style={{ fontSize: '2rem', fontWeight: 700 }}>{opportunityCount}</div>
+                                              <div style={{ fontSize: '0.875rem', opacity: 0.9 }}>Opportunit{opportunityCount !== 1 ? 'ies' : 'y'}</div>
+                                            </div>
+                                          )}
+                                          {infoCount > 0 && (
+                                            <div style={{
+                                              background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                                              color: 'white',
+                                              padding: '1rem',
+                                              borderRadius: '12px',
+                                              textAlign: 'center',
+                                            }}>
+                                              <div style={{ fontSize: '2rem', fontWeight: 700 }}>{infoCount}</div>
+                                              <div style={{ fontSize: '0.875rem', opacity: 0.9 }}>Info Alert{infoCount !== 1 ? 's' : ''}</div>
+                                            </div>
+                                          )}
+                                        </div>
+
+                                        {/* Alert Cards */}
+                                        <div style={{
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                          gap: '1rem',
+                                        }}>
+                                          {alerts.map((alert) => {
+                                            const style = getAlertStyle(alert.type);
+                                            return (
+                                              <div
+                                                key={alert.id}
+                                                style={{
+                                                  background: style.background,
+                                                  border: `2px solid ${style.borderColor}`,
+                                                  borderRadius: '12px',
+                                                  padding: '1.25rem',
+                                                  display: 'flex',
+                                                  gap: '1rem',
+                                                  alignItems: 'flex-start',
+                                                  transition: 'transform 0.2s, box-shadow 0.2s',
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                  e.currentTarget.style.transform = 'translateY(-2px)';
+                                                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                  e.currentTarget.style.transform = 'translateY(0)';
+                                                  e.currentTarget.style.boxShadow = 'none';
+                                                }}
+                                              >
+                                                {/* Icon */}
+                                                <div style={{
+                                                  fontSize: '2rem',
+                                                  background: style.iconBg,
+                                                  width: '3.5rem',
+                                                  height: '3.5rem',
+                                                  borderRadius: '12px',
+                                                  display: 'flex',
+                                                  alignItems: 'center',
+                                                  justifyContent: 'center',
+                                                  flexShrink: 0,
+                                                }}>
+                                                  {alert.icon}
+                                                </div>
+
+                                                {/* Content */}
+                                                <div style={{ flex: 1 }}>
+                                                  <h4 style={{
+                                                    margin: 0,
+                                                    marginBottom: '0.5rem',
+                                                    fontSize: '1.125rem',
+                                                    fontWeight: 700,
+                                                    color: '#1f2937',
+                                                  }}>
+                                                    {alert.title}
+                                                  </h4>
+                                                  <p style={{
+                                                    margin: 0,
+                                                    marginBottom: '0.75rem',
+                                                    fontSize: '0.9375rem',
+                                                    color: '#4b5563',
+                                                    lineHeight: '1.5',
+                                                  }}>
+                                                    {alert.message}
+                                                  </p>
+
+                                                  {/* Metadata */}
+                                                  <div style={{
+                                                    display: 'flex',
+                                                    flexWrap: 'wrap',
+                                                    gap: '0.75rem',
+                                                    alignItems: 'center',
+                                                  }}>
+                                                    {alert.component && (
+                                                      <div style={{
+                                                        fontSize: '0.8125rem',
+                                                        color: '#6b7280',
+                                                        background: 'rgba(255,255,255,0.7)',
+                                                        padding: '0.25rem 0.625rem',
+                                                        borderRadius: '6px',
+                                                        fontWeight: 500,
+                                                      }}>
+                                                        📦 {alert.component}
+                                                      </div>
+                                                    )}
+                                                    {alert.amount !== undefined && (
+                                                      <div style={{
+                                                        fontSize: '0.8125rem',
+                                                        color: '#6b7280',
+                                                        background: 'rgba(255,255,255,0.7)',
+                                                        padding: '0.25rem 0.625rem',
+                                                        borderRadius: '6px',
+                                                        fontWeight: 600,
+                                                      }}>
+                                                        ${alert.amount.toFixed(2)}
+                                                      </div>
+                                                    )}
+                                                    {alert.action && (
+                                                      <div style={{
+                                                        fontSize: '0.8125rem',
+                                                        color: style.iconBg,
+                                                        background: 'rgba(255,255,255,0.9)',
+                                                        padding: '0.25rem 0.625rem',
+                                                        borderRadius: '6px',
+                                                        fontWeight: 600,
+                                                        border: `1px solid ${style.borderColor}`,
+                                                      }}>
+                                                        💡 {alert.action}
+                                                      </div>
+                                                    )}
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      </>
+                                    );
+                                  })()}
+                                </div>
+                              )}
+
+========================================================================================================================
+
+
+=========== EDIT #2 ===========
+Line 5662 | 2026-03-03T19:47:26.663Z
+File: C:\Users\Admin\graceful_books\src\pages\cpg\CPUTracker.tsx
+Old String Length: 5467 chars
+New String Length: 11648 chars
+========================================================================================================================
+
+--- OLD CODE ---
+  // Generate smart alerts based on trend and vendor data
+  const generateSmartAlerts = () => {
+    const alerts: Array<{
+      id: string;
+      type: 'urgent' | 'warning' | 'opportunity' | 'info';
+      icon: string;
+      title: string;
+      message: string;
+      component?: string;
+      amount?: number;
+      action?: string;
+    }> = [];
+
+    // Analyze trend data for alerts
+    trendData.forEach(({ product, componentAnalysis }) => {
+      componentAnalysis.forEach((comp: any) => {
+        const componentKey = comp.variant ? `${comp.categoryName} (${comp.variant})` : comp.categoryName;
+
+        // Price spike alert (current price > 20% above average)
+        if (comp.currentPrice && comp.avgPrice && comp.priceChangePercent > 20) {
+          alerts.push({
+            id: `price-spike-${product.id}-${componentKey}`,
+            type: 'urgent',
+            icon: '🚨',
+            title: 'Price Spike Detected',
+            message: `${componentKey} is ${comp.priceChangePercent.toFixed(1)}% above average for ${product.name}`,
+            component: componentKey,
+            amount: comp.currentPrice - comp.avgPrice,
+            action: 'Review alternatives',
+          });
+        }
+
+        // High volatility with increasing price alert
+        if (comp.volatility === 'high' && comp.trend === 'increasing') {
+          alerts.push({
+            id: `volatile-increasing-${product.id}-${componentKey}`,
+            type: 'warning',
+            icon: '⚠️',
+            title: 'Volatile & Rising',
+            message: `${componentKey} shows high volatility with increasing prices`,
+            component: componentKey,
+            action: 'Lock in pricing or find alternatives',
+          });
+        }
+
+        // Stale data alert (no purchase in 90+ days)
+        if (comp.daysSinceLastPurchase && comp.daysSinceLastPurchase > 90) {
+          alerts.push({
+            id: `stale-data-${product.id}-${componentKey}`,
+            type: 'info',
+            icon: 'ℹ️',
+            title: 'Outdated Pricing Data',
+            message: `${componentKey} hasn't been purchased in ${comp.daysSinceLastPurchase} days`,
+            component: componentKey,
+            action: 'Request updated quotes',
+          });
+        }
+
+        // Stable price opportunity (low volatility, stable trend)
+        if (comp.volatility === 'low' && comp.trend === 'stable' && comp.priceChangePercent < 5) {
+          alerts.push({
+            id: `stable-price-${product.id}-${componentKey}`,
+            type: 'opportunity',
+            icon: '✅',
+            title: 'Stable Pricing',
+            message: `${componentKey} shows stable, reliable pricing`,
+            component: componentKey,
+            action: 'Good time to negotiate long-term rates',
+          });
+        }
+      });
+    });
+
+    // Analyze vendor data for alerts
+    if (vendorIntelData.size > 0) {
+      // Vendor concentration risk
+      const totalSpend = Array.from(vendorIntelData.values()).reduce((sum, v) => sum + v.totalSpend, 0);
+      vendorIntelData.forEach((vendor) => {
+        const concentration = (vendor.totalSpend / totalSpend) * 100;
+        if (concentration > 50) {
+          alerts.push({
+            id: `vendor-concentration-${vendor.name}`,
+            type: 'warning',
+            icon: '🏪',
+            title: 'Vendor Concentration Risk',
+            message: `${concentration.toFixed(0)}% of spending concentrated with ${vendor.name}`,
+            amount: vendor.totalSpend,
+            action: 'Diversify suppliers to reduce risk',
+          });
+        }
+      });
+
+      // Savings opportunity alerts (from vendor comparison)
+      const componentComparison = new Map<string, any>();
+      vendorIntelData.forEach(vendor => {
+        vendor.components.forEach((component: any, componentKey: string) => {
+          if (!componentComparison.has(componentKey)) {
+            componentComparison.set(componentKey, {
+              displayName: component.displayName,
+              vendors: [],
+            });
+          }
+          const comp = componentComparison.get(componentKey);
+          comp.vendors.push({
+            vendorName: vendor.name,
+            avgPrice: component.avgPrice,
+          });
+        });
+      });
+
+      componentComparison.forEach((data, componentKey) => {
+        if (data.vendors.length > 1) {
+          const sortedVendors = [...data.vendors].sort((a: any, b: any) => a.avgPrice - b.avgPrice);
+          const bestVendor = sortedVendors[0];
+          const worstVendor = sortedVendors[sortedVendors.length - 1];
+          const savings = worstVendor.avgPrice - bestVendor.avgPrice;
+          const savingsPercent = (savings / worstVendor.avgPrice) * 100;
+
+          if (savingsPercent > 15) {
+            alerts.push({
+              id: `savings-opp-${componentKey}`,
+              type: 'opportunity',
+              icon: '💰',
+              title: 'Significant Savings Available',
+              message: `Save ${savingsPercent.toFixed(0)}% on ${data.displayName} by switching to ${bestVendor.vendorName}`,
+              component: data.displayName,
+              amount: savings,
+              action: `Contact ${bestVendor.vendorName}`,
+            });
+          }
+        }
+      });
+    }
+
+    // Sort alerts by priority: urgent > warning > opportunity > info
+    const priorityOrder = { urgent: 0, warning: 1, opportunity: 2, info: 3 };
+    return alerts.sort((a, b) => priorityOrder[a.type] - priorityOrder[b.type]);
+  };
+
+--- NEW CODE ---
+  // Generate smart alerts based on trend and vendor data
+  const generateSmartAlerts = () => {
+    const alerts: Array<{
+      id: string;
+      type: 'urgent' | 'warning' | 'opportunity' | 'info';
+      icon: string;
+      title: string;
+      message: string;
+      component?: string;
+      amount?: number;
+      action?: string;
+      context?: string;
+    }> = [];
+
+    // Analyze trend data for alerts
+    trendData.forEach(({ product, componentAnalysis }) => {
+      if (!product || !componentAnalysis) return; // Null safety check
+
+      componentAnalysis.forEach((comp: any) => {
+        if (!comp || !comp.categoryName) return; // Null safety check
+
+        const componentKey = comp.variant ? `${comp.categoryName} (${comp.variant})` : comp.categoryName;
+        const purchaseCount = comp.purchaseHistory?.length || 0;
+
+        // Skip if insufficient data
+        if (purchaseCount < 2) {
+          return; // Need at least 2 data points for meaningful analysis
+        }
+
+        // Price spike alert (current price > 20% above average)
+        if (comp.currentPrice && comp.avgPrice && comp.priceChangePercent > 20) {
+          alerts.push({
+            id: `price-spike-${product.id}-${componentKey}`,
+            type: 'urgent',
+            icon: '🚨',
+            title: 'Price Spike Detected',
+            message: `${componentKey} is ${comp.priceChangePercent.toFixed(1)}% above average for ${product.name}`,
+            component: componentKey,
+            amount: comp.currentPrice - comp.avgPrice,
+            action: `Review alternatives - price increased $${(comp.currentPrice - comp.avgPrice).toFixed(2)} per unit`,
+            context: `Based on ${purchaseCount} purchases`,
+          });
+        }
+
+        // Moderate price increase (10-20% range - previously blind spot)
+        if (comp.currentPrice && comp.avgPrice && comp.priceChangePercent > 10 && comp.priceChangePercent <= 20) {
+          alerts.push({
+            id: `price-increase-${product.id}-${componentKey}`,
+            type: 'warning',
+            icon: '📈',
+            title: 'Price Increasing',
+            message: `${componentKey} up ${comp.priceChangePercent.toFixed(1)}% from average`,
+            component: componentKey,
+            amount: comp.currentPrice - comp.avgPrice,
+            action: 'Monitor trend - may warrant action if continues',
+            context: `${purchaseCount} purchase history`,
+          });
+        }
+
+        // High volatility with increasing price alert
+        if (comp.volatility === 'high' && comp.trend === 'increasing') {
+          alerts.push({
+            id: `volatile-increasing-${product.id}-${componentKey}`,
+            type: 'warning',
+            icon: '⚠️',
+            title: 'Volatile & Rising',
+            message: `${componentKey} shows high volatility with increasing prices`,
+            component: componentKey,
+            action: 'Lock in pricing now or find stable alternatives',
+            context: 'Price instability detected',
+          });
+        }
+
+        // Stale data alert (no purchase in 90+ days)
+        if (comp.daysSinceLastPurchase && comp.daysSinceLastPurchase > 90) {
+          alerts.push({
+            id: `stale-data-${product.id}-${componentKey}`,
+            type: 'info',
+            icon: 'ℹ️',
+            title: 'Outdated Pricing Data',
+            message: `${componentKey} hasn't been purchased in ${comp.daysSinceLastPurchase} days`,
+            component: componentKey,
+            action: `Request updated quotes - last purchase ${Math.floor(comp.daysSinceLastPurchase / 30)} months ago`,
+            context: 'Pricing may have changed',
+          });
+        }
+
+        // Stable price opportunity (low volatility, stable trend)
+        if (comp.volatility === 'low' && comp.trend === 'stable' && Math.abs(comp.priceChangePercent) < 5 && purchaseCount >= 4) {
+          alerts.push({
+            id: `stable-price-${product.id}-${componentKey}`,
+            type: 'opportunity',
+            icon: '✅',
+            title: 'Stable Pricing Opportunity',
+            message: `${componentKey} shows stable, reliable pricing (±${Math.abs(comp.priceChangePercent).toFixed(1)}%)`,
+            component: componentKey,
+            action: 'Negotiate long-term contract to lock in current rates',
+            context: `${purchaseCount} consistent purchases`,
+          });
+        }
+
+        // Price anomaly detection - single invoice significantly different
+        if (comp.minPrice && comp.maxPrice && comp.avgPrice) {
+          const priceRange = comp.maxPrice - comp.minPrice;
+          const rangePercent = (priceRange / comp.avgPrice) * 100;
+
+          if (rangePercent > 30 && purchaseCount >= 3) {
+            alerts.push({
+              id: `price-anomaly-${product.id}-${componentKey}`,
+              type: 'info',
+              icon: '🔍',
+              title: 'Price Variation Detected',
+              message: `${componentKey} ranges from $${comp.minPrice.toFixed(2)} to $${comp.maxPrice.toFixed(2)} (${rangePercent.toFixed(0)}% variance)`,
+              component: componentKey,
+              action: 'Review invoices for bulk discounts or pricing errors',
+              context: 'Large price range may indicate opportunity or error',
+            });
+          }
+        }
+      });
+    });
+
+    // Analyze vendor data for alerts
+    if (vendorIntelData.size > 0) {
+      // Vendor concentration risk - FIXED: Added division by zero check
+      const totalSpend = Array.from(vendorIntelData.values()).reduce((sum, v) => sum + v.totalSpend, 0);
+
+      if (totalSpend === 0) {
+        // No spend data to analyze
+        return alerts.sort((a, b) => {
+          const priorityOrder = { urgent: 0, warning: 1, opportunity: 2, info: 3 };
+          return priorityOrder[a.type] - priorityOrder[b.type];
+        });
+      }
+
+      vendorIntelData.forEach((vendor) => {
+        const concentration = (vendor.totalSpend / totalSpend) * 100;
+
+        if (concentration > 50) {
+          const targetSpend = totalSpend * 0.4; // Target 40% concentration
+          const amountToMove = vendor.totalSpend - targetSpend;
+
+          alerts.push({
+            id: `vendor-concentration-${vendor.name}`,
+            type: 'warning',
+            icon: '🏪',
+            title: 'Vendor Concentration Risk',
+            message: `${concentration.toFixed(0)}% of spending concentrated with ${vendor.name}`,
+            amount: vendor.totalSpend,
+            action: `Diversify by moving $${formatNumberWithCommas(amountToMove)} to alternative suppliers`,
+            context: 'Supply chain vulnerability',
+          });
+        }
+      });
+
+      // Component-level vendor concentration (single-source risk)
+      const componentVendorMap = new Map<string, Set<string>>();
+      vendorIntelData.forEach((vendor) => {
+        vendor.components.forEach((_component: any, componentKey: string) => {
+          if (!componentVendorMap.has(componentKey)) {
+            componentVendorMap.set(componentKey, new Set());
+          }
+          componentVendorMap.get(componentKey)!.add(vendor.name);
+        });
+      });
+
+      componentVendorMap.forEach((vendors, componentKey) => {
+        if (vendors.size === 1) {
+          const soleVendor = Array.from(vendors)[0];
+          const vendorData = vendorIntelData.get(soleVendor);
+          const componentData = vendorData?.components.get(componentKey);
+
+          if (componentData && componentData.purchaseCount >= 3) {
+            alerts.push({
+              id: `single-source-${componentKey}`,
+              type: 'warning',
+              icon: '⚠️',
+              title: 'Single-Source Component',
+              message: `${componentData.displayName} only sourced from ${soleVendor}`,
+              component: componentData.displayName,
+              action: 'Identify backup suppliers to mitigate supply chain risk',
+              context: 'No alternative vendor on record',
+            });
+          }
+        }
+      });
+
+      // Savings opportunity alerts - FIXED: Better calculation
+      const componentComparison = new Map<string, any>();
+      vendorIntelData.forEach(vendor => {
+        vendor.components.forEach((component: any, componentKey: string) => {
+          if (!componentComparison.has(componentKey)) {
+            componentComparison.set(componentKey, {
+              displayName: component.displayName,
+              vendors: [],
+            });
+          }
+          const comp = componentComparison.get(componentKey);
+          comp.vendors.push({
+            vendorName: vendor.name,
+            avgPrice: component.avgPrice,
+            purchaseCount: component.purchaseCount,
+          });
+        });
+      });
+
+      componentComparison.forEach((data, componentKey) => {
+        if (data.vendors.length > 1) {
+          const sortedVendors = [...data.vendors].sort((a: any, b: any) => a.avgPrice - b.avgPrice);
+          const bestVendor = sortedVendors[0];
+          const worstVendor = sortedVendors[sortedVendors.length - 1];
+          const savings = worstVendor.avgPrice - bestVendor.avgPrice;
+
+          // FIXED: Use worst vendor as baseline (current spend) for realistic savings %
+          const savingsPercent = (savings / worstVendor.avgPrice) * 100;
+
+          if (savingsPercent > 15) {
+            const estimatedAnnualSavings = savings * (worstVendor.purchaseCount * 12); // Rough annual estimate
+
+            alerts.push({
+              id: `savings-opp-${componentKey}`,
+              type: 'opportunity',
+              icon: '💰',
+              title: 'Significant Savings Available',
+              message: `Save ${savingsPercent.toFixed(0)}% on ${data.displayName} by switching from ${worstVendor.vendorName} to ${bestVendor.vendorName}`,
+              component: data.displayName,
+              amount: savings,
+              action: `Contact ${bestVendor.vendorName} - potential $${formatNumberWithCommas(estimatedAnnualSavings)} annual savings`,
+              context: `$${savings.toFixed(2)} per unit × ${worstVendor.purchaseCount} purchases`,
+            });
+          } else if (savingsPercent > 5 && savingsPercent <= 15) {
+            // Moderate savings opportunity (5-15%)
+            alerts.push({
+              id: `moderate-savings-${componentKey}`,
+              type: 'opportunity',
+              icon: '💡',
+              title: 'Savings Opportunity',
+              message: `Save ${savingsPercent.toFixed(0)}% on ${data.displayName} with ${bestVendor.vendorName}`,
+              component: data.displayName,
+              amount: savings,
+              action: `Consider switching - $${savings.toFixed(2)} per unit savings`,
+              context: `${data.vendors.length} vendors compared`,
+            });
+          }
+        }
+      });
+
+      // Vendor activity/reliability alerts
+      vendorIntelData.forEach((vendor) => {
+        // Low activity alert (< 2 invoices may indicate vendor relationship issues)
+        if (vendor.invoiceCount <= 2) {
+          alerts.push({
+            id: `low-activity-${vendor.name}`,
+            type: 'info',
+            icon: 'ℹ️',
+            title: 'Limited Vendor Data',
+            message: `Only ${vendor.invoiceCount} invoice${vendor.invoiceCount === 1 ? '' : 's'} from ${vendor.name}`,
+            action: 'Add more invoice history for better pricing analysis',
+            context: 'More data needed for trend analysis',
+          });
+        }
+      });
+    }
+
+    // Sort alerts by priority: urgent > warning > opportunity > info
+    const priorityOrder = { urgent: 0, warning: 1, opportunity: 2, info: 3 };
+    return alerts.sort((a, b) => priorityOrder[a.type] - priorityOrder[b.type]);
+  };
+
+========================================================================================================================
+
+
+=========== EDIT #3 ===========
+Line 6650 | 2026-03-04T00:57:54.206Z
+File: C:\Users\Admin\graceful_books\src\pages\cpg\CPUTracker.tsx
+Old String Length: 468 chars
+New String Length: 8317 chars
+========================================================================================================================
+
+--- OLD CODE ---
+  // Calculate scenario margin
+  const calculateScenarioMargin = (productId: string, scenarioCPU: number): number | null => {
+    const product = finishedProducts.find(p => p.id === productId);
+    if (!product) return null;
+
+    const msrp = scenarioMSRP.get(productId) || (product.msrp ? parseFloat(product.msrp) : null);
+    if (!msrp) return null;
+
+    return ((msrp - scenarioCPU) / msrp) * 100;
+  };
+
+  const handleArchiveInvoice = async (invoiceId: string) => {
+
+--- NEW CODE ---
+  // Calculate scenario margin
+  const calculateScenarioMargin = (productId: string, scenarioCPU: number): number | null => {
+    const product = finishedProducts.find(p => p.id === productId);
+    if (!product) return null;
+
+    const msrp = scenarioMSRP.get(productId) || (product.msrp ? parseFloat(product.msrp) : null);
+    if (!msrp) return null;
+
+    return ((msrp - scenarioCPU) / msrp) * 100;
+  };
+
+  // Generate Smart Alerts based on trend and vendor data
+  const generateSmartAlerts = () => {
+    const alerts: Array<{
+      id: string;
+      type: 'urgent' | 'warning' | 'opportunity' | 'info';
+      icon: string;
+      title: string;
+      message: string;
+      component?: string;
+      amount?: number;
+      action?: string;
+      context?: string;
+    }> = [];
+
+    const priorityOrder = { urgent: 1, warning: 2, opportunity: 3, info: 4 };
+
+    // Analyze trend data for alerts
+    trendData.forEach((trend, componentId) => {
+      const category = categories.find(c => c.id === componentId);
+      if (!category) return;
+
+      const current = trend.currentPrice || 0;
+      const avg = trend.avgPrice || 0;
+      const change = trend.priceChange || 0;
+      const volatility = trend.volatility || 'low';
+      const lastBuyDate = trend.lastBuyDate || 0;
+      const daysSinceLastBuy = (Date.now() - lastBuyDate) / (1000 * 60 * 60 * 24);
+
+      // 1. Price Spike Alert (>20% increase)
+      if (change > 20) {
+        alerts.push({
+          id: `spike-${componentId}`,
+          type: 'urgent',
+          icon: '🚨',
+          title: 'Significant Price Spike',
+          message: `${category.name} has increased ${change.toFixed(1)}% recently`,
+          component: category.name,
+          amount: change,
+          action: 'Consider alternative suppliers or locking in prices',
+          context: `Current: $${current.toFixed(2)} | Average: $${avg.toFixed(2)}`,
+        });
+      }
+
+      // 2. Moderate Price Increase (10-20%)
+      else if (change > 10 && change <= 20) {
+        alerts.push({
+          id: `increase-${componentId}`,
+          type: 'warning',
+          icon: '⚠️',
+          title: 'Price Increase Detected',
+          message: `${category.name} has increased ${change.toFixed(1)}%`,
+          component: category.name,
+          amount: change,
+          action: 'Monitor closely and review pricing strategy',
+          context: `Current: $${current.toFixed(2)} | Average: $${avg.toFixed(2)}`,
+        });
+      }
+
+      // 3. Volatile & Rising
+      if (volatility === 'high' && change > 5) {
+        alerts.push({
+          id: `volatile-${componentId}`,
+          type: 'warning',
+          icon: '📊',
+          title: 'Volatile Pricing Trend',
+          message: `${category.name} shows high price volatility with upward trend`,
+          component: category.name,
+          action: 'Consider hedging strategies or supplier diversification',
+        });
+      }
+
+      // 4. Outdated Data (90+ days since last purchase)
+      if (daysSinceLastBuy > 90 && trend.invoiceCount && (trend.invoiceCount as number) > 0) {
+        alerts.push({
+          id: `stale-${componentId}`,
+          type: 'info',
+          icon: '📅',
+          title: 'Outdated Pricing Data',
+          message: `${category.name} hasn't been purchased in ${Math.round(daysSinceLastBuy)} days`,
+          component: category.name,
+          action: 'Verify current market prices before next order',
+        });
+      }
+
+      // 5. Stable Pricing (low volatility, <3% change)
+      if (volatility === 'low' && Math.abs(change) < 3 && trend.invoiceCount && (trend.invoiceCount as number) >= 3) {
+        alerts.push({
+          id: `stable-${componentId}`,
+          type: 'info',
+          icon: '✅',
+          title: 'Stable Pricing',
+          message: `${category.name} shows consistent, reliable pricing`,
+          component: category.name,
+          context: `${trend.invoiceCount} invoices analyzed`,
+        });
+      }
+
+      // 6. Low Activity (1-2 invoices only)
+      if (trend.invoiceCount && (trend.invoiceCount as number) > 0 && (trend.invoiceCount as number) <= 2) {
+        alerts.push({
+          id: `low-activity-${componentId}`,
+          type: 'info',
+          icon: 'ℹ️',
+          title: 'Limited Purchase History',
+          message: `${category.name} has only ${trend.invoiceCount} invoice(s) on record`,
+          component: category.name,
+          action: 'Collect more data for better trend analysis',
+        });
+      }
+    });
+
+    // Analyze vendor data for alerts
+    vendorIntelData.forEach((intel, componentId) => {
+      const category = categories.find(c => c.id === componentId);
+      if (!category) return;
+
+      const vendorCount = intel.vendors?.size || 0;
+      const bestPrice = intel.bestPrice || 0;
+      const avgPrice = intel.avgPrice || 0;
+      const maxSavings = intel.maxSavings || 0;
+      const savingsPercent = avgPrice > 0 ? (maxSavings / avgPrice) * 100 : 0;
+
+      // 7. Significant Savings Opportunity (>15%)
+      if (savingsPercent > 15) {
+        alerts.push({
+          id: `savings-${componentId}`,
+          type: 'opportunity',
+          icon: '💰',
+          title: 'Significant Savings Available',
+          message: `${category.name}: Save up to ${savingsPercent.toFixed(1)}% by switching vendors`,
+          component: category.name,
+          amount: maxSavings,
+          action: `Best price: $${bestPrice.toFixed(2)} vs current average: $${avgPrice.toFixed(2)}`,
+        });
+      }
+
+      // 8. Moderate Savings (5-15%)
+      else if (savingsPercent >= 5 && savingsPercent <= 15) {
+        alerts.push({
+          id: `moderate-savings-${componentId}`,
+          type: 'opportunity',
+          icon: '💵',
+          title: 'Potential Savings',
+          message: `${category.name}: Save ${savingsPercent.toFixed(1)}% with better vendor selection`,
+          component: category.name,
+          amount: maxSavings,
+        });
+      }
+
+      // 9. Vendor Concentration Risk (80%+ from single vendor)
+      if (intel.vendorConcentration && intel.topVendor && intel.topVendorPercent && intel.topVendorPercent > 80) {
+        alerts.push({
+          id: `concentration-${componentId}`,
+          type: 'warning',
+          icon: '⚖️',
+          title: 'High Vendor Concentration',
+          message: `${category.name}: ${intel.topVendorPercent.toFixed(0)}% purchased from ${intel.topVendor}`,
+          component: category.name,
+          action: 'Consider diversifying suppliers to reduce risk',
+        });
+      }
+
+      // 10. Single-Source Component
+      if (vendorCount === 1) {
+        alerts.push({
+          id: `single-source-${componentId}`,
+          type: 'warning',
+          icon: '🔗',
+          title: 'Single-Source Component',
+          message: `${category.name} is only purchased from one vendor`,
+          component: category.name,
+          action: 'Identify backup suppliers to mitigate supply chain risk',
+        });
+      }
+
+      // 11. Price Anomaly (one vendor significantly higher/lower)
+      if (intel.priceAnomaly && intel.anomalyVendor && intel.anomalyDeviation) {
+        const direction = intel.anomalyDeviation > 0 ? 'higher' : 'lower';
+        alerts.push({
+          id: `anomaly-${componentId}`,
+          type: 'info',
+          icon: '🔍',
+          title: 'Price Anomaly Detected',
+          message: `${category.name}: ${intel.anomalyVendor} is ${Math.abs(intel.anomalyDeviation).toFixed(1)}% ${direction} than average`,
+          component: category.name,
+          action: direction === 'higher' ? 'Investigate pricing discrepancy' : 'Verify quality and terms',
+        });
+      }
+    });
+
+    // Filter out dismissed alerts
+    const activeAlerts = alerts.filter(alert => !dismissedAlerts.has(alert.id));
+
+    // Sort by priority
+    return activeAlerts.sort((a, b) => priorityOrder[a.type] - priorityOrder[b.type]);
+  };
+
+  // Memoize smart alerts to avoid recalculating on every render
+  const smartAlerts = useMemo(() => {
+    return generateSmartAlerts();
+  }, [trendData, vendorIntelData, categories, dismissedAlerts]);
+
+  // Persist dismissed alerts to localStorage
+  useEffect(() => {
+    localStorage.setItem('cpu-dismissed-alerts', JSON.stringify(Array.from(dismissedAlerts)));
+  }, [dismissedAlerts]);
+
+  const handleArchiveInvoice = async (invoiceId: string) => {
+
+========================================================================================================================
+
+
+=========== EDIT #4 ===========
+Line 6670 | 2026-03-04T00:59:43.207Z
+File: C:\Users\Admin\graceful_books\src\pages\cpg\CPUTracker.tsx
+Old String Length: 142 chars
+New String Length: 7386 chars
+========================================================================================================================
+
+--- OLD CODE ---
+      console.error('Failed to load product CPU data:', err);
+    }
+  };
+
+  // Load CPU data when selected products change
+  useEffect(() => {
+
+--- NEW CODE ---
+      console.error('Failed to load product CPU data:', err);
+    }
+  };
+
+  // Load trend data for CPU Trends tab
+  const loadTrendData = async () => {
+    if (selectedProductsForComparison.size === 0) {
+      setTrendData(new Map());
+      return;
+    }
+
+    try {
+      const trendMap = new Map<string, any>();
+
+      // Get all unique component categories from selected products
+      const componentCategories = new Set<string>();
+      selectedProductsForComparison.forEach(productId => {
+        const cpuData = productCPUData.get(productId);
+        if (cpuData?.breakdown) {
+          cpuData.breakdown.forEach(comp => componentCategories.add(comp.categoryId));
+        }
+      });
+
+      // Calculate date range for trend analysis
+      const today = Date.now();
+      let startDate = 0;
+      switch (trendDateRange) {
+        case '3mo':
+          startDate = today - (90 * 24 * 60 * 60 * 1000);
+          break;
+        case '6mo':
+          startDate = today - (180 * 24 * 60 * 60 * 1000);
+          break;
+        case '12mo':
+          startDate = today - (365 * 24 * 60 * 60 * 1000);
+          break;
+        case 'all':
+          startDate = 0;
+          break;
+      }
+
+      // Analyze each component
+      for (const categoryId of componentCategories) {
+        const relevantInvoices = invoices.filter(inv => {
+          if (startDate > 0 && inv.invoice_date < startDate) return false;
+          return inv.line_items?.some(item => item.category_id === categoryId);
+        });
+
+        if (relevantInvoices.length === 0) continue;
+
+        // Get all prices for this component
+        const prices: number[] = [];
+        const dates: number[] = [];
+        relevantInvoices.forEach(inv => {
+          inv.line_items?.forEach(item => {
+            if (item.category_id === categoryId && item.total) {
+              const price = parseFloat(item.total) / (item.quantity || 1);
+              prices.push(price);
+              dates.push(inv.invoice_date);
+            }
+          });
+        });
+
+        if (prices.length === 0) continue;
+
+        // Calculate stats
+        const currentPrice = prices[prices.length - 1];
+        const avgPrice = prices.reduce((sum, p) => sum + p, 0) / prices.length;
+        const minPrice = Math.min(...prices);
+        const maxPrice = Math.max(...prices);
+        const priceChange = ((currentPrice - avgPrice) / avgPrice) * 100;
+
+        // Calculate volatility (coefficient of variation)
+        const variance = prices.reduce((sum, p) => sum + Math.pow(p - avgPrice, 2), 0) / prices.length;
+        const stdDev = Math.sqrt(variance);
+        const coefficientOfVariation = (stdDev / avgPrice) * 100;
+
+        let volatility: 'low' | 'medium' | 'high';
+        if (coefficientOfVariation < 10) volatility = 'low';
+        else if (coefficientOfVariation < 25) volatility = 'medium';
+        else volatility = 'high';
+
+        // Get last buy date
+        const lastBuyDate = Math.max(...dates);
+
+        trendMap.set(categoryId, {
+          currentPrice,
+          avgPrice,
+          minPrice,
+          maxPrice,
+          priceChange,
+          volatility,
+          coefficientOfVariation,
+          invoiceCount: relevantInvoices.length,
+          lastBuyDate,
+          prices,
+          dates,
+        });
+      }
+
+      setTrendData(trendMap);
+    } catch (err) {
+      console.error('Failed to load trend data:', err);
+    }
+  };
+
+  // Load vendor intelligence data
+  const loadVendorIntelData = async () => {
+    if (selectedProductsForComparison.size === 0) {
+      setVendorIntelData(new Map());
+      return;
+    }
+
+    try {
+      const intelMap = new Map<string, any>();
+
+      // Get all unique component categories from selected products
+      const componentCategories = new Set<string>();
+      selectedProductsForComparison.forEach(productId => {
+        const cpuData = productCPUData.get(productId);
+        if (cpuData?.breakdown) {
+          cpuData.breakdown.forEach(comp => componentCategories.add(comp.categoryId));
+        }
+      });
+
+      // Analyze each component
+      for (const categoryId of componentCategories) {
+        const relevantInvoices = invoices.filter(inv =>
+          inv.line_items?.some(item => item.category_id === categoryId)
+        );
+
+        if (relevantInvoices.length === 0) continue;
+
+        // Group by vendor
+        const vendorPrices = new Map<string, number[]>();
+        const vendorTotals = new Map<string, number>();
+
+        relevantInvoices.forEach(inv => {
+          const vendor = inv.vendor || 'Unknown';
+          inv.line_items?.forEach(item => {
+            if (item.category_id === categoryId && item.total) {
+              const price = parseFloat(item.total) / (item.quantity || 1);
+              if (!vendorPrices.has(vendor)) {
+                vendorPrices.set(vendor, []);
+                vendorTotals.set(vendor, 0);
+              }
+              vendorPrices.get(vendor)!.push(price);
+              vendorTotals.set(vendor, vendorTotals.get(vendor)! + parseFloat(item.total));
+            }
+          });
+        });
+
+        if (vendorPrices.size === 0) continue;
+
+        // Calculate vendor stats
+        const vendorAvgPrices = new Map<string, number>();
+        vendorPrices.forEach((prices, vendor) => {
+          const avg = prices.reduce((sum, p) => sum + p, 0) / prices.length;
+          vendorAvgPrices.set(vendor, avg);
+        });
+
+        const bestPrice = Math.min(...Array.from(vendorAvgPrices.values()));
+        const avgPrice = Array.from(vendorAvgPrices.values()).reduce((sum, p) => sum + p, 0) / vendorAvgPrices.size;
+        const maxSavings = avgPrice - bestPrice;
+
+        // Find top vendor by spend
+        let topVendor = '';
+        let topVendorSpend = 0;
+        vendorTotals.forEach((spend, vendor) => {
+          if (spend > topVendorSpend) {
+            topVendorSpend = spend;
+            topVendor = vendor;
+          }
+        });
+
+        const totalSpend = Array.from(vendorTotals.values()).reduce((sum, s) => sum + s, 0);
+        const topVendorPercent = (topVendorSpend / totalSpend) * 100;
+
+        // Detect price anomalies
+        const priceValues = Array.from(vendorAvgPrices.values());
+        const priceAvg = priceValues.reduce((sum, p) => sum + p, 0) / priceValues.length;
+        const priceStdDev = Math.sqrt(priceValues.reduce((sum, p) => sum + Math.pow(p - priceAvg, 2), 0) / priceValues.length);
+
+        let anomalyVendor = '';
+        let anomalyDeviation = 0;
+        vendorAvgPrices.forEach((price, vendor) => {
+          const deviation = ((price - priceAvg) / priceAvg) * 100;
+          if (Math.abs(deviation) > Math.abs(anomalyDeviation) && Math.abs(deviation) > 20) {
+            anomalyVendor = vendor;
+            anomalyDeviation = deviation;
+          }
+        });
+
+        intelMap.set(categoryId, {
+          vendors: vendorPrices,
+          vendorAvgPrices,
+          bestPrice,
+          avgPrice,
+          maxSavings,
+          topVendor,
+          topVendorSpend,
+          topVendorPercent,
+          vendorConcentration: topVendorPercent > 80,
+          priceAnomaly: anomalyVendor !== '',
+          anomalyVendor,
+          anomalyDeviation,
+        });
+      }
+
+      setVendorIntelData(intelMap);
+    } catch (err) {
+      console.error('Failed to load vendor intel data:', err);
+    }
+  };
+
+  // Load CPU data when selected products change
+  useEffect(() => {
+
+========================================================================================================================
+
+
+=========== EDIT #5 ===========
+Line 6686 | 2026-03-04T01:02:10.200Z
+File: C:\Users\Admin\graceful_books\src\pages\cpg\CPUTracker.tsx
+Old String Length: 942 chars
+New String Length: 20619 chars
+========================================================================================================================
+
+--- OLD CODE ---
+                              {/* Vendors Tab */}
+                              {intelligenceTab === 'vendors' && (
+                                <div style={{
+                                  padding: '2rem',
+                                  textAlign: 'center',
+                                  color: '#64748b',
+                                }}>
+                                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏪</div>
+                                  <p style={{ fontSize: '1.125rem', fontWeight: 500, marginBottom: '0.5rem' }}>
+                                    Vendor Intelligence
+                                  </p>
+                                  <p style={{ fontSize: '0.875rem' }}>
+                                    Coming soon: Vendor price comparison and savings opportunities
+                                  </p>
+                                </div>
+                              )}
+
+--- NEW CODE ---
+                              {/* Vendors Tab */}
+                              {intelligenceTab === 'vendors' && (
+                                <div>
+                                  {/* Header */}
+                                  <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginBottom: '1.5rem',
+                                  }}>
+                                    <div>
+                                      <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.25rem' }}>
+                                        🏪 Vendor Intelligence
+                                      </h3>
+                                      <p style={{ fontSize: '0.875rem', color: '#64748b' }}>
+                                        Compare vendor pricing and identify savings opportunities
+                                      </p>
+                                    </div>
+                                    <div style={{ position: 'relative' }}>
+                                      <button
+                                        onClick={() => setShowVendorExportMenu(!showVendorExportMenu)}
+                                        style={{
+                                          padding: '0.5rem 1rem',
+                                          background: '#4b006e',
+                                          color: 'white',
+                                          border: 'none',
+                                          borderRadius: '6px',
+                                          fontSize: '0.875rem',
+                                          fontWeight: 600,
+                                          cursor: 'pointer',
+                                        }}
+                                      >
+                                        Export ▼
+                                      </button>
+                                      {showVendorExportMenu && (
+                                        <div style={{
+                                          position: 'absolute',
+                                          right: 0,
+                                          top: '100%',
+                                          marginTop: '0.25rem',
+                                          background: 'white',
+                                          border: '1px solid #e5e7eb',
+                                          borderRadius: '6px',
+                                          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                          zIndex: 10,
+                                          minWidth: '150px',
+                                        }}>
+                                          <button
+                                            onClick={() => {
+                                              setShowVendorExportMenu(false);
+                                            }}
+                                            style={{
+                                              width: '100%',
+                                              padding: '0.75rem 1rem',
+                                              border: 'none',
+                                              background: 'white',
+                                              textAlign: 'left',
+                                              cursor: 'pointer',
+                                              fontSize: '0.875rem',
+                                            }}
+                                          >
+                                            📄 Export CSV
+                                          </button>
+                                          <button
+                                            onClick={() => {
+                                              setShowVendorExportMenu(false);
+                                            }}
+                                            style={{
+                                              width: '100%',
+                                              padding: '0.75rem 1rem',
+                                              border: 'none',
+                                              background: 'white',
+                                              textAlign: 'left',
+                                              cursor: 'pointer',
+                                              fontSize: '0.875rem',
+                                              borderTop: '1px solid #e5e7eb',
+                                            }}
+                                          >
+                                            📕 Export PDF
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {vendorIntelData.size === 0 ? (
+                                    <div style={{
+                                      padding: '3rem',
+                                      textAlign: 'center',
+                                      color: '#64748b',
+                                      background: '#f8fafc',
+                                      borderRadius: '8px',
+                                    }}>
+                                      <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏪</div>
+                                      <p style={{ fontSize: '1rem', fontWeight: 500 }}>
+                                        Select products to analyze vendor pricing
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    <div>
+                                      {/* Vendor overview cards */}
+                                      <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                        gap: '1rem',
+                                        marginBottom: '1.5rem',
+                                      }}>
+                                        {(() => {
+                                          // Calculate overall vendor stats
+                                          const allVendors = new Set<string>();
+                                          let totalSpend = 0;
+                                          let totalInvoices = 0;
+
+                                          vendorIntelData.forEach(intel => {
+                                            intel.vendors?.forEach((_prices: any, vendor: string) => allVendors.add(vendor));
+                                          });
+
+                                          invoices.forEach(inv => {
+                                            totalInvoices++;
+                                            inv.line_items?.forEach(item => {
+                                              if (item.total) totalSpend += parseFloat(item.total);
+                                            });
+                                          });
+
+                                          return (
+                                            <>
+                                              <div style={{
+                                                padding: '1rem',
+                                                background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+                                                color: 'white',
+                                                borderRadius: '8px',
+                                              }}>
+                                                <div style={{ fontSize: '0.75rem', opacity: 0.9, marginBottom: '0.25rem' }}>TOTAL VENDORS</div>
+                                                <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{allVendors.size}</div>
+                                              </div>
+                                              <div style={{
+                                                padding: '1rem',
+                                                background: '#f8fafc',
+                                                border: '1px solid #e5e7eb',
+                                                borderRadius: '8px',
+                                              }}>
+                                                <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>TOTAL SPEND</div>
+                                                <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>${totalSpend.toFixed(2)}</div>
+                                              </div>
+                                              <div style={{
+                                                padding: '1rem',
+                                                background: '#f8fafc',
+                                                border: '1px solid #e5e7eb',
+                                                borderRadius: '8px',
+                                              }}>
+                                                <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>INVOICES</div>
+                                                <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{totalInvoices}</div>
+                                              </div>
+                                              <div style={{
+                                                padding: '1rem',
+                                                background: '#f8fafc',
+                                                border: '1px solid #e5e7eb',
+                                                borderRadius: '8px',
+                                              }}>
+                                                <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>COMPONENTS</div>
+                                                <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{vendorIntelData.size}</div>
+                                              </div>
+                                            </>
+                                          );
+                                        })()}
+                                      </div>
+
+                                      {/* Vendor comparison table */}
+                                      <div style={{
+                                        border: '1px solid #e5e7eb',
+                                        borderRadius: '8px',
+                                        overflow: 'hidden',
+                                      }}>
+                                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                          <thead>
+                                            <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e5e7eb' }}>
+                                              <th style={{
+                                                padding: '0.75rem 1rem',
+                                                textAlign: 'left',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 600,
+                                                color: '#64748b',
+                                                cursor: 'pointer',
+                                              }}
+                                                onClick={() => {
+                                                  setVendorSortColumn('component');
+                                                  setVendorSortDirection(vendorSortDirection === 'asc' ? 'desc' : 'asc');
+                                                }}
+                                              >
+                                                COMPONENT {vendorSortColumn === 'component' && (vendorSortDirection === 'asc' ? '↑' : '↓')}
+                                              </th>
+                                              <th style={{
+                                                padding: '0.75rem 1rem',
+                                                textAlign: 'right',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 600,
+                                                color: '#64748b',
+                                              }}>
+                                                VENDORS
+                                              </th>
+                                              <th style={{
+                                                padding: '0.75rem 1rem',
+                                                textAlign: 'right',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 600,
+                                                color: '#64748b',
+                                                cursor: 'pointer',
+                                              }}
+                                                onClick={() => {
+                                                  setVendorSortColumn('bestPrice');
+                                                  setVendorSortDirection(vendorSortDirection === 'asc' ? 'desc' : 'asc');
+                                                }}
+                                              >
+                                                BEST PRICE {vendorSortColumn === 'bestPrice' && (vendorSortDirection === 'asc' ? '↑' : '↓')}
+                                              </th>
+                                              <th style={{
+                                                padding: '0.75rem 1rem',
+                                                textAlign: 'right',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 600,
+                                                color: '#64748b',
+                                              }}>
+                                                AVG PRICE
+                                              </th>
+                                              <th style={{
+                                                padding: '0.75rem 1rem',
+                                                textAlign: 'right',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 600,
+                                                color: '#64748b',
+                                                cursor: 'pointer',
+                                              }}
+                                                onClick={() => {
+                                                  setVendorSortColumn('savings');
+                                                  setVendorSortDirection(vendorSortDirection === 'asc' ? 'desc' : 'asc');
+                                                }}
+                                              >
+                                                POTENTIAL SAVINGS {vendorSortColumn === 'savings' && (vendorSortDirection === 'asc' ? '↑' : '↓')}
+                                              </th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {Array.from(vendorIntelData.entries())
+                                              .map(([categoryId, intel]) => {
+                                                const category = categories.find(c => c.id === categoryId);
+                                                return { categoryId, intel, categoryName: category?.name || 'Unknown' };
+                                              })
+                                              .sort((a, b) => {
+                                                let aVal: any, bVal: any;
+                                                switch (vendorSortColumn) {
+                                                  case 'component':
+                                                    aVal = a.categoryName;
+                                                    bVal = b.categoryName;
+                                                    break;
+                                                  case 'bestPrice':
+                                                    aVal = a.intel.bestPrice;
+                                                    bVal = b.intel.bestPrice;
+                                                    break;
+                                                  case 'savings':
+                                                    aVal = a.intel.maxSavings;
+                                                    bVal = b.intel.maxSavings;
+                                                    break;
+                                                  default:
+                                                    return 0;
+                                                }
+                                                if (typeof aVal === 'string') {
+                                                  return vendorSortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                                                }
+                                                return vendorSortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+                                              })
+                                              .map(({ categoryId, intel, categoryName }) => {
+                                                const savingsPercent = intel.avgPrice > 0 ? (intel.maxSavings / intel.avgPrice) * 100 : 0;
+                                                const hasSavings = savingsPercent > 0;
+
+                                                return (
+                                                  <tr key={categoryId} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                                                    <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>
+                                                      {categoryName}
+                                                    </td>
+                                                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: '#64748b', fontSize: '0.875rem' }}>
+                                                      {intel.vendors?.size || 0}
+                                                    </td>
+                                                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: '#16a34a', fontWeight: 600 }}>
+                                                      ${intel.bestPrice.toFixed(2)}
+                                                    </td>
+                                                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: '#64748b' }}>
+                                                      ${intel.avgPrice.toFixed(2)}
+                                                    </td>
+                                                    <td style={{
+                                                      padding: '0.75rem 1rem',
+                                                      textAlign: 'right',
+                                                      color: hasSavings ? '#dc2626' : '#64748b',
+                                                      fontWeight: hasSavings ? 600 : 400,
+                                                    }}>
+                                                      {hasSavings ? (
+                                                        <>💰 ${intel.maxSavings.toFixed(2)} ({savingsPercent.toFixed(1)}%)</>
+                                                      ) : (
+                                                        '-'
+                                                      )}
+                                                    </td>
+                                                  </tr>
+                                                );
+                                              })}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+========================================================================================================================
+
+
+=========== EDIT #6 ===========
+Line 6690 | 2026-03-04T01:02:57.465Z
+File: C:\Users\Admin\graceful_books\src\pages\cpg\CPUTracker.tsx
+Old String Length: 927 chars
+New String Length: 13696 chars
+========================================================================================================================
+
+--- OLD CODE ---
+                              {/* Alerts Tab */}
+                              {intelligenceTab === 'alerts' && (
+                                <div style={{
+                                  padding: '2rem',
+                                  textAlign: 'center',
+                                  color: '#64748b',
+                                }}>
+                                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔔</div>
+                                  <p style={{ fontSize: '1.125rem', fontWeight: 500, marginBottom: '0.5rem' }}>
+                                    Smart Alerts
+                                  </p>
+                                  <p style={{ fontSize: '0.875rem' }}>
+                                    Coming soon: Automated recommendations and margin alerts
+                                  </p>
+                                </div>
+                              )}
+
+--- NEW CODE ---
+                              {/* Alerts Tab */}
+                              {intelligenceTab === 'alerts' && (
+                                <div>
+                                  {/* Header */}
+                                  <div style={{ marginBottom: '1.5rem' }}>
+                                    <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.25rem' }}>
+                                      🔔 Smart Alerts
+                                    </h3>
+                                    <p style={{ fontSize: '0.875rem', color: '#64748b' }}>
+                                      Automated insights and recommendations based on your cost data
+                                    </p>
+                                  </div>
+
+                                  {/* Alert summary cards */}
+                                  <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                                    gap: '0.75rem',
+                                    marginBottom: '1.5rem',
+                                  }}>
+                                    {[
+                                      { type: 'urgent', label: 'Urgent', icon: '🚨', color: '#dc2626' },
+                                      { type: 'warning', label: 'Warnings', icon: '⚠️', color: '#ea580c' },
+                                      { type: 'opportunity', label: 'Opportunities', icon: '💰', color: '#16a34a' },
+                                      { type: 'info', label: 'Info', icon: 'ℹ️', color: '#0284c7' },
+                                    ].map(({ type, label, icon, color }) => {
+                                      const count = smartAlerts.filter(a => a.type === type).length;
+                                      const isActive = alertFilter === type;
+                                      return (
+                                        <button
+                                          key={type}
+                                          onClick={() => setAlertFilter(alertFilter === type ? 'all' : type as any)}
+                                          style={{
+                                            padding: '1rem',
+                                            background: isActive ? color : 'white',
+                                            color: isActive ? 'white' : '#1e293b',
+                                            border: `2px solid ${color}`,
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s',
+                                          }}
+                                        >
+                                          <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>{icon}</div>
+                                          <div style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.25rem' }}>{count}</div>
+                                          <div style={{ fontSize: '0.75rem', opacity: 0.9 }}>{label}</div>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+
+                                  {/* Controls */}
+                                  <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginBottom: '1rem',
+                                  }}>
+                                    <div>
+                                      {alertFilter !== 'all' && (
+                                        <button
+                                          onClick={() => setAlertFilter('all')}
+                                          style={{
+                                            padding: '0.5rem 0.75rem',
+                                            background: '#f8fafc',
+                                            border: '1px solid #e5e7eb',
+                                            borderRadius: '6px',
+                                            fontSize: '0.875rem',
+                                            cursor: 'pointer',
+                                          }}
+                                        >
+                                          ← Show All
+                                        </button>
+                                      )}
+                                    </div>
+                                    <button
+                                      onClick={() => setShowDismissedAlerts(!showDismissedAlerts)}
+                                      style={{
+                                        padding: '0.5rem 0.75rem',
+                                        background: showDismissedAlerts ? '#4b006e' : 'white',
+                                        color: showDismissedAlerts ? 'white' : '#4b006e',
+                                        border: `1px solid ${showDismissedAlerts ? '#4b006e' : '#e5e7eb'}`,
+                                        borderRadius: '6px',
+                                        fontSize: '0.875rem',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                      }}
+                                    >
+                                      {showDismissedAlerts ? 'Hide' : 'View'} Dismissed ({dismissedAlerts.size})
+                                    </button>
+                                  </div>
+
+                                  {/* Alerts list */}
+                                  {!showDismissedAlerts && smartAlerts.length === 0 ? (
+                                    <div style={{
+                                      padding: '3rem',
+                                      textAlign: 'center',
+                                      color: '#64748b',
+                                      background: '#f8fafc',
+                                      borderRadius: '8px',
+                                    }}>
+                                      <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
+                                      <p style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+                                        All Clear
+                                      </p>
+                                      <p style={{ fontSize: '0.875rem' }}>
+                                        No alerts at this time. Your pricing looks stable!
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                      {(showDismissedAlerts
+                                        ? Array.from(dismissedAlerts).map(id => {
+                                          // Reconstruct dismissed alerts from current data
+                                          const allAlerts = generateSmartAlerts();
+                                          return allAlerts.find(a => a.id === id);
+                                        }).filter(Boolean)
+                                        : smartAlerts.filter(alert => alertFilter === 'all' || alert.type === alertFilter)
+                                      ).map(alert => {
+                                        if (!alert) return null;
+                                        const isDismissed = dismissedAlerts.has(alert.id);
+                                        const borderColors = {
+                                          urgent: '#dc2626',
+                                          warning: '#ea580c',
+                                          opportunity: '#16a34a',
+                                          info: '#0284c7',
+                                        };
+
+                                        return (
+                                          <div
+                                            key={alert.id}
+                                            style={{
+                                              padding: '1rem',
+                                              background: 'white',
+                                              border: `2px solid ${borderColors[alert.type]}`,
+                                              borderLeft: `6px solid ${borderColors[alert.type]}`,
+                                              borderRadius: '8px',
+                                              opacity: isDismissed ? 0.6 : 1,
+                                            }}
+                                          >
+                                            <div style={{
+                                              display: 'flex',
+                                              justifyContent: 'space-between',
+                                              alignItems: 'flex-start',
+                                              marginBottom: '0.5rem',
+                                            }}>
+                                              <div style={{ flex: 1 }}>
+                                                <div style={{
+                                                  display: 'flex',
+                                                  alignItems: 'center',
+                                                  gap: '0.5rem',
+                                                  marginBottom: '0.25rem',
+                                                }}>
+                                                  <span style={{ fontSize: '1.25rem' }}>{alert.icon}</span>
+                                                  <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>
+                                                    {alert.title}
+                                                  </h4>
+                                                </div>
+                                                <p style={{ fontSize: '0.875rem', margin: '0.5rem 0', color: '#1e293b' }}>
+                                                  {alert.message}
+                                                </p>
+                                                {alert.action && (
+                                                  <p style={{
+                                                    fontSize: '0.875rem',
+                                                    margin: '0.5rem 0',
+                                                    padding: '0.5rem',
+                                                    background: '#f8fafc',
+                                                    borderRadius: '4px',
+                                                    color: '#64748b',
+                                                  }}>
+                                                    <strong>Action:</strong> {alert.action}
+                                                  </p>
+                                                )}
+                                                {alert.context && (
+                                                  <p style={{ fontSize: '0.75rem', margin: '0.5rem 0', color: '#64748b' }}>
+                                                    {alert.context}
+                                                  </p>
+                                                )}
+                                              </div>
+                                              <button
+                                                onClick={() => {
+                                                  if (isDismissed) {
+                                                    const newSet = new Set(dismissedAlerts);
+                                                    newSet.delete(alert.id);
+                                                    setDismissedAlerts(newSet);
+                                                  } else {
+                                                    setDismissedAlerts(new Set(dismissedAlerts).add(alert.id));
+                                                  }
+                                                }}
+                                                style={{
+                                                  padding: '0.5rem 0.75rem',
+                                                  background: isDismissed ? '#4b006e' : 'white',
+                                                  color: isDismissed ? 'white' : '#64748b',
+                                                  border: `1px solid ${isDismissed ? '#4b006e' : '#e5e7eb'}`,
+                                                  borderRadius: '6px',
+                                                  fontSize: '0.75rem',
+                                                  fontWeight: 600,
+                                                  cursor: 'pointer',
+                                                  whiteSpace: 'nowrap',
+                                                }}
+                                              >
+                                                {isDismissed ? '↺ Restore' : '✓ Dismiss'}
+                                              </button>
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+========================================================================================================================
+
+
+=========== EDIT #7 ===========
+Line 7079 | 2026-03-04T04:25:42.814Z
+File: C:\Users\Admin\graceful_books\src\pages\cpg\CPUTracker.tsx
+Old String Length: 4005 chars
+New String Length: 4126 chars
+========================================================================================================================
+
+--- OLD CODE ---
+                            {/* Tab Navigation */}
+                            <div style={{
+                              display: 'flex',
+                              borderBottom: '1px solid #e5e7eb',
+                              background: '#f8fafc',
+                            }}>
+                              <button
+                                onClick={() => setIntelligenceTab('scenario')}
+                                style={{
+                                  flex: 1,
+                                  padding: '1rem',
+                                  border: 'none',
+                                  background: intelligenceTab === 'scenario' ? 'white' : 'transparent',
+                                  borderBottom: intelligenceTab === 'scenario' ? '2px solid #4b006e' : '2px solid transparent',
+                                  fontWeight: intelligenceTab === 'scenario' ? 600 : 400,
+                                  color: intelligenceTab === 'scenario' ? '#4b006e' : '#64748b',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                Scenario Builder
+                              </button>
+                              <button
+                                onClick={() => setIntelligenceTab('trends')}
+                                style={{
+                                  flex: 1,
+                                  padding: '1rem',
+                                  border: 'none',
+                                  background: intelligenceTab === 'trends' ? 'white' : 'transparent',
+                                  borderBottom: intelligenceTab === 'trends' ? '2px solid #4b006e' : '2px solid transparent',
+                                  fontWeight: intelligenceTab === 'trends' ? 600 : 400,
+                                  color: intelligenceTab === 'trends' ? '#4b006e' : '#64748b',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                CPU Trends
+                              </button>
+                              <button
+                                onClick={() => setIntelligenceTab('vendors')}
+                                style={{
+                                  flex: 1,
+                                  padding: '1rem',
+                                  border: 'none',
+                                  background: intelligenceTab === 'vendors' ? 'white' : 'transparent',
+                                  borderBottom: intelligenceTab === 'vendors' ? '2px solid #4b006e' : '2px solid transparent',
+                                  fontWeight: intelligenceTab === 'vendors' ? 600 : 400,
+                                  color: intelligenceTab === 'vendors' ? '#4b006e' : '#64748b',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                Vendor Intel
+                              </button>
+                              <button
+                                onClick={() => setIntelligenceTab('alerts')}
+                                style={{
+                                  flex: 1,
+                                  padding: '1rem',
+                                  border: 'none',
+                                  background: intelligenceTab === 'alerts' ? 'white' : 'transparent',
+                                  borderBottom: intelligenceTab === 'alerts' ? '2px solid #4b006e' : '2px solid transparent',
+                                  fontWeight: intelligenceTab === 'alerts' ? 600 : 400,
+                                  color: intelligenceTab === 'alerts' ? '#4b006e' : '#64748b',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                Smart Alerts
+                              </button>
+                            </div>
+
+--- NEW CODE ---
+                            {/* Tab Navigation */}
+                            <div style={{
+                              display: 'flex',
+                              gap: '0.5rem',
+                              padding: '0.75rem',
+                              background: '#f8fafc',
+                              borderBottom: '2px solid #e5e7eb',
+                            }}>
+                              <button
+                                onClick={() => setIntelligenceTab('scenario')}
+                                style={{
+                                  flex: 1,
+                                  padding: '0.75rem 1rem',
+                                  border: 'none',
+                                  background: intelligenceTab === 'scenario' ? '#4b006e' : 'white',
+                                  borderRadius: '8px',
+                                  fontWeight: 600,
+                                  color: intelligenceTab === 'scenario' ? 'white' : '#64748b',
+                                  cursor: 'pointer',
+                                  fontSize: '0.875rem',
+                                  transition: 'all 0.2s',
+                                }}
+                              >
+                                Scenario Builder
+                              </button>
+                              <button
+                                onClick={() => setIntelligenceTab('trends')}
+                                style={{
+                                  flex: 1,
+                                  padding: '0.75rem 1rem',
+                                  border: 'none',
+                                  background: intelligenceTab === 'trends' ? '#4b006e' : 'white',
+                                  borderRadius: '8px',
+                                  fontWeight: 600,
+                                  color: intelligenceTab === 'trends' ? 'white' : '#64748b',
+                                  cursor: 'pointer',
+                                  fontSize: '0.875rem',
+                                  transition: 'all 0.2s',
+                                }}
+                              >
+                                CPU Trends
+                              </button>
+                              <button
+                                onClick={() => setIntelligenceTab('vendors')}
+                                style={{
+                                  flex: 1,
+                                  padding: '0.75rem 1rem',
+                                  border: 'none',
+                                  background: intelligenceTab === 'vendors' ? '#4b006e' : 'white',
+                                  borderRadius: '8px',
+                                  fontWeight: 600,
+                                  color: intelligenceTab === 'vendors' ? 'white' : '#64748b',
+                                  cursor: 'pointer',
+                                  fontSize: '0.875rem',
+                                  transition: 'all 0.2s',
+                                }}
+                              >
+                                Vendor Intel
+                              </button>
+                              <button
+                                onClick={() => setIntelligenceTab('alerts')}
+                                style={{
+                                  flex: 1,
+                                  padding: '0.75rem 1rem',
+                                  border: 'none',
+                                  background: intelligenceTab === 'alerts' ? '#4b006e' : 'white',
+                                  borderRadius: '8px',
+                                  fontWeight: 600,
+                                  color: intelligenceTab === 'alerts' ? 'white' : '#64748b',
+                                  cursor: 'pointer',
+                                  fontSize: '0.875rem',
+                                  transition: 'all 0.2s',
+                                }}
+                              >
+                                Smart Alerts
+                              </button>
+                            </div>
+
+========================================================================================================================

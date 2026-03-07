@@ -235,6 +235,7 @@ export default function CostIntelligenceTab({
   // Get filtered products based on category, variant, and vendor filters
   // This determines which PRODUCTS to show, not which components within products
   const getFilteredProducts = useCallback(() => {
+    // If no filters active, show all products
     if (comparisonCategoryFilter.size === 0 &&
         comparisonVariantFilter.size === 0 &&
         comparisonVendorFilter.size === 0) {
@@ -243,14 +244,14 @@ export default function CostIntelligenceTab({
 
     return finishedProducts.filter(product => {
       const cpuData = productCPUData.get(product.id);
+      const hasCPUData = cpuData && cpuData.breakdown && cpuData.breakdown.length > 0;
 
-      // If no CPU data yet, exclude (can't filter without data)
-      if (!cpuData || !cpuData.breakdown || cpuData.breakdown.length === 0) {
-        return false;
-      }
-
-      // Category filter - product must have at least one component from selected categories
+      // Category filter - requires CPU data, but show product if data not loaded yet (optimistic)
       if (comparisonCategoryFilter.size > 0) {
+        if (!hasCPUData) {
+          // Data not loaded yet - include product optimistically
+          return true;
+        }
         const hasCategory = cpuData.breakdown.some(b => comparisonCategoryFilter.has(b.categoryId));
         if (!hasCategory) return false;
       }
@@ -265,8 +266,12 @@ export default function CostIntelligenceTab({
         if (!hasVariant) return false;
       }
 
-      // Vendor filter - product must use items from one of the selected vendors
+      // Vendor filter - check invoices (doesn't strictly need CPU data)
       if (comparisonVendorFilter.size > 0) {
+        if (!hasCPUData) {
+          // Data not loaded yet - include product optimistically
+          return true;
+        }
         const hasVendor = invoices.some(invoice => {
           if (invoice.deleted_at || !comparisonVendorFilter.has(invoice.vendor_name || '')) return false;
           if (!invoice.cost_attribution) return false;

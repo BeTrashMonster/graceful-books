@@ -28,6 +28,7 @@ export interface CPUTrendsTabProps {
   productCPUData: Map<string, ProductCPUData>;
   categories: CPGCategory[];
   invoices: CPGInvoice[];
+  dateRange: '3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all';
 }
 
 interface ProductCPUData {
@@ -69,9 +70,9 @@ export default function CPUTrendsTab({
   productCPUData,
   categories,
   invoices,
+  dateRange,
 }: CPUTrendsTabProps) {
   // State
-  const [trendDateRange, setTrendDateRange] = useState<'3mo' | '6mo' | '12mo' | 'all'>('6mo');
   const [trendData, setTrendData] = useState<Map<string, TrendData>>(new Map());
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [trendSortColumn, setTrendSortColumn] = useState<TrendSortColumn>('component');
@@ -81,7 +82,7 @@ export default function CPUTrendsTab({
   // Load trend data when dependencies change
   useEffect(() => {
     loadTrendData();
-  }, [trendDateRange, selectedProducts, productCPUData, invoices]);
+  }, [dateRange, selectedProducts, productCPUData, invoices]);
 
   /**
    * Load and calculate trend data for selected products
@@ -107,7 +108,7 @@ export default function CPUTrendsTab({
       // Calculate date range for trend analysis
       const today = Date.now();
       let startDate = 0;
-      switch (trendDateRange) {
+      switch (dateRange) {
         case '3mo':
           startDate = today - (90 * 24 * 60 * 60 * 1000);
           break;
@@ -116,6 +117,22 @@ export default function CPUTrendsTab({
           break;
         case '12mo':
           startDate = today - (365 * 24 * 60 * 60 * 1000);
+          break;
+        case 'last-calendar-year':
+          // January 1 to December 31 of last year
+          const lastYear = new Date().getFullYear() - 1;
+          startDate = new Date(lastYear, 0, 1).getTime();
+          const endOfLastYear = new Date(lastYear, 11, 31, 23, 59, 59).getTime();
+          // Note: We'll need to filter by end date too, but for now using start
+          break;
+        case 'this-calendar-year':
+          // January 1 of this year to now
+          const thisYear = new Date().getFullYear();
+          startDate = new Date(thisYear, 0, 1).getTime();
+          break;
+        case 'custom':
+          // Custom date range - parent should handle this
+          startDate = 0;
           break;
         case 'all':
           startDate = 0;
@@ -236,9 +253,12 @@ export default function CPUTrendsTab({
 
     // Date range
     doc.setFontSize(10);
-    const dateRangeText = trendDateRange === 'all' ? 'All Time' :
-      trendDateRange === '3mo' ? 'Last 3 Months' :
-      trendDateRange === '6mo' ? 'Last 6 Months' : 'Last 12 Months';
+    const dateRangeText = dateRange === 'all' ? 'All Time' :
+      dateRange === '3mo' ? 'Last 3 Months' :
+      dateRange === '6mo' ? 'Last 6 Months' :
+      dateRange === '12mo' ? 'Last 12 Months' :
+      dateRange === 'last-calendar-year' ? 'Last Calendar Year' :
+      dateRange === 'this-calendar-year' ? 'This Calendar Year' : 'Custom Range';
     doc.text(`Date Range: ${dateRangeText}`, 14, 28);
     doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 34);
 
@@ -395,17 +415,6 @@ export default function CPUTrendsTab({
           <p>Track component cost changes over time</p>
         </div>
         <div className={styles.headerControls}>
-          <select
-            value={trendDateRange}
-            onChange={(e) => setTrendDateRange(e.target.value as '3mo' | '6mo' | '12mo' | 'all')}
-            aria-label="Select date range for trend analysis"
-            className={styles.dateRangeSelect}
-          >
-            <option value="3mo">Last 3 Months</option>
-            <option value="6mo">Last 6 Months</option>
-            <option value="12mo">Last 12 Months</option>
-            <option value="all">All Time</option>
-          </select>
           <div style={{ position: 'relative' }}>
             <button
               onClick={() => setShowExportMenu(!showExportMenu)}

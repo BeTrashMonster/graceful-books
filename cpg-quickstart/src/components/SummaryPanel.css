@@ -1,0 +1,132 @@
+.summary-panel {
+  min-width: 320px;
+  max-width: 320px;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 2rem;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-gray);
+}
+
+.summary-header h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.25rem;
+  color: var(--primary-purple);
+}
+
+.summary-header p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-gray);
+}
+
+.summary-sections {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.summary-section {
+  width: 100%;
+  text-align: left;
+  background: var(--bg-gray-light);
+  border: 2px solid var(--border-gray);
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.summary-section:hover {
+  border-color: var(--primary-purple);
+  background: white;
+}
+
+.summary-section.active {
+  border-color: var(--primary-purple);
+  background: rgba(75, 0, 110, 0.05);
+}
+
+.summary-section.completed {
+  border-color: var(--success-green);
+}
+
+.summary-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.summary-icon {
+  font-size: 1.25rem;
+}
+
+.summary-title {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-dark);
+}
+
+.summary-badge {
+  background: var(--primary-purple);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.summary-section.completed .summary-badge {
+  background: var(--success-green);
+}
+
+.summary-section-content {
+  font-size: 0.8125rem;
+  color: var(--text-gray);
+  margin-top: 0.5rem;
+  padding-left: 2rem;
+}
+
+.summary-item {
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.summary-item-more {
+  font-style: italic;
+  color: var(--text-light);
+  margin-top: 0.25rem;
+}
+
+.summary-footer {
+  padding-top: 1rem;
+  border-top: 2px solid var(--border-gray);
+}
+
+@media (max-width: 1024px) {
+  .summary-panel {
+    position: static;
+    max-width: none;
+    width: 100%;
+    max-height: none;
+  }
+}
