@@ -29,6 +29,9 @@ export interface CPUTrendsTabProps {
   categories: CPGCategory[];
   invoices: CPGInvoice[];
   dateRange: '3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all';
+  categoryFilter?: Set<string>;
+  variantFilter?: Set<string>;
+  vendorFilter?: Set<string>;
 }
 
 interface ProductCPUData {
@@ -71,6 +74,9 @@ export default function CPUTrendsTab({
   categories,
   invoices,
   dateRange,
+  categoryFilter = new Set(),
+  variantFilter = new Set(),
+  vendorFilter = new Set(),
 }: CPUTrendsTabProps) {
   // State
   const [trendData, setTrendData] = useState<Map<string, TrendData>>(new Map());
@@ -82,7 +88,7 @@ export default function CPUTrendsTab({
   // Load trend data when dependencies change
   useEffect(() => {
     loadTrendData();
-  }, [dateRange, selectedProducts, productCPUData, invoices]);
+  }, [dateRange, selectedProducts, productCPUData, invoices, categoryFilter, variantFilter, vendorFilter]);
 
   /**
    * Load and calculate trend data for selected products
@@ -101,8 +107,31 @@ export default function CPUTrendsTab({
       selectedProducts.forEach(productId => {
         const cpuData = productCPUData.get(productId);
         if (cpuData?.breakdown) {
-          cpuData.breakdown.forEach(comp => componentCategories.add(comp.categoryId));
+          cpuData.breakdown.forEach(comp => {
+            // Apply category filter
+            if (categoryFilter.size > 0 && !categoryFilter.has(comp.categoryId)) {
+              console.log('🚫 Filtering out category:', comp.categoryName, '- not in filter');
+              return;
+            }
+
+            // Apply variant filter
+            if (variantFilter.size > 0 && !variantFilter.has(comp.variant || '')) {
+              console.log('🚫 Filtering out variant:', comp.variant, 'for', comp.categoryName);
+              return;
+            }
+
+            console.log('✅ Including component:', comp.categoryName, comp.variant);
+            componentCategories.add(comp.categoryId);
+          });
         }
+      });
+
+      console.log('📊 CPU Trends Debug:', {
+        selectedProducts: Array.from(selectedProducts),
+        categoryFilter: Array.from(categoryFilter),
+        variantFilter: Array.from(variantFilter),
+        vendorFilter: Array.from(vendorFilter),
+        componentCategories: Array.from(componentCategories)
       });
 
       // Calculate date range for trend analysis
@@ -143,6 +172,12 @@ export default function CPUTrendsTab({
       for (const categoryId of componentCategories) {
         const relevantInvoices = invoices.filter(inv => {
           if (startDate > 0 && inv.invoice_date < startDate) return false;
+
+          // Apply vendor filter
+          if (vendorFilter.size > 0 && !vendorFilter.has(inv.vendor_name || '')) {
+            return false;
+          }
+
           // Check if this category appears in cost_attribution
           return Object.entries(inv.cost_attribution || {}).some(([key, attr]) =>
             attr.category_id === categoryId

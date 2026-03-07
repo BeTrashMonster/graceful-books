@@ -1467,6 +1467,9 @@ export default function CostIntelligenceTab({
                     categories={categories}
                     invoices={invoices}
                     dateRange={comparisonDateRange}
+                    categoryFilter={comparisonCategoryFilter}
+                    variantFilter={comparisonVariantFilter}
+                    vendorFilter={comparisonVendorFilter}
                   />
                 )}
 
