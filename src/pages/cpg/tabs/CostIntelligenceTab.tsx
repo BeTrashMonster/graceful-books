@@ -624,7 +624,7 @@ export default function CostIntelligenceTab({
                   }}>
                     <button
                       onClick={() => {
-                        setSelectedProductsForComparison(new Set(finishedProducts.map(p => p.id)));
+                        setSelectedProductsForComparison(new Set(getFilteredProducts().map(p => p.id)));
                         setShowProductDropdown(false);
                       }}
                       aria-label="Select all products"
@@ -664,7 +664,7 @@ export default function CostIntelligenceTab({
                   </div>
 
                   {/* Product List */}
-                  {finishedProducts.map(product => (
+                  {getFilteredProducts().map(product => (
                     <label
                       key={product.id}
                       style={{
