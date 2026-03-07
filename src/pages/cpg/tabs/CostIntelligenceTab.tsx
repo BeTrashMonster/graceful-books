@@ -182,25 +182,6 @@ export default function CostIntelligenceTab({
     loadRecipes();
   }, [companyId]);
 
-  // Auto-filter selected products when filters change
-  useEffect(() => {
-    if (selectedProductsForComparison.size === 0) return;
-
-    // Get products that match current filters
-    const filteredProducts = getFilteredProducts();
-    const filteredIds = new Set(filteredProducts.map(p => p.id));
-
-    // Remove any selected products that don't match the current filters
-    const newSelectedProducts = new Set(
-      Array.from(selectedProductsForComparison).filter(id => filteredIds.has(id))
-    );
-
-    // Only update if something changed
-    if (newSelectedProducts.size !== selectedProductsForComparison.size) {
-      setSelectedProductsForComparison(newSelectedProducts);
-    }
-  }, [comparisonCategoryFilter, comparisonVariantFilter, comparisonVendorFilter, getFilteredProducts]);
-
   // Load CPU data for ALL products on mount (needed for filtering)
   useEffect(() => {
     if (finishedProducts.length > 0) {
@@ -306,6 +287,25 @@ export default function CostIntelligenceTab({
     });
   }, [finishedProducts, comparisonCategoryFilter, comparisonVariantFilter, comparisonVendorFilter, productCPUData, invoices, recipes]);
 
+  // Auto-filter selected products when filters change
+  useEffect(() => {
+    if (selectedProductsForComparison.size === 0) return;
+
+    // Get products that match current filters
+    const filteredProducts = getFilteredProducts();
+    const filteredIds = new Set(filteredProducts.map(p => p.id));
+
+    // Remove any selected products that don't match the current filters
+    const newSelectedProducts = new Set(
+      Array.from(selectedProductsForComparison).filter(id => filteredIds.has(id))
+    );
+
+    // Only update if something changed
+    if (newSelectedProducts.size !== selectedProductsForComparison.size) {
+      setSelectedProductsForComparison(newSelectedProducts);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [comparisonCategoryFilter, comparisonVariantFilter, comparisonVendorFilter, getFilteredProducts]);
 
   // Quick select functions
   const selectAllProducts = useCallback(() => {
