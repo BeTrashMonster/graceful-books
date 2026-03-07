@@ -88,6 +88,11 @@ export default function ScenarioBuilderTab({
   // Map<productId, Map<componentId, 'percentage' | 'dollar'>>
   const [componentModes, setComponentModes] = useState<Map<string, Map<string, 'percentage' | 'dollar'>>>(new Map());
 
+  // State: Track which value is being edited
+  // Format: "productId:componentId" or "productId:msrp"
+  const [editingValue, setEditingValue] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState<string>('');
+
   // Format number with commas
   const formatNumberWithCommas = useCallback((num: number): string => {
     return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -230,6 +235,56 @@ export default function ScenarioBuilderTab({
     });
   }, []);
 
+  // Start editing a value
+  const startEditing = useCallback((key: string, currentValue: string) => {
+    setEditingValue(key);
+    setEditingText(currentValue);
+  }, []);
+
+  // Save edited value
+  const saveEditedValue = useCallback((productId: string, componentId: string | null, baseValue: number) => {
+    if (!editingValue) return;
+
+    // Parse the edited text
+    const cleanedText = editingText.replace(/[$,]/g, '');
+    const newValue = parseFloat(cleanedText);
+
+    if (isNaN(newValue) || newValue < 0) {
+      // Invalid input, cancel edit
+      setEditingValue(null);
+      setEditingText('');
+      return;
+    }
+
+    if (componentId === null) {
+      // Editing MSRP
+      handleMSRPAdjustment(productId, newValue);
+    } else {
+      // Editing component cost
+      const mode = componentModes.get(productId)?.get(componentId) || 'percentage';
+      let adjustment;
+
+      if (mode === 'percentage') {
+        // Calculate percentage change from base value
+        adjustment = ((newValue - baseValue) / baseValue) * 100;
+      } else {
+        // Dollar mode - adjustment is difference
+        adjustment = newValue - baseValue;
+      }
+
+      handleComponentAdjustment(productId, componentId, adjustment);
+    }
+
+    setEditingValue(null);
+    setEditingText('');
+  }, [editingValue, editingText, componentModes, handleMSRPAdjustment, handleComponentAdjustment]);
+
+  // Cancel editing
+  const cancelEditing = useCallback(() => {
+    setEditingValue(null);
+    setEditingText('');
+  }, []);
+
   // Get products to display
   const productsToDisplay = useMemo(() => {
     return Array.from(selectedProducts)
@@ -318,36 +373,84 @@ export default function ScenarioBuilderTab({
               {/* MSRP Adjustment */}
               <div className={styles.sliderSection}>
                 <div className={styles.sliderSectionTitle}>
-                  Retail Price
+                  MSRP
                 </div>
               <div className={styles.msrpSlider}>
-                <div className={styles.msrpLabel}>
-                  <span className={styles.msrpLabelText}>MSRP</span>
-                  <span className={styles.msrpValue}>${scenarioMSRPValue.toFixed(2)}</span>
-                </div>
-                <div className={styles.sliderWrapper}>
-                  <input
-                    id={`msrp-slider-${productId}`}
-                    type="range"
-                    min={baseMSRP * 0.7}
-                    max={baseMSRP * 1.5}
-                    step={0.25}
-                    value={scenarioMSRPValue}
-                    onChange={(e) => {
-                      const newMSRP = parseFloat(e.target.value);
-                      handleMSRPAdjustment(productId, newMSRP);
-                    }}
-                    aria-label={`Adjust MSRP for ${product.name}`}
-                    aria-valuemin={baseMSRP * 0.7}
-                    aria-valuemax={baseMSRP * 1.5}
-                    aria-valuenow={scenarioMSRPValue}
-                    aria-valuetext={`$${scenarioMSRPValue.toFixed(2)}`}
-                    className={styles.slider}
-                  />
-                </div>
-                <div className={styles.sliderLabels}>
-                  <span>${(baseMSRP * 0.7).toFixed(2)}</span>
-                  <span>${(baseMSRP * 1.5).toFixed(2)}</span>
+                <div className={styles.componentItem}>
+                  {/* MSRP Label */}
+                  <div className={styles.componentName}>
+                    MSRP
+                  </div>
+
+                  {/* Slider with labels above */}
+                  <div className={styles.componentSliderWrapper}>
+                    <div className={styles.sliderLabels}>
+                      <span>${(baseMSRP * 0.7).toFixed(2)}</span>
+                      <span>${(baseMSRP * 1.5).toFixed(2)}</span>
+                    </div>
+                    <input
+                      id={`msrp-slider-${productId}`}
+                      type="range"
+                      min={baseMSRP * 0.7}
+                      max={baseMSRP * 1.5}
+                      step={0.25}
+                      value={scenarioMSRPValue}
+                      onChange={(e) => {
+                        const newMSRP = parseFloat(e.target.value);
+                        handleMSRPAdjustment(productId, newMSRP);
+                      }}
+                      aria-label={`Adjust MSRP for ${product.name}`}
+                      aria-valuemin={baseMSRP * 0.7}
+                      aria-valuemax={baseMSRP * 1.5}
+                      aria-valuenow={scenarioMSRPValue}
+                      aria-valuetext={`$${scenarioMSRPValue.toFixed(2)}`}
+                      className={styles.slider}
+                    />
+                  </div>
+
+                  {/* Value - Editable */}
+                  <div className={styles.componentValue}>
+                    {editingValue === `${productId}:msrp` ? (
+                      <input
+                        type="text"
+                        value={editingText}
+                        onChange={(e) => setEditingText(e.target.value)}
+                        onBlur={() => saveEditedValue(productId, null, baseMSRP)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            saveEditedValue(productId, null, baseMSRP);
+                          } else if (e.key === 'Escape') {
+                            cancelEditing();
+                          }
+                        }}
+                        autoFocus
+                        style={{
+                          width: '100%',
+                          border: '1px solid var(--color-primary, #4b006e)',
+                          borderRadius: '3px',
+                          padding: '0.25rem',
+                          fontSize: '0.9375rem',
+                          fontWeight: 700,
+                          color: 'var(--color-primary, #4b006e)',
+                          textAlign: 'right',
+                        }}
+                      />
+                    ) : (
+                      <span
+                        onClick={() => startEditing(`${productId}:msrp`, scenarioMSRPValue.toFixed(2))}
+                        style={{ cursor: 'pointer' }}
+                        title="Click to edit"
+                      >
+                        ${scenarioMSRPValue.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Spacer for badge column */}
+                  <span style={{ width: '60px' }}></span>
+
+                  {/* Spacer for toggle column */}
+                  <span style={{ width: 'auto' }}></span>
                 </div>
               </div>
             </div>
@@ -435,9 +538,42 @@ export default function ScenarioBuilderTab({
                         />
                       </div>
 
-                      {/* Value */}
+                      {/* Value - Editable */}
                       <div className={styles.componentValue}>
-                        ${formatNumberWithCommas(adjustedSubtotal)}
+                        {editingValue === `${productId}:${component.categoryId}` ? (
+                          <input
+                            type="text"
+                            value={editingText}
+                            onChange={(e) => setEditingText(e.target.value)}
+                            onBlur={() => saveEditedValue(productId, component.categoryId, baseSubtotal)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                saveEditedValue(productId, component.categoryId, baseSubtotal);
+                              } else if (e.key === 'Escape') {
+                                cancelEditing();
+                              }
+                            }}
+                            autoFocus
+                            style={{
+                              width: '100%',
+                              border: '1px solid var(--color-primary, #4b006e)',
+                              borderRadius: '3px',
+                              padding: '0.25rem',
+                              fontSize: '0.9375rem',
+                              fontWeight: 700,
+                              color: 'var(--color-primary, #4b006e)',
+                              textAlign: 'right',
+                            }}
+                          />
+                        ) : (
+                          <span
+                            onClick={() => startEditing(`${productId}:${component.categoryId}`, adjustedSubtotal.toFixed(2))}
+                            style={{ cursor: 'pointer' }}
+                            title="Click to edit"
+                          >
+                            ${formatNumberWithCommas(adjustedSubtotal)}
+                          </span>
+                        )}
                       </div>
 
                       {/* Badge (if adjusted) */}
