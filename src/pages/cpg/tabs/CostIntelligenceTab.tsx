@@ -1462,6 +1462,17 @@ export default function CostIntelligenceTab({
                     invoices={invoices}
                     categories={categories}
                     dateRange={comparisonDateRange}
+                    customDateRange={
+                      comparisonDateRange === 'custom' && comparisonCustomStartDate && comparisonCustomEndDate
+                        ? {
+                            start: new Date(comparisonCustomStartDate).getTime(),
+                            end: new Date(comparisonCustomEndDate).setHours(23, 59, 59, 999),
+                          }
+                        : undefined
+                    }
+                    categoryFilter={comparisonCategoryFilter}
+                    variantFilter={comparisonVariantFilter}
+                    vendorFilter={comparisonVendorFilter}
                   />
                 )}
 

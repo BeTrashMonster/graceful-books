@@ -4,22 +4,20 @@
  * Displays vendor intelligence analysis for selected products.
  *
  * Features:
- * - Multi-vendor price comparison per component
- * - Best price identification
- * - Savings opportunity calculations
- * - Vendor statistics overview
- * - Sortable comparison table
- * - Export functionality
+ * - Vendor overview showing spend per vendor
+ * - Price comparison showing all vendors per component
+ * - Best price identification and savings opportunities
+ * - CSV/PDF export
  *
  * Requirements:
- * - Receives selected products from parent CostIntelligenceTab
- * - Calculates vendor pricing analytics from invoices
  * - WCAG 2.1 AA compliance
  * - Type-safe implementation
+ * - Print-friendly PDF export
  */
 
 import { useState, useEffect, useMemo } from 'react';
 import type { CPGCategory, CPGInvoice } from '../../../../db/schema/cpg.schema';
+import styles from './VendorIntelTab.module.css';
 
 export interface VendorIntelTabProps {
   companyId: string;
@@ -27,7 +25,11 @@ export interface VendorIntelTabProps {
   productCPUData: Map<string, ProductCPUData>;
   invoices: CPGInvoice[];
   categories: CPGCategory[];
-  dateRange?: '3mo' | '6mo' | '12mo' | 'all';
+  dateRange: '3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all';
+  customDateRange?: { start: number; end: number };
+  categoryFilter?: Set<string>;
+  variantFilter?: Set<string>;
+  vendorFilter?: Set<string>;
 }
 
 interface ProductCPUData {
@@ -37,26 +39,46 @@ interface ProductCPUData {
   trendValue: string | null;
   topDriver: string | null;
   isComplete: boolean;
-  breakdown: any[];
+  breakdown: ComponentBreakdown[];
 }
 
-interface VendorIntelData {
-  vendors: Map<string, number[]>;
-  vendorAvgPrices: Map<string, number>;
-  bestPrice: number;
+interface ComponentBreakdown {
+  categoryId: string;
+  categoryName: string;
+  variant?: string;
+  subtotal: string | null;
+  isComplete: boolean;
+}
+
+interface VendorOverview {
+  vendorName: string;
+  totalSpend: number;
+  invoiceCount: number;
+  componentCount: number;
+}
+
+interface VendorPrice {
+  vendor: string;
   avgPrice: number;
-  maxSavings: number;
-  topVendor: string;
-  topVendorSpend: number;
-  topVendorPercent: number;
-  vendorConcentration: boolean;
-  priceAnomaly: boolean;
-  anomalyVendor: string;
-  anomalyDeviation: number;
+  minPrice: number;
+  maxPrice: number;
+  purchaseCount: number;
 }
 
-type VendorSortColumn = 'component' | 'bestPrice' | 'savings';
-type SortDirection = 'asc' | 'desc';
+interface VariantComparison {
+  variant: string;
+  vendorPrices: VendorPrice[];
+  bestPrice: number;
+  bestVendor: string;
+  worstPrice: number;
+}
+
+interface ComponentComparison {
+  categoryName: string;
+  variants: VariantComparison[];
+}
+
+type SortColumn = 'vendor' | 'spend' | 'invoices' | 'components' | 'component' | 'bestPrice' | 'savings';
 
 export default function VendorIntelTab({
   companyId,
@@ -64,528 +86,853 @@ export default function VendorIntelTab({
   productCPUData,
   invoices,
   categories,
+  dateRange,
+  customDateRange,
+  categoryFilter = new Set(),
+  variantFilter = new Set(),
+  vendorFilter = new Set(),
 }: VendorIntelTabProps) {
-  // State
-  const [vendorIntelData, setVendorIntelData] = useState<Map<string, VendorIntelData>>(new Map());
-  const [vendorSortColumn, setVendorSortColumn] = useState<VendorSortColumn>('component');
-  const [vendorSortDirection, setVendorSortDirection] = useState<SortDirection>('asc');
-  const [showVendorExportMenu, setShowVendorExportMenu] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [vendorOverviews, setVendorOverviews] = useState<VendorOverview[]>([]);
+  const [componentComparisons, setComponentComparisons] = useState<ComponentComparison[]>([]);
+  const [sortColumn, setSortColumn] = useState<SortColumn>('spend');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-  // Calculate vendor intelligence data
+  // Load vendor intelligence data
   useEffect(() => {
-    if (!companyId || selectedProducts.size === 0) {
-      setVendorIntelData(new Map());
+    loadVendorIntelligence();
+  }, [selectedProducts, productCPUData, invoices, dateRange, customDateRange, categoryFilter, variantFilter, vendorFilter]);
+
+  const loadVendorIntelligence = () => {
+    if (selectedProducts.size === 0) {
+      setVendorOverviews([]);
+      setComponentComparisons([]);
       return;
     }
 
-    const loadVendorIntelData = async () => {
-      try {
-        const intelMap = new Map<string, VendorIntelData>();
+    try {
+      const today = Date.now();
+      let startDate = 0;
+      let endDate = today;
 
-        // Get all unique component categories from selected products
-        const componentCategories = new Set<string>();
-        selectedProducts.forEach(productId => {
-          const cpuData = productCPUData.get(productId);
-          if (cpuData?.breakdown) {
-            cpuData.breakdown.forEach(comp => componentCategories.add(comp.categoryId));
+      // Calculate date range
+      switch (dateRange) {
+        case '3mo':
+          startDate = today - (90 * 24 * 60 * 60 * 1000);
+          break;
+        case '6mo':
+          startDate = today - (180 * 24 * 60 * 60 * 1000);
+          break;
+        case '12mo':
+          startDate = today - (365 * 24 * 60 * 60 * 1000);
+          break;
+        case 'last-calendar-year':
+          const lastYear = new Date().getFullYear() - 1;
+          startDate = new Date(lastYear, 0, 1).getTime();
+          endDate = new Date(lastYear, 11, 31, 23, 59, 59).getTime();
+          break;
+        case 'this-calendar-year':
+          const thisYear = new Date().getFullYear();
+          startDate = new Date(thisYear, 0, 1).getTime();
+          break;
+        case 'custom':
+          if (customDateRange) {
+            startDate = customDateRange.start;
+            endDate = customDateRange.end;
+          }
+          break;
+        case 'all':
+          startDate = 0;
+          endDate = today;
+          break;
+      }
+
+      // Filter invoices by date range
+      const relevantInvoices = invoices.filter(inv => {
+        if (startDate > 0 && inv.invoice_date < startDate) return false;
+        if (endDate > 0 && inv.invoice_date > endDate) return false;
+        return true;
+      });
+
+      // Normalize vendor names for comparison (trim and case-insensitive)
+      const normalizedVendorFilter = vendorFilter.size > 0
+        ? new Set(Array.from(vendorFilter).map(v => v.trim().toLowerCase()))
+        : new Set();
+
+      // For vendor overview, filter by vendor
+      const vendorFilteredInvoices = relevantInvoices.filter(inv => {
+        if (normalizedVendorFilter.size > 0) {
+          const vendorName = (inv.vendor_name || '').trim().toLowerCase();
+          if (!normalizedVendorFilter.has(vendorName)) return false;
+        }
+        return true;
+      });
+
+      // Get all components from selected products
+      const componentCategories = new Map<string, Set<string>>(); // categoryId -> Set of variants
+
+      selectedProducts.forEach(productId => {
+        const cpuData = productCPUData.get(productId);
+        if (cpuData?.breakdown) {
+          cpuData.breakdown.forEach(comp => {
+            // Apply filters
+            if (categoryFilter.size > 0 && !categoryFilter.has(comp.categoryId)) return;
+            if (variantFilter.size > 0 && !variantFilter.has(comp.variant || '')) return;
+
+            if (!componentCategories.has(comp.categoryId)) {
+              componentCategories.set(comp.categoryId, new Set());
+            }
+            componentCategories.get(comp.categoryId)!.add(comp.variant || '');
+          });
+        }
+      });
+
+      // Calculate vendor overviews (using vendor-filtered invoices, only counting filtered components)
+      const vendorStats = new Map<string, { spend: number; invoices: Set<string>; components: Set<string> }>();
+
+      vendorFilteredInvoices.forEach(inv => {
+        const vendor = inv.vendor_name || 'Unknown';
+
+        if (!vendorStats.has(vendor)) {
+          vendorStats.set(vendor, { spend: 0, invoices: new Set(), components: new Set() });
+        }
+
+        const stats = vendorStats.get(vendor)!;
+        stats.invoices.add(inv.id);
+
+        Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
+          // Check if this component is in our filtered set
+          const variants = componentCategories.get(attr.category_id);
+          if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
+            const unitPrice = parseFloat(attr.unit_price);
+            const unitsPurchased = parseFloat(attr.units_purchased);
+
+            if (!isNaN(unitPrice) && !isNaN(unitsPurchased)) {
+              stats.spend += unitPrice * unitsPurchased;
+              stats.components.add(`${attr.category_id}:${attr.variant || ''}`);
+            }
           }
         });
+      });
 
-        // Analyze each component
-        for (const categoryId of componentCategories) {
-          const relevantInvoices = invoices.filter(inv =>
-            Object.entries(inv.cost_attribution || {}).some(([_, attr]) =>
-              attr.category_id === categoryId
-            )
-          );
+      const overviews: VendorOverview[] = Array.from(vendorStats.entries())
+        .map(([vendorName, stats]) => ({
+          vendorName,
+          totalSpend: stats.spend,
+          invoiceCount: stats.invoices.size,
+          componentCount: stats.components.size,
+        }));
 
-          if (relevantInvoices.length === 0) continue;
+      setVendorOverviews(overviews);
 
-          // Group by vendor
-          const vendorPrices = new Map<string, number[]>();
-          const vendorTotals = new Map<string, number>();
+      // Calculate component comparisons - group by category, then variants
+      const categoryMap = new Map<string, VariantComparison[]>();
+
+      for (const [categoryId, variants] of componentCategories.entries()) {
+        const category = categories.find(c => c.id === categoryId);
+        const categoryName = category?.name || 'Unknown';
+
+        const variantComparisons: VariantComparison[] = [];
+
+        // For each variant
+        for (const variant of variants) {
+          // Collect prices by vendor
+          const vendorPriceData = new Map<string, number[]>();
 
           relevantInvoices.forEach(inv => {
             const vendor = inv.vendor_name || 'Unknown';
-            Object.entries(inv.cost_attribution || {}).forEach(([_, attr]) => {
-              if (attr.category_id === categoryId) {
-                const unitPrice = parseFloat(attr.unit_price);
-                const unitsPurchased = parseFloat(attr.units_purchased);
-                const lineTotal = unitPrice * unitsPurchased;
+            const normalizedVendor = vendor.trim().toLowerCase();
 
+            // Apply vendor filter when collecting prices
+            if (normalizedVendorFilter.size > 0 && !normalizedVendorFilter.has(normalizedVendor)) {
+              return;
+            }
+
+            Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
+              if (attr.category_id === categoryId && (attr.variant || '') === variant) {
+                const unitPrice = parseFloat(attr.unit_price);
                 if (!isNaN(unitPrice) && unitPrice > 0) {
-                  if (!vendorPrices.has(vendor)) {
-                    vendorPrices.set(vendor, []);
-                    vendorTotals.set(vendor, 0);
+                  if (!vendorPriceData.has(vendor)) {
+                    vendorPriceData.set(vendor, []);
                   }
-                  vendorPrices.get(vendor)!.push(unitPrice);
-                  vendorTotals.set(vendor, (vendorTotals.get(vendor) || 0) + lineTotal);
+                  vendorPriceData.get(vendor)!.push(unitPrice);
                 }
               }
             });
           });
 
-          if (vendorPrices.size === 0) continue;
+          if (vendorPriceData.size === 0) continue;
 
-          // Calculate vendor stats
-          const vendorAvgPrices = new Map<string, number>();
-          vendorPrices.forEach((prices, vendor) => {
-            const avg = prices.reduce((sum, p) => sum + p, 0) / prices.length;
-            vendorAvgPrices.set(vendor, avg);
-          });
+          // Calculate vendor prices
+          const vendorPrices: VendorPrice[] = Array.from(vendorPriceData.entries())
+            .map(([vendor, prices]) => ({
+              vendor,
+              avgPrice: prices.reduce((sum, p) => sum + p, 0) / prices.length,
+              minPrice: Math.min(...prices),
+              maxPrice: Math.max(...prices),
+              purchaseCount: prices.length,
+            }))
+            .sort((a, b) => a.vendor.localeCompare(b.vendor)); // Alphabetical by vendor
 
-          const bestPrice = Math.min(...Array.from(vendorAvgPrices.values()));
-          const avgPrice = Array.from(vendorAvgPrices.values()).reduce((sum, p) => sum + p, 0) / vendorAvgPrices.size;
-          const maxSavings = avgPrice - bestPrice;
+          const allAvgPrices = vendorPrices.map(vp => vp.avgPrice);
+          const bestPrice = Math.min(...allAvgPrices);
+          const worstPrice = Math.max(...allAvgPrices);
+          const bestVendor = vendorPrices.find(vp => vp.avgPrice === bestPrice)?.vendor || '';
 
-          // Find top vendor by spend
-          let topVendor = '';
-          let topVendorSpend = 0;
-          vendorTotals.forEach((spend, vendor) => {
-            if (spend > topVendorSpend) {
-              topVendorSpend = spend;
-              topVendor = vendor;
-            }
-          });
-
-          const totalSpend = Array.from(vendorTotals.values()).reduce((sum, s) => sum + s, 0);
-          const topVendorPercent = (topVendorSpend / totalSpend) * 100;
-
-          // Detect price anomalies
-          const priceValues = Array.from(vendorAvgPrices.values());
-          const priceAvg = priceValues.reduce((sum, p) => sum + p, 0) / priceValues.length;
-
-          let anomalyVendor = '';
-          let anomalyDeviation = 0;
-          vendorAvgPrices.forEach((price, vendor) => {
-            const deviation = ((price - priceAvg) / priceAvg) * 100;
-            if (Math.abs(deviation) > Math.abs(anomalyDeviation) && Math.abs(deviation) > 20) {
-              anomalyVendor = vendor;
-              anomalyDeviation = deviation;
-            }
-          });
-
-          intelMap.set(categoryId, {
-            vendors: vendorPrices,
-            vendorAvgPrices,
+          variantComparisons.push({
+            variant,
+            vendorPrices,
             bestPrice,
-            avgPrice,
-            maxSavings,
-            topVendor,
-            topVendorSpend,
-            topVendorPercent,
-            vendorConcentration: topVendorPercent > 80,
-            priceAnomaly: anomalyVendor !== '',
-            anomalyVendor,
-            anomalyDeviation,
+            bestVendor,
+            worstPrice,
           });
         }
 
-        setVendorIntelData(intelMap);
-      } catch (err) {
-        console.error('Failed to load vendor intel data:', err);
+        if (variantComparisons.length > 0) {
+          categoryMap.set(categoryName, variantComparisons);
+        }
       }
-    };
 
-    loadVendorIntelData();
-  }, [companyId, selectedProducts, productCPUData, invoices]);
+      // Convert to array and sort by category name
+      const comparisons: ComponentComparison[] = Array.from(categoryMap.entries())
+        .map(([categoryName, variants]) => ({
+          categoryName,
+          variants: variants.sort((a, b) => a.variant.localeCompare(b.variant)),
+        }))
+        .sort((a, b) => a.categoryName.localeCompare(b.categoryName));
 
-  // Calculate overall vendor statistics
-  const overallStats = useMemo(() => {
-    const allVendors = new Set<string>();
-    let totalSpend = 0;
-    let totalInvoices = 0;
-
-    vendorIntelData.forEach(intel => {
-      intel.vendors?.forEach((_prices: number[], vendor: string) => allVendors.add(vendor));
-    });
-
-    invoices.forEach(inv => {
-      totalInvoices++;
-      // Calculate total spend from cost_attribution
-      Object.values(inv.cost_attribution || {}).forEach(attr => {
-        const unitPrice = parseFloat(attr.unit_price);
-        const unitsPurchased = parseFloat(attr.units_purchased);
-        if (!isNaN(unitPrice) && !isNaN(unitsPurchased)) {
-          totalSpend += unitPrice * unitsPurchased;
-        }
-      });
-    });
-
-    return {
-      vendorCount: allVendors.size,
-      totalSpend,
-      invoiceCount: totalInvoices,
-      componentCount: vendorIntelData.size,
-    };
-  }, [vendorIntelData, invoices]);
-
-  // Sort vendor intel data
-  const sortedVendorData = useMemo(() => {
-    return Array.from(vendorIntelData.entries())
-      .map(([categoryId, intel]) => {
-        const category = categories.find(c => c.id === categoryId);
-        return { categoryId, intel, categoryName: category?.name || 'Unknown' };
-      })
-      .sort((a, b) => {
-        let aVal: any, bVal: any;
-        switch (vendorSortColumn) {
-          case 'component':
-            aVal = a.categoryName;
-            bVal = b.categoryName;
-            break;
-          case 'bestPrice':
-            aVal = a.intel.bestPrice;
-            bVal = b.intel.bestPrice;
-            break;
-          case 'savings':
-            aVal = a.intel.maxSavings;
-            bVal = b.intel.maxSavings;
-            break;
-          default:
-            return 0;
-        }
-        if (typeof aVal === 'string') {
-          return vendorSortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-        }
-        return vendorSortDirection === 'asc' ? aVal - bVal : bVal - aVal;
-      });
-  }, [vendorIntelData, categories, vendorSortColumn, vendorSortDirection]);
-
-  // Handle column sort
-  const handleSort = (column: VendorSortColumn) => {
-    if (vendorSortColumn === column) {
-      setVendorSortDirection(vendorSortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setVendorSortColumn(column);
-      setVendorSortDirection('asc');
+      setComponentComparisons(comparisons);
+    } catch (err) {
+      console.error('Failed to load vendor intelligence:', err);
     }
   };
 
-  if (vendorIntelData.size === 0) {
+  /**
+   * Handle column sort
+   */
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection(column === 'spend' ? 'desc' : 'asc');
+    }
+  };
+
+  /**
+   * Sort vendor overviews
+   */
+  const sortedVendorOverviews = useMemo(() => {
+    return [...vendorOverviews].sort((a, b) => {
+      let aVal: any, bVal: any;
+
+      switch (sortColumn) {
+        case 'vendor':
+          aVal = a.vendorName;
+          bVal = b.vendorName;
+          break;
+        case 'spend':
+          aVal = a.totalSpend;
+          bVal = b.totalSpend;
+          break;
+        case 'invoices':
+          aVal = a.invoiceCount;
+          bVal = b.invoiceCount;
+          break;
+        case 'components':
+          aVal = a.componentCount;
+          bVal = b.componentCount;
+          break;
+        default:
+          return 0;
+      }
+
+      if (typeof aVal === 'string') {
+        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      }
+      return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+    });
+  }, [vendorOverviews, sortColumn, sortDirection]);
+
+  /**
+   * Sort component comparisons (by category)
+   */
+  const sortedComponentComparisons = useMemo(() => {
+    return [...componentComparisons].sort((a, b) => {
+      // For hierarchical sorting, we sort by category name primarily
+      if (sortColumn === 'component') {
+        return sortDirection === 'asc'
+          ? a.categoryName.localeCompare(b.categoryName)
+          : b.categoryName.localeCompare(a.categoryName);
+      }
+
+      // For bestPrice and savings, use the best value across all variants in the category
+      let aVal: number, bVal: number;
+
+      if (sortColumn === 'bestPrice') {
+        aVal = Math.min(...a.variants.map(v => v.bestPrice));
+        bVal = Math.min(...b.variants.map(v => v.bestPrice));
+      } else if (sortColumn === 'savings') {
+        aVal = Math.max(...a.variants.map(v => v.worstPrice - v.bestPrice));
+        bVal = Math.max(...b.variants.map(v => v.worstPrice - v.bestPrice));
+      } else {
+        return 0;
+      }
+
+      return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+    });
+  }, [componentComparisons, sortColumn, sortDirection]);
+
+  /**
+   * Calculate summary metrics
+   */
+  const summaryMetrics = useMemo(() => {
+    // Get the component categories we're showing (filtered by selected products + filters)
+    const componentCategories = new Map<string, Set<string>>();
+    selectedProducts.forEach(productId => {
+      const cpuData = productCPUData.get(productId);
+      if (cpuData?.breakdown) {
+        cpuData.breakdown.forEach(comp => {
+          if (categoryFilter.size > 0 && !categoryFilter.has(comp.categoryId)) return;
+          if (variantFilter.size > 0 && !variantFilter.has(comp.variant || '')) return;
+
+          if (!componentCategories.has(comp.categoryId)) {
+            componentCategories.set(comp.categoryId, new Set());
+          }
+          componentCategories.get(comp.categoryId)!.add(comp.variant || '');
+        });
+      }
+    });
+
+    // Calculate total spend from invoices for these specific components
+    let totalSpend = 0;
+    const today = Date.now();
+    let startDate = 0;
+    let endDate = today;
+
+    // Calculate date range
+    switch (dateRange) {
+      case '3mo':
+        startDate = today - (90 * 24 * 60 * 60 * 1000);
+        break;
+      case '6mo':
+        startDate = today - (180 * 24 * 60 * 60 * 1000);
+        break;
+      case '12mo':
+        startDate = today - (365 * 24 * 60 * 60 * 1000);
+        break;
+      case 'last-calendar-year':
+        const lastYear = new Date().getFullYear() - 1;
+        startDate = new Date(lastYear, 0, 1).getTime();
+        endDate = new Date(lastYear, 11, 31, 23, 59, 59).getTime();
+        break;
+      case 'this-calendar-year':
+        const thisYear = new Date().getFullYear();
+        startDate = new Date(thisYear, 0, 1).getTime();
+        break;
+      case 'custom':
+        if (customDateRange) {
+          startDate = customDateRange.start;
+          endDate = customDateRange.end;
+        }
+        break;
+      case 'all':
+        startDate = 0;
+        endDate = today;
+        break;
+    }
+
+    invoices.forEach(inv => {
+      // Apply date filter
+      if (startDate > 0 && inv.invoice_date < startDate) return;
+      if (endDate > 0 && inv.invoice_date > endDate) return;
+
+      // Apply vendor filter
+      if (vendorFilter.size > 0) {
+        const normalizedVendor = (inv.vendor_name || '').trim().toLowerCase();
+        const normalizedVendorFilter = new Set(Array.from(vendorFilter).map(v => v.trim().toLowerCase()));
+        if (!normalizedVendorFilter.has(normalizedVendor)) return;
+      }
+
+      // Sum up costs for components in our filtered set
+      Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
+        const variants = componentCategories.get(attr.category_id);
+        if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
+          const unitPrice = parseFloat(attr.unit_price);
+          const unitsPurchased = parseFloat(attr.units_purchased);
+          if (!isNaN(unitPrice) && !isNaN(unitsPurchased)) {
+            totalSpend += unitPrice * unitsPurchased;
+          }
+        }
+      });
+    });
+
+    // Find biggest cost component (unit price, not total spend)
+    let biggestCostComponent = '';
+    let biggestCostAmount = 0;
+    componentComparisons.forEach(comp => {
+      comp.variants.forEach(variant => {
+        if (variant.bestPrice > biggestCostAmount) {
+          biggestCostAmount = variant.bestPrice;
+          biggestCostComponent = variant.variant ? `${comp.categoryName} (${variant.variant})` : comp.categoryName;
+        }
+      });
+    });
+
+    // Calculate average price across all components
+    let totalPrices = 0;
+    let priceCount = 0;
+    componentComparisons.forEach(comp => {
+      comp.variants.forEach(variant => {
+        totalPrices += variant.bestPrice;
+        priceCount++;
+      });
+    });
+    const averagePrice = priceCount > 0 ? totalPrices / priceCount : 0;
+
+    return { totalSpend, biggestCostComponent, biggestCostAmount, averagePrice };
+  }, [componentComparisons, selectedProducts, productCPUData, categoryFilter, variantFilter, vendorFilter, dateRange, customDateRange, invoices]);
+
+  /**
+   * Export as CSV
+   */
+  const handleExportCSV = () => {
+    const rows: string[] = [];
+    rows.push('Component,Vendor,Average Price,Min Price,Max Price,Purchase Count,Best Price,Savings vs Worst');
+
+    sortedComponentComparisons.forEach(comp => {
+      comp.variants.forEach(variant => {
+        const componentName = variant.variant ? `${comp.categoryName} (${variant.variant})` : comp.categoryName;
+
+        variant.vendorPrices.forEach(vp => {
+          const isBest = vp.avgPrice === variant.bestPrice;
+          const savings = variant.worstPrice - vp.avgPrice;
+
+          rows.push(
+            `"${componentName}","${vp.vendor}","${vp.avgPrice.toFixed(2)}","${vp.minPrice.toFixed(2)}","${vp.maxPrice.toFixed(2)}","${vp.purchaseCount}","${isBest ? 'YES' : ''}","${!isBest && savings > 0 ? '$' + savings.toFixed(2) : ''}"`
+          );
+        });
+      });
+    });
+
+    const csv = rows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vendor-intel-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setShowExportMenu(false);
+  };
+
+  /**
+   * Export as PDF
+   */
+  const handleExportPDF = async () => {
+    const { default: jsPDF } = await import('jspdf');
+    const { default: autoTable } = await import('jspdf-autotable');
+
+    const doc = new jsPDF();
+    let yPos = 20;
+
+    // Title
+    doc.setFontSize(16);
+    doc.setTextColor(75, 0, 110);
+    doc.text('Vendor Intelligence Report', 14, yPos);
+    yPos += 8;
+
+    // Metadata
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, yPos);
+    yPos += 5;
+
+    const dateRangeText = dateRange === 'all' ? 'All Time' :
+      dateRange === '3mo' ? 'Last 3 Months' :
+      dateRange === '6mo' ? 'Last 6 Months' :
+      dateRange === '12mo' ? 'Last 12 Months' :
+      dateRange === 'last-calendar-year' ? 'Last Calendar Year' :
+      dateRange === 'this-calendar-year' ? 'This Calendar Year' : 'Custom Range';
+    doc.text(`Period: ${dateRangeText}`, 14, yPos);
+    yPos += 10;
+
+    // Vendor Overview Section
+    doc.setFontSize(12);
+    doc.setTextColor(75, 0, 110);
+    doc.text('Vendor Overview', 14, yPos);
+    yPos += 2;
+
+    const vendorTableData = sortedVendorOverviews.map(vo => [
+      vo.vendorName,
+      `$${vo.totalSpend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      vo.invoiceCount.toString(),
+      vo.componentCount.toString(),
+    ]);
+
+    autoTable(doc, {
+      head: [['Vendor', 'Total Spend', 'Invoices', 'Components']],
+      body: vendorTableData,
+      startY: yPos,
+      styles: {
+        fontSize: 9,
+        cellPadding: 2,
+        lineColor: [100, 100, 100],
+        lineWidth: 0.1,
+      },
+      headStyles: {
+        fillColor: [75, 0, 110],
+        textColor: [255, 255, 255],
+        lineColor: [75, 0, 110],
+        lineWidth: 0.1,
+      },
+      bodyStyles: {
+        fillColor: [255, 255, 255],
+        textColor: [0, 0, 0],
+      },
+      alternateRowStyles: {
+        fillColor: [255, 255, 255],
+      },
+      theme: 'grid',
+      margin: { left: 14, right: 14 },
+    });
+
+    yPos = (doc as any).lastAutoTable.finalY + 10;
+
+    // Price Comparison Section
+    if (yPos > 200) {
+      doc.addPage();
+      yPos = 20;
+    }
+
+    doc.setFontSize(12);
+    doc.setTextColor(75, 0, 110);
+    doc.text('Price Comparison by Component', 14, yPos);
+    yPos += 2;
+
+    const comparisonTableData: any[] = [];
+    sortedComponentComparisons.forEach(comp => {
+      comp.variants.forEach(variant => {
+        const componentName = variant.variant ? `${comp.categoryName} (${variant.variant})` : comp.categoryName;
+
+        const vendorPricesStr = variant.vendorPrices
+          .map(vp => `${vp.vendor}: $${vp.avgPrice.toFixed(2)}`)
+          .join(', ');
+
+        const bestPriceStr = `$${variant.bestPrice.toFixed(2)}\n(${variant.bestVendor})`;
+
+        const savings = variant.vendorPrices.length > 1 ? variant.worstPrice - variant.bestPrice : 0;
+        const savingsStr = savings > 0.01 ? `Save $${savings.toFixed(2)}` : '-';
+
+        comparisonTableData.push([
+          componentName,
+          vendorPricesStr,
+          bestPriceStr,
+          savingsStr,
+        ]);
+      });
+    });
+
+    autoTable(doc, {
+      head: [['Component', 'Vendor Prices', 'Best Price', 'Savings']],
+      body: comparisonTableData,
+      startY: yPos,
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+        lineColor: [100, 100, 100],
+        lineWidth: 0.1,
+      },
+      headStyles: {
+        fillColor: [75, 0, 110],
+        textColor: [255, 255, 255],
+        lineColor: [75, 0, 110],
+        lineWidth: 0.1,
+      },
+      bodyStyles: {
+        fillColor: [255, 255, 255],
+        textColor: [0, 0, 0],
+      },
+      alternateRowStyles: {
+        fillColor: [255, 255, 255],
+      },
+      columnStyles: {
+        0: { cellWidth: 40 },
+        1: { cellWidth: 70 },
+        2: { cellWidth: 35 },
+        3: { cellWidth: 25, halign: 'right' },
+      },
+      theme: 'grid',
+      margin: { left: 14, right: 14 },
+    });
+
+    doc.save(`vendor-intel-${new Date().toISOString().split('T')[0]}.pdf`);
+    setShowExportMenu(false);
+  };
+
+  if (componentComparisons.length === 0) {
+    const hasProducts = selectedProducts.size > 0;
+    const hasVendorFilter = vendorFilter.size > 0;
+
+    let message = 'Select products to analyze vendor pricing';
+    if (hasProducts && hasVendorFilter) {
+      message = `No components found from the selected vendor${vendorFilter.size > 1 ? 's' : ''} for these products`;
+    } else if (hasProducts) {
+      message = 'No vendor data available for selected products';
+    }
+
     return (
-      <div
-        role="tabpanel"
-        id="vendors-panel"
-        aria-labelledby="vendors-tab"
-        style={{
-          padding: '3rem',
-          textAlign: 'center',
-          color: '#64748b',
-          background: '#f8fafc',
-          borderRadius: '8px',
-        }}
-      >
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }} aria-hidden="true">
-          🏪
-        </div>
-        <p style={{ fontSize: '1rem', fontWeight: 500 }}>
-          Select products to analyze vendor pricing
-        </p>
+      <div className={styles.emptyState}>
+        <div className={styles.emptyIcon} aria-hidden="true">🏪</div>
+        <div className={styles.emptyTitle}>No vendor data available</div>
+        <div className={styles.emptyDescription}>{message}</div>
       </div>
     );
   }
 
   return (
-    <div role="tabpanel" id="vendors-panel" aria-labelledby="vendors-tab">
-      {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '1.5rem',
-        }}
-      >
-        <div>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.25rem' }}>
-            Vendor Intelligence
-          </h3>
-          <p style={{ fontSize: '0.875rem', color: '#64748b' }}>
-            Compare vendor pricing and identify savings opportunities
-          </p>
+    <div className={styles.container} role="tabpanel" id="vendors-panel" aria-labelledby="vendors-tab">
+      {/* Summary Dashboard */}
+      <div className={styles.summaryCards}>
+        <div className={styles.summaryCard}>
+          <div className={styles.summaryLabel}>Total Spend</div>
+          <div className={styles.summaryValue}>
+            ${summaryMetrics.totalSpend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
         </div>
-        <div style={{ position: 'relative' }}>
-          <button
-            onClick={() => setShowVendorExportMenu(!showVendorExportMenu)}
-            aria-expanded={showVendorExportMenu}
-            aria-label="Export vendor intelligence data"
-            style={{
-              padding: '0.5rem 1rem',
-              background: '#4b006e',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
-          >
-            Export {showVendorExportMenu ? '▲' : '▼'}
-          </button>
-          {showVendorExportMenu && (
-            <div
-              style={{
-                position: 'absolute',
-                right: 0,
-                top: '100%',
-                marginTop: '0.25rem',
-                background: 'white',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                zIndex: 10,
-                minWidth: '150px',
-              }}
-            >
-              <button
-                onClick={() => {
-                  setShowVendorExportMenu(false);
-                  // TODO: Implement CSV export
-                }}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  border: 'none',
-                  background: 'white',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                }}
-              >
-                Export CSV
-              </button>
-              <button
-                onClick={() => {
-                  setShowVendorExportMenu(false);
-                  // TODO: Implement PDF export
-                }}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  border: 'none',
-                  background: 'white',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  borderTop: '1px solid #e5e7eb',
-                }}
-              >
-                Export PDF
-              </button>
+        <div className={styles.summaryCard}>
+          <div className={styles.summaryLabel}>Biggest Cost</div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+            <div className={styles.summaryValue}>
+              ${summaryMetrics.biggestCostAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
-          )}
+            <div className={styles.summarySubtext}>/unit</div>
+          </div>
+          <div className={styles.summarySubtext}>
+            {summaryMetrics.biggestCostComponent}
+          </div>
+        </div>
+        <div className={styles.summaryCard}>
+          <div className={styles.summaryLabel}>Average Price</div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+            <div className={styles.summaryValue}>
+              ${summaryMetrics.averagePrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
+            <div className={styles.summarySubtext}>/unit</div>
+          </div>
         </div>
       </div>
 
-      {/* Vendor Overview Cards */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '1rem',
-          marginBottom: '1.5rem',
-        }}
-      >
-        <div
-          style={{
-            padding: '1rem',
-            background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
-            color: 'white',
-            borderRadius: '8px',
-          }}
-        >
-          <div style={{ fontSize: '0.75rem', opacity: 0.9, marginBottom: '0.25rem' }}>
-            TOTAL VENDORS
+      {/* Header */}
+      <div className={styles.header}>
+        <div className={styles.headerControls}>
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              aria-label="Export vendor intelligence data"
+              aria-haspopup="menu"
+              aria-expanded={showExportMenu}
+              className={styles.exportButton}
+            >
+              Export ▼
+            </button>
+            {showExportMenu && (
+              <div role="menu" className={styles.exportMenu}>
+                <button
+                  role="menuitem"
+                  onClick={handleExportCSV}
+                  className={styles.exportMenuItem}
+                >
+                  Export CSV
+                </button>
+                <button
+                  role="menuitem"
+                  onClick={handleExportPDF}
+                  className={styles.exportMenuItem}
+                >
+                  Export PDF
+                </button>
+              </div>
+            )}
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{overallStats.vendorCount}</div>
-        </div>
-        <div
-          style={{
-            padding: '1rem',
-            background: '#f8fafc',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-          }}
-        >
-          <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
-            TOTAL SPEND
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>
-            ${overallStats.totalSpend.toFixed(2)}
-          </div>
-        </div>
-        <div
-          style={{
-            padding: '1rem',
-            background: '#f8fafc',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-          }}
-        >
-          <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
-            INVOICES
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{overallStats.invoiceCount}</div>
-        </div>
-        <div
-          style={{
-            padding: '1rem',
-            background: '#f8fafc',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-          }}
-        >
-          <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
-            COMPONENTS
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{overallStats.componentCount}</div>
         </div>
       </div>
 
-      {/* Vendor Comparison Table */}
-      <div
-        style={{
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          overflow: 'hidden',
-        }}
-      >
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e5e7eb' }}>
-              <th
-                onClick={() => handleSort('component')}
-                style={{
-                  padding: '0.75rem 1rem',
-                  textAlign: 'left',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: '#64748b',
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                }}
-                role="columnheader"
-                aria-sort={vendorSortColumn === 'component' ? (vendorSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
-              >
-                COMPONENT {vendorSortColumn === 'component' && (vendorSortDirection === 'asc' ? '↑' : '↓')}
-              </th>
-              <th
-                style={{
-                  padding: '0.75rem 1rem',
-                  textAlign: 'right',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: '#64748b',
-                }}
-                role="columnheader"
-              >
-                VENDORS
-              </th>
-              <th
-                onClick={() => handleSort('bestPrice')}
-                style={{
-                  padding: '0.75rem 1rem',
-                  textAlign: 'right',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: '#64748b',
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                }}
-                role="columnheader"
-                aria-sort={vendorSortColumn === 'bestPrice' ? (vendorSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
-              >
-                BEST PRICE {vendorSortColumn === 'bestPrice' && (vendorSortDirection === 'asc' ? '↑' : '↓')}
-              </th>
-              <th
-                style={{
-                  padding: '0.75rem 1rem',
-                  textAlign: 'right',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: '#64748b',
-                }}
-                role="columnheader"
-              >
-                AVG PRICE
-              </th>
-              <th
-                onClick={() => handleSort('savings')}
-                style={{
-                  padding: '0.75rem 1rem',
-                  textAlign: 'right',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: '#64748b',
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                }}
-                role="columnheader"
-                aria-sort={vendorSortColumn === 'savings' ? (vendorSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
-              >
-                POTENTIAL SAVINGS {vendorSortColumn === 'savings' && (vendorSortDirection === 'asc' ? '↑' : '↓')}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedVendorData.map(({ categoryId, intel, categoryName }) => {
-              const savingsPercent = intel.avgPrice > 0 ? (intel.maxSavings / intel.avgPrice) * 100 : 0;
-              const hasSavings = savingsPercent > 0;
-
-              return (
-                <tr key={categoryId} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                  <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{categoryName}</td>
-                  <td
-                    style={{
-                      padding: '0.75rem 1rem',
-                      textAlign: 'right',
-                      color: '#64748b',
-                      fontSize: '0.875rem',
-                    }}
+      {/* Vendor Overview */}
+      {sortedVendorOverviews.length > 0 && (
+        <div className={styles.section}>
+          <h4 className={styles.sectionTitle}>Vendor Overview</h4>
+          <div className={styles.tableContainer}>
+            <table className={styles.vendorTable}>
+              <thead>
+                <tr>
+                  <th
+                    onClick={() => handleSort('vendor')}
+                    aria-sort={sortColumn === 'vendor' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
                   >
-                    {intel.vendors?.size || 0}
-                  </td>
-                  <td
-                    style={{
-                      padding: '0.75rem 1rem',
-                      textAlign: 'right',
-                      color: '#16a34a',
-                      fontWeight: 600,
-                    }}
+                    VENDOR {sortColumn === 'vendor' && (sortDirection === 'asc' ? '↑' : '↓')}
+                  </th>
+                  <th
+                    onClick={() => handleSort('spend')}
+                    className={styles.alignRight}
+                    aria-sort={sortColumn === 'spend' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
                   >
-                    ${intel.bestPrice.toFixed(2)}
-                  </td>
-                  <td
-                    style={{
-                      padding: '0.75rem 1rem',
-                      textAlign: 'right',
-                      color: '#64748b',
-                    }}
+                    TOTAL SPEND {sortColumn === 'spend' && (sortDirection === 'asc' ? '↑' : '↓')}
+                  </th>
+                  <th
+                    onClick={() => handleSort('invoices')}
+                    className={styles.alignRight}
+                    aria-sort={sortColumn === 'invoices' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
                   >
-                    ${intel.avgPrice.toFixed(2)}
-                  </td>
-                  <td
-                    style={{
-                      padding: '0.75rem 1rem',
-                      textAlign: 'right',
-                      color: hasSavings ? '#dc2626' : '#64748b',
-                      fontWeight: hasSavings ? 600 : 400,
-                    }}
+                    INVOICES {sortColumn === 'invoices' && (sortDirection === 'asc' ? '↑' : '↓')}
+                  </th>
+                  <th
+                    onClick={() => handleSort('components')}
+                    className={styles.alignRight}
+                    aria-sort={sortColumn === 'components' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
                   >
-                    {hasSavings ? (
-                      <>
-                        ${intel.maxSavings.toFixed(2)} ({savingsPercent.toFixed(1)}%)
-                      </>
-                    ) : (
-                      '-'
-                    )}
-                  </td>
+                    COMPONENTS {sortColumn === 'components' && (sortDirection === 'asc' ? '↑' : '↓')}
+                  </th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {sortedVendorOverviews.map(vo => (
+                  <tr key={vo.vendorName}>
+                    <td className={styles.vendorName}>{vo.vendorName}</td>
+                    <td className={`${styles.totalSpend} ${styles.alignRight}`}>${vo.totalSpend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td className={`${styles.invoiceCount} ${styles.alignRight}`}>{vo.invoiceCount}</td>
+                    <td className={`${styles.componentCount} ${styles.alignRight}`}>{vo.componentCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Price Comparison */}
+      <div className={styles.section}>
+        <h4 className={styles.sectionTitle}>Price Comparison by Component</h4>
+        <div className={styles.tableContainer}>
+          <table className={styles.comparisonTable}>
+            <thead>
+              <tr>
+                <th
+                  onClick={() => handleSort('component')}
+                  aria-sort={sortColumn === 'component' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
+                >
+                  COMPONENT {sortColumn === 'component' && (sortDirection === 'asc' ? '↑' : '↓')}
+                </th>
+                <th>VENDOR PRICES</th>
+                <th
+                  onClick={() => handleSort('bestPrice')}
+                  className={styles.alignRight}
+                  aria-sort={sortColumn === 'bestPrice' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
+                >
+                  BEST PRICE {sortColumn === 'bestPrice' && (sortDirection === 'asc' ? '↑' : '↓')}
+                </th>
+                <th
+                  onClick={() => handleSort('savings')}
+                  className={styles.alignRight}
+                  aria-sort={sortColumn === 'savings' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
+                >
+                  SAVINGS {sortColumn === 'savings' && (sortDirection === 'asc' ? '↑' : '↓')}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedComponentComparisons.map((comp, compIdx) => {
+                // If only one variant and it has no variant name, show it directly without nesting
+                if (comp.variants.length === 1 && (!comp.variants[0].variant || comp.variants[0].variant === '')) {
+                  const variant = comp.variants[0];
+                  const savings = variant.worstPrice - variant.bestPrice;
+                  const bestVendorPrice = variant.vendorPrices.find(vp => vp.avgPrice === variant.bestPrice);
+                  const otherVendors = variant.vendorPrices.filter(vp => vp.avgPrice !== variant.bestPrice);
+
+                  return (
+                    <tr key={`${compIdx}-single`} className={styles.categoryRow}>
+                      <td className={styles.categoryName}>{comp.categoryName}</td>
+                      <td className={styles.vendorPrices}>
+                        {bestVendorPrice && (
+                          <div className={styles.bestVendorPrice}>
+                            <span className={styles.priceAmount}>${bestVendorPrice.avgPrice.toFixed(2)}</span>
+                            <span className={styles.vendorBadge}>{bestVendorPrice.vendor}</span>
+                          </div>
+                        )}
+                        {otherVendors.length > 0 && (
+                          <div className={styles.otherVendorPrices}>
+                            {otherVendors.map((vp, vpIdx) => (
+                              <div key={vpIdx} className={styles.otherVendorItem}>
+                                <span className={styles.priceAmount}>${vp.avgPrice.toFixed(2)}</span>
+                                <span className={styles.vendorName}>{vp.vendor}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </td>
+                      <td className={styles.bestPrice}>
+                        <span className={styles.priceAmount}>${variant.bestPrice.toFixed(2)}</span>
+                        <span className={styles.vendorLabel}>{variant.bestVendor}</span>
+                      </td>
+                      <td className={styles.savings}>
+                        {savings > 0.01 ? `Save $${savings.toFixed(2)}` : '-'}
+                      </td>
+                    </tr>
+                  );
+                }
+
+                // Multiple variants - show category header and indented variants
+                return (
+                  <>
+                    {/* Category header row */}
+                    <tr key={`${compIdx}-header`} className={styles.categoryRow}>
+                      <td className={styles.categoryName} colSpan={4}>{comp.categoryName}</td>
+                    </tr>
+                    {/* Variant rows */}
+                    {comp.variants.map((variant, varIdx) => {
+                      const savings = variant.worstPrice - variant.bestPrice;
+                      const bestVendorPrice = variant.vendorPrices.find(vp => vp.avgPrice === variant.bestPrice);
+                      const otherVendors = variant.vendorPrices.filter(vp => vp.avgPrice !== variant.bestPrice);
+
+                      return (
+                        <tr key={`${compIdx}-${varIdx}`} className={styles.variantRow}>
+                          <td className={styles.variantName}>{variant.variant}</td>
+                          <td className={styles.vendorPrices}>
+                            {bestVendorPrice && (
+                              <div className={styles.bestVendorPrice}>
+                                <span className={styles.priceAmount}>${bestVendorPrice.avgPrice.toFixed(2)}</span>
+                                <span className={styles.vendorBadge}>{bestVendorPrice.vendor}</span>
+                              </div>
+                            )}
+                            {otherVendors.length > 0 && (
+                              <div className={styles.otherVendorPrices}>
+                                {otherVendors.map((vp, vpIdx) => (
+                                  <div key={vpIdx} className={styles.otherVendorItem}>
+                                    <span className={styles.priceAmount}>${vp.avgPrice.toFixed(2)}</span>
+                                    <span className={styles.vendorName}>{vp.vendor}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </td>
+                          <td className={styles.bestPrice}>
+                            <span className={styles.priceAmount}>${variant.bestPrice.toFixed(2)}</span>
+                            <span className={styles.vendorLabel}>{variant.bestVendor}</span>
+                          </td>
+                          <td className={styles.savings}>
+                            {savings > 0.01 ? `Save $${savings.toFixed(2)}` : '-'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
