@@ -1,0 +1,440 @@
+/* CPU Trends Tab Styles */
+
+.container {
+  padding: 0;
+}
+
+/* Overview Cards */
+.overviewCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.overviewCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.overviewCard:hover {
+  box-shadow: 0 4px 12px rgba(75, 0, 110, 0.08);
+  border-color: var(--color-primary, #4b006e);
+}
+
+.overviewLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.overviewValue {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.overviewSubtext {
+  font-size: 0.8125rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.overviewSubtext.increase {
+  color: #dc2626;
+}
+
+.overviewSubtext.decrease {
+  color: #16a34a;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.headerText h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+  color: #1e293b;
+}
+
+.headerText p {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.headerControls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.dateRangeSelect {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dateRangeSelect:hover {
+  border-color: var(--color-primary, #4b006e);
+}
+
+.dateRangeSelect:focus {
+  outline: 2px solid rgba(75, 0, 110, 0.2);
+  outline-offset: 2px;
+  border-color: var(--color-primary, #4b006e);
+}
+
+.exportButton {
+  padding: 0.5rem 1rem;
+  background: var(--color-primary, #4b006e);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.exportButton:hover {
+  background: #3a0054;
+  box-shadow: 0 2px 8px rgba(75, 0, 110, 0.2);
+}
+
+.exportButton:active {
+  transform: scale(0.98);
+}
+
+.exportMenu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.25rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  min-width: 150px;
+  overflow: hidden;
+}
+
+.exportMenuItem {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: white;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background 0.15s ease;
+}
+
+.exportMenuItem:hover {
+  background: #f8fafc;
+}
+
+.exportMenuItem:not(:last-child) {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Quick Filters */
+.quickFilters {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.filterButton {
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1.5px solid transparent;
+}
+
+.filterButton.highVolatility {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fbbf24;
+}
+
+.filterButton.highVolatility:hover {
+  background: #fde68a;
+  box-shadow: 0 2px 6px rgba(251, 191, 36, 0.3);
+}
+
+.filterButton.highVolatility.active {
+  background: #fbbf24;
+  color: #78350f;
+  border-color: #f59e0b;
+}
+
+.filterButton.priceIncreasing {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #ef4444;
+}
+
+.filterButton.priceIncreasing:hover {
+  background: #fecaca;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+}
+
+.filterButton.priceIncreasing.active {
+  background: #ef4444;
+  color: white;
+  border-color: #dc2626;
+}
+
+.filterButton.priceDecreasing {
+  background: #dcfce7;
+  color: #065f46;
+  border-color: #22c55e;
+}
+
+.filterButton.priceDecreasing:hover {
+  background: #bbf7d0;
+  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.3);
+}
+
+.filterButton.priceDecreasing.active {
+  background: #22c55e;
+  color: white;
+  border-color: #16a34a;
+}
+
+/* Trends Table */
+.tableContainer {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+}
+
+.trendsTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.trendsTable thead {
+  background: #f8fafc;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.trendsTable th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.trendsTable th:hover {
+  background: #f1f5f9;
+  color: var(--color-primary, #4b006e);
+}
+
+.trendsTable th.alignRight {
+  text-align: right;
+}
+
+.trendsTable th.notSortable {
+  cursor: default;
+}
+
+.trendsTable th.notSortable:hover {
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.trendsTable tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background 0.15s ease;
+}
+
+.trendsTable tbody tr:hover {
+  background: #fafbfc;
+}
+
+.trendsTable tbody tr.highlightHigh {
+  background: rgba(251, 191, 36, 0.05);
+}
+
+.trendsTable tbody tr.highlightHigh:hover {
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.trendsTable td {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+}
+
+.componentName {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.priceValue {
+  text-align: right;
+  color: #1e293b;
+}
+
+.priceAverage {
+  text-align: right;
+  color: #64748b;
+}
+
+.priceChange {
+  text-align: right;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+
+.priceChange.increase {
+  color: #dc2626;
+}
+
+.priceChange.decrease {
+  color: #16a34a;
+}
+
+.priceChange.stable {
+  color: #64748b;
+}
+
+.volatilityCell {
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.375rem;
+}
+
+.volatilityBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.volatilityBadge.low {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #10b981;
+}
+
+.volatilityBadge.medium {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fbbf24;
+}
+
+.volatilityBadge.high {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+.dataPoints {
+  text-align: right;
+  color: #64748b;
+  font-size: 0.8125rem;
+}
+
+/* Empty State */
+.emptyState {
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #64748b;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+
+.emptyTitle {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  color: #1e293b;
+}
+
+.emptyDescription {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .overviewCards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .overviewCards {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .headerControls {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .dateRangeSelect,
+  .exportButton {
+    width: 100%;
+  }
+
+  .tableContainer {
+    overflow-x: auto;
+  }
+}

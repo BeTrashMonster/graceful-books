@@ -20,6 +20,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import type { CPGCategory, CPGInvoice } from '../../../../db/schema/cpg.schema';
+import styles from './CPUTrendsTab.module.css';
 
 export interface CPUTrendsTabProps {
   companyId: string;
@@ -75,6 +76,7 @@ export default function CPUTrendsTab({
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [trendSortColumn, setTrendSortColumn] = useState<TrendSortColumn>('component');
   const [trendSortDirection, setTrendSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [activeFilter, setActiveFilter] = useState<'none' | 'high-volatility' | 'price-increasing' | 'price-decreasing'>('none');
 
   // Load trend data when dependencies change
   useEffect(() => {
@@ -268,13 +270,69 @@ export default function CPUTrendsTab({
   };
 
   /**
-   * Get sorted trend entries for display
+   * Calculate overview statistics
+   */
+  const overviewStats = useMemo(() => {
+    if (trendData.size === 0) {
+      return {
+        totalComponents: 0,
+        highVolatilityCount: 0,
+        avgVolatility: 0,
+        biggestIncrease: null as { name: string; change: number } | null,
+        biggestDecrease: null as { name: string; change: number } | null,
+      };
+    }
+
+    const trends = Array.from(trendData.entries());
+    const highVolatilityCount = trends.filter(([_, t]) => t.volatility === 'high').length;
+    const avgVolatility = trends.reduce((sum, [_, t]) => sum + t.coefficientOfVariation, 0) / trends.length;
+
+    // Find biggest increase/decrease
+    let biggestIncrease: { name: string; change: number } | null = null;
+    let biggestDecrease: { name: string; change: number } | null = null;
+
+    trends.forEach(([categoryId, trend]) => {
+      const category = categories.find(c => c.id === categoryId);
+      const name = category?.name || 'Unknown';
+
+      if (!biggestIncrease || trend.priceChange > biggestIncrease.change) {
+        biggestIncrease = { name, change: trend.priceChange };
+      }
+      if (!biggestDecrease || trend.priceChange < biggestDecrease.change) {
+        biggestDecrease = { name, change: trend.priceChange };
+      }
+    });
+
+    return {
+      totalComponents: trendData.size,
+      highVolatilityCount,
+      avgVolatility,
+      biggestIncrease,
+      biggestDecrease,
+    };
+  }, [trendData, categories]);
+
+  /**
+   * Get filtered and sorted trend entries for display
    */
   const sortedTrendEntries = useMemo(() => {
     return Array.from(trendData.entries())
       .map(([categoryId, trend]) => {
         const category = categories.find(c => c.id === categoryId);
         return { categoryId, trend, categoryName: category?.name || 'Unknown' };
+      })
+      .filter(({ trend }) => {
+        // Apply active filter
+        switch (activeFilter) {
+          case 'high-volatility':
+            return trend.volatility === 'high';
+          case 'price-increasing':
+            return trend.priceChange > 5;
+          case 'price-decreasing':
+            return trend.priceChange < -5;
+          default:
+            return true;
+        }
       })
       .sort((a, b) => {
         let aVal: any, bVal: any;
@@ -307,7 +365,7 @@ export default function CPUTrendsTab({
         }
         return trendSortDirection === 'asc' ? aVal - bVal : bVal - aVal;
       });
-  }, [trendData, trendSortColumn, trendSortDirection, categories]);
+  }, [trendData, trendSortColumn, trendSortDirection, categories, activeFilter]);
 
   /**
    * Handle sort column change
@@ -321,36 +379,27 @@ export default function CPUTrendsTab({
     }
   };
 
+  /**
+   * Toggle filter
+   */
+  const handleFilterToggle = (filter: 'high-volatility' | 'price-increasing' | 'price-decreasing') => {
+    setActiveFilter(activeFilter === filter ? 'none' : filter);
+  };
+
   return (
-    <div role="tabpanel" id="trends-panel" aria-labelledby="trends-tab">
+    <div className={styles.container} role="tabpanel" id="trends-panel" aria-labelledby="trends-tab">
       {/* Header with controls */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '1.5rem',
-        flexWrap: 'wrap',
-        gap: '1rem',
-      }}>
-        <div>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.25rem' }}>
-            CPU Trend Analysis
-          </h3>
-          <p style={{ fontSize: '0.875rem', color: '#64748b' }}>
-            Track component cost changes over time
-          </p>
+      <div className={styles.header}>
+        <div className={styles.headerText}>
+          <h3>CPU Trend Analysis</h3>
+          <p>Track component cost changes over time</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div className={styles.headerControls}>
           <select
             value={trendDateRange}
             onChange={(e) => setTrendDateRange(e.target.value as '3mo' | '6mo' | '12mo' | 'all')}
             aria-label="Select date range for trend analysis"
-            style={{
-              padding: '0.5rem 0.75rem',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              fontSize: '0.875rem',
-            }}
+            className={styles.dateRangeSelect}
           >
             <option value="3mo">Last 3 Months</option>
             <option value="6mo">Last 6 Months</option>
@@ -363,63 +412,23 @@ export default function CPUTrendsTab({
               aria-label="Export trend data"
               aria-haspopup="menu"
               aria-expanded={showExportMenu}
-              style={{
-                padding: '0.5rem 1rem',
-                background: '#4b006e',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
+              className={styles.exportButton}
             >
               Export ▼
             </button>
             {showExportMenu && (
-              <div
-                role="menu"
-                style={{
-                  position: 'absolute',
-                  right: 0,
-                  top: '100%',
-                  marginTop: '0.25rem',
-                  background: 'white',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                  zIndex: 10,
-                  minWidth: '150px',
-                }}
-              >
+              <div role="menu" className={styles.exportMenu}>
                 <button
                   role="menuitem"
                   onClick={handleExportCSV}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem 1rem',
-                    border: 'none',
-                    background: 'white',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '0.875rem',
-                  }}
+                  className={styles.exportMenuItem}
                 >
                   Export CSV
                 </button>
                 <button
                   role="menuitem"
                   onClick={handleExportPDF}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem 1rem',
-                    border: 'none',
-                    background: 'white',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '0.875rem',
-                    borderTop: '1px solid #e5e7eb',
-                  }}
+                  className={styles.exportMenuItem}
                 >
                   Export PDF
                 </button>
@@ -429,53 +438,78 @@ export default function CPUTrendsTab({
         </div>
       </div>
 
+      {/* Overview Cards */}
+      {trendData.size > 0 && (
+        <div className={styles.overviewCards}>
+          <div className={styles.overviewCard}>
+            <div className={styles.overviewLabel}>Components Tracked</div>
+            <div className={styles.overviewValue}>{overviewStats.totalComponents}</div>
+            <div className={styles.overviewSubtext}>
+              {overviewStats.highVolatilityCount > 0 && (
+                <span className={styles.increase}>
+                  {overviewStats.highVolatilityCount} high volatility
+                </span>
+              )}
+              {overviewStats.highVolatilityCount === 0 && (
+                <span>All stable</span>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.overviewCard}>
+            <div className={styles.overviewLabel}>Avg Volatility</div>
+            <div className={styles.overviewValue}>{overviewStats.avgVolatility.toFixed(1)}%</div>
+            <div className={styles.overviewSubtext}>
+              {overviewStats.avgVolatility < 10 ? '🟢 Low' : overviewStats.avgVolatility < 25 ? '🟡 Medium' : '🔴 High'}
+            </div>
+          </div>
+
+          {overviewStats.biggestIncrease && overviewStats.biggestIncrease.change > 0 && (
+            <div className={styles.overviewCard}>
+              <div className={styles.overviewLabel}>Biggest Increase</div>
+              <div className={styles.overviewValue}>+{overviewStats.biggestIncrease.change.toFixed(1)}%</div>
+              <div className={`${styles.overviewSubtext} ${styles.increase}`}>
+                ↑ {overviewStats.biggestIncrease.name.substring(0, 20)}{overviewStats.biggestIncrease.name.length > 20 ? '...' : ''}
+              </div>
+            </div>
+          )}
+
+          {overviewStats.biggestDecrease && overviewStats.biggestDecrease.change < 0 && (
+            <div className={styles.overviewCard}>
+              <div className={styles.overviewLabel}>Biggest Decrease</div>
+              <div className={styles.overviewValue}>{overviewStats.biggestDecrease.change.toFixed(1)}%</div>
+              <div className={`${styles.overviewSubtext} ${styles.decrease}`}>
+                ↓ {overviewStats.biggestDecrease.name.substring(0, 20)}{overviewStats.biggestDecrease.name.length > 20 ? '...' : ''}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Quick filters */}
       {trendData.size > 0 && (
-        <div style={{
-          display: 'flex',
-          gap: '0.5rem',
-          marginBottom: '1rem',
-          flexWrap: 'wrap',
-        }}>
+        <div className={styles.quickFilters}>
           <button
+            onClick={() => handleFilterToggle('high-volatility')}
             aria-label={`Filter to ${Array.from(trendData.values()).filter(t => t.volatility === 'high').length} high volatility components`}
-            style={{
-              padding: '0.5rem 0.75rem',
-              background: '#fef3c7',
-              border: '1px solid #fbbf24',
-              borderRadius: '6px',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
+            aria-pressed={activeFilter === 'high-volatility'}
+            className={`${styles.filterButton} ${styles.highVolatility} ${activeFilter === 'high-volatility' ? styles.active : ''}`}
           >
             High Volatility ({Array.from(trendData.values()).filter(t => t.volatility === 'high').length})
           </button>
           <button
+            onClick={() => handleFilterToggle('price-increasing')}
             aria-label={`Filter to ${Array.from(trendData.values()).filter(t => t.priceChange > 5).length} price increasing components`}
-            style={{
-              padding: '0.5rem 0.75rem',
-              background: '#fee2e2',
-              border: '1px solid #ef4444',
-              borderRadius: '6px',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
+            aria-pressed={activeFilter === 'price-increasing'}
+            className={`${styles.filterButton} ${styles.priceIncreasing} ${activeFilter === 'price-increasing' ? styles.active : ''}`}
           >
             Price Increasing ({Array.from(trendData.values()).filter(t => t.priceChange > 5).length})
           </button>
           <button
+            onClick={() => handleFilterToggle('price-decreasing')}
             aria-label={`Filter to ${Array.from(trendData.values()).filter(t => t.priceChange < -5).length} price decreasing components`}
-            style={{
-              padding: '0.5rem 0.75rem',
-              background: '#dcfce7',
-              border: '1px solid #22c55e',
-              borderRadius: '6px',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
+            aria-pressed={activeFilter === 'price-decreasing'}
+            className={`${styles.filterButton} ${styles.priceDecreasing} ${activeFilter === 'price-decreasing' ? styles.active : ''}`}
           >
             Price Decreasing ({Array.from(trendData.values()).filter(t => t.priceChange < -5).length})
           </button>
@@ -484,136 +518,89 @@ export default function CPUTrendsTab({
 
       {/* Trends table */}
       {trendData.size === 0 ? (
-        <div style={{
-          padding: '3rem',
-          textAlign: 'center',
-          color: '#64748b',
-          background: '#f8fafc',
-          borderRadius: '8px',
-        }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }} aria-hidden="true">📊</div>
-          <p style={{ fontSize: '1rem', fontWeight: 500 }}>
-            Select products to analyze cost trends
-          </p>
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon} aria-hidden="true">📊</div>
+          <div className={styles.emptyTitle}>No trend data available</div>
+          <div className={styles.emptyDescription}>
+            Select products to analyze cost trends over time
+          </div>
         </div>
       ) : (
-        <div style={{
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          overflow: 'hidden',
-        }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className={styles.tableContainer}>
+          <table className={styles.trendsTable}>
             <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e5e7eb' }}>
+              <tr>
                 <th
                   onClick={() => handleSortChange('component')}
-                  style={{
-                    padding: '0.75rem 1rem',
-                    textAlign: 'left',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    color: '#64748b',
-                    cursor: 'pointer',
-                  }}
                   aria-sort={trendSortColumn === 'component' ? (trendSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
                 >
                   COMPONENT {trendSortColumn === 'component' && (trendSortDirection === 'asc' ? '↑' : '↓')}
                 </th>
                 <th
                   onClick={() => handleSortChange('current')}
-                  style={{
-                    padding: '0.75rem 1rem',
-                    textAlign: 'right',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    color: '#64748b',
-                    cursor: 'pointer',
-                  }}
+                  className={styles.alignRight}
                   aria-sort={trendSortColumn === 'current' ? (trendSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
                 >
                   CURRENT {trendSortColumn === 'current' && (trendSortDirection === 'asc' ? '↑' : '↓')}
                 </th>
                 <th
                   onClick={() => handleSortChange('avg')}
-                  style={{
-                    padding: '0.75rem 1rem',
-                    textAlign: 'right',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    color: '#64748b',
-                    cursor: 'pointer',
-                  }}
+                  className={styles.alignRight}
                   aria-sort={trendSortColumn === 'avg' ? (trendSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
                 >
                   AVERAGE {trendSortColumn === 'avg' && (trendSortDirection === 'asc' ? '↑' : '↓')}
                 </th>
                 <th
                   onClick={() => handleSortChange('change')}
-                  style={{
-                    padding: '0.75rem 1rem',
-                    textAlign: 'right',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    color: '#64748b',
-                    cursor: 'pointer',
-                  }}
+                  className={styles.alignRight}
                   aria-sort={trendSortColumn === 'change' ? (trendSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
                 >
                   CHANGE {trendSortColumn === 'change' && (trendSortDirection === 'asc' ? '↑' : '↓')}
                 </th>
                 <th
                   onClick={() => handleSortChange('volatility')}
-                  style={{
-                    padding: '0.75rem 1rem',
-                    textAlign: 'right',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    color: '#64748b',
-                    cursor: 'pointer',
-                  }}
+                  className={styles.alignRight}
                   aria-sort={trendSortColumn === 'volatility' ? (trendSortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
                 >
                   VOLATILITY {trendSortColumn === 'volatility' && (trendSortDirection === 'asc' ? '↑' : '↓')}
                 </th>
-                <th style={{
-                  padding: '0.75rem 1rem',
-                  textAlign: 'right',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: '#64748b',
-                }}>
+                <th className={`${styles.alignRight} ${styles.notSortable}`}>
                   DATA POINTS
                 </th>
               </tr>
             </thead>
             <tbody>
               {sortedTrendEntries.map(({ categoryId, trend, categoryName }) => {
-                const changeColor = trend.priceChange > 5 ? '#dc2626' : trend.priceChange < -5 ? '#16a34a' : '#64748b';
-                const volatilityIcon = trend.volatility === 'high' ? '🔴' : trend.volatility === 'medium' ? '🟡' : '🟢';
                 const trendIcon = trend.priceChange > 5 ? '↑' : trend.priceChange < -5 ? '↓' : '→';
+                const changeClass = trend.priceChange > 5 ? styles.increase : trend.priceChange < -5 ? styles.decrease : styles.stable;
+                const rowClass = trend.volatility === 'high' ? styles.highlightHigh : '';
 
                 return (
-                  <tr key={categoryId} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>
+                  <tr key={categoryId} className={rowClass}>
+                    <td className={styles.componentName}>
                       {categoryName}
                     </td>
-                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
+                    <td className={styles.priceValue}>
                       ${trend.currentPrice.toFixed(2)}
                     </td>
-                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: '#64748b' }}>
+                    <td className={styles.priceAverage}>
                       ${trend.avgPrice.toFixed(2)}
                     </td>
-                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: changeColor, fontWeight: 600 }}>
-                      <span aria-label={`Price ${trend.priceChange > 0 ? 'increased' : 'decreased'} by ${Math.abs(trend.priceChange).toFixed(1)} percent`}>
-                        {trendIcon} {trend.priceChange > 0 ? '+' : ''}{trend.priceChange.toFixed(1)}%
-                      </span>
+                    <td>
+                      <div className={`${styles.priceChange} ${changeClass}`}>
+                        <span aria-label={`Price ${trend.priceChange > 0 ? 'increased' : 'decreased'} by ${Math.abs(trend.priceChange).toFixed(1)} percent`}>
+                          {trendIcon} {trend.priceChange > 0 ? '+' : ''}{trend.priceChange.toFixed(1)}%
+                        </span>
+                      </div>
                     </td>
-                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-                      <span aria-label={`${trend.volatility} volatility`}>
-                        {volatilityIcon} {trend.volatility}
-                      </span>
+                    <td>
+                      <div className={styles.volatilityCell}>
+                        <span className={`${styles.volatilityBadge} ${styles[trend.volatility]}`} aria-label={`${trend.volatility} volatility`}>
+                          {trend.volatility}
+                        </span>
+                      </div>
                     </td>
-                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: '#64748b', fontSize: '0.875rem' }}>
+                    <td className={styles.dataPoints}>
                       {trend.invoiceCount} invoices
                     </td>
                   </tr>
