@@ -599,10 +599,6 @@ export default function ScenarioBuilderTab({
 
                       {/* Slider with badge underneath */}
                       <div className={styles.componentSliderWrapper}>
-                        <div className={styles.sliderLabels}>
-                          <span>{minLabel}</span>
-                          <span>{maxLabel}</span>
-                        </div>
                         <input
                           id={`component-slider-${productId}-${component.categoryId}`}
                           type="range"
@@ -635,9 +631,43 @@ export default function ScenarioBuilderTab({
                         )}
                       </div>
 
-                      {/* CPU Value - right aligned */}
+                      {/* CPU Value - EDITABLE with click */}
                       <div className={styles.componentCPU}>
-                        ${formatNumberWithCommas(adjustedSubtotal)}
+                        {editingValue === `${productId}:${component.categoryId}` ? (
+                          <input
+                            type="text"
+                            value={editingText}
+                            onChange={(e) => setEditingText(e.target.value)}
+                            onBlur={() => saveEditedValue(productId, component.categoryId, baseSubtotal, adjustedSubtotal)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                saveEditedValue(productId, component.categoryId, baseSubtotal, adjustedSubtotal);
+                              } else if (e.key === 'Escape') {
+                                cancelEditing();
+                              }
+                            }}
+                            autoFocus
+                            style={{
+                              width: '100%',
+                              border: '1px solid var(--color-primary, #4b006e)',
+                              borderRadius: '3px',
+                              padding: '0.25rem',
+                              fontSize: '0.875rem',
+                              fontWeight: 700,
+                              color: 'var(--color-primary, #4b006e)',
+                              textAlign: 'right',
+                            }}
+                            placeholder="Enter value or +/- amount"
+                          />
+                        ) : (
+                          <span
+                            onClick={() => startEditing(`${productId}:${component.categoryId}`, adjustedSubtotal.toFixed(2))}
+                            style={{ cursor: 'pointer' }}
+                            title="Click to edit (supports math: +0.04, -0.5, *2, etc.)"
+                          >
+                            ${formatNumberWithCommas(adjustedSubtotal)}
+                          </span>
+                        )}
                       </div>
                     </div>
                   );

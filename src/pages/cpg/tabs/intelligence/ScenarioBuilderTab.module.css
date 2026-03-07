@@ -252,16 +252,7 @@
 }
 
 .sliderLabels {
-  position: absolute;
-  bottom: -0.875rem;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.6875rem;
-  color: #94a3b8;
-  font-weight: 500;
-  pointer-events: none;
+  display: none;
 }
 
 .componentValue {
