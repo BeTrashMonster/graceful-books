@@ -120,6 +120,7 @@ export default function VendorIntelTab({
   const [vendorSortDirection, setVendorSortDirection] = useState<'desc'>('desc');
   const [expandedComponents, setExpandedComponents] = useState<Set<string>>(new Set());
   const [invoiceDropdownDateRange, setInvoiceDropdownDateRange] = useState<Map<string, VendorIntelTabProps['dateRange']>>(new Map());
+  const [categoryMap, setCategoryMap] = useState<Map<string, CPGCategory>>(new Map());
 
   // Aggregate stats across ALL vendors
   const aggregateStats = useMemo(() => {
@@ -142,9 +143,9 @@ export default function VendorIntelTab({
           allPrices.push(cost);
           if (cost > biggestCost) {
             biggestCost = cost;
-            // Find category name
-            const category = categories.find(c => c.id === attr.category_id);
-            const categoryName = category?.category_name || 'Unknown';
+            // Find category name from map
+            const category = categoryMap.get(attr.category_id);
+            const categoryName = category?.category_name || attr.category_id;
             const variant = attr.variant ? ` (${attr.variant})` : '';
             biggestCostComponent = `${categoryName}${variant}`;
           }
@@ -164,11 +165,31 @@ export default function VendorIntelTab({
       biggestCostComponent,
       avgPrice,
     };
-  }, [vendorOverviews, localInvoices, categories]);
+  }, [vendorOverviews, localInvoices, categoryMap]);
 
   useEffect(() => {
     setLocalInvoices(invoices);
   }, [invoices]);
+
+  // Load all categories for lookups
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const allCategories = await db.cpgCategories
+          .where('company_id')
+          .equals(companyId)
+          .filter(cat => !cat.deleted_at)
+          .toArray();
+
+        const map = new Map<string, CPGCategory>();
+        allCategories.forEach(cat => map.set(cat.id, cat));
+        setCategoryMap(map);
+      } catch (err) {
+        console.error('Failed to load categories for lookup:', err);
+      }
+    };
+    loadCategories();
+  }, [companyId]);
 
   useEffect(() => {
     if (!selectedVendor) {
@@ -294,9 +315,9 @@ export default function VendorIntelTab({
             totalSpend += itemTotal;
             if (itemTotal > biggestCost) {
               biggestCost = itemTotal;
-              // Find category name
-              const category = categories.find(c => c.id === attr.category_id);
-              const categoryName = category?.category_name || 'Unknown';
+              // Find category name from map
+              const category = categoryMap.get(attr.category_id);
+              const categoryName = category?.category_name || attr.category_id;
               const variant = attr.variant ? ` (${attr.variant})` : '';
               biggestCostComponent = `${categoryName}${variant}`;
             }
@@ -781,6 +802,7 @@ export default function VendorIntelTab({
             display: 'flex',
             justifyContent: 'space-between',
             gap: '1rem',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
           }}>
             <div>
               <div style={{ fontSize: '0.6875rem', opacity: 0.85, fontWeight: 600, letterSpacing: '0.3px', marginBottom: '0.25rem' }}>BIGGEST COST</div>
