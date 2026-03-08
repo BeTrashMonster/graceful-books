@@ -682,6 +682,27 @@ export default function VendorIntelTab({
           borderRadius: '8px',
           overflow: 'hidden',
         }}>
+          {/* Aggregate Summary Card */}
+          <div style={{
+            background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+            color: 'white',
+            padding: '1.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.5rem',
+          }}>
+            <div style={{ fontSize: '0.875rem', fontWeight: 600, opacity: 0.9 }}>
+              TOTAL SPEND
+            </div>
+            <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
+              {formatCurrency(aggregateStats.totalSpend)}
+            </div>
+            <div style={{ fontSize: '0.875rem', lineHeight: 1.3, opacity: 0.9 }}>
+              <div>BIGGEST COST: {formatCurrency(aggregateStats.biggestCost)}</div>
+              <div>AVG PRICE: {formatCurrency(aggregateStats.avgPrice)}</div>
+            </div>
+          </div>
+
           <div style={{
             padding: '1rem',
             background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
@@ -738,20 +759,22 @@ export default function VendorIntelTab({
                   >
                     <div style={{
                       fontWeight: 600,
-                      fontSize: '0.875rem',
+                      fontSize: '0.9375rem',
                       color: '#1e293b',
                       marginBottom: '0.25rem',
                     }}>
                       {vendor.vendorName}
                     </div>
                     <div style={{
-                      fontSize: '0.75rem',
-                      color: '#64748b',
+                      fontSize: '0.9375rem',
+                      fontWeight: 700,
+                      color: '#4b006e',
+                      marginBottom: '0.125rem',
                     }}>
                       {formatCurrency(vendor.totalSpend)}
                     </div>
                     <div style={{
-                      fontSize: '0.6875rem',
+                      fontSize: '0.75rem',
                       color: '#94a3b8',
                     }}>
                       {formatNumber(vendor.invoiceCount)} invoices · {formatNumber(vendor.componentCount)} components
@@ -767,42 +790,17 @@ export default function VendorIntelTab({
         <div style={{ flex: 1 }}>
           {selectedVendor && selectedVendorStats ? (
             <div>
-              {/* Header Section: Summary Card + Vendor Bar (Side by Side) */}
-              <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                {/* Left: Aggregate Summary Card (All Vendors) */}
-                <div style={{
-                  background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
-                  color: 'white',
-                  padding: '1.5rem',
-                  borderRadius: '12px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.5rem',
-                  minWidth: '250px',
-                }}>
-                  <div style={{ fontSize: '0.875rem', fontWeight: 600, opacity: 0.9 }}>
-                    TOTAL SPEND
-                  </div>
-                  <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
-                    {formatCurrency(aggregateStats.totalSpend)}
-                  </div>
-                  <div style={{ fontSize: '0.875rem', lineHeight: 1.3, opacity: 0.9 }}>
-                    <div>BIGGEST COST: {formatCurrency(aggregateStats.biggestCost)}</div>
-                    <div>AVG PRICE: {formatCurrency(aggregateStats.avgPrice)}</div>
-                  </div>
-                </div>
-
-                {/* Right: Vendor Header Bar with Inline Stats */}
-                <div style={{
-                  flex: 1,
-                  background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
-                  color: 'white',
-                  padding: '1.5rem',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}>
+              {/* Vendor Header Bar */}
+              <div style={{
+                background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+                color: 'white',
+                padding: '1.5rem',
+                borderRadius: '8px',
+                marginBottom: '1.5rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
                 {isEditingVendor ? (
                   <>
                     <div style={{ flex: 1, marginRight: '1rem' }}>
@@ -928,7 +926,6 @@ export default function VendorIntelTab({
                     </div>
                   </>
                 )}
-                </div>
               </div>
 
               {/* Components from this Vendor */}
