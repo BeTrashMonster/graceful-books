@@ -298,47 +298,54 @@ export default function VendorIntelTab({
 
     // Build component rows
     const compRows: ComponentRow[] = [];
-    const compPriceMap = new Map<string, Map<string, number[]>>();
+    const yourPriceMap = new Map<string, number[]>(); // Filtered by date range
+    const allTimeBestPriceMap = new Map<string, number>(); // ALL TIME best prices
 
-    // Collect all vendor prices for each component
-    localInvoices.forEach(inv => {
-      if (inv.deleted_at) return;
-      if (startDate > 0 && inv.invoice_date < startDate) return;
-      if (endDate > 0 && inv.invoice_date > endDate) return;
-
+    // Collect YOUR prices (filtered by date range)
+    filteredInvoices.forEach(inv => {
       Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
         const variants = componentCategories.get(attr.category_id);
         if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
           const compKey = `${attr.category_id}:${attr.variant || ''}`;
-          if (!compPriceMap.has(compKey)) {
-            compPriceMap.set(compKey, new Map());
-          }
-          const vendorPrices = compPriceMap.get(compKey)!;
-          if (!vendorPrices.has(inv.vendor_name || 'Unknown')) {
-            vendorPrices.set(inv.vendor_name || 'Unknown', []);
+          if (!yourPriceMap.has(compKey)) {
+            yourPriceMap.set(compKey, []);
           }
           const unitPrice = parseFloat(attr.unit_price);
           if (!isNaN(unitPrice) && unitPrice > 0) {
-            vendorPrices.get(inv.vendor_name || 'Unknown')!.push(unitPrice);
+            yourPriceMap.get(compKey)!.push(unitPrice);
           }
         }
       });
     });
 
-    for (const [compKey, vendorPrices] of compPriceMap.entries()) {
+    // Collect BEST prices across ALL vendors and ALL TIME
+    localInvoices.forEach(inv => {
+      if (inv.deleted_at) return;
+
+      Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
+        const variants = componentCategories.get(attr.category_id);
+        if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
+          const compKey = `${attr.category_id}:${attr.variant || ''}`;
+          const unitPrice = parseFloat(attr.unit_price);
+          if (!isNaN(unitPrice) && unitPrice > 0) {
+            const currentBest = allTimeBestPriceMap.get(compKey) || Infinity;
+            if (unitPrice < currentBest) {
+              allTimeBestPriceMap.set(compKey, unitPrice);
+            }
+          }
+        }
+      });
+    });
+
+    // Build component rows
+    for (const [compKey, yourPrices] of yourPriceMap.entries()) {
+      if (yourPrices.length === 0) continue;
+
       const [categoryId, variant] = compKey.split(':');
       const category = categories.find(c => c.id === categoryId);
 
-      const yourPrices = vendorPrices.get(selectedVendor.vendorName) || [];
-      if (yourPrices.length === 0) continue;
-
       const yourAvg = yourPrices.reduce((sum, p) => sum + p, 0) / yourPrices.length;
-
-      let bestPrice = Infinity;
-      for (const prices of vendorPrices.values()) {
-        const avg = prices.reduce((sum, p) => sum + p, 0) / prices.length;
-        if (avg < bestPrice) bestPrice = avg;
-      }
+      const bestPrice = allTimeBestPriceMap.get(compKey) || yourAvg;
 
       compRows.push({
         categoryId,
