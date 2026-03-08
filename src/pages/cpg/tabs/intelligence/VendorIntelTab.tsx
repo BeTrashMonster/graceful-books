@@ -2249,6 +2249,7 @@ export default function VendorIntelTab({
                         );
                       })}
                     </div>
+                    </>
                   );
                 })()}
               </div>
