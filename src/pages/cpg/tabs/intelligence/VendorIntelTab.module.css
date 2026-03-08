@@ -104,12 +104,12 @@
 }
 
 .exportButton {
-  padding: 0.4rem 0.875rem;
+  padding: 0.5rem 1rem;
   background: var(--color-primary, #4b006e);
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;

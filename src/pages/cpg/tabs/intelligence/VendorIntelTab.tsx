@@ -1047,18 +1047,232 @@ export default function VendorIntelTab({
     }
   };
 
-  const handleExportVendorOverviewCSV = (currentOnly: boolean) => {
-    const vendors = currentOnly && selectedVendor ? [selectedVendor] : sortedVendors;
-    const rows: string[] = ['Vendor,Total Spend,Invoices,Components'];
-    vendors.forEach(vo => {
-      rows.push(`"${vo.vendorName}","${formatCurrency(vo.totalSpend)}","${vo.invoiceCount}","${vo.componentCount}"`);
+  const handleExportVendorDetailedCSV = (currentOnly: boolean) => {
+    const vendorsToExport = currentOnly && selectedVendor ? [selectedVendor.vendorName] : sortedVendors.map(v => v.vendorName);
+
+    const rows: string[] = [
+      'Vendor,Invoice Number,Invoice Date,Payment Method,Component,Variant,Units Purchased,Unit Price,Line Total,Additional Costs,Total Paid,Notes'
+    ];
+
+    // Get date range filter
+    const today = Date.now();
+    let startDate = 0;
+    let endDate = 0;
+
+    switch (dateRange) {
+      case '3mo':
+        startDate = today - 90 * 24 * 60 * 60 * 1000;
+        break;
+      case '6mo':
+        startDate = today - 180 * 24 * 60 * 60 * 1000;
+        break;
+      case '12mo':
+        startDate = today - 365 * 24 * 60 * 60 * 1000;
+        break;
+      case 'last-calendar-year':
+        const lastYear = new Date().getFullYear() - 1;
+        startDate = new Date(lastYear, 0, 1).getTime();
+        endDate = new Date(lastYear, 11, 31, 23, 59, 59).getTime();
+        break;
+      case 'this-calendar-year':
+        const thisYear = new Date().getFullYear();
+        startDate = new Date(thisYear, 0, 1).getTime();
+        endDate = new Date(thisYear, 11, 31, 23, 59, 59).getTime();
+        break;
+      case 'custom':
+        if (customDateRange) {
+          startDate = customDateRange.start;
+          endDate = customDateRange.end;
+        }
+        break;
+      case 'all':
+        startDate = 0;
+        break;
+    }
+
+    const filteredInvoices = localInvoices.filter(inv => {
+      if (inv.deleted_at) return false;
+      if (!inv.vendor_name || !vendorsToExport.includes(inv.vendor_name)) return false;
+      if (startDate > 0 && inv.invoice_date < startDate) return false;
+      if (endDate > 0 && inv.invoice_date > endDate) return false;
+      return true;
+    }).sort((a, b) => b.invoice_date - a.invoice_date);
+
+    filteredInvoices.forEach(inv => {
+      const vendorName = inv.vendor_name || '';
+      const invoiceNumber = inv.invoice_number || 'N/A';
+      const invoiceDate = new Date(inv.invoice_date).toLocaleDateString();
+      const paymentMethod = inv.payment_method || 'N/A';
+      const notes = (inv.notes || '').replace(/"/g, '""');
+      const totalPaid = inv.total_paid || '0.00';
+
+      // Additional costs summary
+      const additionalCosts = inv.additional_costs
+        ? Object.entries(inv.additional_costs)
+            .map(([desc, amt]) => `${desc}: $${amt}`)
+            .join('; ')
+        : 'None';
+
+      // Export each cost attribution line
+      const attrs = inv.cost_attribution || {};
+      if (Object.keys(attrs).length === 0) {
+        // Invoice with no cost attribution
+        rows.push([
+          `"${vendorName}"`,
+          `"${invoiceNumber}"`,
+          `"${invoiceDate}"`,
+          `"${paymentMethod}"`,
+          `"No components"`,
+          `""`,
+          `"0"`,
+          `"$0.00"`,
+          `"$0.00"`,
+          `"${additionalCosts}"`,
+          `"$${totalPaid}"`,
+          `"${notes}"`
+        ].join(','));
+      } else {
+        Object.entries(attrs).forEach(([key, attr], idx) => {
+          const categoryName = categoryMap.get(attr.category_id)?.name || 'Unknown';
+          const variant = attr.variant || 'N/A';
+          const units = attr.units_purchased || '0';
+          const unitPrice = attr.unit_price || '0.00';
+          const lineTotal = attr.manual_line_total ||
+            (parseFloat(units) * parseFloat(unitPrice)).toFixed(2);
+
+          rows.push([
+            `"${vendorName}"`,
+            `"${invoiceNumber}"`,
+            `"${invoiceDate}"`,
+            `"${paymentMethod}"`,
+            `"${categoryName}"`,
+            `"${variant}"`,
+            `"${units}"`,
+            `"$${unitPrice}"`,
+            `"$${lineTotal}"`,
+            idx === 0 ? `"${additionalCosts}"` : `""`, // Only show on first line
+            idx === 0 ? `"$${totalPaid}"` : `""`, // Only show on first line
+            idx === 0 ? `"${notes}"` : `""` // Only show on first line
+          ].join(','));
+        });
+      }
     });
+
     const csv = rows.join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `vendor-overview-${currentOnly ? 'current' : 'all'}-${new Date().toISOString().split('T')[0]}.csv`;
+    const filename = currentOnly
+      ? `vendor-${selectedVendor?.vendorName.replace(/\s+/g, '-')}-detailed-${new Date().toISOString().split('T')[0]}.csv`
+      : `all-vendors-detailed-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setShowExportMenu(false);
+  };
+
+  const handleExportComponentDetailedCSV = (currentOnly: boolean) => {
+    const componentsToExport = currentOnly && selectedComponent
+      ? [selectedComponent.categoryId]
+      : componentOverviews.map(c => c.categoryId);
+
+    const rows: string[] = [
+      'Component,Variant,Vendor,Invoice Number,Invoice Date,Payment Method,Units Purchased,Unit Price,Line Total,Total Invoice Amount,Notes'
+    ];
+
+    // Get date range filter
+    const today = Date.now();
+    let startDate = 0;
+    let endDate = 0;
+
+    switch (dateRange) {
+      case '3mo':
+        startDate = today - 90 * 24 * 60 * 60 * 1000;
+        break;
+      case '6mo':
+        startDate = today - 180 * 24 * 60 * 60 * 1000;
+        break;
+      case '12mo':
+        startDate = today - 365 * 24 * 60 * 60 * 1000;
+        break;
+      case 'last-calendar-year':
+        const lastYear = new Date().getFullYear() - 1;
+        startDate = new Date(lastYear, 0, 1).getTime();
+        endDate = new Date(lastYear, 11, 31, 23, 59, 59).getTime();
+        break;
+      case 'this-calendar-year':
+        const thisYear = new Date().getFullYear();
+        startDate = new Date(thisYear, 0, 1).getTime();
+        endDate = new Date(thisYear, 11, 31, 23, 59, 59).getTime();
+        break;
+      case 'custom':
+        if (customDateRange) {
+          startDate = customDateRange.start;
+          endDate = customDateRange.end;
+        }
+        break;
+      case 'all':
+        startDate = 0;
+        break;
+    }
+
+    const filteredInvoices = localInvoices.filter(inv => {
+      if (inv.deleted_at) return false;
+      if (startDate > 0 && inv.invoice_date < startDate) return false;
+      if (endDate > 0 && inv.invoice_date > endDate) return false;
+
+      // Check if invoice has any of the components we want
+      const attrs = inv.cost_attribution || {};
+      return Object.values(attrs).some(attr => componentsToExport.includes(attr.category_id));
+    }).sort((a, b) => b.invoice_date - a.invoice_date);
+
+    filteredInvoices.forEach(inv => {
+      const vendorName = inv.vendor_name || 'Unknown';
+      const invoiceNumber = inv.invoice_number || 'N/A';
+      const invoiceDate = new Date(inv.invoice_date).toLocaleDateString();
+      const paymentMethod = inv.payment_method || 'N/A';
+      const notes = (inv.notes || '').replace(/"/g, '""');
+      const totalPaid = inv.total_paid || '0.00';
+
+      const attrs = inv.cost_attribution || {};
+      Object.entries(attrs).forEach(([key, attr], idx) => {
+        if (!componentsToExport.includes(attr.category_id)) return;
+
+        const categoryName = categoryMap.get(attr.category_id)?.name || 'Unknown';
+        const variant = attr.variant || 'N/A';
+        const units = attr.units_purchased || '0';
+        const unitPrice = attr.unit_price || '0.00';
+        const lineTotal = attr.manual_line_total ||
+          (parseFloat(units) * parseFloat(unitPrice)).toFixed(2);
+
+        rows.push([
+          `"${categoryName}"`,
+          `"${variant}"`,
+          `"${vendorName}"`,
+          `"${invoiceNumber}"`,
+          `"${invoiceDate}"`,
+          `"${paymentMethod}"`,
+          `"${units}"`,
+          `"$${unitPrice}"`,
+          `"$${lineTotal}"`,
+          `"$${totalPaid}"`,
+          `"${notes}"`
+        ].join(','));
+      });
+    });
+
+    const csv = rows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const filename = currentOnly
+      ? `component-${selectedComponent?.categoryName.replace(/\s+/g, '-')}-detailed-${new Date().toISOString().split('T')[0]}.csv`
+      : `all-components-detailed-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1127,13 +1341,28 @@ export default function VendorIntelTab({
             </button>
             {showExportMenu && (
               <div className={styles.exportMenu}>
-                <button onClick={() => handleExportVendorOverviewCSV(false)} className={styles.exportMenuItem}>
-                  All Vendors (CSV)
-                </button>
-                {selectedVendor && (
-                  <button onClick={() => handleExportVendorOverviewCSV(true)} className={styles.exportMenuItem}>
-                    Current Vendor (CSV)
-                  </button>
+                {viewMode === 'vendor' ? (
+                  <>
+                    <button onClick={() => handleExportVendorDetailedCSV(false)} className={styles.exportMenuItem}>
+                      All Vendors (CSV)
+                    </button>
+                    {selectedVendor && (
+                      <button onClick={() => handleExportVendorDetailedCSV(true)} className={styles.exportMenuItem}>
+                        Current Vendor (CSV)
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <button onClick={() => handleExportComponentDetailedCSV(false)} className={styles.exportMenuItem}>
+                      All Components (CSV)
+                    </button>
+                    {selectedComponent && (
+                      <button onClick={() => handleExportComponentDetailedCSV(true)} className={styles.exportMenuItem}>
+                        Current Component (CSV)
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             )}
