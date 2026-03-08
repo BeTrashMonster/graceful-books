@@ -1034,7 +1034,7 @@ export default function VendorIntelTab({
       <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem' }}>
         {/* Left: Aggregate Summary Card */}
         <div style={{
-          width: '280px',
+          width: viewMode === 'component' ? '320px' : '280px',
           flexShrink: 0,
           background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
           color: 'white',
@@ -1886,9 +1886,9 @@ export default function VendorIntelTab({
                     </div>
 
                     {/* Stats */}
-                    <div style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', justifyContent: 'space-between' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                       <span>{comp.totalVendors} {comp.totalVendors === 1 ? 'vendor' : 'vendors'}</span>
-                      <span style={{ fontWeight: 600, color: '#4b006e' }}>{formatCurrency(comp.totalSpend)}</span>
+                      <span style={{ fontWeight: 600, color: '#4b006e', fontSize: '0.9375rem' }}>{formatCurrency(comp.totalSpend)}</span>
                     </div>
                   </div>
                 );
