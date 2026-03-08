@@ -790,11 +790,11 @@ export default function VendorIntelTab({
                 </div>
               </div>
 
-              {/* Vendor Header Card */}
+              {/* Vendor Header Bar */}
               <div style={{
                 background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
                 color: 'white',
-                padding: '1.5rem',
+                padding: '1.25rem 1.5rem',
                 borderRadius: '8px',
                 marginBottom: '1.5rem',
                 display: 'flex',
@@ -802,36 +802,37 @@ export default function VendorIntelTab({
                 alignItems: 'center',
               }}>
                 {isEditingVendor ? (
-                  <div style={{ flex: 1 }}>
-                    <input
-                      type="text"
-                      value={editVendorName}
-                      onChange={(e) => setEditVendorName(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '0.5rem',
-                        fontSize: '1.25rem',
-                        fontWeight: 700,
-                        marginBottom: '0.5rem',
-                        border: '1px solid white',
-                        borderRadius: '4px',
-                      }}
-                    />
-                    <textarea
-                      value={editVendorNotes}
-                      onChange={(e) => setEditVendorNotes(e.target.value)}
-                      placeholder="Notes..."
-                      rows={2}
-                      style={{
-                        width: '100%',
-                        padding: '0.5rem',
-                        fontSize: '0.875rem',
-                        marginBottom: '0.75rem',
-                        border: '1px solid white',
-                        borderRadius: '4px',
-                      }}
-                    />
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <>
+                    <div style={{ flex: 1, marginRight: '1rem' }}>
+                      <input
+                        type="text"
+                        value={editVendorName}
+                        onChange={(e) => setEditVendorName(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '0.5rem',
+                          fontSize: '1.25rem',
+                          fontWeight: 700,
+                          marginBottom: '0.5rem',
+                          border: '1px solid white',
+                          borderRadius: '4px',
+                        }}
+                      />
+                      <textarea
+                        value={editVendorNotes}
+                        onChange={(e) => setEditVendorNotes(e.target.value)}
+                        placeholder="Notes..."
+                        rows={2}
+                        style={{
+                          width: '100%',
+                          padding: '0.5rem',
+                          fontSize: '0.875rem',
+                          border: '1px solid white',
+                          borderRadius: '4px',
+                        }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
                       <button onClick={handleSaveVendor} style={{
                         padding: '0.5rem 1rem',
                         background: 'white',
@@ -840,6 +841,7 @@ export default function VendorIntelTab({
                         borderRadius: '4px',
                         fontWeight: 600,
                         cursor: 'pointer',
+                        fontSize: '0.875rem',
                       }}>Save</button>
                       <button onClick={handleArchiveVendor} style={{
                         padding: '0.5rem 1rem',
@@ -849,6 +851,7 @@ export default function VendorIntelTab({
                         borderRadius: '4px',
                         fontWeight: 600,
                         cursor: 'pointer',
+                        fontSize: '0.875rem',
                       }}>Archive</button>
                       <button onClick={() => setIsEditingVendor(false)} style={{
                         padding: '0.5rem 1rem',
@@ -858,15 +861,18 @@ export default function VendorIntelTab({
                         borderRadius: '4px',
                         fontWeight: 600,
                         cursor: 'pointer',
+                        fontSize: '0.875rem',
                       }}>Cancel</button>
                     </div>
-                  </div>
+                  </>
                 ) : (
                   <>
-                    <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>
-                      {selectedVendor.vendorName}
+                    <div>
+                      <div style={{ fontSize: '1.75rem', fontWeight: 700, lineHeight: 1.2 }}>
+                        {selectedVendor.vendorName}
+                      </div>
                       {currentVendorRecord?.notes && (
-                        <div style={{ fontSize: '0.875rem', opacity: 0.9, fontWeight: 400, marginTop: '0.25rem' }}>
+                        <div style={{ fontSize: '0.875rem', opacity: 0.9, fontWeight: 400, marginTop: '0.375rem' }}>
                           {currentVendorRecord.notes}
                         </div>
                       )}
@@ -885,6 +891,7 @@ export default function VendorIntelTab({
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.5rem',
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       ✏️ Edit Vendor
