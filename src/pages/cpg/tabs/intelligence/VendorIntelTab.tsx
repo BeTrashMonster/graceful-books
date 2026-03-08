@@ -52,6 +52,7 @@ interface VendorStats {
   invoiceCount: number;
   componentCount: number;
   biggestCost: number;
+  biggestCostComponent: string;
   avgPrice: number;
 }
 
@@ -129,6 +130,7 @@ export default function VendorIntelTab({
     // Calculate biggest single component cost and average price across all vendors
     const allPrices: number[] = [];
     let biggestCost = 0;
+    let biggestCostComponent = '';
 
     localInvoices.forEach(inv => {
       const attrs = inv.cost_attribution || {};
@@ -138,7 +140,14 @@ export default function VendorIntelTab({
         if (!isNaN(unitPrice) && !isNaN(units)) {
           const cost = unitPrice * units;
           allPrices.push(cost);
-          biggestCost = Math.max(biggestCost, cost);
+          if (cost > biggestCost) {
+            biggestCost = cost;
+            // Find category name
+            const category = categories.find(c => c.id === attr.category_id);
+            const categoryName = category?.category_name || 'Unknown';
+            const variant = attr.variant ? ` (${attr.variant})` : '';
+            biggestCostComponent = `${categoryName}${variant}`;
+          }
         }
       });
     });
@@ -152,9 +161,10 @@ export default function VendorIntelTab({
       totalInvoices,
       totalComponents,
       biggestCost,
+      biggestCostComponent,
       avgPrice,
     };
-  }, [vendorOverviews, localInvoices]);
+  }, [vendorOverviews, localInvoices, categories]);
 
   useEffect(() => {
     setLocalInvoices(invoices);
@@ -269,6 +279,7 @@ export default function VendorIntelTab({
     // Calculate stats
     let totalSpend = 0;
     let biggestCost = 0;
+    let biggestCostComponent = '';
     const allPrices: number[] = [];
     const componentSet = new Set<string>();
 
@@ -281,7 +292,14 @@ export default function VendorIntelTab({
           if (!isNaN(unitPrice) && !isNaN(unitsPurchased)) {
             const itemTotal = unitPrice * unitsPurchased;
             totalSpend += itemTotal;
-            if (itemTotal > biggestCost) biggestCost = itemTotal;
+            if (itemTotal > biggestCost) {
+              biggestCost = itemTotal;
+              // Find category name
+              const category = categories.find(c => c.id === attr.category_id);
+              const categoryName = category?.category_name || 'Unknown';
+              const variant = attr.variant ? ` (${attr.variant})` : '';
+              biggestCostComponent = `${categoryName}${variant}`;
+            }
             allPrices.push(unitPrice);
             componentSet.add(`${attr.category_id}:${attr.variant || ''}`);
           }
@@ -296,6 +314,7 @@ export default function VendorIntelTab({
       invoiceCount: filteredInvoices.length,
       componentCount: componentSet.size,
       biggestCost,
+      biggestCostComponent,
       avgPrice,
     });
 
@@ -749,22 +768,31 @@ export default function VendorIntelTab({
           gap: '0.5rem',
         }}>
           <div style={{ fontSize: '0.875rem', fontWeight: 600, opacity: 0.9, letterSpacing: '0.5px' }}>
-            YEAR TO DATE TOTAL SPEND
+            TOTAL SPEND
           </div>
           <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
             {formatCurrency(aggregateStats.totalSpend)}
           </div>
           <div style={{
-            fontSize: '0.75rem',
-            lineHeight: 1.3,
-            opacity: 0.9,
-            fontWeight: 400,
+            fontSize: '0.8125rem',
+            lineHeight: 1.4,
+            opacity: 0.95,
+            fontWeight: 500,
             display: 'flex',
             justifyContent: 'space-between',
             gap: '1rem',
           }}>
-            <div>BIGGEST COST<br/>{formatCurrency(aggregateStats.biggestCost)}</div>
-            <div style={{ textAlign: 'right' }}>AVG PRICE<br/>{formatCurrency(aggregateStats.avgPrice)}</div>
+            <div>
+              <div style={{ fontSize: '0.6875rem', opacity: 0.85, fontWeight: 600, letterSpacing: '0.3px', marginBottom: '0.25rem' }}>BIGGEST COST</div>
+              <div style={{ fontWeight: 700 }}>{formatCurrency(aggregateStats.biggestCost)}</div>
+              {aggregateStats.biggestCostComponent && (
+                <div style={{ fontSize: '0.6875rem', opacity: 0.85, marginTop: '0.125rem' }}>{aggregateStats.biggestCostComponent}</div>
+              )}
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '0.6875rem', opacity: 0.85, fontWeight: 600, letterSpacing: '0.3px', marginBottom: '0.25rem' }}>AVG INVOICE</div>
+              <div style={{ fontWeight: 700 }}>{formatCurrency(aggregateStats.avgPrice)}</div>
+            </div>
           </div>
         </div>
 
