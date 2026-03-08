@@ -2011,20 +2011,13 @@ export default function VendorIntelTab({
           <div style={{ flex: 1, background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '1.5rem' }}>
             {selectedComponent ? (
               <div>
-                <h4 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.5rem' }}>
-                  {selectedComponent.categoryName}
-                </h4>
-                <div style={{
-                  fontSize: '0.75rem',
-                  color: '#64748b',
-                  marginBottom: '1.5rem',
-                  display: 'inline-block',
-                  padding: '0.375rem 0.75rem',
-                  background: '#dbeafe',
-                  borderRadius: '6px',
-                  fontWeight: 500,
-                }}>
-                  📊 {getDateRangeLabel(dateRange)} · Vendor pricing comparison
+                <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'baseline', gap: '0.75rem' }}>
+                  <h4 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b', margin: 0 }}>
+                    {selectedComponent.categoryName}
+                  </h4>
+                  <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500 }}>
+                    · {getDateRangeLabel(dateRange)}
+                  </span>
                 </div>
 
                 {(() => {
@@ -2039,7 +2032,7 @@ export default function VendorIntelTab({
                   }
 
                   return (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                       {variantPricing.map((variantData, idx) => {
                         const variantKey = `${selectedComponent.categoryId}-${variantData.variant || 'no-variant'}`;
                         const isExpanded = expandedVariants.has(variantKey);
@@ -2048,10 +2041,10 @@ export default function VendorIntelTab({
                         return (
                           <div key={idx} style={{
                             border: '1px solid #e5e7eb',
-                            borderRadius: '8px',
+                            borderRadius: '6px',
                             overflow: 'hidden',
                           }}>
-                            {/* Variant Header */}
+                            {/* Variant Header - Compact Single Line */}
                             <div
                               onClick={() => {
                                 const newExpanded = new Set(expandedVariants);
@@ -2063,108 +2056,124 @@ export default function VendorIntelTab({
                                 setExpandedVariants(newExpanded);
                               }}
                               style={{
-                                padding: '0.75rem 1rem',
-                                background: '#f8fafc',
+                                padding: '0.625rem 0.875rem',
+                                background: isExpanded ? '#fafbfc' : 'white',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                transition: 'background 0.15s ease',
+                                transition: 'all 0.15s ease',
+                                borderBottom: isExpanded ? '1px solid #e5e7eb' : 'none',
                               }}
-                              onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
-                              onMouseLeave={(e) => e.currentTarget.style.background = '#f8fafc'}
+                              onMouseEnter={(e) => {
+                                if (!isExpanded) e.currentTarget.style.background = '#fafbfc';
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!isExpanded) e.currentTarget.style.background = 'white';
+                              }}
                             >
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                <span style={{ fontSize: '0.875rem', color: '#64748b' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                                <span style={{ fontSize: '0.75rem', color: '#94a3b8', width: '12px' }}>
                                   {isExpanded ? '▼' : '▶'}
                                 </span>
-                                <div>
-                                  <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: '#1e293b' }}>
-                                    {variantData.variant || 'No variant'}
-                                  </div>
-                                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                                    {variantData.vendors.length} {variantData.vendors.length === 1 ? 'vendor' : 'vendors'} offering this
-                                  </div>
-                                </div>
+                                <span style={{ fontWeight: 600, fontSize: '0.875rem', color: '#1e293b' }}>
+                                  {variantData.variant || 'No variant'}
+                                </span>
+                                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                                  · {variantData.vendors.length} {variantData.vendors.length === 1 ? 'vendor' : 'vendors'}
+                                </span>
                               </div>
-                              <div style={{ textAlign: 'right' }}>
-                                <div style={{ fontSize: '0.6875rem', color: '#64748b', marginBottom: '0.125rem' }}>
-                                  BEST PRICE
-                                </div>
-                                <div style={{ fontWeight: 700, fontSize: '1rem', color: '#16a34a' }}>
-                                  {formatCurrency(bestVendor?.avgPrice || 0)}
-                                </div>
+                              <div style={{
+                                background: '#16a34a',
+                                color: 'white',
+                                padding: '0.25rem 0.625rem',
+                                borderRadius: '4px',
+                                fontWeight: 700,
+                                fontSize: '0.875rem',
+                              }}>
+                                {formatCurrency(bestVendor?.avgPrice || 0)}
                               </div>
                             </div>
 
-                            {/* Vendor List (Expanded) */}
+                            {/* Vendor List (Expanded) - Compact Table Layout */}
                             {isExpanded && (
-                              <div style={{ padding: '0.5rem' }}>
+                              <div style={{ background: '#fafbfc' }}>
                                 {variantData.vendors.map((vendor, vIdx) => (
                                   <div
                                     key={vIdx}
                                     style={{
-                                      padding: '0.75rem 1rem',
-                                      background: vendor.isBest ? '#dcfce7' : 'white',
-                                      borderRadius: '6px',
-                                      marginBottom: '0.375rem',
+                                      padding: '0.5rem 0.875rem',
+                                      background: vendor.isBest ? '#ccedd8' : 'transparent',
                                       display: 'flex',
                                       justifyContent: 'space-between',
                                       alignItems: 'center',
-                                      border: vendor.isBest ? '1px solid #16a34a' : '1px solid #f1f5f9',
+                                      borderBottom: vIdx < variantData.vendors.length - 1 ? '1px solid #e5e7eb' : 'none',
+                                      transition: 'background 0.1s ease',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      if (!vendor.isBest) e.currentTarget.style.background = '#f1f5f9';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      if (!vendor.isBest) e.currentTarget.style.background = 'transparent';
                                     }}
                                   >
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                      {vendor.isBest && (
-                                        <span style={{ fontSize: '1rem' }}>✓</span>
-                                      )}
-                                      <div>
-                                        <div
-                                          onClick={() => handleVendorClick(vendor.vendorName)}
-                                          style={{
-                                            fontWeight: 600,
-                                            fontSize: '0.875rem',
-                                            color: '#4b006e',
-                                            cursor: 'pointer',
-                                            textDecoration: 'underline',
-                                          }}
-                                        >
-                                          {vendor.vendorName}
-                                        </div>
-                                        <div style={{ fontSize: '0.6875rem', color: '#64748b' }}>
-                                          Based on {vendor.priceCount} {vendor.priceCount === 1 ? 'invoice' : 'invoices'}
-                                        </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
+                                      <span style={{
+                                        fontSize: '0.875rem',
+                                        color: vendor.isBest ? '#16a34a' : 'transparent',
+                                        fontWeight: 700,
+                                        width: '16px',
+                                      }}>
+                                        {vendor.isBest ? '✓' : ''}
+                                      </span>
+                                      <div
+                                        onClick={() => handleVendorClick(vendor.vendorName)}
+                                        style={{
+                                          fontWeight: 600,
+                                          fontSize: '0.875rem',
+                                          color: '#4b006e',
+                                          cursor: 'pointer',
+                                          textDecoration: 'underline',
+                                        }}
+                                      >
+                                        {vendor.vendorName}
                                       </div>
+                                      <span style={{ fontSize: '0.6875rem', color: '#94a3b8' }}>
+                                        ({vendor.priceCount})
+                                      </span>
                                     </div>
-                                    <div style={{ textAlign: 'right' }}>
+                                    <div style={{
+                                      display: 'flex',
+                                      alignItems: 'baseline',
+                                      gap: '0.75rem',
+                                      justifyContent: 'flex-end',
+                                    }}>
                                       <div style={{
                                         fontWeight: 700,
                                         fontSize: '0.9375rem',
                                         color: vendor.isBest ? '#16a34a' : '#1e293b',
-                                        marginBottom: '0.125rem',
                                       }}>
-                                        {formatCurrency(vendor.avgPrice)} avg
+                                        {formatCurrency(vendor.avgPrice)}
                                       </div>
-                                      {!vendor.isBest && (
+                                      {!vendor.isBest ? (
                                         <div style={{
                                           fontSize: '0.75rem',
                                           color: '#dc2626',
                                           fontWeight: 600,
+                                          minWidth: '80px',
+                                          textAlign: 'right',
                                         }}>
                                           +{formatCurrency(vendor.avgPrice - (bestVendor?.avgPrice || 0))} ({vendor.percentVsBest.toFixed(1)}%)
                                         </div>
-                                      )}
-                                      {vendor.isBest && (
+                                      ) : (
                                         <div style={{
                                           fontSize: '0.6875rem',
                                           color: '#16a34a',
-                                          fontWeight: 600,
-                                          background: '#f0fdf4',
-                                          padding: '0.125rem 0.375rem',
-                                          borderRadius: '3px',
-                                          display: 'inline-block',
+                                          fontWeight: 700,
+                                          minWidth: '80px',
+                                          textAlign: 'right',
                                         }}>
-                                          BEST PRICE
+                                          BEST
                                         </div>
                                       )}
                                     </div>
