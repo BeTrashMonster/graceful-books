@@ -895,48 +895,34 @@ export default function VendorIntelTab({
                     style={{
                       padding: '1rem',
                       cursor: 'pointer',
-                      background: 'white',
-                      border: isSelected ? '2px solid #4b006e' : '1px solid #e5e7eb',
+                      background: isSelected ? '#f3e8ff' : 'white',
+                      border: '1px solid #e5e7eb',
                       borderRadius: '8px',
                       marginBottom: '0.75rem',
                       transition: 'all 0.15s ease',
-                      boxShadow: isSelected ? '0 2px 8px rgba(75, 0, 110, 0.15)' : 'none',
                     }}
                     onMouseEnter={(e) => {
                       if (!isSelected) {
-                        e.currentTarget.style.borderColor = '#d1d5db';
-                        e.currentTarget.style.boxShadow = '0 1px 4px rgba(0, 0, 0, 0.05)';
+                        e.currentTarget.style.background = '#fafbfc';
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (!isSelected) {
-                        e.currentTarget.style.borderColor = '#e5e7eb';
-                        e.currentTarget.style.boxShadow = 'none';
+                        e.currentTarget.style.background = 'white';
                       }
                     }}
                   >
                     <div style={{
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                       fontWeight: 600,
-                      fontSize: '0.875rem',
+                      fontSize: '0.9375rem',
                       color: '#1e293b',
-                      marginBottom: '0.25rem',
+                      marginBottom: '0.375rem',
                     }}>
                       {vendor.vendorName}
                     </div>
                     <div style={{
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                      fontSize: '0.875rem',
-                      fontWeight: 700,
-                      color: '#4b006e',
-                      marginBottom: '0.125rem',
-                    }}>
-                      {formatCurrency(vendor.totalSpend)}
-                    </div>
-                    <div style={{
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                      fontSize: '0.6875rem',
-                      color: '#94a3b8',
+                      fontSize: '0.8125rem',
+                      color: '#64748b',
                     }}>
                       {formatNumber(vendor.invoiceCount)} {vendor.invoiceCount === 1 ? 'invoice' : 'invoices'} · {formatNumber(vendor.componentCount)} {vendor.componentCount === 1 ? 'component' : 'components'}
                     </div>
