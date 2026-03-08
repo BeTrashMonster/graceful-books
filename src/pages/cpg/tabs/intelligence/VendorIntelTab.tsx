@@ -1253,7 +1253,7 @@ export default function VendorIntelTab({
                                                 key={inv.id}
                                                 style={{
                                                   borderBottom: '1px solid #f1f5f9',
-                                                  background: isLowest ? '#dcfce7' : 'transparent',
+                                                  background: isLowest ? '#add9bc' : 'transparent',
                                                 }}
                                               >
                                                 <td style={{ padding: '0.5rem', fontWeight: 500 }}>{inv.invoice_number || 'Unnamed'}</td>
