@@ -879,7 +879,7 @@ export default function VendorIntelTab({
               {showArchivedVendors ? 'Active' : 'Archived'}
             </button>
           </div>
-          <div style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
+          <div style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto', padding: '0.75rem' }}>
             {showArchivedVendors ? (
               <ArchivedVendorsList
                 companyId={companyId}
@@ -893,17 +893,26 @@ export default function VendorIntelTab({
                     key={vendor.vendorName}
                     onClick={() => setSelectedVendor(vendor)}
                     style={{
-                      padding: '0.75rem 1rem',
+                      padding: '1rem',
                       cursor: 'pointer',
-                      borderBottom: '1px solid #f1f5f9',
-                      background: isSelected ? '#f3e8ff' : 'white',
-                      transition: 'background 0.15s ease',
+                      background: 'white',
+                      border: isSelected ? '2px solid #4b006e' : '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      marginBottom: '0.75rem',
+                      transition: 'all 0.15s ease',
+                      boxShadow: isSelected ? '0 2px 8px rgba(75, 0, 110, 0.15)' : 'none',
                     }}
                     onMouseEnter={(e) => {
-                      if (!isSelected) e.currentTarget.style.background = '#fafbfc';
+                      if (!isSelected) {
+                        e.currentTarget.style.borderColor = '#d1d5db';
+                        e.currentTarget.style.boxShadow = '0 1px 4px rgba(0, 0, 0, 0.05)';
+                      }
                     }}
                     onMouseLeave={(e) => {
-                      if (!isSelected) e.currentTarget.style.background = 'white';
+                      if (!isSelected) {
+                        e.currentTarget.style.borderColor = '#e5e7eb';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }
                     }}
                   >
                     <div style={{
