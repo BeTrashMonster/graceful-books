@@ -145,7 +145,7 @@ export default function VendorIntelTab({
             biggestCost = cost;
             // Find category name from map
             const category = categoryMap.get(attr.category_id);
-            const categoryName = category?.category_name || attr.category_id;
+            const categoryName = category?.name || 'Unknown Component';
             const variant = attr.variant ? ` (${attr.variant})` : '';
             biggestCostComponent = `${categoryName}${variant}`;
           }
@@ -317,7 +317,7 @@ export default function VendorIntelTab({
               biggestCost = itemTotal;
               // Find category name from map
               const category = categoryMap.get(attr.category_id);
-              const categoryName = category?.category_name || attr.category_id;
+              const categoryName = category?.name || 'Unknown Component';
               const variant = attr.variant ? ` (${attr.variant})` : '';
               biggestCostComponent = `${categoryName}${variant}`;
             }
@@ -774,49 +774,80 @@ export default function VendorIntelTab({
         </div>
       </div>
 
+      {/* FONT COMPARISON - 10 Different Fonts to Choose From */}
+      <div style={{ marginBottom: '1.5rem', background: '#f8fafc', padding: '1.5rem', borderRadius: '12px' }}>
+        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 600, color: '#4b006e' }}>
+          Font Comparison - Pick Your Favorite (Component Bug Fixed - Should Show Real Names)
+        </h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem' }}>
+          {[
+            { name: 'Arial', font: 'Arial, sans-serif' },
+            { name: 'Verdana', font: 'Verdana, sans-serif' },
+            { name: 'Tahoma', font: 'Tahoma, sans-serif' },
+            { name: 'Trebuchet MS', font: '"Trebuchet MS", sans-serif' },
+            { name: 'Georgia', font: 'Georgia, serif' },
+            { name: 'Calibri', font: 'Calibri, sans-serif' },
+            { name: 'Segoe UI', font: '"Segoe UI", sans-serif' },
+            { name: 'Roboto', font: 'Roboto, sans-serif' },
+            { name: 'Helvetica', font: '"Helvetica Neue", Helvetica, sans-serif' },
+            { name: 'System Font', font: '-apple-system, BlinkMacSystemFont, sans-serif' },
+          ].map((fontOption, idx) => (
+            <div key={idx} style={{
+              background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+              color: 'white',
+              padding: '1.5rem',
+              borderRadius: '12px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem',
+            }}>
+              <div style={{
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                opacity: 0.7,
+                letterSpacing: '0.5px',
+                fontFamily: 'Arial, sans-serif',
+                marginBottom: '0.25rem',
+                borderBottom: '1px solid rgba(255,255,255,0.3)',
+                paddingBottom: '0.25rem'
+              }}>
+                {fontOption.name}
+              </div>
+              <div style={{ fontSize: '0.875rem', fontWeight: 600, opacity: 0.9, letterSpacing: '0.5px' }}>
+                TOTAL SPEND
+              </div>
+              <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
+                {formatCurrency(aggregateStats.totalSpend)}
+              </div>
+              <div style={{
+                fontSize: '0.8125rem',
+                lineHeight: 1.4,
+                opacity: 0.95,
+                fontWeight: 500,
+                display: 'flex',
+                justifyContent: 'space-between',
+                gap: '1rem',
+                fontFamily: fontOption.font,
+              }}>
+                <div>
+                  <div style={{ fontSize: '0.6875rem', opacity: 0.85, fontWeight: 600, letterSpacing: '0.3px', marginBottom: '0.25rem' }}>BIGGEST COST</div>
+                  <div style={{ fontWeight: 700 }}>{formatCurrency(aggregateStats.biggestCost)}</div>
+                  {aggregateStats.biggestCostComponent && (
+                    <div style={{ fontSize: '0.6875rem', opacity: 0.85, marginTop: '0.125rem' }}>{aggregateStats.biggestCostComponent}</div>
+                  )}
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.6875rem', opacity: 0.85, fontWeight: 600, letterSpacing: '0.3px', marginBottom: '0.25rem' }}>AVG INVOICE</div>
+                  <div style={{ fontWeight: 700 }}>{formatCurrency(aggregateStats.avgPrice)}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Top Row: Summary Card + Vendor Header */}
       <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem' }}>
-        {/* Left: Aggregate Summary Card */}
-        <div style={{
-          width: '280px',
-          flexShrink: 0,
-          background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
-          color: 'white',
-          padding: '1.5rem',
-          borderRadius: '12px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.5rem',
-        }}>
-          <div style={{ fontSize: '0.875rem', fontWeight: 600, opacity: 0.9, letterSpacing: '0.5px' }}>
-            TOTAL SPEND
-          </div>
-          <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
-            {formatCurrency(aggregateStats.totalSpend)}
-          </div>
-          <div style={{
-            fontSize: '0.8125rem',
-            lineHeight: 1.4,
-            opacity: 0.95,
-            fontWeight: 500,
-            display: 'flex',
-            justifyContent: 'space-between',
-            gap: '1rem',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-          }}>
-            <div>
-              <div style={{ fontSize: '0.6875rem', opacity: 0.85, fontWeight: 600, letterSpacing: '0.3px', marginBottom: '0.25rem' }}>BIGGEST COST</div>
-              <div style={{ fontWeight: 700 }}>{formatCurrency(aggregateStats.biggestCost)}</div>
-              {aggregateStats.biggestCostComponent && (
-                <div style={{ fontSize: '0.6875rem', opacity: 0.85, marginTop: '0.125rem' }}>{aggregateStats.biggestCostComponent}</div>
-              )}
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.6875rem', opacity: 0.85, fontWeight: 600, letterSpacing: '0.3px', marginBottom: '0.25rem' }}>AVG INVOICE</div>
-              <div style={{ fontWeight: 700 }}>{formatCurrency(aggregateStats.avgPrice)}</div>
-            </div>
-          </div>
-        </div>
 
         {/* Right: Vendor Header Bar (if vendor selected) */}
         {selectedVendor && selectedVendorStats && (
