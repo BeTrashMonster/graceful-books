@@ -984,6 +984,7 @@ export default function VendorIntelTab({
                           <th>DATE ↓</th>
                           <th className={styles.alignRight}>TOTAL</th>
                           <th>COMPONENTS</th>
+                          <th style={{ textAlign: 'center' }}>ACTIONS</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1003,6 +1004,40 @@ export default function VendorIntelTab({
                                 {formatCurrency(total)}
                               </td>
                               <td>{formatNumber(componentCount)} component{componentCount !== 1 ? 's' : ''}</td>
+                              <td>
+                                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                                  <button style={{
+                                    padding: '0.375rem 0.75rem',
+                                    background: 'white',
+                                    color: '#4b006e',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '4px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 500,
+                                    cursor: 'pointer',
+                                  }}>View</button>
+                                  <button style={{
+                                    padding: '0.375rem 0.75rem',
+                                    background: 'white',
+                                    color: '#4b006e',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '4px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 500,
+                                    cursor: 'pointer',
+                                  }}>Edit</button>
+                                  <button style={{
+                                    padding: '0.375rem 0.75rem',
+                                    background: 'white',
+                                    color: '#4b006e',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '4px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 500,
+                                    cursor: 'pointer',
+                                  }}>Duplicate</button>
+                                </div>
+                              </td>
                             </tr>
                           );
                         })}
