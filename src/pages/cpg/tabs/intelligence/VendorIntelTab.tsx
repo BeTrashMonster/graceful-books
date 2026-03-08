@@ -687,14 +687,22 @@ export default function VendorIntelTab({
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         }}>
           <div style={{ fontSize: '0.875rem', fontWeight: 600, opacity: 0.9, letterSpacing: '0.5px' }}>
-            TOTAL SPEND
+            YEAR TO DATE TOTAL SPEND
           </div>
           <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
             {formatCurrency(aggregateStats.totalSpend)}
           </div>
-          <div style={{ fontSize: '0.75rem', lineHeight: 1.3, opacity: 0.9, fontWeight: 400 }}>
-            <div>BIGGEST COST: {formatCurrency(aggregateStats.biggestCost)}</div>
-            <div>AVG PRICE: {formatCurrency(aggregateStats.avgPrice)}</div>
+          <div style={{
+            fontSize: '0.75rem',
+            lineHeight: 1.3,
+            opacity: 0.9,
+            fontWeight: 400,
+            display: 'flex',
+            justifyContent: 'space-between',
+            gap: '1rem',
+          }}>
+            <div>BIGGEST COST<br/>{formatCurrency(aggregateStats.biggestCost)}</div>
+            <div style={{ textAlign: 'right' }}>AVG PRICE<br/>{formatCurrency(aggregateStats.avgPrice)}</div>
           </div>
         </div>
 
