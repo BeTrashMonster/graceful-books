@@ -1189,8 +1189,8 @@ export default function VendorIntelTab({
           </div>
         </div>
 
-        {/* Right: Vendor Header Bar (if vendor selected) */}
-        {selectedVendor && selectedVendorStats && (
+        {/* Right: Vendor Header Bar (if vendor selected in vendor view) OR Context Cards (in component view) */}
+        {viewMode === 'vendor' && selectedVendor && selectedVendorStats && (
           <div style={{
             flex: 1,
             background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
@@ -1328,6 +1328,77 @@ export default function VendorIntelTab({
             )}
           </div>
         )}
+
+        {/* Right: Context Cards (if in component view and component selected) */}
+        {viewMode === 'component' && selectedComponent && (() => {
+          const componentOverview = componentOverviews.find(c => c.categoryId === selectedComponent.categoryId);
+          const variantPricing = getComponentVendorPricing(selectedComponent.categoryId);
+          const totalVariants = variantPricing.length;
+          const totalVendors = componentOverview?.totalVendors || 0;
+          const totalSpend = componentOverview?.totalSpend || 0;
+
+          // Calculate potential savings
+          let currentSpend = 0;
+          let optimalSpend = 0;
+          variantPricing.forEach(vp => {
+            const bestPrice = Math.min(...vp.vendors.map(v => v.avgPrice));
+            vp.vendors.forEach(v => {
+              currentSpend += v.avgPrice * v.priceCount;
+              optimalSpend += bestPrice * v.priceCount;
+            });
+          });
+          const potentialSavings = currentSpend - optimalSpend;
+
+          return (
+            <div style={{ flex: 1, display: 'flex', alignItems: 'stretch' }}>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+                gap: '1rem',
+                flex: 1,
+              }}>
+                <div style={{
+                  background: '#f3e8ff',
+                  border: '2px solid #9333ea',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                }}>
+                  <div style={{ fontSize: '0.75rem', color: '#6b21a8', fontWeight: 600, marginBottom: '0.25rem' }}>VARIANTS</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#4b006e' }}>{totalVariants}</div>
+                </div>
+                <div style={{
+                  background: '#dbeafe',
+                  border: '2px solid #3b82f6',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                }}>
+                  <div style={{ fontSize: '0.75rem', color: '#1d4ed8', fontWeight: 600, marginBottom: '0.25rem' }}>VENDORS</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e40af' }}>{totalVendors}</div>
+                </div>
+                <div style={{
+                  background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+                  color: 'white',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                }}>
+                  <div style={{ fontSize: '0.75rem', opacity: 0.9, marginBottom: '0.25rem' }}>COMPONENT SPEND</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{formatCurrency(totalSpend)}</div>
+                </div>
+                {potentialSavings > 0 && (
+                  <div style={{
+                    background: '#fee2e2',
+                    border: '2px solid #dc2626',
+                    padding: '1rem',
+                    borderRadius: '8px',
+                  }}>
+                    <div style={{ fontSize: '0.75rem', color: '#991b1b', fontWeight: 600, marginBottom: '0.25rem' }}>POTENTIAL SAVINGS</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#dc2626' }}>{formatCurrency(potentialSavings)}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Bottom Row: List + Content (Vendor or Component View) */}
@@ -2038,72 +2109,7 @@ export default function VendorIntelTab({
                     );
                   }
 
-                  // Calculate context card data
-                  const componentOverview = componentOverviews.find(c => c.categoryId === selectedComponent.categoryId);
-                  const totalVariants = variantPricing.length;
-                  const totalVendors = componentOverview?.totalVendors || 0;
-                  const totalSpend = componentOverview?.totalSpend || 0;
-
-                  // Calculate potential savings
-                  let currentSpend = 0;
-                  let optimalSpend = 0;
-                  variantPricing.forEach(vp => {
-                    const bestPrice = Math.min(...vp.vendors.map(v => v.avgPrice));
-                    vp.vendors.forEach(v => {
-                      currentSpend += v.avgPrice * v.priceCount;
-                      optimalSpend += bestPrice * v.priceCount;
-                    });
-                  });
-                  const potentialSavings = currentSpend - optimalSpend;
-
                   return (
-                    <>
-                      {/* Context Cards */}
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                        gap: '1rem',
-                        marginBottom: '1.5rem',
-                      }}>
-                        <div style={{
-                          background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
-                          color: 'white',
-                          padding: '1rem',
-                          borderRadius: '8px',
-                        }}>
-                          <div style={{ fontSize: '0.75rem', opacity: 0.9, marginBottom: '0.25rem' }}>TOTAL SPEND</div>
-                          <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{formatCurrency(totalSpend)}</div>
-                        </div>
-                        <div style={{
-                          background: '#f3e8ff',
-                          border: '2px solid #9333ea',
-                          padding: '1rem',
-                          borderRadius: '8px',
-                        }}>
-                          <div style={{ fontSize: '0.75rem', color: '#6b21a8', fontWeight: 600, marginBottom: '0.25rem' }}>VARIANTS</div>
-                          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#4b006e' }}>{totalVariants}</div>
-                        </div>
-                        <div style={{
-                          background: '#dbeafe',
-                          border: '2px solid #3b82f6',
-                          padding: '1rem',
-                          borderRadius: '8px',
-                        }}>
-                          <div style={{ fontSize: '0.75rem', color: '#1d4ed8', fontWeight: 600, marginBottom: '0.25rem' }}>VENDORS</div>
-                          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e40af' }}>{totalVendors}</div>
-                        </div>
-                        {potentialSavings > 0 && (
-                          <div style={{
-                            background: '#fee2e2',
-                            border: '2px solid #dc2626',
-                            padding: '1rem',
-                            borderRadius: '8px',
-                          }}>
-                            <div style={{ fontSize: '0.75rem', color: '#991b1b', fontWeight: 600, marginBottom: '0.25rem' }}>POTENTIAL SAVINGS</div>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#dc2626' }}>{formatCurrency(potentialSavings)}</div>
-                          </div>
-                        )}
-                      </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       {variantPricing.map((variantData, idx) => {
                         const variantKey = `${selectedComponent.categoryId}-${variantData.variant || 'no-variant'}`;
@@ -2249,7 +2255,6 @@ export default function VendorIntelTab({
                         );
                       })}
                     </div>
-                    </>
                   );
                 })()}
               </div>
