@@ -1364,8 +1364,8 @@ export default function VendorIntelTab({
                   borderRadius: '8px',
                 }}>
                   <div style={{ fontSize: '0.75rem', opacity: 0.9, marginBottom: '0.25rem' }}>{selectedComponent.categoryName.toUpperCase()} SPEND</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>{formatCurrency(totalSpend)}</div>
-                  <div style={{ fontSize: '0.75rem', opacity: 0.85 }}>
+                  <div style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem' }}>{formatCurrency(totalSpend)}</div>
+                  <div style={{ fontSize: '0.875rem', opacity: 0.85 }}>
                     {((totalSpend / aggregateStats.totalSpend) * 100).toFixed(2)}% of total spend
                   </div>
                 </div>
