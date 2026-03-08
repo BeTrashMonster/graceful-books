@@ -684,7 +684,7 @@ export default function VendorIntelTab({
           display: 'flex',
           flexDirection: 'column',
           gap: '0.5rem',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          fontFamily: '"Segoe UI", system-ui, -apple-system, sans-serif',
         }}>
           <div style={{ fontSize: '0.875rem', fontWeight: 600, opacity: 0.9, letterSpacing: '0.5px' }}>
             YEAR TO DATE TOTAL SPEND
@@ -717,7 +717,7 @@ export default function VendorIntelTab({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            fontFamily: '"Segoe UI", system-ui, -apple-system, sans-serif',
           }}>
             {isEditingVendor ? (
               <>
@@ -868,7 +868,7 @@ export default function VendorIntelTab({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            fontFamily: '"Segoe UI", system-ui, -apple-system, sans-serif',
           }}>
             <span style={{ letterSpacing: '0.5px' }}>VENDORS ({formatNumber(sortedVendors.length)})</span>
             <button
@@ -908,6 +908,7 @@ export default function VendorIntelTab({
                       borderRadius: '8px',
                       marginBottom: '0.75rem',
                       transition: 'all 0.15s ease',
+                      fontFamily: '"Segoe UI", system-ui, -apple-system, sans-serif',
                     }}
                     onMouseEnter={(e) => {
                       if (!isSelected) {
