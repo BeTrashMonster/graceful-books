@@ -730,6 +730,29 @@ export default function VendorIntelTab({
         <div style={{ flex: 1 }}>
           {selectedVendor && selectedVendorStats ? (
             <div>
+              {/* Purple Summary Card */}
+              <div style={{
+                background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+                color: 'white',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                marginBottom: '1.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+              }}>
+                <div style={{ fontSize: '0.875rem', fontWeight: 600, opacity: 0.9 }}>
+                  TOTAL SPEND
+                </div>
+                <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
+                  {formatCurrency(selectedVendorStats.totalSpend)}
+                </div>
+                <div style={{ fontSize: '0.875rem', lineHeight: 1.3, opacity: 0.9 }}>
+                  <div>BIGGEST COST: {formatCurrency(selectedVendorStats.biggestCost)}</div>
+                  <div>AVG PRICE: {formatCurrency(selectedVendorStats.avgPrice)}</div>
+                </div>
+              </div>
+
               {/* Vendor Header Bar with Inline Stats */}
               <div style={{
                 background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
