@@ -122,6 +122,14 @@ export default function VendorIntelTab({
   const [invoiceDropdownDateRange, setInvoiceDropdownDateRange] = useState<Map<string, VendorIntelTabProps['dateRange']>>(new Map());
   const [categoryMap, setCategoryMap] = useState<Map<string, CPGCategory>>(new Map());
 
+  // Component table sorting
+  const [componentSortColumn, setComponentSortColumn] = useState<'component' | 'lastPrice' | 'bestPrice' | 'change'>('component');
+  const [componentSortDirection, setComponentSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  // Invoice table sorting
+  const [invoiceSortColumn, setInvoiceSortColumn] = useState<'invoice' | 'date' | 'total' | 'components'>('date');
+  const [invoiceSortDirection, setInvoiceSortDirection] = useState<'asc' | 'desc'>('desc');
+
   // Aggregate stats across ALL vendors
   const aggregateStats = useMemo(() => {
     const totalSpend = vendorOverviews.reduce((sum, v) => sum + v.totalSpend, 0);
@@ -468,6 +476,86 @@ export default function VendorIntelTab({
   useEffect(() => {
     loadVendorIntelligence();
   }, [selectedProducts, productCPUData, localInvoices, dateRange, customDateRange, categoryFilter, variantFilter, vendorFilter, showArchivedVendors]);
+
+  // Sorted component rows
+  const sortedVendorComponents = useMemo(() => {
+    const sorted = [...vendorComponents];
+    sorted.sort((a, b) => {
+      let aVal: any, bVal: any;
+
+      switch (componentSortColumn) {
+        case 'component':
+          aVal = `${a.categoryName} ${a.variant || ''}`.toLowerCase();
+          bVal = `${b.categoryName} ${b.variant || ''}`.toLowerCase();
+          break;
+        case 'lastPrice':
+          aVal = a.lastPricePaid;
+          bVal = b.lastPricePaid;
+          break;
+        case 'bestPrice':
+          aVal = a.bestPrice;
+          bVal = b.bestPrice;
+          break;
+        case 'change':
+          aVal = a.percentageVsBest;
+          bVal = b.percentageVsBest;
+          break;
+        default:
+          return 0;
+      }
+
+      if (typeof aVal === 'string') {
+        return componentSortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      } else {
+        return componentSortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+    });
+    return sorted;
+  }, [vendorComponents, componentSortColumn, componentSortDirection]);
+
+  // Sorted invoice rows
+  const sortedVendorInvoices = useMemo(() => {
+    const sorted = [...vendorInvoices];
+    sorted.sort((a, b) => {
+      let aVal: any, bVal: any;
+
+      switch (invoiceSortColumn) {
+        case 'invoice':
+          aVal = (a.invoice_number || '').toLowerCase();
+          bVal = (b.invoice_number || '').toLowerCase();
+          break;
+        case 'date':
+          aVal = a.invoice_date;
+          bVal = b.invoice_date;
+          break;
+        case 'total':
+          aVal = Object.values(a.cost_attribution || {}).reduce((sum, attr) => {
+            const unitPrice = parseFloat(attr.unit_price);
+            const units = parseFloat(attr.units_purchased);
+            return sum + (isNaN(unitPrice) || isNaN(units) ? 0 : unitPrice * units);
+          }, 0);
+          bVal = Object.values(b.cost_attribution || {}).reduce((sum, attr) => {
+            const unitPrice = parseFloat(attr.unit_price);
+            const units = parseFloat(attr.units_purchased);
+            return sum + (isNaN(unitPrice) || isNaN(units) ? 0 : unitPrice * units);
+          }, 0);
+          break;
+        case 'components':
+          aVal = Object.keys(a.cost_attribution || {}).length;
+          bVal = Object.keys(b.cost_attribution || {}).length;
+          break;
+        default:
+          return 0;
+      }
+
+      if (typeof aVal === 'string') {
+        return invoiceSortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      } else {
+        return invoiceSortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+    });
+    return sorted;
+  }, [vendorInvoices, invoiceSortColumn, invoiceSortDirection]);
 
   const loadVendorIntelligence = () => {
     if (selectedProducts.size === 0) {
@@ -1087,15 +1175,62 @@ export default function VendorIntelTab({
                     <table className={styles.comparisonTable}>
                       <thead>
                         <tr>
-                          <th>COMPONENT ↑</th>
-                          <th className={styles.alignRight}>LAST PRICE PAID</th>
-                          <th className={styles.alignRight}>BEST VENDOR AVG</th>
-                          <th className={styles.alignRight}>% CHANGE</th>
+                          <th
+                            onClick={() => {
+                              if (componentSortColumn === 'component') {
+                                setComponentSortDirection(componentSortDirection === 'asc' ? 'desc' : 'asc');
+                              } else {
+                                setComponentSortColumn('component');
+                                setComponentSortDirection('asc');
+                              }
+                            }}
+                          >
+                            COMPONENT {componentSortColumn === 'component' ? (componentSortDirection === 'asc' ? '↑' : '↓') : ''}
+                          </th>
+                          <th
+                            className={styles.alignRight}
+                            onClick={() => {
+                              if (componentSortColumn === 'lastPrice') {
+                                setComponentSortDirection(componentSortDirection === 'asc' ? 'desc' : 'asc');
+                              } else {
+                                setComponentSortColumn('lastPrice');
+                                setComponentSortDirection('desc');
+                              }
+                            }}
+                          >
+                            LAST PRICE PAID {componentSortColumn === 'lastPrice' ? (componentSortDirection === 'asc' ? '↑' : '↓') : ''}
+                          </th>
+                          <th
+                            className={styles.alignRight}
+                            onClick={() => {
+                              if (componentSortColumn === 'bestPrice') {
+                                setComponentSortDirection(componentSortDirection === 'asc' ? 'desc' : 'asc');
+                              } else {
+                                setComponentSortColumn('bestPrice');
+                                setComponentSortDirection('desc');
+                              }
+                            }}
+                          >
+                            BEST VENDOR AVG {componentSortColumn === 'bestPrice' ? (componentSortDirection === 'asc' ? '↑' : '↓') : ''}
+                          </th>
+                          <th
+                            className={styles.alignRight}
+                            onClick={() => {
+                              if (componentSortColumn === 'change') {
+                                setComponentSortDirection(componentSortDirection === 'asc' ? 'desc' : 'asc');
+                              } else {
+                                setComponentSortColumn('change');
+                                setComponentSortDirection('asc');
+                              }
+                            }}
+                          >
+                            % CHANGE {componentSortColumn === 'change' ? (componentSortDirection === 'asc' ? '↑' : '↓') : ''}
+                          </th>
                           <th style={{ width: '100px' }}></th>
                         </tr>
                       </thead>
                       <tbody>
-                        {vendorComponents.map((comp, idx) => {
+                        {sortedVendorComponents.map((comp, idx) => {
                           const componentKey = `${comp.categoryId}-${comp.variant}`;
                           const isExpanded = expandedComponents.has(componentKey);
 
@@ -1376,15 +1511,60 @@ export default function VendorIntelTab({
                     <table className={styles.comparisonTable}>
                       <thead>
                         <tr>
-                          <th>INVOICE #</th>
-                          <th>DATE ↓</th>
-                          <th className={styles.alignRight}>TOTAL</th>
-                          <th>COMPONENTS</th>
+                          <th
+                            onClick={() => {
+                              if (invoiceSortColumn === 'invoice') {
+                                setInvoiceSortDirection(invoiceSortDirection === 'asc' ? 'desc' : 'asc');
+                              } else {
+                                setInvoiceSortColumn('invoice');
+                                setInvoiceSortDirection('asc');
+                              }
+                            }}
+                          >
+                            INVOICE # {invoiceSortColumn === 'invoice' ? (invoiceSortDirection === 'asc' ? '↑' : '↓') : ''}
+                          </th>
+                          <th
+                            onClick={() => {
+                              if (invoiceSortColumn === 'date') {
+                                setInvoiceSortDirection(invoiceSortDirection === 'asc' ? 'desc' : 'asc');
+                              } else {
+                                setInvoiceSortColumn('date');
+                                setInvoiceSortDirection('desc');
+                              }
+                            }}
+                          >
+                            DATE {invoiceSortColumn === 'date' ? (invoiceSortDirection === 'asc' ? '↑' : '↓') : ''}
+                          </th>
+                          <th
+                            className={styles.alignRight}
+                            onClick={() => {
+                              if (invoiceSortColumn === 'total') {
+                                setInvoiceSortDirection(invoiceSortDirection === 'asc' ? 'desc' : 'asc');
+                              } else {
+                                setInvoiceSortColumn('total');
+                                setInvoiceSortDirection('desc');
+                              }
+                            }}
+                          >
+                            TOTAL {invoiceSortColumn === 'total' ? (invoiceSortDirection === 'asc' ? '↑' : '↓') : ''}
+                          </th>
+                          <th
+                            onClick={() => {
+                              if (invoiceSortColumn === 'components') {
+                                setInvoiceSortDirection(invoiceSortDirection === 'asc' ? 'desc' : 'asc');
+                              } else {
+                                setInvoiceSortColumn('components');
+                                setInvoiceSortDirection('desc');
+                              }
+                            }}
+                          >
+                            COMPONENTS {invoiceSortColumn === 'components' ? (invoiceSortDirection === 'asc' ? '↑' : '↓') : ''}
+                          </th>
                           <th style={{ textAlign: 'center' }}>ACTIONS</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {vendorInvoices.map((inv) => {
+                        {sortedVendorInvoices.map((inv) => {
                           const componentCount = Object.keys(inv.cost_attribution || {}).length;
                           const total = Object.values(inv.cost_attribution || {}).reduce((sum, attr) => {
                             const unitPrice = parseFloat(attr.unit_price);
