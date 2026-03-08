@@ -1358,6 +1358,15 @@ export default function VendorIntelTab({
                 flex: 1,
               }}>
                 <div style={{
+                  background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+                  color: 'white',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                }}>
+                  <div style={{ fontSize: '0.75rem', opacity: 0.9, marginBottom: '0.25rem' }}>{selectedComponent.categoryName.toUpperCase()} SPEND</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{formatCurrency(totalSpend)}</div>
+                </div>
+                <div style={{
                   background: '#f3e8ff',
                   border: '2px solid #9333ea',
                   padding: '1rem',
@@ -1374,15 +1383,6 @@ export default function VendorIntelTab({
                 }}>
                   <div style={{ fontSize: '0.75rem', color: '#1d4ed8', fontWeight: 600, marginBottom: '0.25rem' }}>VENDORS</div>
                   <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e40af' }}>{totalVendors}</div>
-                </div>
-                <div style={{
-                  background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
-                  color: 'white',
-                  padding: '1rem',
-                  borderRadius: '8px',
-                }}>
-                  <div style={{ fontSize: '0.75rem', opacity: 0.9, marginBottom: '0.25rem' }}>COMPONENT SPEND</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{formatCurrency(totalSpend)}</div>
                 </div>
                 {potentialSavings > 0 && (
                   <div style={{
