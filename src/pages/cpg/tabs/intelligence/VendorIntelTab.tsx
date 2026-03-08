@@ -1364,7 +1364,10 @@ export default function VendorIntelTab({
                   borderRadius: '8px',
                 }}>
                   <div style={{ fontSize: '0.75rem', opacity: 0.9, marginBottom: '0.25rem' }}>{selectedComponent.categoryName.toUpperCase()} SPEND</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{formatCurrency(totalSpend)}</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>{formatCurrency(totalSpend)}</div>
+                  <div style={{ fontSize: '0.75rem', opacity: 0.85 }}>
+                    {((totalSpend / aggregateStats.totalSpend) * 100).toFixed(2)}% of total spend
+                  </div>
                 </div>
                 <div style={{
                   background: '#f3e8ff',
@@ -1392,7 +1395,10 @@ export default function VendorIntelTab({
                     borderRadius: '8px',
                   }}>
                     <div style={{ fontSize: '0.75rem', color: '#991b1b', fontWeight: 600, marginBottom: '0.25rem' }}>POTENTIAL SAVINGS</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#dc2626' }}>{formatCurrency(potentialSavings)}</div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.375rem' }}>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#dc2626' }}>{formatCurrency(potentialSavings)}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#991b1b', fontWeight: 600 }}>/unit</div>
+                    </div>
                   </div>
                 )}
               </div>
