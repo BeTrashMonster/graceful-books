@@ -730,71 +730,11 @@ export default function VendorIntelTab({
         <div style={{ flex: 1 }}>
           {selectedVendor && selectedVendorStats ? (
             <div>
-              {/* Summary Cards */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '1rem',
-                marginBottom: '1.5rem',
-              }}>
-                <div style={{
-                  background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
-                  color: 'white',
-                  padding: '1.25rem',
-                  borderRadius: '8px',
-                }}>
-                  <div style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', opacity: 0.9, marginBottom: '0.5rem' }}>
-                    Total Spend
-                  </div>
-                  <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1, marginBottom: '1rem' }}>
-                    {formatCurrency(selectedVendorStats.totalSpend)}
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', opacity: 0.9 }}>
-                    <div>
-                      <div style={{ textTransform: 'uppercase', fontSize: '0.625rem', marginBottom: '0.25rem' }}>Biggest Cost</div>
-                      <div style={{ fontWeight: 600 }}>{formatCurrency(selectedVendorStats.biggestCost)}</div>
-                    </div>
-                    <div>
-                      <div style={{ textTransform: 'uppercase', fontSize: '0.625rem', marginBottom: '0.25rem' }}>Avg Price</div>
-                      <div style={{ fontWeight: 600 }}>{formatCurrency(selectedVendorStats.avgPrice)}</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{
-                  background: 'white',
-                  border: '2px solid #4b006e',
-                  padding: '1.25rem',
-                  borderRadius: '8px',
-                }}>
-                  <div style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', color: '#64748b', marginBottom: '0.5rem' }}>
-                    Invoices
-                  </div>
-                  <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1, color: '#4b006e' }}>
-                    {formatNumber(selectedVendorStats.invoiceCount)}
-                  </div>
-                </div>
-
-                <div style={{
-                  background: 'white',
-                  border: '2px solid #4b006e',
-                  padding: '1.25rem',
-                  borderRadius: '8px',
-                }}>
-                  <div style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', color: '#64748b', marginBottom: '0.5rem' }}>
-                    Components
-                  </div>
-                  <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1, color: '#4b006e' }}>
-                    {formatNumber(selectedVendorStats.componentCount)}
-                  </div>
-                </div>
-              </div>
-
-              {/* Vendor Header Bar */}
+              {/* Vendor Header Bar with Inline Stats */}
               <div style={{
                 background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
                 color: 'white',
-                padding: '1.25rem 1.5rem',
+                padding: '1.5rem',
                 borderRadius: '8px',
                 marginBottom: '1.5rem',
                 display: 'flex',
@@ -811,7 +751,7 @@ export default function VendorIntelTab({
                         style={{
                           width: '100%',
                           padding: '0.5rem',
-                          fontSize: '1.25rem',
+                          fontSize: '1.5rem',
                           fontWeight: 700,
                           marginBottom: '0.5rem',
                           border: '1px solid white',
@@ -867,35 +807,63 @@ export default function VendorIntelTab({
                   </>
                 ) : (
                   <>
-                    <div>
-                      <div style={{ fontSize: '1.75rem', fontWeight: 700, lineHeight: 1.2 }}>
-                        {selectedVendor.vendorName}
-                      </div>
-                      {currentVendorRecord?.notes && (
-                        <div style={{ fontSize: '0.875rem', opacity: 0.9, fontWeight: 400, marginTop: '0.375rem' }}>
-                          {currentVendorRecord.notes}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                      <div>
+                        <div style={{ fontSize: '1.75rem', fontWeight: 700, lineHeight: 1 }}>
+                          {selectedVendor.vendorName}
                         </div>
-                      )}
+                        {currentVendorRecord?.notes && (
+                          <div style={{ fontSize: '0.875rem', opacity: 0.9, fontWeight: 400, marginTop: '0.5rem' }}>
+                            {currentVendorRecord.notes}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        onClick={handleEditVendor}
+                        style={{
+                          padding: '0.5rem 1rem',
+                          background: 'rgba(255,255,255,0.2)',
+                          color: 'white',
+                          border: '1px solid rgba(255,255,255,0.5)',
+                          borderRadius: '4px',
+                          fontSize: '0.875rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        ✏️ Edit Vendor
+                      </button>
                     </div>
-                    <button
-                      onClick={handleEditVendor}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        background: 'rgba(255,255,255,0.2)',
-                        color: 'white',
-                        border: '1px solid rgba(255,255,255,0.5)',
-                        borderRadius: '4px',
-                        fontSize: '0.875rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      ✏️ Edit Vendor
-                    </button>
+                    <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', opacity: 0.8, marginBottom: '0.25rem' }}>
+                          TOTAL SPEND
+                        </div>
+                        <div style={{ fontSize: '1.75rem', fontWeight: 700, lineHeight: 1 }}>
+                          {formatCurrency(selectedVendorStats.totalSpend)}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', opacity: 0.8, marginBottom: '0.25rem' }}>
+                          INVOICES
+                        </div>
+                        <div style={{ fontSize: '1.75rem', fontWeight: 700, lineHeight: 1 }}>
+                          {formatNumber(selectedVendorStats.invoiceCount)}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', opacity: 0.8, marginBottom: '0.25rem' }}>
+                          COMPONENTS
+                        </div>
+                        <div style={{ fontSize: '1.75rem', fontWeight: 700, lineHeight: 1 }}>
+                          {formatNumber(selectedVendorStats.componentCount)}
+                        </div>
+                      </div>
+                    </div>
                   </>
                 )}
               </div>
