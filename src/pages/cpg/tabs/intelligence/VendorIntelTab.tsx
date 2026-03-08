@@ -115,6 +115,7 @@ export default function VendorIntelTab({
 
   const [vendorSortColumn, setVendorSortColumn] = useState<'spend'>('spend');
   const [vendorSortDirection, setVendorSortDirection] = useState<'desc'>('desc');
+  const [expandedComponents, setExpandedComponents] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setLocalInvoices(invoices);
@@ -926,26 +927,122 @@ export default function VendorIntelTab({
                           <th className={styles.alignRight}>YOUR PRICE</th>
                           <th className={styles.alignRight}>BEST PRICE</th>
                           <th className={styles.alignRight}>STATUS</th>
+                          <th style={{ width: '80px' }}></th>
                         </tr>
                       </thead>
                       <tbody>
-                        {vendorComponents.map((comp, idx) => (
-                          <tr key={idx}>
-                            <td>
-                              <div style={{ fontWeight: 600 }}>{comp.categoryName}</div>
-                              {comp.variant && <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{comp.variant}</div>}
-                            </td>
-                            <td className={styles.alignRight}>{formatCurrency(comp.yourPrice)}</td>
-                            <td className={styles.alignRight}>{formatCurrency(comp.bestPrice)}</td>
-                            <td className={styles.alignRight}>
-                              {comp.isBest ? (
-                                <span style={{ color: '#16a34a', fontWeight: 600 }}>✓ Best</span>
-                              ) : (
-                                <span style={{ color: '#64748b' }}>→</span>
+                        {vendorComponents.map((comp, idx) => {
+                          const componentKey = `${comp.categoryId}-${comp.variant}`;
+                          const isExpanded = expandedComponents.has(componentKey);
+
+                          // Filter invoices for this specific component
+                          const componentInvoices = vendorInvoices.filter(inv => {
+                            const attrs = inv.cost_attribution || {};
+                            return Object.keys(attrs).some(key => {
+                              const attr = attrs[key];
+                              return attr.category_id === comp.categoryId &&
+                                     (attr.variant || '') === (comp.variant || '');
+                            });
+                          });
+
+                          const toggleExpanded = () => {
+                            setExpandedComponents(prev => {
+                              const next = new Set(prev);
+                              if (isExpanded) {
+                                next.delete(componentKey);
+                              } else {
+                                next.add(componentKey);
+                              }
+                              return next;
+                            });
+                          };
+
+                          return (
+                            <React.Fragment key={componentKey}>
+                              <tr>
+                                <td>
+                                  <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{comp.categoryName}</div>
+                                  {comp.variant && <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.125rem' }}>{comp.variant}</div>}
+                                </td>
+                                <td className={styles.alignRight} style={{ fontWeight: 600 }}>{formatCurrency(comp.yourPrice)}</td>
+                                <td className={styles.alignRight} style={{ fontWeight: 600 }}>{formatCurrency(comp.bestPrice)}</td>
+                                <td className={styles.alignRight}>
+                                  {comp.isBest ? (
+                                    <span style={{ color: '#16a34a', fontWeight: 600, fontSize: '0.875rem' }}>✓ Best</span>
+                                  ) : (
+                                    <span style={{ color: '#64748b', fontSize: '1.25rem' }}>▶</span>
+                                  )}
+                                </td>
+                                <td style={{ textAlign: 'center' }}>
+                                  {componentInvoices.length > 0 && (
+                                    <button
+                                      onClick={toggleExpanded}
+                                      style={{
+                                        padding: '0.375rem 0.75rem',
+                                        background: 'transparent',
+                                        color: '#4b006e',
+                                        border: '1px solid #d1d5db',
+                                        borderRadius: '4px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.25rem',
+                                      }}
+                                    >
+                                      {isExpanded ? '▼' : '▶'} Invoices
+                                    </button>
+                                  )}
+                                </td>
+                              </tr>
+                              {isExpanded && componentInvoices.length > 0 && (
+                                <tr>
+                                  <td colSpan={5} style={{ padding: '0.5rem 1.5rem 1rem', background: '#f8fafc' }}>
+                                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem', fontWeight: 600 }}>
+                                      🕐 ALL-TIME INVOICES FOR THIS COMPONENT
+                                    </div>
+                                    <table style={{ width: '100%', fontSize: '0.8125rem' }}>
+                                      <thead>
+                                        <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                                          <th style={{ textAlign: 'left', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>INVOICE #</th>
+                                          <th style={{ textAlign: 'left', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>DATE</th>
+                                          <th style={{ textAlign: 'right', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>UNIT PRICE</th>
+                                          <th style={{ textAlign: 'right', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>UNITS</th>
+                                          <th style={{ textAlign: 'right', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>TOTAL</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {componentInvoices.map(inv => {
+                                          const attrs = inv.cost_attribution || {};
+                                          const attr = Object.values(attrs).find(a =>
+                                            a.category_id === comp.categoryId &&
+                                            (a.variant || '') === (comp.variant || '')
+                                          );
+                                          if (!attr) return null;
+
+                                          const unitPrice = parseFloat(attr.unit_price);
+                                          const units = parseFloat(attr.units_purchased);
+                                          const total = unitPrice * units;
+
+                                          return (
+                                            <tr key={inv.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                              <td style={{ padding: '0.5rem', fontWeight: 500 }}>{inv.invoice_number || 'Unnamed'}</td>
+                                              <td style={{ padding: '0.5rem' }}>{new Date(inv.invoice_date).toLocaleDateString()}</td>
+                                              <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 500 }}>{formatCurrency(unitPrice)}</td>
+                                              <td style={{ padding: '0.5rem', textAlign: 'right' }}>{formatNumber(units)}</td>
+                                              <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 600, color: '#4b006e' }}>{formatCurrency(total)}</td>
+                                            </tr>
+                                          );
+                                        })}
+                                      </tbody>
+                                    </table>
+                                  </td>
+                                </tr>
                               )}
-                            </td>
-                          </tr>
-                        ))}
+                            </React.Fragment>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
