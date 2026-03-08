@@ -59,8 +59,11 @@ interface ComponentRow {
   categoryId: string;
   categoryName: string;
   variant: string;
-  yourPrice: number;
+  lastPricePaid: number;
+  avgPrice: number;
   bestPrice: number;
+  bestVendor: string;
+  percentageVsBest: number;
   isBest: boolean;
 }
 
@@ -298,62 +301,116 @@ export default function VendorIntelTab({
 
     // Build component rows
     const compRows: ComponentRow[] = [];
-    const yourPriceMap = new Map<string, number[]>(); // Filtered by date range
-    const allTimeBestPriceMap = new Map<string, number>(); // ALL TIME best prices
 
-    // Collect YOUR prices (filtered by date range)
+    // Track data by component
+    const componentData = new Map<string, {
+      avgPrices: number[];
+      lastPriceDate: number;
+      lastPrice: number;
+    }>();
+
+    const marketData = new Map<string, Map<string, number[]>>(); // compKey -> vendorName -> prices
+
+    // Collect data for this vendor (filtered by date range)
     filteredInvoices.forEach(inv => {
       Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
         const variants = componentCategories.get(attr.category_id);
         if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
           const compKey = `${attr.category_id}:${attr.variant || ''}`;
-          if (!yourPriceMap.has(compKey)) {
-            yourPriceMap.set(compKey, []);
-          }
           const unitPrice = parseFloat(attr.unit_price);
-          if (!isNaN(unitPrice) && unitPrice > 0) {
-            yourPriceMap.get(compKey)!.push(unitPrice);
-          }
-        }
-      });
-    });
 
-    // Collect BEST prices across ALL vendors and ALL TIME
-    localInvoices.forEach(inv => {
-      if (inv.deleted_at) return;
-
-      Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
-        const variants = componentCategories.get(attr.category_id);
-        if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
-          const compKey = `${attr.category_id}:${attr.variant || ''}`;
-          const unitPrice = parseFloat(attr.unit_price);
           if (!isNaN(unitPrice) && unitPrice > 0) {
-            const currentBest = allTimeBestPriceMap.get(compKey) || Infinity;
-            if (unitPrice < currentBest) {
-              allTimeBestPriceMap.set(compKey, unitPrice);
+            // Track average prices
+            if (!componentData.has(compKey)) {
+              componentData.set(compKey, {
+                avgPrices: [],
+                lastPriceDate: 0,
+                lastPrice: 0,
+              });
+            }
+            const data = componentData.get(compKey)!;
+            data.avgPrices.push(unitPrice);
+
+            // Track most recent price
+            if (inv.invoice_date > data.lastPriceDate) {
+              data.lastPriceDate = inv.invoice_date;
+              data.lastPrice = unitPrice;
             }
           }
         }
       });
     });
 
+    // Collect market data across ALL vendors (filtered by date range)
+    localInvoices.forEach(inv => {
+      if (inv.deleted_at) return;
+      if (startDate > 0 && inv.invoice_date < startDate) return;
+      if (endDate > 0 && inv.invoice_date > endDate) return;
+
+      Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
+        const variants = componentCategories.get(attr.category_id);
+        if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
+          const compKey = `${attr.category_id}:${attr.variant || ''}`;
+          const unitPrice = parseFloat(attr.unit_price);
+
+          if (!isNaN(unitPrice) && unitPrice > 0) {
+            if (!marketData.has(compKey)) {
+              marketData.set(compKey, new Map());
+            }
+            const vendors = marketData.get(compKey)!;
+            if (!vendors.has(inv.vendor_name || 'Unknown')) {
+              vendors.set(inv.vendor_name || 'Unknown', []);
+            }
+            vendors.get(inv.vendor_name || 'Unknown')!.push(unitPrice);
+          }
+        }
+      });
+    });
+
     // Build component rows
-    for (const [compKey, yourPrices] of yourPriceMap.entries()) {
-      if (yourPrices.length === 0) continue;
+    for (const [compKey, data] of componentData.entries()) {
+      if (data.avgPrices.length === 0) continue;
 
       const [categoryId, variant] = compKey.split(':');
       const category = categories.find(c => c.id === categoryId);
 
-      const yourAvg = yourPrices.reduce((sum, p) => sum + p, 0) / yourPrices.length;
-      const bestPrice = allTimeBestPriceMap.get(compKey) || yourAvg;
+      const avgPrice = data.avgPrices.reduce((sum, p) => sum + p, 0) / data.avgPrices.length;
+      const lastPricePaid = data.lastPrice;
+
+      // Find best market price and vendor
+      let bestPrice = Infinity;
+      let bestVendor = '';
+      const vendors = marketData.get(compKey);
+
+      if (vendors) {
+        for (const [vendorName, prices] of vendors.entries()) {
+          const vendorAvg = prices.reduce((sum, p) => sum + p, 0) / prices.length;
+          if (vendorAvg < bestPrice) {
+            bestPrice = vendorAvg;
+            bestVendor = vendorName;
+          }
+        }
+      }
+
+      // If no market data, use our own price
+      if (bestPrice === Infinity) {
+        bestPrice = avgPrice;
+        bestVendor = selectedVendor.vendorName;
+      }
+
+      const isBest = lastPricePaid === bestPrice;
+      const percentageVsBest = ((lastPricePaid - bestPrice) / bestPrice) * 100;
 
       compRows.push({
         categoryId,
         categoryName: category?.name || 'Unknown',
         variant,
-        yourPrice: yourAvg,
+        lastPricePaid,
+        avgPrice,
         bestPrice,
-        isBest: yourAvg === bestPrice,
+        bestVendor,
+        percentageVsBest,
+        isBest,
       });
     }
 
@@ -978,9 +1035,10 @@ export default function VendorIntelTab({
                       <thead>
                         <tr>
                           <th>COMPONENT ↑</th>
-                          <th className={styles.alignRight}>YOUR PRICE</th>
-                          <th className={styles.alignRight}>BEST PRICE</th>
-                          <th className={styles.alignRight}>STATUS</th>
+                          <th className={styles.alignRight}>LAST PRICE PAID</th>
+                          <th className={styles.alignRight}>vs BEST MARKET</th>
+                          <th className={styles.alignRight}>BEST MARKET PRICE</th>
+                          <th className={styles.alignRight}>AVG PRICE</th>
                           <th style={{ width: '80px' }}></th>
                         </tr>
                       </thead>
@@ -1018,14 +1076,44 @@ export default function VendorIntelTab({
                                   <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{comp.categoryName}</div>
                                   {comp.variant && <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.125rem' }}>{comp.variant}</div>}
                                 </td>
-                                <td className={styles.alignRight} style={{ fontWeight: 600 }}>{formatCurrency(comp.yourPrice)}</td>
-                                <td className={styles.alignRight} style={{ fontWeight: 600 }}>{formatCurrency(comp.bestPrice)}</td>
+                                <td className={styles.alignRight} style={{ fontWeight: 600 }}>
+                                  {formatCurrency(comp.lastPricePaid)}
+                                </td>
                                 <td className={styles.alignRight}>
                                   {comp.isBest ? (
                                     <span style={{ color: '#16a34a', fontWeight: 600, fontSize: '0.875rem' }}>✓ Best</span>
                                   ) : (
-                                    <span style={{ color: '#64748b', fontSize: '1.25rem' }}>▶</span>
+                                    <span style={{ color: '#dc2626', fontWeight: 600, fontSize: '0.875rem' }}>
+                                      +{comp.percentageVsBest.toFixed(2)}%
+                                    </span>
                                   )}
+                                </td>
+                                <td className={styles.alignRight}>
+                                  <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{formatCurrency(comp.bestPrice)}</div>
+                                  {comp.bestVendor !== selectedVendor.vendorName ? (
+                                    <div
+                                      onClick={() => {
+                                        const vendor = sortedVendors.find(v => v.vendorName === comp.bestVendor);
+                                        if (vendor) setSelectedVendor(vendor);
+                                      }}
+                                      style={{
+                                        fontSize: '0.75rem',
+                                        color: '#4b006e',
+                                        marginTop: '0.125rem',
+                                        cursor: 'pointer',
+                                        textDecoration: 'underline',
+                                      }}
+                                    >
+                                      → {comp.bestVendor}
+                                    </div>
+                                  ) : (
+                                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.125rem' }}>
+                                      {comp.bestVendor}
+                                    </div>
+                                  )}
+                                </td>
+                                <td className={styles.alignRight} style={{ fontWeight: 600 }}>
+                                  {formatCurrency(comp.avgPrice)}
                                 </td>
                                 <td style={{ textAlign: 'center' }}>
                                   {componentInvoices.length > 0 && (
@@ -1052,7 +1140,7 @@ export default function VendorIntelTab({
                               </tr>
                               {isExpanded && componentInvoices.length > 0 && (
                                 <tr>
-                                  <td colSpan={5} style={{ padding: '0.5rem 1.5rem 1rem', background: '#f8fafc' }}>
+                                  <td colSpan={6} style={{ padding: '0.5rem 1.5rem 1rem', background: '#f8fafc' }}>
                                     <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem', fontWeight: 600 }}>
                                       🕐 ALL-TIME INVOICES FOR THIS COMPONENT
                                     </div>
