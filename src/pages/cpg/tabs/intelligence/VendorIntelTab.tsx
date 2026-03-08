@@ -117,6 +117,42 @@ export default function VendorIntelTab({
   const [vendorSortDirection, setVendorSortDirection] = useState<'desc'>('desc');
   const [expandedComponents, setExpandedComponents] = useState<Set<string>>(new Set());
 
+  // Aggregate stats across ALL vendors
+  const aggregateStats = useMemo(() => {
+    const totalSpend = vendorOverviews.reduce((sum, v) => sum + v.totalSpend, 0);
+    const totalInvoices = vendorOverviews.reduce((sum, v) => sum + v.invoiceCount, 0);
+    const totalComponents = vendorOverviews.reduce((sum, v) => sum + v.componentCount, 0);
+
+    // Calculate biggest single component cost and average price across all vendors
+    const allPrices: number[] = [];
+    let biggestCost = 0;
+
+    localInvoices.forEach(inv => {
+      const attrs = inv.cost_attribution || {};
+      Object.values(attrs).forEach(attr => {
+        const unitPrice = parseFloat(attr.unit_price);
+        const units = parseFloat(attr.units_purchased);
+        if (!isNaN(unitPrice) && !isNaN(units)) {
+          const cost = unitPrice * units;
+          allPrices.push(cost);
+          biggestCost = Math.max(biggestCost, cost);
+        }
+      });
+    });
+
+    const avgPrice = allPrices.length > 0
+      ? allPrices.reduce((sum, p) => sum + p, 0) / allPrices.length
+      : 0;
+
+    return {
+      totalSpend,
+      totalInvoices,
+      totalComponents,
+      biggestCost,
+      avgPrice,
+    };
+  }, [vendorOverviews, localInvoices]);
+
   useEffect(() => {
     setLocalInvoices(invoices);
   }, [invoices]);
@@ -733,7 +769,7 @@ export default function VendorIntelTab({
             <div>
               {/* Header Section: Summary Card + Vendor Bar (Side by Side) */}
               <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                {/* Left: Aggregate Summary Card */}
+                {/* Left: Aggregate Summary Card (All Vendors) */}
                 <div style={{
                   background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
                   color: 'white',
@@ -748,11 +784,11 @@ export default function VendorIntelTab({
                     TOTAL SPEND
                   </div>
                   <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
-                    {formatCurrency(selectedVendorStats.totalSpend)}
+                    {formatCurrency(aggregateStats.totalSpend)}
                   </div>
                   <div style={{ fontSize: '0.875rem', lineHeight: 1.3, opacity: 0.9 }}>
-                    <div>BIGGEST COST: {formatCurrency(selectedVendorStats.biggestCost)}</div>
-                    <div>AVG PRICE: {formatCurrency(selectedVendorStats.avgPrice)}</div>
+                    <div>BIGGEST COST: {formatCurrency(aggregateStats.biggestCost)}</div>
+                    <div>AVG PRICE: {formatCurrency(aggregateStats.avgPrice)}</div>
                   </div>
                 </div>
 
