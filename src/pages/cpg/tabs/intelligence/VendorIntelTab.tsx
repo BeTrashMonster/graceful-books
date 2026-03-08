@@ -2164,8 +2164,8 @@ export default function VendorIntelTab({
                                   </div>
                                 </div>
                               </div>
-                              <div style={{ textAlign: 'right' }}>
-                                <div style={{ fontSize: '0.6875rem', color: '#64748b', marginBottom: '0.125rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                                <div style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 600 }}>
                                   BEST PRICE
                                 </div>
                                 <div style={{
@@ -2182,79 +2182,106 @@ export default function VendorIntelTab({
                               </div>
                             </div>
 
-                            {/* Vendor List (Expanded) */}
+                            {/* Vendor Table (Expanded) */}
                             {isExpanded && (
-                              <div style={{ padding: '0.5rem' }}>
-                                {variantData.vendors.map((vendor, vIdx) => (
-                                  <div
-                                    key={vIdx}
-                                    style={{
-                                      padding: '0.75rem 1rem',
-                                      background: vendor.isBest ? '#ccedd8' : 'white',
-                                      borderRadius: '6px',
-                                      marginBottom: '0.375rem',
-                                      display: 'flex',
-                                      justifyContent: 'space-between',
-                                      alignItems: 'center',
-                                      border: vendor.isBest ? '1px solid #16a34a' : '1px solid #f1f5f9',
-                                    }}
-                                  >
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                      {vendor.isBest && (
-                                        <span style={{ fontSize: '1rem' }}>✓</span>
-                                      )}
-                                      <div>
-                                        <div
-                                          onClick={() => handleVendorClick(vendor.vendorName)}
-                                          style={{
-                                            fontWeight: 600,
-                                            fontSize: '0.875rem',
-                                            color: '#4b006e',
-                                            cursor: 'pointer',
-                                            textDecoration: 'underline',
-                                          }}
-                                        >
-                                          {vendor.vendorName}
-                                        </div>
-                                        <div style={{ fontSize: '0.6875rem', color: '#64748b' }}>
-                                          Based on {vendor.priceCount} {vendor.priceCount === 1 ? 'invoice' : 'invoices'}
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div style={{ textAlign: 'right' }}>
-                                      <div style={{
+                              <div style={{ padding: '0.75rem' }}>
+                                <table style={{
+                                  width: 'auto',
+                                  borderCollapse: 'collapse',
+                                  fontSize: '0.875rem',
+                                  margin: '0 auto',
+                                }}>
+                                  <thead>
+                                    <tr style={{
+                                      background: 'linear-gradient(135deg, #4b006e 0%, #5e0089 100%)',
+                                      borderBottom: '2px solid #4b006e',
+                                    }}>
+                                      <th style={{
+                                        padding: '0.5rem 1rem',
+                                        textAlign: 'left',
+                                        fontSize: '0.75rem',
                                         fontWeight: 700,
-                                        fontSize: '0.9375rem',
-                                        color: vendor.isBest ? '#16a34a' : '#1e293b',
-                                        marginBottom: '0.125rem',
-                                      }}>
-                                        {formatCurrency(vendor.avgPrice)} avg
-                                      </div>
-                                      {!vendor.isBest && (
-                                        <div style={{
-                                          fontSize: '0.75rem',
-                                          color: '#dc2626',
+                                        color: 'white',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.5px',
+                                      }}>VENDOR</th>
+                                      <th style={{
+                                        padding: '0.5rem 1rem',
+                                        textAlign: 'right',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 700,
+                                        color: 'white',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.5px',
+                                      }}>AVG PRICE</th>
+                                      <th style={{
+                                        padding: '0.5rem 1rem',
+                                        textAlign: 'right',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 700,
+                                        color: 'white',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.5px',
+                                      }}>DIFFERENCE</th>
+                                      <th style={{
+                                        padding: '0.5rem 1rem',
+                                        textAlign: 'center',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 700,
+                                        color: 'white',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.5px',
+                                      }}>INVOICES</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {variantData.vendors.map((vendor, vIdx) => (
+                                      <tr
+                                        key={vIdx}
+                                        style={{
+                                          borderBottom: '1px solid #e5e7eb',
+                                          background: vendor.isBest ? '#ccedd8' : (vIdx % 2 === 0 ? 'white' : '#fafbfc'),
+                                        }}
+                                      >
+                                        <td style={{
+                                          padding: '0.5rem 1rem',
                                           fontWeight: 600,
-                                        }}>
-                                          +{formatCurrency(vendor.avgPrice - (bestVendor?.avgPrice || 0))} ({vendor.percentVsBest.toFixed(1)}%)
-                                        </div>
-                                      )}
-                                      {vendor.isBest && (
-                                        <div style={{
-                                          fontSize: '0.6875rem',
-                                          color: '#16a34a',
+                                          color: '#4b006e',
+                                          cursor: 'pointer',
+                                          textDecoration: 'underline',
+                                        }}
+                                        onClick={() => handleVendorClick(vendor.vendorName)}
+                                        >
+                                          {vendor.isBest && <span style={{ color: '#16a34a', marginRight: '0.375rem' }}>✓</span>}
+                                          {vendor.vendorName}
+                                        </td>
+                                        <td style={{
+                                          padding: '0.5rem 1rem',
+                                          textAlign: 'right',
                                           fontWeight: 600,
-                                          background: '#f0fdf4',
-                                          padding: '0.125rem 0.375rem',
-                                          borderRadius: '3px',
-                                          display: 'inline-block',
+                                          color: vendor.isBest ? '#16a34a' : '#1e293b',
                                         }}>
-                                          BEST PRICE
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                ))}
+                                          {formatCurrency(vendor.avgPrice)}
+                                        </td>
+                                        <td style={{
+                                          padding: '0.5rem 1rem',
+                                          textAlign: 'right',
+                                          fontWeight: 600,
+                                          color: vendor.isBest ? '#16a34a' : '#dc2626',
+                                        }}>
+                                          {vendor.isBest ? 'BEST' : `+${formatCurrency(vendor.avgPrice - (bestVendor?.avgPrice || 0))} (${vendor.percentVsBest.toFixed(1)}%)`}
+                                        </td>
+                                        <td style={{
+                                          padding: '0.5rem 1rem',
+                                          textAlign: 'center',
+                                          color: '#64748b',
+                                        }}>
+                                          {vendor.priceCount}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
                               </div>
                             )}
                           </div>
