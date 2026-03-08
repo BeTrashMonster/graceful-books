@@ -684,14 +684,15 @@ export default function VendorIntelTab({
           display: 'flex',
           flexDirection: 'column',
           gap: '0.5rem',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         }}>
-          <div style={{ fontSize: '0.875rem', fontWeight: 600, opacity: 0.9 }}>
+          <div style={{ fontSize: '0.875rem', fontWeight: 600, opacity: 0.9, letterSpacing: '0.5px' }}>
             TOTAL SPEND
           </div>
           <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
             {formatCurrency(aggregateStats.totalSpend)}
           </div>
-          <div style={{ fontSize: '0.875rem', lineHeight: 1.3, opacity: 0.9 }}>
+          <div style={{ fontSize: '0.75rem', lineHeight: 1.3, opacity: 0.9, fontWeight: 400 }}>
             <div>BIGGEST COST: {formatCurrency(aggregateStats.biggestCost)}</div>
             <div>AVG PRICE: {formatCurrency(aggregateStats.avgPrice)}</div>
           </div>
@@ -708,6 +709,7 @@ export default function VendorIntelTab({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           }}>
             {isEditingVendor ? (
               <>
@@ -858,8 +860,9 @@ export default function VendorIntelTab({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           }}>
-            <span>VENDORS ({formatNumber(sortedVendors.length)})</span>
+            <span style={{ letterSpacing: '0.5px' }}>VENDORS ({formatNumber(sortedVendors.length)})</span>
             <button
               onClick={() => setShowArchivedVendors(!showArchivedVendors)}
               style={{
@@ -904,15 +907,17 @@ export default function VendorIntelTab({
                     }}
                   >
                     <div style={{
-                      fontWeight: 700,
-                      fontSize: '0.9375rem',
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      fontWeight: 600,
+                      fontSize: '0.875rem',
                       color: '#1e293b',
                       marginBottom: '0.25rem',
                     }}>
                       {vendor.vendorName}
                     </div>
                     <div style={{
-                      fontSize: '0.9375rem',
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      fontSize: '0.875rem',
                       fontWeight: 700,
                       color: '#4b006e',
                       marginBottom: '0.125rem',
@@ -920,7 +925,8 @@ export default function VendorIntelTab({
                       {formatCurrency(vendor.totalSpend)}
                     </div>
                     <div style={{
-                      fontSize: '0.75rem',
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      fontSize: '0.6875rem',
                       color: '#94a3b8',
                     }}>
                       {formatNumber(vendor.invoiceCount)} {vendor.invoiceCount === 1 ? 'invoice' : 'invoices'} · {formatNumber(vendor.componentCount)} {vendor.componentCount === 1 ? 'component' : 'components'}
