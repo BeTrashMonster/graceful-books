@@ -103,6 +103,16 @@ export default function VendorIntelTab({
   const [viewMode, setViewMode] = useState<'component' | 'vendor'>('vendor');
   const [selectedVendor, setSelectedVendor] = useState<VendorOverview | null>(null);
   const [currentVendorRecord, setCurrentVendorRecord] = useState<CPGVendor | null>(null);
+
+  // Component view state
+  const [selectedComponent, setSelectedComponent] = useState<{ categoryId: string; categoryName: string } | null>(null);
+  const [componentOverviews, setComponentOverviews] = useState<Array<{
+    categoryId: string;
+    categoryName: string;
+    variants: Array<{ variant: string | null; vendorCount: number; bestPrice: number }>;
+    totalVendors: number;
+    totalSpend: number;
+  }>>([]);
   const [isEditingVendor, setIsEditingVendor] = useState(false);
   const [editVendorName, setEditVendorName] = useState('');
   const [editVendorNotes, setEditVendorNotes] = useState('');
@@ -475,6 +485,7 @@ export default function VendorIntelTab({
 
   useEffect(() => {
     loadVendorIntelligence();
+    loadComponentIntelligence();
   }, [selectedProducts, productCPUData, localInvoices, dateRange, customDateRange, categoryFilter, variantFilter, vendorFilter, showArchivedVendors]);
 
   // Sorted component rows
@@ -672,6 +683,163 @@ export default function VendorIntelTab({
       setVendorOverviews(overviews);
     } catch (err) {
       console.error('Failed to load vendor intelligence:', err);
+    }
+  };
+
+  const loadComponentIntelligence = () => {
+    if (selectedProducts.size === 0) {
+      setComponentOverviews([]);
+      return;
+    }
+
+    try {
+      const today = Date.now();
+      let startDate = 0;
+      let endDate = today;
+
+      switch (dateRange) {
+        case '3mo':
+          startDate = today - (90 * 24 * 60 * 60 * 1000);
+          break;
+        case '6mo':
+          startDate = today - (180 * 24 * 60 * 60 * 1000);
+          break;
+        case '12mo':
+          startDate = today - (365 * 24 * 60 * 60 * 1000);
+          break;
+        case 'last-calendar-year':
+          const lastYear = new Date().getFullYear() - 1;
+          startDate = new Date(lastYear, 0, 1).getTime();
+          endDate = new Date(lastYear, 11, 31, 23, 59, 59).getTime();
+          break;
+        case 'this-calendar-year':
+          const thisYear = new Date().getFullYear();
+          startDate = new Date(thisYear, 0, 1).getTime();
+          break;
+        case 'custom':
+          if (customDateRange) {
+            startDate = customDateRange.start;
+            endDate = customDateRange.end;
+          }
+          break;
+        case 'all':
+          startDate = 0;
+          break;
+      }
+
+      // Build component categories filter
+      const componentCategories = new Map<string, Set<string>>();
+      productCPUData.forEach((cpuData, productId) => {
+        if (!selectedProducts.has(productId)) return;
+        cpuData.breakdown.forEach((comp) => {
+          if (!componentCategories.has(comp.categoryId)) {
+            componentCategories.set(comp.categoryId, new Set());
+          }
+          if (comp.variant) {
+            componentCategories.get(comp.categoryId)!.add(comp.variant);
+          }
+        });
+      });
+
+      // Filter invoices
+      const filteredInvoices = localInvoices.filter(inv => {
+        if (inv.deleted_at) return false;
+        if (startDate > 0 && inv.invoice_date < startDate) return false;
+        if (endDate > 0 && inv.invoice_date > endDate) return false;
+
+        const hasRelevantComponent = Object.values(inv.cost_attribution || {}).some(attr => {
+          const variants = componentCategories.get(attr.category_id);
+          return variants && (variants.size === 0 || variants.has(attr.variant || ''));
+        });
+        return hasRelevantComponent;
+      });
+
+      // Group by component
+      const componentMap = new Map<string, {
+        categoryId: string;
+        categoryName: string;
+        variantData: Map<string | null, { vendors: Set<string>; prices: number[]; spend: number }>;
+        totalSpend: number;
+      }>();
+
+      filteredInvoices.forEach(inv => {
+        Object.values(inv.cost_attribution || {}).forEach(attr => {
+          const variants = componentCategories.get(attr.category_id);
+          if (!variants || (!variants.has(attr.variant || '') && variants.size > 0)) return;
+
+          const category = categoryMap.get(attr.category_id);
+          const categoryName = category?.name || 'Unknown';
+
+          if (!componentMap.has(attr.category_id)) {
+            componentMap.set(attr.category_id, {
+              categoryId: attr.category_id,
+              categoryName,
+              variantData: new Map(),
+              totalSpend: 0,
+            });
+          }
+
+          const comp = componentMap.get(attr.category_id)!;
+          if (!comp.variantData.has(attr.variant)) {
+            comp.variantData.set(attr.variant, {
+              vendors: new Set(),
+              prices: [],
+              spend: 0,
+            });
+          }
+
+          const varData = comp.variantData.get(attr.variant)!;
+          if (inv.vendor_name) {
+            varData.vendors.add(inv.vendor_name);
+          }
+
+          const unitPrice = parseFloat(attr.unit_price);
+          const units = parseFloat(attr.units_purchased);
+          if (!isNaN(unitPrice) && !isNaN(units)) {
+            varData.prices.push(unitPrice);
+            const itemSpend = unitPrice * units;
+            varData.spend += itemSpend;
+            comp.totalSpend += itemSpend;
+          }
+        });
+      });
+
+      // Build overview array
+      const overviews = Array.from(componentMap.values()).map(comp => {
+        const variants = Array.from(comp.variantData.entries()).map(([variant, data]) => {
+          const avgPrice = data.prices.length > 0
+            ? data.prices.reduce((sum, p) => sum + p, 0) / data.prices.length
+            : 0;
+          const minPrice = data.prices.length > 0 ? Math.min(...data.prices) : 0;
+
+          return {
+            variant: variant || null,
+            vendorCount: data.vendors.size,
+            bestPrice: minPrice,
+          };
+        }).sort((a, b) => {
+          const aVar = a.variant || '';
+          const bVar = b.variant || '';
+          return aVar.localeCompare(bVar);
+        });
+
+        const allVendors = new Set<string>();
+        comp.variantData.forEach(data => {
+          data.vendors.forEach(v => allVendors.add(v));
+        });
+
+        return {
+          categoryId: comp.categoryId,
+          categoryName: comp.categoryName,
+          variants,
+          totalVendors: allVendors.size,
+          totalSpend: comp.totalSpend,
+        };
+      }).sort((a, b) => b.totalSpend - a.totalSpend);
+
+      setComponentOverviews(overviews);
+    } catch (err) {
+      console.error('Failed to load component intelligence:', err);
     }
   };
 
@@ -1051,17 +1219,19 @@ export default function VendorIntelTab({
         )}
       </div>
 
-      {/* Bottom Row: Vendor List + Content */}
-      <div style={{ display: 'flex', gap: '1.5rem', minHeight: '500px' }}>
-        {/* Left Panel: Vendor List */}
-        <div style={{
-          width: '280px',
-          flexShrink: 0,
-          background: 'white',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          overflow: 'hidden',
-        }}>
+      {/* Bottom Row: List + Content (Vendor or Component View) */}
+      {viewMode === 'vendor' ? (
+        /* VENDOR VIEW */
+        <div style={{ display: 'flex', gap: '1.5rem', minHeight: '500px' }}>
+          {/* Left Panel: Vendor List */}
+          <div style={{
+            width: '280px',
+            flexShrink: 0,
+            background: 'white',
+            border: '1px solid #e5e7eb',
+            borderRadius: '8px',
+            overflow: 'hidden',
+          }}>
           <div style={{
             padding: '1rem',
             background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
@@ -1643,7 +1813,118 @@ export default function VendorIntelTab({
             </div>
           )}
         </div>
-      </div>
+        </div>
+      ) : (
+        /* COMPONENT VIEW */
+        <div style={{ display: 'flex', gap: '1.5rem', minHeight: '500px' }}>
+          {/* Left Panel: Component List */}
+          <div style={{
+            width: '320px',
+            flexShrink: 0,
+            background: 'white',
+            border: '1px solid #e5e7eb',
+            borderRadius: '8px',
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              padding: '1rem',
+              background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+              color: 'white',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              letterSpacing: '0.5px',
+            }}>
+              COMPONENTS ({formatNumber(componentOverviews.length)})
+            </div>
+            <div style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
+              {componentOverviews.map((comp) => {
+                const isSelected = selectedComponent?.categoryId === comp.categoryId;
+                return (
+                  <div
+                    key={comp.categoryId}
+                    onClick={() => setSelectedComponent({ categoryId: comp.categoryId, categoryName: comp.categoryName })}
+                    style={{
+                      padding: '1rem',
+                      cursor: 'pointer',
+                      background: isSelected ? '#f3e8ff' : 'white',
+                      border: isSelected ? '2px solid #9333ea' : '2px solid transparent',
+                      borderLeft: 'none',
+                      borderRight: 'none',
+                      borderTop: 'none',
+                      borderBottom: '1px solid #e5e7eb',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    {/* Component Name */}
+                    <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: '#1e293b', marginBottom: '0.5rem' }}>
+                      {comp.categoryName}
+                    </div>
+
+                    {/* Variants List */}
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem' }}>
+                      {comp.variants.length > 0 ? (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+                          {comp.variants.map((v, idx) => (
+                            <span
+                              key={idx}
+                              style={{
+                                background: '#f1f5f9',
+                                padding: '0.125rem 0.5rem',
+                                borderRadius: '12px',
+                                fontSize: '0.6875rem',
+                                fontWeight: 500,
+                                color: '#475569',
+                              }}
+                            >
+                              {v.variant || 'No variant'}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span style={{ fontStyle: 'italic', opacity: 0.7 }}>No variants</span>
+                      )}
+                    </div>
+
+                    {/* Stats */}
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', justifyContent: 'space-between' }}>
+                      <span>{comp.totalVendors} {comp.totalVendors === 1 ? 'vendor' : 'vendors'}</span>
+                      <span style={{ fontWeight: 600, color: '#4b006e' }}>{formatCurrency(comp.totalSpend)}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Right Panel: Component Details */}
+          <div style={{ flex: 1, background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '1.5rem' }}>
+            {selectedComponent ? (
+              <div>
+                <h4 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b', marginBottom: '1rem' }}>
+                  {selectedComponent.categoryName}
+                </h4>
+                <p style={{ color: '#64748b' }}>
+                  Vendor comparison view coming soon! This will show all vendors who sell this component with pricing comparison.
+                </p>
+              </div>
+            ) : (
+              <div style={{
+                background: '#fafbfc',
+                border: '2px dashed #e5e7eb',
+                borderRadius: '8px',
+                padding: '3rem',
+                textAlign: 'center',
+                color: '#64748b',
+              }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👈</div>
+                <div style={{ fontSize: '1rem', fontWeight: 500 }}>
+                  Select a component to compare vendors
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
