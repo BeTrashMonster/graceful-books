@@ -1237,12 +1237,12 @@ export default function VendorIntelTab({
 
                                       <table style={{ width: '100%', fontSize: '0.8125rem' }}>
                                         <thead>
-                                          <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-                                            <th style={{ textAlign: 'left', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>INVOICE #</th>
-                                            <th style={{ textAlign: 'left', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>DATE</th>
-                                            <th style={{ textAlign: 'right', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>UNIT PRICE</th>
-                                            <th style={{ textAlign: 'right', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>UNITS</th>
-                                            <th style={{ textAlign: 'right', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>TOTAL</th>
+                                          <tr style={{ borderBottom: '1px solid #e5e7eb', background: 'linear-gradient(135deg, #4b006e 0%, #5e0089 100%)' }}>
+                                            <th style={{ textAlign: 'left', padding: '0.375rem 0.5rem', fontWeight: 600, color: 'white', fontSize: '0.6875rem' }}>INVOICE #</th>
+                                            <th style={{ textAlign: 'left', padding: '0.375rem 0.5rem', fontWeight: 600, color: 'white', fontSize: '0.6875rem' }}>DATE</th>
+                                            <th style={{ textAlign: 'right', padding: '0.375rem 0.5rem', fontWeight: 600, color: 'white', fontSize: '0.6875rem' }}>UNIT PRICE</th>
+                                            <th style={{ textAlign: 'right', padding: '0.375rem 0.5rem', fontWeight: 600, color: 'white', fontSize: '0.6875rem' }}>UNITS</th>
+                                            <th style={{ textAlign: 'right', padding: '0.375rem 0.5rem', fontWeight: 600, color: 'white', fontSize: '0.6875rem' }}>TOTAL</th>
                                           </tr>
                                         </thead>
                                         <tbody>
@@ -1253,7 +1253,7 @@ export default function VendorIntelTab({
                                                 key={inv.id}
                                                 style={{
                                                   borderBottom: '1px solid #f1f5f9',
-                                                  background: isLowest ? '#dcfce7' : 'transparent',
+                                                  background: isLowest ? '#bbf7d0' : 'transparent',
                                                 }}
                                               >
                                                 <td style={{ padding: '0.5rem', fontWeight: 500 }}>{inv.invoice_number || 'Unnamed'}</td>
@@ -1272,9 +1272,11 @@ export default function VendorIntelTab({
                                             <td style={{ padding: '0.5rem', textAlign: 'right', color: '#4b006e' }}>{formatCurrency(grandTotal)}</td>
                                           </tr>
                                           {/* Average Row */}
-                                          <tr style={{ fontWeight: 500, background: '#f3e8ff' }}>
-                                            <td colSpan={5} style={{ padding: '0.5rem', textAlign: 'right', fontSize: '0.8125rem', color: '#4b006e' }}>
-                                              Average for this vendor: <strong>{formatCurrency(averageForVendor)}</strong>
+                                          <tr style={{ fontWeight: 500 }}>
+                                            <td colSpan={5} style={{ padding: '0.5rem', textAlign: 'right', fontSize: '0.8125rem' }}>
+                                              <span style={{ background: '#f3e8ff', padding: '0.25rem 0.5rem', borderRadius: '4px', color: '#4b006e' }}>
+                                                Average for this vendor: <strong>{formatCurrency(averageForVendor)}</strong>
+                                              </span>
                                             </td>
                                           </tr>
                                         </tbody>
