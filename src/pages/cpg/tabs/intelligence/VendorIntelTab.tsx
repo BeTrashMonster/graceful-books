@@ -60,7 +60,6 @@ interface ComponentRow {
   categoryName: string;
   variant: string;
   lastPricePaid: number;
-  avgPrice: number;
   bestPrice: number;
   bestVendor: string;
   percentageVsBest: number;
@@ -119,6 +118,7 @@ export default function VendorIntelTab({
   const [vendorSortColumn, setVendorSortColumn] = useState<'spend'>('spend');
   const [vendorSortDirection, setVendorSortDirection] = useState<'desc'>('desc');
   const [expandedComponents, setExpandedComponents] = useState<Set<string>>(new Set());
+  const [invoiceDropdownDateRange, setInvoiceDropdownDateRange] = useState<Map<string, VendorIntelTabProps['dateRange']>>(new Map());
 
   // Aggregate stats across ALL vendors
   const aggregateStats = useMemo(() => {
@@ -406,7 +406,6 @@ export default function VendorIntelTab({
         categoryName: category?.name || 'Unknown',
         variant,
         lastPricePaid,
-        avgPrice,
         bestPrice,
         bestVendor,
         percentageVsBest,
@@ -1036,10 +1035,9 @@ export default function VendorIntelTab({
                         <tr>
                           <th>COMPONENT ↑</th>
                           <th className={styles.alignRight}>LAST PRICE PAID</th>
-                          <th className={styles.alignRight}>vs BEST MARKET</th>
-                          <th className={styles.alignRight}>BEST MARKET PRICE</th>
-                          <th className={styles.alignRight}>AVG PRICE</th>
-                          <th style={{ width: '80px' }}></th>
+                          <th className={styles.alignRight}>BEST VENDOR AVG</th>
+                          <th className={styles.alignRight}>% CHANGE</th>
+                          <th style={{ width: '100px' }}></th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1080,15 +1078,6 @@ export default function VendorIntelTab({
                                   {formatCurrency(comp.lastPricePaid)}
                                 </td>
                                 <td className={styles.alignRight}>
-                                  {comp.isBest ? (
-                                    <span style={{ color: '#16a34a', fontWeight: 600, fontSize: '0.875rem' }}>✓ Best</span>
-                                  ) : (
-                                    <span style={{ color: '#dc2626', fontWeight: 600, fontSize: '0.875rem' }}>
-                                      +{comp.percentageVsBest.toFixed(2)}%
-                                    </span>
-                                  )}
-                                </td>
-                                <td className={styles.alignRight}>
                                   <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{formatCurrency(comp.bestPrice)}</div>
                                   {comp.bestVendor !== selectedVendor.vendorName ? (
                                     <div
@@ -1112,8 +1101,14 @@ export default function VendorIntelTab({
                                     </div>
                                   )}
                                 </td>
-                                <td className={styles.alignRight} style={{ fontWeight: 600 }}>
-                                  {formatCurrency(comp.avgPrice)}
+                                <td className={styles.alignRight}>
+                                  {comp.isBest ? (
+                                    <span style={{ color: '#16a34a', fontWeight: 600, fontSize: '0.875rem' }}>✓ Best</span>
+                                  ) : (
+                                    <span style={{ color: '#dc2626', fontWeight: 600, fontSize: '0.875rem' }}>
+                                      +{comp.percentageVsBest.toFixed(2)}%
+                                    </span>
+                                  )}
                                 </td>
                                 <td style={{ textAlign: 'center' }}>
                                   {componentInvoices.length > 0 && (
@@ -1138,50 +1133,156 @@ export default function VendorIntelTab({
                                   )}
                                 </td>
                               </tr>
-                              {isExpanded && componentInvoices.length > 0 && (
-                                <tr>
-                                  <td colSpan={6} style={{ padding: '0.5rem 1.5rem 1rem', background: '#f8fafc' }}>
-                                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem', fontWeight: 600 }}>
-                                      🕐 ALL-TIME INVOICES FOR THIS COMPONENT
-                                    </div>
-                                    <table style={{ width: '100%', fontSize: '0.8125rem' }}>
-                                      <thead>
-                                        <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-                                          <th style={{ textAlign: 'left', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>INVOICE #</th>
-                                          <th style={{ textAlign: 'left', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>DATE</th>
-                                          <th style={{ textAlign: 'right', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>UNIT PRICE</th>
-                                          <th style={{ textAlign: 'right', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>UNITS</th>
-                                          <th style={{ textAlign: 'right', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>TOTAL</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {componentInvoices.map(inv => {
-                                          const attrs = inv.cost_attribution || {};
-                                          const attr = Object.values(attrs).find(a =>
-                                            a.category_id === comp.categoryId &&
-                                            (a.variant || '') === (comp.variant || '')
-                                          );
-                                          if (!attr) return null;
+                              {isExpanded && componentInvoices.length > 0 && (() => {
+                                // Get current dropdown date range or default to main filter
+                                const dropdownDateRange = invoiceDropdownDateRange.get(componentKey) || dateRange;
 
-                                          const unitPrice = parseFloat(attr.unit_price);
-                                          const units = parseFloat(attr.units_purchased);
-                                          const total = unitPrice * units;
+                                // Filter invoices by dropdown date range
+                                const today = Date.now();
+                                let startDate = 0;
+                                let endDate = today;
 
-                                          return (
-                                            <tr key={inv.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                              <td style={{ padding: '0.5rem', fontWeight: 500 }}>{inv.invoice_number || 'Unnamed'}</td>
-                                              <td style={{ padding: '0.5rem' }}>{new Date(inv.invoice_date).toLocaleDateString()}</td>
-                                              <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 500 }}>{formatCurrency(unitPrice)}</td>
-                                              <td style={{ padding: '0.5rem', textAlign: 'right' }}>{formatNumber(units)}</td>
-                                              <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 600, color: '#4b006e' }}>{formatCurrency(total)}</td>
-                                            </tr>
-                                          );
-                                        })}
-                                      </tbody>
-                                    </table>
-                                  </td>
-                                </tr>
-                              )}
+                                switch (dropdownDateRange) {
+                                  case '3mo':
+                                    startDate = today - (90 * 24 * 60 * 60 * 1000);
+                                    break;
+                                  case '6mo':
+                                    startDate = today - (180 * 24 * 60 * 60 * 1000);
+                                    break;
+                                  case '12mo':
+                                    startDate = today - (365 * 24 * 60 * 60 * 1000);
+                                    break;
+                                  case 'last-calendar-year':
+                                    const lastYear = new Date().getFullYear() - 1;
+                                    startDate = new Date(lastYear, 0, 1).getTime();
+                                    endDate = new Date(lastYear, 11, 31, 23, 59, 59).getTime();
+                                    break;
+                                  case 'this-calendar-year':
+                                    const thisYear = new Date().getFullYear();
+                                    startDate = new Date(thisYear, 0, 1).getTime();
+                                    break;
+                                  case 'all':
+                                    startDate = 0;
+                                    break;
+                                }
+
+                                const filteredComponentInvoices = componentInvoices.filter(inv => {
+                                  if (startDate > 0 && inv.invoice_date < startDate) return false;
+                                  if (endDate > 0 && inv.invoice_date > endDate) return false;
+                                  return true;
+                                });
+
+                                // Calculate totals and find lowest price
+                                let totalUnitPrices = 0;
+                                let totalUnits = 0;
+                                let grandTotal = 0;
+                                let lowestUnitPrice = Infinity;
+                                const invoiceData: Array<{ inv: CPGInvoice; unitPrice: number; units: number; total: number }> = [];
+
+                                filteredComponentInvoices.forEach(inv => {
+                                  const attrs = inv.cost_attribution || {};
+                                  const attr = Object.values(attrs).find(a =>
+                                    a.category_id === comp.categoryId &&
+                                    (a.variant || '') === (comp.variant || '')
+                                  );
+                                  if (!attr) return;
+
+                                  const unitPrice = parseFloat(attr.unit_price);
+                                  const units = parseFloat(attr.units_purchased);
+                                  const total = unitPrice * units;
+
+                                  if (!isNaN(unitPrice) && !isNaN(units)) {
+                                    totalUnitPrices += unitPrice;
+                                    totalUnits += units;
+                                    grandTotal += total;
+                                    if (unitPrice < lowestUnitPrice) lowestUnitPrice = unitPrice;
+                                    invoiceData.push({ inv, unitPrice, units, total });
+                                  }
+                                });
+
+                                const averageForVendor = invoiceData.length > 0 ? totalUnitPrices / invoiceData.length : 0;
+
+                                return (
+                                  <tr>
+                                    <td colSpan={5} style={{ padding: '0.5rem 1.5rem 1rem', background: '#f8fafc' }}>
+                                      {/* Date Range Selector */}
+                                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.75rem' }}>
+                                        <select
+                                          value={dropdownDateRange}
+                                          onChange={(e) => {
+                                            const newRange = e.target.value as VendorIntelTabProps['dateRange'];
+                                            setInvoiceDropdownDateRange(prev => {
+                                              const next = new Map(prev);
+                                              next.set(componentKey, newRange);
+                                              return next;
+                                            });
+                                          }}
+                                          style={{
+                                            padding: '0.25rem 0.5rem',
+                                            fontSize: '0.75rem',
+                                            border: '1px solid #d1d5db',
+                                            borderRadius: '4px',
+                                            background: 'white',
+                                            cursor: 'pointer',
+                                          }}
+                                        >
+                                          <option value="3mo">Last 3 Months</option>
+                                          <option value="6mo">Last 6 Months</option>
+                                          <option value="12mo">Last 12 Months</option>
+                                          <option value="last-calendar-year">Last Calendar Year</option>
+                                          <option value="this-calendar-year">This Calendar Year</option>
+                                          <option value="all">All Time</option>
+                                        </select>
+                                      </div>
+
+                                      <table style={{ width: '100%', fontSize: '0.8125rem' }}>
+                                        <thead>
+                                          <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                                            <th style={{ textAlign: 'left', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>INVOICE #</th>
+                                            <th style={{ textAlign: 'left', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>DATE</th>
+                                            <th style={{ textAlign: 'right', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>UNIT PRICE</th>
+                                            <th style={{ textAlign: 'right', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>UNITS</th>
+                                            <th style={{ textAlign: 'right', padding: '0.375rem 0.5rem', fontWeight: 600, color: '#64748b', fontSize: '0.6875rem' }}>TOTAL</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {invoiceData.map(({ inv, unitPrice, units, total }) => {
+                                            const isLowest = unitPrice === lowestUnitPrice;
+                                            return (
+                                              <tr
+                                                key={inv.id}
+                                                style={{
+                                                  borderBottom: '1px solid #f1f5f9',
+                                                  background: isLowest ? '#dcfce7' : 'transparent',
+                                                }}
+                                              >
+                                                <td style={{ padding: '0.5rem', fontWeight: 500 }}>{inv.invoice_number || 'Unnamed'}</td>
+                                                <td style={{ padding: '0.5rem' }}>{new Date(inv.invoice_date).toLocaleDateString()}</td>
+                                                <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 500 }}>{formatCurrency(unitPrice)}</td>
+                                                <td style={{ padding: '0.5rem', textAlign: 'right' }}>{formatNumber(units)}</td>
+                                                <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 600, color: '#4b006e' }}>{formatCurrency(total)}</td>
+                                              </tr>
+                                            );
+                                          })}
+                                          {/* Totals Row */}
+                                          <tr style={{ borderTop: '2px solid #4b006e', fontWeight: 600, background: 'white' }}>
+                                            <td colSpan={2} style={{ padding: '0.5rem', textAlign: 'right' }}>TOTALS:</td>
+                                            <td style={{ padding: '0.5rem', textAlign: 'right' }}>{formatCurrency(totalUnitPrices)}</td>
+                                            <td style={{ padding: '0.5rem', textAlign: 'right' }}>{formatNumber(totalUnits)}</td>
+                                            <td style={{ padding: '0.5rem', textAlign: 'right', color: '#4b006e' }}>{formatCurrency(grandTotal)}</td>
+                                          </tr>
+                                          {/* Average Row */}
+                                          <tr style={{ fontWeight: 500, background: '#f3e8ff' }}>
+                                            <td colSpan={5} style={{ padding: '0.5rem', textAlign: 'right', fontSize: '0.8125rem', color: '#4b006e' }}>
+                                              Average for this vendor: <strong>{formatCurrency(averageForVendor)}</strong>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                );
+                              })()}
                             </React.Fragment>
                           );
                         })}
