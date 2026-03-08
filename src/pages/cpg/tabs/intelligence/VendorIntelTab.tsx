@@ -671,9 +671,176 @@ export default function VendorIntelTab({
         </div>
       </div>
 
-      {/* Master-Detail Layout */}
+      {/* Top Row: Summary Card + Vendor Header */}
+      <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem' }}>
+        {/* Left: Aggregate Summary Card */}
+        <div style={{
+          width: '280px',
+          flexShrink: 0,
+          background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+          color: 'white',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem',
+        }}>
+          <div style={{ fontSize: '0.875rem', fontWeight: 600, opacity: 0.9 }}>
+            TOTAL SPEND
+          </div>
+          <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
+            {formatCurrency(aggregateStats.totalSpend)}
+          </div>
+          <div style={{ fontSize: '0.875rem', lineHeight: 1.3, opacity: 0.9 }}>
+            <div>BIGGEST COST: {formatCurrency(aggregateStats.biggestCost)}</div>
+            <div>AVG PRICE: {formatCurrency(aggregateStats.avgPrice)}</div>
+          </div>
+        </div>
+
+        {/* Right: Vendor Header Bar (if vendor selected) */}
+        {selectedVendor && selectedVendorStats && (
+          <div style={{
+            flex: 1,
+            background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+            color: 'white',
+            padding: '1.5rem',
+            borderRadius: '8px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
+            {isEditingVendor ? (
+              <>
+                <div style={{ flex: 1, marginRight: '1rem' }}>
+                  <input
+                    type="text"
+                    value={editVendorName}
+                    onChange={(e) => setEditVendorName(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem',
+                      fontSize: '1.5rem',
+                      fontWeight: 700,
+                      marginBottom: '0.5rem',
+                      border: '1px solid white',
+                      borderRadius: '4px',
+                    }}
+                  />
+                  <textarea
+                    value={editVendorNotes}
+                    onChange={(e) => setEditVendorNotes(e.target.value)}
+                    placeholder="Notes..."
+                    rows={2}
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem',
+                      fontSize: '0.875rem',
+                      border: '1px solid white',
+                      borderRadius: '4px',
+                    }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
+                  <button onClick={handleSaveVendor} style={{
+                    padding: '0.5rem 1rem',
+                    background: 'white',
+                    color: '#4b006e',
+                    border: 'none',
+                    borderRadius: '4px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                  }}>Save</button>
+                  <button onClick={handleArchiveVendor} style={{
+                    padding: '0.5rem 1rem',
+                    background: '#dc2626',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                  }}>Archive</button>
+                  <button onClick={() => setIsEditingVendor(false)} style={{
+                    padding: '0.5rem 1rem',
+                    background: 'transparent',
+                    color: 'white',
+                    border: '1px solid white',
+                    borderRadius: '4px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                  }}>Cancel</button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                  <div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: 700, lineHeight: 1 }}>
+                      {selectedVendor.vendorName}
+                    </div>
+                    {currentVendorRecord?.notes && (
+                      <div style={{ fontSize: '0.875rem', opacity: 0.9, fontWeight: 400, marginTop: '0.5rem' }}>
+                        {currentVendorRecord.notes}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={handleEditVendor}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      background: 'rgba(255,255,255,0.2)',
+                      color: 'white',
+                      border: '1px solid rgba(255,255,255,0.5)',
+                      borderRadius: '4px',
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    ✏️ Edit Vendor
+                  </button>
+                </div>
+                <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', opacity: 0.8, marginBottom: '0.25rem' }}>
+                      TOTAL SPEND
+                    </div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: 700, lineHeight: 1 }}>
+                      {formatCurrency(selectedVendorStats.totalSpend)}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', opacity: 0.8, marginBottom: '0.25rem' }}>
+                      INVOICES
+                    </div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: 700, lineHeight: 1 }}>
+                      {formatNumber(selectedVendorStats.invoiceCount)}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', opacity: 0.8, marginBottom: '0.25rem' }}>
+                      COMPONENTS
+                    </div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: 700, lineHeight: 1 }}>
+                      {formatNumber(selectedVendorStats.componentCount)}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Row: Vendor List + Content */}
       <div style={{ display: 'flex', gap: '1.5rem', minHeight: '500px' }}>
-        {/* Left Panel */}
+        {/* Left Panel: Vendor List */}
         <div style={{
           width: '280px',
           flexShrink: 0,
@@ -682,27 +849,6 @@ export default function VendorIntelTab({
           borderRadius: '8px',
           overflow: 'hidden',
         }}>
-          {/* Aggregate Summary Card */}
-          <div style={{
-            background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
-            color: 'white',
-            padding: '1.5rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.5rem',
-          }}>
-            <div style={{ fontSize: '0.875rem', fontWeight: 600, opacity: 0.9 }}>
-              TOTAL SPEND
-            </div>
-            <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
-              {formatCurrency(aggregateStats.totalSpend)}
-            </div>
-            <div style={{ fontSize: '0.875rem', lineHeight: 1.3, opacity: 0.9 }}>
-              <div>BIGGEST COST: {formatCurrency(aggregateStats.biggestCost)}</div>
-              <div>AVG PRICE: {formatCurrency(aggregateStats.avgPrice)}</div>
-            </div>
-          </div>
-
           <div style={{
             padding: '1rem',
             background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
@@ -744,7 +890,7 @@ export default function VendorIntelTab({
                     key={vendor.vendorName}
                     onClick={() => setSelectedVendor(vendor)}
                     style={{
-                      padding: '0.875rem 1rem',
+                      padding: '0.75rem 1rem',
                       cursor: 'pointer',
                       borderBottom: '1px solid #f1f5f9',
                       background: isSelected ? '#f3e8ff' : 'white',
@@ -758,7 +904,7 @@ export default function VendorIntelTab({
                     }}
                   >
                     <div style={{
-                      fontWeight: 600,
+                      fontWeight: 700,
                       fontSize: '0.9375rem',
                       color: '#1e293b',
                       marginBottom: '0.25rem',
@@ -777,7 +923,7 @@ export default function VendorIntelTab({
                       fontSize: '0.75rem',
                       color: '#94a3b8',
                     }}>
-                      {formatNumber(vendor.invoiceCount)} invoices · {formatNumber(vendor.componentCount)} components
+                      {formatNumber(vendor.invoiceCount)} {vendor.invoiceCount === 1 ? 'invoice' : 'invoices'} · {formatNumber(vendor.componentCount)} {vendor.componentCount === 1 ? 'component' : 'components'}
                     </div>
                   </div>
                 );
@@ -790,144 +936,6 @@ export default function VendorIntelTab({
         <div style={{ flex: 1 }}>
           {selectedVendor && selectedVendorStats ? (
             <div>
-              {/* Vendor Header Bar */}
-              <div style={{
-                background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
-                color: 'white',
-                padding: '1.5rem',
-                borderRadius: '8px',
-                marginBottom: '1.5rem',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-                {isEditingVendor ? (
-                  <>
-                    <div style={{ flex: 1, marginRight: '1rem' }}>
-                      <input
-                        type="text"
-                        value={editVendorName}
-                        onChange={(e) => setEditVendorName(e.target.value)}
-                        style={{
-                          width: '100%',
-                          padding: '0.5rem',
-                          fontSize: '1.5rem',
-                          fontWeight: 700,
-                          marginBottom: '0.5rem',
-                          border: '1px solid white',
-                          borderRadius: '4px',
-                        }}
-                      />
-                      <textarea
-                        value={editVendorNotes}
-                        onChange={(e) => setEditVendorNotes(e.target.value)}
-                        placeholder="Notes..."
-                        rows={2}
-                        style={{
-                          width: '100%',
-                          padding: '0.5rem',
-                          fontSize: '0.875rem',
-                          border: '1px solid white',
-                          borderRadius: '4px',
-                        }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
-                      <button onClick={handleSaveVendor} style={{
-                        padding: '0.5rem 1rem',
-                        background: 'white',
-                        color: '#4b006e',
-                        border: 'none',
-                        borderRadius: '4px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        fontSize: '0.875rem',
-                      }}>Save</button>
-                      <button onClick={handleArchiveVendor} style={{
-                        padding: '0.5rem 1rem',
-                        background: '#dc2626',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        fontSize: '0.875rem',
-                      }}>Archive</button>
-                      <button onClick={() => setIsEditingVendor(false)} style={{
-                        padding: '0.5rem 1rem',
-                        background: 'transparent',
-                        color: 'white',
-                        border: '1px solid white',
-                        borderRadius: '4px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        fontSize: '0.875rem',
-                      }}>Cancel</button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                      <div>
-                        <div style={{ fontSize: '1.75rem', fontWeight: 700, lineHeight: 1 }}>
-                          {selectedVendor.vendorName}
-                        </div>
-                        {currentVendorRecord?.notes && (
-                          <div style={{ fontSize: '0.875rem', opacity: 0.9, fontWeight: 400, marginTop: '0.5rem' }}>
-                            {currentVendorRecord.notes}
-                          </div>
-                        )}
-                      </div>
-                      <button
-                        onClick={handleEditVendor}
-                        style={{
-                          padding: '0.5rem 1rem',
-                          background: 'rgba(255,255,255,0.2)',
-                          color: 'white',
-                          border: '1px solid rgba(255,255,255,0.5)',
-                          borderRadius: '4px',
-                          fontSize: '0.875rem',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        ✏️ Edit Vendor
-                      </button>
-                    </div>
-                    <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', opacity: 0.8, marginBottom: '0.25rem' }}>
-                          TOTAL SPEND
-                        </div>
-                        <div style={{ fontSize: '1.75rem', fontWeight: 700, lineHeight: 1 }}>
-                          {formatCurrency(selectedVendorStats.totalSpend)}
-                        </div>
-                      </div>
-                      <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', opacity: 0.8, marginBottom: '0.25rem' }}>
-                          INVOICES
-                        </div>
-                        <div style={{ fontSize: '1.75rem', fontWeight: 700, lineHeight: 1 }}>
-                          {formatNumber(selectedVendorStats.invoiceCount)}
-                        </div>
-                      </div>
-                      <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', opacity: 0.8, marginBottom: '0.25rem' }}>
-                          COMPONENTS
-                        </div>
-                        <div style={{ fontSize: '1.75rem', fontWeight: 700, lineHeight: 1 }}>
-                          {formatNumber(selectedVendorStats.componentCount)}
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-
               {/* Components from this Vendor */}
               <div style={{ marginBottom: '2rem' }}>
                 <h5 style={{
