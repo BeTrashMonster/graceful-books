@@ -2551,22 +2551,29 @@ function ArchivedVendorsList({
 }) {
   const [archivedVendors, setArchivedVendors] = useState<CPGVendor[]>([]);
 
-  useEffect(() => {
-    const loadArchived = async () => {
-      try {
-        const vendors = await db.cpgVendors
-          .where('company_id')
-          .equals(companyId)
-          .filter(v => v.deleted_at !== null)
-          .toArray();
-        setArchivedVendors(vendors);
-      } catch (error) {
-        console.error('Failed to load archived vendors:', error);
-      }
-    };
+  const loadArchived = async () => {
+    try {
+      const vendors = await db.cpgVendors
+        .where('company_id')
+        .equals(companyId)
+        .filter(v => v.deleted_at !== null)
+        .toArray();
+      setArchivedVendors(vendors);
+    } catch (error) {
+      console.error('Failed to load archived vendors:', error);
+    }
+  };
 
+  useEffect(() => {
     loadArchived();
   }, [companyId]);
+
+  const handleRestore = async (vendorId: string) => {
+    // Optimistically remove from UI
+    setArchivedVendors(prev => prev.filter(v => v.id !== vendorId));
+    // Call parent restore handler
+    await onRestore(vendorId);
+  };
 
   if (archivedVendors.length === 0) {
     return (
@@ -2601,7 +2608,7 @@ function ArchivedVendorsList({
               </div>
             </div>
             <button
-              onClick={() => onRestore(vendor.id)}
+              onClick={() => handleRestore(vendor.id)}
               style={{
                 padding: '0.25rem 0.5rem',
                 background: '#4b006e',
