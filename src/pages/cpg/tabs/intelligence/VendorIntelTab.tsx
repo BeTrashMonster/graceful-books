@@ -20,6 +20,7 @@ export interface VendorIntelTabProps {
   categoryFilter?: Set<string>;
   variantFilter?: Set<string>;
   vendorFilter?: Set<string>;
+  onOpenCategoryManager: () => void;
 }
 
 interface ProductCPUData {
@@ -29,10 +30,10 @@ interface ProductCPUData {
   trendValue: string | null;
   topDriver: string | null;
   isComplete: boolean;
-  breakdown: ComponentBreakdown[];
+  breakdown: CategoryBreakdown[];
 }
 
-interface ComponentBreakdown {
+interface CategoryBreakdown {
   categoryId: string;
   categoryName: string;
   variant?: string;
@@ -44,19 +45,19 @@ interface VendorOverview {
   vendorName: string;
   totalSpend: number;
   invoiceCount: number;
-  componentCount: number;
+  categoryCount: number;
 }
 
 interface VendorStats {
   totalSpend: number;
   invoiceCount: number;
-  componentCount: number;
+  categoryCount: number;
   biggestCost: number;
-  biggestCostComponent: string;
+  biggestCostCategory: string;
   avgPrice: number;
 }
 
-interface ComponentRow {
+interface CategoryRow {
   categoryId: string;
   categoryName: string;
   variant: string;
@@ -99,14 +100,15 @@ export default function VendorIntelTab({
   categoryFilter = new Set(),
   variantFilter = new Set(),
   vendorFilter = new Set(),
+  onOpenCategoryManager,
 }: VendorIntelTabProps) {
-  const [viewMode, setViewMode] = useState<'component' | 'vendor'>('vendor');
+  const [viewMode, setViewMode] = useState<'category' | 'vendor'>('vendor');
   const [selectedVendor, setSelectedVendor] = useState<VendorOverview | null>(null);
   const [currentVendorRecord, setCurrentVendorRecord] = useState<CPGVendor | null>(null);
 
-  // Component view state
-  const [selectedComponent, setSelectedComponent] = useState<{ categoryId: string; categoryName: string } | null>(null);
-  const [componentOverviews, setComponentOverviews] = useState<Array<{
+  // Category view state
+  const [selectedCategory, setSelectedCategory] = useState<{ categoryId: string; categoryName: string } | null>(null);
+  const [categoryOverviews, setCategoryOverviews] = useState<Array<{
     categoryId: string;
     categoryName: string;
     variants: Array<{ variant: string | null; vendorCount: number; bestPrice: number }>;
@@ -124,18 +126,18 @@ export default function VendorIntelTab({
 
   // Vendor detail data
   const [selectedVendorStats, setSelectedVendorStats] = useState<VendorStats | null>(null);
-  const [vendorComponents, setVendorComponents] = useState<ComponentRow[]>([]);
+  const [vendorCategories, setVendorCategories] = useState<CategoryRow[]>([]);
   const [vendorInvoices, setVendorInvoices] = useState<CPGInvoice[]>([]);
 
   const [vendorSortColumn, setVendorSortColumn] = useState<'spend'>('spend');
   const [vendorSortDirection, setVendorSortDirection] = useState<'desc'>('desc');
-  const [expandedComponents, setExpandedComponents] = useState<Set<string>>(new Set());
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [invoiceDropdownDateRange, setInvoiceDropdownDateRange] = useState<Map<string, VendorIntelTabProps['dateRange']>>(new Map());
   const [categoryMap, setCategoryMap] = useState<Map<string, CPGCategory>>(new Map());
 
   // Component table sorting
-  const [componentSortColumn, setComponentSortColumn] = useState<'component' | 'lastPrice' | 'bestPrice' | 'change'>('component');
-  const [componentSortDirection, setComponentSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [categorySortColumn, setCategorySortColumn] = useState<'category' | 'lastPrice' | 'bestPrice' | 'change'>('category');
+  const [categorySortDirection, setCategorySortDirection] = useState<'asc' | 'desc'>('asc');
 
   // Invoice table sorting
   const [invoiceSortColumn, setInvoiceSortColumn] = useState<'invoice' | 'date' | 'total' | 'components'>('date');
@@ -145,12 +147,12 @@ export default function VendorIntelTab({
   const aggregateStats = useMemo(() => {
     const totalSpend = vendorOverviews.reduce((sum, v) => sum + v.totalSpend, 0);
     const totalInvoices = vendorOverviews.reduce((sum, v) => sum + v.invoiceCount, 0);
-    const totalComponents = vendorOverviews.reduce((sum, v) => sum + v.componentCount, 0);
+    const totalCategories = vendorOverviews.reduce((sum, v) => sum + v.categoryCount, 0);
 
-    // Calculate biggest single component cost and average price across all vendors
+    // Calculate biggest single category cost and average price across all vendors
     const allPrices: number[] = [];
     let biggestCost = 0;
-    let biggestCostComponent = '';
+    let biggestCostCategory = '';
 
     localInvoices.forEach(inv => {
       const attrs = inv.cost_attribution || {};
@@ -164,9 +166,9 @@ export default function VendorIntelTab({
             biggestCost = cost;
             // Find category name from map
             const category = categoryMap.get(attr.category_id);
-            const categoryName = category?.name || 'Unknown Component';
+            const categoryName = category?.name || 'Unknown Category';
             const variant = attr.variant ? ` (${attr.variant})` : '';
-            biggestCostComponent = `${categoryName}${variant}`;
+            biggestCostCategory = `${categoryName}${variant}`;
           }
         }
       });
@@ -179,9 +181,9 @@ export default function VendorIntelTab({
     return {
       totalSpend,
       totalInvoices,
-      totalComponents,
+      totalCategories,
       biggestCost,
-      biggestCostComponent,
+      biggestCostCategory,
       avgPrice,
     };
   }, [vendorOverviews, localInvoices, categoryMap]);
@@ -214,7 +216,7 @@ export default function VendorIntelTab({
     if (!selectedVendor) {
       setCurrentVendorRecord(null);
       setSelectedVendorStats(null);
-      setVendorComponents([]);
+      setVendorCategories([]);
       setVendorInvoices([]);
       return;
     }
@@ -291,18 +293,18 @@ export default function VendorIntelTab({
         break;
     }
 
-    // Get component categories for filtering
-    const componentCategories = new Map<string, Set<string>>();
+    // Get category categories for filtering
+    const categoryCategories = new Map<string, Set<string>>();
     selectedProducts.forEach(productId => {
       const cpuData = productCPUData.get(productId);
       if (cpuData?.breakdown) {
         cpuData.breakdown.forEach(comp => {
           if (categoryFilter.size > 0 && !categoryFilter.has(comp.categoryId)) return;
           if (variantFilter.size > 0 && !variantFilter.has(comp.variant || '')) return;
-          if (!componentCategories.has(comp.categoryId)) {
-            componentCategories.set(comp.categoryId, new Set());
+          if (!categoryCategories.has(comp.categoryId)) {
+            categoryCategories.set(comp.categoryId, new Set());
           }
-          componentCategories.get(comp.categoryId)!.add(comp.variant || '');
+          categoryCategories.get(comp.categoryId)!.add(comp.variant || '');
         });
       }
     });
@@ -319,13 +321,13 @@ export default function VendorIntelTab({
     // Calculate stats
     let totalSpend = 0;
     let biggestCost = 0;
-    let biggestCostComponent = '';
+    let biggestCostCategory = '';
     const allPrices: number[] = [];
-    const componentSet = new Set<string>();
+    const categorySet = new Set<string>();
 
     filteredInvoices.forEach(inv => {
       Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
-        const variants = componentCategories.get(attr.category_id);
+        const variants = categoryCategories.get(attr.category_id);
         if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
           const unitPrice = parseFloat(attr.unit_price);
           const unitsPurchased = parseFloat(attr.units_purchased);
@@ -336,12 +338,12 @@ export default function VendorIntelTab({
               biggestCost = itemTotal;
               // Find category name from map
               const category = categoryMap.get(attr.category_id);
-              const categoryName = category?.name || 'Unknown Component';
+              const categoryName = category?.name || 'Unknown Category';
               const variant = attr.variant ? ` (${attr.variant})` : '';
-              biggestCostComponent = `${categoryName}${variant}`;
+              biggestCostCategory = `${categoryName}${variant}`;
             }
             allPrices.push(unitPrice);
-            componentSet.add(`${attr.category_id}:${attr.variant || ''}`);
+            categorySet.add(`${attr.category_id}:${attr.variant || ''}`);
           }
         }
       });
@@ -352,42 +354,42 @@ export default function VendorIntelTab({
     setSelectedVendorStats({
       totalSpend,
       invoiceCount: filteredInvoices.length,
-      componentCount: componentSet.size,
+      categoryCount: categorySet.size,
       biggestCost,
-      biggestCostComponent,
+      biggestCostCategory,
       avgPrice,
     });
 
-    // Build component rows
-    const compRows: ComponentRow[] = [];
+    // Build category rows
+    const compRows: CategoryRow[] = [];
 
-    // Track data by component
-    const componentData = new Map<string, {
+    // Track data by category
+    const categoryData = new Map<string, {
       avgPrices: number[];
       lastPriceDate: number;
       lastPrice: number;
     }>();
 
-    const marketData = new Map<string, Map<string, number[]>>(); // compKey -> vendorName -> prices
+    const marketData = new Map<string, Map<string, number[]>>(); // catKey -> vendorName -> prices
 
     // Collect data for this vendor (filtered by date range)
     filteredInvoices.forEach(inv => {
       Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
-        const variants = componentCategories.get(attr.category_id);
+        const variants = categoryCategories.get(attr.category_id);
         if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
-          const compKey = `${attr.category_id}:${attr.variant || ''}`;
+          const catKey = `${attr.category_id}:${attr.variant || ''}`;
           const unitPrice = parseFloat(attr.unit_price);
 
           if (!isNaN(unitPrice) && unitPrice > 0) {
             // Track average prices
-            if (!componentData.has(compKey)) {
-              componentData.set(compKey, {
+            if (!categoryData.has(catKey)) {
+              categoryData.set(catKey, {
                 avgPrices: [],
                 lastPriceDate: 0,
                 lastPrice: 0,
               });
             }
-            const data = componentData.get(compKey)!;
+            const data = categoryData.get(catKey)!;
             data.avgPrices.push(unitPrice);
 
             // Track most recent price
@@ -407,16 +409,16 @@ export default function VendorIntelTab({
       if (endDate > 0 && inv.invoice_date > endDate) return;
 
       Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
-        const variants = componentCategories.get(attr.category_id);
+        const variants = categoryCategories.get(attr.category_id);
         if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
-          const compKey = `${attr.category_id}:${attr.variant || ''}`;
+          const catKey = `${attr.category_id}:${attr.variant || ''}`;
           const unitPrice = parseFloat(attr.unit_price);
 
           if (!isNaN(unitPrice) && unitPrice > 0) {
-            if (!marketData.has(compKey)) {
-              marketData.set(compKey, new Map());
+            if (!marketData.has(catKey)) {
+              marketData.set(catKey, new Map());
             }
-            const vendors = marketData.get(compKey)!;
+            const vendors = marketData.get(catKey)!;
             if (!vendors.has(inv.vendor_name || 'Unknown')) {
               vendors.set(inv.vendor_name || 'Unknown', []);
             }
@@ -426,11 +428,11 @@ export default function VendorIntelTab({
       });
     });
 
-    // Build component rows
-    for (const [compKey, data] of componentData.entries()) {
+    // Build category rows
+    for (const [catKey, data] of categoryData.entries()) {
       if (data.avgPrices.length === 0) continue;
 
-      const [categoryId, variant] = compKey.split(':');
+      const [categoryId, variant] = catKey.split(':');
       const category = categories.find(c => c.id === categoryId);
 
       const avgPrice = data.avgPrices.reduce((sum, p) => sum + p, 0) / data.avgPrices.length;
@@ -439,7 +441,7 @@ export default function VendorIntelTab({
       // Find best market price and vendor
       let bestPrice = Infinity;
       let bestVendor = '';
-      const vendors = marketData.get(compKey);
+      const vendors = marketData.get(catKey);
 
       if (vendors) {
         for (const [vendorName, prices] of vendors.entries()) {
@@ -472,7 +474,7 @@ export default function VendorIntelTab({
       });
     }
 
-    setVendorComponents(compRows.sort((a, b) => a.categoryName.localeCompare(b.categoryName)));
+    setVendorCategories(compRows.sort((a, b) => a.categoryName.localeCompare(b.categoryName)));
 
     // Get all-time invoices for this vendor
     const allVendorInvoices = localInvoices.filter(inv => {
@@ -486,16 +488,16 @@ export default function VendorIntelTab({
 
   useEffect(() => {
     loadVendorIntelligence();
-    loadComponentIntelligence();
+    loadCategoryIntelligence();
   }, [selectedProducts, productCPUData, localInvoices, dateRange, customDateRange, categoryFilter, variantFilter, vendorFilter, showArchivedVendors]);
 
-  // Sorted component rows
-  const sortedVendorComponents = useMemo(() => {
-    const sorted = [...vendorComponents];
+  // Sorted category rows
+  const sortedVendorCategories = useMemo(() => {
+    const sorted = [...vendorCategories];
     sorted.sort((a, b) => {
       let aVal: any, bVal: any;
 
-      switch (componentSortColumn) {
+      switch (categorySortColumn) {
         case 'component':
           aVal = `${a.categoryName} ${a.variant || ''}`.toLowerCase();
           bVal = `${b.categoryName} ${b.variant || ''}`.toLowerCase();
@@ -517,13 +519,13 @@ export default function VendorIntelTab({
       }
 
       if (typeof aVal === 'string') {
-        return componentSortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        return categorySortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
       } else {
-        return componentSortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+        return categorySortDirection === 'asc' ? aVal - bVal : bVal - aVal;
       }
     });
     return sorted;
-  }, [vendorComponents, componentSortColumn, componentSortDirection]);
+  }, [vendorCategories, categorySortColumn, categorySortDirection]);
 
   // Sorted invoice rows
   const sortedVendorInvoices = useMemo(() => {
@@ -629,7 +631,7 @@ export default function VendorIntelTab({
         return true;
       });
 
-      const componentCategories = new Map<string, Set<string>>();
+      const categoryCategories = new Map<string, Set<string>>();
 
       selectedProducts.forEach(productId => {
         const cpuData = productCPUData.get(productId);
@@ -638,15 +640,15 @@ export default function VendorIntelTab({
             if (categoryFilter.size > 0 && !categoryFilter.has(comp.categoryId)) return;
             if (variantFilter.size > 0 && !variantFilter.has(comp.variant || '')) return;
 
-            if (!componentCategories.has(comp.categoryId)) {
-              componentCategories.set(comp.categoryId, new Set());
+            if (!categoryCategories.has(comp.categoryId)) {
+              categoryCategories.set(comp.categoryId, new Set());
             }
-            componentCategories.get(comp.categoryId)!.add(comp.variant || '');
+            categoryCategories.get(comp.categoryId)!.add(comp.variant || '');
           });
         }
       });
 
-      const vendorStats = new Map<string, { spend: number; invoices: Set<string>; components: Set<string> }>();
+      const vendorStats = new Map<string, { spend: number; invoices: Set<string>; categories: Set<string> }>();
 
       vendorFilteredInvoices.forEach(inv => {
         const vendor = inv.vendor_name || 'Unknown';
@@ -659,7 +661,7 @@ export default function VendorIntelTab({
         stats.invoices.add(inv.id);
 
         Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
-          const variants = componentCategories.get(attr.category_id);
+          const variants = categoryCategories.get(attr.category_id);
           if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
             const unitPrice = parseFloat(attr.unit_price);
             const unitsPurchased = parseFloat(attr.units_purchased);
@@ -677,9 +679,9 @@ export default function VendorIntelTab({
           vendorName,
           totalSpend: stats.spend,
           invoiceCount: stats.invoices.size,
-          componentCount: stats.components.size,
+          categoryCount: stats.components.size,
         }))
-        .filter(vendor => vendor.componentCount > 0);
+        .filter(vendor => vendor.categoryCount > 0);
 
       setVendorOverviews(overviews);
     } catch (err) {
@@ -688,7 +690,7 @@ export default function VendorIntelTab({
   };
 
   // Get vendor pricing for selected component
-  const getComponentVendorPricing = (categoryId: string) => {
+  const getCategoryVendorPricing = (categoryId: string) => {
     if (!categoryId) return [];
 
     const today = Date.now();
@@ -788,9 +790,9 @@ export default function VendorIntelTab({
     return results;
   };
 
-  const loadComponentIntelligence = () => {
+  const loadCategoryIntelligence = () => {
     if (selectedProducts.size === 0) {
-      setComponentOverviews([]);
+      setCategoryOverviews([]);
       return;
     }
 
@@ -830,15 +832,15 @@ export default function VendorIntelTab({
       }
 
       // Build component categories filter
-      const componentCategories = new Map<string, Set<string>>();
+      const categoryCategories = new Map<string, Set<string>>();
       productCPUData.forEach((cpuData, productId) => {
         if (!selectedProducts.has(productId)) return;
         cpuData.breakdown.forEach((comp) => {
-          if (!componentCategories.has(comp.categoryId)) {
-            componentCategories.set(comp.categoryId, new Set());
+          if (!categoryCategories.has(comp.categoryId)) {
+            categoryCategories.set(comp.categoryId, new Set());
           }
           if (comp.variant) {
-            componentCategories.get(comp.categoryId)!.add(comp.variant);
+            categoryCategories.get(comp.categoryId)!.add(comp.variant);
           }
         });
       });
@@ -850,7 +852,7 @@ export default function VendorIntelTab({
         if (endDate > 0 && inv.invoice_date > endDate) return false;
 
         const hasRelevantComponent = Object.values(inv.cost_attribution || {}).some(attr => {
-          const variants = componentCategories.get(attr.category_id);
+          const variants = categoryCategories.get(attr.category_id);
           return variants && (variants.size === 0 || variants.has(attr.variant || ''));
         });
         return hasRelevantComponent;
@@ -866,7 +868,7 @@ export default function VendorIntelTab({
 
       filteredInvoices.forEach(inv => {
         Object.values(inv.cost_attribution || {}).forEach(attr => {
-          const variants = componentCategories.get(attr.category_id);
+          const variants = categoryCategories.get(attr.category_id);
           if (!variants || (!variants.has(attr.variant || '') && variants.size > 0)) return;
 
           const category = categoryMap.get(attr.category_id);
@@ -939,9 +941,9 @@ export default function VendorIntelTab({
         };
       }).sort((a, b) => b.totalSpend - a.totalSpend);
 
-      setComponentOverviews(overviews);
+      setCategoryOverviews(overviews);
     } catch (err) {
-      console.error('Failed to load component intelligence:', err);
+      console.error('Failed to load category intelligence:', err);
     }
   };
 
@@ -1174,10 +1176,10 @@ export default function VendorIntelTab({
     setShowExportMenu(false);
   };
 
-  const handleExportComponentDetailedCSV = (currentOnly: boolean) => {
-    const componentsToExport = currentOnly && selectedComponent
-      ? [selectedComponent.categoryId]
-      : componentOverviews.map(c => c.categoryId);
+  const handleExportCategoryDetailedCSV = (currentOnly: boolean) => {
+    const categoriesToExport = currentOnly && selectedCategory
+      ? [selectedCategory.categoryId]
+      : categoryOverviews.map(c => c.categoryId);
 
     const rows: string[] = [
       'Component,Variant,Vendor,Invoice Number,Invoice Date,Payment Method,Units Purchased,Unit Price,Line Total,Total Invoice Amount,Notes'
@@ -1226,7 +1228,7 @@ export default function VendorIntelTab({
 
       // Check if invoice has any of the components we want
       const attrs = inv.cost_attribution || {};
-      return Object.values(attrs).some(attr => componentsToExport.includes(attr.category_id));
+      return Object.values(attrs).some(attr => categoriesToExport.includes(attr.category_id));
     }).sort((a, b) => b.invoice_date - a.invoice_date);
 
     filteredInvoices.forEach(inv => {
@@ -1239,7 +1241,7 @@ export default function VendorIntelTab({
 
       const attrs = inv.cost_attribution || {};
       Object.entries(attrs).forEach(([key, attr], idx) => {
-        if (!componentsToExport.includes(attr.category_id)) return;
+        if (!categoriesToExport.includes(attr.category_id)) return;
 
         const categoryName = categoryMap.get(attr.category_id)?.name || 'Unknown';
         const variant = attr.variant || 'N/A';
@@ -1270,7 +1272,7 @@ export default function VendorIntelTab({
     const a = document.createElement('a');
     a.href = url;
     const filename = currentOnly
-      ? `component-${selectedComponent?.categoryName.replace(/\s+/g, '-')}-detailed-${new Date().toISOString().split('T')[0]}.csv`
+      ? `component-${selectedCategory?.categoryName.replace(/\s+/g, '-')}-detailed-${new Date().toISOString().split('T')[0]}.csv`
       : `all-components-detailed-${new Date().toISOString().split('T')[0]}.csv`;
     a.download = filename;
     document.body.appendChild(a);
@@ -1315,19 +1317,19 @@ export default function VendorIntelTab({
             By Vendor
           </button>
           <button
-            onClick={() => setViewMode('component')}
+            onClick={() => setViewMode('category')}
             style={{
               padding: '0.5rem 1rem',
-              background: viewMode === 'component' ? '#4b006e' : 'white',
-              color: viewMode === 'component' ? 'white' : '#64748b',
-              border: viewMode === 'component' ? 'none' : '1px solid #e5e7eb',
+              background: viewMode === 'category' ? '#4b006e' : 'white',
+              color: viewMode === 'category' ? 'white' : '#64748b',
+              border: viewMode === 'category' ? 'none' : '1px solid #e5e7eb',
               borderRadius: '6px',
               fontSize: '0.875rem',
               fontWeight: 600,
               cursor: 'pointer',
             }}
           >
-            By Component
+            By Category
           </button>
         </div>
 
@@ -1354,12 +1356,12 @@ export default function VendorIntelTab({
                   </>
                 ) : (
                   <>
-                    <button onClick={() => handleExportComponentDetailedCSV(false)} className={styles.exportMenuItem}>
-                      All Components (CSV)
+                    <button onClick={() => handleExportCategoryDetailedCSV(false)} className={styles.exportMenuItem}>
+                      All Categories (CSV)
                     </button>
-                    {selectedComponent && (
-                      <button onClick={() => handleExportComponentDetailedCSV(true)} className={styles.exportMenuItem}>
-                        Current Component (CSV)
+                    {selectedCategory && (
+                      <button onClick={() => handleExportCategoryDetailedCSV(true)} className={styles.exportMenuItem}>
+                        Current Category (CSV)
                       </button>
                     )}
                   </>
@@ -1374,7 +1376,7 @@ export default function VendorIntelTab({
       <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem' }}>
         {/* Left: Aggregate Summary Card */}
         <div style={{
-          width: viewMode === 'component' ? '320px' : '280px',
+          width: viewMode === 'category' ? '320px' : '280px',
           flexShrink: 0,
           background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
           color: 'white',
@@ -1407,8 +1409,8 @@ export default function VendorIntelTab({
             <div>
               <div style={{ fontSize: '0.6875rem', opacity: 0.85, fontWeight: 600, letterSpacing: '0.3px', marginBottom: '0.25rem' }}>BIGGEST COST</div>
               <div style={{ fontWeight: 700, fontFamily: '"Trebuchet MS", sans-serif' }}>{formatCurrency(aggregateStats.biggestCost)}</div>
-              {aggregateStats.biggestCostComponent && (
-                <div style={{ fontSize: '0.6875rem', opacity: 0.85, marginTop: '0.125rem' }}>{aggregateStats.biggestCostComponent}</div>
+              {aggregateStats.biggestCostCategory && (
+                <div style={{ fontSize: '0.6875rem', opacity: 0.85, marginTop: '0.125rem' }}>{aggregateStats.biggestCostCategory}</div>
               )}
             </div>
             <div style={{ textAlign: 'right' }}>
@@ -1418,7 +1420,7 @@ export default function VendorIntelTab({
           </div>
         </div>
 
-        {/* Right: Vendor Header Bar (if vendor selected in vendor view) OR Context Cards (in component view) */}
+        {/* Right: Vendor Header Bar (if vendor selected in vendor view) OR Context Cards (in category view) */}
         {viewMode === 'vendor' && selectedVendor && selectedVendorStats && (
           <div style={{
             flex: 1,
@@ -1546,10 +1548,10 @@ export default function VendorIntelTab({
                   </div>
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', opacity: 0.8, marginBottom: '0.25rem' }}>
-                      COMPONENTS
+                      CATEGORIES
                     </div>
                     <div style={{ fontSize: '1.75rem', fontWeight: 700, lineHeight: 1 }}>
-                      {formatNumber(selectedVendorStats.componentCount)}
+                      {formatNumber(selectedVendorStats.categoryCount)}
                     </div>
                   </div>
                 </div>
@@ -1558,13 +1560,13 @@ export default function VendorIntelTab({
           </div>
         )}
 
-        {/* Right: Context Cards (if in component view and component selected) */}
-        {viewMode === 'component' && selectedComponent && (() => {
-          const componentOverview = componentOverviews.find(c => c.categoryId === selectedComponent.categoryId);
-          const variantPricing = getComponentVendorPricing(selectedComponent.categoryId);
+        {/* Right: Context Cards (if in category view and component selected) */}
+        {viewMode === 'category' && selectedCategory && (() => {
+          const categoryOverview = categoryOverviews.find(c => c.categoryId === selectedCategory.categoryId);
+          const variantPricing = getCategoryVendorPricing(selectedCategory.categoryId);
           const totalVariants = variantPricing.length;
-          const totalVendors = componentOverview?.totalVendors || 0;
-          const totalSpend = componentOverview?.totalSpend || 0;
+          const totalVendors = categoryOverview?.totalVendors || 0;
+          const totalSpend = categoryOverview?.totalSpend || 0;
 
           // Calculate potential savings
           let currentSpend = 0;
@@ -1592,7 +1594,7 @@ export default function VendorIntelTab({
                   padding: '1rem',
                   borderRadius: '8px',
                 }}>
-                  <div style={{ fontSize: '0.75rem', opacity: 0.9, marginBottom: '0.25rem' }}>{selectedComponent.categoryName.toUpperCase()} SPEND</div>
+                  <div style={{ fontSize: '0.75rem', opacity: 0.9, marginBottom: '0.25rem' }}>{selectedCategory.categoryName.toUpperCase()} SPEND</div>
                   <div style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem' }}>{formatCurrency(totalSpend)}</div>
                   <div style={{ fontSize: '0.875rem', opacity: 0.85 }}>
                     {((totalSpend / aggregateStats.totalSpend) * 100).toFixed(2)}% of total spend
@@ -1721,7 +1723,7 @@ export default function VendorIntelTab({
                       fontSize: '0.8125rem',
                       color: '#64748b',
                     }}>
-                      {formatNumber(vendor.invoiceCount)} {vendor.invoiceCount === 1 ? 'invoice' : 'invoices'} · {formatNumber(vendor.componentCount)} {vendor.componentCount === 1 ? 'component' : 'components'}
+                      {formatNumber(vendor.invoiceCount)} {vendor.invoiceCount === 1 ? 'invoice' : 'invoices'} · {formatNumber(vendor.categoryCount)} {vendor.categoryCount === 1 ? 'component' :  'categories'}
                     </div>
                   </div>
                 );
@@ -1757,69 +1759,69 @@ export default function VendorIntelTab({
                   📊 {getDateRangeLabel(dateRange)} · Pricing data based on selected date range
                 </div>
 
-                {vendorComponents.length > 0 ? (
+                {vendorCategories.length > 0 ? (
                   <div className={styles.tableContainer}>
                     <table className={styles.comparisonTable}>
                       <thead>
                         <tr>
                           <th
                             onClick={() => {
-                              if (componentSortColumn === 'component') {
-                                setComponentSortDirection(componentSortDirection === 'asc' ? 'desc' : 'asc');
+                              if (categorySortColumn === 'category') {
+                                setCategorySortDirection(categorySortDirection === 'asc' ? 'desc' : 'asc');
                               } else {
-                                setComponentSortColumn('component');
-                                setComponentSortDirection('asc');
+                                setCategorySortColumn('category');
+                                setCategorySortDirection('asc');
                               }
                             }}
                           >
-                            COMPONENT {componentSortColumn === 'component' ? (componentSortDirection === 'asc' ? '↑' : '↓') : ''}
+                            COMPONENT {categorySortColumn === 'component' ? (categorySortDirection === 'asc' ? '↑' : '↓') : ''}
                           </th>
                           <th
                             className={styles.alignRight}
                             onClick={() => {
-                              if (componentSortColumn === 'lastPrice') {
-                                setComponentSortDirection(componentSortDirection === 'asc' ? 'desc' : 'asc');
+                              if (categorySortColumn === 'lastPrice') {
+                                setCategorySortDirection(categorySortDirection === 'asc' ? 'desc' : 'asc');
                               } else {
-                                setComponentSortColumn('lastPrice');
-                                setComponentSortDirection('desc');
+                                setCategorySortColumn('lastPrice');
+                                setCategorySortDirection('desc');
                               }
                             }}
                           >
-                            LAST PRICE PAID {componentSortColumn === 'lastPrice' ? (componentSortDirection === 'asc' ? '↑' : '↓') : ''}
+                            LAST PRICE PAID {categorySortColumn === 'lastPrice' ? (categorySortDirection === 'asc' ? '↑' : '↓') : ''}
                           </th>
                           <th
                             className={styles.alignRight}
                             onClick={() => {
-                              if (componentSortColumn === 'bestPrice') {
-                                setComponentSortDirection(componentSortDirection === 'asc' ? 'desc' : 'asc');
+                              if (categorySortColumn === 'bestPrice') {
+                                setCategorySortDirection(categorySortDirection === 'asc' ? 'desc' : 'asc');
                               } else {
-                                setComponentSortColumn('bestPrice');
-                                setComponentSortDirection('desc');
+                                setCategorySortColumn('bestPrice');
+                                setCategorySortDirection('desc');
                               }
                             }}
                           >
-                            BEST VENDOR AVG {componentSortColumn === 'bestPrice' ? (componentSortDirection === 'asc' ? '↑' : '↓') : ''}
+                            BEST VENDOR AVG {categorySortColumn === 'bestPrice' ? (categorySortDirection === 'asc' ? '↑' : '↓') : ''}
                           </th>
                           <th
                             className={styles.alignRight}
                             onClick={() => {
-                              if (componentSortColumn === 'change') {
-                                setComponentSortDirection(componentSortDirection === 'asc' ? 'desc' : 'asc');
+                              if (categorySortColumn === 'change') {
+                                setCategorySortDirection(categorySortDirection === 'asc' ? 'desc' : 'asc');
                               } else {
-                                setComponentSortColumn('change');
-                                setComponentSortDirection('asc');
+                                setCategorySortColumn('change');
+                                setCategorySortDirection('asc');
                               }
                             }}
                           >
-                            % CHANGE {componentSortColumn === 'change' ? (componentSortDirection === 'asc' ? '↑' : '↓') : ''}
+                            % CHANGE {categorySortColumn === 'change' ? (categorySortDirection === 'asc' ? '↑' : '↓') : ''}
                           </th>
                           <th style={{ width: '100px' }}></th>
                         </tr>
                       </thead>
                       <tbody>
-                        {sortedVendorComponents.map((comp, idx) => {
+                        {sortedVendorCategories.map((comp, idx) => {
                           const componentKey = `${comp.categoryId}-${comp.variant}`;
-                          const isExpanded = expandedComponents.has(componentKey);
+                          const isExpanded = expandedCategories.has(componentKey);
 
                           // Filter invoices for this specific component
                           const componentInvoices = vendorInvoices.filter(inv => {
@@ -1832,7 +1834,7 @@ export default function VendorIntelTab({
                           });
 
                           const toggleExpanded = () => {
-                            setExpandedComponents(prev => {
+                            setExpandedCategories(prev => {
                               const next = new Set(prev);
                               if (isExpanded) {
                                 next.delete(componentKey);
@@ -2137,22 +2139,22 @@ export default function VendorIntelTab({
                           </th>
                           <th
                             onClick={() => {
-                              if (invoiceSortColumn === 'components') {
+                              if (invoiceSortColumn === 'categories') {
                                 setInvoiceSortDirection(invoiceSortDirection === 'asc' ? 'desc' : 'asc');
                               } else {
-                                setInvoiceSortColumn('components');
+                                setInvoiceSortColumn('categories');
                                 setInvoiceSortDirection('desc');
                               }
                             }}
                           >
-                            COMPONENTS {invoiceSortColumn === 'components' ? (invoiceSortDirection === 'asc' ? '↑' : '↓') : ''}
+                            CATEGORIES {invoiceSortColumn === 'categories' ? (invoiceSortDirection === 'asc' ? '↑' : '↓') : ''}
                           </th>
                           <th style={{ textAlign: 'center' }}>ACTIONS</th>
                         </tr>
                       </thead>
                       <tbody>
                         {sortedVendorInvoices.map((inv) => {
-                          const componentCount = Object.keys(inv.cost_attribution || {}).length;
+                          const categoryCount = Object.keys(inv.cost_attribution || {}).length;
                           const total = Object.values(inv.cost_attribution || {}).reduce((sum, attr) => {
                             const unitPrice = parseFloat(attr.unit_price);
                             const units = parseFloat(attr.units_purchased);
@@ -2166,7 +2168,7 @@ export default function VendorIntelTab({
                               <td className={styles.alignRight} style={{ fontWeight: 600, color: '#4b006e' }}>
                                 {formatCurrency(total)}
                               </td>
-                              <td>{formatNumber(componentCount)} component{componentCount !== 1 ? 's' : ''}</td>
+                              <td>{formatNumber(categoryCount)} component{categoryCount !== 1 ? 's' : ''}</td>
                               <td>
                                 <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
                                   <button style={{
@@ -2250,16 +2252,34 @@ export default function VendorIntelTab({
               fontWeight: 600,
               fontSize: '0.875rem',
               letterSpacing: '0.5px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
             }}>
-              COMPONENTS ({formatNumber(componentOverviews.length)})
+              <span>CATEGORIES ({formatNumber(categoryOverviews.length)})</span>
+              <button
+                onClick={onOpenCategoryManager}
+                style={{
+                  background: 'rgba(255,255,255,0.2)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '0.25rem 0.5rem',
+                  fontSize: '0.75rem',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+              >
+                Edit
+              </button>
             </div>
             <div style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
-              {componentOverviews.map((comp) => {
-                const isSelected = selectedComponent?.categoryId === comp.categoryId;
+              {categoryOverviews.map((comp) => {
+                const isSelected = selectedCategory?.categoryId === comp.categoryId;
                 return (
                   <div
                     key={comp.categoryId}
-                    onClick={() => setSelectedComponent({ categoryId: comp.categoryId, categoryName: comp.categoryName })}
+                    onClick={() => setSelectedCategory({ categoryId: comp.categoryId, categoryName: comp.categoryName })}
                     style={{
                       padding: '1rem',
                       cursor: 'pointer',
@@ -2315,10 +2335,10 @@ export default function VendorIntelTab({
 
           {/* Right Panel: Component Details */}
           <div style={{ flex: 1, background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '1.5rem' }}>
-            {selectedComponent ? (
+            {selectedCategory ? (
               <div>
                 <h4 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.5rem' }}>
-                  {selectedComponent.categoryName}
+                  {selectedCategory.categoryName}
                 </h4>
                 <div style={{
                   fontSize: '0.75rem',
@@ -2334,7 +2354,7 @@ export default function VendorIntelTab({
                 </div>
 
                 {(() => {
-                  const variantPricing = getComponentVendorPricing(selectedComponent.categoryId);
+                  const variantPricing = getCategoryVendorPricing(selectedCategory.categoryId);
 
                   if (variantPricing.length === 0) {
                     return (
@@ -2347,7 +2367,7 @@ export default function VendorIntelTab({
                   return (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       {variantPricing.map((variantData, idx) => {
-                        const variantKey = `${selectedComponent.categoryId}-${variantData.variant || 'no-variant'}`;
+                        const variantKey = `${selectedCategory.categoryId}-${variantData.variant || 'no-variant'}`;
                         const isExpanded = expandedVariants.has(variantKey);
                         const bestVendor = variantData.vendors.find(v => v.isBest);
 

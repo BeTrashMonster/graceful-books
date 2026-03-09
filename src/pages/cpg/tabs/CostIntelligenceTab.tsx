@@ -32,6 +32,7 @@ export interface CostIntelligenceTabProps {
   categories: CPGCategory[];
   invoices: CPGInvoice[];
   recipes?: any[]; // Product recipes that define which variant each product uses
+  onOpenCategoryManager: () => void;
 }
 
 type IntelligenceSubTab = 'scenario' | 'trends' | 'vendors' | 'alerts';
@@ -51,6 +52,7 @@ export default function CostIntelligenceTab({
   finishedProducts,
   categories,
   invoices,
+  onOpenCategoryManager,
 }: CostIntelligenceTabProps) {
   // Product selection state
   const [selectedProductsForComparison, setSelectedProductsForComparison] = useState<Set<string>>(new Set());
@@ -1473,6 +1475,7 @@ export default function CostIntelligenceTab({
                     categoryFilter={comparisonCategoryFilter}
                     variantFilter={comparisonVariantFilter}
                     vendorFilter={comparisonVendorFilter}
+                    onOpenCategoryManager={onOpenCategoryManager}
                   />
                 )}
 

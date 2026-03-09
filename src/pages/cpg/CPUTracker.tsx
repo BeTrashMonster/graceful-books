@@ -473,6 +473,7 @@ export default function CPUTracker() {
                 finishedProducts={finishedProducts}
                 categories={categories}
                 invoices={invoices}
+                onOpenCategoryManager={() => setShowCategoryManager(true)}
               />
             )}
           </>
