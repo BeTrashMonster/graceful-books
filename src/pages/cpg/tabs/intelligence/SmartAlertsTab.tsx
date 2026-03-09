@@ -690,11 +690,11 @@ export default function SmartAlertsTab({
         marginBottom: '1.5rem',
       }}>
         {[
-          { type: 'urgent', label: 'Urgent', icon: '🚨', color: '#dc2626' },
-          { type: 'warning', label: 'Warnings', icon: '⚠️', color: '#ea580c' },
-          { type: 'opportunity', label: 'Opportunities', icon: '💰', color: '#16a34a' },
-          { type: 'info', label: 'Info', icon: 'ℹ️', color: '#0284c7' },
-        ].map(({ type, label, icon, color }) => {
+          { type: 'urgent', label: 'Urgent', color: '#dc2626' },
+          { type: 'warning', label: 'Warnings', color: '#ea580c' },
+          { type: 'opportunity', label: 'Opportunities', color: '#16a34a' },
+          { type: 'info', label: 'Info', color: '#0284c7' },
+        ].map(({ type, label, color }) => {
           const count = alertCounts[type as keyof typeof alertCounts];
           const isActive = alertFilter === type;
           return (
@@ -705,8 +705,8 @@ export default function SmartAlertsTab({
               aria-label={`Filter ${label} alerts (${count})`}
               style={{
                 padding: '1rem',
-                background: isActive ? color : 'white',
-                color: isActive ? 'white' : '#1e293b',
+                background: isActive ? 'white' : color,
+                color: isActive ? color : 'white',
                 border: `2px solid ${color}`,
                 borderRadius: '8px',
                 fontWeight: 600,
@@ -719,7 +719,6 @@ export default function SmartAlertsTab({
                 transition: 'all 0.2s',
               }}
             >
-              <span style={{ fontSize: '1.5rem' }}>{icon}</span>
               <span>{label}</span>
               <span style={{
                 fontSize: '1.25rem',
