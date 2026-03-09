@@ -491,6 +491,26 @@ export default function VendorIntelTab({
     loadComponentIntelligence();
   }, [selectedProducts, productCPUData, localInvoices, dateRange, customDateRange, categoryFilter, variantFilter, vendorFilter, showArchivedVendors]);
 
+  // Clear selections when filtered out
+  useEffect(() => {
+    // Clear selected vendor if it's not in the filtered vendor list
+    if (selectedVendor) {
+      const stillExists = vendorOverviews.some(v => v.vendorName === selectedVendor.vendorName);
+      if (!stillExists) {
+        setSelectedVendor(null);
+        setCurrentVendorRecord(null);
+      }
+    }
+
+    // Clear selected component if it's not in the filtered component list
+    if (selectedComponent) {
+      const stillExists = componentOverviews.some(c => c.categoryId === selectedComponent.categoryId);
+      if (!stillExists) {
+        setSelectedComponent(null);
+      }
+    }
+  }, [vendorOverviews, componentOverviews, selectedVendor, selectedComponent]);
+
   // Sorted component rows
   const sortedVendorComponents = useMemo(() => {
     const sorted = [...vendorComponents];
@@ -836,6 +856,10 @@ export default function VendorIntelTab({
       productCPUData.forEach((cpuData, productId) => {
         if (!selectedProducts.has(productId)) return;
         cpuData.breakdown.forEach((comp) => {
+          // Apply category and variant filters
+          if (categoryFilter.size > 0 && !categoryFilter.has(comp.categoryId)) return;
+          if (variantFilter.size > 0 && !variantFilter.has(comp.variant || '')) return;
+
           if (!componentCategories.has(comp.categoryId)) {
             componentCategories.set(comp.categoryId, new Set());
           }
@@ -845,11 +869,22 @@ export default function VendorIntelTab({
         });
       });
 
+      // Apply vendor filter
+      const normalizedVendorFilter = vendorFilter.size > 0
+        ? new Set(Array.from(vendorFilter).map(v => v.trim().toLowerCase()))
+        : new Set();
+
       // Filter invoices
       const filteredInvoices = localInvoices.filter(inv => {
         if (inv.deleted_at) return false;
         if (startDate > 0 && inv.invoice_date < startDate) return false;
         if (endDate > 0 && inv.invoice_date > endDate) return false;
+
+        // Apply vendor filter
+        if (normalizedVendorFilter.size > 0) {
+          const vendorName = (inv.vendor_name || '').trim().toLowerCase();
+          if (!normalizedVendorFilter.has(vendorName)) return false;
+        }
 
         const hasRelevantComponent = Object.values(inv.cost_attribution || {}).some(attr => {
           const variants = componentCategories.get(attr.category_id);
