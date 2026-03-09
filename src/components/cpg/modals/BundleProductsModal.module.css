@@ -69,57 +69,71 @@
   color: #64748b;
 }
 
-/* Bundle Items */
-.bundleItems {
+/* Product Checkbox List */
+.productCheckboxList {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  max-height: 300px;
+  gap: 0.5rem;
+  max-height: 350px;
   overflow-y: auto;
-  padding: 0.5rem;
+  padding: 0.75rem;
   background: #f8fafc;
   border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
-.bundleItem {
+.productCheckboxItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1rem;
+  padding: 0.75rem 1rem;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   transition: all 0.2s;
 }
 
-.bundleItem:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+.productCheckboxItem:hover {
+  border-color: #4b006e;
+  background: #faf5ff;
 }
 
-.itemInfo {
-  flex: 1;
+.checkboxLabel {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  flex: 1;
+  margin: 0;
 }
 
-.itemName {
-  font-weight: 600;
+.checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #4b006e;
+}
+
+.productInfo {
+  flex: 1;
+}
+
+.productName {
+  font-weight: 500;
   color: #1e293b;
   font-size: 0.9375rem;
 }
 
-.itemMeta {
-  font-size: 0.8125rem;
+.productSku {
   color: #64748b;
+  font-size: 0.8125rem;
+  font-weight: 400;
 }
 
-.itemActions {
+.quantityControl {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
 }
 
 .quantityLabel {
@@ -256,13 +270,18 @@
     grid-template-columns: 1fr;
   }
 
-  .bundleItem {
+  .productCheckboxItem {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.75rem;
   }
 
-  .itemActions {
+  .checkboxLabel {
     width: 100%;
-    justify-content: space-between;
+  }
+
+  .quantityControl {
+    width: 100%;
+    justify-content: flex-end;
   }
 }

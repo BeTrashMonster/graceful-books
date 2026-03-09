@@ -44,6 +44,10 @@ export interface ModalProps {
    * Footer content
    */
   footer?: ReactNode
+  /**
+   * Inline styles for the modal header
+   */
+  headerStyle?: React.CSSProperties
 }
 
 /**
@@ -88,6 +92,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
       closeOnEscape = true,
       className,
       footer,
+      headerStyle,
     },
     _ref,
   ) => {
@@ -184,7 +189,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
           tabIndex={-1}
         >
           {title && (
-            <div className={styles.modalHeader}>
+            <div className={styles.modalHeader} style={headerStyle}>
               <h2 id="modal-title" className={styles.modalTitle}>
                 {title}
               </h2>
@@ -194,6 +199,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
                   onClick={onClose}
                   className={styles.closeButton}
                   aria-label="Close modal"
+                  style={headerStyle ? { color: headerStyle.color || 'inherit' } : undefined}
                 >
                   ✕
                 </button>

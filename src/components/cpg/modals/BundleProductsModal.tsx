@@ -245,6 +245,11 @@ export function BundleProductsModal({ isOpen, onClose, onSuccess, editingBundle 
       onClose={handleClose}
       title={editingBundle ? 'Edit Bundle' : 'Create Product Bundle'}
       size="lg"
+      closeOnBackdropClick={false}
+      headerStyle={{
+        backgroundColor: '#4b006e',
+        color: 'white',
+      }}
     >
       <form onSubmit={handleSubmit} className={styles.form}>
         {error && (
@@ -257,149 +262,124 @@ export function BundleProductsModal({ isOpen, onClose, onSuccess, editingBundle 
           <div className={styles.loading}>Loading products...</div>
         ) : (
           <>
-            {/* Bundle Details */}
-            <div className={styles.section}>
-              <h3 className={styles.sectionTitle}>Bundle Details</h3>
+            {/* Bundle Name, SKU, MSRP, Description */}
+            <div className={styles.formGroup}>
+              <label htmlFor="bundle-name" className={styles.label}>
+                Bundle Name <span className={styles.required}>*</span>
+              </label>
+              <input
+                id="bundle-name"
+                type="text"
+                value={bundleName}
+                onChange={(e) => setBundleName(e.target.value)}
+                placeholder="e.g., Holiday Gift Set, Sampler Pack"
+                className={styles.input}
+                required
+              />
+            </div>
 
+            <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label htmlFor="bundle-name" className={styles.label}>
-                  Bundle Name <span className={styles.required}>*</span>
+                <label htmlFor="bundle-sku" className={styles.label}>
+                  SKU
                 </label>
                 <input
-                  id="bundle-name"
+                  id="bundle-sku"
                   type="text"
-                  value={bundleName}
-                  onChange={(e) => setBundleName(e.target.value)}
-                  placeholder="e.g., Holiday Gift Set, Sampler Pack"
+                  value={bundleSku}
+                  onChange={(e) => setBundleSku(e.target.value)}
+                  placeholder="Optional"
                   className={styles.input}
-                  required
                 />
-              </div>
-
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="bundle-sku" className={styles.label}>
-                    SKU
-                  </label>
-                  <input
-                    id="bundle-sku"
-                    type="text"
-                    value={bundleSku}
-                    onChange={(e) => setBundleSku(e.target.value)}
-                    placeholder="Optional"
-                    className={styles.input}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="bundle-msrp" className={styles.label}>
-                    Bundle MSRP
-                  </label>
-                  <input
-                    id="bundle-msrp"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={bundleMsrp}
-                    onChange={(e) => setBundleMsrp(e.target.value)}
-                    placeholder={`Suggested: $${suggestedMsrp}`}
-                    className={styles.input}
-                  />
-                  {suggestedMsrp !== '0.00' && (
-                    <span className={styles.hint}>
-                      Sum of products: ${suggestedMsrp}
-                    </span>
-                  )}
-                </div>
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="bundle-description" className={styles.label}>
-                  Description
+                <label htmlFor="bundle-msrp" className={styles.label}>
+                  Bundle MSRP
                 </label>
-                <textarea
-                  id="bundle-description"
-                  value={bundleDescription}
-                  onChange={(e) => setBundleDescription(e.target.value)}
-                  placeholder="Optional description"
-                  className={styles.textarea}
-                  rows={3}
+                <input
+                  id="bundle-msrp"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={bundleMsrp}
+                  onChange={(e) => setBundleMsrp(e.target.value)}
+                  placeholder={`Suggested: $${suggestedMsrp}`}
+                  className={styles.input}
                 />
+                {suggestedMsrp !== '0.00' && (
+                  <span className={styles.hint}>
+                    Sum of products: ${suggestedMsrp}
+                  </span>
+                )}
               </div>
             </div>
 
-            {/* Add Products */}
+            <div className={styles.formGroup}>
+              <label htmlFor="bundle-description" className={styles.label}>
+                Description
+              </label>
+              <textarea
+                id="bundle-description"
+                value={bundleDescription}
+                onChange={(e) => setBundleDescription(e.target.value)}
+                placeholder="Optional description"
+                className={styles.textarea}
+                rows={3}
+              />
+            </div>
+
+            {/* Product Selection with Checkboxes */}
             <div className={styles.section}>
-              <h3 className={styles.sectionTitle}>Bundle Contents</h3>
+              <h3 className={styles.sectionTitle}>Select Products for Bundle</h3>
 
-              <div className={styles.formGroup}>
-                <label htmlFor="add-product" className={styles.label}>
-                  Add Product
-                </label>
-                <select
-                  id="add-product"
-                  className={styles.select}
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      handleAddProduct(e.target.value);
-                      e.target.value = '';
-                    }
-                  }}
-                  defaultValue=""
-                >
-                  <option value="">Select a product to add...</option>
-                  {availableProducts
-                    .filter(p => !bundleItems.some(item => item.productId === p.id))
-                    .map(product => (
-                      <option key={product.id} value={product.id}>
-                        {product.name} {product.sku ? `(${product.sku})` : ''}
-                      </option>
-                    ))}
-                </select>
-              </div>
+              <div className={styles.productCheckboxList}>
+                {availableProducts.map((product) => {
+                  const isSelected = bundleItems.some(item => item.productId === product.id);
+                  const bundleItem = bundleItems.find(item => item.productId === product.id);
 
-              {/* Bundle Items List */}
-              {bundleItems.length > 0 ? (
-                <div className={styles.bundleItems}>
-                  {bundleItems.map((item) => (
-                    <div key={item.productId} className={styles.bundleItem}>
-                      <div className={styles.itemInfo}>
-                        <span className={styles.itemName}>{item.productName}</span>
-                        <div className={styles.itemMeta}>
-                          CPU: {item.cpu ? `$${item.cpu}` : 'N/A'} × {item.quantity} = $
-                          {item.cpu ? (parseFloat(item.cpu) * item.quantity).toFixed(2) : '0.00'}
+                  return (
+                    <div key={product.id} className={styles.productCheckboxItem}>
+                      <label className={styles.checkboxLabel}>
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              handleAddProduct(product.id);
+                            } else {
+                              handleRemoveProduct(product.id);
+                            }
+                          }}
+                          className={styles.checkbox}
+                        />
+                        <div className={styles.productInfo}>
+                          <span className={styles.productName}>
+                            {product.name}
+                            {product.sku && <span className={styles.productSku}> ({product.sku})</span>}
+                          </span>
                         </div>
-                      </div>
+                      </label>
 
-                      <div className={styles.itemActions}>
-                        <label className={styles.quantityLabel}>
-                          Qty:
-                          <input
-                            type="number"
-                            min="1"
-                            value={item.quantity}
-                            onChange={(e) => handleQuantityChange(item.productId, parseInt(e.target.value) || 1)}
-                            className={styles.quantityInput}
-                          />
-                        </label>
-
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveProduct(item.productId)}
-                          className={styles.removeButton}
-                          aria-label={`Remove ${item.productName}`}
-                        >
-                          ×
-                        </button>
-                      </div>
+                      {isSelected && (
+                        <div className={styles.quantityControl}>
+                          <label className={styles.quantityLabel}>
+                            Qty:
+                            <input
+                              type="number"
+                              min="1"
+                              value={bundleItem?.quantity || 1}
+                              onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value) || 1)}
+                              className={styles.quantityInput}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </label>
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.emptyItems}>
-                  No products added yet. Select products from the dropdown above.
-                </div>
-              )}
+                  );
+                })}
+              </div>
             </div>
 
             {/* Totals */}
