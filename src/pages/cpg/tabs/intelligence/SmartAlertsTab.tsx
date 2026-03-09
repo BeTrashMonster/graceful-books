@@ -543,21 +543,6 @@ export default function SmartAlertsTab({
         });
       }
 
-      // 7. Low Data Quality (< 5 purchases)
-      if (invoiceCount < 5 && invoiceCount >= 2) {
-        alerts.push({
-          id: `low-data-${key}`,
-          type: 'info',
-          icon: '📉',
-          title: 'Limited Purchase History',
-          message: `Only ${invoiceCount} purchases for ${displayName}`,
-          component: category.name,
-          variant,
-          categoryId,
-          action: 'More purchases will improve trend accuracy',
-          context: 'Trend analysis may be less reliable with limited data',
-        });
-      }
     });
 
     // Analyze vendor data for alerts (variant-specific)
@@ -597,42 +582,29 @@ export default function SmartAlertsTab({
         });
       }
 
-      // 9. Vendor Concentration Risk (>80% from single vendor)
-      if (intel.vendorConcentration && intel.topVendor && intel.topVendorPercent > 80) {
+      // 9. Vendor Concentration Risk (>80% from single vendor OR single vendor only)
+      if ((intel.vendorConcentration && intel.topVendor && intel.topVendorPercent > 80) || vendorCount === 1) {
+        const concentrationVendor = vendorCount === 1 ? Array.from(intel.vendors.keys())[0] : intel.topVendor;
+        const concentrationPercent = vendorCount === 1 ? 100 : intel.topVendorPercent;
+
         alerts.push({
           id: `concentration-${key}`,
           type: 'warning',
           icon: '⚖️',
           title: 'High Vendor Concentration',
-          message: `${displayName}: ${intel.topVendorPercent.toFixed(0)}% from ${intel.topVendor}`,
+          message: `${displayName}: ${concentrationPercent.toFixed(0)}% from ${concentrationVendor}`,
           component: category.name,
           variant,
-          vendor: intel.topVendor,
+          vendor: concentrationVendor,
           categoryId,
           action: 'Diversify suppliers to reduce supply chain risk',
-          context: `${intel.topVendor} represents ${intel.topVendorPercent.toFixed(0)}% of your spend`,
+          context: vendorCount === 1
+            ? 'Single vendor - high supply chain vulnerability'
+            : `${concentrationVendor} represents ${concentrationPercent.toFixed(0)}% of your spend`,
         });
       }
 
-      // 10. Single-Source Component
-      if (vendorCount === 1) {
-        const singleVendor = Array.from(intel.vendors.keys())[0];
-        alerts.push({
-          id: `single-source-${key}`,
-          type: 'warning',
-          icon: '🔗',
-          title: 'Single-Source Variant',
-          message: `${displayName} only purchased from ${singleVendor}`,
-          component: category.name,
-          variant,
-          vendor: singleVendor,
-          categoryId,
-          action: 'Identify backup suppliers to mitigate risk',
-          context: 'High supply chain vulnerability',
-        });
-      }
-
-      // 11. Price Anomaly (one vendor significantly different)
+      // 10. Price Anomaly (one vendor significantly different)
       if (intel.priceAnomaly && intel.anomalyVendor && intel.anomalyDeviation) {
         const direction = intel.anomalyDeviation > 0 ? 'higher' : 'lower';
         const anomalyPrice = intel.vendorAvgPrices.get(intel.anomalyVendor) || 0;
@@ -822,7 +794,11 @@ export default function SmartAlertsTab({
           </p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
+          gap: '1rem',
+        }}>
           {(showDismissedAlerts ? dismissedAlertsForDisplay : filteredAlerts).map(alert => {
             const isDismissed = dismissedAlerts.has(alert.id);
 
@@ -838,123 +814,126 @@ export default function SmartAlertsTab({
                   borderLeft: `6px solid ${borderColors[alert.type]}`,
                   borderRadius: '8px',
                   opacity: isDismissed ? 0.6 : 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: '100%',
                 }}
               >
+                {/* Header with icon, title, and dismiss button */}
                 <div style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'flex-start',
-                  marginBottom: '0.5rem',
+                  marginBottom: '0.75rem',
                 }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      marginBottom: '0.25rem',
-                    }}>
-                      <span style={{ fontSize: '1.25rem' }} aria-hidden="true">{alert.icon}</span>
-                      <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>
-                        {alert.title}
-                      </h4>
-                    </div>
-                    <p style={{ fontSize: '0.875rem', margin: '0.5rem 0', color: '#1e293b' }}>
-                      {alert.message}
-                    </p>
-                    {alert.action && (
-                      <p style={{
-                        fontSize: '0.875rem',
-                        margin: '0.5rem 0',
-                        color: '#4b006e',
-                        fontWeight: 600,
-                      }}>
-                        💡 {alert.action}
-                      </p>
-                    )}
-                    {alert.context && (
-                      <p style={{
-                        fontSize: '0.75rem',
-                        margin: '0.5rem 0',
-                        color: '#64748b',
-                        fontStyle: 'italic',
-                      }}>
-                        {alert.context}
-                      </p>
-                    )}
-                    {alert.amount !== undefined && (
-                      <p style={{
-                        fontSize: '0.875rem',
-                        margin: '0.5rem 0',
-                        color: '#16a34a',
-                        fontWeight: 700,
-                      }}>
-                        Amount: ${alert.amount.toFixed(2)}
-                      </p>
-                    )}
-                    {/* Best alternative information */}
-                    {alert.bestAlternative && alert.bestAlternative.savings > 0 && (
-                      <div style={{
-                        marginTop: '0.75rem',
-                        padding: '0.75rem',
-                        background: '#dcfce7',
-                        border: '1px solid #16a34a',
-                        borderRadius: '6px',
-                      }}>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#15803d', marginBottom: '0.25rem' }}>
-                          💰 Best Alternative
-                        </div>
-                        <div style={{ fontSize: '0.875rem', color: '#166534' }}>
-                          <strong>{alert.bestAlternative.vendor}</strong>: ${alert.bestAlternative.price.toFixed(2)}/unit
-                          <span style={{ color: '#16a34a', fontWeight: 600, marginLeft: '0.5rem' }}>
-                            (save ${alert.bestAlternative.savings.toFixed(2)}/unit)
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                    {/* View Details button */}
-                    {onNavigateToVendorIntel && alert.categoryId && (
-                      <button
-                        onClick={() => {
-                          onNavigateToVendorIntel({
-                            categoryId: alert.categoryId,
-                            variant: alert.variant,
-                            vendorName: alert.vendor,
-                          });
-                        }}
-                        style={{
-                          marginTop: '0.75rem',
-                          padding: '0.5rem 1rem',
-                          background: '#4b006e',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          fontSize: '0.875rem',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        → View in Vendor Intel
-                      </button>
-                    )}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                  }}>
+                    <span style={{ fontSize: '1.5rem' }} aria-hidden="true">{alert.icon}</span>
+                    <h4 style={{ fontSize: '0.9375rem', fontWeight: 700, margin: 0, lineHeight: 1.2 }}>
+                      {alert.title}
+                    </h4>
                   </div>
                   <button
                     onClick={() => isDismissed ? handleRestoreAlert(alert.id) : handleDismissAlert(alert.id)}
                     aria-label={isDismissed ? `Restore ${alert.title}` : `Dismiss ${alert.title}`}
                     style={{
-                      padding: '0.5rem 1rem',
+                      padding: '0.25rem 0.625rem',
                       background: isDismissed ? '#16a34a' : '#f8fafc',
                       color: isDismissed ? 'white' : '#64748b',
                       border: '1px solid #e5e7eb',
-                      borderRadius: '6px',
-                      fontSize: '0.875rem',
+                      borderRadius: '4px',
+                      fontSize: '0.75rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       whiteSpace: 'nowrap',
+                      flexShrink: 0,
                     }}
                   >
                     {isDismissed ? 'Restore' : 'Dismiss'}
                   </button>
                 </div>
+
+                {/* Message */}
+                <p style={{ fontSize: '0.875rem', margin: '0 0 0.75rem 0', color: '#1e293b', fontWeight: 500 }}>
+                  {alert.message}
+                </p>
+
+                {/* Action */}
+                {alert.action && (
+                  <div style={{
+                    fontSize: '0.8125rem',
+                    margin: '0 0 0.75rem 0',
+                    color: '#4b006e',
+                    fontWeight: 600,
+                    padding: '0.5rem',
+                    background: '#f3e8ff',
+                    borderRadius: '4px',
+                  }}>
+                    💡 {alert.action}
+                  </div>
+                )}
+
+                {/* Context */}
+                {alert.context && (
+                  <p style={{
+                    fontSize: '0.75rem',
+                    margin: '0 0 0.75rem 0',
+                    color: '#64748b',
+                    fontStyle: 'italic',
+                  }}>
+                    {alert.context}
+                  </p>
+                )}
+
+                {/* Best alternative */}
+                {alert.bestAlternative && alert.bestAlternative.savings > 0 && (
+                  <div style={{
+                    marginBottom: '0.75rem',
+                    padding: '0.625rem',
+                    background: '#dcfce7',
+                    border: '1px solid #16a34a',
+                    borderRadius: '4px',
+                  }}>
+                    <div style={{ fontSize: '0.6875rem', fontWeight: 600, color: '#15803d', marginBottom: '0.25rem', textTransform: 'uppercase' }}>
+                      💰 Best Alternative
+                    </div>
+                    <div style={{ fontSize: '0.8125rem', color: '#166534' }}>
+                      <strong>{alert.bestAlternative.vendor}</strong>: ${alert.bestAlternative.price.toFixed(2)}/unit
+                      <div style={{ color: '#16a34a', fontWeight: 600, marginTop: '0.125rem' }}>
+                        Save ${alert.bestAlternative.savings.toFixed(2)}/unit
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* View Details button - push to bottom */}
+                {onNavigateToVendorIntel && alert.categoryId && (
+                  <button
+                    onClick={() => {
+                      onNavigateToVendorIntel({
+                        categoryId: alert.categoryId,
+                        variant: alert.variant,
+                        vendorName: alert.vendor,
+                      });
+                    }}
+                    style={{
+                      marginTop: 'auto',
+                      padding: '0.5rem 1rem',
+                      background: '#4b006e',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '0.8125rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    → View in Vendor Intel
+                  </button>
+                )}
               </div>
             );
           })}
