@@ -77,9 +77,6 @@ export default function CostIntelligenceTab({
   // Sub-tab navigation
   const [intelligenceTab, setIntelligenceTab] = useState<IntelligenceSubTab>('scenario');
 
-  // Track if user has chosen an analysis type (for progressive disclosure)
-  const [hasChosenAnalysis, setHasChosenAnalysis] = useState(false);
-
   // Ref for focus management - scroll to content after selection
   const analysisContentRef = useRef<HTMLDivElement>(null);
 
@@ -425,79 +422,6 @@ export default function CostIntelligenceTab({
           Compare product costs, margins, and pricing trends side-by-side to identify your most profitable products.
         </p>
 
-        {/* Step 1: Choose Analysis Type (if not chosen yet) */}
-        {!hasChosenAnalysis ? (
-          <div>
-            <h3 style={{
-              fontSize: '1.125rem',
-              fontWeight: 600,
-              marginBottom: '1.5rem',
-              color: '#1f2937'
-            }}>
-              Choose an analysis type to get started
-            </h3>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '1.5rem',
-              marginBottom: '2rem',
-            }}>
-              {(Object.keys(analysisTypes) as IntelligenceSubTab[]).map((type) => {
-                const analysis = analysisTypes[type];
-                return (
-                  <button
-                    key={type}
-                    onClick={() => {
-                      setIntelligenceTab(type);
-                      setHasChosenAnalysis(true);
-                    }}
-                    style={{
-                      background: 'white',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '12px',
-                      padding: '2rem',
-                      textAlign: 'left',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      position: 'relative',
-                      overflow: 'hidden',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = analysis.color;
-                      e.currentTarget.style.transform = 'translateY(-4px)';
-                      e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.1)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = '#e5e7eb';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
-                  >
-                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{analysis.icon}</div>
-                    <h4 style={{
-                      fontSize: '1.25rem',
-                      fontWeight: 700,
-                      marginBottom: '0.5rem',
-                      color: analysis.color,
-                    }}>
-                      {analysis.title}
-                    </h4>
-                    <p style={{
-                      fontSize: '0.875rem',
-                      color: '#64748b',
-                      lineHeight: '1.5',
-                      margin: 0,
-                    }}>
-                      {analysis.description}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          /* Step 2: Product Selector + Analysis (after type chosen) */
-          <>
             {/* Analysis Type Switcher (Smaller Tabs) */}
             <div className="cost-intelligence-analysis-tabs" style={{
               display: 'flex',
@@ -533,34 +457,6 @@ export default function CostIntelligenceTab({
                   </button>
                 );
               })}
-              <button
-                onClick={() => {
-                  setHasChosenAnalysis(false);
-                  setSelectedProductsForComparison(new Set());
-                }}
-                style={{
-                  padding: '0.5rem 1rem',
-                  background: 'transparent',
-                  color: '#64748b',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  marginLeft: 'auto',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#f8fafc';
-                  e.currentTarget.style.color = '#475569';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = '#64748b';
-                }}
-              >
-                ← Change Analysis Type
-              </button>
             </div>
 
             {/* Product Selector with Filters */}
@@ -1487,8 +1383,6 @@ export default function CostIntelligenceTab({
                   />
                 )}
           </div>
-        )}
-          </>
         )}
       </section>
     </div>
