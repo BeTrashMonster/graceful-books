@@ -311,6 +311,7 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                           variant="primary"
                           size="sm"
                           onClick={() => handleOpenRecipe(product.id)}
+                          style={{ backgroundColor: '#4b006e', borderColor: '#4b006e' }}
                         >
                           Recipe
                         </Button>

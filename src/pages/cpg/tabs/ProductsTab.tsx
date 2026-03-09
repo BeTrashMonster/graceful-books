@@ -38,12 +38,6 @@ export default function ProductsTab({
     <div id="products-panel" role="tabpanel" aria-labelledby="products-tab">
       {/* Current CPU Display */}
       <section className={styles.section} aria-labelledby="current-cpu-heading">
-        <div className={styles.sectionHeader}>
-          <h2 id="current-cpu-heading" className={styles.sectionTitle}>
-            Product Costs
-          </h2>
-        </div>
-
         <CPUDisplay
           isLoading={isLoading}
           selectedProducts={selectedProductsTab1}
