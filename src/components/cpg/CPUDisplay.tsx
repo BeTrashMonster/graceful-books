@@ -84,9 +84,10 @@ export function CPUDisplay({
   // Product selector dropdown
   const [showProductSelector, setShowProductSelector] = useState(false);
 
-  // Drag and drop
-  const [cardOrder, setCardOrder] = useState<string[]>([]);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  // Grid positioning (stored by product key -> grid index)
+  const [productPositions, setProductPositions] = useState<Record<string, number>>({});
+  const [draggedProductKey, setDraggedProductKey] = useState<string | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   // Export menu
   const [showExportMenu, setShowExportMenu] = useState(false);
@@ -108,24 +109,45 @@ export function CPUDisplay({
     loadFinishedProductCPUs();
   }, [companyId, dateRangeFilter]);
 
-  // Load card order from localStorage
+  // Load product positions from localStorage
   useEffect(() => {
-    const savedOrder = localStorage.getItem(`cpg-product-card-order-${companyId}`);
-    if (savedOrder) {
+    const savedPositions = localStorage.getItem(`cpg-product-grid-positions-${companyId}`);
+    if (savedPositions) {
       try {
-        setCardOrder(JSON.parse(savedOrder));
+        setProductPositions(JSON.parse(savedPositions));
       } catch (err) {
-        console.error('Failed to parse saved card order:', err);
+        console.error('Failed to parse saved product positions:', err);
       }
     }
   }, [companyId]);
 
-  // Save card order to localStorage
+  // Save product positions to localStorage
   useEffect(() => {
-    if (cardOrder.length > 0) {
-      localStorage.setItem(`cpg-product-card-order-${companyId}`, JSON.stringify(cardOrder));
+    if (Object.keys(productPositions).length > 0) {
+      localStorage.setItem(`cpg-product-grid-positions-${companyId}`, JSON.stringify(productPositions));
     }
-  }, [cardOrder, companyId]);
+  }, [productPositions, companyId]);
+
+  // Initialize positions for new products
+  useEffect(() => {
+    if (products.length === 0) return;
+
+    setProductPositions(prev => {
+      const updated = { ...prev };
+      let hasChanges = false;
+
+      // Assign positions to products that don't have one
+      products.forEach((product, index) => {
+        const productKey = product.sku || product.productName;
+        if (updated[productKey] === undefined) {
+          updated[productKey] = index;
+          hasChanges = true;
+        }
+      });
+
+      return hasChanges ? updated : prev;
+    });
+  }, [products]);
 
   // Listen for data updates (e.g., invoice edited, recipe changed)
   useEffect(() => {
@@ -328,58 +350,37 @@ export function CPUDisplay({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Drag and drop handlers
-  const handleDragStart = (index: number) => {
-    setDraggedIndex(index);
+  // Drag and drop handlers for grid positioning
+  const handleDragStart = (productKey: string) => {
+    setDraggedProductKey(productKey);
   };
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
+  const handleDragOver = (e: React.DragEvent, targetIndex: number) => {
     e.preventDefault();
+    setDragOverIndex(targetIndex);
   };
 
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
     e.preventDefault();
-    if (draggedIndex === null) return;
+    if (!draggedProductKey) return;
 
-    const orderedProducts = getOrderedProducts();
-    const draggedProduct = orderedProducts[draggedIndex];
-    const newOrder = [...orderedProducts];
+    // Update positions
+    setProductPositions(prev => ({
+      ...prev,
+      [draggedProductKey]: targetIndex,
+    }));
 
-    // Remove dragged item
-    newOrder.splice(draggedIndex, 1);
-    // Insert at new position
-    newOrder.splice(dropIndex, 0, draggedProduct);
-
-    // Save new order
-    const newOrderKeys = newOrder.map(p => p.sku || p.productName);
-    setCardOrder(newOrderKeys);
-    setDraggedIndex(null);
+    setDraggedProductKey(null);
+    setDragOverIndex(null);
   };
 
   const handleDragEnd = () => {
-    setDraggedIndex(null);
-  };
-
-  // Get products in user's custom order (or default order)
-  const getOrderedProducts = () => {
-    if (cardOrder.length === 0) {
-      return productsWithMetrics;
-    }
-
-    const ordered: typeof productsWithMetrics = [];
-    const remaining = [...productsWithMetrics];
-
-    // Add products in saved order
-    cardOrder.forEach(key => {
-      const index = remaining.findIndex(p => (p.sku || p.productName) === key);
-      if (index !== -1) {
-        ordered.push(remaining[index]);
-        remaining.splice(index, 1);
-      }
-    });
-
-    // Add any new products that weren't in the saved order
-    return [...ordered, ...remaining];
+    setDraggedProductKey(null);
+    setDragOverIndex(null);
   };
 
   // Export functions
@@ -1257,43 +1258,92 @@ export function CPUDisplay({
           </div>
 
           {/* Grid View */}
-          {viewMode === 'grid' && (
-            <div className={styles.grid}>
-              {getOrderedProducts().map((product, index) => {
-                const hasRecipe = product.breakdown.length > 0;
-                const componentCount = product.breakdown.length;
-                const productKey = product.sku || product.productName;
+          {viewMode === 'grid' && (() => {
+            const orderedProducts = getOrderedProducts();
 
-                // Determine background color - use custom if set, otherwise default
-                let bgColor = cardColors[productKey];
-                if (!bgColor) {
-                  // Default colors: light purple or light green (alternating for variety)
-                  bgColor = index % 2 === 0 ? '#f3e8ff' : '#f0fdf4'; // light purple : light green
-                }
+            // Calculate grid size and position map
+            const maxPosition = Math.max(
+              ...orderedProducts.map(p => {
+                const key = p.sku || p.productName;
+                return productPositions[key] ?? 0;
+              }),
+              orderedProducts.length - 1
+            );
+            const gridSize = Math.max(maxPosition + 10, 20);
 
-                return (
-                  <article
-                    key={`${product.sku || product.productName}-${index}`}
-                    draggable
-                    onDragStart={() => handleDragStart(index)}
-                    onDragOver={(e) => handleDragOver(e, index)}
-                    onDrop={(e) => handleDrop(e, index)}
-                    onDragEnd={handleDragEnd}
-                    style={{
-                      background: bgColor,
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '12px',
-                      padding: '1.5rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '1rem',
-                      transition: 'transform 150ms, box-shadow 150ms',
-                      position: 'relative',
-                      cursor: 'grab',
-                      opacity: draggedIndex === index ? 0.5 : 1,
-                    }}
+            // Create position map
+            const positionMap: Record<number, typeof orderedProducts[0]> = {};
+            orderedProducts.forEach(product => {
+              const key = product.sku || product.productName;
+              const position = productPositions[key];
+              if (position !== undefined) {
+                positionMap[position] = product;
+              }
+            });
+
+            return (
+              <div className={styles.grid}>
+                {Array.from({ length: gridSize }).map((_, index) => {
+                  const product = positionMap[index];
+
+                  // Empty grid cell
+                  if (!product) {
+                    return (
+                      <div
+                        key={`empty-${index}`}
+                        onDragOver={(e) => handleDragOver(e, index)}
+                        onDrop={(e) => handleDrop(e, index)}
+                        style={{
+                          border: dragOverIndex === index ? '2px dashed #4b006e' : '2px dashed transparent',
+                          background: dragOverIndex === index ? 'rgba(75, 0, 110, 0.05)' : 'transparent',
+                          borderRadius: '12px',
+                          minHeight: '200px',
+                          transition: 'all 0.2s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#cbd5e1',
+                          fontSize: '0.875rem',
+                        }}
+                      />
+                    );
+                  }
+
+                  // Product card
+                  const hasRecipe = product.breakdown.length > 0;
+                  const componentCount = product.breakdown.length;
+                  const productKey = product.sku || product.productName;
+
+                  // Determine background color - use custom if set, otherwise default
+                  let bgColor = cardColors[productKey];
+                  if (!bgColor) {
+                    // Default colors: light purple or light green (alternating for variety)
+                    bgColor = index % 2 === 0 ? '#f3e8ff' : '#f0fdf4'; // light purple : light green
+                  }
+
+                  return (
+                    <article
+                      key={`${product.sku || product.productName}-${index}`}
+                      draggable
+                      onDragStart={() => handleDragStart(productKey)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onDragEnd={handleDragEnd}
+                      style={{
+                        background: bgColor,
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '12px',
+                        padding: '1.5rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1rem',
+                        transition: 'transform 150ms, box-shadow 150ms',
+                        position: 'relative',
+                        cursor: draggedProductKey === productKey ? 'grabbing' : 'grab',
+                        opacity: draggedProductKey === productKey ? 0.5 : 1,
+                      }}
                     onMouseEnter={(e) => {
-                      if (draggedIndex === null) {
+                      if (draggedProductKey === null) {
                         e.currentTarget.style.transform = 'translateY(-2px)';
                         e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
                       }
@@ -1549,8 +1599,9 @@ export function CPUDisplay({
                   </article>
                 );
               })}
-            </div>
-          )}
+              </div>
+            );
+          })()}
 
           {/* Table View */}
           {viewMode === 'table' && (() => {
