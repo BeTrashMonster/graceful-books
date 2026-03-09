@@ -1487,6 +1487,26 @@ export default function CostIntelligenceTab({
                     categories={categories}
                     invoices={invoices}
                     dateRange={comparisonDateRange}
+                    onNavigateToVendorIntel={(filters) => {
+                      // Switch to Vendor Intel tab
+                      setIntelligenceTab('vendors');
+
+                      // Apply filters from the alert
+                      if (filters.categoryId) {
+                        setComparisonCategoryFilter(new Set([filters.categoryId]));
+                      }
+                      if (filters.variant) {
+                        setComparisonVariantFilter(new Set([filters.variant]));
+                      }
+                      if (filters.vendorName) {
+                        setComparisonVendorFilter(new Set([filters.vendorName]));
+                      }
+
+                      // Scroll to content after tab switch
+                      setTimeout(() => {
+                        analysisContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }, 100);
+                    }}
                   />
                 )}
           </div>
