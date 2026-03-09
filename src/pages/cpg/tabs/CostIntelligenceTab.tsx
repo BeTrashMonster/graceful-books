@@ -1167,8 +1167,8 @@ export default function CostIntelligenceTab({
             )}
           </div>
 
-          {/* Quick Filter Buttons (without heading) */}
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+          {/* Quick Filter Buttons + Selected Products (inline) */}
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem', alignItems: 'center' }}>
             <button
               onClick={selectAllProducts}
               style={{
@@ -1241,30 +1241,17 @@ export default function CostIntelligenceTab({
             >
               Lowest Margin Products
             </button>
-          </div>
 
-          {/* Selected Products (Chips) */}
-          {selectedProductsForComparison.size > 0 && (
-            <div style={{ marginBottom: '1rem' }}>
-              <div style={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                color: '#64748b',
-                marginBottom: '0.5rem',
-                letterSpacing: '0.05em'
-              }}>
-                Comparing ({selectedProductsForComparison.size})
-                <span className="cost-intelligence-chips-badge" style={{ display: 'none', marginLeft: '0.5rem' }}>
-                  {selectedProductsForComparison.size} selected
-                </span>
-              </div>
-              <div className="cost-intelligence-product-chips" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            {/* Selected Products (Chips) - inline after quick filter buttons */}
+            {selectedProductsForComparison.size > 0 && (
+              <>
                 {Array.from(selectedProductsForComparison).map(productId => {
                   const product = finishedProducts.find(p => p.id === productId);
                   if (!product) return null;
                   return (
                     <div
                       key={productId}
+                      className="cost-intelligence-product-chip"
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -1326,9 +1313,9 @@ export default function CostIntelligenceTab({
                 >
                   Clear All
                 </button>
-              </div>
-            </div>
-          )}
+              </>
+            )}
+          </div>
 
         </div>
 
@@ -1379,18 +1366,8 @@ export default function CostIntelligenceTab({
                   width: 100% !important;
                 }
 
-                .cost-intelligence-product-chips {
+                .cost-intelligence-product-chip {
                   display: none !important;
-                }
-
-                .cost-intelligence-chips-badge {
-                  display: inline-block !important;
-                  padding: 0.25rem 0.75rem;
-                  background: #f3e8ff;
-                  color: #4b006e;
-                  border-radius: 99px;
-                  font-size: 0.75rem;
-                  fontWeight: 600;
                 }
 
                 .cost-intelligence-refine-buttons {
