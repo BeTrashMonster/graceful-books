@@ -557,13 +557,6 @@ export default function CPUTrendsTab({
                       >
                         LAST BUY {sortColumn === 'lastBuy' && (sortDirection === 'asc' ? '↑' : '↓')}
                       </th>
-                      <th
-                        onClick={() => handleSortChange('status')}
-                        aria-sort={sortColumn === 'status' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        STATUS {sortColumn === 'status' && (sortDirection === 'asc' ? '↑' : '↓')}
-                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -582,7 +575,6 @@ export default function CPUTrendsTab({
                           )}
                         </td>
                         <td className={styles.priceValue}>{comp.lastBuyDays}d</td>
-                        <td className={styles.statusText}>{comp.status}</td>
                       </tr>
                     ))}
                   </tbody>
