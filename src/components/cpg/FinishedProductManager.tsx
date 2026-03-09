@@ -12,7 +12,7 @@
  * - Click product card to open Recipe Builder
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '../core/Button';
 import { db } from '../../db/database';
 import { useAuth } from '../../contexts/AuthContext';
@@ -37,6 +37,11 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
   const [showArchived, setShowArchived] = useState(false);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
   const [showPermanentDeleteConfirm, setShowPermanentDeleteConfirm] = useState(false);
+
+  // Card colors (stored by product ID)
+  const [cardColors, setCardColors] = useState<Record<string, string>>({});
+  const [showColorPicker, setShowColorPicker] = useState<string | null>(null);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
 
   // Load products
   const loadProducts = async () => {
@@ -79,6 +84,27 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
   useEffect(() => {
     loadProducts();
   }, [companyId]);
+
+  // Load card colors from localStorage
+  useEffect(() => {
+    if (!companyId) return;
+    const savedColors = localStorage.getItem(`cpg-product-card-colors-${companyId}`);
+    if (savedColors) {
+      try {
+        setCardColors(JSON.parse(savedColors));
+      } catch (err) {
+        console.error('Failed to parse saved card colors:', err);
+      }
+    }
+  }, [companyId]);
+
+  // Save card colors to localStorage
+  useEffect(() => {
+    if (!companyId) return;
+    if (Object.keys(cardColors).length > 0) {
+      localStorage.setItem(`cpg-product-card-colors-${companyId}`, JSON.stringify(cardColors));
+    }
+  }, [cardColors, companyId]);
 
   // Listen for data updates
   useEffect(() => {
@@ -200,6 +226,33 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
     }
   };
 
+  // Color picker helpers
+  const handleCardColorChange = (productId: string, color: string) => {
+    setCardColors(prev => ({ ...prev, [productId]: color }));
+  };
+
+  const resetCardColor = (productId: string) => {
+    setCardColors(prev => {
+      const newColors = { ...prev };
+      delete newColors[productId];
+      return newColors;
+    });
+  };
+
+  // Close color picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (colorPickerRef.current && !colorPickerRef.current.contains(event.target as Node)) {
+        setShowColorPicker(null);
+      }
+    };
+
+    if (showColorPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showColorPicker]);
+
   if (isLoading) {
     return (
       <div className={styles.loading}>
@@ -257,13 +310,126 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
             .filter(p => showArchived || p.deleted_at === null)
             .map((product) => {
               const isArchived = product.deleted_at !== null;
+              const bgColor = cardColors[product.id] || '#ffffff';
               return (
                 <article
                   key={product.id}
                   className={styles.productCard}
                   role="listitem"
-                  style={isArchived ? { opacity: 0.6, backgroundColor: '#f8f9fa' } : {}}
+                  style={isArchived ? { opacity: 0.6, backgroundColor: '#f8f9fa' } : { backgroundColor: bgColor, position: 'relative' }}
                 >
+                  {/* Color Picker Button */}
+                  {!isArchived && (
+                    <div style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
+                      <button
+                        onClick={() => setShowColorPicker(showColorPicker === product.id ? null : product.id)}
+                        style={{
+                          width: '28px',
+                          height: '28px',
+                          borderRadius: '50%',
+                          border: '2px solid #64748b',
+                          background: 'white',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '14px',
+                        }}
+                        title="Change card color"
+                      >
+                        🎨
+                      </button>
+
+                      {/* Color Picker Dropdown */}
+                      {showColorPicker === product.id && (
+                        <div
+                          ref={colorPickerRef}
+                          style={{
+                            position: 'absolute',
+                            top: '100%',
+                            right: 0,
+                            marginTop: '0.5rem',
+                            background: 'white',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '8px',
+                            padding: '1rem',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                            zIndex: 10,
+                            minWidth: '200px',
+                          }}
+                        >
+                          <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem', fontWeight: 600 }}>
+                            CARD COLOR
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                            {['#f3e8ff', '#f0fdf4', '#fef2f2', '#fffbeb', '#eff6ff', '#fce7f3', '#fef3c7', '#f0f9ff'].map(color => (
+                              <button
+                                key={color}
+                                onClick={() => {
+                                  handleCardColorChange(product.id, color);
+                                  setShowColorPicker(null);
+                                }}
+                                style={{
+                                  width: '32px',
+                                  height: '32px',
+                                  borderRadius: '6px',
+                                  border: cardColors[product.id] === color ? '3px solid #4b006e' : '1px solid #e5e7eb',
+                                  background: color,
+                                  cursor: 'pointer',
+                                }}
+                              />
+                            ))}
+                          </div>
+                          <div style={{ marginBottom: '0.5rem' }}>
+                            <label style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginBottom: '0.25rem' }}>
+                              Custom HEX
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="#f3e8ff"
+                              maxLength={7}
+                              style={{
+                                width: '100%',
+                                padding: '0.5rem',
+                                border: '1px solid #e5e7eb',
+                                borderRadius: '4px',
+                                fontSize: '0.875rem',
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  const value = e.currentTarget.value;
+                                  if (value.match(/^#[0-9A-Fa-f]{6}$/)) {
+                                    handleCardColorChange(product.id, value);
+                                    setShowColorPicker(null);
+                                  }
+                                }
+                              }}
+                            />
+                          </div>
+                          <button
+                            onClick={() => {
+                              resetCardColor(product.id);
+                              setShowColorPicker(null);
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '0.5rem',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '4px',
+                              background: 'white',
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              color: '#64748b',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Reset to Default
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div className={styles.productHeader}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <h3 className={styles.productName}>{product.name}</h3>

@@ -91,7 +91,7 @@
 
 .productGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 1.5rem;
 }
 
@@ -104,6 +104,7 @@
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   transition: all 0.2s ease;
+  position: relative;
 }
 
 .productCard:hover {
