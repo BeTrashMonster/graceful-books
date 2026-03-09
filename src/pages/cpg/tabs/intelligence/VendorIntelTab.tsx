@@ -133,7 +133,6 @@ export default function VendorIntelTab({
   const [vendorSortDirection, setVendorSortDirection] = useState<'desc'>('desc');
   const [expandedComponents, setExpandedComponents] = useState<Set<string>>(new Set());
   const [invoiceDropdownDateRange, setInvoiceDropdownDateRange] = useState<Map<string, VendorIntelTabProps['dateRange']>>(new Map());
-  const [categoryMap, setCategoryMap] = useState<Map<string, CPGCategory>>(new Map());
 
   // Component table sorting
   const [componentSortColumn, setComponentSortColumn] = useState<'component' | 'lastPrice' | 'bestPrice' | 'change'>('component');
@@ -165,7 +164,7 @@ export default function VendorIntelTab({
           if (cost > biggestCost) {
             biggestCost = cost;
             // Find category name from map
-            const category = categoryMap.get(attr.category_id);
+            const category = categories.find(c => c.id === attr.category_id);
             const categoryName = category?.name || 'Unknown Component';
             const variant = attr.variant ? ` (${attr.variant})` : '';
             biggestCostComponent = `${categoryName}${variant}`;
@@ -186,31 +185,11 @@ export default function VendorIntelTab({
       biggestCostComponent,
       avgPrice,
     };
-  }, [vendorOverviews, localInvoices, categoryMap]);
+  }, [vendorOverviews, localInvoices, categories]);
 
   useEffect(() => {
     setLocalInvoices(invoices);
   }, [invoices]);
-
-  // Load all categories for lookups
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const allCategories = await db.cpgCategories
-          .where('company_id')
-          .equals(companyId)
-          .filter(cat => !cat.deleted_at)
-          .toArray();
-
-        const map = new Map<string, CPGCategory>();
-        allCategories.forEach(cat => map.set(cat.id, cat));
-        setCategoryMap(map);
-      } catch (err) {
-        console.error('Failed to load categories for lookup:', err);
-      }
-    };
-    loadCategories();
-  }, [companyId]);
 
   useEffect(() => {
     if (!selectedVendor) {
@@ -337,7 +316,7 @@ export default function VendorIntelTab({
             if (itemTotal > biggestCost) {
               biggestCost = itemTotal;
               // Find category name from map
-              const category = categoryMap.get(attr.category_id);
+              const category = categories.find(c => c.id === attr.category_id);
               const categoryName = category?.name || 'Unknown Component';
               const variant = attr.variant ? ` (${attr.variant})` : '';
               biggestCostComponent = `${categoryName}${variant}`;
@@ -906,7 +885,7 @@ export default function VendorIntelTab({
           const variants = componentCategories.get(attr.category_id);
           if (!variants || (!variants.has(attr.variant || '') && variants.size > 0)) return;
 
-          const category = categoryMap.get(attr.category_id);
+          const category = categories.find(c => c.id === attr.category_id);
           const categoryName = category?.name || 'Unknown';
 
           if (!componentMap.has(attr.category_id)) {
@@ -1170,7 +1149,7 @@ export default function VendorIntelTab({
         ].join(','));
       } else {
         Object.entries(attrs).forEach(([key, attr], idx) => {
-          const categoryName = categoryMap.get(attr.category_id)?.name || 'Unknown';
+          const categoryName = categories.find(c => c.id === attr.category_id)?.name || 'Unknown';
           const variant = attr.variant || 'N/A';
           const units = attr.units_purchased || '0';
           const unitPrice = attr.unit_price || '0.00';
@@ -1278,7 +1257,7 @@ export default function VendorIntelTab({
       Object.entries(attrs).forEach(([key, attr], idx) => {
         if (!componentsToExport.includes(attr.category_id)) return;
 
-        const categoryName = categoryMap.get(attr.category_id)?.name || 'Unknown';
+        const categoryName = categories.find(c => c.id === attr.category_id)?.name || 'Unknown';
         const variant = attr.variant || 'N/A';
         const units = attr.units_purchased || '0';
         const unitPrice = attr.unit_price || '0.00';
