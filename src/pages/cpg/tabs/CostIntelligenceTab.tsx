@@ -417,6 +417,7 @@ export default function CostIntelligenceTab({
           flexWrap: 'wrap',
           borderBottom: '2px solid #e5e7eb',
           paddingBottom: '0.5rem',
+          justifyContent: 'center',
         }}>
           {(Object.keys(analysisTypes) as IntelligenceSubTab[]).map((type) => {
             const analysis = analysisTypes[type];
