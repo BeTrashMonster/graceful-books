@@ -609,6 +609,11 @@ export interface CPGFinishedProduct extends BaseEntity {
   unit_of_measure: string; // e.g., "each", "case", "dozen"
   pieces_per_unit: number; // How many individual items in one unit (default: 1)
                            // Example: "case" with pieces_per_unit: 12 = 12 bottles per case
+  is_bundle?: boolean; // true if this is a bundle of other products
+  bundle_items?: Array<{ // Products included in the bundle
+    product_id: string;
+    quantity: number;
+  }>;
   active: boolean;
   created_at: number;
   updated_at: number;

@@ -19,6 +19,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import type { CPGFinishedProduct } from '../../db/schema/cpg.schema';
 import { checkFinishedProductHasRecipes } from '../../db/schema/cpg.schema';
 import { AddProductModal } from './modals/AddProductModal';
+import { BundleProductsModal } from './modals/BundleProductsModal';
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import styles from './FinishedProductManager.module.css';
 
@@ -33,7 +34,9 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showBundleModal, setShowBundleModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<CPGFinishedProduct | null>(null);
+  const [editingBundle, setEditingBundle] = useState<CPGFinishedProduct | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
   const [showPermanentDeleteConfirm, setShowPermanentDeleteConfirm] = useState(false);
@@ -341,9 +344,31 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
     );
   }
 
+  const handleOpenBundleModal = () => {
+    setEditingBundle(null);
+    setShowBundleModal(true);
+  };
+
+  const handleEditBundle = (bundle: CPGFinishedProduct) => {
+    setEditingBundle(bundle);
+    setShowBundleModal(true);
+  };
+
+  const handleCloseBundleModal = () => {
+    setShowBundleModal(false);
+    setEditingBundle(null);
+  };
+
+  const handleBundleSuccess = () => {
+    loadProducts();
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
+        <Button variant="secondary" size="md" onClick={handleOpenBundleModal}>
+          + Bundle Products
+        </Button>
         <Button variant="primary" size="md" onClick={handleAddProduct}>
           + Add Product
         </Button>
@@ -568,6 +593,20 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                   <div className={styles.productHeader}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <h3 className={styles.productName}>{product.name}</h3>
+                      {product.is_bundle && (
+                        <span
+                          style={{
+                            padding: '0.25rem 0.5rem',
+                            fontSize: '0.75rem',
+                            backgroundColor: '#8b5cf6',
+                            color: 'white',
+                            borderRadius: '4px',
+                            fontWeight: 600,
+                          }}
+                        >
+                          Bundle
+                        </span>
+                      )}
                       {isArchived && (
                         <span
                           style={{
@@ -589,6 +628,46 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
 
                   {product.description && (
                     <p className={styles.productDescription}>{product.description}</p>
+                  )}
+
+                  {/* Bundle Contents */}
+                  {product.is_bundle && product.bundle_items && (
+                    <div style={{
+                      padding: '0.75rem',
+                      background: '#f5f3ff',
+                      borderRadius: '6px',
+                      marginBottom: '0.5rem',
+                    }}>
+                      <div style={{
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        color: '#6b21a8',
+                        marginBottom: '0.5rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}>
+                        Bundle Contents
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        {product.bundle_items.map((item, idx) => {
+                          const bundledProduct = products.find(p => p.id === item.product_id);
+                          return (
+                            <div
+                              key={idx}
+                              style={{
+                                fontSize: '0.8125rem',
+                                color: '#4c1d95',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                              }}
+                            >
+                              <span>{bundledProduct?.name || 'Unknown Product'}</span>
+                              <span style={{ fontWeight: 600 }}>×{item.quantity}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   )}
 
                   <div className={styles.productDetails}>
@@ -617,21 +696,34 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                   <div className={styles.productActions}>
                     {!isArchived ? (
                       <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditProduct(product)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={() => handleOpenRecipe(product.id)}
-                          style={{ backgroundColor: '#4b006e', borderColor: '#4b006e' }}
-                        >
-                          Recipe
-                        </Button>
+                        {product.is_bundle ? (
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => handleEditBundle(product)}
+                            style={{ backgroundColor: '#8b5cf6', borderColor: '#8b5cf6' }}
+                          >
+                            Edit Bundle
+                          </Button>
+                        ) : (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditProduct(product)}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              onClick={() => handleOpenRecipe(product.id)}
+                              style={{ backgroundColor: '#4b006e', borderColor: '#4b006e' }}
+                            >
+                              Recipe
+                            </Button>
+                          </>
+                        )}
                         <Button
                           variant="ghost"
                           size="sm"
@@ -666,6 +758,14 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
           editingProduct={editingProduct}
         />
       )}
+
+      {/* Bundle Products Modal */}
+      <BundleProductsModal
+        isOpen={showBundleModal}
+        onClose={handleCloseBundleModal}
+        onSuccess={handleBundleSuccess}
+        editingBundle={editingBundle}
+      />
 
       {/* Archive/Delete Confirmation Modal */}
       {deletingProductId && !showPermanentDeleteConfirm && (
