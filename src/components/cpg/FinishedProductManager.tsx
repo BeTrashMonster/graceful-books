@@ -402,12 +402,15 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <Button variant="secondary" size="md" onClick={handleOpenBundleModal}>
-          + Bundle Products
-        </Button>
-        <Button variant="primary" size="md" onClick={handleAddProduct}>
-          + Add Product
-        </Button>
+        <h1 className={styles.title}>My Finished Products</h1>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <Button variant="secondary" size="md" onClick={handleOpenBundleModal}>
+            + Bundle Products
+          </Button>
+          <Button variant="primary" size="md" onClick={handleAddProduct}>
+            + Add Product
+          </Button>
+        </div>
       </div>
 
       {error && (
