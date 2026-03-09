@@ -29,6 +29,11 @@ export interface SmartAlertsTabProps {
   categories: CPGCategory[];
   invoices: CPGInvoice[];
   dateRange?: '3mo' | '6mo' | '12mo' | 'all';
+  onNavigateToVendorIntel?: (filters: {
+    categoryId?: string;
+    variant?: string;
+    vendorName?: string;
+  }) => void;
 }
 
 interface ProductCPUData {
@@ -53,12 +58,15 @@ interface TrendData {
   lastBuyDate: number;
   prices: number[];
   dates: number[];
+  variant: string | null;
+  lastVendor: string;
 }
 
 interface VendorIntelData {
   vendors: Map<string, number[]>;
   vendorAvgPrices: Map<string, number>;
   bestPrice: number;
+  bestVendor: string;
   avgPrice: number;
   maxSavings: number;
   topVendor: string;
@@ -68,6 +76,7 @@ interface VendorIntelData {
   priceAnomaly: boolean;
   anomalyVendor: string;
   anomalyDeviation: number;
+  variant: string | null;
 }
 
 interface Alert {
@@ -77,9 +86,17 @@ interface Alert {
   title: string;
   message: string;
   component?: string;
+  variant?: string;
+  vendor?: string;
   amount?: number;
   action?: string;
   context?: string;
+  categoryId?: string;
+  bestAlternative?: {
+    vendor: string;
+    price: number;
+    savings: number;
+  };
 }
 
 type AlertFilter = 'all' | 'urgent' | 'warning' | 'opportunity' | 'info';
@@ -90,6 +107,7 @@ export default function SmartAlertsTab({
   productCPUData,
   categories,
   invoices,
+  onNavigateToVendorIntel,
 }: SmartAlertsTabProps) {
   // State
   const [alertFilter, setAlertFilter] = useState<AlertFilter>('all');
@@ -120,7 +138,7 @@ export default function SmartAlertsTab({
     }
   }, [dismissedAlerts]);
 
-  // Load trend data for alert generation
+  // Load trend data for alert generation (variant-specific)
   useEffect(() => {
     const loadTrendData = async () => {
       if (selectedProducts.size === 0) {
@@ -131,79 +149,99 @@ export default function SmartAlertsTab({
       try {
         const trendMap = new Map<string, TrendData>();
 
-        // Get all unique component categories from selected products
-        const componentCategories = new Set<string>();
+        // Get all unique component+variant combinations from selected products
+        const componentVariants = new Map<string, Set<string>>();
         selectedProducts.forEach(productId => {
           const cpuData = productCPUData.get(productId);
           if (cpuData?.breakdown) {
-            cpuData.breakdown.forEach(comp => componentCategories.add(comp.categoryId));
+            cpuData.breakdown.forEach(comp => {
+              if (!componentVariants.has(comp.categoryId)) {
+                componentVariants.set(comp.categoryId, new Set());
+              }
+              componentVariants.get(comp.categoryId)!.add(comp.variant || '');
+            });
           }
         });
 
         // Use all-time data for alerts (most comprehensive)
         const startDate = 0;
 
-        // Analyze each component
-        for (const categoryId of componentCategories) {
-          const relevantInvoices = invoices.filter(inv => {
-            if (startDate > 0 && inv.invoice_date < startDate) return false;
-            return Object.entries(inv.cost_attribution || {}).some(([_, attr]) =>
-              attr.category_id === categoryId
-            );
-          });
-
-          if (relevantInvoices.length === 0) continue;
-
-          // Get all prices for this component
-          const prices: number[] = [];
-          const dates: number[] = [];
-          relevantInvoices.forEach(inv => {
-            Object.entries(inv.cost_attribution || {}).forEach(([_, attr]) => {
-              if (attr.category_id === categoryId) {
-                const unitPrice = parseFloat(attr.unit_price);
-                if (!isNaN(unitPrice) && unitPrice > 0) {
-                  prices.push(unitPrice);
-                  dates.push(inv.invoice_date);
-                }
-              }
+        // Analyze each component+variant combination
+        for (const [categoryId, variants] of componentVariants.entries()) {
+          for (const variant of variants) {
+            const relevantInvoices = invoices.filter(inv => {
+              if (startDate > 0 && inv.invoice_date < startDate) return false;
+              return Object.entries(inv.cost_attribution || {}).some(([_, attr]) =>
+                attr.category_id === categoryId && (attr.variant || '') === variant
+              );
             });
-          });
 
-          if (prices.length === 0) continue;
+            if (relevantInvoices.length === 0) continue;
 
-          // Calculate stats
-          const currentPrice = prices[prices.length - 1] || 0;
-          const avgPrice = prices.reduce((sum, p) => sum + p, 0) / prices.length;
-          const minPrice = Math.min(...prices);
-          const maxPrice = Math.max(...prices);
-          const priceChange = avgPrice > 0 ? ((currentPrice - avgPrice) / avgPrice) * 100 : 0;
+            // Get all prices for this specific variant
+            const priceData: Array<{ price: number; date: number; vendor: string }> = [];
+            relevantInvoices.forEach(inv => {
+              Object.entries(inv.cost_attribution || {}).forEach(([_, attr]) => {
+                if (attr.category_id === categoryId && (attr.variant || '') === variant) {
+                  const unitPrice = parseFloat(attr.unit_price);
+                  if (!isNaN(unitPrice) && unitPrice > 0) {
+                    priceData.push({
+                      price: unitPrice,
+                      date: inv.invoice_date,
+                      vendor: inv.vendor_name || 'Unknown',
+                    });
+                  }
+                }
+              });
+            });
 
-          // Calculate volatility (coefficient of variation)
-          const variance = prices.reduce((sum, p) => sum + Math.pow(p - avgPrice, 2), 0) / prices.length;
-          const stdDev = Math.sqrt(variance);
-          const coefficientOfVariation = (stdDev / avgPrice) * 100;
+            if (priceData.length === 0) continue;
 
-          let volatility: 'low' | 'medium' | 'high';
-          if (coefficientOfVariation < 10) volatility = 'low';
-          else if (coefficientOfVariation < 25) volatility = 'medium';
-          else volatility = 'high';
+            // Sort by date
+            priceData.sort((a, b) => a.date - b.date);
 
-          // Get last buy date
-          const lastBuyDate = Math.max(...dates);
+            const prices = priceData.map(d => d.price);
+            const dates = priceData.map(d => d.date);
+            const lastEntry = priceData[priceData.length - 1];
 
-          trendMap.set(categoryId, {
-            currentPrice,
-            avgPrice,
-            minPrice,
-            maxPrice,
-            priceChange,
-            volatility,
-            coefficientOfVariation,
-            invoiceCount: relevantInvoices.length,
-            lastBuyDate,
-            prices,
-            dates,
-          });
+            // Calculate stats
+            const currentPrice = lastEntry.price;
+            const lastVendor = lastEntry.vendor;
+            const avgPrice = prices.reduce((sum, p) => sum + p, 0) / prices.length;
+            const minPrice = Math.min(...prices);
+            const maxPrice = Math.max(...prices);
+            const priceChange = avgPrice > 0 ? ((currentPrice - avgPrice) / avgPrice) * 100 : 0;
+
+            // Calculate volatility (coefficient of variation)
+            const variance = prices.reduce((sum, p) => sum + Math.pow(p - avgPrice, 2), 0) / prices.length;
+            const stdDev = Math.sqrt(variance);
+            const coefficientOfVariation = (stdDev / avgPrice) * 100;
+
+            let volatility: 'low' | 'medium' | 'high';
+            if (coefficientOfVariation < 10) volatility = 'low';
+            else if (coefficientOfVariation < 25) volatility = 'medium';
+            else volatility = 'high';
+
+            // Get last buy date
+            const lastBuyDate = Math.max(...dates);
+
+            const key = `${categoryId}:${variant}`;
+            trendMap.set(key, {
+              currentPrice,
+              avgPrice,
+              minPrice,
+              maxPrice,
+              priceChange,
+              volatility,
+              coefficientOfVariation,
+              invoiceCount: relevantInvoices.length,
+              lastBuyDate,
+              prices,
+              dates,
+              variant,
+              lastVendor,
+            });
+          }
         }
 
         setTrendData(trendMap);
@@ -215,7 +253,7 @@ export default function SmartAlertsTab({
     loadTrendData();
   }, [selectedProducts, productCPUData, invoices]);
 
-  // Load vendor intelligence data for alert generation
+  // Load vendor intelligence data for alert generation (variant-specific)
   useEffect(() => {
     const loadVendorIntelData = async () => {
       if (!companyId || selectedProducts.size === 0) {
@@ -226,103 +264,118 @@ export default function SmartAlertsTab({
       try {
         const intelMap = new Map<string, VendorIntelData>();
 
-        // Get all unique component categories from selected products
-        const componentCategories = new Set<string>();
+        // Get all unique component+variant combinations from selected products
+        const componentVariants = new Map<string, Set<string>>();
         selectedProducts.forEach(productId => {
           const cpuData = productCPUData.get(productId);
           if (cpuData?.breakdown) {
-            cpuData.breakdown.forEach(comp => componentCategories.add(comp.categoryId));
+            cpuData.breakdown.forEach(comp => {
+              if (!componentVariants.has(comp.categoryId)) {
+                componentVariants.set(comp.categoryId, new Set());
+              }
+              componentVariants.get(comp.categoryId)!.add(comp.variant || '');
+            });
           }
         });
 
-        // Analyze each component
-        for (const categoryId of componentCategories) {
-          const relevantInvoices = invoices.filter(inv =>
-            Object.entries(inv.cost_attribution || {}).some(([_, attr]) =>
-              attr.category_id === categoryId
-            )
-          );
+        // Analyze each component+variant combination
+        for (const [categoryId, variants] of componentVariants.entries()) {
+          for (const variant of variants) {
+            const relevantInvoices = invoices.filter(inv =>
+              Object.entries(inv.cost_attribution || {}).some(([_, attr]) =>
+                attr.category_id === categoryId && (attr.variant || '') === variant
+              )
+            );
 
-          if (relevantInvoices.length === 0) continue;
+            if (relevantInvoices.length === 0) continue;
 
-          // Group by vendor
-          const vendorPrices = new Map<string, number[]>();
-          const vendorTotals = new Map<string, number>();
+            // Group by vendor
+            const vendorPrices = new Map<string, number[]>();
+            const vendorTotals = new Map<string, number>();
 
-          relevantInvoices.forEach(inv => {
-            const vendor = inv.vendor_name || 'Unknown';
-            Object.entries(inv.cost_attribution || {}).forEach(([_, attr]) => {
-              if (attr.category_id === categoryId) {
-                const unitPrice = parseFloat(attr.unit_price);
-                const unitsPurchased = parseFloat(attr.units_purchased);
-                const lineTotal = unitPrice * unitsPurchased;
+            relevantInvoices.forEach(inv => {
+              const vendor = inv.vendor_name || 'Unknown';
+              Object.entries(inv.cost_attribution || {}).forEach(([_, attr]) => {
+                if (attr.category_id === categoryId && (attr.variant || '') === variant) {
+                  const unitPrice = parseFloat(attr.unit_price);
+                  const unitsPurchased = parseFloat(attr.units_purchased);
+                  const lineTotal = unitPrice * unitsPurchased;
 
-                if (!isNaN(unitPrice) && unitPrice > 0) {
-                  if (!vendorPrices.has(vendor)) {
-                    vendorPrices.set(vendor, []);
-                    vendorTotals.set(vendor, 0);
+                  if (!isNaN(unitPrice) && unitPrice > 0) {
+                    if (!vendorPrices.has(vendor)) {
+                      vendorPrices.set(vendor, []);
+                      vendorTotals.set(vendor, 0);
+                    }
+                    vendorPrices.get(vendor)!.push(unitPrice);
+                    vendorTotals.set(vendor, (vendorTotals.get(vendor) || 0) + lineTotal);
                   }
-                  vendorPrices.get(vendor)!.push(unitPrice);
-                  vendorTotals.set(vendor, (vendorTotals.get(vendor) || 0) + lineTotal);
                 }
+              });
+            });
+
+            if (vendorPrices.size === 0) continue;
+
+            // Calculate vendor stats
+            const vendorAvgPrices = new Map<string, number>();
+            vendorPrices.forEach((prices, vendor) => {
+              const avg = prices.reduce((sum, p) => sum + p, 0) / prices.length;
+              vendorAvgPrices.set(vendor, avg);
+            });
+
+            const bestPrice = Math.min(...Array.from(vendorAvgPrices.values()));
+            let bestVendor = '';
+            vendorAvgPrices.forEach((price, vendor) => {
+              if (price === bestPrice) bestVendor = vendor;
+            });
+
+            const avgPrice = Array.from(vendorAvgPrices.values()).reduce((sum, p) => sum + p, 0) / vendorAvgPrices.size;
+            const maxSavings = avgPrice - bestPrice;
+
+            // Find top vendor by spend
+            let topVendor = '';
+            let topVendorSpend = 0;
+            vendorTotals.forEach((spend, vendor) => {
+              if (spend > topVendorSpend) {
+                topVendorSpend = spend;
+                topVendor = vendor;
               }
             });
-          });
 
-          if (vendorPrices.size === 0) continue;
+            const totalSpend = Array.from(vendorTotals.values()).reduce((sum, s) => sum + s, 0);
+            const topVendorPercent = (topVendorSpend / totalSpend) * 100;
 
-          // Calculate vendor stats
-          const vendorAvgPrices = new Map<string, number>();
-          vendorPrices.forEach((prices, vendor) => {
-            const avg = prices.reduce((sum, p) => sum + p, 0) / prices.length;
-            vendorAvgPrices.set(vendor, avg);
-          });
+            // Detect price anomalies
+            const priceValues = Array.from(vendorAvgPrices.values());
+            const priceAvg = priceValues.reduce((sum, p) => sum + p, 0) / priceValues.length;
 
-          const bestPrice = Math.min(...Array.from(vendorAvgPrices.values()));
-          const avgPrice = Array.from(vendorAvgPrices.values()).reduce((sum, p) => sum + p, 0) / vendorAvgPrices.size;
-          const maxSavings = avgPrice - bestPrice;
+            let anomalyVendor = '';
+            let anomalyDeviation = 0;
+            vendorAvgPrices.forEach((price, vendor) => {
+              const deviation = ((price - priceAvg) / priceAvg) * 100;
+              if (Math.abs(deviation) > Math.abs(anomalyDeviation) && Math.abs(deviation) > 20) {
+                anomalyVendor = vendor;
+                anomalyDeviation = deviation;
+              }
+            });
 
-          // Find top vendor by spend
-          let topVendor = '';
-          let topVendorSpend = 0;
-          vendorTotals.forEach((spend, vendor) => {
-            if (spend > topVendorSpend) {
-              topVendorSpend = spend;
-              topVendor = vendor;
-            }
-          });
-
-          const totalSpend = Array.from(vendorTotals.values()).reduce((sum, s) => sum + s, 0);
-          const topVendorPercent = (topVendorSpend / totalSpend) * 100;
-
-          // Detect price anomalies
-          const priceValues = Array.from(vendorAvgPrices.values());
-          const priceAvg = priceValues.reduce((sum, p) => sum + p, 0) / priceValues.length;
-
-          let anomalyVendor = '';
-          let anomalyDeviation = 0;
-          vendorAvgPrices.forEach((price, vendor) => {
-            const deviation = ((price - priceAvg) / priceAvg) * 100;
-            if (Math.abs(deviation) > Math.abs(anomalyDeviation) && Math.abs(deviation) > 20) {
-              anomalyVendor = vendor;
-              anomalyDeviation = deviation;
-            }
-          });
-
-          intelMap.set(categoryId, {
-            vendors: vendorPrices,
-            vendorAvgPrices,
-            bestPrice,
-            avgPrice,
-            maxSavings,
-            topVendor,
-            topVendorSpend,
-            topVendorPercent,
-            vendorConcentration: topVendorPercent > 80,
-            priceAnomaly: anomalyVendor !== '',
-            anomalyVendor,
-            anomalyDeviation,
-          });
+            const key = `${categoryId}:${variant}`;
+            intelMap.set(key, {
+              vendors: vendorPrices,
+              vendorAvgPrices,
+              bestPrice,
+              bestVendor,
+              avgPrice,
+              maxSavings,
+              topVendor,
+              topVendorSpend,
+              topVendorPercent,
+              vendorConcentration: topVendorPercent > 80,
+              priceAnomaly: anomalyVendor !== '',
+              anomalyVendor,
+              anomalyDeviation,
+              variant,
+            });
+          }
         }
 
         setVendorIntelData(intelMap);
@@ -335,14 +388,15 @@ export default function SmartAlertsTab({
   }, [companyId, selectedProducts, productCPUData, invoices]);
 
   /**
-   * Generate smart alerts based on trend and vendor data
+   * Generate smart alerts based on trend and vendor data (variant-specific)
    */
   const generateSmartAlerts = (): Alert[] => {
     const alerts: Alert[] = [];
     const priorityOrder = { urgent: 1, warning: 2, opportunity: 3, info: 4 };
 
-    // Analyze trend data for alerts
-    trendData.forEach((trend, categoryId) => {
+    // Analyze trend data for alerts (variant-specific)
+    trendData.forEach((trend, key) => {
+      const [categoryId, variant] = key.split(':');
       const category = categories.find(c => c.id === categoryId);
       if (!category) return;
 
@@ -353,119 +407,169 @@ export default function SmartAlertsTab({
       const lastBuyDate = trend.lastBuyDate || 0;
       const daysSinceLastBuy = (Date.now() - lastBuyDate) / (1000 * 60 * 60 * 24);
       const invoiceCount = trend.invoiceCount || 0;
+      const lastVendor = trend.lastVendor || 'Unknown';
+
+      // Get vendor intelligence for this variant
+      const intel = vendorIntelData.get(key);
+      const bestAlternative = intel ? {
+        vendor: intel.bestVendor,
+        price: intel.bestPrice,
+        savings: current - intel.bestPrice,
+      } : undefined;
 
       // Skip if insufficient data (need at least 2 purchases)
       if (invoiceCount < 2) return;
 
+      // Display name with variant
+      const displayName = variant ? `${category.name} (${variant})` : category.name;
+
       // 1. Price Spike Alert (>20% increase)
       if (change > 20) {
+        const contextParts = [`${lastVendor}: $${current.toFixed(2)} (up ${change.toFixed(1)}% from your $${avg.toFixed(2)} avg)`];
+        if (bestAlternative && bestAlternative.savings > 0) {
+          contextParts.push(`${bestAlternative.vendor} offers $${bestAlternative.price.toFixed(2)} (save $${bestAlternative.savings.toFixed(2)}/unit)`);
+        }
+
         alerts.push({
-          id: `spike-${categoryId}`,
+          id: `spike-${key}`,
           type: 'urgent',
           icon: '🚨',
           title: 'Significant Price Spike',
-          message: `${category.name} has increased ${change.toFixed(1)}% recently`,
+          message: `${displayName} increased ${change.toFixed(1)}%`,
           component: category.name,
+          variant,
+          vendor: lastVendor,
+          categoryId,
           amount: change,
-          action: 'Consider alternative suppliers or locking in prices',
-          context: `Current: $${current.toFixed(2)} | Average: $${avg.toFixed(2)}`,
+          action: bestAlternative && bestAlternative.savings > 0
+            ? `Switch to ${bestAlternative.vendor} to save $${bestAlternative.savings.toFixed(2)}/unit`
+            : 'Negotiate with current vendor or find alternatives',
+          context: contextParts.join(' • '),
+          bestAlternative,
         });
       }
 
       // 2. Moderate Price Increase (10-20%)
       else if (change > 10 && change <= 20) {
+        const contextParts = [`${lastVendor}: $${current.toFixed(2)} (up ${change.toFixed(1)}% from your $${avg.toFixed(2)} avg)`];
+        if (bestAlternative && bestAlternative.savings > 0) {
+          contextParts.push(`${bestAlternative.vendor} offers $${bestAlternative.price.toFixed(2)}`);
+        }
+
         alerts.push({
-          id: `increase-${categoryId}`,
+          id: `increase-${key}`,
           type: 'warning',
           icon: '⚠️',
           title: 'Price Increase Detected',
-          message: `${category.name} has increased ${change.toFixed(1)}%`,
+          message: `${displayName} increased ${change.toFixed(1)}%`,
           component: category.name,
+          variant,
+          vendor: lastVendor,
+          categoryId,
           amount: change,
-          action: 'Monitor closely for further increases',
-          context: `Current: $${current.toFixed(2)} | Average: $${avg.toFixed(2)}`,
+          action: bestAlternative && bestAlternative.savings > 0
+            ? `Consider switching to ${bestAlternative.vendor} ($${bestAlternative.price.toFixed(2)}/unit)`
+            : 'Monitor closely and negotiate',
+          context: contextParts.join(' • '),
+          bestAlternative,
         });
       }
 
       // 3. High Volatility Warning
       if (volatility === 'high') {
         alerts.push({
-          id: `volatility-${categoryId}`,
+          id: `volatility-${key}`,
           type: 'warning',
           icon: '📊',
           title: 'High Price Volatility',
-          message: `${category.name} shows high price volatility`,
+          message: `${displayName} shows high price volatility`,
           component: category.name,
+          variant,
+          vendor: lastVendor,
+          categoryId,
           action: 'Consider long-term contracts to stabilize costs',
-          context: `Coefficient of Variation: ${(trend.coefficientOfVariation * 100).toFixed(1)}%`,
+          context: `Price varies ${(trend.coefficientOfVariation).toFixed(1)}% • Range: $${trend.minPrice.toFixed(2)}-$${trend.maxPrice.toFixed(2)}`,
         });
       }
 
       // 4. Price Drop Opportunity (< -10%)
       if (change < -10) {
         alerts.push({
-          id: `drop-${categoryId}`,
+          id: `drop-${key}`,
           type: 'opportunity',
           icon: '💰',
           title: 'Price Drop Opportunity',
-          message: `${category.name} has decreased ${Math.abs(change).toFixed(1)}%`,
+          message: `${displayName} decreased ${Math.abs(change).toFixed(1)}%`,
           component: category.name,
+          variant,
+          vendor: lastVendor,
+          categoryId,
           amount: Math.abs(change),
-          action: 'Consider increasing order quantity',
-          context: `Current: $${current.toFixed(2)} | Average: $${avg.toFixed(2)}`,
+          action: `Great time to stock up from ${lastVendor}`,
+          context: `${lastVendor}: $${current.toFixed(2)} (down from your $${avg.toFixed(2)} avg)`,
         });
       }
 
       // 5. Stable Low Price
       if (volatility === 'low' && change > -5 && change < 5 && current < avg) {
         alerts.push({
-          id: `stable-low-${categoryId}`,
+          id: `stable-low-${key}`,
           type: 'opportunity',
           icon: '✅',
           title: 'Stable Low Price',
-          message: `${category.name} is stable and below average`,
+          message: `${displayName} is stable and below average`,
           component: category.name,
-          action: 'Good time to stock up',
-          context: `Current: $${current.toFixed(2)} | Average: $${avg.toFixed(2)}`,
+          variant,
+          vendor: lastVendor,
+          categoryId,
+          action: `Good time to stock up from ${lastVendor}`,
+          context: `${lastVendor}: $${current.toFixed(2)} (${Math.abs(avg - current).toFixed(2)} below your avg)`,
         });
       }
 
       // 6. Stale Data Warning (>90 days since last purchase)
       if (daysSinceLastBuy > 90) {
         alerts.push({
-          id: `stale-${categoryId}`,
+          id: `stale-${key}`,
           type: 'info',
           icon: 'ℹ️',
           title: 'Outdated Pricing Data',
-          message: `${category.name} hasn't been purchased in ${Math.floor(daysSinceLastBuy)} days`,
+          message: `${displayName} hasn't been purchased in ${Math.floor(daysSinceLastBuy)} days`,
           component: category.name,
+          variant,
+          categoryId,
           action: 'Update pricing data with recent purchase',
-          context: `Last purchase: ${new Date(lastBuyDate).toLocaleDateString()}`,
+          context: `Last purchase from ${lastVendor}: ${new Date(lastBuyDate).toLocaleDateString()}`,
         });
       }
 
       // 7. Low Data Quality (< 5 purchases)
       if (invoiceCount < 5 && invoiceCount >= 2) {
         alerts.push({
-          id: `low-data-${categoryId}`,
+          id: `low-data-${key}`,
           type: 'info',
           icon: '📉',
           title: 'Limited Purchase History',
-          message: `Only ${invoiceCount} purchases for ${category.name}`,
+          message: `Only ${invoiceCount} purchases for ${displayName}`,
           component: category.name,
+          variant,
+          categoryId,
           action: 'More purchases will improve trend accuracy',
-          context: 'Trend analysis may be less reliable',
+          context: 'Trend analysis may be less reliable with limited data',
         });
       }
     });
 
-    // Analyze vendor data for alerts
-    vendorIntelData.forEach((intel, categoryId) => {
+    // Analyze vendor data for alerts (variant-specific)
+    vendorIntelData.forEach((intel, key) => {
+      const [categoryId, variant] = key.split(':');
       const category = categories.find(c => c.id === categoryId);
       if (!category) return;
 
+      const displayName = variant ? `${category.name} (${variant})` : category.name;
       const vendorCount = intel.vendors.size;
       const bestPrice = intel.bestPrice || 0;
+      const bestVendor = intel.bestVendor || '';
       const avgPrice = intel.avgPrice || 0;
       const maxSavings = intel.maxSavings || 0;
       const savingsPercent = avgPrice > 0 ? (maxSavings / avgPrice) * 100 : 0;
@@ -473,42 +577,57 @@ export default function SmartAlertsTab({
       // 8. Significant Savings Opportunity (>15% difference)
       if (savingsPercent > 15 && vendorCount > 1) {
         alerts.push({
-          id: `savings-${categoryId}`,
+          id: `savings-${key}`,
           type: 'opportunity',
           icon: '💵',
           title: 'Significant Savings Available',
-          message: `Save ${savingsPercent.toFixed(0)}% on ${category.name}`,
+          message: `Save ${savingsPercent.toFixed(0)}% on ${displayName}`,
           component: category.name,
+          variant,
+          vendor: bestVendor,
+          categoryId,
           amount: maxSavings,
-          action: `Switch to lowest-cost vendor ($${bestPrice.toFixed(2)}/unit)`,
-          context: `Current average: $${avgPrice.toFixed(2)}/unit`,
+          action: `Switch to ${bestVendor} to save $${maxSavings.toFixed(2)}/unit`,
+          context: `${bestVendor}: $${bestPrice.toFixed(2)}/unit (your avg: $${avgPrice.toFixed(2)})`,
+          bestAlternative: {
+            vendor: bestVendor,
+            price: bestPrice,
+            savings: maxSavings,
+          },
         });
       }
 
       // 9. Vendor Concentration Risk (>80% from single vendor)
       if (intel.vendorConcentration && intel.topVendor && intel.topVendorPercent > 80) {
         alerts.push({
-          id: `concentration-${categoryId}`,
+          id: `concentration-${key}`,
           type: 'warning',
           icon: '⚖️',
           title: 'High Vendor Concentration',
-          message: `${category.name}: ${intel.topVendorPercent.toFixed(0)}% purchased from ${intel.topVendor}`,
+          message: `${displayName}: ${intel.topVendorPercent.toFixed(0)}% from ${intel.topVendor}`,
           component: category.name,
-          action: 'Consider diversifying suppliers to reduce risk',
-          context: `Supply chain dependency on single vendor`,
+          variant,
+          vendor: intel.topVendor,
+          categoryId,
+          action: 'Diversify suppliers to reduce supply chain risk',
+          context: `${intel.topVendor} represents ${intel.topVendorPercent.toFixed(0)}% of your spend`,
         });
       }
 
       // 10. Single-Source Component
       if (vendorCount === 1) {
+        const singleVendor = Array.from(intel.vendors.keys())[0];
         alerts.push({
-          id: `single-source-${categoryId}`,
+          id: `single-source-${key}`,
           type: 'warning',
           icon: '🔗',
-          title: 'Single-Source Component',
-          message: `${category.name} is only purchased from one vendor`,
+          title: 'Single-Source Variant',
+          message: `${displayName} only purchased from ${singleVendor}`,
           component: category.name,
-          action: 'Identify backup suppliers to mitigate supply chain risk',
+          variant,
+          vendor: singleVendor,
+          categoryId,
+          action: 'Identify backup suppliers to mitigate risk',
           context: 'High supply chain vulnerability',
         });
       }
@@ -516,15 +635,19 @@ export default function SmartAlertsTab({
       // 11. Price Anomaly (one vendor significantly different)
       if (intel.priceAnomaly && intel.anomalyVendor && intel.anomalyDeviation) {
         const direction = intel.anomalyDeviation > 0 ? 'higher' : 'lower';
+        const anomalyPrice = intel.vendorAvgPrices.get(intel.anomalyVendor) || 0;
         alerts.push({
-          id: `anomaly-${categoryId}`,
+          id: `anomaly-${key}`,
           type: 'info',
           icon: '🔍',
           title: 'Price Anomaly Detected',
-          message: `${category.name}: ${intel.anomalyVendor} is ${Math.abs(intel.anomalyDeviation).toFixed(1)}% ${direction} than average`,
+          message: `${displayName}: ${intel.anomalyVendor} is ${Math.abs(intel.anomalyDeviation).toFixed(1)}% ${direction}`,
           component: category.name,
-          action: direction === 'higher' ? 'Investigate pricing discrepancy' : 'Verify quality and terms',
-          context: `Market price variance detected`,
+          variant,
+          vendor: intel.anomalyVendor,
+          categoryId,
+          action: direction === 'higher' ? 'Investigate pricing discrepancy or negotiate' : 'Verify quality matches your needs',
+          context: `${intel.anomalyVendor}: $${anomalyPrice.toFixed(2)} (market avg: $${avgPrice.toFixed(2)})`,
         });
       }
     });
@@ -767,6 +890,51 @@ export default function SmartAlertsTab({
                       }}>
                         Amount: ${alert.amount.toFixed(2)}
                       </p>
+                    )}
+                    {/* Best alternative information */}
+                    {alert.bestAlternative && alert.bestAlternative.savings > 0 && (
+                      <div style={{
+                        marginTop: '0.75rem',
+                        padding: '0.75rem',
+                        background: '#dcfce7',
+                        border: '1px solid #16a34a',
+                        borderRadius: '6px',
+                      }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#15803d', marginBottom: '0.25rem' }}>
+                          💰 Best Alternative
+                        </div>
+                        <div style={{ fontSize: '0.875rem', color: '#166534' }}>
+                          <strong>{alert.bestAlternative.vendor}</strong>: ${alert.bestAlternative.price.toFixed(2)}/unit
+                          <span style={{ color: '#16a34a', fontWeight: 600, marginLeft: '0.5rem' }}>
+                            (save ${alert.bestAlternative.savings.toFixed(2)}/unit)
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {/* View Details button */}
+                    {onNavigateToVendorIntel && alert.categoryId && (
+                      <button
+                        onClick={() => {
+                          onNavigateToVendorIntel({
+                            categoryId: alert.categoryId,
+                            variant: alert.variant,
+                            vendorName: alert.vendor,
+                          });
+                        }}
+                        style={{
+                          marginTop: '0.75rem',
+                          padding: '0.5rem 1rem',
+                          background: '#4b006e',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontSize: '0.875rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        → View in Vendor Intel
+                      </button>
                     )}
                   </div>
                   <button
