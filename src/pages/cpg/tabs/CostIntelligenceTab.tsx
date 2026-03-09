@@ -390,26 +390,18 @@ export default function CostIntelligenceTab({
   const analysisTypes = {
     scenario: {
       title: 'Scenario Builder',
-      icon: '🎯',
-      description: 'Run "what-if" scenarios by adjusting component costs and pricing to see the impact on margins',
       color: '#4b006e',
     },
     trends: {
       title: 'CPU Trends',
-      icon: '📈',
-      description: 'Track how your costs have changed over time and identify components with the biggest increases',
       color: '#7c3aed',
     },
     vendors: {
       title: 'Vendor Intel',
-      icon: '🏭',
-      description: 'Compare prices across vendors to find savings opportunities and better deals',
       color: '#6366f1',
     },
     alerts: {
       title: 'Smart Alerts',
-      icon: '🔔',
-      description: 'Get notified about price spikes, savings opportunities, and unusual cost changes',
       color: '#8b5cf6',
     },
   };
@@ -417,47 +409,55 @@ export default function CostIntelligenceTab({
   return (
     <div id="comparison-panel" role="tabpanel" aria-labelledby="comparison-tab">
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Cost Intelligence</h2>
-        <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>
-          Compare product costs, margins, and pricing trends side-by-side to identify your most profitable products.
-        </p>
-
-            {/* Analysis Type Switcher (Smaller Tabs) */}
-            <div className="cost-intelligence-analysis-tabs" style={{
-              display: 'flex',
-              gap: '0.5rem',
-              marginBottom: '1.5rem',
-              flexWrap: 'wrap',
-            }}>
-              {(Object.keys(analysisTypes) as IntelligenceSubTab[]).map((type) => {
-                const analysis = analysisTypes[type];
-                const isActive = intelligenceTab === type;
-                return (
-                  <button
-                    key={type}
-                    className="cost-intelligence-analysis-tab"
-                    onClick={() => setIntelligenceTab(type)}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      background: isActive ? analysis.color : 'white',
-                      color: isActive ? 'white' : '#64748b',
-                      border: isActive ? 'none' : '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '0.875rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                    }}
-                  >
-                    <span>{analysis.icon}</span>
-                    <span>{analysis.title}</span>
-                  </button>
-                );
-              })}
-            </div>
+        {/* Analysis Type Tabs */}
+        <div className="cost-intelligence-analysis-tabs" style={{
+          display: 'flex',
+          gap: '0.375rem',
+          marginBottom: '1.5rem',
+          flexWrap: 'wrap',
+          borderBottom: '2px solid #e5e7eb',
+          paddingBottom: '0.5rem',
+        }}>
+          {(Object.keys(analysisTypes) as IntelligenceSubTab[]).map((type) => {
+            const analysis = analysisTypes[type];
+            const isActive = intelligenceTab === type;
+            return (
+              <button
+                key={type}
+                className="cost-intelligence-analysis-tab"
+                onClick={() => setIntelligenceTab(type)}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  background: isActive ? analysis.color : 'transparent',
+                  color: isActive ? 'white' : '#64748b',
+                  border: 'none',
+                  borderBottom: isActive ? `3px solid ${analysis.color}` : '3px solid transparent',
+                  borderRadius: isActive ? '6px 6px 0 0' : '0',
+                  fontSize: '0.9375rem',
+                  fontWeight: isActive ? 700 : 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  position: 'relative',
+                  letterSpacing: '0.01em',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.color = '#475569';
+                    e.currentTarget.style.background = '#f8fafc';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.color = '#64748b';
+                    e.currentTarget.style.background = 'transparent';
+                  }
+                }}
+              >
+                {analysis.title}
+              </button>
+            );
+          })}
+        </div>
 
             {/* Product Selector with Filters */}
         <div style={{
