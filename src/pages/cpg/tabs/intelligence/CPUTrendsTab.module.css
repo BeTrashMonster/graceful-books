@@ -383,9 +383,9 @@
 
 /* Products Container */
 .productsContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 1.5rem;
 }
 
 .productSection {
@@ -466,6 +466,10 @@
 @media (max-width: 1024px) {
   .overviewCards {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .productsContainer {
+    grid-template-columns: 1fr;
   }
 }
 
