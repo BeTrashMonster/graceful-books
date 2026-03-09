@@ -70,11 +70,47 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
       const cpuMap = new Map<string, string | null>();
       for (const product of allProducts) {
         try {
-          const cpuResult = await cpuCalculatorService.calculateFinishedProductCPU(
-            product.id,
-            companyId
-          );
-          cpuMap.set(product.id, cpuResult.cpu);
+          // Handle bundles differently - sum component product CPUs
+          if (product.is_bundle && product.bundle_items && product.bundle_items.length > 0) {
+            let totalCpu = 0;
+            let hasAllCpus = true;
+
+            for (const item of product.bundle_items) {
+              const componentProduct = allProducts.find(p => p.id === item.product_id);
+              if (componentProduct) {
+                // Calculate CPU for component if not already calculated
+                let componentCpu: string | null = null;
+                try {
+                  const cpuResult = await cpuCalculatorService.calculateFinishedProductCPU(
+                    componentProduct.id,
+                    companyId
+                  );
+                  componentCpu = cpuResult.cpu;
+                } catch (err) {
+                  console.error(`Failed to calculate CPU for component ${componentProduct.id}:`, err);
+                }
+
+                if (componentCpu !== null) {
+                  totalCpu += parseFloat(componentCpu) * item.quantity;
+                } else {
+                  hasAllCpus = false;
+                  break;
+                }
+              } else {
+                hasAllCpus = false;
+                break;
+              }
+            }
+
+            cpuMap.set(product.id, hasAllCpus ? totalCpu.toFixed(2) : null);
+          } else {
+            // Regular product - calculate CPU normally
+            const cpuResult = await cpuCalculatorService.calculateFinishedProductCPU(
+              product.id,
+              companyId
+            );
+            cpuMap.set(product.id, cpuResult.cpu);
+          }
         } catch (err) {
           console.error(`Failed to calculate CPU for product ${product.id}:`, err);
           cpuMap.set(product.id, null);
@@ -677,12 +713,14 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                         <span className={styles.detailValue}>${product.msrp}</span>
                       </div>
                     )}
-                    <div className={styles.detailRow}>
-                      <span className={styles.detailLabel}>Unit:</span>
-                      <span className={styles.detailValue}>
-                        {product.unit_of_measure} ({product.pieces_per_unit} per unit)
-                      </span>
-                    </div>
+                    {!product.is_bundle && (
+                      <div className={styles.detailRow}>
+                        <span className={styles.detailLabel}>Unit:</span>
+                        <span className={styles.detailValue}>
+                          {product.unit_of_measure} ({product.pieces_per_unit} per unit)
+                        </span>
+                      </div>
+                    )}
                     <div className={styles.detailRow}>
                       <span className={styles.detailLabel}>CPU:</span>
                       <span className={styles.detailValue}>
