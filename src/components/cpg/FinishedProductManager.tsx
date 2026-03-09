@@ -356,11 +356,18 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
     e.preventDefault();
     if (!draggedProductId) return;
 
-    // Update positions
-    setProductPositions(prev => ({
-      ...prev,
-      [draggedProductId]: targetIndex,
-    }));
+    // Check if target position is already occupied by another product
+    const isOccupied = Object.entries(productPositions).some(
+      ([productId, position]) => productId !== draggedProductId && position === targetIndex
+    );
+
+    // Only update if position is not occupied
+    if (!isOccupied) {
+      setProductPositions(prev => ({
+        ...prev,
+        [draggedProductId]: targetIndex,
+      }));
+    }
 
     setDraggedProductId(null);
     setDragOverIndex(null);

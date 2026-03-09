@@ -834,7 +834,61 @@ export class CPUCalculatorService {
         companyId
       });
 
-      // Get all recipe lines for this product
+      // Get product info to check if it's a bundle
+      const product = await this.db.cpgFinishedProducts.get(productId);
+
+      if (!product || product.deleted_at !== null) {
+        throw new Error(`Product not found: ${productId}`);
+      }
+
+      // Handle bundles differently - aggregate component product CPUs
+      if (product.is_bundle && product.bundle_items && product.bundle_items.length > 0) {
+        serviceLogger.info('Calculating bundle CPU', { productId, bundleItems: product.bundle_items });
+
+        const breakdown: FinishedProductCPUResult['breakdown'] = [];
+        let totalCPU = new Decimal(0);
+        let isComplete = true;
+
+        for (const bundleItem of product.bundle_items) {
+          // Recursively calculate CPU for component product
+          const componentCPU = await this.calculateFinishedProductCPU(
+            bundleItem.product_id,
+            companyId,
+            dateRange
+          );
+
+          // Add component breakdown items (multiplied by quantity)
+          for (const component of componentCPU.breakdown) {
+            const quantity = new Decimal(component.quantity).times(bundleItem.quantity);
+
+            let subtotal: string | null = null;
+            if (component.hasCostData && component.unitCost) {
+              subtotal = quantity.times(component.unitCost).toFixed(2);
+              totalCPU = totalCPU.plus(subtotal);
+            } else {
+              isComplete = false;
+            }
+
+            breakdown.push({
+              ...component,
+              quantity: quantity.toFixed(4),
+              subtotal,
+            });
+          }
+
+          if (!componentCPU.isComplete) {
+            isComplete = false;
+          }
+        }
+
+        return {
+          cpu: isComplete ? totalCPU.toFixed(2) : null,
+          breakdown,
+          isComplete,
+        };
+      }
+
+      // Regular product - get recipe lines
       const recipeLines = await this.db.cpgRecipes
         .where('finished_product_id')
         .equals(productId)
