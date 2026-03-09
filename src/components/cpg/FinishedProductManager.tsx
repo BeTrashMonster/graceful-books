@@ -19,6 +19,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import type { CPGFinishedProduct } from '../../db/schema/cpg.schema';
 import { checkFinishedProductHasRecipes } from '../../db/schema/cpg.schema';
 import { AddProductModal } from './modals/AddProductModal';
+import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import styles from './FinishedProductManager.module.css';
 
 export interface FinishedProductManagerProps {
@@ -28,6 +29,7 @@ export interface FinishedProductManagerProps {
 export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductManagerProps) {
   const { companyId } = useAuth();
   const [products, setProducts] = useState<CPGFinishedProduct[]>([]);
+  const [productCPUs, setProductCPUs] = useState<Map<string, string | null>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -50,6 +52,22 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
         .toArray();
 
       setProducts(allProducts);
+
+      // Calculate CPU for each product
+      const cpuMap = new Map<string, string | null>();
+      for (const product of allProducts) {
+        try {
+          const cpuResult = await cpuCalculatorService.calculateFinishedProductCPU(
+            product.id,
+            companyId
+          );
+          cpuMap.set(product.id, cpuResult.cpu);
+        } catch (err) {
+          console.error(`Failed to calculate CPU for product ${product.id}:`, err);
+          cpuMap.set(product.id, null);
+        }
+      }
+      setProductCPUs(cpuMap);
     } catch (err) {
       console.error('Failed to load products:', err);
       setError('Oops! We had trouble loading your products. Please refresh the page.');
@@ -287,7 +305,11 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                     </div>
                     <div className={styles.detailRow}>
                       <span className={styles.detailLabel}>CPU:</span>
-                      <span className={styles.detailValue}>N/A</span>
+                      <span className={styles.detailValue}>
+                        {productCPUs.get(product.id) !== null && productCPUs.get(product.id) !== undefined
+                          ? `$${productCPUs.get(product.id)}`
+                          : 'N/A'}
+                      </span>
                     </div>
                   </div>
 
