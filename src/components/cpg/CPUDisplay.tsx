@@ -1259,7 +1259,7 @@ export function CPUDisplay({
 
           {/* Grid View */}
           {viewMode === 'grid' && (() => {
-            const orderedProducts = getOrderedProducts();
+            const orderedProducts = productsWithMetrics;
 
             // Calculate grid size and position map
             const maxPosition = Math.max(
