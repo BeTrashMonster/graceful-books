@@ -43,6 +43,11 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
   const [showColorPicker, setShowColorPicker] = useState<string | null>(null);
   const colorPickerRef = useRef<HTMLDivElement>(null);
 
+  // Grid positioning (stored by product ID -> grid index)
+  const [productPositions, setProductPositions] = useState<Record<string, number>>({});
+  const [draggedProductId, setDraggedProductId] = useState<string | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
   // Load products
   const loadProducts = async () => {
     if (!companyId) return;
@@ -105,6 +110,47 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
       localStorage.setItem(`cpg-product-card-colors-${companyId}`, JSON.stringify(cardColors));
     }
   }, [cardColors, companyId]);
+
+  // Load product positions from localStorage
+  useEffect(() => {
+    if (!companyId) return;
+    const savedPositions = localStorage.getItem(`cpg-product-positions-${companyId}`);
+    if (savedPositions) {
+      try {
+        setProductPositions(JSON.parse(savedPositions));
+      } catch (err) {
+        console.error('Failed to parse saved product positions:', err);
+      }
+    }
+  }, [companyId]);
+
+  // Save product positions to localStorage
+  useEffect(() => {
+    if (!companyId) return;
+    if (Object.keys(productPositions).length > 0) {
+      localStorage.setItem(`cpg-product-positions-${companyId}`, JSON.stringify(productPositions));
+    }
+  }, [productPositions, companyId]);
+
+  // Initialize positions for new products
+  useEffect(() => {
+    if (products.length === 0) return;
+
+    setProductPositions(prev => {
+      const updated = { ...prev };
+      let hasChanges = false;
+
+      // Assign positions to products that don't have one
+      products.forEach((product, index) => {
+        if (updated[product.id] === undefined) {
+          updated[product.id] = index;
+          hasChanges = true;
+        }
+      });
+
+      return hasChanges ? updated : prev;
+    });
+  }, [products]);
 
   // Listen for data updates
   useEffect(() => {
@@ -253,6 +299,39 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
     }
   }, [showColorPicker]);
 
+  // Drag and drop handlers
+  const handleDragStart = (productId: string) => {
+    setDraggedProductId(productId);
+  };
+
+  const handleDragOver = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    setDragOverIndex(targetIndex);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (!draggedProductId) return;
+
+    // Update positions
+    setProductPositions(prev => ({
+      ...prev,
+      [draggedProductId]: targetIndex,
+    }));
+
+    setDraggedProductId(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedProductId(null);
+    setDragOverIndex(null);
+  };
+
   if (isLoading) {
     return (
       <div className={styles.loading}>
@@ -306,17 +385,73 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
         </div>
       ) : (
         <div className={styles.productGrid} role="list" aria-label="Finished Products">
-          {products
-            .filter(p => showArchived || p.deleted_at === null)
-            .map((product) => {
+          {(() => {
+            // Filter visible products
+            const visibleProducts = products.filter(p => showArchived || p.deleted_at === null);
+
+            // Calculate grid size needed
+            const maxPosition = Math.max(
+              ...visibleProducts.map(p => productPositions[p.id] ?? 0),
+              visibleProducts.length - 1
+            );
+            const gridSize = Math.max(maxPosition + 10, 20); // At least 20 cells, or max position + 10
+
+            // Create a map of position -> product
+            const positionMap: Record<number, typeof visibleProducts[0]> = {};
+            visibleProducts.forEach(product => {
+              const position = productPositions[product.id];
+              if (position !== undefined) {
+                positionMap[position] = product;
+              }
+            });
+
+            // Render grid cells
+            return Array.from({ length: gridSize }).map((_, index) => {
+              const product = positionMap[index];
+
+              // Empty cell (drop zone)
+              if (!product) {
+                return (
+                  <div
+                    key={`empty-${index}`}
+                    className={styles.emptyGridCell}
+                    style={{
+                      border: dragOverIndex === index ? '2px dashed #4b006e' : '2px dashed transparent',
+                      background: dragOverIndex === index ? '#f3e8ff' : 'transparent',
+                      borderRadius: '12px',
+                      minHeight: '200px',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, index)}
+                  />
+                );
+              }
+
+              // Product card
               const isArchived = product.deleted_at !== null;
               const bgColor = cardColors[product.id] || '#ffffff';
+              const isDragging = draggedProductId === product.id;
+
               return (
                 <article
                   key={product.id}
                   className={styles.productCard}
                   role="listitem"
-                  style={isArchived ? { opacity: 0.6, backgroundColor: '#f8f9fa' } : { backgroundColor: bgColor, position: 'relative' }}
+                  draggable={!isArchived}
+                  onDragStart={() => handleDragStart(product.id)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, index)}
+                  style={{
+                    opacity: isDragging ? 0.5 : (isArchived ? 0.6 : 1),
+                    backgroundColor: isArchived ? '#f8f9fa' : bgColor,
+                    position: 'relative',
+                    cursor: isArchived ? 'default' : 'grab',
+                    border: dragOverIndex === index ? '2px solid #4b006e' : '1px solid #e2e8f0',
+                  }}
                 >
                   {/* Color Picker Button */}
                   {!isArchived && (
@@ -517,7 +652,8 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                   </div>
                 </article>
               );
-            })}
+            });
+          })()}
         </div>
       )}
 

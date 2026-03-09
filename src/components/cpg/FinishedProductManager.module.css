@@ -112,6 +112,10 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
+.productCard:active {
+  cursor: grabbing;
+}
+
 .productHeader {
   display: flex;
   flex-direction: column;
@@ -174,4 +178,17 @@
 
 .productActions button {
   flex: 1;
+}
+
+.emptyGridCell {
+  border: 2px dashed transparent;
+  background: transparent;
+  border-radius: 12px;
+  min-height: 200px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #cbd5e1;
+  font-size: 0.875rem;
 }
