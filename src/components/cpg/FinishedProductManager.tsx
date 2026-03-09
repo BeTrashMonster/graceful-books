@@ -194,12 +194,6 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <div>
-          <h2 className={styles.title}>My Finished Products</h2>
-          <p className={styles.subtitle}>
-            Track the products you manufacture and sell
-          </p>
-        </div>
         <Button variant="primary" size="md" onClick={handleAddProduct}>
           + Add Product
         </Button>
