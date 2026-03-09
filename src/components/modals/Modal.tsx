@@ -190,7 +190,11 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
         >
           {title && (
             <div className={styles.modalHeader} style={headerStyle}>
-              <h2 id="modal-title" className={styles.modalTitle}>
+              <h2
+                id="modal-title"
+                className={styles.modalTitle}
+                style={headerStyle ? { color: headerStyle.color || 'inherit' } : undefined}
+              >
                 {title}
               </h2>
               {showCloseButton && (
