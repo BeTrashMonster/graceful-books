@@ -1,0 +1,347 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #4b006e;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 150px;
+}
+
+.filterLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.filterSelect {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #1f2937;
+  background: white;
+  transition: border-color 0.2s;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #4b006e;
+  box-shadow: 0 0 0 3px rgba(75, 0, 110, 0.1);
+}
+
+/* Table Container */
+.tableContainer {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  overflow-x: auto;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background: #f9fafb;
+  color: #374151;
+  font-weight: 600;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  color: #1f2937;
+}
+
+.table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Status Badges */
+.statusApproved {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #dcfce7;
+  color: #166534;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-transform: capitalize;
+}
+
+.statusDeclined {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-transform: capitalize;
+}
+
+.statusDraft {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #fef9c3;
+  color: #854d0e;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-transform: capitalize;
+}
+
+.statusActive {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-transform: capitalize;
+}
+
+.statusCompleted {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #e0e7ff;
+  color: #4338ca;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-transform: capitalize;
+}
+
+/* Margin Quality Badges */
+.marginBest {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #dcfce7;
+  color: #166534;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.marginBetter {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.marginGood {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.marginGutCheck {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+/* Action Menu */
+.actionCell {
+  position: relative;
+}
+
+.actionButton {
+  padding: 0.25rem 0.5rem;
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 1.25rem;
+  color: #6b7280;
+  transition: all 0.2s;
+}
+
+.actionButton:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.actionMenu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.25rem;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  min-width: 150px;
+}
+
+.actionMenuItem {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #374151;
+  transition: background-color 0.2s;
+}
+
+.actionMenuItem:hover {
+  background: #f3f4f6;
+}
+
+.actionMenuItem:first-child {
+  border-top-left-radius: 0.375rem;
+  border-top-right-radius: 0.375rem;
+}
+
+.actionMenuItem:last-child {
+  border-bottom-left-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+}
+
+.actionMenuItemDanger {
+  color: #dc2626;
+}
+
+.actionMenuItemDanger:hover {
+  background: #fef2f2;
+}
+
+/* Sell-Through Display */
+.sellThroughCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 100px;
+}
+
+.sellThroughText {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.sellThroughBar {
+  width: 100%;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.sellThroughFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.sellThroughExcellent {
+  background: #10b981;
+}
+
+.sellThroughGood {
+  background: #3b82f6;
+}
+
+.sellThroughModerate {
+  background: #f59e0b;
+}
+
+.sellThroughLow {
+  background: #ef4444;
+}
+
+/* No Data State */
+.noData {
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+  }
+
+  .filterGroup {
+    min-width: 100%;
+  }
+
+  .table {
+    font-size: 0.75rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.5rem;
+  }
+}

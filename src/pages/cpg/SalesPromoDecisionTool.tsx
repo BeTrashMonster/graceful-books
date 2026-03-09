@@ -4,6 +4,7 @@ import { Button } from '../../components/core/Button';
 import { PromoDetailsForm, type PromoFormData } from '../../components/cpg/PromoDetailsForm';
 import { PromoComparison, type VariantComparisonData } from '../../components/cpg/PromoComparison';
 import { PromoImpactSummary } from '../../components/cpg/PromoImpactSummary';
+import { PromoTrackerTab } from './tabs/PromoTrackerTab';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db';
 import { SalesPromoAnalyzerService, type PromoAnalysisResult } from '../../services/cpg/salesPromoAnalyzer.service';
@@ -41,6 +42,8 @@ import styles from './SalesPromoDecisionTool.module.css';
  * - Fetches latest CPUs from invoices
  * - Saves promo decisions to database
  */
+type ViewTab = 'decision-tool' | 'promo-tracker';
+
 export default function SalesPromoDecisionTool() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -49,6 +52,9 @@ export default function SalesPromoDecisionTool() {
 
   // Check if we're editing an existing promo
   const editPromoId = searchParams.get('edit');
+
+  // Tab State
+  const [activeTab, setActiveTab] = useState<ViewTab>('decision-tool');
 
   // State
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -638,105 +644,118 @@ export default function SalesPromoDecisionTool() {
   return (
     <div className="page">
       <div className="page-header">
-        <h1 className="page-title">Sales Promo Decision Tool</h1>
+        <h1 className="page-title">Promo Analysis</h1>
         <p className="page-description">
-          Take your time reviewing this promotion. We'll help you understand the impact on your margins
-          and make a confident decision.
-        </p>
-        <p className={styles.helpLink}>
-          Need to review past decisions? Visit{' '}
-          <a href="/cpg/analytics?tab=promo-tracker" className={styles.link}>
-            Analytics → Promo Tracker
-          </a>
+          Analyze sales promotions and track your promo history
         </p>
       </div>
 
-      {/* Success Message */}
-      {successMessage && (
-        <div className={styles.successMessage}>
-          <div className={styles.successIcon}>✓</div>
-          <div className={styles.successContent}>
-            <p className={styles.successText}>{successMessage}</p>
-            <p className={styles.successLink}>
-              View all your decisions in <a href="/cpg/analytics?tab=promo-tracker" className={styles.link}>Analytics → Promo Tracker</a>.
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Tabs */}
+      <div className={styles.tabs}>
+        <button
+          onClick={() => setActiveTab('decision-tool')}
+          className={activeTab === 'decision-tool' ? styles.tabActive : styles.tab}
+        >
+          Decision Tool
+        </button>
+        <button
+          onClick={() => setActiveTab('promo-tracker')}
+          className={activeTab === 'promo-tracker' ? styles.tabActive : styles.tab}
+        >
+          Promo Tracker
+        </button>
+      </div>
 
-      {/* Error Message */}
-      {errorMessage && (
-        <div className={styles.errorMessage}>
-          <div className={styles.errorIcon}>⚠️</div>
-          <div className={styles.errorContent}>
-            <h4 className={styles.errorTitle}>{errorMessage.title}</h4>
-            <p className={styles.errorText}>{errorMessage.message}</p>
-            {errorMessage.action && (
-              <p className={styles.errorAction}>
-                <strong>What to do:</strong> {errorMessage.action}
+      {/* Decision Tool Tab */}
+      {activeTab === 'decision-tool' && (
+        <div className={styles.tabContent}>
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className={styles.successMessage}>
+            <div className={styles.successIcon}>✓</div>
+            <div className={styles.successContent}>
+              <p className={styles.successText}>{successMessage}</p>
+              <p className={styles.successLink}>
+                View all your decisions in the Promo Tracker tab.
               </p>
-            )}
-            <Button
-              type="button"
-              variant="secondary"
-              size="small"
-              onClick={() => setErrorMessage(null)}
-              className={styles.dismissButton}
-            >
-              Dismiss
-            </Button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {isLoadingData ? (
-        <div className={styles.loading}>
-          <div className={styles.loadingIcon}>🌱</div>
-          <p className={styles.loadingText}>Gathering your ingredients from the garden...</p>
-        </div>
-      ) : (
-        <div className={styles.pageContent} ref={pageContentRef}>
-          {/* CPU Error Warning */}
-          {cpuErrors.length > 0 && (
-            <div className={styles.cpuErrorWarning}>
-              <div className={styles.warningIcon}>⚠️</div>
-              <div className={styles.warningContent}>
-                <h4 className={styles.warningTitle}>Missing Cost Data</h4>
-                <p className={styles.warningMessage}>
-                  We couldn't calculate costs for {cpuErrors.length} product{cpuErrors.length > 1 ? 's' : ''}.
-                  These products may be missing ingredient costs or recipe data.
+        {/* Error Message */}
+        {errorMessage && (
+          <div className={styles.errorMessage}>
+            <div className={styles.errorIcon}>⚠️</div>
+            <div className={styles.errorContent}>
+              <h4 className={styles.errorTitle}>{errorMessage.title}</h4>
+              <p className={styles.errorText}>{errorMessage.message}</p>
+              {errorMessage.action && (
+                <p className={styles.errorAction}>
+                  <strong>What to do:</strong> {errorMessage.action}
                 </p>
-                <ul className={styles.warningList}>
-                  {cpuErrors.slice(0, 5).map((product) => (
-                    <li key={product}>{product}</li>
-                  ))}
-                  {cpuErrors.length > 5 && (
-                    <li>...and {cpuErrors.length - 5} more</li>
-                  )}
-                </ul>
-                <p className={styles.warningAction}>
-                  Please update these products in your Product Catalog before including them in promo analysis.
+              )}
+              <Button
+                type="button"
+                variant="secondary"
+                size="small"
+                onClick={() => setErrorMessage(null)}
+                className={styles.dismissButton}
+              >
+                Dismiss
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {isLoadingData ? (
+          <div className={styles.loading}>
+            <div className={styles.loadingIcon}>🌱</div>
+            <p className={styles.loadingText}>Gathering your ingredients from the garden...</p>
+          </div>
+        ) : (
+          <div className={styles.pageContent} ref={pageContentRef}>
+            {/* CPU Error Warning */}
+            {cpuErrors.length > 0 && (
+              <div className={styles.cpuErrorWarning}>
+                <div className={styles.warningIcon}>⚠️</div>
+                <div className={styles.warningContent}>
+                  <h4 className={styles.warningTitle}>Missing Cost Data</h4>
+                  <p className={styles.warningMessage}>
+                    We couldn't calculate costs for {cpuErrors.length} product{cpuErrors.length > 1 ? 's' : ''}.
+                    These products may be missing ingredient costs or recipe data.
+                  </p>
+                  <ul className={styles.warningList}>
+                    {cpuErrors.slice(0, 5).map((product) => (
+                      <li key={product}>{product}</li>
+                    ))}
+                    {cpuErrors.length > 5 && (
+                      <li>...and {cpuErrors.length - 5} more</li>
+                    )}
+                  </ul>
+                  <p className={styles.warningAction}>
+                    Please update these products in your Product Catalog before including them in promo analysis.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Empty State - No Products */}
+            {availableVariants.length === 0 ? (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyStateIcon}>📦</div>
+                <h3 className={styles.emptyStateTitle}>No Products Available</h3>
+                <p className={styles.emptyStateMessage}>
+                  You need to create products in your Product Catalog before you can analyze promo offers.
+                </p>
+                <p className={styles.emptyStateAction}>
+                  Visit <a href="/cpg/products" className={styles.link}>Product Catalog</a> to add your first product.
                 </p>
               </div>
-            </div>
-          )}
-
-          {/* Empty State - No Products */}
-          {availableVariants.length === 0 ? (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyStateIcon}>📦</div>
-              <h3 className={styles.emptyStateTitle}>No Products Available</h3>
-              <p className={styles.emptyStateMessage}>
-                You need to create products in your Product Catalog before you can analyze promo offers.
-              </p>
-              <p className={styles.emptyStateAction}>
-                Visit <a href="/cpg/products" className={styles.link}>Product Catalog</a> to add your first product.
-              </p>
-            </div>
-          ) : (
-            <>
-              {/* Promo Details Form */}
-              <section className={styles.section}>
+            ) : (
+              <>
+                {/* Promo Details Form */}
+                <section className={styles.section}>
                 <PromoDetailsForm
                   availableVariants={availableVariants}
                   latestCPUs={latestCPUs}
@@ -745,132 +764,141 @@ export default function SalesPromoDecisionTool() {
                   isLoading={isAnalyzing}
                   initialData={initialFormData}
                 />
-              </section>
+                </section>
 
-              {/* Analysis Results - Only show after analysis */}
-              {analysisResult && (
-          <div ref={resultsRef}>
-            {/* Side-by-Side Comparison */}
-            <section className={styles.section}>
-              <PromoComparison variants={getComparisonData()} />
-            </section>
+                {/* Analysis Results - Only show after analysis */}
+                {analysisResult && (
+                  <div ref={resultsRef}>
+                    {/* Side-by-Side Comparison */}
+                    <section className={styles.section}>
+                      <PromoComparison variants={getComparisonData()} />
+                    </section>
 
-            {/* Impact Summary */}
-            <section className={styles.section}>
-              <PromoImpactSummary
-                marginDifference={
-                  Object.values(analysisResult.variantResults)[0]?.marginDifference || '0.00'
-                }
-                totalPromoCost={analysisResult.totalPromoCost}
-                totalActualLaborCost={analysisResult.totalActualLaborCost}
-                totalOpportunityCost={analysisResult.totalOpportunityCost}
-                totalUnits={getTotalUnits()}
-                variantData={getVariantData()}
-                {...getAverageFinancialMetrics()}
-              />
-            </section>
+                    {/* Impact Summary */}
+                    <section className={styles.section}>
+                      <PromoImpactSummary
+                        marginDifference={
+                          Object.values(analysisResult.variantResults)[0]?.marginDifference || '0.00'
+                        }
+                        totalPromoCost={analysisResult.totalPromoCost}
+                        totalActualLaborCost={analysisResult.totalActualLaborCost}
+                        totalOpportunityCost={analysisResult.totalOpportunityCost}
+                        totalUnits={getTotalUnits()}
+                        variantData={getVariantData()}
+                        {...getAverageFinancialMetrics()}
+                      />
+                    </section>
 
-            {/* Decision Actions */}
-            <section className={styles.section}>
-              <div className={styles.decisionCard}>
-                <h3 className={styles.decisionTitle}>Your Decision</h3>
-                <p className={styles.decisionDescription}>
-                  Based on the analysis above, what would you like to do with this promotion?
-                </p>
+                    {/* Decision Actions */}
+                    <section className={styles.section}>
+                      <div className={styles.decisionCard}>
+                        <h3 className={styles.decisionTitle}>Your Decision</h3>
+                        <p className={styles.decisionDescription}>
+                          Based on the analysis above, what would you like to do with this promotion?
+                        </p>
 
-                {/* Notes Field */}
-                <div className={styles.notesField}>
-                  <label htmlFor="decision-notes" className={styles.notesLabel}>
-                    Notes (Optional)
-                  </label>
-                  <textarea
-                    id="decision-notes"
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className={styles.notesTextarea}
-                    placeholder="Add any notes about your decision..."
-                    rows={4}
-                  />
+                        {/* Notes Field */}
+                        <div className={styles.notesField}>
+                          <label htmlFor="decision-notes" className={styles.notesLabel}>
+                            Notes (Optional)
+                          </label>
+                          <textarea
+                            id="decision-notes"
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                            className={styles.notesTextarea}
+                            placeholder="Add any notes about your decision..."
+                            rows={4}
+                          />
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className={styles.decisionActions}>
+                          <Button
+                            variant="primary"
+                            size="lg"
+                            onClick={handleApprove}
+                            loading={isSaving}
+                            disabled={isSaving}
+                            className={styles.approveButton}
+                          >
+                            Approve Participation
+                          </Button>
+                          <Button
+                            variant="danger"
+                            size="lg"
+                            onClick={handleDecline}
+                            loading={isSaving}
+                            disabled={isSaving}
+                            className={styles.declineButton}
+                          >
+                            Decline Participation
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="lg"
+                            onClick={handleSaveForLater}
+                            loading={isSaving}
+                            disabled={isSaving}
+                          >
+                            Save for Later
+                          </Button>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
+          {/* Confirmation Dialog */}
+          {confirmationDialog.isOpen && (
+            <div className={styles.modalOverlay} onClick={() => setConfirmationDialog({ ...confirmationDialog, isOpen: false })}>
+              <div
+                ref={modalRef}
+                className={styles.modalContent}
+                onClick={(e) => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title"
+              >
+                <div className={styles.modalHeader}>
+                  <h3 id="modal-title" className={styles.modalTitle}>{confirmationDialog.title}</h3>
                 </div>
-
-                {/* Action Buttons */}
-                <div className={styles.decisionActions}>
+                <div className={styles.modalBody}>
+                  <p className={styles.modalMessage}>{confirmationDialog.message}</p>
+                </div>
+                <div className={styles.modalFooter}>
                   <Button
-                    variant="primary"
-                    size="lg"
-                    onClick={handleApprove}
-                    loading={isSaving}
-                    disabled={isSaving}
-                    className={styles.approveButton}
-                  >
-                    Approve Participation
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="lg"
-                    onClick={handleDecline}
-                    loading={isSaving}
-                    disabled={isSaving}
-                    className={styles.declineButton}
-                  >
-                    Decline Participation
-                  </Button>
-                  <Button
+                    type="button"
                     variant="secondary"
-                    size="lg"
-                    onClick={handleSaveForLater}
-                    loading={isSaving}
-                    disabled={isSaving}
+                    size="md"
+                    onClick={() => setConfirmationDialog({ ...confirmationDialog, isOpen: false })}
                   >
-                    Save for Later
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={confirmationDialog.type === 'approve' ? 'primary' : 'danger'}
+                    size="md"
+                    onClick={confirmationDialog.onConfirm}
+                    className={confirmationDialog.type === 'approve' ? styles.approveButton : styles.declineButton}
+                  >
+                    {confirmationDialog.confirmLabel}
                   </Button>
                 </div>
               </div>
-            </section>
-          </div>
-        )}
-            </>
+            </div>
           )}
         </div>
       )}
 
-      {/* Confirmation Dialog */}
-      {confirmationDialog.isOpen && (
-        <div className={styles.modalOverlay} onClick={() => setConfirmationDialog({ ...confirmationDialog, isOpen: false })}>
-          <div
-            ref={modalRef}
-            className={styles.modalContent}
-            onClick={(e) => e.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="modal-title"
-          >
-            <div className={styles.modalHeader}>
-              <h3 id="modal-title" className={styles.modalTitle}>{confirmationDialog.title}</h3>
-            </div>
-            <div className={styles.modalBody}>
-              <p className={styles.modalMessage}>{confirmationDialog.message}</p>
-            </div>
-            <div className={styles.modalFooter}>
-              <Button
-                type="button"
-                variant="secondary"
-                size="md"
-                onClick={() => setConfirmationDialog({ ...confirmationDialog, isOpen: false })}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                variant={confirmationDialog.type === 'approve' ? 'primary' : 'danger'}
-                size="md"
-                onClick={confirmationDialog.onConfirm}
-                className={confirmationDialog.type === 'approve' ? styles.approveButton : styles.declineButton}
-              >
-                {confirmationDialog.confirmLabel}
-              </Button>
-            </div>
-          </div>
+      {/* Promo Tracker Tab */}
+      {activeTab === 'promo-tracker' && (
+        <div className={styles.tabContent}>
+          <PromoTrackerTab />
         </div>
       )}
     </div>
