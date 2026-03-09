@@ -594,8 +594,8 @@ export function CPUDisplay({
 
   // Calculate profitability metrics for each product
   const productsWithMetrics = filteredProducts.map(product => {
-    const cost = product.cpu ? parseFloat(product.cpu) : null;
-    const msrp = product.msrp ? parseFloat(product.msrp.toString()) : null;
+    const cost = product.cpu !== null && product.cpu !== undefined ? parseFloat(product.cpu) : null;
+    const msrp = product.msrp !== null && product.msrp !== undefined ? parseFloat(product.msrp.toString()) : null;
 
     let profit: number | null = null;
     let marginPercent: number | null = null;
