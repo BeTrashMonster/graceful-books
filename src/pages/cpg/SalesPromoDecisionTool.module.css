@@ -5,20 +5,22 @@
   display: flex;
   gap: 0.5rem;
   margin-bottom: 2rem;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid #e2e8f0;
 }
 
 .tab {
   padding: 0.75rem 1.5rem;
   border: none;
   background: none;
-  color: #6b7280;
-  font-size: 0.9375rem;
-  font-weight: 500;
+  color: #64748b;
+  font-size: 1.125rem;
+  font-weight: 600;
   cursor: pointer;
   border-bottom: 3px solid transparent;
   transition: all 0.2s ease;
   margin-bottom: -2px;
+  white-space: nowrap;
+  border-radius: 0.375rem 0.375rem 0 0;
 }
 
 .tab:hover {
@@ -29,13 +31,15 @@
 .tabActive {
   padding: 0.75rem 1.5rem;
   border: none;
-  background: rgba(75, 0, 110, 0.1);
+  background: rgba(75, 0, 110, 0.05);
   color: #4b006e;
-  font-size: 0.9375rem;
+  font-size: 1.125rem;
   font-weight: 600;
   cursor: pointer;
   border-bottom: 3px solid #4b006e;
   margin-bottom: -2px;
+  white-space: nowrap;
+  border-radius: 0.375rem 0.375rem 0 0;
 }
 
 .tabContent {

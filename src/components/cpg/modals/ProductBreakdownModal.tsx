@@ -42,6 +42,24 @@ export interface ProductBreakdownModalProps {
   dateRange?: { start: string; end: string };
   companyName?: string;
   companyId: string;
+  bundleStructure?: {
+    products: Array<{
+      productId: string;
+      productName: string;
+      productSku: string | null;
+      quantity: number;
+      breakdown: Array<{
+        categoryName: string;
+        categoryId: string;
+        variant: string | null;
+        quantity: string;
+        unitOfMeasure: string;
+        unitCost: string | null;
+        subtotal: string | null;
+        hasCostData: boolean;
+      }>;
+    }>;
+  };
 }
 
 interface InvoiceContribution {
@@ -67,6 +85,7 @@ export function ProductBreakdownModal({
   dateRange,
   companyName = 'Your Company',
   companyId,
+  bundleStructure,
 }: ProductBreakdownModalProps) {
   const [selectedComponent, setSelectedComponent] = useState<ProductBreakdownComponent | null>(null);
   const [contributions, setContributions] = useState<InvoiceContribution[]>([]);
@@ -249,12 +268,20 @@ export function ProductBreakdownModal({
       ...(msrpNumber ? [['MSRP', `$${msrpNumber.toFixed(2)}`]] : []),
       ...(isComplete && totalCPU && msrpNumber ? [['Gross Margin', `${((((msrpNumber - parseFloat(totalCPU)) / msrpNumber) * 100)).toFixed(1)}%`]] : []),
       [''],
-      ['Component', 'Quantity', 'Cost'],
-      ...breakdown.map(c => [
-        `${c.categoryName}${c.variant ? ` (${c.variant})` : ''}`,
-        `${c.quantity} ${c.unitOfMeasure}`,
-        c.subtotal ? `$${c.subtotal}` : 'Awaiting data'
-      ])
+      ['Categories', 'Variants', 'Quantity', 'Units', 'Unit Cost', 'Total Cost'],
+      ...breakdown.map(c => {
+        const quantity = parseFloat(c.quantity);
+        const unitCost = c.unitCost ? parseFloat(c.unitCost) : null;
+
+        return [
+          c.categoryName,
+          c.variant || '',
+          quantity.toString(),
+          c.unitOfMeasure,
+          unitCost ? `$${unitCost.toFixed(4)}` : 'Awaiting data',
+          c.subtotal ? `$${c.subtotal}` : 'Awaiting data'
+        ];
+      })
     ];
 
     const csv = rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
@@ -313,13 +340,13 @@ export function ProductBreakdownModal({
             ` : ''}
           </div>
 
-          <h2 style="color: #4b006e; margin-top: 30px;">Component Costs</h2>
+          <h2 style="color: #4b006e; margin-top: 30px;">Categories</h2>
           <table>
             <thead>
               <tr>
-                <th>Component</th>
+                <th>Categories</th>
                 <th>Quantity</th>
-                <th>Cost</th>
+                <th>Total Cost</th>
               </tr>
             </thead>
             <tbody>
@@ -467,6 +494,9 @@ export function ProductBreakdownModal({
     downloadFile(csv, `${filename}.csv`, 'text/csv');
   };
 
+  // Check if this is a bundle
+  const isBundle = !!bundleStructure && bundleStructure.products.length > 0;
+
   return (
     <>
       <Modal
@@ -476,15 +506,260 @@ export function ProductBreakdownModal({
         size="xl"
         closeOnBackdropClick={false}
       >
-        <div style={{ display: 'flex', height: '600px', gap: '1.5rem' }}>
-          {/* LEFT PANEL - Component List */}
-          <div style={{
-            flex: '0 0 280px',
-            display: 'flex',
-            flexDirection: 'column',
-            borderRight: '1px solid #e5e7eb',
-            paddingRight: '1.5rem',
-          }}>
+        {isBundle ? (
+          // BUNDLE VIEW - Hierarchical Tree
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxHeight: '600px', overflowY: 'auto' }}>
+            {/* Bundle Header */}
+            <div style={{
+              padding: '1.5rem 2rem',
+              background: 'linear-gradient(135deg, #4b006e 0%, #6b1a8f 100%)',
+              borderRadius: '12px',
+              color: 'white',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+              {/* Left: Total Cost */}
+              <div>
+                <div style={{ fontSize: '0.875rem', opacity: 0.9, marginBottom: '0.5rem' }}>
+                  Bundle Total Cost
+                </div>
+                <div style={{ fontSize: '3rem', fontWeight: 700, lineHeight: 1 }}>
+                  {isComplete && totalCPU ? `$${totalCPU}` : 'Incomplete'}
+                </div>
+              </div>
+
+              {/* Right: MSRP & Margin */}
+              {msrpNumber && (
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.875rem', opacity: 0.9, marginBottom: '0.5rem' }}>
+                    MSRP
+                  </div>
+                  <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
+                    ${msrpNumber.toFixed(2)}
+                  </div>
+                  {isComplete && totalCPU && (
+                    <div style={{ fontSize: '0.875rem', opacity: 0.9, marginTop: '0.5rem' }}>
+                      Margin: {((((msrpNumber - parseFloat(totalCPU)) / msrpNumber) * 100)).toFixed(1)}%
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Hierarchical Tree View */}
+            <div>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#1f2937', marginBottom: '1rem' }}>
+                Bundle Contents
+              </h3>
+              <div style={{
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                overflow: 'hidden',
+              }}>
+                {bundleStructure.products.map((product, productIndex) => (
+                  <div
+                    key={product.productId}
+                    style={{
+                      borderBottom: productIndex < bundleStructure.products.length - 1 ? '1px solid #e5e7eb' : 'none',
+                    }}
+                  >
+                    {/* Product Row */}
+                    <div style={{
+                      padding: '1rem 1.25rem',
+                      background: '#f9fafb',
+                      fontWeight: 600,
+                      color: '#1f2937',
+                      fontSize: '0.9375rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                    }}>
+                      <span style={{ color: '#4b006e' }}>├─</span>
+                      <span style={{ color: '#4b006e', fontWeight: 700 }}>{product.quantity}×</span>
+                      <span>{product.productName}</span>
+                      {product.productSku && (
+                        <span style={{ color: '#64748b', fontWeight: 400, fontSize: '0.8125rem' }}>
+                          ({product.productSku})
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Product Components */}
+                    {product.breakdown.length > 0 && (
+                      <div style={{ background: 'white' }}>
+                        {product.breakdown.map((component, componentIndex) => {
+                          const isLastComponent = componentIndex === product.breakdown.length - 1;
+                          return (
+                            <div
+                              key={componentIndex}
+                              style={{
+                                padding: '0.75rem 1.25rem 0.75rem 3rem',
+                                display: 'grid',
+                                gridTemplateColumns: '2fr 1fr 1fr',
+                                gap: '1rem',
+                                alignItems: 'center',
+                                borderBottom: !isLastComponent ? '1px solid #f3f4f6' : 'none',
+                                fontSize: '0.875rem',
+                              }}
+                            >
+                              {/* Component Name */}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <span style={{ color: '#94a3b8' }}>{isLastComponent ? '└─' : '├─'}</span>
+                                <span style={{ color: '#374151' }}>
+                                  {component.categoryName}
+                                  {component.variant && ` (${component.variant})`}
+                                </span>
+                              </div>
+
+                              {/* Quantity */}
+                              <div style={{ color: '#64748b' }}>
+                                {component.quantity} {component.unitOfMeasure}
+                              </div>
+
+                              {/* Cost */}
+                              <div style={{ color: component.hasCostData ? '#4b006e' : '#f59e0b', fontWeight: 600 }}>
+                                {component.subtotal ? `$${component.subtotal}` : 'No data'}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Aggregated Totals */}
+            <div>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#1f2937', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ color: '#4b006e' }}>└─</span>
+                Total Materials Needed
+              </h3>
+              <div style={{
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                background: '#faf5ff',
+              }}>
+                {/* Header */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '2fr 1fr 1fr',
+                  gap: '1rem',
+                  padding: '0.75rem 1.25rem',
+                  background: '#4b006e',
+                  color: 'white',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.025em',
+                }}>
+                  <div>Component</div>
+                  <div>Total Quantity</div>
+                  <div>Total Cost</div>
+                </div>
+
+                {/* Rows */}
+                {breakdown.map((component, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '2fr 1fr 1fr',
+                      gap: '1rem',
+                      padding: '0.875rem 1.25rem',
+                      borderBottom: index < breakdown.length - 1 ? '1px solid #e9d5ff' : 'none',
+                      fontSize: '0.9375rem',
+                    }}
+                  >
+                    <div style={{ fontWeight: 500, color: '#1f2937' }}>
+                      {component.categoryName}
+                      {component.variant && ` (${component.variant})`}
+                    </div>
+                    <div style={{ color: '#64748b' }}>
+                      {component.quantity} {component.unitOfMeasure}
+                    </div>
+                    <div style={{ color: component.hasCostData ? '#4b006e' : '#f59e0b', fontWeight: 600 }}>
+                      {component.subtotal ? `$${component.subtotal}` : 'No data'}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Total Row */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '2fr 1fr 1fr',
+                  gap: '1rem',
+                  padding: '1rem 1.25rem',
+                  background: '#4b006e',
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  borderTop: '2px solid #6b1a8f',
+                }}>
+                  <div>Total Bundle Cost</div>
+                  <div></div>
+                  <div>{isComplete && totalCPU ? `$${totalCPU}` : 'Incomplete'}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Export Options */}
+            <div style={{ marginTop: '1rem' }}>
+              <select
+                value=""
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const timestamp = formatDateForFilename();
+                  const baseFilename = `${productName.replace(/\s+/g, '_')}_${timestamp}`;
+
+                  if (value === 'csv-summary') {
+                    exportCSVSummary(baseFilename);
+                  } else if (value === 'pdf-summary') {
+                    exportPDFSummary(baseFilename);
+                  } else if (value === 'csv-detail') {
+                    exportCSVDataTable(`${baseFilename}_detail`);
+                  }
+                  e.target.value = '';
+                }}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 2rem 0.75rem 1rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '0.9375rem',
+                  fontWeight: 500,
+                  color: '#374151',
+                  backgroundColor: '#ffffff',
+                  cursor: 'pointer',
+                  outline: 'none',
+                  transition: 'border-color 150ms ease-out',
+                  appearance: 'none',
+                  backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'%3E%3Cpath fill=\'%23374151\' d=\'M6 9L1 4h10z\'/%3E%3C/svg%3E")',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 0.75rem center',
+                }}
+              >
+                <option value="">Export Bundle Breakdown...</option>
+                <option value="csv-summary">CSV Summary</option>
+                <option value="pdf-summary">PDF Summary</option>
+                <option value="csv-detail">CSV Detail Summary</option>
+              </select>
+            </div>
+          </div>
+        ) : (
+          // REGULAR PRODUCT VIEW - Master-Detail
+          <div style={{ display: 'flex', height: '600px', gap: '1.5rem' }}>
+            {/* LEFT PANEL - Component List */}
+            <div style={{
+              flex: '0 0 280px',
+              display: 'flex',
+              flexDirection: 'column',
+              borderRight: '1px solid #e5e7eb',
+              paddingRight: '1.5rem',
+            }}>
             {/* Product Summary */}
             <div style={{
               padding: '1rem',
@@ -806,7 +1081,8 @@ export function ProductBreakdownModal({
               </div>
             )}
           </div>
-        </div>
+          </div>
+        )}
       </Modal>
 
       {/* Invoice Details Slide-Over */}

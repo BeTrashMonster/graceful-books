@@ -169,6 +169,24 @@ export interface FinishedProductCPUResult {
     hasCostData: boolean;
   }>;
   isComplete: boolean;
+  bundleStructure?: {
+    products: Array<{
+      productId: string;
+      productName: string;
+      productSku: string | null;
+      quantity: number;
+      breakdown: Array<{
+        categoryName: string;
+        categoryId: string;
+        variant: string | null;
+        quantity: string;
+        unitOfMeasure: string;
+        unitCost: string | null;
+        subtotal: string | null;
+        hasCostData: boolean;
+      }>;
+    }>;
+  };
 }
 
 /**
@@ -191,6 +209,24 @@ export interface FinishedProductCPUBreakdown {
   }>;
   isComplete: boolean;
   missingComponents: string[];
+  bundleStructure?: {
+    products: Array<{
+      productId: string;
+      productName: string;
+      productSku: string | null;
+      quantity: number;
+      breakdown: Array<{
+        categoryName: string;
+        categoryId: string;
+        variant: string | null;
+        quantity: string;
+        unitOfMeasure: string;
+        unitCost: string | null;
+        subtotal: string | null;
+        hasCostData: boolean;
+      }>;
+    }>;
+  };
 }
 
 /**
@@ -846,16 +882,31 @@ export class CPUCalculatorService {
         serviceLogger.info('Calculating bundle CPU', { productId, bundleItems: product.bundle_items });
 
         const breakdown: FinishedProductCPUResult['breakdown'] = [];
+        const bundleProducts: FinishedProductCPUResult['bundleStructure']['products'] = [];
         let totalCPU = new Decimal(0);
         let isComplete = true;
 
         for (const bundleItem of product.bundle_items) {
+          // Get component product info
+          const componentProduct = await this.db.cpgFinishedProducts.get(bundleItem.product_id);
+
           // Recursively calculate CPU for component product
           const componentCPU = await this.calculateFinishedProductCPU(
             bundleItem.product_id,
             companyId,
             dateRange
           );
+
+          // Store product structure for hierarchical display
+          if (componentProduct) {
+            bundleProducts.push({
+              productId: bundleItem.product_id,
+              productName: componentProduct.name,
+              productSku: componentProduct.sku,
+              quantity: bundleItem.quantity,
+              breakdown: componentCPU.breakdown,
+            });
+          }
 
           // Add component breakdown items (multiplied by quantity)
           for (const component of componentCPU.breakdown) {
@@ -881,10 +932,42 @@ export class CPUCalculatorService {
           }
         }
 
+        // Aggregate breakdown items by categoryId + variant
+        const aggregatedMap = new Map<string, FinishedProductCPUResult['breakdown'][0]>();
+
+        for (const item of breakdown) {
+          const key = `${item.categoryId}_${item.variant || 'null'}`;
+
+          if (!aggregatedMap.has(key)) {
+            // First occurrence - add as-is
+            aggregatedMap.set(key, { ...item });
+          } else {
+            // Duplicate found - aggregate quantities and subtotals
+            const existing = aggregatedMap.get(key)!;
+
+            // Sum quantities
+            const existingQty = new Decimal(existing.quantity);
+            const newQty = new Decimal(item.quantity);
+            existing.quantity = existingQty.plus(newQty).toFixed(4);
+
+            // Sum subtotals (if both have cost data)
+            if (existing.subtotal && item.subtotal) {
+              const existingSubtotal = new Decimal(existing.subtotal);
+              const newSubtotal = new Decimal(item.subtotal);
+              existing.subtotal = existingSubtotal.plus(newSubtotal).toFixed(2);
+            }
+          }
+        }
+
+        const aggregatedBreakdown = Array.from(aggregatedMap.values());
+
         return {
           cpu: isComplete ? totalCPU.toFixed(2) : null,
-          breakdown,
+          breakdown: aggregatedBreakdown,
           isComplete,
+          bundleStructure: {
+            products: bundleProducts,
+          },
         };
       }
 
@@ -1066,6 +1149,7 @@ export class CPUCalculatorService {
         breakdown: cpuResult.breakdown,
         isComplete: cpuResult.isComplete,
         missingComponents,
+        bundleStructure: cpuResult.bundleStructure,
       };
 
       serviceLogger.info('Finished product CPU breakdown retrieved', {

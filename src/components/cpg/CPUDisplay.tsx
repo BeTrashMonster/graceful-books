@@ -1903,6 +1903,7 @@ export function CPUDisplay({
           dateRange={dateRange}
           companyName={companyName}
           companyId={companyId}
+          bundleStructure={selectedProduct.bundleStructure}
         />
       )}
     </div>

@@ -268,7 +268,13 @@ export default function CPUTrendsTab({
    * Sort product trends based on current sort state
    */
   const sortedProductTrends = useMemo(() => {
-    return productTrends.map(product => ({
+    // First, sort products alphabetically by name
+    const sortedProducts = [...productTrends].sort((a, b) =>
+      a.productName.localeCompare(b.productName)
+    );
+
+    // Then, sort components within each product based on current sort state
+    return sortedProducts.map(product => ({
       ...product,
       components: [...product.components].sort((a, b) => {
         let aVal: any, bVal: any;

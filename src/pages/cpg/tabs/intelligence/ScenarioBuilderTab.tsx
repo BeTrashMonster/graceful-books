@@ -41,6 +41,7 @@ export interface ProductCPUData {
 interface ComponentBreakdown {
   categoryId: string;
   categoryName: string;
+  variant?: string | null;
   subtotal: string | null;
   itemCount: number;
 }
@@ -130,6 +131,9 @@ export default function ScenarioBuilderTab({
   const filterComponents = useCallback((productId: string, components: ComponentBreakdown[]): ComponentBreakdown[] => {
     if (!components) return [];
 
+    const product = finishedProducts.find(p => p.id === productId);
+    const isBundle = product?.is_bundle;
+
     return components.filter(component => {
       // Category filter - if any categories selected, component must match one of them
       if (categoryFilter.size > 0 && !categoryFilter.has(component.categoryId)) {
@@ -138,13 +142,21 @@ export default function ScenarioBuilderTab({
 
       // Variant filter - if any variants selected, check if THIS product uses one of those variants for this component
       if (variantFilter.size > 0) {
-        const productRecipes = recipes.filter(r => r.finished_product_id === productId);
-        const componentRecipe = productRecipes.find(r => r.category_id === component.categoryId);
+        // For bundles, the component breakdown already has variant info directly
+        if (isBundle) {
+          const componentVariant = component.variant || '';
+          // If this component doesn't match any selected variant, filter it out
+          if (!variantFilter.has(componentVariant)) return false;
+        } else {
+          // For regular products, check recipes
+          const productRecipes = recipes.filter(r => r.finished_product_id === productId);
+          const componentRecipe = productRecipes.find(r => r.category_id === component.categoryId);
 
-        if (!componentRecipe) return false;
+          if (!componentRecipe) return false;
 
-        const recipeVariant = componentRecipe.variant || '';
-        if (!variantFilter.has(recipeVariant)) return false;
+          const recipeVariant = componentRecipe.variant || '';
+          if (!variantFilter.has(recipeVariant)) return false;
+        }
       }
 
       // Vendor filter - if any vendors selected, check if this component has been purchased from one of them
@@ -162,7 +174,7 @@ export default function ScenarioBuilderTab({
 
       return true;
     });
-  }, [categoryFilter, variantFilter, vendorFilter, recipes, invoices]);
+  }, [categoryFilter, variantFilter, vendorFilter, recipes, invoices, finishedProducts]);
 
   // Calculate scenario CPU for a product based on component adjustments
   const calculateScenarioCPU = useCallback(
@@ -366,7 +378,13 @@ export default function ScenarioBuilderTab({
         const cpuData = productCPUData.get(productId);
         return { productId, product, cpuData };
       })
-      .filter((item) => item.product && item.cpuData && item.cpuData.breakdown && item.cpuData.breakdown.length > 0);
+      .filter((item) => item.product && item.cpuData && item.cpuData.breakdown && item.cpuData.breakdown.length > 0)
+      .sort((a, b) => {
+        // Sort alphabetically by product name
+        const nameA = a.product?.name || '';
+        const nameB = b.product?.name || '';
+        return nameA.localeCompare(nameB);
+      });
   }, [selectedProducts, finishedProducts, productCPUData]);
 
   // Empty state
@@ -527,7 +545,7 @@ export default function ScenarioBuilderTab({
               {/* Component Adjustments */}
               <div className={styles.sliderSection}>
                 <div className={styles.sliderSectionTitle}>
-                  Component Costs
+                  Category Costs
                   <div className={styles.componentModeToggle}>
                     <button
                       className={`${styles.modeButton} ${(productModes.get(productId) || 'percentage') === 'percentage' ? styles.active : ''}`}
@@ -556,7 +574,15 @@ export default function ScenarioBuilderTab({
                 </div>
               ) : (
                 <div className={styles.componentList}>
-                  {filteredComponents.map((component, idx) => {
+                  {[...filteredComponents].sort((a, b) => {
+                    // Sort alphabetically by category name, then by variant
+                    const nameCompare = a.categoryName.localeCompare(b.categoryName);
+                    if (nameCompare !== 0) return nameCompare;
+
+                    const variantA = a.variant || '';
+                    const variantB = b.variant || '';
+                    return variantA.localeCompare(variantB);
+                  }).map((component, idx) => {
                   const baseSubtotal = component.subtotal ? parseFloat(component.subtotal) : 0;
                   const currentAdj = scenarioAdjustments.get(productId)?.get(component.categoryId) || 0;
                   const currentMode = productModes.get(productId) || 'percentage';
@@ -594,7 +620,12 @@ export default function ScenarioBuilderTab({
                     >
                       {/* Component Name */}
                       <div className={styles.componentName}>
-                        {component.categoryName}
+                        <div>{component.categoryName}</div>
+                        {component.variant && (
+                          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.125rem' }}>
+                            {component.variant}
+                          </div>
+                        )}
                       </div>
 
                       {/* Slider with badge underneath */}
