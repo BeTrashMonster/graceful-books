@@ -274,15 +274,16 @@ export function PromoImpactSummary({
         </div>
       </div>
 
-      {/* Interactive Unit Adjuster - only show if there are labor costs */}
-      {hasLaborCosts && (
-        <div className={styles.unitAdjuster}>
-          <div className={styles.adjusterHeader}>
-            <h4 className={styles.adjusterTitle}>💡 What-If Scenario: Adjust Units Sold</h4>
-            <p className={styles.adjusterDescription}>
-              See how your labor cost per unit changes if fewer units sell than expected
-            </p>
-          </div>
+      {/* Interactive Unit Adjuster - always show */}
+      <div className={styles.unitAdjuster}>
+        <div className={styles.adjusterHeader}>
+          <h4 className={styles.adjusterTitle}>💡 What-If Scenario: Adjust Units Sold</h4>
+          <p className={styles.adjusterDescription}>
+            {hasLaborCosts
+              ? "See how your labor cost per unit changes if fewer units sell than expected"
+              : "See how your payback and margins change if fewer units sell than expected"}
+          </p>
+        </div>
 
           {/* Tabs for what-if modes */}
           {variantData && variantData.length > 1 && (
@@ -640,15 +641,19 @@ export function PromoImpactSummary({
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
-                      </strong>{' '}
-                      and your labor cost per unit increases to{' '}
-                      <strong>
-                        ${adjustedLaborCostPerUnit.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </strong>{' '}
-                      because the same total labor cost is spread across fewer units.
+                      </strong>
+                      {hasLaborCosts && (
+                        <>
+                          {' '}and your labor cost per unit increases to{' '}
+                          <strong>
+                            ${adjustedLaborCostPerUnit.toLocaleString('en-US', {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </strong>{' '}
+                          because the same total labor cost is spread across fewer units
+                        </>
+                      )}.
                     </p>
                   </div>
                 )}
@@ -656,7 +661,7 @@ export function PromoImpactSummary({
             )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
