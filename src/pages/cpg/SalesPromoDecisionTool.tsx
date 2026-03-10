@@ -56,6 +56,13 @@ export default function SalesPromoDecisionTool() {
   // Tab State
   const [activeTab, setActiveTab] = useState<ViewTab>('decision-tool');
 
+  // Switch to decision-tool tab when editing a promo
+  useEffect(() => {
+    if (editPromoId) {
+      setActiveTab('decision-tool');
+    }
+  }, [editPromoId]);
+
   // State
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<PromoAnalysisResult | null>(null);
