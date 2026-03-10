@@ -304,13 +304,13 @@ export default function SalesPromoDecisionTool() {
         await service.updatePromo(
           promoId,
           {
-            promoName: formData.promoName,
-            retailerName: formData.retailerName,
-            promoStartDate: formData.promoStartDate ? new Date(formData.promoStartDate).getTime() : undefined,
-            promoEndDate: formData.promoEndDate ? new Date(formData.promoEndDate).getTime() : undefined,
-            storeSalePercentage: formData.storeSalePercentage,
-            producerPaybackPercentage: formData.producerPaybackPercentage,
-            demoHoursEntries: formData.demoHoursEntries,
+            promo_name: formData.promoName,
+            retailer_name: formData.retailerName,
+            promo_start_date: formData.promoStartDate ? new Date(formData.promoStartDate).getTime() : undefined,
+            promo_end_date: formData.promoEndDate ? new Date(formData.promoEndDate).getTime() : undefined,
+            store_sale_percentage: formData.storeSalePercentage,
+            producer_payback_percentage: formData.producerPaybackPercentage,
+            demo_hours_entries: formData.demoHoursEntries,
           },
           deviceId
         );
@@ -320,13 +320,13 @@ export default function SalesPromoDecisionTool() {
         await service.updatePromo(
           promoId,
           {
-            promoName: formData.promoName,
-            retailerName: formData.retailerName,
-            promoStartDate: formData.promoStartDate ? new Date(formData.promoStartDate).getTime() : undefined,
-            promoEndDate: formData.promoEndDate ? new Date(formData.promoEndDate).getTime() : undefined,
-            storeSalePercentage: formData.storeSalePercentage,
-            producerPaybackPercentage: formData.producerPaybackPercentage,
-            demoHoursEntries: formData.demoHoursEntries,
+            promo_name: formData.promoName,
+            retailer_name: formData.retailerName,
+            promo_start_date: formData.promoStartDate ? new Date(formData.promoStartDate).getTime() : undefined,
+            promo_end_date: formData.promoEndDate ? new Date(formData.promoEndDate).getTime() : undefined,
+            store_sale_percentage: formData.storeSalePercentage,
+            producer_payback_percentage: formData.producerPaybackPercentage,
+            demo_hours_entries: formData.demoHoursEntries,
           },
           deviceId
         );
