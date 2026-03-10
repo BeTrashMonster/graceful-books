@@ -141,20 +141,28 @@ export function MarkPromoCompleteModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleCancel} title="Mark Promo Complete" size="lg">
+    <Modal
+      isOpen={isOpen}
+      onClose={handleCancel}
+      title="Mark Promo Complete"
+      size="lg"
+      headerStyle={{ background: '#4b006e', color: 'white', padding: '1rem 1.5rem' }}
+    >
       <form onSubmit={handleSubmit} className={styles.form}>
         <p className={styles.description}>
           Enter actual units sold for <strong>{promoName}</strong> to track your promo performance.
         </p>
 
-        {/* Summary Cards */}
-        <div className={styles.summaryGrid}>
-          <div className={styles.summaryCard}>
-            <div className={styles.summaryLabel}>Total Units Sold</div>
-            <div className={styles.summaryValue}>
-              {totalUnits.toLocaleString('en-US', { maximumFractionDigits: 0 })}
-              <span className={styles.summarySubtext}>
-                of {parseFloat(projectedUnits).toLocaleString('en-US', { maximumFractionDigits: 0 })} available
+        {/* Compact Summary */}
+        <div className={styles.summaryCompact}>
+          <div className={styles.summaryItem}>
+            <div className={styles.summaryMetric}>
+              <span className={styles.summaryLabel}>Units Sold:</span>
+              <span className={styles.summaryValue}>
+                {totalUnits.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                <span className={styles.summaryMax}>
+                  / {parseFloat(projectedUnits).toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                </span>
               </span>
             </div>
             <div className={styles.sellThroughBar}>
@@ -163,31 +171,27 @@ export function MarkPromoCompleteModal({
                 style={{ width: `${Math.min(sellThroughPct, 100)}%` }}
               />
             </div>
-            <div className={styles.sellThroughLabel}>
+            <div className={`${styles.sellThroughPct} ${getSellThroughColor(sellThroughPct)}`}>
               {sellThroughPct.toFixed(1)}% Sell-Through
             </div>
           </div>
 
-          <div className={styles.summaryCard}>
-            <div className={styles.summaryLabel}>Total Payback</div>
-            <div className={styles.summaryValue}>
-              ${totalPayback.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              <span className={styles.summarySubtext}>
-                of ${parseFloat(projectedPayback).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} projected
+          <div className={styles.summaryItem}>
+            <div className={styles.summaryMetric}>
+              <span className={styles.summaryLabel}>Total Payback:</span>
+              <span className={styles.summaryValue}>
+                ${totalPayback.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
             <div className={styles.paybackNote}>
-              Auto-calculated from units sold
+              Auto-calculated • ${parseFloat(projectedPayback).toLocaleString('en-US', { minimumFractionDigits: 2 })} projected
             </div>
           </div>
         </div>
 
-        {/* Per-Variant Entry */}
+        {/* Per-Variant Entry - Compact */}
         <div className={styles.variantSection}>
           <h4 className={styles.sectionTitle}>Units Sold by Product</h4>
-          <p className={styles.sectionDescription}>
-            Enter the actual number of units sold for each product during this promo.
-          </p>
 
           <div className={styles.variantList}>
             {variants.map((variant) => {
@@ -198,47 +202,40 @@ export function MarkPromoCompleteModal({
               const variantPayback = actualUnits * variant.promoCostPerUnit;
 
               return (
-                <div key={variant.name} className={styles.variantCard}>
-                  <div className={styles.variantHeader}>
+                <div key={variant.name} className={styles.variantRow}>
+                  <div className={styles.variantInfo}>
                     <div className={styles.variantName}>{variant.name}</div>
-                    <div className={styles.variantProjected}>
-                      {variant.projectedUnits} units available
+                    <div className={styles.variantAvailable}>
+                      {variant.projectedUnits} available
                     </div>
                   </div>
 
-                  <div className={styles.variantInputRow}>
-                    <div className={styles.inputGroup}>
-                      <label htmlFor={`units-${variant.name}`} className={styles.inputLabel}>
-                        Units Sold
-                      </label>
-                      <input
-                        id={`units-${variant.name}`}
-                        type="number"
-                        step="1"
-                        min="0"
-                        max={variant.projectedUnits}
-                        value={variantActuals[variant.name] || ''}
-                        onChange={(e) => handleVariantChange(variant.name, e.target.value)}
-                        className={styles.input}
-                        placeholder="0"
-                      />
-                    </div>
+                  <div className={styles.variantInput}>
+                    <input
+                      id={`units-${variant.name}`}
+                      type="number"
+                      step="1"
+                      min="0"
+                      max={variant.projectedUnits}
+                      value={variantActuals[variant.name] || ''}
+                      onChange={(e) => handleVariantChange(variant.name, e.target.value)}
+                      className={styles.input}
+                      placeholder="0"
+                    />
+                  </div>
 
-                    {actualUnits > 0 && (
-                      <div className={styles.variantMetrics}>
-                        <div className={styles.metricItem}>
-                          <span className={styles.metricLabel}>Sell-Through:</span>
-                          <span className={`${styles.metricValue} ${getSellThroughColor(variantSellThrough)}`}>
-                            {variantSellThrough.toFixed(1)}%
-                          </span>
+                  <div className={styles.variantMetrics}>
+                    {actualUnits > 0 ? (
+                      <>
+                        <div className={`${styles.variantSellThrough} ${getSellThroughColor(variantSellThrough)}`}>
+                          {variantSellThrough.toFixed(1)}%
                         </div>
-                        <div className={styles.metricItem}>
-                          <span className={styles.metricLabel}>Payback:</span>
-                          <span className={styles.metricValue}>
-                            ${variantPayback.toFixed(2)}
-                          </span>
+                        <div className={styles.variantPayback}>
+                          ${variantPayback.toFixed(2)}
                         </div>
-                      </div>
+                      </>
+                    ) : (
+                      <div className={styles.variantPlaceholder}>—</div>
                     )}
                   </div>
                 </div>
