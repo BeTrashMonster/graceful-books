@@ -202,16 +202,33 @@ export function PromoDetailsForm({
   const [showProductSelector, setShowProductSelector] = useState(false);
   const productSelectorRef = useRef<HTMLDivElement>(null);
   const productButtonRef = useRef<HTMLButtonElement>(null);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const productDropdownRef = useRef<HTMLDivElement>(null);
+  const [dropdownPosition, setDropdownPosition] = useState({
+    top: 0,
+    left: 0,
+    width: 0,
+    maxHeight: 300
+  });
 
-  // Update dropdown position when shown
+  // Update dropdown position when shown - ensure it fits in viewport
   useEffect(() => {
     if (showProductSelector && productButtonRef.current) {
       const rect = productButtonRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const spaceBelow = viewportHeight - rect.bottom - 20; // 20px margin
+      const spaceAbove = rect.top - 20; // 20px margin
+
+      // Calculate max height based on available space
+      const maxHeight = Math.min(300, Math.max(200, spaceBelow));
+
+      // If not enough space below, consider positioning above
+      const shouldPositionAbove = spaceBelow < 200 && spaceAbove > spaceBelow;
+
       setDropdownPosition({
-        top: rect.bottom + 4,
+        top: shouldPositionAbove ? rect.top - maxHeight - 4 : rect.bottom + 4,
         left: rect.left,
         width: rect.width,
+        maxHeight: shouldPositionAbove ? Math.min(300, spaceAbove) : maxHeight,
       });
     }
   }, [showProductSelector]);
@@ -219,7 +236,13 @@ export function PromoDetailsForm({
   // Close product selector when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (productSelectorRef.current && !productSelectorRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+
+      // Check if click is outside both the button AND the dropdown
+      const isOutsideButton = productButtonRef.current && !productButtonRef.current.contains(target);
+      const isOutsideDropdown = productDropdownRef.current && !productDropdownRef.current.contains(target);
+
+      if (isOutsideButton && isOutsideDropdown) {
         setShowProductSelector(false);
       }
     };
@@ -516,10 +539,45 @@ export function PromoDetailsForm({
     }));
   };
 
+  const handleClearForm = () => {
+    const defaultVariants: Record<string, PromoVariantData> = {};
+    availableVariants.forEach((variant) => {
+      defaultVariants[variant] = {
+        retailPrice: latestMSRPs[variant] || '',
+        unitsAvailable: '',
+        baseCPU: latestCPUs[variant] || '',
+      };
+    });
+
+    setFormData({
+      promoName: '',
+      retailerName: '',
+      promoStartDate: '',
+      promoEndDate: '',
+      storeSalePercentage: '',
+      producerPaybackPercentage: '',
+      demoHoursEntries: [],
+      selectedVariants: [],
+      variants: defaultVariants,
+    });
+    setErrors({});
+  };
+
   return (
     <form onSubmit={handleSubmit} className={styles.form} noValidate>
       <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Promo Details</h3>
+        <div className={styles.sectionHeader}>
+          <h3 className={styles.sectionTitle}>Promo Details</h3>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={handleClearForm}
+            className={styles.clearButton}
+          >
+            Clear Data
+          </Button>
+        </div>
 
         <div className={styles.row}>
           <Input
@@ -719,12 +777,14 @@ export function PromoDetailsForm({
 
           {showProductSelector && (
             <div
+              ref={productDropdownRef}
               className={styles.productDropdownMenu}
               role="menu"
               style={{
                 top: `${dropdownPosition.top}px`,
                 left: `${dropdownPosition.left}px`,
                 width: `${dropdownPosition.width}px`,
+                maxHeight: `${dropdownPosition.maxHeight}px`,
               }}
             >
               {/* Select All / Clear All */}
