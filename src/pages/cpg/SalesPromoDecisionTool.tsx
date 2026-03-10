@@ -225,7 +225,22 @@ export default function SalesPromoDecisionTool() {
 
   // Load draft promo if editing
   useEffect(() => {
-    if (!editPromoId) return;
+    if (!editPromoId) {
+      // Clear form when not editing
+      setInitialFormData(undefined);
+      setAnalysisResult(null);
+      setSubmittedFormData(null);
+      setNotes('');
+      return;
+    }
+
+    // Clear existing state before loading new promo
+    setSuccessMessage(null);
+    setErrorMessage(null);
+    setAnalysisResult(null);
+    setSubmittedFormData(null);
+    setInitialFormData(undefined);
+    setNotes('');
 
     const loadDraftPromo = async () => {
       try {
@@ -755,13 +770,25 @@ export default function SalesPromoDecisionTool() {
       {/* Tabs */}
       <div className={styles.tabs}>
         <button
-          onClick={() => setActiveTab('decision-tool')}
+          onClick={() => {
+            setActiveTab('decision-tool');
+            // Clear edit parameter when manually switching to Decision Tool
+            if (editPromoId) {
+              navigate('/cpg/promo-decision', { replace: true });
+            }
+          }}
           className={activeTab === 'decision-tool' ? styles.tabActive : styles.tab}
         >
           Decision Tool
         </button>
         <button
-          onClick={() => setActiveTab('promo-tracker')}
+          onClick={() => {
+            setActiveTab('promo-tracker');
+            // Clear edit parameter when switching to Promo Tracker
+            if (editPromoId) {
+              navigate('/cpg/promo-decision', { replace: true });
+            }
+          }}
           className={activeTab === 'promo-tracker' ? styles.tabActive : styles.tab}
         >
           Promo Tracker

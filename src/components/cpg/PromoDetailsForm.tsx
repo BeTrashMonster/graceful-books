@@ -238,6 +238,37 @@ export function PromoDetailsForm({
     }
   }, [showProductSelector]);
 
+  // Sync form state with initialData when it changes (for edit mode)
+  useEffect(() => {
+    if (!initialData) return;
+
+    // Rebuild default variants with latest CPUs/MSRPs
+    const defaultVariants: Record<string, PromoVariantData> = {};
+    availableVariants.forEach((variant) => {
+      defaultVariants[variant] = {
+        retailPrice: latestMSRPs[variant] || '',
+        unitsAvailable: '',
+        baseCPU: latestCPUs[variant] || '',
+      };
+    });
+
+    // Update form data with initialData
+    setFormData({
+      promoName: initialData.promoName || '',
+      retailerName: initialData.retailerName || '',
+      promoStartDate: initialData.promoStartDate || '',
+      promoEndDate: initialData.promoEndDate || '',
+      storeSalePercentage: initialData.storeSalePercentage || '',
+      producerPaybackPercentage: initialData.producerPaybackPercentage || '',
+      demoHoursEntries: initialData.demoHoursEntries || [],
+      selectedVariants: initialData.selectedVariants || [],
+      variants: initialData.variants || defaultVariants,
+    });
+
+    // Clear any validation errors when loading new data
+    setErrors({});
+  }, [initialData, availableVariants, latestCPUs, latestMSRPs]);
+
   // Close product selector when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
