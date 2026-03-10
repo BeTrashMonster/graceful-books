@@ -248,6 +248,7 @@ export default function SalesPromoDecisionTool() {
         };
 
         setInitialFormData(formData);
+        setSubmittedFormData(formData as PromoFormData);
         setNotes(promo.notes || '');
 
         // If there are analysis results, load them too
@@ -291,20 +292,61 @@ export default function SalesPromoDecisionTool() {
     try {
       const service = new SalesPromoAnalyzerService(db);
 
-      // Create promo record
-      const promo = await service.createPromo(
-        {
-          companyId: companyId,
-          promoName: formData.promoName,
-          retailerName: formData.retailerName,
-          promoStartDate: formData.promoStartDate ? new Date(formData.promoStartDate).getTime() : undefined,
-          promoEndDate: formData.promoEndDate ? new Date(formData.promoEndDate).getTime() : undefined,
-          storeSalePercentage: formData.storeSalePercentage,
-          producerPaybackPercentage: formData.producerPaybackPercentage,
-          demoHoursEntries: formData.demoHoursEntries,
-        },
-        deviceId
-      );
+      // Determine which promo to use:
+      // 1. If editing an existing promo (editPromoId), use that
+      // 2. If re-analyzing (analysisResult exists), use the existing promo
+      // 3. Otherwise, create a new draft promo
+      let promoId: string;
+
+      if (editPromoId) {
+        // Editing existing promo
+        promoId = editPromoId;
+        await service.updatePromo(
+          promoId,
+          {
+            promoName: formData.promoName,
+            retailerName: formData.retailerName,
+            promoStartDate: formData.promoStartDate ? new Date(formData.promoStartDate).getTime() : undefined,
+            promoEndDate: formData.promoEndDate ? new Date(formData.promoEndDate).getTime() : undefined,
+            storeSalePercentage: formData.storeSalePercentage,
+            producerPaybackPercentage: formData.producerPaybackPercentage,
+            demoHoursEntries: formData.demoHoursEntries,
+          },
+          deviceId
+        );
+      } else if (analysisResult) {
+        // Re-analyzing existing draft
+        promoId = analysisResult.promoId;
+        await service.updatePromo(
+          promoId,
+          {
+            promoName: formData.promoName,
+            retailerName: formData.retailerName,
+            promoStartDate: formData.promoStartDate ? new Date(formData.promoStartDate).getTime() : undefined,
+            promoEndDate: formData.promoEndDate ? new Date(formData.promoEndDate).getTime() : undefined,
+            storeSalePercentage: formData.storeSalePercentage,
+            producerPaybackPercentage: formData.producerPaybackPercentage,
+            demoHoursEntries: formData.demoHoursEntries,
+          },
+          deviceId
+        );
+      } else {
+        // First analysis - create new draft promo
+        const promo = await service.createPromo(
+          {
+            companyId: companyId,
+            promoName: formData.promoName,
+            retailerName: formData.retailerName,
+            promoStartDate: formData.promoStartDate ? new Date(formData.promoStartDate).getTime() : undefined,
+            promoEndDate: formData.promoEndDate ? new Date(formData.promoEndDate).getTime() : undefined,
+            storeSalePercentage: formData.storeSalePercentage,
+            producerPaybackPercentage: formData.producerPaybackPercentage,
+            demoHoursEntries: formData.demoHoursEntries,
+          },
+          deviceId
+        );
+        promoId = promo.id;
+      }
 
       // Filter to only include selected variants
       const selectedVariantData: Record<string, any> = {};
@@ -317,7 +359,7 @@ export default function SalesPromoDecisionTool() {
       // Analyze promo
       const result = await service.analyzePromo(
         {
-          promoId: promo.id,
+          promoId: promoId,
           variantPromoData: selectedVariantData,
         },
         deviceId
