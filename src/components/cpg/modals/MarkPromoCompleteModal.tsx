@@ -172,7 +172,7 @@ export function MarkPromoCompleteModal({
                 style={{ width: `${Math.min(sellThroughPct, 100)}%` }}
               />
             </div>
-            <div className={`${styles.sellThroughPct} ${getSellThroughColor(sellThroughPct)}`}>
+            <div className={styles.sellThroughPct}>
               {sellThroughPct.toFixed(1)}% Sell-Through
             </div>
           </div>
@@ -228,7 +228,7 @@ export function MarkPromoCompleteModal({
                   <div className={styles.variantMetrics}>
                     {actualUnits > 0 ? (
                       <>
-                        <div className={`${styles.variantSellThrough} ${getSellThroughColor(variantSellThrough)}`}>
+                        <div className={styles.variantSellThrough}>
                           {variantSellThrough.toFixed(1)}%
                         </div>
                         <div className={styles.variantPayback}>

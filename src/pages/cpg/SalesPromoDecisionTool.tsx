@@ -792,9 +792,6 @@ export default function SalesPromoDecisionTool() {
     <div className="page">
       <div className="page-header">
         <h1 className="page-title">Promo Analysis</h1>
-        <p className="page-description">
-          Analyze sales promotions and track your promo history
-        </p>
       </div>
 
       {/* Tabs */}
