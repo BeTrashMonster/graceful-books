@@ -348,6 +348,15 @@ export default function SalesPromoDecisionTool() {
       // 3. Otherwise, create a new draft promo
       let promoId: string;
 
+      // Convert demo hours entries from camelCase (form) to snake_case (DB)
+      const convertedDemoEntries = formData.demoHoursEntries?.map(entry => ({
+        id: entry.id,
+        description: entry.description,
+        hours: entry.hours,
+        hourly_rate: entry.hourlyRate,
+        cost_type: entry.costType,
+      })) || null;
+
       if (editPromoId) {
         // Editing existing promo
         promoId = editPromoId;
@@ -360,7 +369,7 @@ export default function SalesPromoDecisionTool() {
             promo_end_date: formData.promoEndDate ? new Date(formData.promoEndDate).getTime() : undefined,
             store_sale_percentage: formData.storeSalePercentage,
             producer_payback_percentage: formData.producerPaybackPercentage,
-            demo_hours_entries: formData.demoHoursEntries,
+            demo_hours_entries: convertedDemoEntries,
           },
           deviceId
         );
@@ -376,7 +385,7 @@ export default function SalesPromoDecisionTool() {
             promo_end_date: formData.promoEndDate ? new Date(formData.promoEndDate).getTime() : undefined,
             store_sale_percentage: formData.storeSalePercentage,
             producer_payback_percentage: formData.producerPaybackPercentage,
-            demo_hours_entries: formData.demoHoursEntries,
+            demo_hours_entries: convertedDemoEntries,
           },
           deviceId
         );

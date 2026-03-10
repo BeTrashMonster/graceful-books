@@ -158,18 +158,26 @@ export function PromoImpactSummary({
     const expectedGrossProfit = parseFloat(averageGrossProfitWithPromo || '0');
     const expectedMargin = parseFloat(averageMarginWithPromo || '0');
 
-    // Adjusted scenario recalculates with the higher labor cost per unit
-    const laborCostIncrease = adjustedLaborCostPerUnit - expectedLaborCostPerUnit;
-    adjustedGrossProfitPerUnit = expectedGrossProfit - laborCostIncrease;
+    if (hasLaborCosts) {
+      // WITH labor costs: Adjusted scenario recalculates with the higher labor cost per unit
+      const laborCostIncrease = adjustedLaborCostPerUnit - expectedLaborCostPerUnit;
+      adjustedGrossProfitPerUnit = expectedGrossProfit - laborCostIncrease;
 
-    // Calculate adjusted margin %
-    if (retailPrice > 0) {
-      adjustedMarginPercentage = (adjustedGrossProfitPerUnit / retailPrice) * 100;
+      // Calculate adjusted margin %
+      if (retailPrice > 0) {
+        adjustedMarginPercentage = (adjustedGrossProfitPerUnit / retailPrice) * 100;
+      }
+
+      // Calculate differences
+      grossProfitDifference = expectedGrossProfit - adjustedGrossProfitPerUnit;
+      marginPointsDifference = expectedMargin - adjustedMarginPercentage;
+    } else {
+      // WITHOUT labor costs: Values don't change per unit, so just use expected values
+      adjustedGrossProfitPerUnit = expectedGrossProfit;
+      adjustedMarginPercentage = expectedMargin;
+      grossProfitDifference = 0;
+      marginPointsDifference = 0;
     }
-
-    // Calculate differences
-    grossProfitDifference = expectedGrossProfit - adjustedGrossProfitPerUnit;
-    marginPointsDifference = expectedMargin - adjustedMarginPercentage;
   }
 
   return (
