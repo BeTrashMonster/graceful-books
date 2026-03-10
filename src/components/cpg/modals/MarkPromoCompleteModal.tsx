@@ -146,6 +146,7 @@ export function MarkPromoCompleteModal({
       onClose={handleCancel}
       title="Mark Promo Complete"
       size="lg"
+      closeOnBackdropClick={false}
       headerStyle={{ background: '#4b006e', color: 'white', padding: '1rem 1.5rem' }}
     >
       <form onSubmit={handleSubmit} className={styles.form}>

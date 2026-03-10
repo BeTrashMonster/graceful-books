@@ -77,27 +77,24 @@
 
 .excellentSellThrough {
   background: #10b981;
-  color: #047857;
 }
 
 .goodSellThrough {
   background: #3b82f6;
-  color: #1d4ed8;
 }
 
 .moderateSellThrough {
   background: #f59e0b;
-  color: #b45309;
 }
 
 .lowSellThrough {
   background: #ef4444;
-  color: #b91c1c;
 }
 
 .sellThroughPct {
   font-size: 0.875rem;
   font-weight: 700;
+  color: var(--color-primary, #7c3aed);
 }
 
 .paybackNote {
@@ -215,10 +212,8 @@
 
 .variantSellThrough {
   font-size: 0.875rem;
-  font-weight: 700;
-  padding: 0.25rem 0.625rem;
-  border-radius: var(--border-radius-sm, 4px);
-  background: rgba(124, 58, 237, 0.1);
+  font-weight: 600;
+  color: var(--color-primary, #7c3aed);
   min-width: 50px;
   text-align: center;
 }
