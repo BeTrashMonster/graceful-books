@@ -318,6 +318,13 @@ export default function SalesPromoDecisionTool() {
           // Convert variant_promo_results from snake_case (DB) to camelCase (code)
           const convertedResults: Record<string, any> = {};
           Object.entries(promo.variant_promo_results).forEach(([key, value]) => {
+            // Recalculate margin quality using current settings instead of using stored value
+            // This ensures old promos get updated thresholds
+            const marginToUse = value.net_profit_margin_with_demo || value.net_profit_margin_with_promo;
+            const recalculatedMarginQuality = cpgSettings
+              ? getProfitMarginQualityWithSettings(marginToUse, cpgSettings)
+              : value.margin_quality_with_promo; // Fallback to stored value if settings not loaded
+
             convertedResults[key] = {
               salesPromoCostPerUnit: value.sales_promo_cost_per_unit,
               cpuWithPromo: value.cpu_with_promo,
@@ -327,7 +334,7 @@ export default function SalesPromoDecisionTool() {
               netProfitMarginWithPromo: value.net_profit_margin_with_promo,
               netProfitMarginWithoutPromo: value.net_profit_margin_without_promo,
               netProfitMarginWithLabor: value.net_profit_margin_with_demo,
-              marginQualityWithPromo: value.margin_quality_with_promo,
+              marginQualityWithPromo: recalculatedMarginQuality,
               marginDifference: (parseFloat(value.net_profit_margin_with_promo) - parseFloat(value.net_profit_margin_without_promo)).toFixed(2),
             };
           });
@@ -365,7 +372,7 @@ export default function SalesPromoDecisionTool() {
     };
 
     loadDraftPromo();
-  }, [editPromoId]);
+  }, [editPromoId, cpgSettings]);
 
   /**
    * Handle form submission - analyze the promo
