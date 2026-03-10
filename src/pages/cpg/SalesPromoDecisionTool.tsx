@@ -241,6 +241,27 @@ export default function SalesPromoDecisionTool() {
           return;
         }
 
+        // Convert variant_promo_data from snake_case (DB) to camelCase (form)
+        const convertedVariants: Record<string, { retailPrice: string; unitsAvailable: string; baseCPU: string }> = {};
+        if (promo.variant_promo_data) {
+          Object.entries(promo.variant_promo_data).forEach(([key, value]) => {
+            convertedVariants[key] = {
+              retailPrice: value.retail_price,
+              unitsAvailable: value.units_available,
+              baseCPU: value.base_cpu,
+            };
+          });
+        }
+
+        // Convert demo_hours_entries from snake_case (DB) to camelCase (form)
+        const convertedDemoEntries = promo.demo_hours_entries?.map(entry => ({
+          id: entry.id,
+          description: entry.description,
+          hours: entry.hours,
+          hourlyRate: entry.hourly_rate,
+          costType: entry.cost_type,
+        })) || [];
+
         // Convert promo data to form data format
         const formData: Partial<PromoFormData> = {
           promoName: promo.promo_name,
@@ -249,9 +270,9 @@ export default function SalesPromoDecisionTool() {
           promoEndDate: promo.promo_end_date ? new Date(promo.promo_end_date).toISOString().split('T')[0] : '',
           storeSalePercentage: promo.store_sale_percentage,
           producerPaybackPercentage: promo.producer_payback_percentage,
-          demoHoursEntries: promo.demo_hours_entries || [],
+          demoHoursEntries: convertedDemoEntries,
           selectedVariants: promo.variant_promo_data ? Object.keys(promo.variant_promo_data) : [],
-          variants: promo.variant_promo_data as Record<string, { retailPrice: string; unitsAvailable: string; baseCPU: string }>,
+          variants: convertedVariants,
         };
 
         setInitialFormData(formData);
@@ -260,14 +281,31 @@ export default function SalesPromoDecisionTool() {
 
         // If there are analysis results, load them too
         if (promo.variant_promo_results && Object.keys(promo.variant_promo_results).length > 0) {
+          // Convert variant_promo_results from snake_case (DB) to camelCase (code)
+          const convertedResults: Record<string, any> = {};
+          Object.entries(promo.variant_promo_results).forEach(([key, value]) => {
+            convertedResults[key] = {
+              salesPromoCostPerUnit: value.sales_promo_cost_per_unit,
+              cpuWithPromo: value.cpu_with_promo,
+              actualLaborCostPerUnit: value.demo_hours_cost_per_unit,
+              opportunityCostPerUnit: null, // Not separately stored
+              totalCostWithLabor: value.total_cost_with_demo,
+              netProfitMarginWithPromo: value.net_profit_margin_with_promo,
+              netProfitMarginWithoutPromo: value.net_profit_margin_without_promo,
+              netProfitMarginWithLabor: value.net_profit_margin_with_demo,
+              marginQualityWithPromo: value.margin_quality_with_promo,
+              marginDifference: (parseFloat(value.net_profit_margin_with_promo) - parseFloat(value.net_profit_margin_without_promo)).toFixed(2),
+            };
+          });
+
           const result: PromoAnalysisResult = {
             promoId: promo.id,
             promoName: promo.promo_name,
             retailerName: promo.retailer_name,
             storeSalePercentage: promo.store_sale_percentage,
             producerPaybackPercentage: promo.producer_payback_percentage,
-            demoHoursEntries: promo.demo_hours_entries || [],
-            variantResults: promo.variant_promo_results as any,
+            demoHoursEntries: convertedDemoEntries,
+            variantResults: convertedResults,
             totalPromoCost: promo.total_promo_cost,
             totalActualLaborCost: promo.total_actual_labor_cost,
             totalOpportunityCost: promo.total_opportunity_cost,
@@ -275,6 +313,11 @@ export default function SalesPromoDecisionTool() {
             recommendationReason: '',
           };
           setAnalysisResult(result);
+
+          // Scroll to results after a brief delay to allow rendering
+          setTimeout(() => {
+            scrollToResults();
+          }, 300);
         }
       } catch (error) {
         console.error('Error loading draft promo:', error);
