@@ -431,8 +431,13 @@ export class SalesPromoAnalyzerService {
       }
 
       // Determine margin quality using settings thresholds
+      // CRITICAL: Use the FINAL margin (with labor if present, otherwise just with promo)
+      // This ensures the quality matches the margin that's actually displayed to the user
+      const finalMargin = netProfitMarginWithLabor !== null
+        ? netProfitMarginWithLabor
+        : netProfitMarginWithPromo;
       const marginQualityWithPromo = getProfitMarginQualityWithSettings(
-        netProfitMarginWithPromo.toFixed(2),
+        finalMargin.toFixed(2),
         settings
       );
 
