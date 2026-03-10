@@ -957,12 +957,15 @@ export default function Distribution() {
     <div className={styles.page}>
       {/* Page Header */}
       <div className={styles.header}>
-        <div className={styles.headerContent}>
-          <h1 className={styles.title}>Distribution Center</h1>
-          <p className={styles.description}>
-            Calculate distribution costs, analyze profit margins, and manage distributor profiles.
-          </p>
-        </div>
+        <h1 className={styles.title}>Distribution Center</h1>
+        <Button
+          variant="primary"
+          size="md"
+          onClick={() => setShowAddDistributorModal(true)}
+          iconBefore={<span aria-hidden="true">+</span>}
+        >
+          Add Distributor
+        </Button>
       </div>
 
       {/* Error Message */}

@@ -342,6 +342,27 @@ export function PromoDetailsForm({
     });
   };
 
+  // Handle date blur to fix 2-digit year entries (26 -> 2026, not 0026)
+  const handleDateBlur = (field: 'promoStartDate' | 'promoEndDate', value: string) => {
+    if (!value) return;
+
+    try {
+      const parts = value.split('-');
+      if (parts.length === 3) {
+        let year = parseInt(parts[0], 10);
+
+        // If year is 2 digits (0-99), convert to current century
+        if (year >= 0 && year < 100) {
+          year += 2000;
+          const fixedDate = `${year}-${parts[1]}-${parts[2]}`;
+          setFormData((prev) => ({ ...prev, [field]: fixedDate }));
+        }
+      }
+    } catch (e) {
+      // Invalid date format, ignore
+    }
+  };
+
   const handleVariantChange = (variant: string, field: keyof PromoVariantData, value: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -480,6 +501,7 @@ export function PromoDetailsForm({
             type="date"
             value={formData.promoStartDate}
             onChange={(e) => handleChange('promoStartDate', e.target.value)}
+            onBlur={(e) => handleDateBlur('promoStartDate', e.target.value)}
             fullWidth
           />
           <Input
@@ -487,6 +509,7 @@ export function PromoDetailsForm({
             type="date"
             value={formData.promoEndDate}
             onChange={(e) => handleChange('promoEndDate', e.target.value)}
+            onBlur={(e) => handleDateBlur('promoEndDate', e.target.value)}
             fullWidth
           />
         </div>

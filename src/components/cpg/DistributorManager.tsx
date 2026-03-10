@@ -1253,7 +1253,6 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
 
                           {/* Smart Cost Info - Calculated Data */}
                           <div className={styles.costSummary}>
-                            <span className={styles.costIcon}>💰</span>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
                               {calculationData[distributor.id] && (
                                 <button
@@ -1310,12 +1309,14 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                             </button>
                           ) : (
                             <div className={styles.archiveTextWrapper}>
-                              <Link
-                                to={`/cpg/analytics?tab=distributor&distributor=${distributor.id}`}
+                              <button
+                                onClick={() => {
+                                  window.location.href = `/cpg/distribution-cost?tab=costs&distributor=${distributor.id}`;
+                                }}
                                 className={styles.analyticsLink}
                               >
                                 View Analytics →
-                              </Link>
+                              </button>
                               <button
                                 onClick={() => handleArchive(distributor)}
                                 className={styles.archiveTextButton}
@@ -1351,12 +1352,6 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
       {embedded ? (
         <>
           {/* Embedded mode - render content directly */}
-          <div className={styles.embeddedHeader}>
-            <h2 className={styles.embeddedTitle}>Manage Distributors</h2>
-            <Button variant="primary" onClick={() => setShowAddModal(true)}>
-              + Add Distributor
-            </Button>
-          </div>
           {managerContent}
         </>
       ) : (
@@ -1899,7 +1894,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                     </h2>
                     <div style={{ fontSize: '0.875rem', color: '#6b7280', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                       <span>
-                        💰 {data ? `$${data.avgCostPerUnit}/unit average` : 'No calculations yet'}
+                        {data ? `$${data.avgCostPerUnit}/unit average` : 'No calculations yet'}
                       </span>
                       <span>•</span>
                       <span>
