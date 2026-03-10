@@ -7,6 +7,8 @@ import { PromoImpactSummary } from '../../components/cpg/PromoImpactSummary';
 import { PromoTrackerTab } from './tabs/PromoTrackerTab';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db';
+import type { CPGSettings } from '../../db/schema/cpg.schema';
+import { createDefaultCPGSettings, getProfitMarginQualityWithSettings } from '../../db/schema/cpg.schema';
 import { SalesPromoAnalyzerService, type PromoAnalysisResult } from '../../services/cpg/salesPromoAnalyzer.service';
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import styles from './SalesPromoDecisionTool.module.css';
@@ -73,6 +75,7 @@ export default function SalesPromoDecisionTool() {
   const [latestMSRPs, setLatestMSRPs] = useState<Record<string, string>>({});
   const [cpuErrors, setCpuErrors] = useState<string[]>([]); // Track products with CPU errors
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const [cpgSettings, setCpgSettings] = useState<CPGSettings | null>(null); // CPG settings for margin thresholds
   const [submittedFormData, setSubmittedFormData] = useState<PromoFormData | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<{ title: string; message: string; action?: string } | null>(null);
@@ -160,6 +163,22 @@ export default function SalesPromoDecisionTool() {
     const loadProductsAndCPUs = async () => {
       try {
         setIsLoadingData(true);
+
+        // Get CPG settings for margin quality thresholds
+        let settings = await db.cpgSettings
+          .where('company_id')
+          .equals(companyId)
+          .and((s) => s.active && !s.deleted_at)
+          .first();
+
+        // If no settings exist, create default ones
+        if (!settings) {
+          const defaultSettings = createDefaultCPGSettings(companyId, deviceId);
+          await db.cpgSettings.add(defaultSettings as CPGSettings);
+          settings = defaultSettings as CPGSettings;
+        }
+
+        setCpgSettings(settings);
 
         // Get all active finished products
         const products = await db.cpgFinishedProducts
@@ -673,14 +692,18 @@ export default function SalesPromoDecisionTool() {
   };
 
   /**
-   * Helper to determine margin quality from percentage
+   * Helper to determine margin quality from percentage using CPG settings
    */
   const getProfitMarginQuality = (marginPercentage: string): 'gutCheck' | 'good' | 'better' | 'best' => {
-    const margin = parseFloat(marginPercentage);
-    if (margin < 50) return 'gutCheck';
-    if (margin < 60) return 'good';
-    if (margin < 70) return 'better';
-    return 'best';
+    if (!cpgSettings) {
+      // Fallback to defaults if settings not loaded yet
+      const margin = parseFloat(marginPercentage);
+      if (margin < 50) return 'gutCheck';
+      if (margin < 60) return 'good';
+      if (margin < 70) return 'better';
+      return 'best';
+    }
+    return getProfitMarginQualityWithSettings(marginPercentage, cpgSettings);
   };
 
   /**

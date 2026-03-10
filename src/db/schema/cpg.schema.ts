@@ -577,6 +577,31 @@ export const getProfitMarginQuality = (
 };
 
 /**
+ * Determine profit margin quality using CPG settings thresholds
+ * This is the preferred method when settings are available
+ */
+export const getProfitMarginQualityWithSettings = (
+  marginPercentage: string,
+  settings: CPGSettings
+): 'gutCheck' | 'good' | 'better' | 'best' => {
+  const margin = parseFloat(marginPercentage);
+  const gutCheckMax = parseFloat(settings.margin_gut_check_max);
+  const goodMin = parseFloat(settings.margin_good_min);
+  const goodMax = parseFloat(settings.margin_good_max);
+  const betterMin = parseFloat(settings.margin_better_min);
+  const betterMax = parseFloat(settings.margin_better_max);
+  const bestMin = parseFloat(settings.margin_best_min);
+
+  if (margin < gutCheckMax) return 'gutCheck';
+  if (margin >= goodMin && margin < goodMax) return 'good';
+  if (margin >= betterMin && margin < betterMax) return 'better';
+  if (margin >= bestMin) return 'best';
+
+  // Fallback to default logic if settings are invalid
+  return getProfitMarginQuality(marginPercentage);
+};
+
+/**
  * Generate CPG category key with variant suffix for cost_attribution tracking
  * Example: generateCategoryKey("Oil", "8oz") => "Oil_8oz"
  * Example: generateCategoryKey("Bottle", null) => "Bottle"

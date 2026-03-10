@@ -35,11 +35,14 @@ import { nanoid } from 'nanoid';
 import type { TreasureChestDB } from '../../db/database';
 import type {
   CPGSalesPromo,
+  CPGSettings,
 } from '../../db/schema/cpg.schema';
 import {
   createDefaultCPGSalesPromo,
   validateCPGSalesPromo,
   getProfitMarginQuality,
+  getProfitMarginQualityWithSettings,
+  createDefaultCPGSettings,
 } from '../../db/schema/cpg.schema';
 import {
   validatePromoAnalysisParams,
@@ -310,6 +313,20 @@ export class SalesPromoAnalyzerService {
       throw new Error(`Sales promo not found: ${params.promoId}`);
     }
 
+    // Get CPG settings for margin quality thresholds
+    let settings = await this.db.cpgSettings
+      .where('company_id')
+      .equals(promo.company_id)
+      .and((s) => s.active && !s.deleted_at)
+      .first();
+
+    // If no settings exist, create default ones
+    if (!settings) {
+      const defaultSettings = createDefaultCPGSettings(promo.company_id, deviceId);
+      await this.db.cpgSettings.add(defaultSettings as CPGSettings);
+      settings = defaultSettings as CPGSettings;
+    }
+
     // Parse producer payback percentage
     const producerPaybackPct = new Decimal(promo.producer_payback_percentage).div(100);
 
@@ -413,9 +430,10 @@ export class SalesPromoAnalyzerService {
           : retailPrice.minus(totalCostWithLabor).div(retailPrice).mul(100);
       }
 
-      // Determine margin quality
-      const marginQualityWithPromo = getProfitMarginQuality(
-        netProfitMarginWithPromo.toFixed(2)
+      // Determine margin quality using settings thresholds
+      const marginQualityWithPromo = getProfitMarginQualityWithSettings(
+        netProfitMarginWithPromo.toFixed(2),
+        settings
       );
 
       // Calculate total promo cost for this variant
