@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import clsx from 'clsx';
 import styles from './PromoComparison.module.css';
 import { Tooltip } from '../core/Tooltip';
@@ -67,6 +68,8 @@ export interface PromoComparisonProps {
  * ```
  */
 export function PromoComparison({ variants, className }: PromoComparisonProps) {
+  const [isExpanded, setIsExpanded] = useState(true);
+
   const getMarginColorClass = (quality: 'gutCheck' | 'good' | 'better' | 'best'): string => {
     const colorMap = {
       gutCheck: styles.marginGutCheck,
@@ -101,9 +104,18 @@ export function PromoComparison({ variants, className }: PromoComparisonProps) {
 
   return (
     <div className={clsx(styles.container, className)}>
-      <h3 className={styles.title}>Side-by-Side Comparison</h3>
+      <div className={styles.header}>
+        <h3 className={styles.title}>Side-by-Side Comparison</h3>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className={styles.toggleButton}
+          aria-label={isExpanded ? 'Collapse comparison' : 'Expand comparison'}
+        >
+          {isExpanded ? '−' : '+'}
+        </button>
+      </div>
 
-      {variants.map((variantData) => (
+      {isExpanded && variants.map((variantData) => (
         <div key={variantData.variant} className={styles.variantSection}>
           <h4 className={styles.variantTitle}>{variantData.variant}</h4>
 

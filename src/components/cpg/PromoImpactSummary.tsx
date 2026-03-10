@@ -121,6 +121,9 @@ export function PromoImpactSummary({
     return initial;
   });
 
+  // Collapsible state
+  const [isExpanded, setIsExpanded] = useState(true);
+
   // Calculate total labor cost (actual + opportunity)
   const totalLaborCost =
     (totalActualLaborCost ? parseFloat(totalActualLaborCost) : 0) +
@@ -182,8 +185,19 @@ export function PromoImpactSummary({
 
   return (
     <div className={clsx(styles.container, className)}>
-      <h3 className={styles.title}>Impact Summary</h3>
+      <div className={styles.header}>
+        <h3 className={styles.title}>Impact Summary</h3>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className={styles.toggleButton}
+          aria-label={isExpanded ? 'Collapse impact summary' : 'Expand impact summary'}
+        >
+          {isExpanded ? '−' : '+'}
+        </button>
+      </div>
 
+      {isExpanded && (
+      <>
       <div className={styles.metricsGrid}>
         {/* Total Promo Cost */}
         <div className={clsx(styles.metricCard, styles.prominentCard)}>
@@ -669,6 +683,8 @@ export function PromoImpactSummary({
             )}
           </div>
         </div>
+      </>
+      )}
     </div>
   );
 }

@@ -10,13 +10,50 @@
   border: 1px solid var(--color-border, #e5e7eb);
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--color-border, #e5e7eb);
+  margin-bottom: 1rem;
+}
+
 .title {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-text-primary, #111827);
-  margin: 0 0 1rem 0;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid var(--color-border, #e5e7eb);
+  margin: 0;
+}
+
+.toggleButton {
+  background: transparent;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-sm, 4px);
+  color: var(--color-text-secondary, #6b7280);
+  font-size: 1.25rem;
+  font-weight: 600;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+  padding: 0;
+}
+
+.toggleButton:hover {
+  background: var(--color-surface-elevated, #f9fafb);
+  border-color: var(--color-primary, #7c3aed);
+  color: var(--color-primary, #7c3aed);
+}
+
+.toggleButton:focus {
+  outline: none;
+  border-color: var(--color-primary, #7c3aed);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 .variantSection {
