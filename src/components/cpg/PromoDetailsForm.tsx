@@ -135,6 +135,10 @@ export interface PromoDetailsFormProps {
    */
   onSubmit: (data: PromoFormData) => void;
   /**
+   * Callback when form is cleared
+   */
+  onClear?: () => void;
+  /**
    * Loading state
    */
   isLoading?: boolean;
@@ -173,6 +177,7 @@ export function PromoDetailsForm({
   latestCPUs = {},
   latestMSRPs = {},
   onSubmit,
+  onClear,
   isLoading = false,
 }: PromoDetailsFormProps) {
   const [formData, setFormData] = useState<PromoFormData>(() => {
@@ -561,6 +566,11 @@ export function PromoDetailsForm({
       variants: defaultVariants,
     });
     setErrors({});
+
+    // Notify parent to clear analysis results
+    if (onClear) {
+      onClear();
+    }
   };
 
   return (

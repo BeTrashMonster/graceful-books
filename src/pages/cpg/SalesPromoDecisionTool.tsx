@@ -762,6 +762,13 @@ export default function SalesPromoDecisionTool() {
                   latestCPUs={latestCPUs}
                   latestMSRPs={latestMSRPs}
                   onSubmit={handleAnalyzePromo}
+                  onClear={() => {
+                    setAnalysisResult(null);
+                    setSubmittedFormData(null);
+                    setSuccessMessage(null);
+                    setErrorMessage(null);
+                    setInitialFormData(undefined);
+                  }}
                   isLoading={isAnalyzing}
                   initialData={initialFormData}
                 />
