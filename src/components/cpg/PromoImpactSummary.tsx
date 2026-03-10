@@ -661,7 +661,6 @@ export function PromoImpactSummary({
             )}
           </div>
         </div>
-      </div>
     </div>
   );
 }
