@@ -209,7 +209,11 @@ export function PromoTrackerTab() {
     setActionMenuOpen(null);
   };
 
-  const handleCompleteSubmit = async (actualPayback: string, actualUnitsSold: string) => {
+  const handleCompleteSubmit = async (
+    actualPayback: string,
+    actualUnitsSold: string,
+    variantBreakdown: Record<string, number>
+  ) => {
     if (!selectedPromoForComplete) return;
 
     try {
@@ -217,6 +221,7 @@ export function PromoTrackerTab() {
         status: 'completed',
         actual_payback: actualPayback,
         actual_units_sold: actualUnitsSold,
+        variant_actual_units_sold: variantBreakdown,
         updated_at: Date.now(),
       });
 
@@ -487,6 +492,19 @@ export function PromoTrackerTab() {
           promoName={selectedPromoForComplete.promo_name}
           projectedPayback={selectedPromoForComplete.total_promo_cost}
           projectedUnits={getTotalUnitsAvailable(selectedPromoForComplete).toString()}
+          variants={
+            selectedPromoForComplete.variant_promo_data && selectedPromoForComplete.variant_promo_results
+              ? Object.keys(selectedPromoForComplete.variant_promo_data).map((variantName) => ({
+                  name: variantName,
+                  projectedUnits: parseFloat(
+                    selectedPromoForComplete.variant_promo_data![variantName].units_available || '0'
+                  ),
+                  promoCostPerUnit: parseFloat(
+                    selectedPromoForComplete.variant_promo_results![variantName]?.sales_promo_cost_per_unit || '0'
+                  ),
+                }))
+              : []
+          }
         />
       )}
     </div>

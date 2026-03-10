@@ -1,21 +1,29 @@
 /**
  * Mark Promo Complete Modal
  *
- * Allows user to enter actual payback and units sold when marking a promo as complete.
+ * Allows user to enter actual results per variant when marking a promo as complete.
+ * Captures detailed data for export and analysis while showing summary totals.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from '../../modals/Modal';
 import { Button } from '../../core/Button';
-import styles from './CPGModals.module.css';
+import styles from './MarkPromoCompleteModal.module.css';
+
+interface VariantData {
+  name: string;
+  projectedUnits: number;
+  promoCostPerUnit: number;
+}
 
 interface MarkPromoCompleteModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (actualPayback: string, actualUnitsSold: string) => Promise<void>;
+  onSubmit: (actualPayback: string, actualUnitsSold: string, variantBreakdown: Record<string, number>) => Promise<void>;
   promoName: string;
   projectedPayback: string;
   projectedUnits: string;
+  variants?: VariantData[];
 }
 
 export function MarkPromoCompleteModal({
@@ -25,48 +33,92 @@ export function MarkPromoCompleteModal({
   promoName,
   projectedPayback,
   projectedUnits,
+  variants = [],
 }: MarkPromoCompleteModalProps) {
-  const [actualPayback, setActualPayback] = useState('');
-  const [actualUnitsSold, setActualUnitsSold] = useState('');
+  // Per-variant actual units sold
+  const [variantActuals, setVariantActuals] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Initialize variant actuals when modal opens
+  useEffect(() => {
+    if (isOpen && variants.length > 0) {
+      const initial: Record<string, string> = {};
+      variants.forEach(v => {
+        initial[v.name] = '';
+      });
+      setVariantActuals(initial);
+    }
+  }, [isOpen, variants]);
+
+  // Calculate totals from variant entries
+  const calculateTotals = () => {
+    let totalUnits = 0;
+    let totalPayback = 0;
+
+    variants.forEach(variant => {
+      const units = parseFloat(variantActuals[variant.name] || '0');
+      if (!isNaN(units)) {
+        totalUnits += units;
+        totalPayback += units * variant.promoCostPerUnit;
+      }
+    });
+
+    return { totalUnits, totalPayback };
+  };
+
+  const { totalUnits, totalPayback } = calculateTotals();
+
+  // Calculate sell-through percentage
+  const projectedUnitsNum = parseFloat(projectedUnits);
+  const sellThroughPct = projectedUnitsNum > 0 ? (totalUnits / projectedUnitsNum) * 100 : 0;
+
+  const handleVariantChange = (variantName: string, value: string) => {
+    setVariantActuals(prev => ({
+      ...prev,
+      [variantName]: value,
+    }));
+    setError(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    // Validate
-    const payback = parseFloat(actualPayback);
-    const units = parseFloat(actualUnitsSold);
-
-    if (isNaN(payback) || payback < 0) {
-      setError('Please enter a valid payback amount');
+    // Validate at least one variant has data
+    const hasData = Object.values(variantActuals).some(v => v !== '' && parseFloat(v) > 0);
+    if (!hasData) {
+      setError('Please enter units sold for at least one product');
       return;
     }
 
-    if (isNaN(units) || units < 0) {
-      setError('Please enter a valid number of units sold');
-      return;
+    // Validate individual variants
+    for (const variant of variants) {
+      const units = parseFloat(variantActuals[variant.name] || '0');
+      if (units > variant.projectedUnits) {
+        setError(`Units sold for "${variant.name}" (${units}) cannot exceed units available (${variant.projectedUnits})`);
+        return;
+      }
     }
 
-    const projectedPaybackNum = parseFloat(projectedPayback);
-    if (payback > projectedPaybackNum) {
-      setError(`Actual payback ($${payback.toFixed(2)}) cannot exceed projected payback ($${projectedPaybackNum.toFixed(2)})`);
-      return;
-    }
-
-    const projectedUnitsNum = parseFloat(projectedUnits);
-    if (units > projectedUnitsNum) {
-      setError(`Units sold (${units}) cannot exceed units available (${projectedUnitsNum})`);
-      return;
-    }
+    // Convert to numeric breakdown
+    const variantBreakdown: Record<string, number> = {};
+    Object.entries(variantActuals).forEach(([name, value]) => {
+      const units = parseFloat(value || '0');
+      if (!isNaN(units) && units > 0) {
+        variantBreakdown[name] = units;
+      }
+    });
 
     setIsSubmitting(true);
     try {
-      await onSubmit(actualPayback, actualUnitsSold);
+      await onSubmit(
+        totalPayback.toFixed(2),
+        totalUnits.toString(),
+        variantBreakdown
+      );
       // Reset form
-      setActualPayback('');
-      setActualUnitsSold('');
+      setVariantActuals({});
       onClose();
     } catch (err) {
       setError('Failed to mark promo complete. Please try again.');
@@ -76,83 +128,129 @@ export function MarkPromoCompleteModal({
   };
 
   const handleCancel = () => {
-    setActualPayback('');
-    setActualUnitsSold('');
+    setVariantActuals({});
     setError(null);
     onClose();
   };
 
+  const getSellThroughColor = (pct: number): string => {
+    if (pct >= 90) return styles.excellentSellThrough;
+    if (pct >= 70) return styles.goodSellThrough;
+    if (pct >= 50) return styles.moderateSellThrough;
+    return styles.lowSellThrough;
+  };
+
   return (
-    <Modal isOpen={isOpen} onClose={handleCancel} title="Mark Promo Complete">
+    <Modal isOpen={isOpen} onClose={handleCancel} title="Mark Promo Complete" size="lg">
       <form onSubmit={handleSubmit} className={styles.form}>
         <p className={styles.description}>
-          Enter the actual results for <strong>{promoName}</strong> to complete this promo.
+          Enter actual units sold for <strong>{promoName}</strong> to track your promo performance.
         </p>
 
-        {/* Projected vs Actual Comparison */}
-        <div className={styles.comparisonBox}>
-          <div className={styles.comparisonRow}>
-            <span className={styles.comparisonLabel}>Projected Payback:</span>
-            <span className={styles.comparisonValue}>${parseFloat(projectedPayback).toFixed(2)}</span>
+        {/* Summary Cards */}
+        <div className={styles.summaryGrid}>
+          <div className={styles.summaryCard}>
+            <div className={styles.summaryLabel}>Total Units Sold</div>
+            <div className={styles.summaryValue}>
+              {totalUnits.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+              <span className={styles.summarySubtext}>
+                of {parseFloat(projectedUnits).toLocaleString('en-US', { maximumFractionDigits: 0 })} available
+              </span>
+            </div>
+            <div className={styles.sellThroughBar}>
+              <div
+                className={`${styles.sellThroughFill} ${getSellThroughColor(sellThroughPct)}`}
+                style={{ width: `${Math.min(sellThroughPct, 100)}%` }}
+              />
+            </div>
+            <div className={styles.sellThroughLabel}>
+              {sellThroughPct.toFixed(1)}% Sell-Through
+            </div>
           </div>
-          <div className={styles.comparisonRow}>
-            <span className={styles.comparisonLabel}>Units Available:</span>
-            <span className={styles.comparisonValue}>{parseFloat(projectedUnits).toFixed(0)}</span>
+
+          <div className={styles.summaryCard}>
+            <div className={styles.summaryLabel}>Total Payback</div>
+            <div className={styles.summaryValue}>
+              ${totalPayback.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <span className={styles.summarySubtext}>
+                of ${parseFloat(projectedPayback).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} projected
+              </span>
+            </div>
+            <div className={styles.paybackNote}>
+              Auto-calculated from units sold
+            </div>
           </div>
         </div>
 
-        {/* Actual Payback Input */}
-        <div className={styles.field}>
-          <label htmlFor="actual-payback" className={styles.label}>
-            Actual Payback <span className={styles.required}>*</span>
-          </label>
-          <div className={styles.inputWrapper}>
-            <span className={styles.currencySymbol}>$</span>
-            <input
-              id="actual-payback"
-              type="number"
-              step="0.01"
-              min="0"
-              max={projectedPayback}
-              value={actualPayback}
-              onChange={(e) => setActualPayback(e.target.value)}
-              className={styles.input}
-              placeholder="0.00"
-              required
-              autoFocus
-            />
-          </div>
-          <p className={styles.helpText}>
-            How much did you actually pay back to the retailer?
+        {/* Per-Variant Entry */}
+        <div className={styles.variantSection}>
+          <h4 className={styles.sectionTitle}>Units Sold by Product</h4>
+          <p className={styles.sectionDescription}>
+            Enter the actual number of units sold for each product during this promo.
           </p>
-        </div>
 
-        {/* Actual Units Sold Input */}
-        <div className={styles.field}>
-          <label htmlFor="actual-units" className={styles.label}>
-            Units Sold <span className={styles.required}>*</span>
-          </label>
-          <input
-            id="actual-units"
-            type="number"
-            step="1"
-            min="0"
-            max={projectedUnits}
-            value={actualUnitsSold}
-            onChange={(e) => setActualUnitsSold(e.target.value)}
-            className={styles.input}
-            placeholder="0"
-            required
-          />
-          <p className={styles.helpText}>
-            How many total units were sold during this promo?
-          </p>
+          <div className={styles.variantList}>
+            {variants.map((variant) => {
+              const actualUnits = parseFloat(variantActuals[variant.name] || '0');
+              const variantSellThrough = variant.projectedUnits > 0
+                ? (actualUnits / variant.projectedUnits) * 100
+                : 0;
+              const variantPayback = actualUnits * variant.promoCostPerUnit;
+
+              return (
+                <div key={variant.name} className={styles.variantCard}>
+                  <div className={styles.variantHeader}>
+                    <div className={styles.variantName}>{variant.name}</div>
+                    <div className={styles.variantProjected}>
+                      {variant.projectedUnits} units available
+                    </div>
+                  </div>
+
+                  <div className={styles.variantInputRow}>
+                    <div className={styles.inputGroup}>
+                      <label htmlFor={`units-${variant.name}`} className={styles.inputLabel}>
+                        Units Sold
+                      </label>
+                      <input
+                        id={`units-${variant.name}`}
+                        type="number"
+                        step="1"
+                        min="0"
+                        max={variant.projectedUnits}
+                        value={variantActuals[variant.name] || ''}
+                        onChange={(e) => handleVariantChange(variant.name, e.target.value)}
+                        className={styles.input}
+                        placeholder="0"
+                      />
+                    </div>
+
+                    {actualUnits > 0 && (
+                      <div className={styles.variantMetrics}>
+                        <div className={styles.metricItem}>
+                          <span className={styles.metricLabel}>Sell-Through:</span>
+                          <span className={`${styles.metricValue} ${getSellThroughColor(variantSellThrough)}`}>
+                            {variantSellThrough.toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className={styles.metricItem}>
+                          <span className={styles.metricLabel}>Payback:</span>
+                          <span className={styles.metricValue}>
+                            ${variantPayback.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Error Message */}
         {error && (
           <div className={styles.error} role="alert">
-            {error}
+            ⚠️ {error}
           </div>
         )}
 
@@ -170,7 +268,7 @@ export function MarkPromoCompleteModal({
             type="submit"
             variant="primary"
             loading={isSubmitting}
-            disabled={isSubmitting}
+            disabled={isSubmitting || totalUnits === 0}
           >
             Mark Complete
           </Button>

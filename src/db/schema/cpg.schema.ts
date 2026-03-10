@@ -493,6 +493,7 @@ export interface CPGSalesPromo extends BaseEntity {
   // Actual performance tracking (for completed promos)
   actual_payback: string | null; // Actual amount paid back to retailer
   actual_units_sold: string | null; // Total units sold across all variants
+  variant_actual_units_sold: Record<string, number> | null; // Per-variant actual units sold for detailed analysis
 
   notes: string | null;
   status: 'draft' | 'submitted' | 'approved' | 'declined' | 'active' | 'completed';
