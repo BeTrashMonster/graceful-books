@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { Input } from '../forms/Input';
 import { Button } from '../core/Button';
@@ -199,6 +199,38 @@ export function PromoDetailsForm({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showProductSelector, setShowProductSelector] = useState(false);
+  const productSelectorRef = useRef<HTMLDivElement>(null);
+  const productButtonRef = useRef<HTMLButtonElement>(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+
+  // Update dropdown position when shown
+  useEffect(() => {
+    if (showProductSelector && productButtonRef.current) {
+      const rect = productButtonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+      });
+    }
+  }, [showProductSelector]);
+
+  // Close product selector when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (productSelectorRef.current && !productSelectorRef.current.contains(event.target as Node)) {
+        setShowProductSelector(false);
+      }
+    };
+
+    if (showProductSelector) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [showProductSelector]);
 
   const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = {};
@@ -464,6 +496,26 @@ export function PromoDetailsForm({
     handleVariantSelection(variant, false);
   };
 
+  const handleSelectAllVariants = () => {
+    setFormData((prev) => ({
+      ...prev,
+      selectedVariants: [...availableVariants],
+    }));
+    // Clear variant selection error if it exists
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors.selectedVariants;
+      return newErrors;
+    });
+  };
+
+  const handleClearAllVariants = () => {
+    setFormData((prev) => ({
+      ...prev,
+      selectedVariants: [],
+    }));
+  };
+
   return (
     <form onSubmit={handleSubmit} className={styles.form} noValidate>
       <div className={styles.section}>
@@ -550,15 +602,6 @@ export function PromoDetailsForm({
             <br />
             <span className={styles.tipText}>💡 Tip: You can type math like "5*4" in the hours field and press Enter to calculate.</span>
           </p>
-          <Button
-            type="button"
-            variant="secondary"
-            size="md"
-            onClick={handleAddDemoEntry}
-            className={styles.addDemoButton}
-          >
-            ✨ Add Demo Warrior
-          </Button>
           {formData.demoHoursEntries.length > 0 && (
             <div className={styles.demoEntriesList}>
               {formData.demoHoursEntries.map((entry, index) => (
@@ -566,26 +609,15 @@ export function PromoDetailsForm({
                   <legend className={styles.demoEntryLegend}>
                     Demo Labor Entry {index + 1}
                   </legend>
-                  <div className={styles.demoEntryHeader}>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveDemoEntry(entry.id)}
-                      className={styles.removeButton}
-                      aria-label={`Remove demo entry ${index + 1}${entry.description ? ': ' + entry.description : ''}`}
-                    >
-                      Remove
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveDemoEntry(entry.id)}
+                    className={styles.removeButton}
+                    aria-label={`Remove demo entry ${index + 1}${entry.description ? ': ' + entry.description : ''}`}
+                  >
+                    ✕
+                  </button>
                   <div className={styles.demoEntryFields}>
-                    <Input
-                      label="Description"
-                      type="text"
-                      value={entry.description}
-                      onChange={(e) => handleDemoEntryChange(entry.id, 'description', e.target.value, index)}
-                      error={errors[`demoEntry_${index}_description`]}
-                      fullWidth
-                      placeholder="ex: The 4 demos at New Seasons that Millie will do"
-                    />
                     <div className={styles.demoEntryRow}>
                       <Input
                         label="Hours"
@@ -605,6 +637,15 @@ export function PromoDetailsForm({
                         onChange={(e) => handleDemoEntryChange(entry.id, 'hourlyRate', e.target.value, index)}
                         error={errors[`demoEntry_${index}_rate`]}
                         fullWidth
+                      />
+                      <Input
+                        label="Description"
+                        type="text"
+                        value={entry.description}
+                        onChange={(e) => handleDemoEntryChange(entry.id, 'description', e.target.value, index)}
+                        error={errors[`demoEntry_${index}_description`]}
+                        fullWidth
+                        placeholder="ex: The 4 demos at New Seasons that Millie will do"
                       />
                     </div>
                     <div className={styles.costTypeSelector}>
@@ -637,6 +678,15 @@ export function PromoDetailsForm({
               ))}
             </div>
           )}
+          <Button
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={handleAddDemoEntry}
+            className={styles.addDemoButton}
+          >
+            ✨ Add Demo Warrior
+          </Button>
         </div>
       </div>
 
@@ -648,25 +698,74 @@ export function PromoDetailsForm({
         {errors.selectedVariants && (
           <div className={styles.errorMessage}>{errors.selectedVariants}</div>
         )}
-        <div className={styles.productSelector}>
-          <select
+        <div className={styles.productSelector} ref={productSelectorRef}>
+          <button
+            type="button"
+            ref={productButtonRef}
             className={styles.productDropdown}
-            value=""
-            onChange={(e) => {
-              if (e.target.value) {
-                handleVariantSelection(e.target.value, true);
-              }
-            }}
+            onClick={() => setShowProductSelector(!showProductSelector)}
+            aria-expanded={showProductSelector}
+            aria-haspopup="menu"
           >
-            <option value="">-- Select a product to add --</option>
-            {availableVariants
-              .filter((v) => !formData.selectedVariants.includes(v))
-              .map((variant) => (
-                <option key={variant} value={variant}>
-                  {variant}
-                </option>
+            <span>
+              {formData.selectedVariants.length === 0
+                ? 'No Products Selected'
+                : formData.selectedVariants.length === availableVariants.length
+                ? 'All Products Selected'
+                : `${formData.selectedVariants.length} Product${formData.selectedVariants.length === 1 ? '' : 's'} Selected`}
+            </span>
+            <span aria-hidden="true">{showProductSelector ? '▲' : '▼'}</span>
+          </button>
+
+          {showProductSelector && (
+            <div
+              className={styles.productDropdownMenu}
+              role="menu"
+              style={{
+                top: `${dropdownPosition.top}px`,
+                left: `${dropdownPosition.left}px`,
+                width: `${dropdownPosition.width}px`,
+              }}
+            >
+              {/* Select All / Clear All */}
+              <div className={styles.productDropdownActions}>
+                <button
+                  type="button"
+                  onClick={handleSelectAllVariants}
+                  className={styles.selectAllButton}
+                  aria-label="Select all products"
+                >
+                  Select All
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClearAllVariants}
+                  className={styles.clearAllButton}
+                  aria-label="Clear all product selections"
+                >
+                  Clear All
+                </button>
+              </div>
+
+              {/* Product List */}
+              {availableVariants.map((variant) => (
+                <label
+                  key={variant}
+                  className={styles.productCheckboxLabel}
+                >
+                  <input
+                    type="checkbox"
+                    checked={formData.selectedVariants.includes(variant)}
+                    onChange={(e) => {
+                      handleVariantSelection(variant, e.target.checked);
+                    }}
+                    aria-label={`Select ${variant}`}
+                  />
+                  <span>{variant}</span>
+                </label>
               ))}
-          </select>
+            </div>
+          )}
         </div>
         {formData.selectedVariants.length > 0 && (
           <div className={styles.selectedProductsList}>
@@ -752,6 +851,7 @@ export function PromoDetailsForm({
           size="lg"
           loading={isLoading}
           disabled={isLoading}
+          className={styles.analyzeButton}
         >
           Analyze Promo
         </Button>

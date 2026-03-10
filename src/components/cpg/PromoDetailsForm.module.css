@@ -41,8 +41,8 @@
 /* Variant Card */
 .variantCard {
   padding: 1.25rem;
-  background: var(--color-surface-elevated, #f9fafb);
-  border: 1px solid var(--color-border, #e5e7eb);
+  background: linear-gradient(135deg, #f3ebff 0%, #ede5ff 100%);
+  border: 1px solid #e9d5ff;
   border-radius: var(--border-radius-md, 8px);
   transition: box-shadow 0.2s ease;
 }
@@ -112,10 +112,11 @@
 
 .demoEntryCard {
   padding: 1.25rem;
-  background: var(--color-surface-elevated, #f9fafb);
-  border: 1px solid var(--color-border, #e5e7eb);
+  background: linear-gradient(135deg, #f3ebff 0%, #ede5ff 100%);
+  border: 1px solid #e9d5ff;
   border-radius: var(--border-radius-md, 8px);
   margin: 0;
+  position: relative;
 }
 
 .demoEntryLegend {
@@ -126,26 +127,29 @@
   margin-bottom: 0.75rem;
 }
 
-.demoEntryHeader {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
 .removeButton {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
   background: transparent;
   border: none;
-  color: var(--color-error, #dc2626);
-  font-size: 1.25rem;
+  color: #9ca3af;
+  font-size: 1.125rem;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
+  padding: 0.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: var(--border-radius-sm, 4px);
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
+  line-height: 1;
 }
 
 .removeButton:hover {
-  background: var(--color-error-background, #fee);
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--color-error, #dc2626);
 }
 
 .demoEntryFields {
@@ -156,7 +160,7 @@
 
 .demoEntryRow {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr 1fr 2fr;
   gap: 1rem;
 }
 
@@ -194,13 +198,12 @@
 
 /* Product Selection */
 .productSelector {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
+  position: relative;
+  width: 100%;
 }
 
 .productDropdown {
-  flex: 1;
+  width: 100%;
   padding: 0.75rem 1rem;
   font-size: 0.9375rem;
   border: 1px solid var(--color-border, #e5e7eb);
@@ -209,16 +212,96 @@
   color: var(--color-text-primary, #111827);
   cursor: pointer;
   transition: border-color 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
 }
 
 .productDropdown:hover {
-  border-color: var(--color-primary, #7c3aed);
+  border-color: #4b006e;
 }
 
 .productDropdown:focus {
   outline: none;
-  border-color: var(--color-primary, #7c3aed);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  border-color: #4b006e;
+  box-shadow: 0 0 0 3px rgba(75, 0, 110, 0.1);
+}
+
+.productDropdownMenu {
+  position: fixed;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+  max-height: min(300px, 60vh);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.productDropdownActions {
+  padding: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.selectAllButton {
+  flex: 1;
+  padding: 0.25rem 0.5rem;
+  background: #4b006e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.selectAllButton:hover {
+  background: #6d28d9;
+}
+
+.clearAllButton {
+  flex: 1;
+  padding: 0.25rem 0.5rem;
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clearAllButton:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.productCheckboxLabel {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f8fafc;
+  transition: background 0.2s ease;
+}
+
+.productCheckboxLabel:hover {
+  background: #f8fafc;
+}
+
+.productCheckboxLabel input[type="checkbox"] {
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.productCheckboxLabel span {
+  font-size: 0.875rem;
 }
 
 .selectedProductsList {
@@ -291,6 +374,15 @@
   border-top: 1px solid var(--color-border, #e5e7eb);
 }
 
+.analyzeButton {
+  background: #4b006e !important;
+  color: white !important;
+}
+
+.analyzeButton:hover {
+  background: #6d28d9 !important;
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
   .form {
@@ -302,6 +394,10 @@
   }
 
   .variantRow {
+    grid-template-columns: 1fr;
+  }
+
+  .demoEntryRow {
     grid-template-columns: 1fr;
   }
 
@@ -318,5 +414,9 @@
 @media (max-width: 1024px) and (min-width: 769px) {
   .variantRow {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .demoEntryRow {
+    grid-template-columns: 1fr 1fr;
   }
 }

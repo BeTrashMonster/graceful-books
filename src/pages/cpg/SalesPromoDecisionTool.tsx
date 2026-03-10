@@ -90,6 +90,7 @@ export default function SalesPromoDecisionTool() {
   const pageContentRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const tabContentRef = useRef<HTMLDivElement>(null);
 
   /**
    * Focus trap for confirmation modal
@@ -134,8 +135,8 @@ export default function SalesPromoDecisionTool() {
    * Utility function for reliable scrolling
    */
   const scrollToTop = () => {
-    if (pageContentRef.current) {
-      pageContentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (tabContentRef.current) {
+      tabContentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -668,7 +669,7 @@ export default function SalesPromoDecisionTool() {
 
       {/* Decision Tool Tab */}
       {activeTab === 'decision-tool' && (
-        <div className={styles.tabContent}>
+        <div className={styles.tabContent} ref={tabContentRef}>
 
         {/* Success Message */}
         {successMessage && (
