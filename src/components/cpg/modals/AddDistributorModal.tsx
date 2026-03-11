@@ -4,7 +4,7 @@
  * Allows users to create new distributors with fee structures
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Modal } from '../../modals/Modal';
 import { Input } from '../../forms/Input';
 import { Button } from '../../core/Button';
@@ -36,6 +36,44 @@ export function AddDistributorModal({ isOpen, onClose, onSuccess }: AddDistribut
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const errorAlertRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to error when errors are set
+  useEffect(() => {
+    if (Object.keys(errors).length > 0 && errorAlertRef.current) {
+      errorAlertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [errors]);
+
+  // Apply purple header styling when modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const timer = setTimeout(() => {
+      const dialog = document.querySelector('[role="dialog"]');
+      if (!dialog) return;
+
+      const modalTitle = dialog.querySelector('#modal-title') as HTMLElement;
+      const modalHeader = modalTitle?.parentElement as HTMLElement;
+      const closeButton = dialog.querySelector('[aria-label="Close modal"]') as HTMLElement;
+
+      if (modalHeader) {
+        modalHeader.style.backgroundColor = '#4b006e';
+        modalHeader.style.padding = '0.75rem 1.5rem';
+        modalHeader.style.borderBottom = 'none';
+      }
+
+      if (modalTitle) {
+        modalTitle.style.color = '#ffffff';
+      }
+
+      if (closeButton) {
+        closeButton.style.color = '#ffffff';
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [isOpen]);
 
   const handleFeeChange = (field: keyof typeof fees, value: string) => {
     setFees(prev => ({ ...prev, [field]: value }));
@@ -151,37 +189,39 @@ export function AddDistributorModal({ isOpen, onClose, onSuccess }: AddDistribut
     >
       <form onSubmit={handleSubmit} className={styles.form}>
         {errors.form && (
-          <div className={styles.errorAlert} role="alert">
+          <div ref={errorAlertRef} className={styles.errorAlert} role="alert">
             {errors.form}
           </div>
         )}
 
-        <Input
-          label="Distributor Name"
-          placeholder="ex: ABC Logistics"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          error={errors.name}
-          required
-          fullWidth
-          autoFocus
-        />
+        <div className={styles.row}>
+          <Input
+            label="Distributor Name"
+            placeholder="ex: ABC Logistics"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            error={errors.name}
+            required
+            fullWidth
+            autoFocus
+          />
 
-        <Input
-          label="Description (Optional)"
-          placeholder="ex: Primary distributor for West Coast"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          fullWidth
-        />
+          <Input
+            label="Description (Optional)"
+            placeholder="ex: Primary West Coast"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            fullWidth
+          />
 
-        <Input
-          label="Contact Info (Optional)"
-          placeholder="ex: Phone, email, or representative name"
-          value={contactInfo}
-          onChange={(e) => setContactInfo(e.target.value)}
-          fullWidth
-        />
+          <Input
+            label="Contact Info (Optional)"
+            placeholder="ex: Phone or email"
+            value={contactInfo}
+            onChange={(e) => setContactInfo(e.target.value)}
+            fullWidth
+          />
+        </div>
 
         <div className={styles.feeStructure}>
           <div className={styles.sectionHeader}>Fee Structure (Optional)</div>
