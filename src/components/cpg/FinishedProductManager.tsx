@@ -179,10 +179,19 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
       const updated = { ...prev };
       let hasChanges = false;
 
+      // Get all currently occupied positions
+      const occupiedPositions = new Set(Object.values(updated));
+
       // Assign positions to products that don't have one
-      products.forEach((product, index) => {
+      products.forEach((product) => {
         if (updated[product.id] === undefined) {
-          updated[product.id] = index;
+          // Find the first unoccupied position
+          let position = 0;
+          while (occupiedPositions.has(position)) {
+            position++;
+          }
+          updated[product.id] = position;
+          occupiedPositions.add(position); // Mark this position as occupied
           hasChanges = true;
         }
       });
