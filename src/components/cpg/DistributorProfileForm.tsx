@@ -385,59 +385,63 @@ export function DistributorProfileForm({
             <div className={styles.section}>
               <h4 className={styles.sectionTitle}>Basic Information</h4>
 
-              <Input
-                label="Distributor Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                error={errors.name}
-                required
-                fullWidth
-              />
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <Input
+                  label="Distributor Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  error={errors.name}
+                  required
+                  fullWidth
+                />
 
-              <Input
-                label="Description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                fullWidth
-                placeholder="Optional notes about this distributor"
-              />
+                <Input
+                  label="Description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  fullWidth
+                  placeholder="Optional notes"
+                />
 
-              <Input
-                label="Contact Information"
-                value={contactInfo}
-                onChange={(e) => setContactInfo(e.target.value)}
-                fullWidth
-                placeholder="Email, phone, or contact person"
-              />
+                <Input
+                  label="Contact Info"
+                  value={contactInfo}
+                  onChange={(e) => setContactInfo(e.target.value)}
+                  fullWidth
+                  placeholder="Email or phone"
+                />
+              </div>
 
-              <Input
-                label="Last Fee Update Date"
-                type="date"
-                value={lastFeeUpdateDate}
-                onChange={(e) => setLastFeeUpdateDate(e.target.value)}
-                fullWidth
-                helperText="When did this distributor last update their fees?"
-              />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <Input
+                  label="Last Fee Update Date"
+                  type="date"
+                  value={lastFeeUpdateDate}
+                  onChange={(e) => setLastFeeUpdateDate(e.target.value)}
+                  fullWidth
+                  helperText="When did this distributor last update their fees?"
+                />
 
-              <div className={styles.selectWrapper}>
-                <label htmlFor="updateFrequency" className={styles.label}>
-                  Typical Update Frequency
-                </label>
-                <select
-                  id="updateFrequency"
-                  value={typicalUpdateFrequency}
-                  onChange={(e) => setTypicalUpdateFrequency(e.target.value)}
-                  className={styles.select}
-                >
-                  <option value="">Select frequency...</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="quarterly">Quarterly</option>
-                  <option value="annually">Annually</option>
-                </select>
-                <p className={styles.helperText}>
-                  How often does this distributor typically update their fees?
-                </p>
+                <div className={styles.selectWrapper}>
+                  <label htmlFor="updateFrequency" className={styles.label}>
+                    Typical Update Frequency
+                  </label>
+                  <select
+                    id="updateFrequency"
+                    value={typicalUpdateFrequency}
+                    onChange={(e) => setTypicalUpdateFrequency(e.target.value)}
+                    className={styles.select}
+                  >
+                    <option value="">Select frequency...</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="annually">Annually</option>
+                  </select>
+                  <p className={styles.helperText}>
+                    How often does this distributor typically update their fees?
+                  </p>
+                </div>
               </div>
             </div>
 
