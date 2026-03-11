@@ -5,7 +5,7 @@
  * Includes validation for name uniqueness, SKU uniqueness, and MSRP format.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { nanoid } from 'nanoid';
 import { Modal } from '../../modals/Modal';
 import { Input } from '../../forms/Input';
@@ -17,6 +17,7 @@ import {
   validateCPGFinishedProduct,
   type CPGFinishedProduct,
 } from '../../../db/schema/cpg.schema';
+import { processMathInput } from '../../../utils/mathParser';
 import styles from './CPGModals.module.css';
 
 export interface AddProductModalProps {
@@ -48,6 +49,44 @@ export function AddProductModal({
   const [piecesPerUnit, setPiecesPerUnit] = useState('1');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const errorAlertRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to error when errors are set
+  useEffect(() => {
+    if (Object.keys(errors).length > 0 && errorAlertRef.current) {
+      errorAlertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [errors]);
+
+  // Apply purple header styling when modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const timer = setTimeout(() => {
+      const dialog = document.querySelector('[role="dialog"]');
+      if (!dialog) return;
+
+      const modalTitle = dialog.querySelector('#modal-title') as HTMLElement;
+      const modalHeader = modalTitle?.parentElement as HTMLElement;
+      const closeButton = dialog.querySelector('[aria-label="Close modal"]') as HTMLElement;
+
+      if (modalHeader) {
+        modalHeader.style.backgroundColor = '#4b006e';
+        modalHeader.style.padding = '0.75rem 1.5rem';
+        modalHeader.style.borderBottom = 'none';
+      }
+
+      if (modalTitle) {
+        modalTitle.style.color = '#ffffff';
+      }
+
+      if (closeButton) {
+        closeButton.style.color = '#ffffff';
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [isOpen]);
 
   // Pre-fill form when editing
   useEffect(() => {
@@ -193,7 +232,7 @@ export function AddProductModal({
     >
       <form onSubmit={handleSubmit} className={styles.form}>
         {errors.form && (
-          <div className={styles.errorAlert} role="alert">
+          <div ref={errorAlertRef} className={styles.errorAlert} role="alert">
             {errors.form}
           </div>
         )}
@@ -225,9 +264,16 @@ export function AddProductModal({
           placeholder="ex: 10.00"
           value={msrp}
           onChange={(e) => setMsrp(e.target.value)}
+          onBlur={(e) => {
+            const { value, calculated } = processMathInput(e.target.value, true);
+            if (calculated || e.target.value !== value) {
+              setMsrp(value);
+            }
+          }}
           error={errors.msrp}
+          iconBefore="$"
           fullWidth
-          helperText="Manufacturer's Suggested Retail Price"
+          helperText="Manufacturer's Suggested Retail Price (you can use math like 5*2)"
         />
 
         <Input
@@ -240,7 +286,7 @@ export function AddProductModal({
         />
 
         <div>
-          <label htmlFor="unitOfMeasure" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9375rem' }}>
+          <label htmlFor="unitOfMeasure" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.875rem', color: '#374151' }}>
             Unit of Measure
           </label>
           <select
@@ -249,11 +295,15 @@ export function AddProductModal({
             onChange={(e) => setUnitOfMeasure(e.target.value)}
             style={{
               width: '100%',
-              padding: '0.625rem',
-              border: '1px solid #e2e8f0',
-              borderRadius: '6px',
+              minHeight: '44px',
+              padding: '0.625rem 0.875rem',
+              border: '2px solid #d1d5db',
+              borderRadius: '0.375rem',
               fontSize: '0.9375rem',
               backgroundColor: '#ffffff',
+              outline: 'none',
+              transition: 'border-color 150ms ease-out',
+              boxSizing: 'border-box' as const,
             }}
           >
             {UNIT_OPTIONS.map((option) => (
@@ -262,7 +312,7 @@ export function AddProductModal({
               </option>
             ))}
           </select>
-          <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '0.25rem 0 0 0' }}>
+          <p style={{ fontSize: '0.8125rem', color: '#6b7280', margin: '0.25rem 0 0 0' }}>
             How you sell this product (each, case, dozen, etc.)
           </p>
         </div>
@@ -278,6 +328,15 @@ export function AddProductModal({
           fullWidth
           helperText="How many individual items in one unit (ex: 12 bottles per case)"
         />
+
+        {!editingProduct && (
+          <div className={styles.exampleBox}>
+            <strong>Next Steps</strong>
+            <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#64748b' }}>
+              After adding your product, you'll be able to create recipes that define what ingredients and materials go into making it.
+            </p>
+          </div>
+        )}
       </form>
     </Modal>
   );
