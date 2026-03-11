@@ -213,7 +213,7 @@ export function AddProductModal({
       isOpen={isOpen}
       onClose={handleClose}
       title={editingProduct ? 'Edit Product' : 'Add New Product'}
-      size="md"
+      size="lg"
       closeOnBackdropClick={false}
       footer={
         <div className={styles.modalFooter}>
