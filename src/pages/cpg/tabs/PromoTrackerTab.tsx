@@ -4,6 +4,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { db } from '../../../db';
 import type { CPGSalesPromo } from '../../../db/schema/cpg.schema';
 import { MarkPromoCompleteModal } from '../../../components/cpg/modals/MarkPromoCompleteModal';
+import { promoExportService } from '../../../services/cpg/promoExport.service';
 import styles from './PromoTrackerTab.module.css';
 
 type PromoStatus = 'all' | 'draft' | 'approved' | 'declined' | 'active' | 'completed';
@@ -27,11 +28,26 @@ export function PromoTrackerTab() {
   const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null);
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [selectedPromoForComplete, setSelectedPromoForComplete] = useState<CPGSalesPromo | null>(null);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
 
   // Load promos on mount
   useEffect(() => {
     loadPromos();
   }, [companyId]);
+
+  // Close export menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (exportMenuOpen && !(event.target as Element).closest(`.${styles.exportButtonContainer}`)) {
+        setExportMenuOpen(false);
+      }
+    };
+
+    if (exportMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [exportMenuOpen]);
 
   const loadPromos = async () => {
     if (!companyId) return;
@@ -259,6 +275,23 @@ export function PromoTrackerTab() {
     setActionMenuOpen(actionMenuOpen === promoId ? null : promoId);
   };
 
+  const handleExport = async (type: 'summary' | 'detail', format: 'csv' | 'pdf') => {
+    try {
+      if (type === 'summary' && format === 'csv') {
+        promoExportService.exportSummaryCSV(filteredPromos);
+      } else if (type === 'summary' && format === 'pdf') {
+        promoExportService.exportSummaryPDF(filteredPromos);
+      } else if (type === 'detail' && format === 'csv') {
+        promoExportService.exportDetailCSV(filteredPromos);
+      } else if (type === 'detail' && format === 'pdf') {
+        promoExportService.exportDetailPDF(filteredPromos);
+      }
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Failed to export data. Please try again.');
+    }
+  };
+
   const filteredPromos = getFilteredPromos();
 
   if (isLoading) {
@@ -359,6 +392,57 @@ export function PromoTrackerTab() {
             <option value="6mo">Last 6 Months</option>
             <option value="1yr">Last Year</option>
           </select>
+        </div>
+
+        {/* Export Button */}
+        <div className={styles.exportButtonContainer}>
+          <button
+            className={styles.exportButton}
+            onClick={() => setExportMenuOpen(!exportMenuOpen)}
+            disabled={filteredPromos.length === 0}
+          >
+            Export
+          </button>
+          {exportMenuOpen && (
+            <div className={styles.exportMenu}>
+              <button
+                className={styles.exportMenuItem}
+                onClick={() => {
+                  handleExport('summary', 'csv');
+                  setExportMenuOpen(false);
+                }}
+              >
+                Summary (CSV)
+              </button>
+              <button
+                className={styles.exportMenuItem}
+                onClick={() => {
+                  handleExport('summary', 'pdf');
+                  setExportMenuOpen(false);
+                }}
+              >
+                Summary (PDF)
+              </button>
+              <button
+                className={styles.exportMenuItem}
+                onClick={() => {
+                  handleExport('detail', 'csv');
+                  setExportMenuOpen(false);
+                }}
+              >
+                Detail (CSV)
+              </button>
+              <button
+                className={styles.exportMenuItem}
+                onClick={() => {
+                  handleExport('detail', 'pdf');
+                  setExportMenuOpen(false);
+                }}
+              >
+                Detail (PDF)
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

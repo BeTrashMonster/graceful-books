@@ -497,9 +497,11 @@ export default function SalesPromoDecisionTool() {
     setConfirmationDialog({
       isOpen: true,
       type: 'approve',
-      title: 'Approve Promo Participation?',
-      message: 'You\'re about to approve participation in this promo. Your decision will be saved and tracked in your promo history.',
-      confirmLabel: 'Yes, Approve',
+      title: editPromoId ? 'Update Promo Decision to Approve?' : 'Approve Promo Participation?',
+      message: editPromoId
+        ? 'You\'re about to update this promo\'s status to approved. This will replace the previous decision.'
+        : 'You\'re about to approve participation in this promo. Your decision will be saved and tracked in your promo history.',
+      confirmLabel: editPromoId ? 'Yes, Update to Approve' : 'Yes, Approve',
       onConfirm: handleApproveConfirmed,
     });
   };
@@ -529,7 +531,14 @@ export default function SalesPromoDecisionTool() {
       setInitialFormData(undefined);
       setNotes('');
       setErrorMessage(null);
-      setSuccessMessage("Great! You've approved participation in this promo. Your decision has been saved.");
+      setSuccessMessage(editPromoId
+        ? "Great! You've updated this promo to approved. Your decision has been saved."
+        : "Great! You've approved participation in this promo. Your decision has been saved.");
+
+      // Clear edit parameter from URL
+      if (editPromoId) {
+        navigate('/cpg/promo-decision', { replace: true });
+      }
 
       // Scroll to top to show success message
       setTimeout(() => {
@@ -555,9 +564,11 @@ export default function SalesPromoDecisionTool() {
     setConfirmationDialog({
       isOpen: true,
       type: 'decline',
-      title: 'Decline Promo Participation?',
-      message: 'You\'re about to decline participation in this promo. Your decision will be saved and you can review it later if needed.',
-      confirmLabel: 'Yes, Decline',
+      title: editPromoId ? 'Update Promo Decision to Decline?' : 'Decline Promo Participation?',
+      message: editPromoId
+        ? 'You\'re about to update this promo\'s status to declined. This will replace the previous decision.'
+        : 'You\'re about to decline participation in this promo. Your decision will be saved and you can review it later if needed.',
+      confirmLabel: editPromoId ? 'Yes, Update to Decline' : 'Yes, Decline',
       onConfirm: handleDeclineConfirmed,
     });
   };
@@ -587,7 +598,14 @@ export default function SalesPromoDecisionTool() {
       setInitialFormData(undefined);
       setNotes('');
       setErrorMessage(null);
-      setSuccessMessage('Your decision to decline has been saved. Good call protecting your margins!');
+      setSuccessMessage(editPromoId
+        ? "You've updated this promo to declined. Your decision has been saved. Good call protecting your margins!"
+        : 'Your decision to decline has been saved. Good call protecting your margins!');
+
+      // Clear edit parameter from URL
+      if (editPromoId) {
+        navigate('/cpg/promo-decision', { replace: true });
+      }
 
       // Scroll to top to show success message
       setTimeout(() => {
@@ -630,7 +648,14 @@ export default function SalesPromoDecisionTool() {
       setInitialFormData(undefined);
       setNotes('');
       setErrorMessage(null);
-      setSuccessMessage('Saved! You can review this promo again anytime from your promo list.');
+      setSuccessMessage(editPromoId
+        ? 'Draft updated! You can review this promo again anytime from your promo list.'
+        : 'Saved! You can review this promo again anytime from your promo list.');
+
+      // Clear edit parameter from URL
+      if (editPromoId) {
+        navigate('/cpg/promo-decision', { replace: true });
+      }
 
       // Scroll to top to show success message
       setTimeout(() => {
@@ -985,7 +1010,7 @@ export default function SalesPromoDecisionTool() {
                             disabled={isSaving}
                             className={styles.approveButton}
                           >
-                            Approve Participation
+                            {editPromoId ? 'Update to Approve' : 'Approve Participation'}
                           </Button>
                           <Button
                             variant="danger"
@@ -995,7 +1020,7 @@ export default function SalesPromoDecisionTool() {
                             disabled={isSaving}
                             className={styles.declineButton}
                           >
-                            Decline Participation
+                            {editPromoId ? 'Update to Decline' : 'Decline Participation'}
                           </Button>
                           <Button
                             variant="secondary"
@@ -1004,7 +1029,7 @@ export default function SalesPromoDecisionTool() {
                             loading={isSaving}
                             disabled={isSaving}
                           >
-                            Save for Later
+                            {editPromoId ? 'Update Draft' : 'Save for Later'}
                           </Button>
                         </div>
                       </div>

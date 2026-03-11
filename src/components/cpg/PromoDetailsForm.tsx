@@ -232,7 +232,7 @@ export function PromoDetailsForm({
       setDropdownPosition({
         top: shouldPositionAbove ? rect.top - maxHeight - 4 : rect.bottom + 4,
         left: rect.left,
-        width: rect.width,
+        width: rect.width / 2,
         maxHeight: shouldPositionAbove ? Math.min(300, spaceAbove) : maxHeight,
       });
     }
@@ -629,11 +629,8 @@ export function PromoDetailsForm({
             error={errors.promoName}
             required
             fullWidth
-            helperText="Give this promo a memorable name (e.g., 'Summer Sale 2026')"
+            helperText="Give this promo a memorable name"
           />
-        </div>
-
-        <div className={styles.row}>
           <Input
             label="Retailer Name"
             type="text"
@@ -642,11 +639,8 @@ export function PromoDetailsForm({
             error={errors.retailerName}
             required
             fullWidth
-            helperText="Which retailer is running this promotion?"
+            helperText="Which retailer is running this?"
           />
-        </div>
-
-        <div className={styles.row}>
           <Input
             label="Promo Start Date"
             type="date"
@@ -790,10 +784,7 @@ export function PromoDetailsForm({
       </div>
 
       <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Select Products</h3>
-        <p className={styles.sectionDescription}>
-          Choose which products are included in this promotion. Not every retailer carries all your products.
-        </p>
+        <h3 className={styles.sectionTitle}>Select Products Included in this Promotion</h3>
         {errors.selectedVariants && (
           <div className={styles.errorMessage}>{errors.selectedVariants}</div>
         )}
@@ -954,7 +945,7 @@ export function PromoDetailsForm({
           disabled={isLoading}
           className={styles.analyzeButton}
         >
-          Analyze Promo
+          {initialData ? 'Update Analysis' : 'Analyze Promo'}
         </Button>
       </div>
     </form>

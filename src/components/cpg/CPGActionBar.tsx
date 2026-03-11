@@ -41,7 +41,7 @@ export function CPGActionBar({ onAction }: CPGActionBarProps) {
       return { label: '+ Add Distributor', action: 'add-distributor', showButton: true };
     }
     if (location.pathname.includes('promo-decision')) {
-      return { label: '+ New Promo Analysis', action: 'add-promo', showButton: true };
+      return { label: '', action: '', showButton: false };
     }
     if (location.pathname.includes('financial-entry')) {
       return { label: '+ Add Financial Data', action: 'add-financial', showButton: true };
