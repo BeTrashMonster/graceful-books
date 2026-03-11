@@ -283,7 +283,7 @@ export function AddProductModal({
           fullWidth
         />
 
-        <div className={styles.row}>
+        <div className={styles.rowEqual}>
           <div>
             <label htmlFor="unitOfMeasure" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.875rem', color: '#374151' }}>
               Unit of Measure

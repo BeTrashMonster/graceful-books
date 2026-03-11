@@ -10,6 +10,12 @@
   gap: 1rem;
 }
 
+.rowEqual {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
 .fullWidth {
   grid-column: 1 / -1;
 }
