@@ -237,44 +237,43 @@ export function AddProductModal({
           </div>
         )}
 
-        <Input
-          label="Product Name"
-          placeholder="ex: 1oz Body Oil, 5oz Body Oil"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          error={errors.name}
-          required
-          fullWidth
-          autoFocus
-          helperText="The name of your finished product"
-        />
+        <div className={styles.row}>
+          <Input
+            label="Product Name"
+            placeholder="ex: 1oz Body Oil"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            error={errors.name}
+            required
+            fullWidth
+            autoFocus
+          />
 
-        <Input
-          label="SKU (Optional)"
-          placeholder="ex: BO-1OZ"
-          value={sku}
-          onChange={(e) => setSku(e.target.value)}
-          error={errors.sku}
-          fullWidth
-          helperText="Stock Keeping Unit - must be unique if provided"
-        />
+          <Input
+            label="SKU (Optional)"
+            placeholder="ex: BO-1OZ"
+            value={sku}
+            onChange={(e) => setSku(e.target.value)}
+            error={errors.sku}
+            fullWidth
+          />
 
-        <Input
-          label="MSRP (Optional)"
-          placeholder="ex: 10.00"
-          value={msrp}
-          onChange={(e) => setMsrp(e.target.value)}
-          onBlur={(e) => {
-            const { value, calculated } = processMathInput(e.target.value, true);
-            if (calculated || e.target.value !== value) {
-              setMsrp(value);
-            }
-          }}
-          error={errors.msrp}
-          iconBefore="$"
-          fullWidth
-          helperText="Manufacturer's Suggested Retail Price (you can use math like 5*2)"
-        />
+          <Input
+            label="MSRP (Optional)"
+            placeholder="ex: 10.00"
+            value={msrp}
+            onChange={(e) => setMsrp(e.target.value)}
+            onBlur={(e) => {
+              const { value, calculated } = processMathInput(e.target.value, true);
+              if (calculated || e.target.value !== value) {
+                setMsrp(value);
+              }
+            }}
+            error={errors.msrp}
+            iconBefore="$"
+            fullWidth
+          />
+        </div>
 
         <Input
           label="Description (Optional)"
@@ -282,61 +281,53 @@ export function AddProductModal({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           fullWidth
-          helperText="Brief description of this product"
         />
 
-        <div>
-          <label htmlFor="unitOfMeasure" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.875rem', color: '#374151' }}>
-            Unit of Measure
-          </label>
-          <select
-            id="unitOfMeasure"
-            value={unitOfMeasure}
-            onChange={(e) => setUnitOfMeasure(e.target.value)}
-            style={{
-              width: '100%',
-              minHeight: '44px',
-              padding: '0.625rem 0.875rem',
-              border: '2px solid #d1d5db',
-              borderRadius: '0.375rem',
-              fontSize: '0.9375rem',
-              backgroundColor: '#ffffff',
-              outline: 'none',
-              transition: 'border-color 150ms ease-out',
-              boxSizing: 'border-box' as const,
-            }}
-          >
-            {UNIT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <p style={{ fontSize: '0.8125rem', color: '#6b7280', margin: '0.25rem 0 0 0' }}>
-            How you sell this product (each, case, dozen, etc.)
-          </p>
-        </div>
-
-        <Input
-          label="Pieces per Unit"
-          type="number"
-          placeholder="1"
-          value={piecesPerUnit}
-          onChange={(e) => setPiecesPerUnit(e.target.value)}
-          error={errors.piecesPerUnit}
-          required
-          fullWidth
-          helperText="How many individual items in one unit (ex: 12 bottles per case)"
-        />
-
-        {!editingProduct && (
-          <div className={styles.exampleBox}>
-            <strong>Next Steps</strong>
-            <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#64748b' }}>
-              After adding your product, you'll be able to create recipes that define what ingredients and materials go into making it.
+        <div className={styles.row}>
+          <div>
+            <label htmlFor="unitOfMeasure" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.875rem', color: '#374151' }}>
+              Unit of Measure
+            </label>
+            <select
+              id="unitOfMeasure"
+              value={unitOfMeasure}
+              onChange={(e) => setUnitOfMeasure(e.target.value)}
+              style={{
+                width: '100%',
+                minHeight: '44px',
+                padding: '0.625rem 0.875rem',
+                border: '2px solid #d1d5db',
+                borderRadius: '0.375rem',
+                fontSize: '0.9375rem',
+                backgroundColor: '#ffffff',
+                outline: 'none',
+                transition: 'border-color 150ms ease-out',
+                boxSizing: 'border-box' as const,
+              }}
+            >
+              {UNIT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <p style={{ fontSize: '0.8125rem', color: '#6b7280', margin: '0.25rem 0 0 0' }}>
+              How you sell this product (each, case, dozen, etc.)
             </p>
           </div>
-        )}
+
+          <Input
+            label="Pieces per Unit"
+            type="number"
+            placeholder="1"
+            value={piecesPerUnit}
+            onChange={(e) => setPiecesPerUnit(e.target.value)}
+            error={errors.piecesPerUnit}
+            required
+            fullWidth
+            helperText="How many individual items in one unit (ex: 12 bottles per case)"
+          />
+        </div>
       </form>
     </Modal>
   );

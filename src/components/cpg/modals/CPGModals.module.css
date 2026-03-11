@@ -4,6 +4,16 @@
   gap: 1rem;
 }
 
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
 .modalFooter {
   display: flex;
   gap: 1rem;
