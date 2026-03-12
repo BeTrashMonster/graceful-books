@@ -5,6 +5,7 @@ import { Checkbox } from '../forms/Checkbox';
 import { Modal } from '../modals/Modal';
 import type { CPGDistributor } from '../../db/schema/cpg.schema';
 import styles from './DistributorProfileForm.module.css';
+import modalStyles from './modals/CPGModals.module.css';
 
 export interface DistributorProfileFormProps {
   /**
@@ -375,42 +376,19 @@ export function DistributorProfileForm({
 
   return (
     <>
-      <form onSubmit={handleSubmit} style={{ padding: '1.5rem' }}>
+      <form onSubmit={handleSubmit} className={modalStyles.form} style={{ padding: '1.5rem' }}>
         {/* Error Alert */}
         {Object.keys(errors).some(key => !key.startsWith('fee_')) && (
-          <div
-            ref={errorAlertRef}
-            style={{
-              padding: '1rem',
-              background: '#fee',
-              border: '1px solid #fcc',
-              borderRadius: '8px',
-              color: '#c00',
-              fontSize: '0.9375rem',
-              marginBottom: '1.5rem'
-            }}
-            role="alert"
-          >
+          <div ref={errorAlertRef} className={modalStyles.errorAlert} role="alert">
             {errors.name || 'Please fix the errors below'}
           </div>
         )}
 
-        {/* Form Description */}
-        <p style={{
-          fontSize: '0.9375rem',
-          color: '#64748b',
-          marginBottom: '1.5rem',
-          lineHeight: '1.5'
-        }}>
-          Set up your distributor profile with their fee structure.
-        </p>
+        {/* Basic Information */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h4 className={modalStyles.sectionHeader}>Basic Information</h4>
 
-        <div className={styles.formGrid}>
-            {/* Basic Information */}
-            <div className={styles.section}>
-              <h4 className={styles.sectionTitle}>Basic Information</h4>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div className={modalStyles.row}>
                 <Input
                   label="Distributor Name"
                   value={name}
@@ -435,9 +413,9 @@ export function DistributorProfileForm({
                   fullWidth
                   placeholder="Email or phone"
                 />
-              </div>
+          </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className={modalStyles.rowEqual}>
                 <Input
                   label="Last Fee Update Date"
                   type="date"
@@ -468,44 +446,75 @@ export function DistributorProfileForm({
                   </p>
                 </div>
               </div>
+        </div>
+
+        {/* Fee Structure - Flexible Builder */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h4 className={modalStyles.sectionHeader}>Fee Structure</h4>
+          <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' }}>
+            Add the fees charged by this distributor. Customize the description, amount, and unit for each fee.
+          </p>
+
+          {/* Common Fee Suggestions */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.75rem',
+            padding: '1rem',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            marginBottom: '1rem'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', margin: 0 }}>Quick Add:</p>
+              <button
+                type="button"
+                onClick={() => setShowQuickAddCustomizer(true)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#4b006e',
+                  fontSize: '0.875rem',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  padding: 0
+                }}
+              >
+                ⚙️ Customize
+              </button>
             </div>
-
-            {/* Fee Structure - Flexible Builder */}
-            <div className={styles.section}>
-              <div className={styles.sectionHeader}>
-                <div>
-                  <h4 className={styles.sectionTitle}>Fee Structure</h4>
-                  <p className={styles.sectionDescription}>
-                    Add the fees charged by this distributor. Customize the description, amount, and unit for each fee.
-                  </p>
-                </div>
-              </div>
-
-              {/* Common Fee Suggestions */}
-              <div className={styles.suggestionsContainer}>
-                <div className={styles.quickAddHeader}>
-                  <p className={styles.suggestionsLabel}>Quick Add:</p>
-                  <button
-                    type="button"
-                    onClick={() => setShowQuickAddCustomizer(true)}
-                    className={styles.customizeButton}
-                  >
-                    ⚙️ Customize
-                  </button>
-                </div>
-                <div className={styles.suggestionButtons}>
-                  {quickAddSuggestions.map((suggestion, index) => (
-                    <button
-                      key={`${suggestion.label}-${index}`}
-                      type="button"
-                      onClick={() => addFee(suggestion)}
-                      className={styles.suggestionButton}
-                    >
-                      + {suggestion.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {quickAddSuggestions.map((suggestion, index) => (
+                <button
+                  key={`${suggestion.label}-${index}`}
+                  type="button"
+                  onClick={() => addFee(suggestion)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: 'linear-gradient(135deg, rgba(75, 0, 110, 0.05), rgba(255, 215, 0, 0.05))',
+                    border: '2px solid #FFD700',
+                    borderRadius: '6px',
+                    color: '#4b006e',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #4b006e, #FFD700)';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(75, 0, 110, 0.05), rgba(255, 215, 0, 0.05))';
+                    e.currentTarget.style.color = '#4b006e';
+                  }}
+                >
+                  + {suggestion.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
               {/* Fee List */}
               {fees.length > 0 ? (
@@ -600,30 +609,22 @@ export function DistributorProfileForm({
                 </div>
               )}
 
-              {/* Add Fee Button */}
-              <div className={styles.addFeeButtonContainer}>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addFee()}
-                  iconBefore={<span>+</span>}
-                >
-                  Add Custom Fee
-                </Button>
-              </div>
-            </div>
+          {/* Add Fee Button */}
+          <div style={{ marginTop: '1rem' }}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => addFee()}
+              iconBefore={<span>+</span>}
+            >
+              Add Custom Fee
+            </Button>
           </div>
+        </div>
 
         {/* Form Actions */}
-        <div style={{
-          display: 'flex',
-          gap: '1rem',
-          justifyContent: 'flex-end',
-          paddingTop: '1.5rem',
-          borderTop: '1px solid #e2e8f0',
-          marginTop: '1.5rem'
-        }}>
+        <div className={modalStyles.modalActions} style={{ marginTop: '1.5rem' }}>
           <Button
             type="button"
             variant="outline"
