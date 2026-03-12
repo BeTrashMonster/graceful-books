@@ -518,8 +518,8 @@ export function DistributorProfileForm({
                   onClick={() => addFee(suggestion)}
                   style={{
                     padding: '0.5rem 1rem',
-                    background: 'linear-gradient(135deg, rgba(75, 0, 110, 0.05), rgba(255, 215, 0, 0.05))',
-                    border: '2px solid #FFD700',
+                    background: 'white',
+                    border: '2px solid #d1d5db',
                     borderRadius: '6px',
                     color: '#4b006e',
                     fontSize: '0.875rem',
@@ -530,10 +530,12 @@ export function DistributorProfileForm({
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = 'linear-gradient(135deg, #4b006e, #FFD700)';
                     e.currentTarget.style.color = 'white';
+                    e.currentTarget.style.borderColor = '#FFD700';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(75, 0, 110, 0.05), rgba(255, 215, 0, 0.05))';
+                    e.currentTarget.style.background = 'white';
                     e.currentTarget.style.color = '#4b006e';
+                    e.currentTarget.style.borderColor = '#d1d5db';
                   }}
                 >
                   + {suggestion.label}
@@ -723,16 +725,13 @@ export function DistributorProfileForm({
           onClose={() => setShowQuickAddCustomizer(false)}
           title="Customize Quick Adds"
           size="md"
+          closeOnBackdropClick={false}
         >
-          <div style={{ padding: '1.5rem' }}>
-            <p style={{ marginBottom: '1.5rem', lineHeight: '1.6' }}>
-              Customize your Quick Add buttons to match your workflow. Add your most commonly used fees
-              for faster distributor setup.
-            </p>
+          <div style={{ padding: '1rem 1.5rem' }}>
 
             {/* Active Quick Adds List */}
             {(customQuickAdds.length > 0 || COMMON_FEE_SUGGESTIONS.some(d => !removedDefaultLabels.includes(d.label))) && (
-              <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ marginBottom: '1rem' }}>
                 <h4 style={{ marginBottom: '0.75rem', fontWeight: 600, color: '#4b006e', fontSize: '1rem' }}>Active Quick Adds:</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {/* Custom Quick Adds */}
@@ -824,7 +823,7 @@ export function DistributorProfileForm({
 
             {/* Removed Defaults (can be restored) */}
             {removedDefaultLabels.length > 0 && (
-              <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#fef3c7', borderRadius: '0.375rem', border: '1px solid #fde68a' }}>
+              <div style={{ marginBottom: '1rem', padding: '1rem', backgroundColor: '#fef3c7', borderRadius: '0.375rem', border: '1px solid #fde68a' }}>
                 <h4 style={{ marginBottom: '0.75rem', fontWeight: 600, color: '#92400e' }}>Removed Defaults:</h4>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   {removedDefaultLabels.map((label, index) => {
@@ -860,7 +859,7 @@ export function DistributorProfileForm({
             )}
 
             {/* Add New Quick Add */}
-            <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ marginBottom: '1rem' }}>
               <h4 style={{ marginBottom: '0.75rem', fontWeight: 600, color: '#4b006e', fontSize: '1rem' }}>Add New Quick Add:</h4>
               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <input
@@ -911,19 +910,6 @@ export function DistributorProfileForm({
                   Add
                 </Button>
               </div>
-            </div>
-
-            {/* Info */}
-            <div style={{
-              marginBottom: '1.5rem',
-              padding: '0.75rem',
-              background: 'linear-gradient(135deg, rgba(75, 0, 110, 0.05), rgba(255, 215, 0, 0.05))',
-              borderRadius: '0.375rem',
-              border: '2px solid #FFD700'
-            }}>
-              <p style={{ fontSize: '0.875rem', color: '#4b006e', lineHeight: '1.6' }}>
-                <strong>Tip:</strong> Customize your Quick Adds to match your workflow. Remove defaults you don't use and add your own custom ones. All changes are saved automatically.
-              </p>
             </div>
 
             {/* Actions */}
