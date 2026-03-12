@@ -116,36 +116,6 @@ export function DistributorProfileForm({
     }
   }, [errors]);
 
-  // Apply purple header styling to modals
-  useEffect(() => {
-    if (!showZoneInfoModal && !showQuickAddCustomizer) return;
-
-    const timer = setTimeout(() => {
-      const dialog = document.querySelector('[role="dialog"]');
-      if (!dialog) return;
-
-      const modalTitle = dialog.querySelector('#modal-title') as HTMLElement;
-      const modalHeader = modalTitle?.parentElement as HTMLElement;
-      const closeButton = dialog.querySelector('[aria-label="Close modal"]') as HTMLElement;
-
-      if (modalHeader) {
-        modalHeader.style.backgroundColor = '#4b006e';
-        modalHeader.style.padding = '0.75rem 1.5rem';
-        modalHeader.style.borderBottom = 'none';
-      }
-
-      if (modalTitle) {
-        modalTitle.style.color = '#ffffff';
-      }
-
-      if (closeButton) {
-        closeButton.style.color = '#ffffff';
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, [showZoneInfoModal, showQuickAddCustomizer]);
-
   // Zone info modal state
   const [showZoneInfoModal, setShowZoneInfoModal] = useState(false);
   const [dontShowZoneInfoAgain, setDontShowZoneInfoAgain] = useState(false);
@@ -188,6 +158,36 @@ export function DistributorProfileForm({
       console.error('Error loading Quick Add preferences:', error);
     }
   }, []);
+
+  // Apply purple header styling to modals
+  useEffect(() => {
+    if (!showZoneInfoModal && !showQuickAddCustomizer) return;
+
+    const timer = setTimeout(() => {
+      const dialog = document.querySelector('[role="dialog"]');
+      if (!dialog) return;
+
+      const modalTitle = dialog.querySelector('#modal-title') as HTMLElement;
+      const modalHeader = modalTitle?.parentElement as HTMLElement;
+      const closeButton = dialog.querySelector('[aria-label="Close modal"]') as HTMLElement;
+
+      if (modalHeader) {
+        modalHeader.style.backgroundColor = '#4b006e';
+        modalHeader.style.padding = '0.75rem 1.5rem';
+        modalHeader.style.borderBottom = 'none';
+      }
+
+      if (modalTitle) {
+        modalTitle.style.color = '#ffffff';
+      }
+
+      if (closeButton) {
+        closeButton.style.color = '#ffffff';
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [showZoneInfoModal, showQuickAddCustomizer]);
 
   const addFee = (suggestion?: { label: string; unit: typeof fees[0]['unit'] }) => {
     // Check if this is a zone fee and if user hasn't seen the info modal this session
