@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Input } from '../forms/Input';
 import { Button } from '../core/Button';
 import { Checkbox } from '../forms/Checkbox';
 import { Modal } from '../modals/Modal';
-import { Card, CardHeader, CardBody, CardFooter } from '../ui/Card';
 import type { CPGDistributor } from '../../db/schema/cpg.schema';
 import styles from './DistributorProfileForm.module.css';
 
@@ -107,6 +106,14 @@ export function DistributorProfileForm({
   const [fees, setFees] = useState<Fee[]>(initialFees);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const errorAlertRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to error when errors are set
+  useEffect(() => {
+    if (Object.keys(errors).length > 0 && errorAlertRef.current) {
+      errorAlertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [errors]);
 
   // Zone info modal state
   const [showZoneInfoModal, setShowZoneInfoModal] = useState(false);
@@ -368,19 +375,37 @@ export function DistributorProfileForm({
 
   return (
     <>
-      <Card variant="bordered" padding="lg">
-        <form onSubmit={handleSubmit}>
-        <CardHeader>
-          <h3 className={styles.formTitle}>
-            {distributor ? 'Edit Distributor' : 'New Distributor'}
-          </h3>
-          <p className={styles.formDescription}>
-            Set up your distributor profile with their fee structure.
-          </p>
-        </CardHeader>
+      <form onSubmit={handleSubmit} style={{ padding: '1.5rem' }}>
+        {/* Error Alert */}
+        {Object.keys(errors).some(key => !key.startsWith('fee_')) && (
+          <div
+            ref={errorAlertRef}
+            style={{
+              padding: '1rem',
+              background: '#fee',
+              border: '1px solid #fcc',
+              borderRadius: '8px',
+              color: '#c00',
+              fontSize: '0.9375rem',
+              marginBottom: '1.5rem'
+            }}
+            role="alert"
+          >
+            {errors.name || 'Please fix the errors below'}
+          </div>
+        )}
 
-        <CardBody>
-          <div className={styles.formGrid}>
+        {/* Form Description */}
+        <p style={{
+          fontSize: '0.9375rem',
+          color: '#64748b',
+          marginBottom: '1.5rem',
+          lineHeight: '1.5'
+        }}>
+          Set up your distributor profile with their fee structure.
+        </p>
+
+        <div className={styles.formGrid}>
             {/* Basic Information */}
             <div className={styles.section}>
               <h4 className={styles.sectionTitle}>Basic Information</h4>
@@ -589,30 +614,35 @@ export function DistributorProfileForm({
               </div>
             </div>
           </div>
-        </CardBody>
+        </div>
 
-        <CardFooter>
-          <div className={styles.formActions}>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              loading={loading}
-              disabled={loading}
-            >
-              {distributor ? 'Save Changes' : 'Create Distributor'}
-            </Button>
-          </div>
-        </CardFooter>
-        </form>
-      </Card>
+        {/* Form Actions */}
+        <div style={{
+          display: 'flex',
+          gap: '1rem',
+          justifyContent: 'flex-end',
+          paddingTop: '1.5rem',
+          borderTop: '1px solid #e2e8f0',
+          marginTop: '1.5rem'
+        }}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            loading={loading}
+            disabled={loading}
+          >
+            {distributor ? 'Save Changes' : 'Create Distributor'}
+          </Button>
+        </div>
+      </form>
 
       {/* Zone Info Modal */}
       {showZoneInfoModal && (
