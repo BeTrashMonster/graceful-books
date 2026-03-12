@@ -476,10 +476,7 @@ export function DistributorProfileForm({
 
         {/* Fee Structure - Flexible Builder */}
         <div style={{ marginBottom: '1.5rem' }}>
-          <h4 className={modalStyles.sectionHeader} style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>Fee Structure</h4>
-          <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' }}>
-            Add the fees charged by this distributor.
-          </p>
+          <h4 className={modalStyles.sectionHeader} style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>Fees Charged by this Distributor</h4>
 
           {/* Common Fee Suggestions */}
           <div style={{
