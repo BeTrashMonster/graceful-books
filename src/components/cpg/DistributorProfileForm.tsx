@@ -116,6 +116,36 @@ export function DistributorProfileForm({
     }
   }, [errors]);
 
+  // Apply purple header styling to modals
+  useEffect(() => {
+    if (!showZoneInfoModal && !showQuickAddCustomizer) return;
+
+    const timer = setTimeout(() => {
+      const dialog = document.querySelector('[role="dialog"]');
+      if (!dialog) return;
+
+      const modalTitle = dialog.querySelector('#modal-title') as HTMLElement;
+      const modalHeader = modalTitle?.parentElement as HTMLElement;
+      const closeButton = dialog.querySelector('[aria-label="Close modal"]') as HTMLElement;
+
+      if (modalHeader) {
+        modalHeader.style.backgroundColor = '#4b006e';
+        modalHeader.style.padding = '0.75rem 1.5rem';
+        modalHeader.style.borderBottom = 'none';
+      }
+
+      if (modalTitle) {
+        modalTitle.style.color = '#ffffff';
+      }
+
+      if (closeButton) {
+        closeButton.style.color = '#ffffff';
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [showZoneInfoModal, showQuickAddCustomizer]);
+
   // Zone info modal state
   const [showZoneInfoModal, setShowZoneInfoModal] = useState(false);
   const [dontShowZoneInfoAgain, setDontShowZoneInfoAgain] = useState(false);
@@ -386,9 +416,9 @@ export function DistributorProfileForm({
 
         {/* Basic Information */}
         <div style={{ marginBottom: '1.5rem' }}>
-          <h4 className={modalStyles.sectionHeader}>Basic Information</h4>
+          <h4 className={modalStyles.sectionHeader} style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>Basic Information</h4>
 
-          <div className={modalStyles.row}>
+          <div className={modalStyles.row} style={{ marginBottom: '1rem' }}>
                 <Input
                   label="Distributor Name"
                   value={name}
@@ -422,7 +452,6 @@ export function DistributorProfileForm({
                   value={lastFeeUpdateDate}
                   onChange={(e) => setLastFeeUpdateDate(e.target.value)}
                   fullWidth
-                  helperText="When did this distributor last update their fees?"
                 />
 
                 <div className={styles.selectWrapper}>
@@ -441,16 +470,13 @@ export function DistributorProfileForm({
                     <option value="quarterly">Quarterly</option>
                     <option value="annually">Annually</option>
                   </select>
-                  <p className={styles.helperText}>
-                    How often does this distributor typically update their fees?
-                  </p>
                 </div>
               </div>
         </div>
 
         {/* Fee Structure - Flexible Builder */}
         <div style={{ marginBottom: '1.5rem' }}>
-          <h4 className={modalStyles.sectionHeader}>Fee Structure</h4>
+          <h4 className={modalStyles.sectionHeader} style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>Fee Structure</h4>
           <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' }}>
             Add the fees charged by this distributor. Customize the description, amount, and unit for each fee.
           </p>
@@ -461,8 +487,8 @@ export function DistributorProfileForm({
             flexDirection: 'column',
             gap: '0.75rem',
             padding: '1rem',
-            background: '#f8fafc',
-            border: '1px solid #e2e8f0',
+            background: '#E5F6DF',
+            border: '1px solid #c8e1ba',
             borderRadius: '8px',
             marginBottom: '1rem'
           }}>
@@ -707,7 +733,7 @@ export function DistributorProfileForm({
             {/* Active Quick Adds List */}
             {(customQuickAdds.length > 0 || COMMON_FEE_SUGGESTIONS.some(d => !removedDefaultLabels.includes(d.label))) && (
               <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ marginBottom: '0.75rem', fontWeight: 600 }}>Active Quick Adds:</h4>
+                <h4 style={{ marginBottom: '0.75rem', fontWeight: 600, color: '#4b006e', fontSize: '1rem' }}>Active Quick Adds:</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {/* Custom Quick Adds */}
                   {customQuickAdds.map((quickAdd, index) => (
@@ -718,9 +744,9 @@ export function DistributorProfileForm({
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         padding: '0.75rem',
-                        backgroundColor: '#f0f9ff',
+                        backgroundColor: '#E5F6DF',
                         borderRadius: '0.375rem',
-                        border: '1px solid #bae6fd',
+                        border: '1px solid #c8e1ba',
                       }}
                     >
                       <div>
@@ -728,7 +754,7 @@ export function DistributorProfileForm({
                         <span style={{ marginLeft: '0.5rem', color: '#6b7280' }}>
                           ({quickAdd.unit.replace(/_/g, ' ')})
                         </span>
-                        <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: '#0284c7', fontWeight: 600 }}>
+                        <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: '#4b006e', fontWeight: 600 }}>
                           CUSTOM
                         </span>
                       </div>
@@ -835,7 +861,7 @@ export function DistributorProfileForm({
 
             {/* Add New Quick Add */}
             <div style={{ marginBottom: '1.5rem' }}>
-              <h4 style={{ marginBottom: '0.75rem', fontWeight: 600 }}>Add New Quick Add:</h4>
+              <h4 style={{ marginBottom: '0.75rem', fontWeight: 600, color: '#4b006e', fontSize: '1rem' }}>Add New Quick Add:</h4>
               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <input
                   type="text"
@@ -845,7 +871,7 @@ export function DistributorProfileForm({
                   style={{
                     flex: 1,
                     padding: '0.5rem',
-                    border: '1px solid #d1d5db',
+                    border: '2px solid #d1d5db',
                     borderRadius: '0.375rem',
                     fontSize: '0.875rem',
                   }}
@@ -861,7 +887,7 @@ export function DistributorProfileForm({
                   onChange={(e) => setNewQuickAddUnit(e.target.value as typeof fees[0]['unit'])}
                   style={{
                     padding: '0.5rem',
-                    border: '1px solid #d1d5db',
+                    border: '2px solid #d1d5db',
                     borderRadius: '0.375rem',
                     fontSize: '0.875rem',
                   }}
@@ -888,8 +914,14 @@ export function DistributorProfileForm({
             </div>
 
             {/* Info */}
-            <div style={{ marginBottom: '1.5rem', padding: '0.75rem', backgroundColor: '#f0f9ff', borderRadius: '0.375rem', border: '1px solid #bfdbfe' }}>
-              <p style={{ fontSize: '0.875rem', color: '#1e3a8a', lineHeight: '1.6' }}>
+            <div style={{
+              marginBottom: '1.5rem',
+              padding: '0.75rem',
+              background: 'linear-gradient(135deg, rgba(75, 0, 110, 0.05), rgba(255, 215, 0, 0.05))',
+              borderRadius: '0.375rem',
+              border: '2px solid #FFD700'
+            }}>
+              <p style={{ fontSize: '0.875rem', color: '#4b006e', lineHeight: '1.6' }}>
                 <strong>Tip:</strong> Customize your Quick Adds to match your workflow. Remove defaults you don't use and add your own custom ones. All changes are saved automatically.
               </p>
             </div>
