@@ -614,7 +614,6 @@ export function DistributorProfileForm({
               </div>
             </div>
           </div>
-        </div>
 
         {/* Form Actions */}
         <div style={{
