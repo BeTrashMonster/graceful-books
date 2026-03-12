@@ -173,7 +173,7 @@ export function DistributorProfileForm({
 
       if (modalHeader) {
         modalHeader.style.backgroundColor = '#4b006e';
-        modalHeader.style.padding = '0.75rem 1.5rem';
+        modalHeader.style.padding = '0.5rem 1.5rem';
         modalHeader.style.borderBottom = 'none';
       }
 
@@ -727,12 +727,12 @@ export function DistributorProfileForm({
           size="md"
           closeOnBackdropClick={false}
         >
-          <div style={{ padding: '1rem 1.5rem' }}>
+          <div style={{ padding: '0.75rem 1.5rem 1rem' }}>
 
             {/* Active Quick Adds List */}
             {(customQuickAdds.length > 0 || COMMON_FEE_SUGGESTIONS.some(d => !removedDefaultLabels.includes(d.label))) && (
               <div style={{ marginBottom: '1rem' }}>
-                <h4 style={{ marginBottom: '0.75rem', fontWeight: 600, color: '#4b006e', fontSize: '1rem' }}>Active Quick Adds:</h4>
+                <h4 style={{ marginBottom: '0.75rem', fontWeight: 600, color: '#4b006e', fontSize: '1.125rem' }}>Active Quick Adds:</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {/* Custom Quick Adds */}
                   {customQuickAdds.map((quickAdd, index) => (
@@ -860,7 +860,7 @@ export function DistributorProfileForm({
 
             {/* Add New Quick Add */}
             <div style={{ marginBottom: '1rem' }}>
-              <h4 style={{ marginBottom: '0.75rem', fontWeight: 600, color: '#4b006e', fontSize: '1rem' }}>Add New Quick Add:</h4>
+              <h4 style={{ marginBottom: '0.75rem', fontWeight: 600, color: '#4b006e', fontSize: '1.125rem' }}>Add New Quick Add:</h4>
               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <input
                   type="text"
