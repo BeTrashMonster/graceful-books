@@ -1,12 +1,12 @@
 /**
  * CPU Trends Tab Component
  *
- * Displays component price trends grouped by product.
+ * Displays component price trends grouped by product with visual charts.
  *
  * Features:
  * - Product-centric view showing CPU, Margin, MSRP
- * - Component trends: Current, Average, % Change, Last Buy, Status
- * - Smart recommendations based on price trends
+ * - Visual line charts showing price trends over time
+ * - Component metrics: Current, Average, % Change, Last Buy
  * - CSV/PDF export for trends
  *
  * Requirements:
@@ -17,6 +17,7 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { CPGCategory, CPGInvoice, FinishedProduct } from '../../../../db/schema/cpg.schema';
 import styles from './CPUTrendsTab.module.css';
 
@@ -58,7 +59,7 @@ interface ComponentTrendData {
   avg: number;
   change: number;
   lastBuyDays: number;
-  status: string;
+  priceHistory: Array<{ date: number; price: number }>;
 }
 
 interface ProductTrendData {
@@ -70,7 +71,13 @@ interface ProductTrendData {
   components: ComponentTrendData[];
 }
 
-type SortColumn = 'component' | 'current' | 'avg' | 'change' | 'lastBuy' | 'status';
+interface ChartDataPoint {
+  date: string;
+  timestamp: number;
+  [key: string]: string | number;
+}
+
+type SortColumn = 'component' | 'current' | 'avg' | 'change' | 'lastBuy';
 
 export default function CPUTrendsTab({
   companyId,
@@ -95,14 +102,9 @@ export default function CPUTrendsTab({
   }, [dateRange, selectedProducts, productCPUData, invoices, categoryFilter, variantFilter, vendorFilter]);
 
   /**
-   * Load and calculate trend data for each selected product
+   * Load and calculate trend data - shows all components matching filters
    */
   const loadProductTrends = async () => {
-    if (selectedProducts.size === 0) {
-      setProductTrends([]);
-      return;
-    }
-
     try {
       const trends: ProductTrendData[] = [];
       const today = Date.now();
@@ -133,114 +135,110 @@ export default function CPUTrendsTab({
           break;
       }
 
-      // Process each selected product
-      for (const productId of selectedProducts) {
-        const product = products.find(p => p.id === productId);
-        const cpuData = productCPUData.get(productId);
+      // Filter and process invoices by date and vendor
+      const filteredInvoices = invoices.filter(inv => {
+        if (startDate > 0 && inv.invoice_date < startDate) return false;
+        if (vendorFilter.size > 0 && !vendorFilter.has(inv.vendor_name || '')) return false;
+        return true;
+      });
 
-        if (!product || !cpuData || !cpuData.breakdown) continue;
+      // If products are selected, show per-product breakdown
+      // If no products selected, show all components in a single group
+      const productsToProcess = selectedProducts.size > 0
+        ? Array.from(selectedProducts)
+        : ['all-components'];
 
-        const componentTrends: ComponentTrendData[] = [];
+      for (const productId of productsToProcess) {
+        let product: FinishedProduct | undefined;
+        let cpuData: ProductCPUData | undefined;
+        let productName = 'All Components';
 
-        // Process each component in the product's breakdown
-        for (const component of cpuData.breakdown) {
-          // Apply filters
-          if (categoryFilter.size > 0 && !categoryFilter.has(component.categoryId)) {
-            continue;
-          }
-          if (variantFilter.size > 0 && !variantFilter.has(component.variant || '')) {
-            continue;
-          }
+        if (productId !== 'all-components') {
+          product = products.find(p => p.id === productId);
+          cpuData = productCPUData.get(productId);
+          if (!product) continue;
+          productName = product.name;
+        }
 
-          // Find relevant invoices for this component
-          const relevantInvoices = invoices.filter(inv => {
-            if (startDate > 0 && inv.invoice_date < startDate) return false;
-            if (vendorFilter.size > 0 && !vendorFilter.has(inv.vendor_name || '')) {
-              return false;
+        // Collect all unique components from invoices that match our filters
+        const componentDataMap = new Map<string, {
+          categoryId: string;
+          categoryName: string;
+          variant: string | undefined;
+          priceHistory: Array<{ date: number; price: number }>;
+        }>();
+
+        // Collect price data for all components that match our filters
+        filteredInvoices.forEach(inv => {
+          Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
+            // Apply category filter
+            if (categoryFilter.size > 0 && !categoryFilter.has(attr.category_id)) return;
+
+            // Apply variant filter
+            if (variantFilter.size > 0 && !variantFilter.has(attr.variant || '')) return;
+
+            const unitPrice = parseFloat(attr.unit_price);
+            if (isNaN(unitPrice) || unitPrice <= 0) return;
+
+            // Create unique key for this component
+            const componentKey = `${attr.category_id}:${attr.variant || ''}`;
+
+            if (!componentDataMap.has(componentKey)) {
+              const category = categories.find(c => c.id === attr.category_id);
+              componentDataMap.set(componentKey, {
+                categoryId: attr.category_id,
+                categoryName: category?.name || 'Unknown',
+                variant: attr.variant || undefined,
+                priceHistory: [],
+              });
             }
 
-            // Check if this component appears in cost_attribution
-            return Object.entries(inv.cost_attribution || {}).some(([key, attr]) => {
-              if (attr.category_id !== component.categoryId) return false;
-              // Match variant if specified
-              if (component.variant && attr.variant !== component.variant) return false;
-              return true;
+            componentDataMap.get(componentKey)!.priceHistory.push({
+              date: inv.invoice_date,
+              price: unitPrice,
             });
           });
+        });
 
-          if (relevantInvoices.length === 0) continue;
+        // Build component trends from collected data
+        const componentTrends: ComponentTrendData[] = [];
+        componentDataMap.forEach((data) => {
+          if (data.priceHistory.length === 0) return;
 
-          // Collect prices and dates
-          const prices: number[] = [];
-          const dates: number[] = [];
+          // Sort by date (oldest to newest for charting)
+          data.priceHistory.sort((a, b) => a.date - b.date);
 
-          relevantInvoices.forEach(inv => {
-            Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
-              if (attr.category_id === component.categoryId) {
-                // Match variant if specified
-                if (component.variant && attr.variant !== component.variant) return;
-
-                const unitPrice = parseFloat(attr.unit_price);
-                if (!isNaN(unitPrice) && unitPrice > 0) {
-                  prices.push(unitPrice);
-                  dates.push(inv.invoice_date);
-                }
-              }
-            });
-          });
-
-          if (prices.length === 0) continue;
-
-          // Sort by date to get most recent
-          const pricesByDate = prices.map((price, i) => ({ price, date: dates[i] }))
-            .sort((a, b) => b.date - a.date);
-
-          const currentPrice = pricesByDate[0].price;
-          const avgPrice = prices.reduce((sum, p) => sum + p, 0) / prices.length;
+          // Calculate current (most recent), average, and change
+          const currentPrice = data.priceHistory[data.priceHistory.length - 1].price;
+          const avgPrice = data.priceHistory.reduce((sum, p) => sum + p.price, 0) / data.priceHistory.length;
           const priceChange = ((currentPrice - avgPrice) / avgPrice) * 100;
 
           // Calculate days since last purchase
-          const lastBuyDate = Math.max(...dates);
+          const lastBuyDate = data.priceHistory[data.priceHistory.length - 1].date;
           const lastBuyDays = Math.floor((today - lastBuyDate) / (24 * 60 * 60 * 1000));
 
-          // Generate status recommendation
-          let status = '';
-          if (priceChange < -10) {
-            // Decreasing significantly - no recommendation (user can decide)
-            status = '';
-          } else if (currentPrice <= avgPrice * 0.95) {
-            // At or below average - good time to buy
-            status = 'At all low - good time to buy';
-          } else if (currentPrice > avgPrice * 1.05) {
-            // Above average - consider supplier review
-            status = 'At all high - consider supplier review';
-          } else {
-            // Stable - good time to buy
-            status = 'At all low - good time to buy';
-          }
-
           componentTrends.push({
-            componentName: component.variant
-              ? `${component.categoryName} (${component.variant})`
-              : component.categoryName,
+            componentName: data.variant
+              ? `${data.categoryName} (${data.variant})`
+              : data.categoryName,
             current: currentPrice,
             avg: avgPrice,
             change: priceChange,
             lastBuyDays,
-            status,
+            priceHistory: data.priceHistory,
           });
-        }
+        });
 
         if (componentTrends.length > 0) {
           // Sort components alphabetically by default
           componentTrends.sort((a, b) => a.componentName.localeCompare(b.componentName));
 
           trends.push({
-            productId: product.id,
-            productName: product.name,
-            cpu: cpuData.cpu || 'N/A',
-            margin: cpuData.margin !== null ? `${cpuData.margin.toFixed(1)}%` : 'N/A',
-            msrp: cpuData.msrp || 'N/A',
+            productId: productId,
+            productName: productName,
+            cpu: cpuData?.cpu || 'N/A',
+            margin: cpuData?.margin !== null && cpuData?.margin !== undefined ? `${cpuData.margin.toFixed(1)}%` : 'N/A',
+            msrp: cpuData?.msrp || 'N/A',
             components: componentTrends,
           });
         }
@@ -300,10 +298,6 @@ export default function CPUTrendsTab({
             aVal = a.lastBuyDays;
             bVal = b.lastBuyDays;
             break;
-          case 'status':
-            aVal = a.status;
-            bVal = b.status;
-            break;
           default:
             return 0;
         }
@@ -319,11 +313,60 @@ export default function CPUTrendsTab({
   }, [productTrends, sortColumn, sortDirection]);
 
   /**
+   * Prepare chart data by merging all component price histories
+   */
+  const prepareChartData = (components: ComponentTrendData[]): ChartDataPoint[] => {
+    // Collect all unique timestamps
+    const allTimestamps = new Set<number>();
+    components.forEach(comp => {
+      comp.priceHistory.forEach(point => allTimestamps.add(point.date));
+    });
+
+    // Sort timestamps
+    const sortedTimestamps = Array.from(allTimestamps).sort((a, b) => a - b);
+
+    // Build chart data points
+    return sortedTimestamps.map(timestamp => {
+      const dataPoint: ChartDataPoint = {
+        date: new Date(timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }),
+        timestamp,
+      };
+
+      // Add price for each component at this timestamp (or null if no data)
+      components.forEach(comp => {
+        const priceAtTime = comp.priceHistory.find(p => p.date === timestamp);
+        dataPoint[comp.componentName] = priceAtTime ? priceAtTime.price : null as any;
+      });
+
+      return dataPoint;
+    });
+  };
+
+  /**
+   * Generate distinct colors for chart lines
+   */
+  const getComponentColor = (index: number): string => {
+    const colors = [
+      '#4b006e', // Royal Purple
+      '#7c3aed', // Bright Purple
+      '#3b82f6', // Blue
+      '#10b981', // Green
+      '#f59e0b', // Amber
+      '#ef4444', // Red
+      '#ec4899', // Pink
+      '#8b5cf6', // Violet
+      '#14b8a6', // Teal
+      '#f97316', // Orange
+    ];
+    return colors[index % colors.length];
+  };
+
+  /**
    * Export trend data as CSV
    */
   const handleExportCSV = () => {
     const rows: string[] = [];
-    rows.push('Product,Component,Current Price,Average Price,Price Change %,Last Purchase (days ago),Volatility,Trend,Recommendation');
+    rows.push('Product,Component,Current Price,Average Price,Price Change %,Last Purchase (days ago),Volatility,Trend');
 
     sortedProductTrends.forEach(product => {
       product.components.forEach(comp => {
@@ -331,7 +374,7 @@ export default function CPUTrendsTab({
         const trend = comp.change > 5 ? 'increasing' : comp.change < -5 ? 'decreasing' : 'stable';
 
         rows.push(
-          `"${product.productName}","${comp.componentName}","${comp.current.toFixed(2)}","${comp.avg.toFixed(2)}","${comp.change.toFixed(1)}","${comp.lastBuyDays}","${volatility}","${trend}","${comp.status}"`
+          `"${product.productName}","${comp.componentName}","${comp.current.toFixed(2)}","${comp.avg.toFixed(2)}","${comp.change.toFixed(1)}","${comp.lastBuyDays}","${volatility}","${trend}"`
         );
       });
     });
@@ -410,11 +453,10 @@ export default function CPUTrendsTab({
         `$${comp.avg.toFixed(2)}`,
         comp.change !== 0 ? `${comp.change > 0 ? '+' : ''}${comp.change.toFixed(1)}%` : '—',
         `${comp.lastBuyDays}d`,
-        comp.status,
       ]);
 
       autoTable(doc, {
-        head: [['Component', 'Current', 'Avg', '%', 'Last Buy', 'Status']],
+        head: [['Component', 'Current', 'Avg', '%', 'Last Buy']],
         body: tableData,
         startY: yPos,
         styles: {
@@ -437,12 +479,11 @@ export default function CPUTrendsTab({
           fillColor: [255, 255, 255], // Same as bodyStyles - no alternating colors
         },
         columnStyles: {
-          0: { cellWidth: 45 },
-          1: { cellWidth: 20, halign: 'right' },
-          2: { cellWidth: 20, halign: 'right' },
-          3: { cellWidth: 20, halign: 'right' },
-          4: { cellWidth: 20, halign: 'right' },
-          5: { cellWidth: 55 },
+          0: { cellWidth: 60 },
+          1: { cellWidth: 30, halign: 'right' },
+          2: { cellWidth: 30, halign: 'right' },
+          3: { cellWidth: 30, halign: 'right' },
+          4: { cellWidth: 30, halign: 'right' },
         },
         margin: { left: 14, right: 14 },
         theme: 'grid', // Grid theme adds borders to all cells
@@ -519,6 +560,63 @@ export default function CPUTrendsTab({
                 </div>
               </div>
 
+              {/* Price Trend Chart */}
+              <div className={styles.chartSection}>
+                <div className={styles.chartHeader}>
+                  <h5 className={styles.chartTitle}>Component Price Trends</h5>
+                  <p className={styles.chartSubtitle}>Historical price movements over selected date range</p>
+                </div>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart
+                    data={prepareChartData(product.components)}
+                    margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 11 }}
+                      stroke="#6b7280"
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 11 }}
+                      stroke="#6b7280"
+                      label={{ value: 'Price ($)', angle: -90, position: 'insideLeft', style: { fontSize: 11 } }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '6px',
+                        fontSize: '0.875rem',
+                      }}
+                      formatter={(value: any) => value ? `$${Number(value).toFixed(2)}` : 'N/A'}
+                      labelStyle={{ fontWeight: 600, marginBottom: '0.5rem' }}
+                      itemSorter={(item: any) => -item.value}
+                    />
+                    <Legend
+                      wrapperStyle={{ fontSize: '0.75rem', paddingTop: '10px' }}
+                      iconType="line"
+                    />
+                    {product.components.map((comp, idx) => (
+                      <Line
+                        key={comp.componentName}
+                        type="monotone"
+                        dataKey={comp.componentName}
+                        stroke={getComponentColor(idx)}
+                        strokeWidth={2}
+                        dot={{ r: 3, strokeWidth: 2 }}
+                        activeDot={{ r: 5 }}
+                        connectNulls={true}
+                        name={comp.componentName}
+                      />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
               {/* Component table */}
               <div className={styles.tableContainer}>
                 <table className={styles.trendsTable}>
@@ -553,7 +651,7 @@ export default function CPUTrendsTab({
                         aria-sort={sortColumn === 'change' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
                         style={{ cursor: 'pointer' }}
                       >
-                        % {sortColumn === 'change' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        TREND {sortColumn === 'change' && (sortDirection === 'asc' ? '↑' : '↓')}
                       </th>
                       <th
                         onClick={() => handleSortChange('lastBuy')}
@@ -574,10 +672,10 @@ export default function CPUTrendsTab({
                         <td className={styles.priceValue}>
                           {comp.change !== 0 ? (
                             <span className={comp.change > 0 ? styles.increase : styles.decrease}>
-                              {comp.change > 0 ? '+' : ''}{comp.change.toFixed(1)}%
+                              {comp.change > 0 ? '↑ +' : '↓ '}{comp.change.toFixed(1)}%
                             </span>
                           ) : (
-                            <span>—</span>
+                            <span className={styles.stable}>→ Stable</span>
                           )}
                         </td>
                         <td className={styles.priceValue}>{comp.lastBuyDays}d</td>

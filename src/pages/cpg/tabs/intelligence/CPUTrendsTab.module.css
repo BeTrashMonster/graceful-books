@@ -230,10 +230,32 @@
   border-color: #16a34a;
 }
 
+/* Chart Section */
+.chartSection {
+  padding: 1.5rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.chartHeader {
+  margin-bottom: 1rem;
+}
+
+.chartTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+}
+
+.chartSubtitle {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin: 0;
+}
+
 /* Trends Table */
 .tableContainer {
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
   overflow: hidden;
   background: white;
 }
@@ -278,6 +300,28 @@
 .trendsTable th.notSortable:hover {
   background: #f8fafc;
   color: #64748b;
+}
+
+/* Column width management */
+.trendsTable th:nth-child(1) {
+  width: 35%;
+}
+
+.trendsTable th:nth-child(2) {
+  width: 15%;
+}
+
+.trendsTable th:nth-child(3) {
+  width: 15%;
+}
+
+.trendsTable th:nth-child(4) {
+  width: 20%;
+  min-width: 100px;
+}
+
+.trendsTable th:nth-child(5) {
+  width: 15%;
 }
 
 .trendsTable tbody tr {
@@ -393,6 +437,7 @@
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .productHeader {
@@ -460,6 +505,10 @@
 
 .decrease {
   color: #16a34a;
+}
+
+.stable {
+  color: #64748b;
 }
 
 /* Responsive */
