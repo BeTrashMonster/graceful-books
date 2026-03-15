@@ -102,7 +102,9 @@ export default function HistoricalAnalytics({ initialTab: propInitialTab, hideNa
   const [distributorTrend, setDistributorTrend] = useState<DistributorCostTrend | null>(null);
   const [compareDistributorTrend, setCompareDistributorTrend] = useState<DistributorCostTrend | null>(null);
   const [fullCalculations, setFullCalculations] = useState<any[]>([]);
-
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(['date', 'invoiceNumber', 'products', 'pallets', 'unitsPerPallet', 'totalUnits', 'totalCost', 'costPerUnit', 'actions']);
+  const [showColumnSelector, setShowColumnSelector] = useState(false);
+  const [showTableExportMenu, setShowTableExportMenu] = useState(false);
 
   // Promo Tracker Data
   const [promos, setPromos] = useState<CPGSalesPromo[]>([]);
