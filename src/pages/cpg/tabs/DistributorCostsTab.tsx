@@ -1060,7 +1060,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
   };
 
   return (
-    <div>
+    <div style={{ paddingLeft: '6rem', paddingRight: '6rem' }}>
       {/* Filters Section */}
       <div className={styles.filters}>
         {/* Date Range Filter */}
