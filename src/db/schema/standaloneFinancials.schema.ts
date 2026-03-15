@@ -73,7 +73,7 @@ export interface StandaloneFinancials extends BaseEntity {
 }
 
 export const standaloneFinancialsSchema =
-  'id, company_id, statement_type, period_start, period_end, [company_id+statement_type], [company_id+period_start], active, updated_at, deleted_at';
+  'id, company_id, statement_type, period_start, period_end, [company_id+statement_type], [company_id+statement_type+active], [company_id+period_start], active, updated_at, deleted_at';
 
 export const createDefaultStandaloneFinancials = (
   companyId: string,

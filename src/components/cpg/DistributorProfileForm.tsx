@@ -3,6 +3,7 @@ import { Input } from '../forms/Input';
 import { Button } from '../core/Button';
 import { Checkbox } from '../forms/Checkbox';
 import { Modal } from '../modals/Modal';
+import { useAuth } from '../../contexts/AuthContext';
 import type { CPGDistributor } from '../../db/schema/cpg.schema';
 import styles from './DistributorProfileForm.module.css';
 import modalStyles from './modals/CPGModals.module.css';
@@ -88,6 +89,7 @@ export function DistributorProfileForm({
   onCancel,
   loading = false,
 }: DistributorProfileFormProps) {
+  const { companyId } = useAuth();
   const [name, setName] = useState(distributor?.name || '');
   const [description, setDescription] = useState(distributor?.description || '');
   const [contactInfo, setContactInfo] = useState(distributor?.contact_info || '');
@@ -132,9 +134,11 @@ export function DistributorProfileForm({
 
   // Load custom Quick Adds and removed defaults from localStorage on mount
   useEffect(() => {
+    if (!companyId) return;
+
     try {
-      const savedCustom = localStorage.getItem('customQuickAdds');
-      const savedRemoved = localStorage.getItem('removedDefaultQuickAdds');
+      const savedCustom = localStorage.getItem(`cpg-quick-adds-custom-${companyId}`);
+      const savedRemoved = localStorage.getItem(`cpg-quick-adds-removed-${companyId}`);
 
       let custom: typeof COMMON_FEE_SUGGESTIONS = [];
       let removed: string[] = [];
@@ -157,7 +161,7 @@ export function DistributorProfileForm({
     } catch (error) {
       console.error('Error loading Quick Add preferences:', error);
     }
-  }, []);
+  }, [companyId]);
 
   // Apply purple header styling to modals
   useEffect(() => {
@@ -235,6 +239,8 @@ export function DistributorProfileForm({
 
   // Quick Add management functions
   const addCustomQuickAdd = (label: string, unit: typeof fees[0]['unit']) => {
+    if (!companyId) return;
+
     const newCustomAdd = { label, unit };
     const updatedCustom = [...customQuickAdds, newCustomAdd];
     setCustomQuickAdds(updatedCustom);
@@ -247,13 +253,15 @@ export function DistributorProfileForm({
 
     // Save to localStorage
     try {
-      localStorage.setItem('customQuickAdds', JSON.stringify(updatedCustom));
+      localStorage.setItem(`cpg-quick-adds-custom-${companyId}`, JSON.stringify(updatedCustom));
     } catch (error) {
       console.error('Error saving custom Quick Adds:', error);
     }
   };
 
   const removeCustomQuickAdd = (index: number) => {
+    if (!companyId) return;
+
     const updatedCustom = customQuickAdds.filter((_, i) => i !== index);
     setCustomQuickAdds(updatedCustom);
 
@@ -265,13 +273,15 @@ export function DistributorProfileForm({
 
     // Save to localStorage
     try {
-      localStorage.setItem('customQuickAdds', JSON.stringify(updatedCustom));
+      localStorage.setItem(`cpg-quick-adds-custom-${companyId}`, JSON.stringify(updatedCustom));
     } catch (error) {
       console.error('Error saving custom Quick Adds:', error);
     }
   };
 
   const removeDefaultQuickAdd = (label: string) => {
+    if (!companyId) return;
+
     const updatedRemoved = [...removedDefaultLabels, label];
     setRemovedDefaultLabels(updatedRemoved);
 
@@ -283,13 +293,15 @@ export function DistributorProfileForm({
 
     // Save to localStorage
     try {
-      localStorage.setItem('removedDefaultQuickAdds', JSON.stringify(updatedRemoved));
+      localStorage.setItem(`cpg-quick-adds-removed-${companyId}`, JSON.stringify(updatedRemoved));
     } catch (error) {
       console.error('Error saving removed defaults:', error);
     }
   };
 
   const restoreDefaultQuickAdd = (label: string) => {
+    if (!companyId) return;
+
     const updatedRemoved = removedDefaultLabels.filter(l => l !== label);
     setRemovedDefaultLabels(updatedRemoved);
 
@@ -302,9 +314,9 @@ export function DistributorProfileForm({
     // Save to localStorage
     try {
       if (updatedRemoved.length === 0) {
-        localStorage.removeItem('removedDefaultQuickAdds');
+        localStorage.removeItem(`cpg-quick-adds-removed-${companyId}`);
       } else {
-        localStorage.setItem('removedDefaultQuickAdds', JSON.stringify(updatedRemoved));
+        localStorage.setItem(`cpg-quick-adds-removed-${companyId}`, JSON.stringify(updatedRemoved));
       }
     } catch (error) {
       console.error('Error saving removed defaults:', error);
@@ -312,14 +324,16 @@ export function DistributorProfileForm({
   };
 
   const resetQuickAddsToDefault = () => {
+    if (!companyId) return;
+
     setCustomQuickAdds([]);
     setRemovedDefaultLabels([]);
     setQuickAddSuggestions(COMMON_FEE_SUGGESTIONS);
 
     // Clear from localStorage
     try {
-      localStorage.removeItem('customQuickAdds');
-      localStorage.removeItem('removedDefaultQuickAdds');
+      localStorage.removeItem(`cpg-quick-adds-custom-${companyId}`);
+      localStorage.removeItem(`cpg-quick-adds-removed-${companyId}`);
     } catch (error) {
       console.error('Error clearing Quick Add preferences:', error);
     }

@@ -69,6 +69,9 @@ export default function CPUTracker() {
   const [importError, setImportError] = useState<string | null>(null);
   const [importSuccess, setImportSuccess] = useState<string | null>(null);
 
+  // Vendor Intel Navigation
+  const [vendorIntelRequest, setVendorIntelRequest] = useState<{ vendorName: string } | null>(null);
+
   // Load data
   useEffect(() => {
     loadData();
@@ -84,6 +87,21 @@ export default function CPUTracker() {
     window.addEventListener('cpg-data-updated', handleDataUpdate);
     return () => window.removeEventListener('cpg-data-updated', handleDataUpdate);
   }, [companyId]);
+
+  // Listen for vendor intel navigation requests
+  useEffect(() => {
+    const handleVendorNavigation = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      if (customEvent.detail?.vendorName) {
+        // Switch to Cost Intelligence tab with Vendor Intel sub-tab
+        setActiveTab('comparison');
+        setVendorIntelRequest({ vendorName: customEvent.detail.vendorName });
+      }
+    };
+
+    window.addEventListener('navigate-to-vendor-intel', handleVendorNavigation);
+    return () => window.removeEventListener('navigate-to-vendor-intel', handleVendorNavigation);
+  }, []);
 
   const loadData = async () => {
     if (!companyId) {
@@ -474,6 +492,8 @@ export default function CPUTracker() {
                 categories={categories}
                 invoices={invoices}
                 onOpenCategoryManager={() => setShowCategoryManager(true)}
+                initialIntelligenceTab={vendorIntelRequest ? 'vendors' : undefined}
+                initialVendorFilter={vendorIntelRequest?.vendorName}
               />
             )}
           </>

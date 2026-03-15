@@ -22,7 +22,6 @@ import { useState, useEffect } from 'react';
 import { Button } from '../core/Button';
 import { Input } from '../forms/Input';
 import { Select } from '../forms/Select';
-import { HelpTooltip } from '../help/HelpTooltip';
 import {
   type StandaloneLineItem,
   type PeriodType,
@@ -48,6 +47,9 @@ export interface PLEntryFormProps {
     lineItems: StandaloneLineItem[];
   }) => void;
   onCancel?: () => void;
+  isEditing?: boolean;
+  onUnsavedChanges?: (hasChanges: boolean) => void;
+  isSaving?: boolean;
 }
 
 export function PLEntryForm({
@@ -55,6 +57,9 @@ export function PLEntryForm({
   initialData,
   onSave,
   onCancel,
+  isEditing = false,
+  onUnsavedChanges,
+  isSaving = false,
 }: PLEntryFormProps) {
   // Helper to format date as YYYY-MM-DD in local timezone (no UTC conversion)
   const formatDateLocal = (date: Date): string => {
@@ -116,6 +121,16 @@ export function PLEntryForm({
 
   console.log('📅 State values:', { periodStart, periodEnd });
 
+  // Update period dates when initialData changes (e.g., when user clicks a month in timeline)
+  useEffect(() => {
+    if (initialData?.periodStart) {
+      setPeriodStart(formatDateLocal(new Date(initialData.periodStart)));
+    }
+    if (initialData?.periodEnd) {
+      setPeriodEnd(formatDateLocal(new Date(initialData.periodEnd)));
+    }
+  }, [initialData]);
+
   // Line items
   const [revenueItems, setRevenueItems] = useState<StandaloneLineItem[]>(
     initialData?.lineItems.filter(item => item.category === 'Revenue') || [
@@ -167,6 +182,8 @@ export function PLEntryForm({
 
   // Validation
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [justSaved, setJustSaved] = useState(false);
+  const [wasSaving, setWasSaving] = useState(false);
 
   // Update totals whenever line items change
   useEffect(() => {
@@ -174,6 +191,36 @@ export function PLEntryForm({
     const calculated = calculatePLTotals(allItems);
     setTotals(calculated);
   }, [revenueItems, cogsItems, expenseItems]);
+
+  // Detect when save completes
+  useEffect(() => {
+    if (wasSaving && !isSaving) {
+      // Save just completed
+      setJustSaved(true);
+    }
+    setWasSaving(isSaving);
+  }, [isSaving, wasSaving]);
+
+  // Track unsaved changes
+  useEffect(() => {
+    if (!isEditing || !initialData) return;
+
+    // Check if current state differs from initial
+    const hasChanges =
+      periodType !== initialData.periodType ||
+      periodStart !== formatDateLocal(new Date(initialData.periodStart)) ||
+      periodEnd !== formatDateLocal(new Date(initialData.periodEnd)) ||
+      JSON.stringify([...revenueItems, ...cogsItems, ...expenseItems]) !==
+        JSON.stringify(initialData.lineItems);
+
+    if (hasChanges) {
+      setJustSaved(false); // Clear saved message when user makes changes
+    }
+
+    if (onUnsavedChanges) {
+      onUnsavedChanges(hasChanges);
+    }
+  }, [periodType, periodStart, periodEnd, revenueItems, cogsItems, expenseItems, isEditing, initialData, onUnsavedChanges]);
 
   // Update period end when period type changes
   useEffect(() => {
@@ -362,23 +409,13 @@ export function PLEntryForm({
 
   return (
     <div className={styles.form}>
-      {/* Helpful Intro */}
-      <div className={styles.infoBox}>
-        <div className={styles.infoIcon}>💡</div>
-        <div className={styles.infoContent}>
-          <h4 className={styles.infoTitle}>Quick Start Guide</h4>
-          <p className={styles.infoText}>
-            Enter your <strong>completed month's</strong> financial data below. We've pre-selected last month (<strong>{currentPeriodLabel}</strong>) to get you started. Add line items for your revenue, costs, and expenses - as detailed or simple as you'd like.
-          </p>
-        </div>
-      </div>
-
       {/* Period Selection */}
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>
-          Statement Period
-          <HelpTooltip content="Choose the time period this P&L statement covers. We've defaulted to your last completed month, but you can change this to any period you need." />
-        </h3>
+        <div className={styles.sectionHeader}>
+          <h3 className={styles.sectionTitle}>
+            Statement Period
+          </h3>
+        </div>
 
         <div className={styles.periodGrid}>
           <Select
@@ -409,12 +446,6 @@ export function PLEntryForm({
             error={errors.periodEnd}
           />
         </div>
-
-        {periodStart && periodEnd && (
-          <p className={styles.periodLabel}>
-            Period: {generatePeriodLabel(periodType, parseDateLocal(periodStart).getTime(), parseDateLocal(periodEnd).getTime())}
-          </p>
-        )}
       </section>
 
       {/* Revenue Section */}
@@ -422,17 +453,18 @@ export function PLEntryForm({
         <div className={styles.sectionHeader}>
           <h3 className={styles.sectionTitle}>
             Revenue
-            <HelpTooltip content="Money your business earned during this period. Include all income from sales, services, and other sources." />
           </h3>
-          <Button variant="secondary" size="sm" onClick={addRevenueItem}>
-            + Add Revenue Line
-          </Button>
         </div>
 
         <div className={styles.lineItems}>
-          {revenueItems.map(item =>
-            renderLineItem(item, revenueItems, setRevenueItems, 'e.g., Product sales')
-          )}
+          <div className={styles.greenBox}>
+            {revenueItems.map(item =>
+              renderLineItem(item, revenueItems, setRevenueItems, 'e.g., Product sales')
+            )}
+            <Button variant="secondary" size="sm" onClick={addRevenueItem} className={styles.addButton}>
+              + Add Line
+            </Button>
+          </div>
         </div>
 
         <div className={styles.subtotal}>
@@ -446,17 +478,18 @@ export function PLEntryForm({
         <div className={styles.sectionHeader}>
           <h3 className={styles.sectionTitle}>
             Cost of Goods Sold (COGS)
-            <HelpTooltip content="Direct costs to produce your products. This includes materials, packaging, and manufacturing costs." />
           </h3>
-          <Button variant="secondary" size="sm" onClick={addCogsItem}>
-            + Add COGS Line
-          </Button>
         </div>
 
         <div className={styles.lineItems}>
-          {cogsItems.map(item =>
-            renderLineItem(item, cogsItems, setCogsItems, 'e.g., Raw materials')
-          )}
+          <div className={styles.greenBox}>
+            {cogsItems.map(item =>
+              renderLineItem(item, cogsItems, setCogsItems, 'e.g., Raw materials')
+            )}
+            <Button variant="secondary" size="sm" onClick={addCogsItem} className={styles.addButton}>
+              + Add Line
+            </Button>
+          </div>
         </div>
 
         <div className={styles.subtotal}>
@@ -475,17 +508,18 @@ export function PLEntryForm({
         <div className={styles.sectionHeader}>
           <h3 className={styles.sectionTitle}>
             Expenses
-            <HelpTooltip content="Operating costs to run your business. Include rent, utilities, marketing, salaries, and other overhead." />
           </h3>
-          <Button variant="secondary" size="sm" onClick={addExpenseItem}>
-            + Add Expense Line
-          </Button>
         </div>
 
         <div className={styles.lineItems}>
-          {expenseItems.map(item =>
-            renderLineItem(item, expenseItems, setExpenseItems, 'e.g., Rent, utilities')
-          )}
+          <div className={styles.greenBox}>
+            {expenseItems.map(item =>
+              renderLineItem(item, expenseItems, setExpenseItems, 'e.g., Rent, utilities')
+            )}
+            <Button variant="secondary" size="sm" onClick={addExpenseItem} className={styles.addButton}>
+              + Add Line
+            </Button>
+          </div>
         </div>
 
         <div className={styles.subtotal}>
@@ -511,14 +545,22 @@ export function PLEntryForm({
 
       {/* Actions */}
       <div className={styles.actions}>
-        {onCancel && (
-          <Button variant="secondary" onClick={onCancel}>
-            Cancel
-          </Button>
+        {justSaved && (
+          <div className={styles.savedMessage}>
+            <span className={styles.savedIcon}>✓</span>
+            <span>Period updated successfully!</span>
+          </div>
         )}
-        <Button variant="primary" onClick={handleSave}>
-          Save P&L Statement
-        </Button>
+        <div className={styles.actionButtons}>
+          {onCancel && (
+            <Button variant="secondary" onClick={onCancel} disabled={isSaving}>
+              Cancel
+            </Button>
+          )}
+          <Button variant="primary" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? 'Saving...' : isEditing ? 'Update P&L Statement' : 'Save P&L Statement'}
+          </Button>
+        </div>
       </div>
     </div>
   );

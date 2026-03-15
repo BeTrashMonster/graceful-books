@@ -63,8 +63,8 @@ export function CPUDisplay({
   const [companyName, setCompanyName] = useState<string>('Your Company');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
 
-  // Date filtering
-  const [dateRangeFilter, setDateRangeFilter] = useState<DateRangePreset>('all');
+  // Date filtering - default to last 12 months
+  const [dateRangeFilter, setDateRangeFilter] = useState<DateRangePreset>('12mo');
   const [customStartDate, setCustomStartDate] = useState<string>('');
   const [customEndDate, setCustomEndDate] = useState<string>('');
 
@@ -109,8 +109,30 @@ export function CPUDisplay({
     loadFinishedProductCPUs();
   }, [companyId, dateRangeFilter]);
 
+  // Load card colors from localStorage
+  useEffect(() => {
+    if (!companyId) return;
+    const savedColors = localStorage.getItem(`cpg-cpu-card-colors-${companyId}`);
+    if (savedColors) {
+      try {
+        setCardColors(JSON.parse(savedColors));
+      } catch (err) {
+        console.error('Failed to parse saved card colors:', err);
+      }
+    }
+  }, [companyId]);
+
+  // Save card colors to localStorage
+  useEffect(() => {
+    if (!companyId) return;
+    if (Object.keys(cardColors).length > 0) {
+      localStorage.setItem(`cpg-cpu-card-colors-${companyId}`, JSON.stringify(cardColors));
+    }
+  }, [cardColors, companyId]);
+
   // Load product positions from localStorage
   useEffect(() => {
+    if (!companyId) return;
     const savedPositions = localStorage.getItem(`cpg-product-grid-positions-${companyId}`);
     if (savedPositions) {
       try {
@@ -123,6 +145,7 @@ export function CPUDisplay({
 
   // Save product positions to localStorage
   useEffect(() => {
+    if (!companyId) return;
     if (Object.keys(productPositions).length > 0) {
       localStorage.setItem(`cpg-product-grid-positions-${companyId}`, JSON.stringify(productPositions));
     }
@@ -136,11 +159,20 @@ export function CPUDisplay({
       const updated = { ...prev };
       let hasChanges = false;
 
+      // Get all currently occupied positions
+      const occupiedPositions = new Set(Object.values(updated));
+
       // Assign positions to products that don't have one
-      products.forEach((product, index) => {
+      products.forEach((product) => {
         const productKey = product.sku || product.productName;
         if (updated[productKey] === undefined) {
-          updated[productKey] = index;
+          // Find the first unoccupied position
+          let position = 0;
+          while (occupiedPositions.has(position)) {
+            position++;
+          }
+          updated[productKey] = position;
+          occupiedPositions.add(position); // Mark this position as occupied
           hasChanges = true;
         }
       });
@@ -1520,13 +1552,21 @@ export function CPUDisplay({
                             <>
                               <div>
                                 <div style={{ color: '#64748b', marginBottom: '0.25rem' }}>Profit</div>
-                                <div style={{ fontWeight: 600, fontSize: '1rem', color: '#10b981' }}>
+                                <div style={{
+                                  fontWeight: 600,
+                                  fontSize: '1rem',
+                                  color: product.profit >= 0 ? '#4b006e' : '#ea580c'
+                                }}>
                                   ${product.profit.toFixed(2)}
                                 </div>
                               </div>
                               <div>
                                 <div style={{ color: '#64748b', marginBottom: '0.25rem' }}>Margin</div>
-                                <div style={{ fontWeight: 600, fontSize: '1rem', color: '#10b981' }}>
+                                <div style={{
+                                  fontWeight: 600,
+                                  fontSize: '1rem',
+                                  color: (product.marginPercent ?? 0) >= 0 ? '#4b006e' : '#ea580c'
+                                }}>
                                   {product.marginPercent?.toFixed(1)}%
                                 </div>
                               </div>
@@ -1903,6 +1943,14 @@ export function CPUDisplay({
           dateRange={dateRange}
           companyName={companyName}
           companyId={companyId}
+          onNavigateToVendorIntel={(vendorName) => {
+            // Dispatch custom event to navigate to Vendor Intel tab
+            window.dispatchEvent(
+              new CustomEvent('navigate-to-vendor-intel', {
+                detail: { vendorName },
+              })
+            );
+          }}
           bundleStructure={selectedProduct.bundleStructure}
         />
       )}

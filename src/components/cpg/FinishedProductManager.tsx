@@ -68,6 +68,11 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
 
       // Calculate CPU for each product
       const cpuMap = new Map<string, string | null>();
+
+      // Use last 365 days for CPU calculation
+      const now = Date.now();
+      const dateRange = { start: now - 365 * 24 * 60 * 60 * 1000, end: now };
+
       for (const product of allProducts) {
         try {
           // Handle bundles differently - sum component product CPUs
@@ -83,7 +88,8 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                 try {
                   const cpuResult = await cpuCalculatorService.calculateFinishedProductCPU(
                     componentProduct.id,
-                    companyId
+                    companyId,
+                    dateRange
                   );
                   componentCpu = cpuResult.cpu;
                 } catch (err) {
@@ -104,10 +110,11 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
 
             cpuMap.set(product.id, hasAllCpus ? totalCpu.toFixed(2) : null);
           } else {
-            // Regular product - calculate CPU normally
+            // Regular product - calculate CPU normally (last 365 days)
             const cpuResult = await cpuCalculatorService.calculateFinishedProductCPU(
               product.id,
-              companyId
+              companyId,
+              dateRange
             );
             cpuMap.set(product.id, cpuResult.cpu);
           }
@@ -203,7 +210,8 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
   // Listen for data updates
   useEffect(() => {
     const handleDataUpdate = (event: CustomEvent) => {
-      if (event.detail?.type === 'product') {
+      // Reload products when product OR recipe changes (recipe changes affect CPU)
+      if (event.detail?.type === 'product' || event.detail?.type === 'recipe') {
         loadProducts();
       }
     };

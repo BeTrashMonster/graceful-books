@@ -33,6 +33,8 @@ export interface CostIntelligenceTabProps {
   invoices: CPGInvoice[];
   recipes?: any[]; // Product recipes that define which variant each product uses
   onOpenCategoryManager: () => void;
+  initialIntelligenceTab?: IntelligenceSubTab;
+  initialVendorFilter?: string;
 }
 
 type IntelligenceSubTab = 'scenario' | 'trends' | 'vendors' | 'alerts';
@@ -53,13 +55,17 @@ export default function CostIntelligenceTab({
   categories,
   invoices,
   onOpenCategoryManager,
+  initialIntelligenceTab,
+  initialVendorFilter,
 }: CostIntelligenceTabProps) {
   // Product selection state
   const [selectedProductsForComparison, setSelectedProductsForComparison] = useState<Set<string>>(new Set());
   const [comparisonCategoryFilter, setComparisonCategoryFilter] = useState<Set<string>>(new Set());
   const [comparisonVariantFilter, setComparisonVariantFilter] = useState<Set<string>>(new Set());
-  const [comparisonVendorFilter, setComparisonVendorFilter] = useState<Set<string>>(new Set());
-  const [comparisonDateRange, setComparisonDateRange] = useState<'3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all'>('6mo');
+  const [comparisonVendorFilter, setComparisonVendorFilter] = useState<Set<string>>(
+    initialVendorFilter ? new Set([initialVendorFilter]) : new Set()
+  );
+  const [comparisonDateRange, setComparisonDateRange] = useState<'3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all'>('12mo');
   const [comparisonCustomStartDate, setComparisonCustomStartDate] = useState<string>('');
   const [comparisonCustomEndDate, setComparisonCustomEndDate] = useState<string>('');
   const [showProductDropdown, setShowProductDropdown] = useState(false);
@@ -75,7 +81,7 @@ export default function CostIntelligenceTab({
   const [recipes, setRecipes] = useState<CPGRecipe[]>([]);
 
   // Sub-tab navigation
-  const [intelligenceTab, setIntelligenceTab] = useState<IntelligenceSubTab>('scenario');
+  const [intelligenceTab, setIntelligenceTab] = useState<IntelligenceSubTab>(initialIntelligenceTab || 'scenario');
 
   // Ref for focus management - scroll to content after selection
   const analysisContentRef = useRef<HTMLDivElement>(null);
@@ -98,12 +104,56 @@ export default function CostIntelligenceTab({
       setIsLoadingCPUData(true);
       const cpuDataMap = new Map<string, ProductCPUData>();
 
+      // Calculate date range based on selected filter
+      const now = Date.now();
+      let dateRange: { start: number; end: number } | null = null;
+
+      switch (comparisonDateRange) {
+        case '3mo':
+          dateRange = { start: now - 90 * 24 * 60 * 60 * 1000, end: now };
+          break;
+        case '6mo':
+          dateRange = { start: now - 180 * 24 * 60 * 60 * 1000, end: now };
+          break;
+        case '12mo':
+          dateRange = { start: now - 365 * 24 * 60 * 60 * 1000, end: now };
+          break;
+        case 'last-calendar-year': {
+          const lastYear = new Date().getFullYear() - 1;
+          dateRange = {
+            start: new Date(lastYear, 0, 1, 0, 0, 0, 0).getTime(),
+            end: new Date(lastYear, 11, 31, 23, 59, 59, 999).getTime(),
+          };
+          break;
+        }
+        case 'this-calendar-year': {
+          const thisYear = new Date().getFullYear();
+          dateRange = {
+            start: new Date(thisYear, 0, 1, 0, 0, 0, 0).getTime(),
+            end: now,
+          };
+          break;
+        }
+        case 'custom':
+          if (comparisonCustomStartDate && comparisonCustomEndDate) {
+            dateRange = {
+              start: new Date(comparisonCustomStartDate).getTime(),
+              end: new Date(comparisonCustomEndDate).getTime(),
+            };
+          }
+          break;
+        case 'all':
+        default:
+          dateRange = null; // No filtering
+          break;
+      }
+
       for (const productId of productIds) {
         const product = finishedProducts.find(p => p.id === productId);
         if (!product) continue;
 
-        // Calculate current CPU
-        const cpuResult = await cpuCalculatorService.calculateFinishedProductCPU(productId, companyId);
+        // Calculate current CPU with date range
+        const cpuResult = await cpuCalculatorService.calculateFinishedProductCPU(productId, companyId, dateRange);
 
         // Calculate margin if MSRP exists
         let margin: number | null = null;
@@ -141,7 +191,7 @@ export default function CostIntelligenceTab({
     } finally {
       setIsLoadingCPUData(false);
     }
-  }, [finishedProducts, companyId]);
+  }, [finishedProducts, companyId, comparisonDateRange, comparisonCustomStartDate, comparisonCustomEndDate]);
 
   // Handle date blur to convert 2-digit years to 20xx
   const handleDateBlur = useCallback((value: string, setter: (value: string) => void) => {
@@ -1276,7 +1326,7 @@ export default function CostIntelligenceTab({
         )}
 
         {/* Comparison Display */}
-        {selectedProductsForComparison.size === 0 ? (
+        {selectedProductsForComparison.size === 0 && comparisonCategoryFilter.size === 0 && comparisonVariantFilter.size === 0 && comparisonVendorFilter.size === 0 ? (
           <div style={{
             textAlign: 'center',
             padding: '4rem 2rem',

@@ -16,6 +16,7 @@ import { HelpTooltip } from '../../help/HelpTooltip';
 import { db } from '../../../db/database';
 import { InvoiceDetailsModal } from './InvoiceDetailsModal';
 import { AddInvoiceModal } from './AddInvoiceModal';
+import { VendorDetailsModal } from './VendorDetailsModal';
 import type { CPGInvoice } from '../../../db/schema/cpg.schema';
 import styles from './CPGModals.module.css';
 
@@ -42,6 +43,7 @@ export interface ProductBreakdownModalProps {
   dateRange?: { start: string; end: string };
   companyName?: string;
   companyId: string;
+  onNavigateToVendorIntel?: (vendorName: string) => void;
   bundleStructure?: {
     products: Array<{
       productId: string;
@@ -85,6 +87,7 @@ export function ProductBreakdownModal({
   dateRange,
   companyName = 'Your Company',
   companyId,
+  onNavigateToVendorIntel,
   bundleStructure,
 }: ProductBreakdownModalProps) {
   const [selectedComponent, setSelectedComponent] = useState<ProductBreakdownComponent | null>(null);
@@ -94,6 +97,8 @@ export function ProductBreakdownModal({
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [showEditInvoice, setShowEditInvoice] = useState(false);
   const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
+  const [showVendorDetails, setShowVendorDetails] = useState(false);
+  const [selectedVendorName, setSelectedVendorName] = useState<string | null>(null);
 
   // Select first component by default when modal opens
   useEffect(() => {
@@ -109,10 +114,19 @@ export function ProductBreakdownModal({
     const loadContributions = async () => {
       setIsLoadingDetails(true);
       try {
+        // Calculate date range: last 365 days
+        const now = Date.now();
+        const last365Days = now - 365 * 24 * 60 * 60 * 1000;
+
         const invoices = await db.cpgInvoices
           .where('company_id')
           .equals(companyId)
-          .filter(inv => inv.active && inv.deleted_at === null)
+          .filter(inv =>
+            inv.active &&
+            inv.deleted_at === null &&
+            inv.invoice_date >= last365Days &&
+            inv.invoice_date <= now
+          )
           .toArray();
 
         const relevantContributions: InvoiceContribution[] = [];
@@ -156,7 +170,7 @@ export function ProductBreakdownModal({
 
   const formatCurrency = (value: number | string): string => {
     const num = typeof value === 'string' ? parseFloat(value) : value;
-    return `$${num.toFixed(2)}`;
+    return `$${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   const formatDate = (timestamp: number): string => {
@@ -185,10 +199,19 @@ export function ProductBreakdownModal({
       const loadContributions = async () => {
         setIsLoadingDetails(true);
         try {
+          // Calculate date range: last 365 days
+          const now = Date.now();
+          const last365Days = now - 365 * 24 * 60 * 60 * 1000;
+
           const invoices = await db.cpgInvoices
             .where('company_id')
             .equals(companyId)
-            .filter(inv => inv.active && inv.deleted_at === null)
+            .filter(inv =>
+              inv.active &&
+              inv.deleted_at === null &&
+              inv.invoice_date >= last365Days &&
+              inv.invoice_date <= now
+            )
             .toArray();
 
           const relevantContributions: InvoiceContribution[] = [];
@@ -869,10 +892,23 @@ export function ProductBreakdownModal({
                       </div>
                     )}
                     <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                      {component.quantity} {component.unitOfMeasure}
+                      {(() => {
+                        const quantity = parseFloat(component.quantity.toString());
+                        const unitCost = component.subtotal && quantity > 0
+                          ? parseFloat(component.subtotal) / quantity
+                          : null;
+                        const showUnitCost = quantity !== 1 && unitCost !== null;
+
+                        return (
+                          <>
+                            {quantity.toLocaleString()} {component.unitOfMeasure}
+                            {showUnitCost && ` @ $${unitCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                          </>
+                        );
+                      })()}
                     </div>
                     <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', marginTop: '0.25rem' }}>
-                      {component.subtotal ? `$${component.subtotal}` : 'Awaiting data'}
+                      {component.subtotal ? `$${parseFloat(component.subtotal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'Awaiting data'}
                     </div>
                   </button>
                 );
@@ -896,21 +932,55 @@ export function ProductBreakdownModal({
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem', overflowY: 'auto' }}>
                 {/* Hero Answer */}
                 <div style={{
-                  padding: '1.5rem',
+                  padding: '1.25rem 1.5rem',
                   background: 'linear-gradient(135deg, #4b006e 0%, #6b1a8f 100%)',
                   borderRadius: '12px',
-                  textAlign: 'center',
                   color: 'white',
                 }}>
-                  <div style={{ fontSize: '0.875rem', opacity: 0.9, marginBottom: '0.5rem' }}>
-                    {selectedComponent.categoryName}{selectedComponent.variant && ` (${selectedComponent.variant})`}
+                  {/* Component Name + Total Cost - Single Row */}
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'baseline',
+                    marginBottom: '1rem',
+                  }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 600, opacity: 0.95 }}>
+                      {selectedComponent.categoryName}{selectedComponent.variant && ` (${selectedComponent.variant})`}
+                    </div>
+                    <div style={{ fontSize: '2.5rem', fontWeight: 700, lineHeight: 1 }}>
+                      {selectedComponent.subtotal ? `$${parseFloat(selectedComponent.subtotal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—'}
+                    </div>
                   </div>
-                  <div style={{ fontSize: '3rem', fontWeight: 700, lineHeight: 1 }}>
-                    {selectedComponent.subtotal ? `$${selectedComponent.subtotal}` : '—'}
-                  </div>
+
+                  {/* Recipe Details + Data Source - Single Row */}
                   {selectedComponent.hasCostData && (
-                    <div style={{ fontSize: '0.875rem', opacity: 0.8, marginTop: '0.75rem' }}>
-                      {totalUnits.toFixed(0)} units from {contributions.length} {contributions.length === 1 ? 'invoice' : 'invoices'}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      fontSize: '0.875rem',
+                      opacity: 0.85,
+                      paddingTop: '0.75rem',
+                      borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+                    }}>
+                      <div>
+                        {(() => {
+                          const quantity = parseFloat(selectedComponent.quantity.toString());
+                          const unitCost = selectedComponent.subtotal && quantity > 0
+                            ? parseFloat(selectedComponent.subtotal) / quantity
+                            : null;
+
+                          return (
+                            <>
+                              {quantity.toLocaleString()} {selectedComponent.unitOfMeasure}
+                              {unitCost !== null && ` @ $${unitCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                            </>
+                          );
+                        })()}
+                      </div>
+                      <div style={{ fontSize: '0.8125rem', opacity: 0.75 }}>
+                        {totalUnits.toLocaleString('en-US', { maximumFractionDigits: 0 })} units • {contributions.length.toLocaleString()} {contributions.length === 1 ? 'invoice' : 'invoices'}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -946,7 +1016,7 @@ export function ProductBreakdownModal({
                         color: '#374151',
                         marginBottom: '0.75rem',
                       }}>
-                        Invoice Breakdown
+                        Invoice Breakdown (Last 365 Days)
                       </div>
                       <div style={{
                         border: '1px solid #e5e7eb',
@@ -997,9 +1067,40 @@ export function ProductBreakdownModal({
                             >
                               {/* Vendor / Invoice Number */}
                               <div>
-                                <div style={{ fontWeight: 600, color: '#1f2937', fontSize: '0.9375rem' }}>
+                                <button
+                                  onClick={() => {
+                                    if (contribution.invoice.vendor_name) {
+                                      setSelectedVendorName(contribution.invoice.vendor_name);
+                                      setShowVendorDetails(true);
+                                    }
+                                  }}
+                                  style={{
+                                    fontWeight: 600,
+                                    color: contribution.invoice.vendor_name ? '#4b006e' : '#1f2937',
+                                    fontSize: '0.9375rem',
+                                    background: 'none',
+                                    border: 'none',
+                                    padding: 0,
+                                    cursor: contribution.invoice.vendor_name ? 'pointer' : 'default',
+                                    textDecoration: contribution.invoice.vendor_name ? 'underline' : 'none',
+                                    textDecorationStyle: 'dotted',
+                                    textUnderlineOffset: '2px',
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (contribution.invoice.vendor_name) {
+                                      e.currentTarget.style.textDecoration = 'underline';
+                                      e.currentTarget.style.textDecorationStyle = 'solid';
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    if (contribution.invoice.vendor_name) {
+                                      e.currentTarget.style.textDecoration = 'underline';
+                                      e.currentTarget.style.textDecorationStyle = 'dotted';
+                                    }
+                                  }}
+                                >
                                   {contribution.invoice.vendor_name || 'No Vendor'}
-                                </div>
+                                </button>
                                 <div style={{ fontSize: '0.8125rem', color: '#64748b', marginTop: '0.125rem' }}>
                                   Invoice #{contribution.invoice.invoice_number || 'N/A'}
                                 </div>
@@ -1013,11 +1114,11 @@ export function ProductBreakdownModal({
                               {/* Units */}
                               <div>
                                 <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>
-                                  {contribution.unitsReceived.toFixed(0)}
+                                  {contribution.unitsReceived.toLocaleString('en-US', { maximumFractionDigits: 0 })}
                                 </div>
                                 {hasReconciliation && (
                                   <div style={{ fontSize: '0.75rem', color: '#f59e0b', marginTop: '0.125rem' }}>
-                                    ({(contribution.unitsPurchased - contribution.unitsReceived).toFixed(0)} short)
+                                    ({(contribution.unitsPurchased - contribution.unitsReceived).toLocaleString('en-US', { maximumFractionDigits: 0 })} short)
                                   </div>
                                 )}
                               </div>
@@ -1074,7 +1175,7 @@ export function ProductBreakdownModal({
                       color: '#64748b',
                     }}>
                       <strong style={{ color: '#4b006e' }}>Calculation:</strong>{' '}
-                      {formatCurrency(totalCost)} total cost ÷ {totalUnits.toFixed(0)} units received = {formatCurrency(costPerUnit)} per unit
+                      {formatCurrency(totalCost)} total cost ÷ {totalUnits.toLocaleString('en-US', { maximumFractionDigits: 0 })} units received = {formatCurrency(costPerUnit)} per unit
                     </div>
                   </>
                 )}
@@ -1108,6 +1209,20 @@ export function ProductBreakdownModal({
           }}
           onSuccess={handleInvoiceSaved}
           invoiceId={editingInvoiceId}
+        />
+      )}
+
+      {/* Vendor Details Slide-Over */}
+      {showVendorDetails && selectedVendorName && (
+        <VendorDetailsModal
+          isOpen={showVendorDetails}
+          onClose={() => {
+            setShowVendorDetails(false);
+            setSelectedVendorName(null);
+          }}
+          vendorName={selectedVendorName}
+          companyId={companyId}
+          onViewFullVendorIntel={onNavigateToVendorIntel}
         />
       )}
     </>

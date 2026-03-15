@@ -18,18 +18,21 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { nanoid } from 'nanoid';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db';
 import { getDeviceId } from '../../db/crdt';
 import { PLEntryForm } from '../../components/cpg/PLEntryForm';
 import { BalanceSheetEntryForm } from '../../components/cpg/BalanceSheetEntryForm';
 import { SKUTracker } from '../../components/cpg/SKUTracker';
+import { FinancialTimeline } from '../../components/cpg/FinancialTimeline';
 import {
   type StandaloneFinancials,
   type PeriodType,
   createDefaultStandaloneFinancials,
   calculatePLTotals,
   calculateBalanceSheetTotals,
+  generatePeriodLabel,
 } from '../../db/schema/standaloneFinancials.schema';
 import styles from './FinancialStatementEntry.module.css';
 
@@ -45,11 +48,18 @@ export default function FinancialStatementEntry() {
   const [balanceSheets, setBalanceSheets] = useState<StandaloneFinancials[]>([]);
   const [skuCount, setSkuCount] = useState(0);
 
+  // Selected period from timeline
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+
   // Loading state
   const [isLoading, setIsLoading] = useState(true);
-  const [_isSaving, setIsSaving] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Track unsaved changes
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Load data
   useEffect(() => {
@@ -62,19 +72,23 @@ export default function FinancialStatementEntry() {
 
         // Load P&L statements
         const plData = await db.standaloneFinancials
-          ?.where({ company_id: companyId, statement_type: 'profit_loss', active: true })
+          ?.where('company_id')
+          .equals(companyId)
+          .filter(s => s.statement_type === 'profit_loss' && s.active)
           .toArray();
 
         // Load Balance Sheets
         const bsData = await db.standaloneFinancials
-          ?.where({ company_id: companyId, statement_type: 'balance_sheet', active: true })
+          ?.where('company_id')
+          .equals(companyId)
+          .filter(s => s.statement_type === 'balance_sheet' && s.active)
           .toArray();
 
-        // Load SKU count from CPG finished products
+        // Load SKU count from CPG finished products (exclude bundles)
         const products = await db.cpgFinishedProducts
           .where('company_id')
           .equals(companyId)
-          .filter(p => p.active && p.deleted_at === null)
+          .filter(p => p.active && p.deleted_at === null && !p.is_bundle)
           .toArray();
 
         setPlStatements(plData || []);
@@ -91,6 +105,19 @@ export default function FinancialStatementEntry() {
     loadData();
   }, [companyId]);
 
+  // Warn before leaving page with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
   // Handlers
   const handleSavePL = async (data: {
     periodType: PeriodType;
@@ -106,35 +133,72 @@ export default function FinancialStatementEntry() {
 
       const deviceId = getDeviceId();
       const totals = calculatePLTotals(data.lineItems);
+      const periodLabel = generatePeriodLabel(data.periodType, data.periodStart, data.periodEnd);
 
-      const statement: Partial<StandaloneFinancials> = {
-        ...createDefaultStandaloneFinancials(
-          companyId,
-          'profit_loss',
-          data.periodStart,
-          data.periodEnd,
-          deviceId
-        ),
-        period_type: data.periodType,
-        line_items: data.lineItems,
-        totals,
-      };
+      // Check if we're updating an existing record
+      const existingStatement = plStatements.find(s => {
+        const date = new Date(s.period_end);
+        return selectedMonth !== null &&
+               selectedYear !== null &&
+               date.getMonth() === selectedMonth &&
+               date.getFullYear() === selectedYear;
+      });
 
-      await db.standaloneFinancials?.add(statement as StandaloneFinancials);
+      if (existingStatement) {
+        // UPDATE existing record
+        console.log('🔄 Updating existing P&L:', existingStatement.id);
+        await db.standaloneFinancials?.update(existingStatement.id, {
+          period_type: data.periodType,
+          period_start: data.periodStart,
+          period_end: data.periodEnd,
+          period_label: periodLabel,
+          line_items: data.lineItems,
+          totals,
+          updated_at: Date.now(),
+        });
+        console.log('✅ P&L updated successfully');
+        setSuccessMessage('P&L statement updated successfully! Your records are looking great.');
+      } else {
+        // CREATE new record
+        const statement: StandaloneFinancials = {
+          id: nanoid(),
+          ...createDefaultStandaloneFinancials(
+            companyId,
+            'profit_loss',
+            data.periodStart,
+            data.periodEnd,
+            deviceId
+          ),
+          period_type: data.periodType,
+          period_label: periodLabel,
+          line_items: data.lineItems,
+          totals,
+        } as StandaloneFinancials;
 
-      setSuccessMessage('P&L statement saved successfully! You\'re building a solid financial foundation.');
+        console.log('💾 Creating new P&L:', statement);
+        const result = await db.standaloneFinancials?.add(statement);
+        console.log('✅ P&L created with ID:', result);
+        setSuccessMessage('P&L statement saved successfully! You\'re building a solid financial foundation.');
+      }
 
       // Reload data
       const updatedPL = await db.standaloneFinancials
-        ?.where({ company_id: companyId, statement_type: 'profit_loss', active: true })
+        ?.where('company_id')
+        .equals(companyId)
+        .filter(s => s.statement_type === 'profit_loss' && s.active)
         .toArray();
+      console.log('📊 Reloaded P&L statements:', updatedPL);
       setPlStatements(updatedPL || []);
+
+      // Clear unsaved changes flag
+      setHasUnsavedChanges(false);
 
       // Clear success message after 5 seconds
       setTimeout(() => setSuccessMessage(null), 5000);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error saving P&L statement:', err);
-      setError('Oops! We couldn\'t save your P&L statement. Let\'s try that again.');
+      console.error('Error details:', err.message, err.stack);
+      setError(`Oops! We couldn't save your P&L statement: ${err.message || 'Unknown error'}`);
     } finally {
       setIsSaving(false);
     }
@@ -154,29 +218,65 @@ export default function FinancialStatementEntry() {
 
       const deviceId = getDeviceId();
       const totals = calculateBalanceSheetTotals(data.lineItems);
+      const periodLabel = generatePeriodLabel(data.periodType, data.periodStart, data.periodEnd);
 
-      const statement: Partial<StandaloneFinancials> = {
-        ...createDefaultStandaloneFinancials(
-          companyId,
-          'balance_sheet',
-          data.periodStart,
-          data.periodEnd,
-          deviceId
-        ),
-        period_type: data.periodType,
-        line_items: data.lineItems,
-        totals,
-      };
+      // Check if we're updating an existing record
+      const existingStatement = balanceSheets.find(s => {
+        const date = new Date(s.period_end);
+        return selectedMonth !== null &&
+               selectedYear !== null &&
+               date.getMonth() === selectedMonth &&
+               date.getFullYear() === selectedYear;
+      });
 
-      await db.standaloneFinancials?.add(statement as StandaloneFinancials);
+      if (existingStatement) {
+        // UPDATE existing record
+        console.log('🔄 Updating existing Balance Sheet:', existingStatement.id);
+        await db.standaloneFinancials?.update(existingStatement.id, {
+          period_type: data.periodType,
+          period_start: data.periodStart,
+          period_end: data.periodEnd,
+          period_label: periodLabel,
+          line_items: data.lineItems,
+          totals,
+          updated_at: Date.now(),
+        });
+        console.log('✅ Balance Sheet updated successfully');
+        setSuccessMessage('Balance Sheet updated successfully! Your records are looking great.');
+      } else {
+        // CREATE new record
+        const statement: StandaloneFinancials = {
+          id: nanoid(),
+          ...createDefaultStandaloneFinancials(
+            companyId,
+            'balance_sheet',
+            data.periodStart,
+            data.periodEnd,
+            deviceId
+          ),
+          period_type: data.periodType,
+          period_label: periodLabel,
+          line_items: data.lineItems,
+          totals,
+        } as StandaloneFinancials;
 
-      setSuccessMessage('Balance Sheet saved successfully! Great work keeping your records organized.');
+        console.log('💾 Creating new Balance Sheet:', statement);
+        const result = await db.standaloneFinancials?.add(statement);
+        console.log('✅ Balance Sheet created with ID:', result);
+        setSuccessMessage('Balance Sheet saved successfully! Great work keeping your records organized.');
+      }
 
       // Reload data
       const updatedBS = await db.standaloneFinancials
-        ?.where({ company_id: companyId, statement_type: 'balance_sheet', active: true })
+        ?.where('company_id')
+        .equals(companyId)
+        .filter(s => s.statement_type === 'balance_sheet' && s.active)
         .toArray();
+      console.log('📊 Reloaded Balance Sheets:', updatedBS);
       setBalanceSheets(updatedBS || []);
+
+      // Clear unsaved changes flag
+      setHasUnsavedChanges(false);
 
       // Clear success message after 5 seconds
       setTimeout(() => setSuccessMessage(null), 5000);
@@ -192,6 +292,114 @@ export default function FinancialStatementEntry() {
     navigate(`/cpg/products`);
   };
 
+  const handleTabSwitch = (newTab: 'pl' | 'balance_sheet') => {
+    // Check for unsaved changes before switching tabs
+    if (hasUnsavedChanges) {
+      const confirmSwitch = window.confirm(
+        'You have unsaved changes. If you switch tabs now, your changes will be lost. Do you want to continue?'
+      );
+      if (!confirmSwitch) {
+        return;
+      }
+      setHasUnsavedChanges(false);
+    }
+    setActiveTab(newTab);
+  };
+
+  const handleMonthClick = (month: number, year: number, hasData: { pl: boolean; bs: boolean }) => {
+    // Check for unsaved changes before changing months
+    if (hasUnsavedChanges) {
+      const confirmSwitch = window.confirm(
+        'You have unsaved changes. If you select a different month now, your changes will be lost. Do you want to continue?'
+      );
+      if (!confirmSwitch) {
+        return;
+      }
+      setHasUnsavedChanges(false);
+    }
+
+    // Set selected period
+    setSelectedMonth(month);
+    setSelectedYear(year);
+
+    // If both are missing, default to P&L
+    // If only one is missing, switch to that tab
+    // If both exist, stay on current tab
+
+    if (!hasData.pl && !hasData.bs) {
+      setActiveTab('pl');
+    } else if (!hasData.pl) {
+      setActiveTab('pl');
+    } else if (!hasData.bs) {
+      setActiveTab('balance_sheet');
+    }
+
+    // Scroll to form
+    setTimeout(() => {
+      const formElement = document.querySelector('[role="tabpanel"]');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
+  // Check if we're editing an existing entry
+  const isEditingPL = () => {
+    if (selectedMonth === null || selectedYear === null || activeTab !== 'pl') return false;
+    return plStatements.some(s => {
+      const date = new Date(s.period_end);
+      return date.getMonth() === selectedMonth && date.getFullYear() === selectedYear;
+    });
+  };
+
+  const isEditingBS = () => {
+    if (selectedMonth === null || selectedYear === null || activeTab !== 'balance_sheet') return false;
+    return balanceSheets.some(s => {
+      const date = new Date(s.period_end);
+      return date.getMonth() === selectedMonth && date.getFullYear() === selectedYear;
+    });
+  };
+
+  // Generate initial data for forms based on selected month/year
+  const getInitialData = () => {
+    if (selectedMonth === null || selectedYear === null) return undefined;
+
+    // Calculate period start and end for the selected month
+    const periodStart = new Date(selectedYear, selectedMonth, 1).getTime();
+    const periodEnd = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59).getTime();
+
+    // Check if we have existing data for this period
+    const existingData = activeTab === 'pl'
+      ? plStatements.find(s => {
+          const date = new Date(s.period_end);
+          return date.getMonth() === selectedMonth && date.getFullYear() === selectedYear;
+        })
+      : balanceSheets.find(s => {
+          const date = new Date(s.period_end);
+          return date.getMonth() === selectedMonth && date.getFullYear() === selectedYear;
+        });
+
+    if (existingData) {
+      // Return existing data for editing
+      console.log('📝 Loading existing data for editing:', existingData);
+      return {
+        periodType: existingData.period_type,
+        periodStart: existingData.period_start,
+        periodEnd: existingData.period_end,
+        lineItems: existingData.line_items,
+      };
+    }
+
+    // Return blank form for new entry
+    console.log('📄 Creating blank form for new entry:', { selectedMonth, selectedYear });
+    return {
+      periodType: 'monthly' as PeriodType,
+      periodStart,
+      periodEnd,
+      lineItems: [],
+    };
+  };
+
   if (isLoading) {
     return (
       <div className={styles.loading}>
@@ -203,14 +411,9 @@ export default function FinancialStatementEntry() {
   return (
     <div className={styles.page}>
       {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <h1 className={styles.title}>Financial Statement Entry</h1>
-          <p className={styles.subtitle}>
-            Enter your P&L and Balance Sheet data to power your CPG cost analysis. Take your time - we'll guide you through each step.
-          </p>
-        </div>
-      </header>
+      <div className="page-header">
+        <h1 className="page-title">Financial Statement Entry</h1>
+      </div>
 
       {/* Success Message */}
       {successMessage && (
@@ -230,13 +433,26 @@ export default function FinancialStatementEntry() {
 
       <div className={styles.content}>
         {/* Left Column: Forms */}
-        <div className={styles.mainColumn}>
-          {/* Tab Navigation */}
-          <div className={styles.tabs}>
+        <div className={styles.leftColumn}>
+          {/* Financial Timeline */}
+          <div className={styles.timelineBox}>
+            <FinancialTimeline
+              plStatements={plStatements}
+              balanceSheets={balanceSheets}
+              onMonthClick={handleMonthClick}
+              selectedMonth={selectedMonth}
+              selectedYear={selectedYear}
+            />
+          </div>
+
+          {/* Tab Navigation and Forms */}
+          <div className={styles.mainColumn}>
+            {/* Tab Navigation */}
+            <div className={styles.tabs}>
             <button
               type="button"
               className={`${styles.tab} ${activeTab === 'pl' ? styles.active : ''}`}
-              onClick={() => setActiveTab('pl')}
+              onClick={() => handleTabSwitch('pl')}
               aria-selected={activeTab === 'pl'}
               role="tab"
             >
@@ -245,7 +461,7 @@ export default function FinancialStatementEntry() {
             <button
               type="button"
               className={`${styles.tab} ${activeTab === 'balance_sheet' ? styles.active : ''}`}
-              onClick={() => setActiveTab('balance_sheet')}
+              onClick={() => handleTabSwitch('balance_sheet')}
               aria-selected={activeTab === 'balance_sheet'}
               role="tab"
             >
@@ -258,8 +474,13 @@ export default function FinancialStatementEntry() {
             {activeTab === 'pl' && (
               <div className={styles.formContainer}>
                 <PLEntryForm
+                  key={`pl-${selectedMonth}-${selectedYear}`}
                   companyId={companyId}
                   onSave={handleSavePL}
+                  initialData={getInitialData()}
+                  isEditing={isEditingPL()}
+                  onUnsavedChanges={setHasUnsavedChanges}
+                  isSaving={isSaving}
                 />
               </div>
             )}
@@ -267,89 +488,18 @@ export default function FinancialStatementEntry() {
             {activeTab === 'balance_sheet' && (
               <div className={styles.formContainer}>
                 <BalanceSheetEntryForm
+                  key={`bs-${selectedMonth}-${selectedYear}`}
                   companyId={companyId}
                   onSave={handleSaveBalanceSheet}
+                  initialData={getInitialData()}
+                  isEditing={isEditingBS()}
+                  onUnsavedChanges={setHasUnsavedChanges}
+                  isSaving={isSaving}
                 />
               </div>
             )}
           </div>
-
-          {/* Historical Statements */}
-          {activeTab === 'pl' && plStatements.length > 0 && (
-            <div className={styles.historySection}>
-              <h3 className={styles.historyTitle}>Your P&L Statements</h3>
-              <div className={styles.historyList}>
-                {plStatements.map(statement => (
-                  <div key={statement.id} className={styles.historyCard}>
-                    <div className={styles.historyHeader}>
-                      <span className={styles.historyPeriod}>
-                        {statement.period_label ||
-                          `${new Date(statement.period_start).toLocaleDateString()} - ${new Date(statement.period_end).toLocaleDateString()}`}
-                      </span>
-                      <span className={styles.historyDate}>
-                        Saved {new Date(statement.created_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div className={styles.historyStats}>
-                      <div className={styles.historyStat}>
-                        <span className={styles.historyStatLabel}>Revenue:</span>
-                        <span className={styles.historyStatValue}>
-                          ${statement.totals.revenue || '0.00'}
-                        </span>
-                      </div>
-                      <div className={styles.historyStat}>
-                        <span className={styles.historyStatLabel}>Net Income:</span>
-                        <span className={`${styles.historyStatValue} ${parseFloat(statement.totals.net_income || '0') >= 0 ? styles.positive : styles.negative}`}>
-                          ${statement.totals.net_income || '0.00'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'balance_sheet' && balanceSheets.length > 0 && (
-            <div className={styles.historySection}>
-              <h3 className={styles.historyTitle}>Your Balance Sheets</h3>
-              <div className={styles.historyList}>
-                {balanceSheets.map(statement => (
-                  <div key={statement.id} className={styles.historyCard}>
-                    <div className={styles.historyHeader}>
-                      <span className={styles.historyPeriod}>
-                        As of {new Date(statement.period_end).toLocaleDateString()}
-                      </span>
-                      <span className={styles.historyDate}>
-                        Saved {new Date(statement.created_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div className={styles.historyStats}>
-                      <div className={styles.historyStat}>
-                        <span className={styles.historyStatLabel}>Total Assets:</span>
-                        <span className={styles.historyStatValue}>
-                          ${statement.totals.total_assets || '0.00'}
-                        </span>
-                      </div>
-                      <div className={styles.historyStat}>
-                        <span className={styles.historyStatLabel}>Total Equity:</span>
-                        <span className={styles.historyStatValue}>
-                          ${statement.totals.equity || '0.00'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className={styles.balanceStatus}>
-                      {statement.totals.is_balanced ? (
-                        <span className={styles.balanced}>✓ Balanced</span>
-                      ) : (
-                        <span className={styles.unbalanced}>⚠ Needs Review</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          </div>
         </div>
 
         {/* Right Column: SKU Tracker */}

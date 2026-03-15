@@ -44,7 +44,7 @@ export function CPGActionBar({ onAction }: CPGActionBarProps) {
       return { label: '', action: '', showButton: false };
     }
     if (location.pathname.includes('financial-entry')) {
-      return { label: '+ Add Financial Data', action: 'add-financial', showButton: true };
+      return { label: '', action: '', showButton: false };
     }
     if (location.pathname.includes('analytics')) {
       return { label: '+ Add Data Point', action: 'add-data', showButton: true };

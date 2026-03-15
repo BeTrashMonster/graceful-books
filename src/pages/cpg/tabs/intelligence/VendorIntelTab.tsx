@@ -571,11 +571,6 @@ export default function VendorIntelTab({
   }, [vendorInvoices, invoiceSortColumn, invoiceSortDirection]);
 
   const loadVendorIntelligence = () => {
-    if (selectedProducts.size === 0) {
-      setVendorOverviews([]);
-      return;
-    }
-
     try {
       const today = Date.now();
       let startDate = 0;
@@ -632,7 +627,13 @@ export default function VendorIntelTab({
 
       const componentCategories = new Map<string, Set<string>>();
 
-      selectedProducts.forEach(productId => {
+      // If selectedProducts is EMPTY -> use ALL products (no filter)
+      // If selectedProducts has items -> use only those products
+      const productsToAnalyze = selectedProducts.size > 0
+        ? Array.from(selectedProducts)
+        : Array.from(productCPUData.keys());
+
+      productsToAnalyze.forEach(productId => {
         const cpuData = productCPUData.get(productId);
         if (cpuData?.breakdown) {
           cpuData.breakdown.forEach(comp => {
@@ -649,6 +650,11 @@ export default function VendorIntelTab({
 
       const vendorStats = new Map<string, { spend: number; invoices: Set<string>; components: Set<string> }>();
 
+      // Check if we should filter by product components or show all vendor data
+      // If ONLY vendorFilter is active (no product/category/variant filters), show everything
+      const hasProductFilters = selectedProducts.size > 0 || categoryFilter.size > 0 || variantFilter.size > 0;
+      const showAllVendorComponents = !hasProductFilters;
+
       vendorFilteredInvoices.forEach(inv => {
         const vendor = inv.vendor_name || 'Unknown';
 
@@ -660,8 +666,14 @@ export default function VendorIntelTab({
         stats.invoices.add(inv.id);
 
         Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
-          const variants = componentCategories.get(attr.category_id);
-          if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
+          // If showing all vendor components, don't filter by componentCategories
+          // Otherwise, only show components used in selected products
+          const shouldInclude = showAllVendorComponents || (() => {
+            const variants = componentCategories.get(attr.category_id);
+            return variants && (variants.size === 0 || variants.has(attr.variant || ''));
+          })();
+
+          if (shouldInclude) {
             const unitPrice = parseFloat(attr.unit_price);
             const unitsPurchased = parseFloat(attr.units_purchased);
 
@@ -790,11 +802,6 @@ export default function VendorIntelTab({
   };
 
   const loadComponentIntelligence = () => {
-    if (selectedProducts.size === 0) {
-      setComponentOverviews([]);
-      return;
-    }
-
     try {
       const today = Date.now();
       let startDate = 0;
@@ -833,7 +840,10 @@ export default function VendorIntelTab({
       // Build component categories filter
       const componentCategories = new Map<string, Set<string>>();
       productCPUData.forEach((cpuData, productId) => {
-        if (!selectedProducts.has(productId)) return;
+        // If selectedProducts is EMPTY -> include ALL products (no filter)
+        // If selectedProducts has items -> include only those products
+        if (selectedProducts.size > 0 && !selectedProducts.has(productId)) return;
+
         cpuData.breakdown.forEach((comp) => {
           // Apply category and variant filters
           if (categoryFilter.size > 0 && !categoryFilter.has(comp.categoryId)) return;
@@ -853,6 +863,10 @@ export default function VendorIntelTab({
         ? new Set(Array.from(vendorFilter).map(v => v.trim().toLowerCase()))
         : new Set();
 
+      // Check if we should filter by product components or show all vendor data
+      const hasProductFilters = selectedProducts.size > 0 || categoryFilter.size > 0 || variantFilter.size > 0;
+      const showAllVendorComponents = !hasProductFilters;
+
       // Filter invoices
       const filteredInvoices = localInvoices.filter(inv => {
         if (inv.deleted_at) return false;
@@ -863,6 +877,12 @@ export default function VendorIntelTab({
         if (normalizedVendorFilter.size > 0) {
           const vendorName = (inv.vendor_name || '').trim().toLowerCase();
           if (!normalizedVendorFilter.has(vendorName)) return false;
+        }
+
+        // If showing all vendor components, include all invoices
+        // Otherwise, only include invoices with components in componentCategories
+        if (showAllVendorComponents) {
+          return true;
         }
 
         const hasRelevantComponent = Object.values(inv.cost_attribution || {}).some(attr => {
@@ -882,8 +902,12 @@ export default function VendorIntelTab({
 
       filteredInvoices.forEach(inv => {
         Object.values(inv.cost_attribution || {}).forEach(attr => {
-          const variants = componentCategories.get(attr.category_id);
-          if (!variants || (!variants.has(attr.variant || '') && variants.size > 0)) return;
+          // If showing all vendor components, include everything
+          // Otherwise, only include components in componentCategories
+          if (!showAllVendorComponents) {
+            const variants = componentCategories.get(attr.category_id);
+            if (!variants || (!variants.has(attr.variant || '') && variants.size > 0)) return;
+          }
 
           const category = categories.find(c => c.id === attr.category_id);
           const categoryName = category?.name || 'Unknown';

@@ -1,0 +1,354 @@
+/**
+ * Financial Timeline Styles
+ */
+
+.timeline {
+  position: relative;
+  z-index: 10;
+  background: white;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+/* Header */
+.timelineHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e9d5ff;
+}
+
+.yearFilter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.yearLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.yearSelect {
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #1f2937;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.yearSelect:hover {
+  border-color: #4b006e;
+}
+
+.yearSelect:focus {
+  outline: none;
+  border-color: #4b006e;
+  box-shadow: 0 0 0 3px rgba(75, 0, 110, 0.1);
+}
+
+.status {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Months Container */
+.monthsContainer {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+}
+
+/* Month Box */
+.monthBox {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  border-radius: 0.375rem;
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0.375rem 0.125rem;
+  font-size: 0.75rem;
+}
+
+.monthName {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1;
+}
+
+.monthIndicator {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  line-height: 1;
+  min-height: 0.75rem;
+}
+
+/* Month states - color coded */
+.monthComplete {
+  background-color: #d1fae5;
+  border-color: #10b981;
+  color: #065f46;
+}
+
+.monthComplete:hover {
+  background-color: #a7f3d0;
+  border-color: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.monthPartial {
+  background-color: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+.monthPartial:hover {
+  background-color: #fde68a;
+  border-color: #d97706;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+}
+
+.monthEmpty {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  color: #9ca3af;
+}
+
+.monthEmpty:hover {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(156, 163, 175, 0.2);
+}
+
+/* Selected month state */
+.monthSelected {
+  border-color: #4b006e !important;
+  border-width: 3px !important;
+  box-shadow: 0 0 0 3px rgba(75, 0, 110, 0.15) !important;
+  transform: scale(1.05);
+}
+
+/* Tooltip */
+.tooltip {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Fix edge positioning for first 3 and last 3 months */
+.monthBox:nth-child(1) .tooltip,
+.monthBox:nth-child(2) .tooltip,
+.monthBox:nth-child(3) .tooltip {
+  left: 0;
+  transform: translateX(0);
+}
+
+.monthBox:nth-child(10) .tooltip,
+.monthBox:nth-child(11) .tooltip,
+.monthBox:nth-child(12) .tooltip {
+  left: auto;
+  right: 0;
+  transform: translateX(0);
+}
+
+.tooltipContent {
+  display: flex;
+  gap: 1rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e5e7eb;
+  min-width: 400px;
+}
+
+/* Preview Cards */
+.previewCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #faf5ff;
+  border-radius: 0.375rem;
+  border: 1px solid #e9d5ff;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e9d5ff;
+}
+
+.previewIcon {
+  font-size: 1rem;
+}
+
+.previewTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #5b21b6;
+}
+
+.previewStats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.previewStat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #374151;
+}
+
+.previewStat span:first-child {
+  color: #6b7280;
+}
+
+.previewStat span:last-child {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.previewTotal {
+  padding-top: 0.5rem;
+  border-top: 1px solid #e9d5ff;
+  font-weight: 600;
+}
+
+.previewTotal span:last-child {
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.positive {
+  color: #059669;
+}
+
+.negative {
+  color: #dc2626;
+}
+
+.previewEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  text-align: center;
+}
+
+.previewEmpty p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.balanceStatus {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e9d5ff;
+  text-align: center;
+}
+
+.balanced {
+  color: #059669;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.unbalanced {
+  color: #dc2626;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Legend */
+.legend {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 2px solid #e9d5ff;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #374151;
+}
+
+.legendBox {
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 0.25rem;
+  border: 2px solid;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .monthsContainer {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .tooltipContent {
+    flex-direction: column;
+    min-width: 300px;
+  }
+}
+
+@media (max-width: 640px) {
+  .monthsContainer {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .monthBox {
+    padding: 0.375rem 0.125rem;
+  }
+
+  .monthName {
+    font-size: 0.625rem;
+  }
+
+  .timelineHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .legend {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

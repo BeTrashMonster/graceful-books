@@ -118,12 +118,30 @@
 
 /* Scenarios Section */
 .scenariosSection {
-  /* Full width - no constraints */
+  /* SavedScenarios has 2rem internal padding - no wrapper padding needed */
 }
 
 /* Manage Section */
 .manageSection {
-  /* Full width - no constraints */
+  /* DistributorManager embeddedContainer has 2rem internal padding - no wrapper padding needed */
+}
+
+/* Costs Section */
+.costsSection {
+  /* HistoricalAnalytics has 2rem internal padding - this is the target alignment */
+}
+
+/* Calculations Section */
+.calculationsSection {
+  padding: 0 2rem !important;
+  /* No component padding, add 2rem wrapper to match others */
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.calculationsSection .section {
+  margin-left: 3rem;
 }
 
 /* Modals */

@@ -23,7 +23,6 @@ import { useState, useEffect } from 'react';
 import { Button } from '../core/Button';
 import { Input } from '../forms/Input';
 import { Select } from '../forms/Select';
-import { HelpTooltip } from '../help/HelpTooltip';
 import {
   type StandaloneLineItem,
   type PeriodType,
@@ -48,6 +47,9 @@ export interface BalanceSheetEntryFormProps {
     lineItems: StandaloneLineItem[];
   }) => void;
   onCancel?: () => void;
+  isEditing?: boolean;
+  onUnsavedChanges?: (hasChanges: boolean) => void;
+  isSaving?: boolean;
 }
 
 export function BalanceSheetEntryForm({
@@ -55,24 +57,39 @@ export function BalanceSheetEntryForm({
   initialData,
   onSave,
   onCancel,
+  isEditing = false,
+  onUnsavedChanges,
+  isSaving = false,
 }: BalanceSheetEntryFormProps) {
+  // Helper to format date as YYYY-MM-DD in local timezone (no UTC conversion)
+  const formatDateLocal = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Helper to parse date string (YYYY-MM-DD) as local date without timezone shift
+  const parseDateLocal = (dateString: string): Date => {
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
   // Period selection
   const [periodType, setPeriodType] = useState<PeriodType>(
     initialData?.periodType || 'monthly'
   );
   const [periodStart, _setPeriodStart] = useState<string>(() => {
     if (initialData?.periodStart) {
-      return new Date(initialData.periodStart).toISOString().split('T')[0]!;
+      return formatDateLocal(new Date(initialData.periodStart));
     }
-    return new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]!;
+    return formatDateLocal(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
   });
   const [periodEnd, setPeriodEnd] = useState<string>(() => {
     if (initialData?.periodEnd) {
-      return new Date(initialData.periodEnd).toISOString().split('T')[0]!;
+      return formatDateLocal(new Date(initialData.periodEnd));
     }
-    return new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
-      .toISOString()
-      .split('T')[0]!;
+    return formatDateLocal(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0));
   });
 
   // Assets
@@ -165,6 +182,8 @@ export function BalanceSheetEntryForm({
 
   // Validation
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [justSaved, setJustSaved] = useState(false);
+  const [wasSaving, setWasSaving] = useState(false);
 
   // Update totals whenever line items change
   useEffect(() => {
@@ -178,6 +197,42 @@ export function BalanceSheetEntryForm({
     const calculated = calculateBalanceSheetTotals(allItems);
     setTotals(calculated);
   }, [currentAssets, fixedAssets, currentLiabilities, longTermLiabilities, equityItems]);
+
+  // Track unsaved changes
+  useEffect(() => {
+    if (!isEditing || !initialData) return;
+
+    // Check if current state differs from initial
+    const allItems = [
+      ...currentAssets,
+      ...fixedAssets,
+      ...currentLiabilities,
+      ...longTermLiabilities,
+      ...equityItems,
+    ];
+
+    const hasChanges =
+      periodType !== initialData.periodType ||
+      periodEnd !== formatDateLocal(new Date(initialData.periodEnd)) ||
+      JSON.stringify(allItems) !== JSON.stringify(initialData.lineItems);
+
+    if (hasChanges) {
+      setJustSaved(false); // Clear saved message when user makes changes
+    }
+
+    if (onUnsavedChanges) {
+      onUnsavedChanges(hasChanges);
+    }
+  }, [periodType, periodEnd, currentAssets, fixedAssets, currentLiabilities, longTermLiabilities, equityItems, isEditing, initialData, onUnsavedChanges]);
+
+  // Detect when save completes
+  useEffect(() => {
+    if (wasSaving && !isSaving) {
+      // Save just completed
+      setJustSaved(true);
+    }
+    setWasSaving(isSaving);
+  }, [isSaving, wasSaving]);
 
   // Update period end when period type changes
   useEffect(() => {
@@ -202,8 +257,18 @@ export function BalanceSheetEntryForm({
         return;
     }
 
-    setPeriodEnd(endDate.toISOString().split('T')[0]!!);
+    setPeriodEnd(formatDateLocal(endDate));
   }, [periodType, periodStart]);
+
+  // Update period dates when initialData changes (e.g., when user clicks a month in timeline)
+  useEffect(() => {
+    if (initialData?.periodStart) {
+      _setPeriodStart(formatDateLocal(new Date(initialData.periodStart)));
+    }
+    if (initialData?.periodEnd) {
+      setPeriodEnd(formatDateLocal(new Date(initialData.periodEnd)));
+    }
+  }, [initialData]);
 
   // Handlers
   const addItem = (
@@ -259,7 +324,7 @@ export function BalanceSheetEntryForm({
       newErrors.periodEnd = 'Period end date is required';
     }
 
-    if (periodStart && periodEnd && new Date(periodEnd) <= new Date(periodStart)) {
+    if (periodStart && periodEnd && parseDateLocal(periodEnd) <= parseDateLocal(periodStart)) {
       newErrors.periodEnd = 'Period end must be after period start';
     }
 
@@ -292,8 +357,8 @@ export function BalanceSheetEntryForm({
 
     onSave({
       periodType,
-      periodStart: new Date(periodStart).getTime(),
-      periodEnd: new Date(periodEnd).getTime(),
+      periodStart: parseDateLocal(periodStart).getTime(),
+      periodEnd: parseDateLocal(periodEnd).getTime(),
       lineItems: allItems,
     });
   };
@@ -346,10 +411,7 @@ export function BalanceSheetEntryForm({
     <div className={styles.form}>
       {/* Period Selection */}
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>
-          Statement Date
-          <HelpTooltip content="Balance Sheets show your financial position at a specific point in time (usually the end of a month, quarter, or year)." />
-        </h3>
+        <h2 className={styles.mainSectionTitle}>Statement Date</h2>
 
         <div className={styles.periodGrid}>
           <Select
@@ -372,41 +434,34 @@ export function BalanceSheetEntryForm({
             error={errors.periodEnd}
           />
         </div>
-
-        {periodEnd && (
-          <p className={styles.periodLabel}>
-            Balance Sheet as of {new Date(periodEnd).toLocaleDateString()}
-          </p>
-        )}
       </section>
 
       {/* Assets */}
       <section className={styles.section}>
         <h2 className={styles.mainSectionTitle}>Assets</h2>
-        <p className={styles.sectionHelp}>
-          What your business owns. This includes cash, inventory, equipment, and other valuable resources.
-        </p>
 
         {/* Current Assets */}
         <div className={styles.subsection}>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>
               Current Assets
-              <HelpTooltip content="Assets you expect to convert to cash within a year. Examples: cash, accounts receivable, inventory." />
             </h3>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => addItem(currentAssets, setCurrentAssets, 'Assets', 'Current')}
-            >
-              + Add Line
-            </Button>
           </div>
 
           <div className={styles.lineItems}>
-            {currentAssets.map(item =>
-              renderLineItem(item, currentAssets, setCurrentAssets, 'e.g., Cash, Inventory')
-            )}
+            <div className={styles.greenBox}>
+              {currentAssets.map(item =>
+                renderLineItem(item, currentAssets, setCurrentAssets, 'e.g., Cash, Inventory')
+              )}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => addItem(currentAssets, setCurrentAssets, 'Assets', 'Current')}
+                className={styles.addLineInside}
+              >
+                + Add Line
+              </Button>
+            </div>
           </div>
 
           <div className={styles.subtotal}>
@@ -420,21 +475,23 @@ export function BalanceSheetEntryForm({
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>
               Fixed Assets
-              <HelpTooltip content="Long-term assets used in your business. Examples: equipment, vehicles, buildings." />
             </h3>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => addItem(fixedAssets, setFixedAssets, 'Assets', 'Fixed')}
-            >
-              + Add Line
-            </Button>
           </div>
 
           <div className={styles.lineItems}>
-            {fixedAssets.map(item =>
-              renderLineItem(item, fixedAssets, setFixedAssets, 'e.g., Equipment, Vehicles')
-            )}
+            <div className={styles.greenBox}>
+              {fixedAssets.map(item =>
+                renderLineItem(item, fixedAssets, setFixedAssets, 'e.g., Equipment, Vehicles')
+              )}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => addItem(fixedAssets, setFixedAssets, 'Assets', 'Fixed')}
+                className={styles.addLineInside}
+              >
+                + Add Line
+              </Button>
+            </div>
           </div>
 
           <div className={styles.subtotal}>
@@ -452,30 +509,29 @@ export function BalanceSheetEntryForm({
       {/* Liabilities */}
       <section className={styles.section}>
         <h2 className={styles.mainSectionTitle}>Liabilities</h2>
-        <p className={styles.sectionHelp}>
-          What your business owes. This includes loans, accounts payable, and other debts.
-        </p>
 
         {/* Current Liabilities */}
         <div className={styles.subsection}>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>
               Current Liabilities
-              <HelpTooltip content="Debts due within a year. Examples: accounts payable, credit cards, short-term loans." />
             </h3>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => addItem(currentLiabilities, setCurrentLiabilities, 'Liabilities', 'Current')}
-            >
-              + Add Line
-            </Button>
           </div>
 
           <div className={styles.lineItems}>
-            {currentLiabilities.map(item =>
-              renderLineItem(item, currentLiabilities, setCurrentLiabilities, 'e.g., Credit card, Accounts payable')
-            )}
+            <div className={styles.greenBox}>
+              {currentLiabilities.map(item =>
+                renderLineItem(item, currentLiabilities, setCurrentLiabilities, 'e.g., Credit card, Accounts payable')
+              )}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => addItem(currentLiabilities, setCurrentLiabilities, 'Liabilities', 'Current')}
+                className={styles.addLineInside}
+              >
+                + Add Line
+              </Button>
+            </div>
           </div>
 
           <div className={styles.subtotal}>
@@ -489,21 +545,23 @@ export function BalanceSheetEntryForm({
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>
               Long-term Liabilities
-              <HelpTooltip content="Debts due beyond one year. Examples: mortgages, business loans." />
             </h3>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => addItem(longTermLiabilities, setLongTermLiabilities, 'Liabilities', 'Long-term')}
-            >
-              + Add Line
-            </Button>
           </div>
 
           <div className={styles.lineItems}>
-            {longTermLiabilities.map(item =>
-              renderLineItem(item, longTermLiabilities, setLongTermLiabilities, 'e.g., Business loan, Mortgage')
-            )}
+            <div className={styles.greenBox}>
+              {longTermLiabilities.map(item =>
+                renderLineItem(item, longTermLiabilities, setLongTermLiabilities, 'e.g., Business loan, Mortgage')
+              )}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => addItem(longTermLiabilities, setLongTermLiabilities, 'Liabilities', 'Long-term')}
+                className={styles.addLineInside}
+              >
+                + Add Line
+              </Button>
+            </div>
           </div>
 
           <div className={styles.subtotal}>
@@ -520,24 +578,22 @@ export function BalanceSheetEntryForm({
 
       {/* Equity */}
       <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h3 className={styles.sectionTitle}>
-            Equity
-            <HelpTooltip content="Your ownership stake in the business. Calculated as: Assets - Liabilities = Equity" />
-          </h3>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => addItem(equityItems, setEquityItems, 'Equity', null)}
-          >
-            + Add Line
-          </Button>
-        </div>
+        <h2 className={styles.mainSectionTitle}>Equity</h2>
 
         <div className={styles.lineItems}>
-          {equityItems.map(item =>
-            renderLineItem(item, equityItems, setEquityItems, 'e.g., Owner investment, Retained earnings')
-          )}
+          <div className={styles.greenBox}>
+            {equityItems.map(item =>
+              renderLineItem(item, equityItems, setEquityItems, 'e.g., Owner investment, Retained earnings')
+            )}
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => addItem(equityItems, setEquityItems, 'Equity', null)}
+              className={styles.addLineInside}
+            >
+              + Add Line
+            </Button>
+          </div>
         </div>
 
         <div className={styles.total}>
@@ -548,25 +604,31 @@ export function BalanceSheetEntryForm({
 
       {/* Balance Indicator */}
       <section className={styles.balanceSection}>
-        <div className={`${styles.balanceCard} ${totals.is_balanced ? styles.balanced : styles.unbalanced}`}>
-          <div className={styles.balanceIcon}>
-            {totals.is_balanced ? '✓' : '⚠'}
+        <div className={styles.balanceCheck}>
+          <div className={styles.balanceEquation}>
+            <div className={styles.balanceSide}>
+              <div className={styles.balanceLabel}>Total Assets</div>
+              <div className={styles.balanceAmount}>${totals.total_assets}</div>
+            </div>
+            <div className={styles.balanceEquals}>=</div>
+            <div className={styles.balanceSide}>
+              <div className={styles.balanceLabel}>Liabilities + Equity</div>
+              <div className={styles.balanceAmount}>
+                ${(parseFloat(totals.total_liabilities || '0') + parseFloat(totals.equity || '0')).toFixed(2)}
+              </div>
+            </div>
           </div>
-          <div className={styles.balanceContent}>
-            <h4 className={styles.balanceTitle}>
-              {totals.is_balanced ? 'Balance Sheet is Balanced!' : 'Balance Sheet Needs Adjustment'}
-            </h4>
-            <p className={styles.balanceText}>
-              {totals.is_balanced
-                ? `Great! Assets (${totals.total_assets}) = Liabilities (${totals.total_liabilities}) + Equity (${totals.equity})`
-                : `Assets (${totals.total_assets}) must equal Liabilities (${totals.total_liabilities}) + Equity (${totals.equity})`}
-            </p>
-            {!totals.is_balanced && (
-              <p className={styles.balanceHelp}>
-                Take your time adjusting the amounts. The balance sheet will show a checkmark when everything adds up correctly.
-              </p>
-            )}
-          </div>
+
+          {totals.is_balanced ? (
+            <div className={styles.balanceSuccess}>
+              <span className={styles.balanceSuccessIcon}>✓</span>
+              <span>Balanced!</span>
+            </div>
+          ) : (
+            <div className={styles.balanceError}>
+              Difference: <strong>${Math.abs(parseFloat(totals.total_assets || '0') - (parseFloat(totals.total_liabilities || '0') + parseFloat(totals.equity || '0'))).toFixed(2)}</strong>
+            </div>
+          )}
         </div>
         {errors.balance && (
           <p className={styles.errorText}>{errors.balance}</p>
@@ -575,14 +637,22 @@ export function BalanceSheetEntryForm({
 
       {/* Actions */}
       <div className={styles.actions}>
-        {onCancel && (
-          <Button variant="secondary" onClick={onCancel}>
-            Cancel
-          </Button>
+        {justSaved && (
+          <div className={styles.savedMessage}>
+            <span className={styles.savedIcon}>✓</span>
+            <span>Period updated successfully!</span>
+          </div>
         )}
-        <Button variant="primary" onClick={handleSave} disabled={!totals.is_balanced}>
-          Save Balance Sheet
-        </Button>
+        <div className={styles.actionButtons}>
+          {onCancel && (
+            <Button variant="secondary" onClick={onCancel} disabled={isSaving}>
+              Cancel
+            </Button>
+          )}
+          <Button variant="primary" onClick={handleSave} disabled={!totals.is_balanced || isSaving}>
+            {isSaving ? 'Saving...' : isEditing ? 'Update Balance Sheet' : 'Save Balance Sheet'}
+          </Button>
+        </div>
       </div>
     </div>
   );

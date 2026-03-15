@@ -10,6 +10,7 @@
  * - Dispatch CustomEvent on save
  */
 
+import { useEffect } from 'react';
 import { Modal } from '../../modals/Modal';
 import { RecipeBuilder } from '../RecipeBuilder';
 
@@ -26,6 +27,36 @@ export function RecipeBuilderModal({
   finishedProductId,
   productName,
 }: RecipeBuilderModalProps) {
+  // Apply purple header styling to modal
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const timer = setTimeout(() => {
+      const dialog = document.querySelector('[role="dialog"]');
+      if (!dialog) return;
+
+      const modalTitle = dialog.querySelector('#modal-title') as HTMLElement;
+      const modalHeader = modalTitle?.parentElement as HTMLElement;
+      const closeButton = dialog.querySelector('[aria-label="Close modal"]') as HTMLElement;
+
+      if (modalHeader) {
+        modalHeader.style.backgroundColor = '#4b006e';
+        modalHeader.style.padding = '0.75rem 1.5rem';
+        modalHeader.style.borderBottom = 'none';
+      }
+
+      if (modalTitle) {
+        modalTitle.style.color = '#ffffff';
+      }
+
+      if (closeButton) {
+        closeButton.style.color = '#ffffff';
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [isOpen]);
+
   const handleSave = () => {
     // Close modal on successful save
     onClose();

@@ -22,6 +22,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
 import { normalizeVariant, validateCPGRecipe } from '../../db/schema/cpg.schema';
 import type { CPGCategory, CPGRecipe } from '../../db/schema/cpg.schema';
+import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './RecipeBuilder.module.css';
 
@@ -85,7 +86,7 @@ export function RecipeBuilder({
           .where('company_id')
           .equals(companyId)
           .filter((c) => c.active && !c.deleted_at)
-          .sortBy('sort_order');
+          .sortBy('name');
 
         console.log('✅ RecipeBuilder: Loaded categories:', cats.length, cats);
         setCategories(cats);
@@ -133,8 +134,12 @@ export function RecipeBuilder({
     const calculateCosts = async () => {
       try {
         const breakdown: ComponentCost[] = [];
-        let total = 0;
+        let total = 0; // Fixed: avoid double rounding - add unrounded values
         let allHaveCostData = true;
+
+        // Calculate date range: last 365 days
+        const now = Date.now();
+        const dateRange = { start: now - 365 * 24 * 60 * 60 * 1000, end: now };
 
         for (const component of components) {
           if (!component.category_id) continue;
@@ -142,21 +147,26 @@ export function RecipeBuilder({
           const category = categories.find((c) => c.id === component.category_id);
           if (!category) continue;
 
-          // Get latest cost for this category+variant
-          const unitCost = await getLatestCost(component.category_id, component.variant);
+          // Get CPU using weighted average from cpuCalculatorService (last 365 days)
+          const unitCost = await cpuCalculatorService.calculateRawMaterialCPU(
+            component.category_id,
+            component.variant,
+            companyId!,
+            dateRange
+          );
           const hasCostData = unitCost !== null;
 
           if (!hasCostData) {
             allHaveCostData = false;
           }
 
-          const subtotal =
-            hasCostData && component.quantity
-              ? (parseFloat(unitCost!) * parseFloat(component.quantity)).toFixed(2)
-              : null;
-
-          if (hasCostData && subtotal) {
-            total += parseFloat(subtotal);
+          // Calculate subtotal WITHOUT rounding for accurate total
+          let subtotal: string | null = null;
+          let subtotalValue = 0;
+          if (hasCostData && component.quantity) {
+            subtotalValue = parseFloat(unitCost!) * parseFloat(component.quantity);
+            subtotal = subtotalValue.toFixed(2); // Round for display only
+            total += subtotalValue; // Add unrounded value to total
           }
 
           breakdown.push({
@@ -172,7 +182,9 @@ export function RecipeBuilder({
         }
 
         setCostBreakdown(breakdown);
-        setTotalCPU(allHaveCostData && breakdown.length > 0 ? total.toFixed(2) : null);
+        const finalCPU = allHaveCostData && breakdown.length > 0 ? total.toFixed(2) : null;
+        console.log('RecipeBuilder CPU calculation:', { total, finalCPU, breakdown });
+        setTotalCPU(finalCPU);
         setIsComplete(allHaveCostData);
       } catch (error) {
         console.error('Error calculating costs:', error);
@@ -219,57 +231,6 @@ export function RecipeBuilder({
 
   const getCategory = (categoryId: string) => {
     return categories.find((c) => c.id === categoryId);
-  };
-
-  const getLatestCost = async (
-    categoryId: string,
-    variant: string | null
-  ): Promise<string | null> => {
-    try {
-      const category = categories.find((c) => c.id === categoryId);
-      if (!category) return null;
-
-      // Get all invoices for this company
-      const invoices = await db.cpgInvoices
-        .where('company_id')
-        .equals(companyId!)
-        .filter((inv) => inv.active && !inv.deleted_at)
-        .sortBy('invoice_date');
-
-      if (invoices.length === 0) return null;
-
-      // Find invoices with matching category and variant
-      const normalizedTargetVariant = normalizeVariant(variant);
-      const matchingInvoices = invoices.filter((inv) => {
-        if (!inv.cost_attribution) return false;
-
-        // Check each line item in cost_attribution
-        return Object.values(inv.cost_attribution).some((item) => {
-          if (item.category_id !== categoryId) return false;
-          const normalizedItemVariant = normalizeVariant(item.variant);
-          return normalizedItemVariant === normalizedTargetVariant;
-        });
-      });
-
-      if (matchingInvoices.length === 0) return null;
-
-      // Get the latest invoice
-      const latestInvoice = matchingInvoices[matchingInvoices.length - 1];
-
-      // Find the matching line item
-      const matchingItem = Object.values(latestInvoice.cost_attribution).find((item) => {
-        if (item.category_id !== categoryId) return false;
-        const normalizedItemVariant = normalizeVariant(item.variant);
-        return normalizedItemVariant === normalizedTargetVariant;
-      });
-
-      if (!matchingItem) return null;
-
-      return matchingItem.unit_price;
-    } catch (error) {
-      console.error('Error getting latest cost:', error);
-      return null;
-    }
   };
 
   const handleArchiveRecipe = async () => {
@@ -502,13 +463,24 @@ export function RecipeBuilder({
         </div>
       )}
 
-      <div className={styles.componentList}>
-        <div className={styles.componentHeader}>
-          <div style={{ flex: 2 }}>Component</div>
-          <div style={{ flex: 1 }}>Qty</div>
-          <div style={{ flex: 1, textAlign: 'right' }}>Cost/Unit</div>
-          <div style={{ width: '80px' }}></div>
-        </div>
+      <div>
+        <h3 style={{
+          fontSize: '1.125rem',
+          fontWeight: 600,
+          color: '#4b006e',
+          marginBottom: '1rem',
+          marginTop: 0
+        }}>
+          Recipe Components
+        </h3>
+        <div className={styles.componentList}>
+          <div className={styles.componentHeader}>
+            <div style={{ flex: 1.5 }}>Category</div>
+            <div style={{ flex: 1 }}>Variant</div>
+            <div style={{ flex: 1 }}>Qty</div>
+            <div style={{ flex: 1, textAlign: 'right' }}>Cost/Unit</div>
+            <div style={{ width: '80px' }}></div>
+          </div>
 
         {components.length === 0 ? (
           <div className={styles.emptyState}>
@@ -528,45 +500,21 @@ export function RecipeBuilder({
             return (
               <div key={component.id} className={styles.componentRow}>
                 <div className={styles.componentFields}>
-                  <div style={{ flex: 2 }}>
-                    <div className={styles.fieldGroup}>
-                      <select
-                        value={component.category_id}
-                        onChange={(e) =>
-                          updateComponent(component.id, 'category_id', e.target.value)
-                        }
-                        className={styles.select}
-                      >
-                        <option value="">Select category...</option>
-                        {categories.map((cat) => (
-                          <option key={cat.id} value={cat.id}>
-                            {cat.name}
-                          </option>
-                        ))}
-                      </select>
-
-                      {hasVariants && (
-                        <select
-                          value={component.variant || ''}
-                          onChange={(e) =>
-                            updateComponent(
-                              component.id,
-                              'variant',
-                              e.target.value || null
-                            )
-                          }
-                          className={styles.select}
-                          style={{ marginTop: '0.5rem' }}
-                        >
-                          <option value="">No variant</option>
-                          {category?.variants?.map((variant) => (
-                            <option key={variant} value={variant}>
-                              {variant}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    </div>
+                  <div style={{ flex: 1.5 }}>
+                    <select
+                      value={component.category_id}
+                      onChange={(e) =>
+                        updateComponent(component.id, 'category_id', e.target.value)
+                      }
+                      className={styles.select}
+                    >
+                      <option value="">Select category...</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
                     {errors[`component_${index}_category`] && (
                       <div className={styles.fieldError}>
                         {errors[`component_${index}_category`]}
@@ -579,7 +527,30 @@ export function RecipeBuilder({
                     )}
                   </div>
 
-                  <div style={{ flex: 1 }}>
+                  {hasVariants && (
+                    <div style={{ flex: 1 }}>
+                      <select
+                        value={component.variant || ''}
+                        onChange={(e) =>
+                          updateComponent(
+                            component.id,
+                            'variant',
+                            e.target.value || null
+                          )
+                        }
+                        className={styles.select}
+                      >
+                        <option value="">No variant</option>
+                        {category?.variants?.map((variant) => (
+                          <option key={variant} value={variant}>
+                            {variant}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Input
                       type="number"
                       step="0.01"
@@ -590,9 +561,18 @@ export function RecipeBuilder({
                       placeholder="0"
                       error={errors[`component_${index}_quantity`]}
                       fullWidth
+                      style={{ fontSize: '1.125rem' }}
                     />
                     {category && (
-                      <div className={styles.unitLabel}>{category.unit_of_measure}</div>
+                      <div style={{
+                        fontSize: '0.9375rem',
+                        color: '#64748b',
+                        fontWeight: 500,
+                        whiteSpace: 'nowrap',
+                        minWidth: 'fit-content'
+                      }}>
+                        {category.unit_of_measure}
+                      </div>
                     )}
                   </div>
 
@@ -605,7 +585,7 @@ export function RecipeBuilder({
                           ${costInfo.unitCost}
                         </span>
                       ) : (
-                        <span className={styles.costMissing} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', justifyContent: 'flex-end' }}>
+                        <span className={styles.costMissing} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', justifyContent: 'flex-end', fontSize: '0.875rem' }}>
                           <span className={styles.warningIcon}>⚠️</span>
                           <span>Add invoices to calculate</span>
                           <HelpTooltip
@@ -636,7 +616,7 @@ export function RecipeBuilder({
           })
         )}
 
-        <div className={styles.addButtonRow}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.5rem' }}>
           <Button
             type="button"
             variant="outline"
@@ -644,33 +624,35 @@ export function RecipeBuilder({
           >
             + Add Component
           </Button>
-        </div>
-      </div>
 
-      <div className={styles.costSummary}>
-        <div className={styles.costSummaryHeader}>Estimated CPU</div>
-        {components.length === 0 ? (
-          <div className={styles.costSummaryEmpty}>
-            Add components to see estimated cost per unit
-          </div>
-        ) : isComplete && totalCPU !== null ? (
-          <div className={styles.costSummaryComplete}>
-            <span className={styles.totalCPU}>${totalCPU}</span>
-            <span className={styles.completeLabel}>Complete ✓</span>
-          </div>
-        ) : (
-          <div className={styles.costSummaryIncomplete}>
-            <span className={styles.totalCPU}>Incomplete</span>
-            <span className={styles.warningIcon}>⚠️</span>
-            <div className={styles.missingCostList}>
-              Missing cost for:{' '}
-              {costBreakdown
-                .filter((c) => !c.hasCostData)
-                .map((c) => `${c.categoryName}${c.variant ? ` (${c.variant})` : ''}`)
-                .join(', ')}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              color: '#4b006e',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}>
+              Estimated CPU
+            </div>
+            <div className={styles.costSummary}>
+              {components.length === 0 ? (
+                <div className={styles.costSummaryEmpty}>-</div>
+              ) : isComplete && totalCPU !== null ? (
+                <div className={styles.costSummaryComplete}>
+                  <span className={styles.totalCPU}>${totalCPU}</span>
+                  <span className={styles.completeLabel}>✓</span>
+                </div>
+              ) : (
+                <div className={styles.costSummaryIncomplete}>
+                  <span className={styles.totalCPU}>Incomplete</span>
+                  <span className={styles.warningIcon}>⚠️</span>
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
+        </div>
       </div>
 
       <div className={styles.actions}>

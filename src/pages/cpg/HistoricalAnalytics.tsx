@@ -1772,7 +1772,7 @@ export default function HistoricalAnalytics({ initialTab: propInitialTab, hideNa
   const filteredPromos = viewMode === 'promo-tracker' ? getFilteredPromos() : [];
 
   return (
-    <div className={styles.container}>
+    <div className={hideNavigation ? styles.containerEmbedded : styles.container}>
       {/* Header */}
       <div className={styles.header}>
         <div>

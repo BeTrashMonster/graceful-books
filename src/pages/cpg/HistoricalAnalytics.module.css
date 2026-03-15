@@ -10,6 +10,12 @@
   margin: 0 auto;
 }
 
+.containerEmbedded {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
 /* Header */
 .header {
   margin-bottom: 2rem;

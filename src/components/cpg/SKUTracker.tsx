@@ -19,7 +19,6 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '../core/Button';
-import { HelpTooltip } from '../help/HelpTooltip';
 import { calculateMonthlyCost } from '../../db/schema/standaloneFinancials.schema';
 import styles from './SKUTracker.module.css';
 
@@ -46,8 +45,7 @@ export function SKUTracker({ companyId: _companyId, skuCount, onManageProducts }
     <div className={styles.tracker}>
       <div className={styles.header}>
         <h3 className={styles.title}>
-          Your CPG Pricing
-          <HelpTooltip content="As a standalone CPG user, your monthly cost is $5 per product SKU, with a maximum of $50/month (unlimited SKUs beyond 10)." />
+          Your Pricing
         </h3>
       </div>
 
@@ -56,15 +54,8 @@ export function SKUTracker({ companyId: _companyId, skuCount, onManageProducts }
         <div className={styles.skuCount}>
           <div className={styles.countCircle}>
             <span className={styles.countNumber}>{skuCount}</span>
-            <span className={styles.countLabel}>SKU{skuCount !== 1 ? 's' : ''}</span>
+            <span className={styles.countLabel}>SINGLE SKU{skuCount !== 1 ? 's' : ''}</span>
           </div>
-          <p className={styles.countDescription}>
-            {skuCount === 0
-              ? "You haven't added any products yet."
-              : skuCount === 1
-              ? 'You have 1 product SKU.'
-              : `You have ${skuCount} product SKUs.`}
-          </p>
         </div>
 
         {/* Pricing Breakdown */}
@@ -115,14 +106,6 @@ export function SKUTracker({ companyId: _companyId, skuCount, onManageProducts }
             </div>
           )}
 
-          {skuCount > 0 && skuCount < 10 && (
-            <div className={styles.messageCard + ' ' + styles.info}>
-              <p className={styles.messageText}>
-                Your cost is ${monthlyCost}/month for {skuCount} SKU{skuCount !== 1 ? 's' : ''}. Add more products to get the most value from CPG analysis.
-              </p>
-            </div>
-          )}
-
           {isAtCap && (
             <div className={styles.messageCard + ' ' + styles.success}>
               <p className={styles.messageText}>
@@ -135,7 +118,7 @@ export function SKUTracker({ companyId: _companyId, skuCount, onManageProducts }
         {/* Actions */}
         {onManageProducts && (
           <div className={styles.actions}>
-            <Button variant="primary" onClick={onManageProducts}>
+            <Button variant="primary" onClick={onManageProducts} className={styles.purpleButton}>
               {skuCount === 0 ? 'Add Your First Product' : 'Manage Products'}
             </Button>
           </div>
@@ -146,7 +129,7 @@ export function SKUTracker({ companyId: _companyId, skuCount, onManageProducts }
           <h4 className={styles.infoTitle}>How Pricing Works</h4>
           <ul className={styles.infoList}>
             <li className={styles.infoItem}>
-              <strong>$5 per SKU</strong> - Pay only for the products you track
+              <strong>$5 per SKU</strong> - Pay only for individual products (bundles not counted)
             </li>
             <li className={styles.infoItem}>
               <strong>$50 monthly cap</strong> - Never pay more than $50/month, no matter how many SKUs
@@ -159,12 +142,12 @@ export function SKUTracker({ companyId: _companyId, skuCount, onManageProducts }
 
         {/* Upgrade Option */}
         <div className={styles.upgradeCard}>
-          <h4 className={styles.upgradeTitle}>Need Full Accounting?</h4>
+          <h4 className={styles.upgradeTitle}>Full Accounting Platform Coming Soon</h4>
           <p className={styles.upgradeText}>
-            Upgrade to Audacious Money's full accounting platform for $40/month. Get all CPG features plus complete bookkeeping, invoicing, and financial reporting.
+            We're building a complete accounting platform with all CPG features plus bookkeeping, invoicing, and financial reporting. Join the waitlist to be notified when it launches!
           </p>
           <Button variant="secondary" size="sm">
-            Learn About Full Platform
+            Join the Waitlist
           </Button>
         </div>
       </div>

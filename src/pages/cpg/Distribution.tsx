@@ -165,6 +165,21 @@ export default function Distribution() {
     loadPaymentAccounts();
   }, [companyId]);
 
+  // Listen for data updates from modals (e.g., distributor added/edited)
+  useEffect(() => {
+    const handleDataUpdate = (event: CustomEvent) => {
+      // Reload distributors when distributor data changes
+      if (event.detail?.type === 'distributor') {
+        loadDistributors();
+      }
+    };
+
+    window.addEventListener('cpg-data-updated', handleDataUpdate as EventListener);
+    return () => {
+      window.removeEventListener('cpg-data-updated', handleDataUpdate as EventListener);
+    };
+  }, [companyId]);
+
   // Load calculation from URL parameter (for editing)
   useEffect(() => {
     if (calculationParam && distributors.length > 0) {
@@ -413,6 +428,11 @@ export default function Distribution() {
       setSelectedDistributorId(distributor.id);
       setShowAddDistributorModal(false);
 
+      // Dispatch event to notify other components
+      window.dispatchEvent(
+        new CustomEvent('cpg-data-updated', { detail: { type: 'distributor' } })
+      );
+
       // Show success modal
       setSuccessModalMessage(`Distributor "${distributor.name}" created successfully! You can now use it to calculate distribution costs.`);
       setShowSuccessModal(true);
@@ -448,6 +468,11 @@ export default function Distribution() {
         distributors.map((d) => (d.id === updated.id ? updated : d))
       );
       setShowEditDistributorModal(false);
+
+      // Dispatch event to notify other components
+      window.dispatchEvent(
+        new CustomEvent('cpg-data-updated', { detail: { type: 'distributor' } })
+      );
 
       // Show success modal
       setSuccessModalMessage(`Distributor "${updated.name}" updated successfully!`);
@@ -1063,7 +1088,7 @@ export default function Distribution() {
 
         {/* Cost Calculations Tab */}
         {viewMode === 'calculations' && (
-          <>
+          <div className={styles.calculationsSection}>
             {/* Distributor Selection */}
             <div className={styles.section}>
               <DistributorSelector
@@ -1075,16 +1100,8 @@ export default function Distribution() {
               />
 
               {/* Action Buttons */}
-              <div className={styles.distributorActions}>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => setShowAddDistributorModal(true)}
-                  disabled={loading}
-                >
-                  + Add New Distributor
-                </Button>
-                {selectedDistributor && (
+              {selectedDistributor && (
+                <div className={styles.distributorActions}>
                   <Button
                     variant="outline"
                     size="sm"
@@ -1092,17 +1109,17 @@ export default function Distribution() {
                   >
                     Edit Distributor Profile
                   </Button>
-                )}
-                {selectedDistributor && (calculationResults || hasUnsavedResults) && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleClearData}
-                  >
-                    Clear Data
-                  </Button>
-                )}
-              </div>
+                  {(calculationResults || hasUnsavedResults) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleClearData}
+                    >
+                      Clear Data
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Calculator Form */}
@@ -1161,7 +1178,7 @@ export default function Distribution() {
                 <p>Select a distributor above to start analyzing distribution costs.</p>
               </div>
             )}
-          </>
+          </div>
         )}
 
         {/* Saved Scenarios Tab */}
