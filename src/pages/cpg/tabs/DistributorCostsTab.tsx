@@ -1124,11 +1124,13 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
             className={styles.filterSelect}
           >
             <option value="all">Select a distributor...</option>
-            {distributors.map((dist) => (
-              <option key={dist.id} value={dist.id}>
-                {dist.name}
-              </option>
-            ))}
+            {distributors
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((dist) => (
+                <option key={dist.id} value={dist.id}>
+                  {dist.name}
+                </option>
+              ))}
           </select>
         </div>
 
@@ -1162,6 +1164,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
               <option value="none">Select distributor to compare...</option>
               {distributors
                 .filter((dist) => dist.id !== selectedDistributor)
+                .sort((a, b) => a.name.localeCompare(b.name))
                 .map((dist) => (
                   <option key={dist.id} value={dist.id}>
                     {dist.name}
@@ -1208,7 +1211,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                       {distributorTrend.distributor_name}
                       <span className={styles.primaryBadge}>Primary</span>
                     </h3>
-                    <div className={styles.statsGrid}>
+                    <div className={styles.statsGrid} style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
                       <div className={styles.statCard}>
                         <div className={styles.statLabel}>Avg Total Cost</div>
                         <div className={styles.statValue}>
@@ -1246,7 +1249,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                       {compareDistributorTrend.distributor_name}
                       <span className={styles.comparisonBadge}>Comparison</span>
                     </h3>
-                    <div className={styles.statsGrid}>
+                    <div className={styles.statsGrid} style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
                       <div className={styles.statCard}>
                         <div className={styles.statLabel}>Avg Total Cost</div>
                         <div className={styles.statValue}>
