@@ -1149,6 +1149,19 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
           </div>
         )}
 
+        {/* Include Drafts Toggle */}
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>
+            <input
+              type="checkbox"
+              checked={includeDrafts}
+              onChange={(e) => setIncludeDrafts(e.target.checked)}
+              style={{ marginRight: '0.5rem' }}
+            />
+            Include draft calculations
+          </label>
+        </div>
+
         {/* Compare Distributor Filter */}
         {showComparison && selectedDistributor !== 'all' && (
           <div className={styles.filterGroup}>
@@ -1173,19 +1186,6 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
             </select>
           </div>
         )}
-
-        {/* Include Drafts Toggle */}
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>
-            <input
-              type="checkbox"
-              checked={includeDrafts}
-              onChange={(e) => setIncludeDrafts(e.target.checked)}
-              style={{ marginRight: '0.5rem' }}
-            />
-            Include draft calculations
-          </label>
-        </div>
       </div>
 
       {/* Loading State */}
