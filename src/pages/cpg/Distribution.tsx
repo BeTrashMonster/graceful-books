@@ -19,7 +19,7 @@ import type {
 } from '../../services/cpg/distributionCostCalculator.service';
 import { DistributionCostCalculatorService } from '../../services/cpg/distributionCostCalculator.service';
 import type { DistributorFormData } from '../../components/cpg/DistributorProfileForm';
-import HistoricalAnalytics from './HistoricalAnalytics';
+import { DistributorCostsTab } from './tabs/DistributorCostsTab';
 import styles from './Distribution.module.css';
 
 type ViewMode = 'manage' | 'costs' | 'calculations' | 'scenarios';
@@ -1082,7 +1082,7 @@ export default function Distribution() {
         {/* Distributor Costs Tab */}
         {viewMode === 'costs' && (
           <div className={styles.costsSection}>
-            <HistoricalAnalytics initialTab="distributor-cost" hideNavigation={true} />
+            <DistributorCostsTab companyId={companyId} />
           </div>
         )}
 
