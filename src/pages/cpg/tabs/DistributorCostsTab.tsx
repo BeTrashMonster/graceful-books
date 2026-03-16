@@ -1134,9 +1134,9 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
           </select>
         </div>
 
-        {/* Comparison Toggle */}
-        {selectedDistributor !== 'all' && (
-          <div className={styles.filterGroup}>
+        {/* Checkboxes Group */}
+        <div className={styles.filterGroup} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {selectedDistributor !== 'all' && (
             <label className={styles.filterLabel}>
               <input
                 type="checkbox"
@@ -1146,11 +1146,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
               />
               Compare with another distributor
             </label>
-          </div>
-        )}
-
-        {/* Include Drafts Toggle */}
-        <div className={styles.filterGroup}>
+          )}
           <label className={styles.filterLabel}>
             <input
               type="checkbox"
