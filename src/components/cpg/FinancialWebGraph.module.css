@@ -1,0 +1,204 @@
+/**
+ * Financial Web Graph Styles
+ *
+ * Organic, blooming visual style for the force-directed graph
+ */
+
+.container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.1);
+}
+
+.svg {
+  display: block;
+  cursor: grab;
+}
+
+.svg:active {
+  cursor: grabbing;
+}
+
+/* Links */
+.link {
+  stroke: #d8b4fe;
+  stroke-opacity: 0.4;
+  stroke-linecap: round;
+  transition: all 0.3s ease;
+}
+
+.linkHover {
+  stroke: #a855f7;
+  stroke-opacity: 0.8;
+  stroke-width: 4px !important;
+}
+
+/* Node Groups */
+.nodeGroup {
+  cursor: pointer;
+}
+
+/* Node Circles - Active (with data) */
+.nodeActive {
+  fill: #7c3aed;
+  stroke: #6d28d9;
+  stroke-width: 3px;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 4px 8px rgba(124, 58, 237, 0.3));
+}
+
+.nodeActive:hover {
+  fill: #6d28d9;
+  filter: drop-shadow(0 6px 12px rgba(124, 58, 237, 0.5));
+}
+
+/* Node Circles - Inactive (bud state) */
+.nodeInactive {
+  fill: #e9d5ff;
+  stroke: #c4b5fd;
+  stroke-width: 2px;
+  stroke-dasharray: 5, 5;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.nodeInactive:hover {
+  opacity: 0.8;
+  stroke-dasharray: 0;
+}
+
+/* Node circles by type */
+.nodeGroup circle[data-type="distribution"] {
+  fill: #10b981;
+  stroke: #059669;
+}
+
+.nodeGroup circle[data-type="distribution"]:hover {
+  fill: #059669;
+}
+
+.nodeGroup circle[data-type="promo"] {
+  fill: #f59e0b;
+  stroke: #d97706;
+}
+
+.nodeGroup circle[data-type="promo"]:hover {
+  fill: #d97706;
+}
+
+/* Node Labels */
+.nodeLabel {
+  fill: #1f2937;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
+}
+
+/* Node Icons (emoji) */
+.nodeIcon {
+  font-size: 32px;
+  user-select: none;
+}
+
+/* Node Amount Labels */
+.nodeAmount {
+  fill: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Tooltips */
+.tooltip {
+  position: fixed;
+  padding: 0.75rem 1rem;
+  background: rgba(31, 41, 55, 0.95);
+  color: white;
+  border-radius: 0.5rem;
+  font-size: 14px;
+  line-height: 1.5;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: pre-line;
+  backdrop-filter: blur(10px);
+  transform: translate(-50%, -100%);
+}
+
+.tooltipLine {
+  position: fixed;
+  padding: 0.5rem 0.75rem;
+  background: rgba(168, 85, 247, 0.95);
+  color: white;
+  border-radius: 0.375rem;
+  font-size: 12px;
+  line-height: 1.4;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+  transform: translate(-50%, -100%);
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Bloom animation for activating features */
+@keyframes bloom {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.nodeGroup.blooming circle {
+  animation: bloom 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Pulse animation for active nodes with data */
+@keyframes pulse {
+  0%, 100% {
+    filter: drop-shadow(0 4px 8px rgba(124, 58, 237, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 6px 12px rgba(124, 58, 237, 0.6));
+  }
+}
+
+.nodeActive {
+  animation: pulse 3s ease-in-out infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .nodeLabel {
+    font-size: 12px;
+  }
+
+  .nodeIcon {
+    font-size: 24px;
+  }
+
+  .nodeAmount {
+    font-size: 14px;
+  }
+
+  .tooltip,
+  .tooltipLine {
+    font-size: 12px;
+  }
+}

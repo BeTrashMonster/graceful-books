@@ -1,91 +1,318 @@
-.dashboard {
+/**
+ * CPG Dashboard Styles
+ *
+ * "Plant that seed of success and watch yourself bloom baby!"
+ */
+
+.container {
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
+  min-height: calc(100vh - 4rem);
 }
 
+/* Header */
 .header {
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
   text-align: center;
 }
 
-.header h1 {
+.title {
   font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-  color: #1a1a1a;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.header p {
-  font-size: 1.125rem;
-  color: #666;
+.subtitle {
+  font-size: 1.25rem;
+  color: #6b7280;
+  margin: 0;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+/* Filter Panel */
+.filterPanel {
+  display: flex;
   gap: 1.5rem;
-  margin-bottom: 3rem;
-}
-
-.card {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
   background: white;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 200px;
+}
+
+.filterLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.filterSelect {
+  padding: 0.625rem 0.875rem;
   border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 2rem;
-  text-decoration: none;
-  color: inherit;
-  transition: all 0.2s;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: #1f2937;
+  background: white;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
-.card:hover {
-  border-color: #FFD700;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
-  transform: translateY(-2px);
+.filterSelect:hover {
+  border-color: #c4b5fd;
 }
 
-.card h2 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-  color: #1a1a1a;
+.filterSelect:focus {
+  outline: none;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
-.card p {
-  color: #666;
-  line-height: 1.5;
+/* Graph Container */
+.graphContainer {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
 }
 
-.reports {
-  margin-top: 3rem;
+/* Legend */
+.legend {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
 }
 
-.reports h2 {
-  font-size: 1.75rem;
-  margin-bottom: 1rem;
-  color: #1a1a1a;
+.legend h3 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.25rem;
+  color: #1f2937;
 }
 
-.reportGrid {
+.legendGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.legendItem {
+  display: flex;
+  align-items: flex-start;
   gap: 1rem;
 }
 
-.reportCard {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1rem;
-  text-decoration: none;
-  color: #1a1a1a;
+.legendItem strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #1f2937;
+}
+
+.legendItem p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.legendIconCategory {
+  font-size: 2rem;
+  color: #7c3aed;
+  line-height: 1;
+}
+
+.legendIconDistribution {
+  font-size: 2rem;
+  color: #10b981;
+  line-height: 1;
+}
+
+.legendIconPromo {
+  font-size: 2rem;
+  color: #f59e0b;
+  line-height: 1;
+}
+
+.legendIconLine {
+  font-size: 2rem;
+  color: #d8b4fe;
+  line-height: 1;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1.5rem;
+}
+
+.seedGrowing {
+  font-size: 5rem;
+  animation: grow 2s ease-in-out infinite;
+}
+
+@keyframes grow {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+  }
+}
+
+.loading p {
+  font-size: 1.25rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
   text-align: center;
-  font-weight: 500;
+  padding: 3rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.1);
+}
+
+.seedIcon {
+  font-size: 6rem;
+  margin-bottom: 1.5rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.emptyState h2 {
+  font-size: 2rem;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
+}
+
+.emptyState p {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin: 0 0 2rem 0;
+}
+
+.getStartedButton {
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.getStartedButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
+}
+
+.getStartedButton:active {
+  transform: translateY(0);
+}
+
+/* Error State */
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  padding: 3rem;
+}
+
+.error h2 {
+  font-size: 2rem;
+  color: #dc2626;
+  margin: 0 0 1rem 0;
+}
+
+.error p {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin: 0 0 2rem 0;
+}
+
+.retryButton {
+  padding: 0.75rem 1.5rem;
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
   transition: all 0.2s;
 }
 
-.reportCard:hover {
-  background: linear-gradient(135deg, #FFD700, #32CD32);
-  color: #4b006e;
-  border-color: #FFD700;
-  font-weight: 600;
+.retryButton:hover {
+  background: #6d28d9;
+}
+
+.emptyMessage {
+  text-align: center;
+  font-size: 1.125rem;
+  color: #6b7280;
+  padding: 3rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .filterPanel {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .filterGroup {
+    width: 100%;
+  }
+
+  .legendGrid {
+    grid-template-columns: 1fr;
+  }
 }
