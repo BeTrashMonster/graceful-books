@@ -1207,7 +1207,6 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                         <div
                           className={`${styles.statValue} ${getTrendDirectionClass(distributorTrend.statistics.trend_direction)}`}
                         >
-                          {getTrendDirectionIcon(distributorTrend.statistics.trend_direction)}{' '}
                           {distributorTrend.statistics.change_percentage}%
                         </div>
                       </div>
@@ -1215,9 +1214,9 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                   </div>
 
                   {/* Comparison Distributor Stats */}
-                  <div className={styles.comparisonStatsSection}>
-                    {/* Compare With Dropdown */}
-                    <div style={{ marginBottom: '0.5rem' }}>
+                  <div className={styles.comparisonStatsSection} style={{ position: 'relative' }}>
+                    {/* Compare With Dropdown - Positioned absolutely to not affect layout flow */}
+                    <div style={{ position: 'absolute', top: '-3.5rem', right: 0, left: 0, zIndex: 1 }}>
                       <label htmlFor="compareDistributor" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         Compare With
                       </label>
@@ -1270,7 +1269,6 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                             <div
                               className={`${styles.statValue} ${getTrendDirectionClass(compareDistributorTrend.statistics.trend_direction)}`}
                             >
-                              {getTrendDirectionIcon(compareDistributorTrend.statistics.trend_direction)}{' '}
                               {compareDistributorTrend.statistics.change_percentage}%
                             </div>
                           </div>
@@ -1309,7 +1307,6 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                     <div
                       className={`${styles.statValue} ${getTrendDirectionClass(distributorTrend.statistics.trend_direction)}`}
                     >
-                      {getTrendDirectionIcon(distributorTrend.statistics.trend_direction)}{' '}
                       {distributorTrend.statistics.change_percentage}%
                     </div>
                   </div>
