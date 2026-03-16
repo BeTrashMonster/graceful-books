@@ -1157,31 +1157,6 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
             Include draft calculations
           </label>
         </div>
-
-        {/* Compare Distributor Filter */}
-        {showComparison && selectedDistributor !== 'all' && (
-          <div className={styles.filterGroup}>
-            <label htmlFor="compareDistributor" className={styles.filterLabel}>
-              Compare With
-            </label>
-            <select
-              id="compareDistributor"
-              value={compareDistributor || 'none'}
-              onChange={(e) => setCompareDistributor(e.target.value === 'none' ? null : e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="none">Select distributor to compare...</option>
-              {distributors
-                .filter((dist) => dist.id !== selectedDistributor)
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map((dist) => (
-                  <option key={dist.id} value={dist.id}>
-                    {dist.name}
-                  </option>
-                ))}
-            </select>
-          </div>
-        )}
       </div>
 
       {/* Loading State */}
@@ -1199,7 +1174,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
           ) : distributorTrend ? (
             <>
               {/* Statistics Cards */}
-              {showComparison && compareDistributorTrend ? (
+              {showComparison ? (
                 <div className={styles.comparisonStatsContainer}>
                   {/* Primary Distributor Stats */}
                   <div className={styles.comparisonStatsSection}>
@@ -1241,40 +1216,70 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
 
                   {/* Comparison Distributor Stats */}
                   <div className={styles.comparisonStatsSection}>
-                    <h3 className={styles.comparisonDistributorName}>
-                      {compareDistributorTrend.distributor_name}
-                      <span className={styles.comparisonBadge}>Comparison</span>
-                    </h3>
-                    <div className={styles.statsGrid} style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
-                      <div className={styles.statCard}>
-                        <div className={styles.statLabel}>Avg Total Cost</div>
-                        <div className={styles.statValue}>
-                          {formatCurrency(compareDistributorTrend.statistics.average_total_cost)}
-                        </div>
-                      </div>
-                      <div className={styles.statCard}>
-                        <div className={styles.statLabel}>Avg Cost Per Unit</div>
-                        <div className={styles.statValue}>
-                          {formatCurrency(compareDistributorTrend.statistics.average_cost_per_unit)}
-                        </div>
-                      </div>
-                      <div className={styles.statCard}>
-                        <div className={styles.statLabel}>Cost Range</div>
-                        <div className={styles.statValue}>
-                          {formatCurrency(compareDistributorTrend.statistics.min_cost)} -{' '}
-                          {formatCurrency(compareDistributorTrend.statistics.max_cost)}
-                        </div>
-                      </div>
-                      <div className={styles.statCard}>
-                        <div className={styles.statLabel}>Trend</div>
-                        <div
-                          className={`${styles.statValue} ${getTrendDirectionClass(compareDistributorTrend.statistics.trend_direction)}`}
-                        >
-                          {getTrendDirectionIcon(compareDistributorTrend.statistics.trend_direction)}{' '}
-                          {compareDistributorTrend.statistics.change_percentage}%
-                        </div>
-                      </div>
+                    {/* Compare With Dropdown */}
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label htmlFor="compareDistributor" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem', color: '#374151' }}>
+                        Compare With
+                      </label>
+                      <select
+                        id="compareDistributor"
+                        value={compareDistributor || 'none'}
+                        onChange={(e) => setCompareDistributor(e.target.value === 'none' ? null : e.target.value)}
+                        className={styles.filterSelect}
+                      >
+                        <option value="none">Select distributor to compare...</option>
+                        {distributors
+                          .filter((dist) => dist.id !== selectedDistributor)
+                          .sort((a, b) => a.name.localeCompare(b.name))
+                          .map((dist) => (
+                            <option key={dist.id} value={dist.id}>
+                              {dist.name}
+                            </option>
+                          ))}
+                      </select>
                     </div>
+                    {compareDistributorTrend ? (
+                      <>
+                        <h3 className={styles.comparisonDistributorName}>
+                          {compareDistributorTrend.distributor_name}
+                          <span className={styles.comparisonBadge}>Comparison</span>
+                        </h3>
+                        <div className={styles.statsGrid} style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+                          <div className={styles.statCard}>
+                            <div className={styles.statLabel}>Avg Total Cost</div>
+                            <div className={styles.statValue}>
+                              {formatCurrency(compareDistributorTrend.statistics.average_total_cost)}
+                            </div>
+                          </div>
+                          <div className={styles.statCard}>
+                            <div className={styles.statLabel}>Avg Cost Per Unit</div>
+                            <div className={styles.statValue}>
+                              {formatCurrency(compareDistributorTrend.statistics.average_cost_per_unit)}
+                            </div>
+                          </div>
+                          <div className={styles.statCard}>
+                            <div className={styles.statLabel}>Cost Range</div>
+                            <div className={styles.statValue}>
+                              {formatCurrency(compareDistributorTrend.statistics.min_cost)} -{' '}
+                              {formatCurrency(compareDistributorTrend.statistics.max_cost)}
+                            </div>
+                          </div>
+                          <div className={styles.statCard}>
+                            <div className={styles.statLabel}>Trend</div>
+                            <div
+                              className={`${styles.statValue} ${getTrendDirectionClass(compareDistributorTrend.statistics.trend_direction)}`}
+                            >
+                              {getTrendDirectionIcon(compareDistributorTrend.statistics.trend_direction)}{' '}
+                              {compareDistributorTrend.statistics.change_percentage}%
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280', fontSize: '0.875rem' }}>
+                        Select a distributor to compare
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
