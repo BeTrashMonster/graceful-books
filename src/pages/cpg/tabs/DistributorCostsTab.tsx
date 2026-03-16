@@ -1214,10 +1214,10 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                   </div>
 
                   {/* Comparison Distributor Stats */}
-                  <div className={styles.comparisonStatsSection} style={{ position: 'relative' }}>
-                    {/* Compare With Dropdown - Positioned absolutely to not affect layout flow */}
-                    <div style={{ position: 'absolute', top: '-3.5rem', right: 0, left: 0, zIndex: 1 }}>
-                      <label htmlFor="compareDistributor" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <div className={styles.comparisonStatsSection} style={{ display: 'flex', flexDirection: 'column' }}>
+                    {/* Compare With Dropdown - Matches filter spacing */}
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label htmlFor="compareDistributor" className={styles.filterLabel}>
                         Compare With
                       </label>
                       <select
@@ -1225,7 +1225,6 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                         value={compareDistributor || 'none'}
                         onChange={(e) => setCompareDistributor(e.target.value === 'none' ? null : e.target.value)}
                         className={styles.filterSelect}
-                        style={{ fontSize: '0.875rem', padding: '0.375rem 0.5rem' }}
                       >
                         <option value="none">Select distributor to compare...</option>
                         {distributors
