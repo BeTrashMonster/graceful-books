@@ -40,7 +40,6 @@ const CPUTracker = lazy(() => import('../pages/cpg/CPUTracker'))
 const Distribution = lazy(() => import('../pages/cpg/Distribution'))
 const SalesPromoDecisionTool = lazy(() => import('../pages/cpg/SalesPromoDecisionTool'))
 const FinancialStatementEntry = lazy(() => import('../pages/cpg/FinancialStatementEntry'))
-const HistoricalAnalytics = lazy(() => import('../pages/cpg/HistoricalAnalytics'))
 const ScenarioPlanning = lazy(() => import('../pages/cpg/ScenarioPlanning'))
 const CPGSettings = lazy(() => import('../pages/cpg/CPGSettings'))
 
@@ -95,7 +94,6 @@ export function AppRoutes() {
           <Route path="/cpg/cpu-tracker" element={<CPUTracker />} />
           <Route path="/cpg/distribution-cost" element={<Distribution />} />
           <Route path="/cpg/promo-decision" element={<SalesPromoDecisionTool />} />
-          <Route path="/cpg/analytics" element={<HistoricalAnalytics />} />
           <Route path="/cpg/financial-entry" element={<FinancialStatementEntry />} />
           <Route path="/cpg/scenario-planning" element={<ScenarioPlanning />} />
           <Route path="/cpg/settings" element={<CPGSettings />} />

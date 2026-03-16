@@ -37,7 +37,7 @@ import {
 import type { CPGDistributor } from '../../../db/schema/cpg.schema';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import styles from '../HistoricalAnalytics.module.css';
+import styles from '../Distribution.module.css';
 
 interface DistributorCostsTabProps {
   companyId: string;
