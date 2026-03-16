@@ -3,11 +3,6 @@ import { useState, useEffect } from 'react'
 
 const messages = [
   {
-    title: "This Entry Doesn't Balance",
-    subtitle: "Looks like we're missing a debit somewhere...",
-    emoji: "⚖️"
-  },
-  {
     title: "404 - Not in Our Books",
     subtitle: "We've triple-checked the ledger. This page isn't here.",
     emoji: "📚"
@@ -23,16 +18,6 @@ const messages = [
     emoji: "📋"
   },
   {
-    title: "Journal Entry Not Found",
-    subtitle: "Did someone forget to post this transaction?",
-    emoji: "📝"
-  },
-  {
-    title: "Oops! Chart of Accounts Error",
-    subtitle: "This account number doesn't exist. (Yet. Maybe you should create it?)",
-    emoji: "🗂️"
-  },
-  {
     title: "The Treasure Chest is Empty Here",
     subtitle: "We dug around but couldn't find anything at this spot.",
     emoji: "🏴‍☠️"
@@ -45,12 +30,12 @@ const messages = [
 ]
 
 const funFacts = [
-  "Fun fact: Double-entry bookkeeping was invented in Italy around 1494!",
+  "Fun fact: The first written description of double-entry bookkeeping was published in Venice in 1494 by Luca Pacioli!",
   "Did you know? The word 'credit' comes from the Latin 'credere' meaning 'to trust'.",
-  "Trivia: Ancient accountants used clay tablets. We prefer databases. 🏺",
-  "Random knowledge: An accountant once found a $3 million error by noticing a pattern. You're doing great!",
-  "Historical tidbit: Benjamin Franklin was an accountant before becoming a Founding Father!",
-  "Cool fact: The IRS receives about 150 million tax returns per year. Yours matters! ❤️"
+  "Trivia: The earliest known accounting records date back to ancient Mesopotamia, over 7,000 years ago! 🏺",
+  "Random knowledge: The term 'accountant' comes from the French word 'compter' meaning 'to count'.",
+  "Historical tidbit: In ancient Rome, bookkeepers used an abacus and wax tablets to track finances!",
+  "Cool fact: Your financial records matter! Every business, big or small, deserves accurate books. ❤️"
 ]
 
 export default function NotFound() {
@@ -78,7 +63,7 @@ export default function NotFound() {
       }}>
         {/* Big emoji */}
         <div style={{
-          fontSize: '5rem',
+          fontSize: '6rem',
           marginBottom: '1rem',
           animation: 'bounce 2s ease-in-out infinite'
         }}>
@@ -87,7 +72,7 @@ export default function NotFound() {
 
         {/* 404 number */}
         <h1 style={{
-          fontSize: '6rem',
+          fontSize: '7rem',
           fontWeight: 'bold',
           color: 'var(--color-primary, #7c3aed)',
           margin: 0,
@@ -98,7 +83,7 @@ export default function NotFound() {
 
         {/* Dynamic title */}
         <h2 style={{
-          fontSize: '1.5rem',
+          fontSize: '1.75rem',
           fontWeight: 600,
           marginTop: '1rem',
           marginBottom: '0.5rem',
@@ -111,7 +96,7 @@ export default function NotFound() {
         <p style={{
           color: 'var(--color-text-secondary, #6b7280)',
           marginBottom: '1.5rem',
-          fontSize: '1rem'
+          fontSize: '1.125rem'
         }}>
           {message.subtitle}
         </p>
@@ -126,7 +111,7 @@ export default function NotFound() {
         }}>
           <p style={{
             margin: 0,
-            fontSize: '0.875rem',
+            fontSize: '1rem',
             color: '#6b7280',
             fontStyle: 'italic'
           }}>
@@ -138,7 +123,7 @@ export default function NotFound() {
         <p style={{
           color: '#6b7280',
           marginBottom: '2rem',
-          fontSize: '0.95rem'
+          fontSize: '1.0625rem'
         }}>
           No worries! Let's get you back to balancing those books.
         </p>
@@ -159,13 +144,14 @@ export default function NotFound() {
               textDecoration: 'none',
               borderRadius: '0.375rem',
               fontWeight: 500,
+              fontSize: '1rem',
               display: 'inline-block',
               transition: 'background-color 0.2s'
             }}
             onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#6d28d9'}
             onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
           >
-            📊 Back to Dashboard
+            Back to Dashboard
           </Link>
 
           <button
@@ -177,6 +163,7 @@ export default function NotFound() {
               border: '1px solid var(--color-border, #d1d5db)',
               borderRadius: '0.375rem',
               fontWeight: 500,
+              fontSize: '1rem',
               cursor: 'pointer',
               transition: 'all 0.2s'
             }}
@@ -189,14 +176,14 @@ export default function NotFound() {
               e.currentTarget.style.borderColor = '#d1d5db'
             }}
           >
-            ⬅️ Go Back
+            Go Back
           </button>
         </div>
 
         {/* Cute footer message */}
         <p style={{
           marginTop: '3rem',
-          fontSize: '0.75rem',
+          fontSize: '0.875rem',
           color: '#9ca3af',
           fontStyle: 'italic'
         }}>
