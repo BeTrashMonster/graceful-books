@@ -245,6 +245,30 @@ export default function CPGDashboard() {
       </div>
 
       {/* The Graph */}
+      {/*
+        CONCEPTUAL FRAMEWORK FOR FUTURE BOOKKEEPING INTEGRATION:
+
+        This graph visualizes two logical cost clusters:
+
+        1. RAW MATERIAL COSTS cluster:
+           - Category nodes (Bottle, Box, Lid, Oil, etc.)
+           - Connected by recipe relationships
+           - Represents direct material costs from CPU Tracker
+
+        2. CPG COSTS cluster:
+           - Distribution node (shipping & warehousing)
+           - Promo node (promotional spend & trade deals)
+           - Represents operational costs beyond raw materials
+
+        When integrated with main bookkeeping software:
+        - These clusters can be zoomed in on from the master financial web
+        - Each cluster acts as a drilldown entry point
+        - Raw Material Costs → CPG Module (this view)
+        - CPG Costs → Distribution + Promo modules
+
+        Visual grouping is implicit through force layout positioning,
+        not explicit circles (keeps UI clean while maintaining conceptual structure).
+      */}
       <div className={styles.graphContainer}>
         <FinancialWebGraph
           nodes={webData.nodes}

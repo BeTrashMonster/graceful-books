@@ -35,7 +35,7 @@ export function FinancialWebGraph({
   connections,
   onNodeClick,
   width = 1200,
-  height = 800,
+  height = 700,
 }: FinancialWebGraphProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [tooltip, setTooltip] = useState<{
@@ -79,23 +79,26 @@ export function FinancialWebGraph({
       .domain([0, maxSpending])
       .range([20, 80]); // Min and max radius
 
-    // Create force simulation
+    // Create force simulation with stronger repulsion to spread nodes apart
     const simulation = d3.forceSimulation(d3Nodes)
       .force('link', d3.forceLink<D3Node, D3Link>(d3Links)
         .id(d => d.id)
-        .distance(150)
-        .strength(0.5))
-      .force('charge', d3.forceManyBody().strength(-800))
+        .distance(250) // Increased from 200
+        .strength(0.3)) // Reduced from 0.5 for looser connections
+      .force('charge', d3.forceManyBody().strength(-1500)) // Increased repulsion from -800
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide<D3Node>().radius(d => nodeScale(parseFloat(d.totalSpent)) + 20));
+      .force('collision', d3.forceCollide<D3Node>().radius(d => nodeScale(parseFloat(d.totalSpent)) + 40)) // Increased spacing from 20
+      // Keep all nodes within viewport bounds
+      .force('x', d3.forceX(width / 2).strength(0.05))
+      .force('y', d3.forceY(height / 2).strength(0.05));
 
-    // Draw links
+    // Draw links with more dramatic weight differences
     const link = g.append('g')
       .selectAll('line')
       .data(d3Links)
       .join('line')
       .attr('class', styles.link)
-      .attr('stroke-width', d => Math.sqrt(d.productCount) * 2)
+      .attr('stroke-width', d => Math.max(2, Math.sqrt(d.productCount) * 5)) // Increased multiplier to 5, min width 2
       .on('mouseover', function(event, d) {
         // Highlight line
         d3.select(this).attr('class', `${styles.link} ${styles.linkHover}`);
@@ -106,7 +109,7 @@ export function FinancialWebGraph({
           visible: true,
           x: event.pageX,
           y: event.pageY - 10,
-          content: `${d.productCount} product${d.productCount > 1 ? 's' : ''}: ${productList}`,
+          content: `${d.productCount} product${d.productCount > 1 ? 's' : ''}:\n${productList}`,
           isLine: true,
         });
       })
@@ -164,14 +167,7 @@ export function FinancialWebGraph({
       .text(d => d.name)
       .style('pointer-events', 'none');
 
-    // Emoji icons for operational nodes
-    node.filter(d => d.type !== 'category')
-      .append('text')
-      .attr('class', styles.nodeIcon)
-      .attr('text-anchor', 'middle')
-      .attr('dy', '0.35em')
-      .text(d => d.type === 'distribution' ? '🚚' : '📢')
-      .style('pointer-events', 'none');
+    // Removed emoji icons for operational nodes per user request
 
     // Dollar amount labels (only for active nodes with spending)
     node.filter(d => d.isActive && parseFloat(d.totalSpent) > 0)

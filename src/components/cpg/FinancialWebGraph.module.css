@@ -142,12 +142,11 @@
   pointer-events: none;
   z-index: 1000;
   box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
-  white-space: nowrap;
+  white-space: normal; /* Changed from nowrap to allow wrapping */
   backdrop-filter: blur(10px);
   transform: translate(-50%, -100%);
-  max-width: 300px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  max-width: 400px; /* Increased from 300px */
+  word-wrap: break-word;
 }
 
 /* Bloom animation for activating features */

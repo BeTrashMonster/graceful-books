@@ -64,9 +64,9 @@ export class FinancialWebDataService {
   ): Promise<FinancialWebData> {
     // Get all active categories
     const categories = await this.db.cpgCategories
-      .where('[company_id+active]')
-      .equals([companyId, true])
-      .and((cat) => !cat.deleted_at)
+      .where('company_id')
+      .equals(companyId)
+      .and((cat) => cat.active && !cat.deleted_at)
       .toArray();
 
     // Get invoices in date range
@@ -291,9 +291,9 @@ export class FinancialWebDataService {
       products = product ? [product] : [];
     } else {
       products = await this.db.cpgFinishedProducts
-        .where('[company_id+active]')
-        .equals([companyId, true])
-        .and((p) => !p.deleted_at && !p.is_bundle) // Exclude bundles
+        .where('company_id')
+        .equals(companyId)
+        .and((p) => p.active && !p.deleted_at && !p.is_bundle) // Exclude bundles
         .toArray();
     }
 
