@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 
 const messages = [
@@ -39,8 +39,14 @@ const funFacts = [
 ]
 
 export default function NotFound() {
+  const location = useLocation()
   const [message, setMessage] = useState(messages[0])
   const [funFact, setFunFact] = useState(funFacts[0])
+
+  // Determine if user was on CPG routes
+  const isCPGRoute = location.pathname.startsWith('/cpg')
+  const dashboardLink = isCPGRoute ? '/cpg/dashboard' : '/dashboard'
+  const dashboardText = isCPGRoute ? 'Back to CPG Dashboard' : 'Back to Dashboard'
 
   useEffect(() => {
     // Randomly select a message on mount
@@ -136,7 +142,7 @@ export default function NotFound() {
           flexWrap: 'wrap'
         }}>
           <Link
-            to="/dashboard"
+            to={dashboardLink}
             style={{
               padding: '0.75rem 1.5rem',
               backgroundColor: 'var(--color-primary, #7c3aed)',
@@ -151,7 +157,7 @@ export default function NotFound() {
             onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#6d28d9'}
             onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
           >
-            Back to Dashboard
+            {dashboardText}
           </Link>
 
           <button
