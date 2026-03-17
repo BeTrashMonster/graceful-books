@@ -48,14 +48,15 @@
 }
 
 .analysisTypeSelector button:hover {
-  color: var(--color-primary, #2563eb);
-  background: var(--color-bg-hover, #f5f5f5);
+  color: #D4AF37;
+  background: rgba(212, 175, 55, 0.05);
 }
 
 .analysisTypeSelector button.active {
-  color: var(--color-primary, #2563eb);
-  border-bottom-color: var(--color-primary, #2563eb);
-  background: var(--color-bg-active, #eff6ff);
+  color: #D4AF37;
+  border-bottom-color: #D4AF37;
+  background: linear-gradient(135deg, rgba(232, 212, 160, 0.1) 0%, rgba(212, 175, 55, 0.15) 100%);
+  font-weight: 600;
 }
 
 /* Section */
@@ -68,8 +69,8 @@
 }
 
 .section h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 2rem;
+  font-weight: 700;
   margin-bottom: 0.5rem;
   color: var(--color-text-primary, #1a1a1a);
 }
