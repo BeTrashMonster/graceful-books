@@ -59,15 +59,16 @@
 }
 
 .section a:hover {
-  background: rgba(255, 215, 0, 0.2);
-  color: #FFD700;
+  background: rgba(212, 175, 55, 0.2);
+  color: #D4AF37;
 }
 
 .section a.active {
-  background: #FFD700;
+  background: linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%);
   color: #4b006e;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border: 1px solid #B8860B;
 }
 
 .main {
@@ -107,7 +108,7 @@
 }
 
 .dropdownToggle:hover {
-  color: #FFD700;
+  color: #D4AF37;
 }
 
 .dropdownArrow {
@@ -136,13 +137,13 @@
 }
 
 .navGroupItem:hover {
-  background: rgba(255, 215, 0, 0.15);
-  color: #FFD700;
+  background: rgba(212, 175, 55, 0.15);
+  color: #D4AF37;
 }
 
 .navGroupItem.active {
-  background: rgba(255, 215, 0, 0.3);
-  color: #FFD700;
+  background: rgba(212, 175, 55, 0.3);
+  color: #E8D4A0;
   font-weight: 600;
 }
 
@@ -151,9 +152,9 @@
   width: calc(100% - 3rem);
   margin: 0 1.5rem;
   padding: 0.875rem 1rem;
-  background: linear-gradient(135deg, #FFD700 0%, #FFC700 100%);
-  color: #4b006e;
-  border: none;
+  background: linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%);
+  color: #2d1b00;
+  border: 1px solid #B8860B;
   border-radius: 0.5rem;
   font-size: 0.9375rem;
   font-weight: 600;
@@ -163,13 +164,13 @@
   justify-content: center;
   gap: 0.5rem;
   transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   position: relative;
 }
 
 .quickAddButton:hover {
-  background: linear-gradient(135deg, #FFC700 0%, #FFB700 100%);
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+  background: linear-gradient(135deg, #F4E5C3 0%, #E8D4A0 50%, #C9A961 100%);
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   transform: translateY(-1px);
 }
 
@@ -214,6 +215,6 @@
 }
 
 .quickAddDropdown button:hover {
-  background: rgba(255, 215, 0, 0.15);
-  color: #FFD700;
+  background: rgba(212, 175, 55, 0.15);
+  color: #E8D4A0;
 }
