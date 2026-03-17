@@ -14,6 +14,7 @@ interface FinancialWebGraphProps {
   nodes: GraphNode[];
   connections: GraphConnection[];
   onNodeClick: (nodeId: string, nodeType: string) => void;
+  onConnectionClick?: (sourceId: string, targetId: string, productIds: string[]) => void;
   width?: number;
   height?: number;
 }
@@ -34,6 +35,7 @@ export function FinancialWebGraph({
   nodes,
   connections,
   onNodeClick,
+  onConnectionClick,
   width = 1200,
   height = 700,
 }: FinancialWebGraphProps) {
@@ -88,9 +90,9 @@ export function FinancialWebGraph({
       .force('charge', d3.forceManyBody().strength(-1500)) // Increased repulsion from -800
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('collision', d3.forceCollide<D3Node>().radius(d => nodeScale(parseFloat(d.totalSpent)) + 40)) // Increased spacing from 20
-      // Keep all nodes within viewport bounds
-      .force('x', d3.forceX(width / 2).strength(0.05))
-      .force('y', d3.forceY(height / 2).strength(0.05));
+      // Keep all nodes within viewport bounds with stronger pull
+      .force('x', d3.forceX(width / 2).strength(0.1))
+      .force('y', d3.forceY(height / 2).strength(0.1));
 
     // Draw links with more dramatic weight differences
     const link = g.append('g')
@@ -99,6 +101,7 @@ export function FinancialWebGraph({
       .join('line')
       .attr('class', styles.link)
       .attr('stroke-width', d => Math.max(2, Math.sqrt(d.productCount) * 5)) // Increased multiplier to 5, min width 2
+      .style('cursor', onConnectionClick ? 'pointer' : 'default')
       .on('mouseover', function(event, d) {
         // Highlight line
         d3.select(this).attr('class', `${styles.link} ${styles.linkHover}`);
@@ -116,6 +119,15 @@ export function FinancialWebGraph({
       .on('mouseout', function() {
         d3.select(this).attr('class', styles.link);
         setTooltip(prev => ({ ...prev, visible: false }));
+      })
+      .on('click', function(event, d) {
+        if (onConnectionClick) {
+          event.stopPropagation();
+          const sourceId = typeof d.source === 'string' ? d.source : d.source.id;
+          const targetId = typeof d.target === 'string' ? d.target : d.target.id;
+          const productIds = d.products.map(p => p.id);
+          onConnectionClick(sourceId, targetId, productIds);
+        }
       });
 
     // Draw node groups (circle + text)
@@ -170,19 +182,35 @@ export function FinancialWebGraph({
     // Removed emoji icons for operational nodes per user request
 
     // Dollar amount labels (only for active nodes with spending)
+    // Font size proportional to node size for better readability
     node.filter(d => d.isActive && parseFloat(d.totalSpent) > 0)
       .append('text')
       .attr('class', styles.nodeAmount)
       .attr('text-anchor', 'middle')
-      .attr('dy', '-0.5em')
+      .attr('dy', '-0.5em') // Back to centered position
       .text(d => `$${parseFloat(d.totalSpent).toLocaleString(undefined, {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
       })}`)
-      .style('pointer-events', 'none');
+      .style('pointer-events', 'none')
+      .style('font-size', d => {
+        // Font size proportional to node size (12px to 20px)
+        const spending = parseFloat(d.totalSpent);
+        const fontScale = d3.scaleLinear()
+          .domain([0, maxSpending])
+          .range([12, 20]);
+        return `${fontScale(spending)}px`;
+      });
 
-    // Update positions on simulation tick
+    // Update positions on simulation tick with boundary constraints
     simulation.on('tick', () => {
+      // Constrain nodes to viewport bounds
+      d3Nodes.forEach(d => {
+        const radius = nodeScale(parseFloat(d.totalSpent)) + 40;
+        d.x = Math.max(radius, Math.min(width - radius, d.x || width / 2));
+        d.y = Math.max(radius, Math.min(height - radius, d.y || height / 2));
+      });
+
       link
         .attr('x1', d => (d.source as D3Node).x!)
         .attr('y1', d => (d.source as D3Node).y!)

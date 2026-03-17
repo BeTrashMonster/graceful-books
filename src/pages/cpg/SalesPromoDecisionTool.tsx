@@ -56,7 +56,13 @@ export default function SalesPromoDecisionTool() {
   const editPromoId = searchParams.get('edit');
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<ViewTab>('decision-tool');
+  const [activeTab, setActiveTab] = useState<ViewTab>(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'promo-tracker') {
+      return 'promo-tracker';
+    }
+    return 'decision-tool';
+  });
 
   // Switch to decision-tool tab when editing a promo
   useEffect(() => {
@@ -64,6 +70,16 @@ export default function SalesPromoDecisionTool() {
       setActiveTab('decision-tool');
     }
   }, [editPromoId]);
+
+  // Handle tab parameter changes
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'promo-tracker') {
+      setActiveTab('promo-tracker');
+    } else if (tabParam === 'decision-tool') {
+      setActiveTab('decision-tool');
+    }
+  }, [searchParams]);
 
   // State
   const [isAnalyzing, setIsAnalyzing] = useState(false);

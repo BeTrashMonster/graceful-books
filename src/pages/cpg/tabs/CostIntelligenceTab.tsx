@@ -35,6 +35,11 @@ export interface CostIntelligenceTabProps {
   onOpenCategoryManager: () => void;
   initialIntelligenceTab?: IntelligenceSubTab;
   initialVendorFilter?: string;
+  initialCategoryFilter?: string; // Single category filter (for Vendor Intel)
+  initialCategoryFilters?: string[]; // Multiple category filters (for CPU Trends)
+  initialProductFilters?: string[]; // Multiple product filters (for CPU Trends)
+  initialStartDate?: number; // Timestamp for custom date range
+  initialEndDate?: number; // Timestamp for custom date range
 }
 
 type IntelligenceSubTab = 'scenario' | 'trends' | 'vendors' | 'alerts';
@@ -57,17 +62,44 @@ export default function CostIntelligenceTab({
   onOpenCategoryManager,
   initialIntelligenceTab,
   initialVendorFilter,
+  initialCategoryFilter,
+  initialCategoryFilters,
+  initialProductFilters,
+  initialStartDate,
+  initialEndDate,
 }: CostIntelligenceTabProps) {
   // Product selection state
-  const [selectedProductsForComparison, setSelectedProductsForComparison] = useState<Set<string>>(new Set());
-  const [comparisonCategoryFilter, setComparisonCategoryFilter] = useState<Set<string>>(new Set());
+  const [selectedProductsForComparison, setSelectedProductsForComparison] = useState<Set<string>>(
+    initialProductFilters ? new Set(initialProductFilters) : new Set()
+  );
+  const [comparisonCategoryFilter, setComparisonCategoryFilter] = useState<Set<string>>(
+    initialCategoryFilter ? new Set([initialCategoryFilter]) :
+    initialCategoryFilters ? new Set(initialCategoryFilters) :
+    new Set()
+  );
   const [comparisonVariantFilter, setComparisonVariantFilter] = useState<Set<string>>(new Set());
   const [comparisonVendorFilter, setComparisonVendorFilter] = useState<Set<string>>(
     initialVendorFilter ? new Set([initialVendorFilter]) : new Set()
   );
-  const [comparisonDateRange, setComparisonDateRange] = useState<'3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all'>('12mo');
-  const [comparisonCustomStartDate, setComparisonCustomStartDate] = useState<string>('');
-  const [comparisonCustomEndDate, setComparisonCustomEndDate] = useState<string>('');
+  const [comparisonDateRange, setComparisonDateRange] = useState<'3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all'>(
+    initialStartDate && initialEndDate ? 'custom' : '12mo'
+  );
+  const [comparisonCustomStartDate, setComparisonCustomStartDate] = useState<string>(() => {
+    if (!initialStartDate) return '';
+    const date = new Date(initialStartDate);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  });
+  const [comparisonCustomEndDate, setComparisonCustomEndDate] = useState<string>(() => {
+    if (!initialEndDate) return '';
+    const date = new Date(initialEndDate);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  });
   const [showProductDropdown, setShowProductDropdown] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showVariantDropdown, setShowVariantDropdown] = useState(false);

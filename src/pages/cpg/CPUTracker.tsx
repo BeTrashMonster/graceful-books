@@ -20,6 +20,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/core/Button';
 import { AddInvoiceModal } from '../../components/cpg/modals/AddInvoiceModal';
 // import { CPUTimeline } from '../../components/cpg/CPUTimeline'; // Unused for now
@@ -42,6 +43,7 @@ type CPUTrackerTab = 'products' | 'raw-materials' | 'comparison';
 
 export default function CPUTracker() {
   const { companyId } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Tab State
   const [activeTab, setActiveTab] = useState<CPUTrackerTab>('products');
@@ -71,6 +73,16 @@ export default function CPUTracker() {
 
   // Vendor Intel Navigation
   const [vendorIntelRequest, setVendorIntelRequest] = useState<{ vendorName: string } | null>(null);
+
+  // URL parameter-based navigation state
+  const [urlNavigationParams, setUrlNavigationParams] = useState<{
+    intelligenceTab?: 'trends' | 'vendors';
+    categoryId?: string;
+    categoryIds?: string[];
+    productIds?: string[];
+    startDate?: number;
+    endDate?: number;
+  } | null>(null);
 
   // Load data
   useEffect(() => {
@@ -102,6 +114,34 @@ export default function CPUTracker() {
     window.addEventListener('navigate-to-vendor-intel', handleVendorNavigation);
     return () => window.removeEventListener('navigate-to-vendor-intel', handleVendorNavigation);
   }, []);
+
+  // Handle URL parameter-based navigation from Financial Dashboard
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    const intelligenceTab = searchParams.get('intelligenceTab') as 'trends' | 'vendors' | null;
+    const categoryId = searchParams.get('categoryId');
+    const categoryIds = searchParams.get('categoryIds');
+    const productIds = searchParams.get('productIds');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+
+    // If tab param is present, apply navigation
+    if (tab === 'comparison' && intelligenceTab) {
+      setActiveTab('comparison');
+
+      setUrlNavigationParams({
+        intelligenceTab,
+        categoryId: categoryId || undefined,
+        categoryIds: categoryIds ? categoryIds.split(',') : undefined,
+        productIds: productIds ? productIds.split(',') : undefined,
+        startDate: startDate ? parseInt(startDate) : undefined,
+        endDate: endDate ? parseInt(endDate) : undefined,
+      });
+
+      // Clear URL params after applying them (keep URL clean)
+      setSearchParams({});
+    }
+  }, [searchParams, setSearchParams]);
 
   const loadData = async () => {
     if (!companyId) {
@@ -492,8 +532,13 @@ export default function CPUTracker() {
                 categories={categories}
                 invoices={invoices}
                 onOpenCategoryManager={() => setShowCategoryManager(true)}
-                initialIntelligenceTab={vendorIntelRequest ? 'vendors' : undefined}
+                initialIntelligenceTab={urlNavigationParams?.intelligenceTab || (vendorIntelRequest ? 'vendors' : undefined)}
                 initialVendorFilter={vendorIntelRequest?.vendorName}
+                initialCategoryFilter={urlNavigationParams?.categoryId}
+                initialCategoryFilters={urlNavigationParams?.categoryIds}
+                initialProductFilters={urlNavigationParams?.productIds}
+                initialStartDate={urlNavigationParams?.startDate}
+                initialEndDate={urlNavigationParams?.endDate}
               />
             )}
           </>

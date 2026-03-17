@@ -60,7 +60,7 @@ export class FinancialWebDataService {
     companyId: string,
     startDate: number,
     endDate: number,
-    selectedProductId?: string
+    selectedProductIds?: string[]
   ): Promise<FinancialWebData> {
     // Get all active categories
     const categories = await this.db.cpgCategories
@@ -80,6 +80,20 @@ export class FinancialWebDataService {
         inv.invoice_date <= endDate
       )
       .toArray();
+
+    console.log('📝 Invoices found in range:', {
+      count: invoices.length,
+      dateRange: {
+        start: new Date(startDate).toLocaleDateString(),
+        end: new Date(endDate).toLocaleDateString(),
+      },
+      invoices: invoices.map(inv => ({
+        date: new Date(inv.invoice_date).toLocaleDateString(),
+        vendor: inv.vendor_name,
+        total: inv.total_paid,
+        categories: Object.keys(inv.cost_attribution || {})
+      }))
+    });
 
     // Calculate category spending
     const categorySpending = this.calculateCategorySpending(categories, invoices);
@@ -128,7 +142,7 @@ export class FinancialWebDataService {
     const connections = await this.getRecipeConnections(
       companyId,
       topCategories.map(t => t.category.id),
-      selectedProductId
+      selectedProductIds
     );
 
     return {
@@ -282,14 +296,19 @@ export class FinancialWebDataService {
   private async getRecipeConnections(
     companyId: string,
     categoryIds: string[],
-    selectedProductId?: string
+    selectedProductIds?: string[]
   ): Promise<GraphConnection[]> {
-    // Get all active products (or just selected one)
+    // Get all active products (or filtered to selected products)
     let products: CPGFinishedProduct[];
-    if (selectedProductId) {
-      const product = await this.db.cpgFinishedProducts.get(selectedProductId);
-      products = product ? [product] : [];
+    if (selectedProductIds && selectedProductIds.length > 0) {
+      // Get specific selected products
+      const productPromises = selectedProductIds.map(id =>
+        this.db.cpgFinishedProducts.get(id)
+      );
+      const fetchedProducts = await Promise.all(productPromises);
+      products = fetchedProducts.filter((p): p is CPGFinishedProduct => p !== undefined);
     } else {
+      // Get all active products
       products = await this.db.cpgFinishedProducts
         .where('company_id')
         .equals(companyId)

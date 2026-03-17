@@ -5,11 +5,12 @@
  * "Plant that seed of success and watch yourself bloom baby!"
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
 import { FinancialWebGraph } from '../../components/cpg/FinancialWebGraph';
+import { DatePicker } from '../../components/common/DatePicker';
 import { createFinancialWebDataService } from '../../services/cpg/financialWebData.service';
 import type { FinancialWebData } from '../../services/cpg/financialWebData.service';
 import type { CPGFinishedProduct } from '../../db/schema/cpg.schema';
@@ -18,40 +19,111 @@ import styles from './CPGDashboard.module.css';
 export default function CPGDashboard() {
   const navigate = useNavigate();
   const { companyId } = useAuth();
-  const [webData, setWebData] = useState<FinancialWebData | null>(null);
+  const [rawWebData, setRawWebData] = useState<FinancialWebData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Filters
-  const [dateRange, setDateRange] = useState<'365d' | '180d' | '90d' | '30d' | 'custom'>('365d');
+  const [dateRange, setDateRange] = useState<'3mo' | '6mo' | '12mo' | '365d' | 'last-calendar-year' | 'this-calendar-year' | 'all' | 'custom'>('365d');
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
-  const [selectedProductId, setSelectedProductId] = useState<string>('all');
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
   const [products, setProducts] = useState<CPGFinishedProduct[]>([]);
+  const [showProductDropdown, setShowProductDropdown] = useState(false);
+  const [showOnlyConnected, setShowOnlyConnected] = useState(false);
 
   const service = createFinancialWebDataService(db);
+
+  // Apply "show only connected" filter
+  const webData = useMemo(() => {
+    if (!rawWebData) return null;
+
+    if (!showOnlyConnected) {
+      return rawWebData;
+    }
+
+    // Get IDs of all category nodes that appear in connections
+    const connectedCategoryIds = new Set<string>();
+    rawWebData.connections.forEach(conn => {
+      connectedCategoryIds.add(conn.source);
+      connectedCategoryIds.add(conn.target);
+    });
+
+    // Filter nodes: keep operational nodes always, filter categories
+    const filteredNodes = rawWebData.nodes.filter(node => {
+      // Always keep Distribution and Promo nodes
+      if (node.type === 'distribution' || node.type === 'promo') {
+        return true;
+      }
+
+      // For category nodes:
+      // 1. Must have spending > 0
+      // 2. Must appear in at least one connection (if there are any connections)
+      const hasSpending = parseFloat(node.totalSpent) > 0;
+      const isConnected = rawWebData.connections.length === 0 || connectedCategoryIds.has(node.id);
+
+      return hasSpending && isConnected;
+    });
+
+    // Create a set of remaining node IDs for quick lookup
+    const remainingNodeIds = new Set(filteredNodes.map(n => n.id));
+
+    // Filter connections to only include those where both source and target are still present
+    const filteredConnections = rawWebData.connections.filter(conn =>
+      remainingNodeIds.has(conn.source) && remainingNodeIds.has(conn.target)
+    );
+
+    return {
+      ...rawWebData,
+      nodes: filteredNodes,
+      connections: filteredConnections,
+    };
+  }, [rawWebData, showOnlyConnected]);
 
   useEffect(() => {
     if (companyId) {
       loadProducts();
-      loadWebData();
+
+      // Only reload if we have valid date range for custom mode
+      if (dateRange === 'custom') {
+        if (customStartDate && customEndDate) {
+          loadWebData();
+        }
+      } else {
+        loadWebData();
+      }
     }
-  }, [companyId, dateRange, selectedProductId, customStartDate, customEndDate]);
+  }, [companyId, dateRange, selectedProductIds, customStartDate, customEndDate]);
 
   const loadProducts = async () => {
     if (!companyId) return;
 
     try {
       const prods = await db.cpgFinishedProducts
-        .where('[company_id+active]')
-        .equals([companyId, true])
-        .and(p => !p.deleted_at && !p.is_bundle)
+        .where('company_id')
+        .equals(companyId)
+        .and(p => p.active && !p.deleted_at && !p.is_bundle)
         .toArray();
 
-      setProducts(prods);
+      // Sort products alphabetically by name
+      const sortedProds = prods.sort((a, b) => a.name.localeCompare(b.name));
+
+      setProducts(sortedProds);
     } catch (err) {
       console.error('Failed to load products:', err);
     }
+  };
+
+  const handleProductToggle = (productId: string) => {
+    setSelectedProductIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(productId)) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
+      }
+      return newSet;
+    });
   };
 
   const loadWebData = async () => {
@@ -63,14 +135,30 @@ export default function CPGDashboard() {
     try {
       const { startDate, endDate } = getDateRange();
 
+      console.log('🔍 Loading web data with date range:', {
+        startDate: new Date(startDate).toLocaleDateString(),
+        endDate: new Date(endDate).toLocaleDateString(),
+        startTimestamp: startDate,
+        endTimestamp: endDate,
+        customStartDate,
+        customEndDate,
+        dateRangeMode: dateRange
+      });
+
       const data = await service.getFinancialWebData(
         companyId,
         startDate,
         endDate,
-        selectedProductId === 'all' ? undefined : selectedProductId
+        selectedProductIds.size > 0 ? Array.from(selectedProductIds) : undefined
       );
 
-      setWebData(data);
+      console.log('📊 Web data loaded:', {
+        nodeCount: data.nodes.length,
+        connectionCount: data.connections.length,
+        nodes: data.nodes.map(n => ({ name: n.name, spent: n.totalSpent, type: n.type }))
+      });
+
+      setRawWebData(data);
     } catch (err: any) {
       console.error('Failed to load web data:', err);
       setError(err.message || 'Failed to load financial data');
@@ -84,12 +172,63 @@ export default function CPGDashboard() {
     const endDate = now;
 
     if (dateRange === 'custom') {
+      // Parse dates in local timezone, not UTC
+      const parseLocalDate = (dateStr: string, isEndDate: boolean): number => {
+        if (!dateStr) return now;
+        const parts = dateStr.split('-');
+        if (parts.length !== 3) return now;
+        const year = parseInt(parts[0]);
+        const month = parseInt(parts[1]) - 1; // 0-indexed
+        const day = parseInt(parts[2]);
+
+        // For end dates, set to end of day (23:59:59.999) to include all invoices from that day
+        if (isEndDate) {
+          return new Date(year, month, day, 23, 59, 59, 999).getTime();
+        }
+
+        // For start dates, set to start of day (00:00:00.000)
+        return new Date(year, month, day).getTime();
+      };
+
       return {
-        startDate: customStartDate ? new Date(customStartDate).getTime() : now - 365 * 24 * 60 * 60 * 1000,
-        endDate: customEndDate ? new Date(customEndDate).getTime() : now,
+        startDate: customStartDate ? parseLocalDate(customStartDate, false) : now - 365 * 24 * 60 * 60 * 1000,
+        endDate: customEndDate ? parseLocalDate(customEndDate, true) : now,
       };
     }
 
+    if (dateRange === 'all') {
+      return {
+        startDate: 0, // Beginning of time
+        endDate,
+      };
+    }
+
+    // Handle calendar year ranges
+    if (dateRange === 'last-calendar-year') {
+      const year = new Date().getFullYear() - 1;
+      return {
+        startDate: new Date(year, 0, 1).getTime(), // Jan 1
+        endDate: new Date(year, 11, 31, 23, 59, 59, 999).getTime(), // Dec 31
+      };
+    }
+
+    if (dateRange === 'this-calendar-year') {
+      const year = new Date().getFullYear();
+      return {
+        startDate: new Date(year, 0, 1).getTime(), // Jan 1
+        endDate: now, // Today
+      };
+    }
+
+    // Handle month-based ranges (3mo, 6mo, 12mo)
+    if (dateRange.endsWith('mo')) {
+      const months = parseInt(dateRange.replace('mo', ''));
+      const startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - months);
+      return { startDate: startDate.getTime(), endDate };
+    }
+
+    // Handle day-based ranges (365d)
     const days = parseInt(dateRange.replace('d', ''));
     const startDate = now - days * 24 * 60 * 60 * 1000;
 
@@ -97,15 +236,46 @@ export default function CPGDashboard() {
   };
 
   const handleNodeClick = (nodeId: string, nodeType: string) => {
-    // Navigate based on node type
     if (nodeType === 'category') {
-      // Go to CPU Tracker filtered to this category
-      navigate(`/cpg/cpu-tracker?category=${nodeId}`);
+      // Build URL params for CPU Tracker > Cost Intelligence > Vendor Intel
+      const { startDate, endDate } = getDateRange();
+      const params = new URLSearchParams({
+        tab: 'comparison',
+        intelligenceTab: 'vendors',
+        categoryId: nodeId,
+        startDate: startDate.toString(),
+        endDate: endDate.toString(),
+      });
+      navigate(`/cpg/cpu-tracker?${params.toString()}`);
     } else if (nodeType === 'distribution') {
       navigate('/cpg/distribution-cost');
     } else if (nodeType === 'promo') {
       navigate('/cpg/promo-decision?tab=promo-tracker');
     }
+  };
+
+  const handleConnectionClick = (sourceId: string, targetId: string, productIds: string[]) => {
+    // Build URL params for CPU Tracker > Cost Intelligence > CPU Trends
+    const { startDate, endDate } = getDateRange();
+    const params = new URLSearchParams({
+      tab: 'comparison',
+      intelligenceTab: 'trends',
+      categoryIds: `${sourceId},${targetId}`,
+      productIds: productIds.join(','),
+      startDate: startDate.toString(),
+      endDate: endDate.toString(),
+    });
+    navigate(`/cpg/cpu-tracker?${params.toString()}`);
+  };
+
+  // Update custom date (useEffect will handle reload)
+  const handleCustomDateChange = (value: string, isStartDate: boolean) => {
+    if (isStartDate) {
+      setCustomStartDate(value);
+    } else {
+      setCustomEndDate(value);
+    }
+    // useEffect will trigger loadWebData() when both dates are set
   };
 
   if (!companyId) {
@@ -185,11 +355,14 @@ export default function CPGDashboard() {
             onChange={(e) => setDateRange(e.target.value as any)}
             className={styles.filterSelect}
           >
-            <option value="30d">Last 30 Days</option>
-            <option value="90d">Last 90 Days</option>
-            <option value="180d">Last 180 Days</option>
+            <option value="3mo">Last 3 Months</option>
+            <option value="6mo">Last 6 Months</option>
+            <option value="12mo">Last 12 Months</option>
             <option value="365d">Last 365 Days</option>
+            <option value="last-calendar-year">Last Calendar Year ({new Date().getFullYear() - 1})</option>
+            <option value="this-calendar-year">This Calendar Year ({new Date().getFullYear()})</option>
             <option value="custom">Custom Range...</option>
+            <option value="all">All Time</option>
           </select>
         </div>
 
@@ -200,47 +373,101 @@ export default function CPGDashboard() {
               <label htmlFor="start-date" className={styles.filterLabel}>
                 Start Date
               </label>
-              <input
-                id="start-date"
-                type="date"
+              <DatePicker
                 value={customStartDate}
-                onChange={(e) => setCustomStartDate(e.target.value)}
-                className={styles.filterSelect}
+                onChange={(value) => handleCustomDateChange(value, true)}
+                placeholder="Select start date..."
               />
             </div>
             <div className={styles.filterGroup}>
               <label htmlFor="end-date" className={styles.filterLabel}>
                 End Date
               </label>
-              <input
-                id="end-date"
-                type="date"
+              <DatePicker
                 value={customEndDate}
-                onChange={(e) => setCustomEndDate(e.target.value)}
-                className={styles.filterSelect}
+                onChange={(value) => handleCustomDateChange(value, false)}
+                placeholder="Select end date..."
               />
             </div>
           </>
         )}
 
         {/* Product Filter */}
-        <div className={styles.filterGroup}>
-          <label htmlFor="product" className={styles.filterLabel}>
-            View Product
+        <div className={styles.filterGroup} style={{ position: 'relative' }}>
+          <label htmlFor="product-filter" className={styles.filterLabel}>
+            Filter by Products
           </label>
-          <select
-            id="product"
-            value={selectedProductId}
-            onChange={(e) => setSelectedProductId(e.target.value)}
-            className={styles.filterSelect}
+          <button
+            id="product-filter"
+            onClick={() => setShowProductDropdown(!showProductDropdown)}
+            aria-expanded={showProductDropdown}
+            aria-label="Filter by products"
+            className={styles.dropdownButton}
           >
-            <option value="all">All Products (Aggregated)</option>
-            {products.map(product => (
-              <option key={product.id} value={product.id}>
-                {product.name}
-              </option>
-            ))}
-          </select>
+            <span>
+              {selectedProductIds.size === 0
+                ? 'All Products'
+                : selectedProductIds.size === products.length
+                ? `All (${products.length})`
+                : `${selectedProductIds.size} Selected`}
+            </span>
+            <span aria-hidden="true" className={styles.dropdownArrow}>
+              {showProductDropdown ? '▲' : '▼'}
+            </span>
+          </button>
+
+          {showProductDropdown && (
+            <div className={styles.dropdownMenu}>
+              {/* Select All / Clear All */}
+              <div className={styles.dropdownActions}>
+                <button
+                  onClick={() => {
+                    setSelectedProductIds(new Set(products.map(p => p.id)));
+                    setShowProductDropdown(false);
+                  }}
+                  className={styles.actionButton}
+                >
+                  Select All
+                </button>
+                <button
+                  onClick={() => setSelectedProductIds(new Set())}
+                  className={styles.actionButton}
+                >
+                  Clear All
+                </button>
+              </div>
+
+              {/* Product List */}
+              {products.length === 0 ? (
+                <div className={styles.noProducts}>No products available</div>
+              ) : (
+                products.map(product => (
+                  <label key={product.id} className={styles.dropdownItem}>
+                    <input
+                      type="checkbox"
+                      checked={selectedProductIds.has(product.id)}
+                      onChange={() => handleProductToggle(product.id)}
+                      className={styles.dropdownCheckbox}
+                    />
+                    <span>{product.name}</span>
+                  </label>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Show Only Connected Checkbox */}
+        <div className={styles.filterGroup}>
+          <label className={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={showOnlyConnected}
+              onChange={(e) => setShowOnlyConnected(e.target.checked)}
+              className={styles.checkbox}
+            />
+            <span>Show only connected items</span>
+          </label>
         </div>
       </div>
 
@@ -274,6 +501,7 @@ export default function CPGDashboard() {
           nodes={webData.nodes}
           connections={webData.connections}
           onNodeClick={handleNodeClick}
+          onConnectionClick={handleConnectionClick}
           width={1200}
           height={700}
         />
