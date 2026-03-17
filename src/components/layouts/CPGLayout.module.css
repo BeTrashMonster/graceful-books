@@ -145,3 +145,75 @@
   color: #FFD700;
   font-weight: 600;
 }
+
+/* Quick Add Button */
+.quickAddButton {
+  width: calc(100% - 3rem);
+  margin: 0 1.5rem;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, #FFD700 0%, #FFC700 100%);
+  color: #4b006e;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  position: relative;
+}
+
+.quickAddButton:hover {
+  background: linear-gradient(135deg, #FFC700 0%, #FFB700 100%);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+.quickAddIcon {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.quickAddArrow {
+  font-size: 0.625rem;
+  margin-left: auto;
+  opacity: 0.7;
+}
+
+.quickAddDropdown {
+  margin: 0.5rem 1.5rem 0 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.quickAddDropdown button {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  color: #cbd5e1;
+  border: none;
+  text-align: left;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.quickAddDropdown button:last-child {
+  border-bottom: none;
+}
+
+.quickAddDropdown button:hover {
+  background: rgba(255, 215, 0, 0.15);
+  color: #FFD700;
+}

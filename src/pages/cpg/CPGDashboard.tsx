@@ -337,7 +337,7 @@ export default function CPGDashboard() {
         <div>
           <h1 className={styles.title}>Your Financial Ecosystem</h1>
           <p className={styles.subtitle}>
-            Watch your money flow and bloom 🌸
+            Watch your money flow 🌸
           </p>
         </div>
       </div>

@@ -6,7 +6,6 @@
 
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { CPGActionBar } from '../cpg/CPGActionBar';
 import { AddCategoryModal } from '../cpg/modals/AddCategoryModal';
 import { AddInvoiceModal } from '../cpg/modals/AddInvoiceModal';
 import { AddProductModal } from '../cpg/modals/AddProductModal';
@@ -30,6 +29,7 @@ export function CPGLayout() {
   const [returnToModal, setReturnToModal] = useState<ModalType>(null);
   const [categories, setCategories] = useState<CPGCategory[]>([]);
   const [savingDistributor, setSavingDistributor] = useState(false);
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
 
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path);
 
@@ -232,17 +232,38 @@ export function CPGLayout() {
               📝 Financial Entry
             </Link>
             <Link
-              to="/cpg/analytics"
-              className={isActive('/cpg/analytics') ? styles.active : ''}
-            >
-              📈 Analytics
-            </Link>
-            <Link
               to="/cpg/scenario-planning"
               className={isActive('/cpg/scenario-planning') ? styles.active : ''}
             >
               🎯 Scenario Planning
             </Link>
+          </div>
+
+          <div className={styles.section}>
+            <button
+              className={styles.quickAddButton}
+              onClick={() => setShowQuickAdd(!showQuickAdd)}
+            >
+              <span className={styles.quickAddIcon}>+</span>
+              <span>Quick Add</span>
+              <span className={styles.quickAddArrow}>{showQuickAdd ? '▼' : '▶'}</span>
+            </button>
+            {showQuickAdd && (
+              <div className={styles.quickAddDropdown}>
+                <button onClick={() => { handleAction('add-invoice'); setShowQuickAdd(false); }}>
+                  📄 Add Invoice
+                </button>
+                <button onClick={() => { handleAction('add-product'); setShowQuickAdd(false); }}>
+                  📦 Add Product
+                </button>
+                <button onClick={() => { handleAction('add-category'); setShowQuickAdd(false); }}>
+                  🏷️ Add Category
+                </button>
+                <button onClick={() => { handleAction('add-distributor'); setShowQuickAdd(false); }}>
+                  🚚 Add Distributor
+                </button>
+              </div>
+            )}
           </div>
 
           <div className={styles.section}>
@@ -286,7 +307,6 @@ export function CPGLayout() {
       </nav>
 
       <main className={styles.main}>
-        <CPGActionBar onAction={handleAction} />
         <Outlet context={{ onAction: handleAction }} />
 
         {/* Modals */}
