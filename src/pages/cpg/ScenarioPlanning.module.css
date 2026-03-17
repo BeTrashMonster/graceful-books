@@ -15,8 +15,8 @@
 }
 
 .header h1 {
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 2.5rem;
+  font-weight: 700;
   margin-bottom: 0.5rem;
   color: var(--color-text-primary, #1a1a1a);
 }
@@ -61,24 +61,50 @@
 
 /* Section */
 .section {
-  background: var(--color-bg-card, #ffffff);
-  border: 1px solid var(--color-border, #e0e0e0);
+  background-color: #ffffff;
+  border-left: 4px solid #D4AF37;
+  border-right: 4px solid #D4AF37;
+  border-bottom: 4px solid #D4AF37;
   border-radius: 8px;
-  padding: 2rem;
+  padding: 0;
   margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  overflow: hidden;
 }
 
 .section h2 {
   font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: var(--color-text-primary, #1a1a1a);
+  font-weight: 600;
+  margin: 0;
+  padding: 1.25rem 2rem;
+  color: #ffffff;
+  background: #4b006e;
 }
 
 .section > p {
   font-size: 1rem;
   color: var(--color-text-secondary, #666);
-  margin-bottom: 1.5rem;
+  margin: 0 0 1.5rem 0;
+  padding: 1.5rem 2rem 0 2rem;
+}
+
+/* Section content area - everything after the header */
+.section > *:not(h2) {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.section > *:last-child {
+  padding-bottom: 2rem;
+}
+
+/* Exception for elements that already have specific layout */
+.section > .distributorGrid,
+.section > .variantConfig,
+.section > .whatIfConfig,
+.section > .breakEvenForm,
+.section > .formGroup {
+  padding-top: 0;
 }
 
 .section h3 {
@@ -86,7 +112,7 @@
   font-weight: 600;
   margin-bottom: 1rem;
   margin-top: 1.5rem;
-  color: var(--color-text-primary, #1a1a1a);
+  color: #4b006e;
 }
 
 /* Distributor Grid */
@@ -109,8 +135,13 @@
 }
 
 .distributorCard:hover {
-  border-color: var(--color-primary, #2563eb);
-  background: var(--color-bg-hover, #f5f5f5);
+  border-color: #D4AF37;
+  background: #faf5ff;
+}
+
+.distributorCard:has(input:checked) {
+  border-color: #4b006e;
+  background: #f3e8ff;
 }
 
 .distributorCard input[type='checkbox'] {
@@ -144,9 +175,21 @@
 .variantRow input {
   flex: 1;
   padding: 0.75rem;
-  border: 1px solid var(--color-border, #e0e0e0);
-  border-radius: 4px;
+  background-color: #E5F6DF;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
   font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.variantRow input:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.variantRow input:hover:not(:focus) {
+  border-color: #D4AF37;
 }
 
 .variantRow button {
@@ -162,6 +205,14 @@
 
 .variantRow button:hover {
   background: var(--color-danger-hover, #b91c1c);
+}
+
+/* Button Container - Right Aligned */
+.buttonContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 /* Form Group */
@@ -180,9 +231,23 @@
 .formGroup select {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid var(--color-border, #e0e0e0);
-  border-radius: 4px;
+  background-color: #E5F6DF;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
   font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.formGroup input:hover:not(:focus),
+.formGroup select:hover:not(:focus) {
+  border-color: #D4AF37;
 }
 
 .helpText {
@@ -199,8 +264,9 @@
 
 .bestDistributor {
   padding: 1.5rem;
-  background: var(--color-success-bg, #f0fdf4);
-  border: 2px solid var(--color-success, #22c55e);
+  background: #E5F6DF;
+  border: 2px solid #22c55e;
+  border-left: 4px solid #D4AF37;
   border-radius: 8px;
   margin-bottom: 2rem;
 }
@@ -312,8 +378,20 @@
 .priceInputs input {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid var(--color-border, #e0e0e0);
-  border-radius: 4px;
+  background-color: #E5F6DF;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.priceInputs input:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.priceInputs input:hover:not(:focus) {
+  border-color: #D4AF37;
 }
 
 /* What-If Results */
@@ -330,10 +408,16 @@
 
 .impactCard {
   padding: 1.5rem;
-  background: var(--color-bg-secondary, #f9fafb);
-  border: 1px solid var(--color-border, #e0e0e0);
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border: 2px solid #f3e8ff;
   border-radius: 8px;
   text-align: center;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.impactCard:hover {
+  transform: translateY(-2px);
+  border-color: #D4AF37;
 }
 
 .impactCard .label {
@@ -399,6 +483,23 @@
   margin-bottom: 2rem;
 }
 
+.breakEvenForm input {
+  background-color: #E5F6DF;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.breakEvenForm input:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.breakEvenForm input:hover:not(:focus) {
+  border-color: #D4AF37;
+}
+
 .breakEvenResults {
   margin-top: 2rem;
 }
@@ -412,10 +513,16 @@
 
 .summaryCard {
   padding: 2rem;
-  background: var(--color-bg-secondary, #f9fafb);
-  border: 1px solid var(--color-border, #e0e0e0);
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border: 2px solid #f3e8ff;
   border-radius: 8px;
   text-align: center;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.summaryCard:hover {
+  transform: translateY(-2px);
+  border-color: #D4AF37;
 }
 
 .summaryCard .label {

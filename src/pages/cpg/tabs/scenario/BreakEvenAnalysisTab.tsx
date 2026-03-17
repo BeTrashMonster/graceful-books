@@ -135,9 +135,11 @@ export function BreakEvenAnalysisTab({ distributors, companyId, service }: Break
         </div>
       </div>
 
-      <Button variant="primary" onClick={handleBreakEvenAnalysis} disabled={analyzing}>
-        {analyzing ? 'Calculating...' : 'Calculate Break-Even'}
-      </Button>
+      <div className={styles.buttonContainer}>
+        <Button variant="gold" onClick={handleBreakEvenAnalysis} disabled={analyzing}>
+          {analyzing ? 'Calculating...' : 'Calculate Break-Even'}
+        </Button>
+      </div>
 
       {/* Break-Even Results */}
       {breakEvenResult && (

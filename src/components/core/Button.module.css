@@ -164,6 +164,42 @@
   border-color: #991b1b;
 }
 
+/* Gold variant - Metallic Gold */
+.gold {
+  background: linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%);
+  color: #2d1b00;
+  border: 1px solid #B8860B;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+}
+
+.gold:hover:not(:disabled) {
+  background: linear-gradient(135deg, #F4E5C3 0%, #E8D4A0 50%, #C9A961 100%);
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.gold:active:not(:disabled) {
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 50%, #9A7209 100%);
+  box-shadow: 0 1px 4px rgba(184, 134, 11, 0.3), inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Purple variant - Deep Purple */
+.purple {
+  background-color: #4b006e;
+  color: #ffffff;
+  border-color: #4b006e;
+}
+
+.purple:hover:not(:disabled) {
+  background-color: #6d28d9;
+  border-color: #6d28d9;
+}
+
+.purple:active:not(:disabled) {
+  background-color: #3a0052;
+  border-color: #3a0052;
+}
+
 /* Loading state */
 .loading {
   position: relative;

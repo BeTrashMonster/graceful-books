@@ -104,7 +104,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, service }: WhatIf
           <div className={styles.emptyState}>
             <p>Add variants to analyze pricing scenarios.</p>
             <Button
-              variant="secondary"
+              variant="purple"
               onClick={() =>
                 setWhatIfPricing({ '8oz': { current: '10.00', new: '10.00' } })
               }
@@ -149,9 +149,11 @@ export function WhatIfCalculatorTab({ distributors, companyId, service }: WhatIf
         )}
       </div>
 
-      <Button variant="primary" onClick={handleWhatIfAnalysis} disabled={analyzing}>
-        {analyzing ? 'Analyzing...' : 'Calculate Impact'}
-      </Button>
+      <div className={styles.buttonContainer}>
+        <Button variant="gold" onClick={handleWhatIfAnalysis} disabled={analyzing}>
+          {analyzing ? 'Analyzing...' : 'Calculate Impact'}
+        </Button>
+      </div>
 
       {/* What-If Results */}
       {whatIfResult && (

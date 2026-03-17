@@ -160,14 +160,16 @@ export function CompareDistributorsTab({ distributors, companyId, service }: Com
             )}
           </div>
         ))}
-        <Button variant="secondary" onClick={addComparisonVariant}>
+        <Button variant="purple" onClick={addComparisonVariant}>
           Add Variant
         </Button>
       </div>
 
-      <Button variant="primary" onClick={handleCompareDistributors} disabled={analyzing}>
-        {analyzing ? 'Comparing...' : 'Compare Distributors'}
-      </Button>
+      <div className={styles.buttonContainer}>
+        <Button variant="gold" onClick={handleCompareDistributors} disabled={analyzing}>
+          {analyzing ? 'Comparing...' : 'Compare Distributors'}
+        </Button>
+      </div>
 
       {/* Comparison Results */}
       {comparisonResult && (

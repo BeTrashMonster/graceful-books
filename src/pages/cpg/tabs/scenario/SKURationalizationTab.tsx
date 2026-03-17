@@ -86,9 +86,11 @@ export function SKURationalizationTab({ distributors, companyId, service }: SKUR
         </span>
       </div>
 
-      <Button variant="primary" onClick={handleRationalizationAnalysis} disabled={analyzing}>
-        {analyzing ? 'Analyzing...' : 'Analyze SKUs'}
-      </Button>
+      <div className={styles.buttonContainer}>
+        <Button variant="gold" onClick={handleRationalizationAnalysis} disabled={analyzing}>
+          {analyzing ? 'Analyzing...' : 'Analyze SKUs'}
+        </Button>
+      </div>
 
       {/* Rationalization Results */}
       {rationalizeResult && (
