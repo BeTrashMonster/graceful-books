@@ -657,14 +657,14 @@
 
 .positiveChange {
   color: #22c55e;
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 .negativeChange {
   color: #dc2626;
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 /* ============================================================================
@@ -939,16 +939,16 @@
 }
 
 .resultBox .resultLabel {
-  font-size: 1.375rem;
-  font-weight: 800;
+  font-size: 0.875rem;
+  font-weight: 600;
   color: #4b006e;
   text-transform: uppercase;
   letter-spacing: 0.025em;
 }
 
 .resultBox .resultValue {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: #1a1a1a;
 }
 
@@ -979,7 +979,7 @@
 }
 
 .comparisonValue {
-  font-size: 1rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #1a1a1a;
 }
@@ -1128,11 +1128,20 @@
   }
 
   .resultBox .resultLabel {
+    font-size: 0.8125rem;
+  }
+
+  .resultBox .resultValue {
     font-size: 1.125rem;
   }
 
   .comparisonValue {
-    font-size: 0.9375rem;
+    font-size: 1.125rem;
+  }
+
+  .positiveChange,
+  .negativeChange {
+    font-size: 1.125rem;
   }
 
   .comparisonRow {
