@@ -767,255 +767,305 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
             </button>
           </div>
 
-          {/* Per-Product Adjustments */}
-          <div className={styles.productAdjustments}>
-            {results.map(result => {
-              const adjustedResult = calculateAdjustedResult(result);
-              const hasAdjustments = adjustedValues.has(result.productId);
+          {/* Per Product Mode */}
+          {whatIfMode === 'per-product' && (
+            <div className={styles.productCards}>
+              {results.map(result => {
+                const adjustedResult = calculateAdjustedResult(result);
+                const hasAdjustments = adjustedValues.has(result.productId);
 
-              return (
-                <div key={result.productId} className={styles.productAdjustmentCard}>
-                  <div className={styles.productAdjustmentHeader}>
-                    <h5>{result.productName}</h5>
-                    {hasAdjustments && (
-                      <button
-                        className={styles.resetButton}
-                        onClick={() => resetProductAdjustments(result.productId)}
-                        title="Reset to original values"
-                      >
-                        Reset
-                      </button>
-                    )}
-                  </div>
+                // Calculate ranges for sliders
+                const baseCPURange = calculateRange(result.baseCPU, 50);
+                const distCPURange = calculateRange(result.distributionCPU, 50);
+                const promoCPURange = calculateRange(result.promoCPU, 50);
+                const retailRange = calculateRange(result.retailPrice, 30);
 
-                  {/* Adjustable Fields Grid */}
-                  <div className={styles.adjustableFieldsGrid}>
-                    {/* Base CPU */}
-                    <div className={styles.adjustableField}>
-                      <label>Base CPU</label>
-                      {adjustmentMode === 'dollar' ? (
-                        <input
-                          type="text"
-                          className={styles.adjustableInput}
-                          value={
-                            editingField === `${result.productId}-baseCPU`
-                              ? editingText
-                              : `$${adjustedResult.baseCPU.toFixed(2)}`
-                          }
-                          onFocus={() => {
-                            setEditingField(`${result.productId}-baseCPU`);
-                            setEditingText(adjustedResult.baseCPU.toFixed(2));
-                          }}
-                          onChange={(e) => setEditingText(e.target.value)}
-                          onBlur={() => {
-                            if (editingField === `${result.productId}-baseCPU`) {
-                              const newValue = evaluateMathExpression(editingText, adjustedResult.baseCPU);
-                              if (newValue !== null && newValue >= 0) {
-                                setAdjustedValue(result.productId, 'baseCPU', newValue);
-                              }
-                              setEditingField(null);
-                              setEditingText('');
-                            }
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.currentTarget.blur();
-                            }
-                          }}
-                        />
-                      ) : (
-                        <div className={styles.percentageView}>
-                          {result.retailPrice > 0
-                            ? `${((adjustedResult.baseCPU / result.retailPrice) * 100).toFixed(1)}%`
-                            : 'N/A'}
-                        </div>
-                      )}
-                      {adjustedResult.baseCPU !== result.baseCPU && (
-                        <div className={styles.changeIndicator}>
-                          {adjustedResult.baseCPU > result.baseCPU ? '↑' : '↓'}
-                          {' '}$
-                          {Math.abs(adjustedResult.baseCPU - result.baseCPU).toFixed(2)}
-                        </div>
-                      )}
-                    </div>
+                // Get toggle states
+                const baseCPUToggle = getSliderToggle(result.productId, 'baseCPU');
+                const distCPUToggle = getSliderToggle(result.productId, 'distributionCPU');
+                const promoCPUToggle = getSliderToggle(result.productId, 'promoCPU');
+                const retailToggle = getSliderToggle(result.productId, 'retailPrice');
 
-                    {/* Distribution CPU */}
-                    <div className={styles.adjustableField}>
-                      <label>Distribution CPU</label>
-                      {adjustmentMode === 'dollar' ? (
-                        <input
-                          type="text"
-                          className={styles.adjustableInput}
-                          value={
-                            editingField === `${result.productId}-distributionCPU`
-                              ? editingText
-                              : `$${adjustedResult.distributionCPU.toFixed(2)}`
-                          }
-                          onFocus={() => {
-                            setEditingField(`${result.productId}-distributionCPU`);
-                            setEditingText(adjustedResult.distributionCPU.toFixed(2));
-                          }}
-                          onChange={(e) => setEditingText(e.target.value)}
-                          onBlur={() => {
-                            if (editingField === `${result.productId}-distributionCPU`) {
-                              const newValue = evaluateMathExpression(editingText, adjustedResult.distributionCPU);
-                              if (newValue !== null && newValue >= 0) {
-                                setAdjustedValue(result.productId, 'distributionCPU', newValue);
-                              }
-                              setEditingField(null);
-                              setEditingText('');
-                            }
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.currentTarget.blur();
-                            }
-                          }}
-                        />
-                      ) : (
-                        <div className={styles.percentageView}>
-                          {result.retailPrice > 0
-                            ? `${((adjustedResult.distributionCPU / result.retailPrice) * 100).toFixed(1)}%`
-                            : 'N/A'}
-                        </div>
-                      )}
-                      {adjustedResult.distributionCPU !== result.distributionCPU && (
-                        <div className={styles.changeIndicator}>
-                          {adjustedResult.distributionCPU > result.distributionCPU ? '↑' : '↓'}
-                          {' '}$
-                          {Math.abs(adjustedResult.distributionCPU - result.distributionCPU).toFixed(2)}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Promo CPU */}
-                    <div className={styles.adjustableField}>
-                      <label>Promo CPU</label>
-                      {adjustmentMode === 'dollar' ? (
-                        <input
-                          type="text"
-                          className={styles.adjustableInput}
-                          value={
-                            editingField === `${result.productId}-promoCPU`
-                              ? editingText
-                              : `$${adjustedResult.promoCPU.toFixed(2)}`
-                          }
-                          onFocus={() => {
-                            setEditingField(`${result.productId}-promoCPU`);
-                            setEditingText(adjustedResult.promoCPU.toFixed(2));
-                          }}
-                          onChange={(e) => setEditingText(e.target.value)}
-                          onBlur={() => {
-                            if (editingField === `${result.productId}-promoCPU`) {
-                              const newValue = evaluateMathExpression(editingText, adjustedResult.promoCPU);
-                              if (newValue !== null && newValue >= 0) {
-                                setAdjustedValue(result.productId, 'promoCPU', newValue);
-                              }
-                              setEditingField(null);
-                              setEditingText('');
-                            }
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.currentTarget.blur();
-                            }
-                          }}
-                        />
-                      ) : (
-                        <div className={styles.percentageView}>
-                          {result.retailPrice > 0
-                            ? `${((adjustedResult.promoCPU / result.retailPrice) * 100).toFixed(1)}%`
-                            : 'N/A'}
-                        </div>
-                      )}
-                      {adjustedResult.promoCPU !== result.promoCPU && (
-                        <div className={styles.changeIndicator}>
-                          {adjustedResult.promoCPU > result.promoCPU ? '↑' : '↓'}
-                          {' '}$
-                          {Math.abs(adjustedResult.promoCPU - result.promoCPU).toFixed(2)}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Retail Price */}
-                    <div className={styles.adjustableField}>
-                      <label>Retail Price</label>
-                      <input
-                        type="text"
-                        className={styles.adjustableInput}
-                        value={
-                          editingField === `${result.productId}-retailPrice`
-                            ? editingText
-                            : `$${adjustedResult.retailPrice.toFixed(2)}`
-                        }
-                        onFocus={() => {
-                          setEditingField(`${result.productId}-retailPrice`);
-                          setEditingText(adjustedResult.retailPrice.toFixed(2));
-                        }}
-                        onChange={(e) => setEditingText(e.target.value)}
-                        onBlur={() => {
-                          if (editingField === `${result.productId}-retailPrice`) {
-                            const newValue = evaluateMathExpression(editingText, adjustedResult.retailPrice);
-                            if (newValue !== null && newValue >= 0) {
-                              setAdjustedValue(result.productId, 'retailPrice', newValue);
-                            }
-                            setEditingField(null);
-                            setEditingText('');
-                          }
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.currentTarget.blur();
-                          }
-                        }}
-                      />
-                      {adjustedResult.retailPrice !== result.retailPrice && (
-                        <div className={styles.changeIndicator}>
-                          {adjustedResult.retailPrice > result.retailPrice ? '↑' : '↓'}
-                          {' '}$
-                          {Math.abs(adjustedResult.retailPrice - result.retailPrice).toFixed(2)}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Adjusted Results Display */}
-                  <div className={styles.adjustedResultsDisplay}>
-                    <div className={styles.resultMetric}>
-                      <span className={styles.resultLabel}>Total CPU:</span>
-                      <span className={styles.resultValue}>
-                        ${adjustedResult.totalCPU.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className={styles.resultMetric}>
-                      <span className={styles.resultLabel}>Margin:</span>
-                      <MarginQualityBadge
-                        quality={adjustedResult.marginQuality}
-                        marginPercentage={adjustedResult.margin.toFixed(2)}
-                      />
-                    </div>
-                    {hasAdjustments && (
-                      <div className={styles.resultMetric}>
-                        <span className={styles.resultLabel}>Margin Change:</span>
-                        <span
-                          className={
-                            adjustedResult.margin > result.margin
-                              ? styles.positiveChange
-                              : adjustedResult.margin < result.margin
-                              ? styles.negativeChange
-                              : ''
-                          }
+                return (
+                  <div key={result.productId} className={styles.productCard}>
+                    {/* Card Header */}
+                    <div className={styles.cardHeader}>
+                      <h4>{result.productName}</h4>
+                      {hasAdjustments && (
+                        <button
+                          className={styles.resetButton}
+                          onClick={() => resetProductAdjustments(result.productId)}
+                          title="Reset to original values"
                         >
-                          {adjustedResult.margin > result.margin ? '+' : ''}
-                          {(adjustedResult.margin - result.margin).toFixed(2)}%
-                        </span>
+                          Reset
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Sliders Section */}
+                    <div className={styles.slidersGrid}>
+                      {/* Base CPU Slider */}
+                      <div className={styles.sliderControl}>
+                        <div className={styles.sliderLabelRow}>
+                          <label>Base CPU</label>
+                          <div className={styles.toggleSwitch}>
+                            <button
+                              className={baseCPUToggle === 'dollar' ? styles.active : ''}
+                              onClick={() => setSliderToggle(result.productId, 'baseCPU', 'dollar')}
+                            >
+                              $
+                            </button>
+                            <button
+                              className={baseCPUToggle === 'percentage' ? styles.active : ''}
+                              onClick={() => setSliderToggle(result.productId, 'baseCPU', 'percentage')}
+                            >
+                              %
+                            </button>
+                          </div>
+                        </div>
+                        <div className={styles.adjustedValue}>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={adjustedResult.baseCPU.toFixed(2)}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val) && val >= 0) {
+                                setAdjustedValue(result.productId, 'baseCPU', val);
+                              }
+                            }}
+                          />
+                        </div>
+                        <input
+                          type="range"
+                          className={styles.slider}
+                          min={baseCPURange.min}
+                          max={baseCPURange.max}
+                          step="0.01"
+                          value={adjustedResult.baseCPU}
+                          onChange={(e) => setAdjustedValue(result.productId, 'baseCPU', parseFloat(e.target.value))}
+                        />
+                        <div className={styles.sliderRange}>
+                          <span>${baseCPURange.min}</span>
+                          <span>${baseCPURange.max}</span>
+                        </div>
+                        {adjustedResult.baseCPU !== result.baseCPU && (
+                          <div className={styles.delta}>
+                            {adjustedResult.baseCPU > result.baseCPU ? '↑' : '↓'} $
+                            {Math.abs(adjustedResult.baseCPU - result.baseCPU).toFixed(2)}
+                          </div>
+                        )}
                       </div>
-                    )}
+
+                      {/* Distribution CPU Slider */}
+                      <div className={styles.sliderControl}>
+                        <div className={styles.sliderLabelRow}>
+                          <label>Distribution CPU</label>
+                          <div className={styles.toggleSwitch}>
+                            <button
+                              className={distCPUToggle === 'dollar' ? styles.active : ''}
+                              onClick={() => setSliderToggle(result.productId, 'distributionCPU', 'dollar')}
+                            >
+                              $
+                            </button>
+                            <button
+                              className={distCPUToggle === 'percentage' ? styles.active : ''}
+                              onClick={() => setSliderToggle(result.productId, 'distributionCPU', 'percentage')}
+                            >
+                              %
+                            </button>
+                          </div>
+                        </div>
+                        <div className={styles.adjustedValue}>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={adjustedResult.distributionCPU.toFixed(2)}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val) && val >= 0) {
+                                setAdjustedValue(result.productId, 'distributionCPU', val);
+                              }
+                            }}
+                          />
+                        </div>
+                        <input
+                          type="range"
+                          className={styles.slider}
+                          min={distCPURange.min}
+                          max={distCPURange.max}
+                          step="0.01"
+                          value={adjustedResult.distributionCPU}
+                          onChange={(e) => setAdjustedValue(result.productId, 'distributionCPU', parseFloat(e.target.value))}
+                        />
+                        <div className={styles.sliderRange}>
+                          <span>${distCPURange.min}</span>
+                          <span>${distCPURange.max}</span>
+                        </div>
+                        {adjustedResult.distributionCPU !== result.distributionCPU && (
+                          <div className={styles.delta}>
+                            {adjustedResult.distributionCPU > result.distributionCPU ? '↑' : '↓'} $
+                            {Math.abs(adjustedResult.distributionCPU - result.distributionCPU).toFixed(2)}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Promo CPU Slider */}
+                      <div className={styles.sliderControl}>
+                        <div className={styles.sliderLabelRow}>
+                          <label>Promo CPU</label>
+                          <div className={styles.toggleSwitch}>
+                            <button
+                              className={promoCPUToggle === 'dollar' ? styles.active : ''}
+                              onClick={() => setSliderToggle(result.productId, 'promoCPU', 'dollar')}
+                            >
+                              $
+                            </button>
+                            <button
+                              className={promoCPUToggle === 'percentage' ? styles.active : ''}
+                              onClick={() => setSliderToggle(result.productId, 'promoCPU', 'percentage')}
+                            >
+                              %
+                            </button>
+                          </div>
+                        </div>
+                        <div className={styles.adjustedValue}>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={adjustedResult.promoCPU.toFixed(2)}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val) && val >= 0) {
+                                setAdjustedValue(result.productId, 'promoCPU', val);
+                              }
+                            }}
+                          />
+                        </div>
+                        <input
+                          type="range"
+                          className={styles.slider}
+                          min={promoCPURange.min}
+                          max={promoCPURange.max}
+                          step="0.01"
+                          value={adjustedResult.promoCPU}
+                          onChange={(e) => setAdjustedValue(result.productId, 'promoCPU', parseFloat(e.target.value))}
+                        />
+                        <div className={styles.sliderRange}>
+                          <span>${promoCPURange.min}</span>
+                          <span>${promoCPURange.max}</span>
+                        </div>
+                        {adjustedResult.promoCPU !== result.promoCPU && (
+                          <div className={styles.delta}>
+                            {adjustedResult.promoCPU > result.promoCPU ? '↑' : '↓'} $
+                            {Math.abs(adjustedResult.promoCPU - result.promoCPU).toFixed(2)}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Retail Price Slider */}
+                      <div className={styles.sliderControl}>
+                        <div className={styles.sliderLabelRow}>
+                          <label>Retail Price</label>
+                          <div className={styles.toggleSwitch}>
+                            <button
+                              className={retailToggle === 'dollar' ? styles.active : ''}
+                              onClick={() => setSliderToggle(result.productId, 'retailPrice', 'dollar')}
+                            >
+                              $
+                            </button>
+                            <button
+                              className={retailToggle === 'percentage' ? styles.active : ''}
+                              onClick={() => setSliderToggle(result.productId, 'retailPrice', 'percentage')}
+                            >
+                              %
+                            </button>
+                          </div>
+                        </div>
+                        <div className={styles.adjustedValue}>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={adjustedResult.retailPrice.toFixed(2)}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val) && val >= 0) {
+                                setAdjustedValue(result.productId, 'retailPrice', val);
+                              }
+                            }}
+                          />
+                        </div>
+                        <input
+                          type="range"
+                          className={styles.slider}
+                          min={retailRange.min}
+                          max={retailRange.max}
+                          step="0.01"
+                          value={adjustedResult.retailPrice}
+                          onChange={(e) => setAdjustedValue(result.productId, 'retailPrice', parseFloat(e.target.value))}
+                        />
+                        <div className={styles.sliderRange}>
+                          <span>${retailRange.min}</span>
+                          <span>${retailRange.max}</span>
+                        </div>
+                        {adjustedResult.retailPrice !== result.retailPrice && (
+                          <div className={styles.delta}>
+                            {adjustedResult.retailPrice > result.retailPrice ? '↑' : '↓'} $
+                            {Math.abs(adjustedResult.retailPrice - result.retailPrice).toFixed(2)}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Results Display */}
+                    <div className={styles.resultsDisplay}>
+                      <div className={styles.resultBox}>
+                        <div className={styles.resultLabel}>Total CPU</div>
+                        <div className={styles.resultValue}>${adjustedResult.totalCPU.toFixed(2)}</div>
+                      </div>
+                      <div className={styles.resultBox}>
+                        <div className={styles.resultLabel}>Margin</div>
+                        <div className={styles.resultValue}>
+                          <MarginQualityBadge
+                            quality={adjustedResult.marginQuality}
+                            marginPercentage={adjustedResult.margin.toFixed(2)}
+                          />
+                        </div>
+                      </div>
+                      {hasAdjustments && (
+                        <div className={styles.resultBox}>
+                          <div className={styles.resultLabel}>Margin Change</div>
+                          <div
+                            className={
+                              adjustedResult.margin > result.margin
+                                ? styles.positiveChange
+                                : adjustedResult.margin < result.margin
+                                ? styles.negativeChange
+                                : styles.resultValue
+                            }
+                          >
+                            {adjustedResult.margin > result.margin ? '+' : ''}
+                            {(adjustedResult.margin - result.margin).toFixed(2)}%
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Overall Mode */}
+          {whatIfMode === 'overall' && (
+            <div className={styles.overallMode}>
+              <p>Overall mode coming soon - adjust all products at once.</p>
+            </div>
+          )}
         </div>
       </div>
     );
