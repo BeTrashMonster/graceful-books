@@ -995,6 +995,8 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
       {/* Selection Area */}
       <div className={styles.selectionArea}>
+        <h3>Build Your Scenario</h3>
+
         {/* Distributor Selection */}
         <div className={styles.formGroup}>
           <label htmlFor="distributor-select">
