@@ -1284,6 +1284,26 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
           {/* Overall Mode */}
           {whatIfMode === 'overall' && (
             <div className={styles.overallContainer}>
+              {/* Reset Button */}
+              {hasOverallAdjustments && (
+                <div className={styles.overallResetContainer}>
+                  <button
+                    className={styles.resetButton}
+                    onClick={() => {
+                      setOverallAdjustments({
+                        baseCPU: 0,
+                        distributionCPU: 0,
+                        promoCPU: 0,
+                        retailPrice: 0,
+                      });
+                    }}
+                    title="Reset all adjustments"
+                  >
+                    Reset All Adjustments
+                  </button>
+                </div>
+              )}
+
               {/* Overall Sliders */}
               <div className={styles.overallSliders}>
                 {/* Base CPU Slider */}
@@ -1311,11 +1331,15 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                   </div>
                   <div className={styles.adjustedValue}>
                     <input
-                      type="number"
-                      step={overallToggles.baseCPU === 'dollar' ? '0.01' : '1'}
-                      value={overallAdjustments.baseCPU.toFixed(overallToggles.baseCPU === 'dollar' ? 2 : 0)}
+                      type="text"
+                      value={
+                        overallToggles.baseCPU === 'dollar'
+                          ? `${overallAdjustments.baseCPU >= 0 ? '+' : ''}$${overallAdjustments.baseCPU.toFixed(2)}`
+                          : `${overallAdjustments.baseCPU >= 0 ? '+' : ''}${overallAdjustments.baseCPU.toFixed(0)}%`
+                      }
                       onChange={(e) => {
-                        const val = parseFloat(e.target.value);
+                        const cleanValue = e.target.value.replace(/[^0-9.-]/g, '');
+                        const val = parseFloat(cleanValue);
                         if (!isNaN(val)) {
                           setOverallAdjustments({ ...overallAdjustments, baseCPU: val });
                         }
@@ -1373,13 +1397,15 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                   </div>
                   <div className={styles.adjustedValue}>
                     <input
-                      type="number"
-                      step={overallToggles.distributionCPU === 'dollar' ? '0.01' : '1'}
-                      value={overallAdjustments.distributionCPU.toFixed(
-                        overallToggles.distributionCPU === 'dollar' ? 2 : 0
-                      )}
+                      type="text"
+                      value={
+                        overallToggles.distributionCPU === 'dollar'
+                          ? `${overallAdjustments.distributionCPU >= 0 ? '+' : ''}$${overallAdjustments.distributionCPU.toFixed(2)}`
+                          : `${overallAdjustments.distributionCPU >= 0 ? '+' : ''}${overallAdjustments.distributionCPU.toFixed(0)}%`
+                      }
                       onChange={(e) => {
-                        const val = parseFloat(e.target.value);
+                        const cleanValue = e.target.value.replace(/[^0-9.-]/g, '');
+                        const val = parseFloat(cleanValue);
                         if (!isNaN(val)) {
                           setOverallAdjustments({ ...overallAdjustments, distributionCPU: val });
                         }
@@ -1440,11 +1466,15 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                   </div>
                   <div className={styles.adjustedValue}>
                     <input
-                      type="number"
-                      step={overallToggles.promoCPU === 'dollar' ? '0.01' : '1'}
-                      value={overallAdjustments.promoCPU.toFixed(overallToggles.promoCPU === 'dollar' ? 2 : 0)}
+                      type="text"
+                      value={
+                        overallToggles.promoCPU === 'dollar'
+                          ? `${overallAdjustments.promoCPU >= 0 ? '+' : ''}$${overallAdjustments.promoCPU.toFixed(2)}`
+                          : `${overallAdjustments.promoCPU >= 0 ? '+' : ''}${overallAdjustments.promoCPU.toFixed(0)}%`
+                      }
                       onChange={(e) => {
-                        const val = parseFloat(e.target.value);
+                        const cleanValue = e.target.value.replace(/[^0-9.-]/g, '');
+                        const val = parseFloat(cleanValue);
                         if (!isNaN(val)) {
                           setOverallAdjustments({ ...overallAdjustments, promoCPU: val });
                         }
@@ -1502,13 +1532,15 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                   </div>
                   <div className={styles.adjustedValue}>
                     <input
-                      type="number"
-                      step={overallToggles.retailPrice === 'dollar' ? '0.01' : '1'}
-                      value={overallAdjustments.retailPrice.toFixed(
-                        overallToggles.retailPrice === 'dollar' ? 2 : 0
-                      )}
+                      type="text"
+                      value={
+                        overallToggles.retailPrice === 'dollar'
+                          ? `${overallAdjustments.retailPrice >= 0 ? '+' : ''}$${overallAdjustments.retailPrice.toFixed(2)}`
+                          : `${overallAdjustments.retailPrice >= 0 ? '+' : ''}${overallAdjustments.retailPrice.toFixed(0)}%`
+                      }
                       onChange={(e) => {
-                        const val = parseFloat(e.target.value);
+                        const cleanValue = e.target.value.replace(/[^0-9.-]/g, '');
+                        const val = parseFloat(cleanValue);
                         if (!isNaN(val)) {
                           setOverallAdjustments({ ...overallAdjustments, retailPrice: val });
                         }
@@ -1570,10 +1602,10 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                 return (
                   <>
                     <div className={styles.resultsDisplay}>
-                      {/* Total CPU */}
+                      {/* Combined CPU */}
                       <div className={styles.resultBox}>
                         <div className={styles.resultLabel}>
-                          {hasOverallAdjustments ? 'CPU' : 'Total CPU'}
+                          {hasOverallAdjustments ? 'CPU' : 'Combined CPU'}
                         </div>
                         {hasOverallAdjustments ? (
                           <>
@@ -1607,10 +1639,10 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                         )}
                       </div>
 
-                      {/* Total Profit Margin */}
+                      {/* Combined Profit Margin */}
                       <div className={styles.resultBox}>
                         <div className={styles.resultLabel}>
-                          {hasOverallAdjustments ? 'Profit Margin' : 'Total Profit Margin'}
+                          {hasOverallAdjustments ? 'Profit Margin' : 'Combined Profit Margin'}
                         </div>
                         {hasOverallAdjustments ? (
                           <>
@@ -1652,9 +1684,9 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                         <div className={styles.resultValue}>{adjustedAvgMargin.toFixed(2)}%</div>
                       </div>
 
-                      {/* Total Margin Change */}
+                      {/* Margin Change */}
                       <div className={styles.resultBox}>
-                        <div className={styles.resultLabel}>Total Margin Change</div>
+                        <div className={styles.resultLabel}>Margin Change</div>
                         <div
                           className={
                             adjustedAvgMargin > originalAvgMargin
