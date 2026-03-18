@@ -1,0 +1,722 @@
+/**
+ * What-If Calculator Tab Styles
+ *
+ * Comprehensive scenario planning interface with purple/gold/green theme
+ */
+
+.container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.5rem 0;
+}
+
+.description {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ============================================================================
+ * Selection Area
+ * ============================================================================ */
+.selectionArea {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.optional {
+  font-weight: 400;
+  color: #999;
+  font-size: 0.875rem;
+}
+
+.select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 2px solid #d1d1d1;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.select:hover {
+  border-color: #4b006e;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #4b006e;
+  box-shadow: 0 0 0 3px rgba(75, 0, 110, 0.1);
+}
+
+/* ============================================================================
+ * Distributor Fields
+ * ============================================================================ */
+.distributorFields {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  background: #f8f8f8;
+  border-radius: 0.5rem;
+  border-left: 4px solid #4b006e;
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9375rem;
+  color: #333;
+  cursor: pointer;
+}
+
+.radioLabel input[type="radio"] {
+  width: 1.125rem;
+  height: 1.125rem;
+  cursor: pointer;
+  accent-color: #4b006e;
+}
+
+.radioLabel input[type="radio"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.radioLabel span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.customInput {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9375rem;
+  border: 1px solid #d1d1d1;
+  border-radius: 0.375rem;
+  width: 8rem;
+  transition: border-color 0.2s ease;
+}
+
+.customInput:enabled:hover {
+  border-color: #4b006e;
+}
+
+.customInput:enabled:focus {
+  outline: none;
+  border-color: #4b006e;
+  box-shadow: 0 0 0 2px rgba(75, 0, 110, 0.1);
+}
+
+.customInput:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ============================================================================
+ * Promo Fields
+ * ============================================================================ */
+.promoFields {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  background: #f0f9ff;
+  border-radius: 0.5rem;
+  border-left: 4px solid #0ea5e9;
+}
+
+.promoInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.promoInfoItem {
+  font-size: 0.9375rem;
+  color: #333;
+  margin: 0;
+}
+
+.promoInfoItem strong {
+  color: #0ea5e9;
+}
+
+/* ============================================================================
+ * Product Pills (Purple pill/tag selector)
+ * ============================================================================ */
+.productPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.productPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #e9d5ff;
+  color: #4b006e;
+  border-radius: 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid #d8b4fe;
+  transition: all 0.2s ease;
+}
+
+.productPill:hover {
+  background: #d8b4fe;
+  border-color: #c084fc;
+}
+
+.productPillText {
+  line-height: 1;
+}
+
+.productPillRemove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  background: rgba(75, 0, 110, 0.1);
+  color: #4b006e;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.productPillRemove:hover {
+  background: #4b006e;
+  color: #ffffff;
+}
+
+.productPillRemove:focus {
+  outline: 2px solid #4b006e;
+  outline-offset: 2px;
+}
+
+.addProductButton {
+  padding: 0.5rem 1rem;
+  background: #ffffff;
+  color: #4b006e;
+  border: 2px dashed #c084fc;
+  border-radius: 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.addProductButton:hover {
+  background: #faf5ff;
+  border-color: #4b006e;
+  border-style: solid;
+}
+
+.addProductButton:focus {
+  outline: 2px solid #4b006e;
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+ * Product Selector Dropdown
+ * ============================================================================ */
+.productSelector {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #ffffff;
+  border: 2px solid #e9d5ff;
+  border-radius: 0.5rem;
+  max-width: 30rem;
+}
+
+.productSelector h4 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 0.75rem 0;
+}
+
+.productList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 15rem;
+  overflow-y: auto;
+}
+
+.productOption {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.375rem;
+  font-size: 0.9375rem;
+  color: #333;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.productOption:hover {
+  background: #faf5ff;
+  border-color: #c084fc;
+  color: #4b006e;
+}
+
+.productOption:focus {
+  outline: 2px solid #4b006e;
+  outline-offset: 2px;
+}
+
+.productSku {
+  color: #999;
+  font-size: 0.875rem;
+  margin-left: 0.5rem;
+}
+
+/* ============================================================================
+ * Button Container
+ * ============================================================================ */
+.buttonContainer {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* ============================================================================
+ * Results Section
+ * ============================================================================ */
+.resultsSection {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.resultsSection h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 1.5rem 0;
+}
+
+.resultsTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.resultsTable thead {
+  background: linear-gradient(135deg, #4b006e 0%, #7c3aed 100%);
+}
+
+.resultsTable thead th {
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.resultsTable tbody tr {
+  border-bottom: 1px solid #e5e5e5;
+  transition: background-color 0.2s ease;
+}
+
+.resultsTable tbody tr:hover {
+  background-color: #faf5ff;
+}
+
+.resultsTable tbody tr:last-child {
+  border-bottom: none;
+}
+
+.resultsTable tbody td {
+  padding: 1rem;
+  font-size: 0.9375rem;
+  color: #333;
+}
+
+.resultsTable tbody td strong {
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* ============================================================================
+ * What-If Scenario Section
+ * ============================================================================ */
+.whatIfSection {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  border-radius: 0.75rem;
+  border: 2px solid #e9d5ff;
+}
+
+.whatIfHeader {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.whatIfHeader h4 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4b006e;
+  margin: 0 0 0.5rem 0;
+}
+
+.whatIfHeader p {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+.adjustmentModeToggle {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  padding: 0.25rem;
+  background: #ffffff;
+  border-radius: 0.5rem;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.adjustmentModeToggle button {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: #666;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.adjustmentModeToggle button.active {
+  background: linear-gradient(135deg, #4b006e 0%, #7c3aed 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(75, 0, 110, 0.3);
+}
+
+.adjustmentModeToggle button:hover:not(.active) {
+  background: #f5f5f5;
+  color: #4b006e;
+}
+
+.productAdjustments {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.productAdjustmentCard {
+  background: #ffffff;
+  border: 2px solid #e9d5ff;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.productAdjustmentCard:hover {
+  border-color: #c084fc;
+  box-shadow: 0 4px 12px rgba(75, 0, 110, 0.1);
+}
+
+.productAdjustmentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f3e8ff;
+}
+
+.productAdjustmentHeader h5 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.resetButton {
+  padding: 0.5rem 1rem;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resetButton:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
+.adjustableFieldsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.adjustableField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.adjustableField label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #4b006e;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.adjustableInput {
+  padding: 0.75rem 1rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  background: #ffffff;
+  border: 2px solid #d1d1d1;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.adjustableInput:hover {
+  border-color: #4b006e;
+  background: #faf5ff;
+}
+
+.adjustableInput:focus {
+  outline: none;
+  border-color: #4b006e;
+  box-shadow: 0 0 0 3px rgba(75, 0, 110, 0.1);
+  background: #ffffff;
+}
+
+.percentageView {
+  padding: 0.75rem 1rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #4b006e;
+  background: #f3e8ff;
+  border: 2px solid #e9d5ff;
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+.changeIndicator {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  width: fit-content;
+}
+
+.changeIndicator:contains("↑") {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.changeIndicator:contains("↓") {
+  color: #16a34a;
+  background: #f0fdf4;
+}
+
+.adjustedResultsDisplay {
+  display: flex;
+  gap: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 0.5rem;
+  border: 2px solid #bae6fd;
+}
+
+.resultMetric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.resultLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0ea5e9;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.resultValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.positiveChange {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.negativeChange {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.instructionsBox {
+  margin-top: 1.5rem;
+  padding: 1rem 1.5rem;
+  background: #fff7ed;
+  border: 2px solid #fed7aa;
+  border-radius: 0.5rem;
+}
+
+.instructionsBox p {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: #333;
+  line-height: 1.6;
+}
+
+.instructionsBox strong {
+  color: #ea580c;
+}
+
+.hasAdjustments {
+  background: #fef3c7;
+}
+
+.initialResults {
+  margin-bottom: 2rem;
+}
+
+.initialResults h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #666;
+  margin: 0 0 1rem 0;
+}
+
+/* ============================================================================
+ * Responsive Design
+ * ============================================================================ */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .selectionArea {
+    padding: 1.5rem;
+  }
+
+  .radioGroup {
+    flex-direction: column;
+  }
+
+  .productPills {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .resultsTable {
+    font-size: 0.875rem;
+  }
+
+  .resultsTable thead th,
+  .resultsTable tbody td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .whatIfSection {
+    padding: 1.5rem;
+  }
+
+  .adjustmentModeToggle {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .adjustmentModeToggle button {
+    padding: 0.875rem;
+  }
+
+  .adjustableFieldsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .adjustedResultsDisplay {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .productAdjustmentHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .resetButton {
+    width: 100%;
+  }
+}

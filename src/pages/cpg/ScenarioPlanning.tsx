@@ -32,7 +32,7 @@ type AnalysisType = 'compare' | 'whatif' | 'breakeven' | 'rationalize';
  * ScenarioPlanning Component
  */
 export default function ScenarioPlanning() {
-  const { companyId } = useAuth();
+  const { companyId, deviceId } = useAuth();
   const [analysisType, setAnalysisType] = useState<AnalysisType>('compare');
   const [distributors, setDistributors] = useState<CPGDistributor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -129,7 +129,7 @@ export default function ScenarioPlanning() {
         <WhatIfCalculatorTab
           distributors={distributors}
           companyId={companyId}
-          service={service}
+          deviceId={deviceId}
         />
       )}
 
