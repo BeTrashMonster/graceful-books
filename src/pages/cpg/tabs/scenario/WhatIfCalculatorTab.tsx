@@ -1095,16 +1095,85 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
                     {/* Results Display */}
                     <div className={styles.resultsDisplay}>
+                      {/* Total CPU - Original vs Adjusted */}
                       <div className={styles.resultBox}>
                         <div className={styles.resultLabel}>Total CPU</div>
-                        <div className={styles.resultValue}>${adjustedResult.totalCPU.toFixed(2)}</div>
+                        {hasAdjustments ? (
+                          <>
+                            <div className={styles.comparisonRow}>
+                              <div className={styles.comparisonColumn}>
+                                <div className={styles.comparisonSubLabel}>Original</div>
+                                <div className={styles.comparisonValue}>${result.totalCPU.toFixed(2)}</div>
+                              </div>
+                              <div className={styles.comparisonColumn}>
+                                <div className={styles.comparisonSubLabel}>Adjusted</div>
+                                <div className={styles.comparisonValue}>${adjustedResult.totalCPU.toFixed(2)}</div>
+                              </div>
+                            </div>
+                            <div
+                              className={
+                                adjustedResult.totalCPU > result.totalCPU
+                                  ? styles.deltaPositive
+                                  : styles.deltaNegative
+                              }
+                            >
+                              Δ {adjustedResult.totalCPU > result.totalCPU ? '+' : ''}
+                              ${(adjustedResult.totalCPU - result.totalCPU).toFixed(2)}
+                            </div>
+                          </>
+                        ) : (
+                          <div className={styles.resultValue}>${adjustedResult.totalCPU.toFixed(2)}</div>
+                        )}
                       </div>
+
+                      {/* Total Profit Margin - Original vs Adjusted */}
                       <div className={styles.resultBox}>
                         <div className={styles.resultLabel}>Total Profit Margin</div>
-                        <div className={styles.resultValue}>
-                          ${(adjustedResult.retailPrice - adjustedResult.totalCPU).toFixed(2)}
-                        </div>
+                        {hasAdjustments ? (
+                          <>
+                            <div className={styles.comparisonRow}>
+                              <div className={styles.comparisonColumn}>
+                                <div className={styles.comparisonSubLabel}>Original</div>
+                                <div className={styles.comparisonValue}>
+                                  ${(result.retailPrice - result.totalCPU).toFixed(2)}
+                                </div>
+                              </div>
+                              <div className={styles.comparisonColumn}>
+                                <div className={styles.comparisonSubLabel}>Adjusted</div>
+                                <div className={styles.comparisonValue}>
+                                  ${(adjustedResult.retailPrice - adjustedResult.totalCPU).toFixed(2)}
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              className={
+                                (adjustedResult.retailPrice - adjustedResult.totalCPU) >
+                                (result.retailPrice - result.totalCPU)
+                                  ? styles.deltaPositive
+                                  : styles.deltaNegative
+                              }
+                            >
+                              Δ{' '}
+                              {(adjustedResult.retailPrice - adjustedResult.totalCPU) >
+                              (result.retailPrice - result.totalCPU)
+                                ? '+'
+                                : ''}
+                              $
+                              {(
+                                adjustedResult.retailPrice -
+                                adjustedResult.totalCPU -
+                                (result.retailPrice - result.totalCPU)
+                              ).toFixed(2)}
+                            </div>
+                          </>
+                        ) : (
+                          <div className={styles.resultValue}>
+                            ${(adjustedResult.retailPrice - adjustedResult.totalCPU).toFixed(2)}
+                          </div>
+                        )}
                       </div>
+
+                      {/* Margin Badge */}
                       <div className={styles.resultBox}>
                         <div className={styles.resultLabel}>Margin</div>
                         <div className={styles.resultValue}>
@@ -1114,8 +1183,10 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                           />
                         </div>
                       </div>
+
+                      {/* Total Margin Change */}
                       <div className={styles.resultBox}>
-                        <div className={styles.resultLabel}>Margin Change</div>
+                        <div className={styles.resultLabel}>Total Margin Change</div>
                         <div
                           className={
                             adjustedResult.margin > result.margin
