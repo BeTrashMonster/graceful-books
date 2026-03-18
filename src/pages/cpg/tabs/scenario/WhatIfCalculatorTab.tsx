@@ -176,6 +176,8 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
           mostRecentCPU,
         });
       }
+      // Sort distributors alphabetically by name
+      distributorsData.sort((a, b) => a.name.localeCompare(b.name));
       setDistributorsList(distributorsData);
 
       // Load promos
@@ -206,6 +208,9 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
           promoCostPerUnit,
         };
       });
+
+      // Sort promos alphabetically by name
+      promosData.sort((a, b) => a.name.localeCompare(b.name));
       setPromosList(promosData);
 
       // Load all products
@@ -574,17 +579,19 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
     const promoData = promosList.find(p => p.id === selectedPromoId);
     if (!promoData) return null;
 
+    const productNames = Object.keys(promoData.promoCostPerUnit);
+
     return (
       <div className={styles.promoFields}>
-        <div className={styles.promoInfo}>
+        <div className={styles.promoInfoGrid}>
           {promoData.retailerName && (
-            <p className={styles.promoInfoItem}>
+            <div className={styles.promoInfoItem}>
               <strong>Retailer:</strong> {promoData.retailerName}
-            </p>
+            </div>
           )}
-          <p className={styles.promoInfoItem}>
-            <strong>Products in promo:</strong> {Object.keys(promoData.promoCostPerUnit).length}
-          </p>
+          <div className={styles.promoInfoItem}>
+            <strong>Products in promo:</strong> {productNames.join(', ')}
+          </div>
         </div>
       </div>
     );
@@ -982,15 +989,6 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h2>What-If Calculator</h2>
-        <p className={styles.description}>
-          Bring together production costs (CPG), distribution, and retail/promo to understand
-          the full picture. Select your options below and play with the numbers to explore
-          different scenarios.
-        </p>
-      </div>
-
       {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}
 
       {/* Selection Area */}
@@ -1022,7 +1020,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
         {/* Promo Selection */}
         <div className={styles.formGroup}>
           <label htmlFor="promo-select">
-            Select Promo <span className={styles.optional}>(optional)</span>
+            Select Retailer Promo <span className={styles.optional}>(optional)</span>
           </label>
           <select
             id="promo-select"
