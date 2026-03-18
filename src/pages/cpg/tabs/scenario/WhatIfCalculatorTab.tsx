@@ -1097,7 +1097,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                     <div className={styles.resultsDisplay}>
                       {/* Total CPU - Original vs Adjusted */}
                       <div className={styles.resultBox}>
-                        <div className={styles.resultLabel}>Total CPU</div>
+                        <div className={styles.resultLabel}>{hasAdjustments ? 'CPU' : 'Total CPU'}</div>
                         {hasAdjustments ? (
                           <>
                             <div className={styles.comparisonRow}>
@@ -1128,7 +1128,9 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
                       {/* Total Profit Margin - Original vs Adjusted */}
                       <div className={styles.resultBox}>
-                        <div className={styles.resultLabel}>Total Profit Margin</div>
+                        <div className={styles.resultLabel}>
+                          {hasAdjustments ? 'Profit Margin' : 'Total Profit Margin'}
+                        </div>
                         {hasAdjustments ? (
                           <>
                             <div className={styles.comparisonRow}>
