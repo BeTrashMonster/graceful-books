@@ -847,13 +847,31 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                           onChange={(e) => setAdjustedValue(result.productId, 'baseCPU', parseFloat(e.target.value))}
                         />
                         <div className={styles.sliderRange}>
-                          <span>${baseCPURange.min}</span>
-                          <span>${baseCPURange.max}</span>
+                          {baseCPUToggle === 'dollar' ? (
+                            <>
+                              <span>${baseCPURange.min}</span>
+                              <span>${baseCPURange.max}</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>-50%</span>
+                              <span>+50%</span>
+                            </>
+                          )}
                         </div>
                         {adjustedResult.baseCPU !== result.baseCPU && (
                           <div className={styles.delta}>
-                            {adjustedResult.baseCPU > result.baseCPU ? '↑' : '↓'} $
-                            {Math.abs(adjustedResult.baseCPU - result.baseCPU).toFixed(2)}
+                            {baseCPUToggle === 'dollar' ? (
+                              <>
+                                {adjustedResult.baseCPU > result.baseCPU ? '↑' : '↓'} $
+                                {Math.abs(adjustedResult.baseCPU - result.baseCPU).toFixed(2)}
+                              </>
+                            ) : (
+                              <>
+                                {adjustedResult.baseCPU > result.baseCPU ? '↑' : '↓'}
+                                {(((adjustedResult.baseCPU - result.baseCPU) / result.baseCPU) * 100).toFixed(1)}%
+                              </>
+                            )}
                           </div>
                         )}
                       </div>
@@ -901,13 +919,31 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                           onChange={(e) => setAdjustedValue(result.productId, 'distributionCPU', parseFloat(e.target.value))}
                         />
                         <div className={styles.sliderRange}>
-                          <span>${distCPURange.min}</span>
-                          <span>${distCPURange.max}</span>
+                          {distCPUToggle === 'dollar' ? (
+                            <>
+                              <span>${distCPURange.min}</span>
+                              <span>${distCPURange.max}</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>-50%</span>
+                              <span>+50%</span>
+                            </>
+                          )}
                         </div>
                         {adjustedResult.distributionCPU !== result.distributionCPU && (
                           <div className={styles.delta}>
-                            {adjustedResult.distributionCPU > result.distributionCPU ? '↑' : '↓'} $
-                            {Math.abs(adjustedResult.distributionCPU - result.distributionCPU).toFixed(2)}
+                            {distCPUToggle === 'dollar' ? (
+                              <>
+                                {adjustedResult.distributionCPU > result.distributionCPU ? '↑' : '↓'} $
+                                {Math.abs(adjustedResult.distributionCPU - result.distributionCPU).toFixed(2)}
+                              </>
+                            ) : (
+                              <>
+                                {adjustedResult.distributionCPU > result.distributionCPU ? '↑' : '↓'}
+                                {(((adjustedResult.distributionCPU - result.distributionCPU) / result.distributionCPU) * 100).toFixed(1)}%
+                              </>
+                            )}
                           </div>
                         )}
                       </div>
@@ -955,13 +991,31 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                           onChange={(e) => setAdjustedValue(result.productId, 'promoCPU', parseFloat(e.target.value))}
                         />
                         <div className={styles.sliderRange}>
-                          <span>${promoCPURange.min}</span>
-                          <span>${promoCPURange.max}</span>
+                          {promoCPUToggle === 'dollar' ? (
+                            <>
+                              <span>${promoCPURange.min}</span>
+                              <span>${promoCPURange.max}</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>-50%</span>
+                              <span>+50%</span>
+                            </>
+                          )}
                         </div>
                         {adjustedResult.promoCPU !== result.promoCPU && (
                           <div className={styles.delta}>
-                            {adjustedResult.promoCPU > result.promoCPU ? '↑' : '↓'} $
-                            {Math.abs(adjustedResult.promoCPU - result.promoCPU).toFixed(2)}
+                            {promoCPUToggle === 'dollar' ? (
+                              <>
+                                {adjustedResult.promoCPU > result.promoCPU ? '↑' : '↓'} $
+                                {Math.abs(adjustedResult.promoCPU - result.promoCPU).toFixed(2)}
+                              </>
+                            ) : (
+                              <>
+                                {adjustedResult.promoCPU > result.promoCPU ? '↑' : '↓'}
+                                {(((adjustedResult.promoCPU - result.promoCPU) / result.promoCPU) * 100).toFixed(1)}%
+                              </>
+                            )}
                           </div>
                         )}
                       </div>
@@ -1009,13 +1063,31 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                           onChange={(e) => setAdjustedValue(result.productId, 'retailPrice', parseFloat(e.target.value))}
                         />
                         <div className={styles.sliderRange}>
-                          <span>${retailRange.min}</span>
-                          <span>${retailRange.max}</span>
+                          {retailToggle === 'dollar' ? (
+                            <>
+                              <span>${retailRange.min}</span>
+                              <span>${retailRange.max}</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>-30%</span>
+                              <span>+30%</span>
+                            </>
+                          )}
                         </div>
                         {adjustedResult.retailPrice !== result.retailPrice && (
                           <div className={styles.delta}>
-                            {adjustedResult.retailPrice > result.retailPrice ? '↑' : '↓'} $
-                            {Math.abs(adjustedResult.retailPrice - result.retailPrice).toFixed(2)}
+                            {retailToggle === 'dollar' ? (
+                              <>
+                                {adjustedResult.retailPrice > result.retailPrice ? '↑' : '↓'} $
+                                {Math.abs(adjustedResult.retailPrice - result.retailPrice).toFixed(2)}
+                              </>
+                            ) : (
+                              <>
+                                {adjustedResult.retailPrice > result.retailPrice ? '↑' : '↓'}
+                                {(((adjustedResult.retailPrice - result.retailPrice) / result.retailPrice) * 100).toFixed(1)}%
+                              </>
+                            )}
                           </div>
                         )}
                       </div>
@@ -1028,6 +1100,12 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                         <div className={styles.resultValue}>${adjustedResult.totalCPU.toFixed(2)}</div>
                       </div>
                       <div className={styles.resultBox}>
+                        <div className={styles.resultLabel}>Total Profit Margin</div>
+                        <div className={styles.resultValue}>
+                          ${(adjustedResult.retailPrice - adjustedResult.totalCPU).toFixed(2)}
+                        </div>
+                      </div>
+                      <div className={styles.resultBox}>
                         <div className={styles.resultLabel}>Margin</div>
                         <div className={styles.resultValue}>
                           <MarginQualityBadge
@@ -1036,23 +1114,21 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                           />
                         </div>
                       </div>
-                      {hasAdjustments && (
-                        <div className={styles.resultBox}>
-                          <div className={styles.resultLabel}>Margin Change</div>
-                          <div
-                            className={
-                              adjustedResult.margin > result.margin
-                                ? styles.positiveChange
-                                : adjustedResult.margin < result.margin
-                                ? styles.negativeChange
-                                : styles.resultValue
-                            }
-                          >
-                            {adjustedResult.margin > result.margin ? '+' : ''}
-                            {(adjustedResult.margin - result.margin).toFixed(2)}%
-                          </div>
+                      <div className={styles.resultBox}>
+                        <div className={styles.resultLabel}>Margin Change</div>
+                        <div
+                          className={
+                            adjustedResult.margin > result.margin
+                              ? styles.positiveChange
+                              : adjustedResult.margin < result.margin
+                              ? styles.negativeChange
+                              : styles.resultValue
+                          }
+                        >
+                          {adjustedResult.margin > result.margin ? '+' : ''}
+                          {(adjustedResult.margin - result.margin).toFixed(2)}%
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
                 );
