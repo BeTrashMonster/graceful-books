@@ -811,7 +811,8 @@
   position: relative;
 }
 
-.adjustedValue input[type="number"] {
+.adjustedValue input[type="number"],
+.adjustedValue input[type="text"] {
   width: 100%;
   padding: 0.75rem 1rem;
   font-size: 1.25rem;
@@ -824,11 +825,13 @@
   text-align: center;
 }
 
-.adjustedValue input[type="number"]:hover {
+.adjustedValue input[type="number"]:hover,
+.adjustedValue input[type="text"]:hover {
   border-color: #16a34a;
 }
 
-.adjustedValue input[type="number"]:focus {
+.adjustedValue input[type="number"]:focus,
+.adjustedValue input[type="text"]:focus {
   outline: none;
   border-color: #D4AF37;
   box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
