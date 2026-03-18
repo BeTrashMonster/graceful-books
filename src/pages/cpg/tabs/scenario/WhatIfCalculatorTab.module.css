@@ -398,6 +398,14 @@
   border-bottom: 2px solid #e0e0e0;
 }
 
+.resultsTable thead th:first-child {
+  text-align: left;
+}
+
+.resultsTable thead th:not(:first-child) {
+  text-align: center;
+}
+
 .resultsTable tbody tr {
   border-bottom: 1px solid #e0e0e0;
   transition: background-color 0.2s ease;
@@ -415,6 +423,14 @@
   padding: 1rem;
   font-size: 0.9375rem;
   color: #333;
+}
+
+.resultsTable tbody td:first-child {
+  text-align: left;
+}
+
+.resultsTable tbody td:not(:first-child) {
+  text-align: center;
 }
 
 .resultsTable tbody td strong {

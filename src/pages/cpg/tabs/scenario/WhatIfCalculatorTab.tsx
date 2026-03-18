@@ -118,9 +118,24 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
   // Adjustable fields state (for the what-if scenario adjustments)
   const [adjustedValues, setAdjustedValues] = useState<Map<string, Map<string, number>>>(new Map());
-  const [adjustmentMode, setAdjustmentMode] = useState<'dollar' | 'percentage'>('dollar');
-  const [editingField, setEditingField] = useState<string | null>(null);
-  const [editingText, setEditingText] = useState<string>('');
+  const [whatIfMode, setWhatIfMode] = useState<'per-product' | 'overall'>('per-product');
+
+  // Individual toggles for each slider type (per product)
+  const [sliderToggles, setSliderToggles] = useState<Map<string, Map<string, 'dollar' | 'percentage'>>>(new Map());
+
+  // Overall mode adjustments
+  const [overallAdjustments, setOverallAdjustments] = useState({
+    baseCPU: 0,
+    distributionCPU: 0,
+    promoCPU: 0,
+    retailPrice: 0,
+  });
+  const [overallToggles, setOverallToggles] = useState({
+    baseCPU: 'percentage' as 'dollar' | 'percentage',
+    distributionCPU: 'percentage' as 'dollar' | 'percentage',
+    promoCPU: 'percentage' as 'dollar' | 'percentage',
+    retailPrice: 'percentage' as 'dollar' | 'percentage',
+  });
 
   // ========================================
   // Load Data on Mount
@@ -414,6 +429,9 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
         });
       }
 
+      // Sort results alphabetically by product name
+      calculationResults.sort((a, b) => a.productName.localeCompare(b.productName));
+
       setResults(calculationResults);
     } catch (err) {
       console.error('Error calculating impact:', err);
@@ -506,6 +524,34 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
     const updated = new Map(adjustedValues);
     updated.delete(productId);
     setAdjustedValues(updated);
+  };
+
+  // Get toggle state for a specific product and field
+  const getSliderToggle = (productId: string, field: string): 'dollar' | 'percentage' => {
+    const productToggles = sliderToggles.get(productId);
+    if (!productToggles) return 'dollar';
+    return productToggles.get(field) || 'dollar';
+  };
+
+  // Set toggle state for a specific product and field
+  const setSliderToggle = (productId: string, field: string, mode: 'dollar' | 'percentage') => {
+    const updated = new Map(sliderToggles);
+    const productToggles = updated.get(productId) || new Map<string, 'dollar' | 'percentage'>();
+    productToggles.set(field, mode);
+    updated.set(productId, productToggles);
+    setSliderToggles(updated);
+  };
+
+  // Calculate rounded range for sliders
+  const calculateRange = (originalValue: number, percentage: number): { min: number; max: number } => {
+    const minCalc = originalValue * (1 - percentage / 100);
+    const maxCalc = originalValue * (1 + percentage / 100);
+
+    // Round down to nearest dollar for min, up for max
+    const min = Math.floor(minCalc);
+    const max = Math.ceil(maxCalc);
+
+    return { min, max };
   };
 
   // ========================================
@@ -702,22 +748,22 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
         <div className={styles.whatIfSection}>
           <div className={styles.whatIfHeader}>
             <h4>What-If Scenario: Adjust Values</h4>
-            <p>Play with the numbers below to see how changes impact your margins.</p>
+            <p>Use sliders or enter values directly to explore different scenarios.</p>
           </div>
 
-          {/* Toggle between $ and % */}
-          <div className={styles.adjustmentModeToggle}>
+          {/* Mode Toggle: Per Product / Overall */}
+          <div className={styles.modeToggle}>
             <button
-              className={adjustmentMode === 'dollar' ? styles.active : ''}
-              onClick={() => setAdjustmentMode('dollar')}
+              className={whatIfMode === 'per-product' ? styles.active : ''}
+              onClick={() => setWhatIfMode('per-product')}
             >
-              $ Dollar View
+              Per Product
             </button>
             <button
-              className={adjustmentMode === 'percentage' ? styles.active : ''}
-              onClick={() => setAdjustmentMode('percentage')}
+              className={whatIfMode === 'overall' ? styles.active : ''}
+              onClick={() => setWhatIfMode('overall')}
             >
-              % Percentage View
+              Overall
             </button>
           </div>
 
