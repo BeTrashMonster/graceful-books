@@ -701,7 +701,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
         {/* What-If Scenario Section */}
         <div className={styles.whatIfSection}>
           <div className={styles.whatIfHeader}>
-            <h4>💡 What-If Scenario: Adjust Values</h4>
+            <h4>What-If Scenario: Adjust Values</h4>
             <p>Play with the numbers below to see how changes impact your margins.</p>
           </div>
 
@@ -969,11 +969,6 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                 </div>
               );
             })}
-          </div>
-
-          {/* Instructions */}
-          <div className={styles.instructionsBox}>
-            <p><strong>💡 Tip:</strong> Click any value to edit it. Try math expressions like "+0.50", "-10%", or "2.50 * 1.1" to explore different scenarios!</p>
           </div>
         </div>
       </div>

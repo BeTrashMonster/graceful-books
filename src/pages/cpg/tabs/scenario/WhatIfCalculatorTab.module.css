@@ -88,7 +88,8 @@
  * ============================================================================ */
 .distributorFields {
   margin-top: 1rem;
-  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
   background: #faf5ff;
   border-left: 4px solid #4b006e;
   margin-left: 2rem;
@@ -160,7 +161,7 @@
  * ============================================================================ */
 .promoFields {
   margin-top: 1rem;
-  padding: 1.5rem 2rem;
+  padding: 0.75rem 1rem;
   background: #E5F6DF;
   border-left: 4px solid #22c55e;
   margin-left: 2rem;
@@ -646,26 +647,6 @@
 .negativeChange {
   color: #dc2626;
   font-weight: 700;
-}
-
-.instructionsBox {
-  margin-top: 1.5rem;
-  padding: 1rem 1.5rem;
-  background: #fff7ed;
-  border: 2px solid #fed7aa;
-  border-left: 4px solid #D4AF37;
-  border-radius: 8px;
-}
-
-.instructionsBox p {
-  margin: 0;
-  font-size: 0.9375rem;
-  color: #333;
-  line-height: 1.6;
-}
-
-.instructionsBox strong {
-  color: #ea580c;
 }
 
 /* ============================================================================
