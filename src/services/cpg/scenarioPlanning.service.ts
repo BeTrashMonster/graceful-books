@@ -52,10 +52,21 @@ export interface DistributorComparisonParams {
     {
       price_per_unit: string;
       base_cpu: string;
+      quantity: number;
     }
   >;
   // Common fees applied to all distributors for fair comparison
   selectedFees: DistributionCalcParams['selectedFees'];
+  // Optional: distributor-specific fee customization
+  customFees?: Record<string, Array<{
+    feeId: string;
+    description: string;
+    amount: string;
+    unit: string;
+    quantity: string;
+    enabled: boolean;
+    percentage_basis?: string;
+  }>>;
 }
 
 /**
@@ -267,13 +278,64 @@ export class ScenarioPlanningService {
     // Calculate for each distributor
     const results: DistributorComparisonResult[] = [];
 
+    // Build pallet_data structure from variant data
+    const numPallets = parseInt(params.numPallets);
+    const unitsPerPallet = parseInt(params.unitsPerPallet);
+    const pallet_data: DistributionCalcParams['pallet_data'] = [];
+
+    for (let i = 0; i < numPallets; i++) {
+      const products = Object.entries(params.variantData).map(([variantName, variant]) => ({
+        product_name: variantName,
+        quantity: variant.quantity,
+        price_per_unit: variant.price_per_unit,
+        base_cpu: variant.base_cpu,
+      }));
+
+      pallet_data.push({
+        pallet_number: i + 1,
+        units_per_pallet: unitsPerPallet,
+        products,
+      });
+    }
+
     for (const distributor of distributors) {
+      // Use customFees if provided, otherwise use distributor's fee structure
+      let selectedFees: DistributionCalcParams['selectedFees'];
+
+      if (params.customFees && params.customFees[distributor.id]) {
+        // Use distributor-specific custom fees
+        selectedFees = params.customFees[distributor.id]
+          .filter(fee => fee.enabled)
+          .map(fee => ({
+            feeId: fee.feeId,
+            description: fee.description,
+            amount: fee.amount,
+            unit: fee.unit as any,
+            quantity: fee.quantity || undefined,
+            percentage_basis: fee.percentage_basis as any,
+          }));
+      } else if (params.selectedFees.length > 0) {
+        // Use common selectedFees
+        selectedFees = params.selectedFees;
+      } else {
+        // Fall back to distributor's default fee structure
+        selectedFees = distributor.fee_structure.map(fee => ({
+          feeId: fee.id,
+          description: fee.description,
+          amount: fee.amount,
+          unit: fee.unit,
+          quantity: undefined,
+          percentage_basis: fee.percentage_basis,
+        }));
+      }
+
       const calcParams: DistributionCalcParams = {
         distributorId: distributor.id,
         numPallets: params.numPallets,
         unitsPerPallet: params.unitsPerPallet,
+        pallet_data,
         variantData: params.variantData,
-        selectedFees: params.selectedFees,
+        selectedFees,
       };
 
       const calcResult = await this.distributionService.calculateDistributionCost(
