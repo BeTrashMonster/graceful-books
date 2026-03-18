@@ -554,6 +554,78 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
     return { min, max };
   };
 
+  // Apply overall adjustments to a result
+  const applyOverallAdjustment = (result: CalculationResult): CalculationResult => {
+    let baseCPU = result.baseCPU;
+    let distributionCPU = result.distributionCPU;
+    let promoCPU = result.promoCPU;
+    let retailPrice = result.retailPrice;
+
+    // Apply Base CPU adjustment
+    if (overallAdjustments.baseCPU !== 0) {
+      if (overallToggles.baseCPU === 'dollar') {
+        baseCPU += overallAdjustments.baseCPU;
+      } else {
+        baseCPU *= 1 + overallAdjustments.baseCPU / 100;
+      }
+      baseCPU = Math.max(0, baseCPU);
+    }
+
+    // Apply Distribution CPU adjustment
+    if (overallAdjustments.distributionCPU !== 0) {
+      if (overallToggles.distributionCPU === 'dollar') {
+        distributionCPU += overallAdjustments.distributionCPU;
+      } else {
+        distributionCPU *= 1 + overallAdjustments.distributionCPU / 100;
+      }
+      distributionCPU = Math.max(0, distributionCPU);
+    }
+
+    // Apply Promo CPU adjustment
+    if (overallAdjustments.promoCPU !== 0) {
+      if (overallToggles.promoCPU === 'dollar') {
+        promoCPU += overallAdjustments.promoCPU;
+      } else {
+        promoCPU *= 1 + overallAdjustments.promoCPU / 100;
+      }
+      promoCPU = Math.max(0, promoCPU);
+    }
+
+    // Apply Retail Price adjustment
+    if (overallAdjustments.retailPrice !== 0) {
+      if (overallToggles.retailPrice === 'dollar') {
+        retailPrice += overallAdjustments.retailPrice;
+      } else {
+        retailPrice *= 1 + overallAdjustments.retailPrice / 100;
+      }
+      retailPrice = Math.max(0, retailPrice);
+    }
+
+    const totalCPU = baseCPU + distributionCPU + promoCPU;
+    const margin = retailPrice > 0 ? ((retailPrice - totalCPU) / retailPrice) * 100 : 0;
+    const marginQuality = cpgSettings
+      ? getProfitMarginQualityWithSettings(margin, cpgSettings)
+      : 'gutCheck';
+
+    return {
+      ...result,
+      baseCPU,
+      distributionCPU,
+      promoCPU,
+      totalCPU,
+      retailPrice,
+      margin,
+      marginQuality,
+    };
+  };
+
+  // Check if any overall adjustments have been made
+  const hasOverallAdjustments =
+    overallAdjustments.baseCPU !== 0 ||
+    overallAdjustments.distributionCPU !== 0 ||
+    overallAdjustments.promoCPU !== 0 ||
+    overallAdjustments.retailPrice !== 0;
+
   // ========================================
   // Render Helper Functions
   // ========================================
@@ -1211,8 +1283,442 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
           {/* Overall Mode */}
           {whatIfMode === 'overall' && (
-            <div className={styles.overallMode}>
-              <p>Overall mode coming soon - adjust all products at once.</p>
+            <div className={styles.overallContainer}>
+              {/* Overall Sliders */}
+              <div className={styles.overallSliders}>
+                {/* Base CPU Slider */}
+                <div className={styles.overallSliderControl}>
+                  <div className={styles.sliderLabelRow}>
+                    <label>Base CPU</label>
+                    <div className={styles.toggleSwitch}>
+                      <button
+                        className={overallToggles.baseCPU === 'dollar' ? styles.active : ''}
+                        onClick={() =>
+                          setOverallToggles({ ...overallToggles, baseCPU: 'dollar' })
+                        }
+                      >
+                        $
+                      </button>
+                      <button
+                        className={overallToggles.baseCPU === 'percentage' ? styles.active : ''}
+                        onClick={() =>
+                          setOverallToggles({ ...overallToggles, baseCPU: 'percentage' })
+                        }
+                      >
+                        %
+                      </button>
+                    </div>
+                  </div>
+                  <div className={styles.adjustedValue}>
+                    <input
+                      type="number"
+                      step={overallToggles.baseCPU === 'dollar' ? '0.01' : '1'}
+                      value={overallAdjustments.baseCPU.toFixed(overallToggles.baseCPU === 'dollar' ? 2 : 0)}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        if (!isNaN(val)) {
+                          setOverallAdjustments({ ...overallAdjustments, baseCPU: val });
+                        }
+                      }}
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    className={styles.slider}
+                    min={overallToggles.baseCPU === 'dollar' ? '-10' : '-50'}
+                    max={overallToggles.baseCPU === 'dollar' ? '10' : '50'}
+                    step={overallToggles.baseCPU === 'dollar' ? '0.01' : '1'}
+                    value={overallAdjustments.baseCPU}
+                    onChange={(e) =>
+                      setOverallAdjustments({ ...overallAdjustments, baseCPU: parseFloat(e.target.value) })
+                    }
+                  />
+                  <div className={styles.sliderRange}>
+                    {overallToggles.baseCPU === 'dollar' ? (
+                      <>
+                        <span>-$10</span>
+                        <span>+$10</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>-50%</span>
+                        <span>+50%</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Distribution CPU Slider */}
+                <div className={styles.overallSliderControl}>
+                  <div className={styles.sliderLabelRow}>
+                    <label>Distribution CPU</label>
+                    <div className={styles.toggleSwitch}>
+                      <button
+                        className={overallToggles.distributionCPU === 'dollar' ? styles.active : ''}
+                        onClick={() =>
+                          setOverallToggles({ ...overallToggles, distributionCPU: 'dollar' })
+                        }
+                      >
+                        $
+                      </button>
+                      <button
+                        className={overallToggles.distributionCPU === 'percentage' ? styles.active : ''}
+                        onClick={() =>
+                          setOverallToggles({ ...overallToggles, distributionCPU: 'percentage' })
+                        }
+                      >
+                        %
+                      </button>
+                    </div>
+                  </div>
+                  <div className={styles.adjustedValue}>
+                    <input
+                      type="number"
+                      step={overallToggles.distributionCPU === 'dollar' ? '0.01' : '1'}
+                      value={overallAdjustments.distributionCPU.toFixed(
+                        overallToggles.distributionCPU === 'dollar' ? 2 : 0
+                      )}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        if (!isNaN(val)) {
+                          setOverallAdjustments({ ...overallAdjustments, distributionCPU: val });
+                        }
+                      }}
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    className={styles.slider}
+                    min={overallToggles.distributionCPU === 'dollar' ? '-10' : '-50'}
+                    max={overallToggles.distributionCPU === 'dollar' ? '10' : '50'}
+                    step={overallToggles.distributionCPU === 'dollar' ? '0.01' : '1'}
+                    value={overallAdjustments.distributionCPU}
+                    onChange={(e) =>
+                      setOverallAdjustments({
+                        ...overallAdjustments,
+                        distributionCPU: parseFloat(e.target.value),
+                      })
+                    }
+                  />
+                  <div className={styles.sliderRange}>
+                    {overallToggles.distributionCPU === 'dollar' ? (
+                      <>
+                        <span>-$10</span>
+                        <span>+$10</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>-50%</span>
+                        <span>+50%</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Promo CPU Slider */}
+                <div className={styles.overallSliderControl}>
+                  <div className={styles.sliderLabelRow}>
+                    <label>Promo CPU</label>
+                    <div className={styles.toggleSwitch}>
+                      <button
+                        className={overallToggles.promoCPU === 'dollar' ? styles.active : ''}
+                        onClick={() =>
+                          setOverallToggles({ ...overallToggles, promoCPU: 'dollar' })
+                        }
+                      >
+                        $
+                      </button>
+                      <button
+                        className={overallToggles.promoCPU === 'percentage' ? styles.active : ''}
+                        onClick={() =>
+                          setOverallToggles({ ...overallToggles, promoCPU: 'percentage' })
+                        }
+                      >
+                        %
+                      </button>
+                    </div>
+                  </div>
+                  <div className={styles.adjustedValue}>
+                    <input
+                      type="number"
+                      step={overallToggles.promoCPU === 'dollar' ? '0.01' : '1'}
+                      value={overallAdjustments.promoCPU.toFixed(overallToggles.promoCPU === 'dollar' ? 2 : 0)}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        if (!isNaN(val)) {
+                          setOverallAdjustments({ ...overallAdjustments, promoCPU: val });
+                        }
+                      }}
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    className={styles.slider}
+                    min={overallToggles.promoCPU === 'dollar' ? '-10' : '-50'}
+                    max={overallToggles.promoCPU === 'dollar' ? '10' : '50'}
+                    step={overallToggles.promoCPU === 'dollar' ? '0.01' : '1'}
+                    value={overallAdjustments.promoCPU}
+                    onChange={(e) =>
+                      setOverallAdjustments({ ...overallAdjustments, promoCPU: parseFloat(e.target.value) })
+                    }
+                  />
+                  <div className={styles.sliderRange}>
+                    {overallToggles.promoCPU === 'dollar' ? (
+                      <>
+                        <span>-$10</span>
+                        <span>+$10</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>-50%</span>
+                        <span>+50%</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Retail Price Slider */}
+                <div className={styles.overallSliderControl}>
+                  <div className={styles.sliderLabelRow}>
+                    <label>Retail Price</label>
+                    <div className={styles.toggleSwitch}>
+                      <button
+                        className={overallToggles.retailPrice === 'dollar' ? styles.active : ''}
+                        onClick={() =>
+                          setOverallToggles({ ...overallToggles, retailPrice: 'dollar' })
+                        }
+                      >
+                        $
+                      </button>
+                      <button
+                        className={overallToggles.retailPrice === 'percentage' ? styles.active : ''}
+                        onClick={() =>
+                          setOverallToggles({ ...overallToggles, retailPrice: 'percentage' })
+                        }
+                      >
+                        %
+                      </button>
+                    </div>
+                  </div>
+                  <div className={styles.adjustedValue}>
+                    <input
+                      type="number"
+                      step={overallToggles.retailPrice === 'dollar' ? '0.01' : '1'}
+                      value={overallAdjustments.retailPrice.toFixed(
+                        overallToggles.retailPrice === 'dollar' ? 2 : 0
+                      )}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        if (!isNaN(val)) {
+                          setOverallAdjustments({ ...overallAdjustments, retailPrice: val });
+                        }
+                      }}
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    className={styles.slider}
+                    min={overallToggles.retailPrice === 'dollar' ? '-10' : '-30'}
+                    max={overallToggles.retailPrice === 'dollar' ? '10' : '30'}
+                    step={overallToggles.retailPrice === 'dollar' ? '0.01' : '1'}
+                    value={overallAdjustments.retailPrice}
+                    onChange={(e) =>
+                      setOverallAdjustments({ ...overallAdjustments, retailPrice: parseFloat(e.target.value) })
+                    }
+                  />
+                  <div className={styles.sliderRange}>
+                    {overallToggles.retailPrice === 'dollar' ? (
+                      <>
+                        <span>-$10</span>
+                        <span>+$10</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>-30%</span>
+                        <span>+30%</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Aggregated Summary */}
+              {(() => {
+                const originalTotalCPU = results.reduce((sum, r) => sum + r.totalCPU, 0);
+                const originalTotalProfitMargin = results.reduce(
+                  (sum, r) => sum + (r.retailPrice - r.totalCPU),
+                  0
+                );
+                const originalTotalRevenue = results.reduce((sum, r) => sum + r.retailPrice, 0);
+                const originalAvgMargin =
+                  originalTotalRevenue > 0
+                    ? ((originalTotalProfitMargin / originalTotalRevenue) * 100)
+                    : 0;
+
+                const adjustedResults = results.map(applyOverallAdjustment);
+                const adjustedTotalCPU = adjustedResults.reduce((sum, r) => sum + r.totalCPU, 0);
+                const adjustedTotalProfitMargin = adjustedResults.reduce(
+                  (sum, r) => sum + (r.retailPrice - r.totalCPU),
+                  0
+                );
+                const adjustedTotalRevenue = adjustedResults.reduce((sum, r) => sum + r.retailPrice, 0);
+                const adjustedAvgMargin =
+                  adjustedTotalRevenue > 0
+                    ? ((adjustedTotalProfitMargin / adjustedTotalRevenue) * 100)
+                    : 0;
+
+                return (
+                  <>
+                    <div className={styles.resultsDisplay}>
+                      {/* Total CPU */}
+                      <div className={styles.resultBox}>
+                        <div className={styles.resultLabel}>
+                          {hasOverallAdjustments ? 'CPU' : 'Total CPU'}
+                        </div>
+                        {hasOverallAdjustments ? (
+                          <>
+                            <div className={styles.comparisonRow}>
+                              <div className={styles.comparisonColumn}>
+                                <div className={styles.comparisonSubLabel}>Original</div>
+                                <div className={styles.comparisonValue}>
+                                  ${originalTotalCPU.toFixed(2)}
+                                </div>
+                              </div>
+                              <div className={styles.comparisonColumn}>
+                                <div className={styles.comparisonSubLabel}>Adjusted</div>
+                                <div className={styles.comparisonValue}>
+                                  ${adjustedTotalCPU.toFixed(2)}
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              className={
+                                adjustedTotalCPU > originalTotalCPU
+                                  ? styles.deltaPositive
+                                  : styles.deltaNegative
+                              }
+                            >
+                              Δ {adjustedTotalCPU > originalTotalCPU ? '+' : ''}$
+                              {(adjustedTotalCPU - originalTotalCPU).toFixed(2)}
+                            </div>
+                          </>
+                        ) : (
+                          <div className={styles.resultValue}>${originalTotalCPU.toFixed(2)}</div>
+                        )}
+                      </div>
+
+                      {/* Total Profit Margin */}
+                      <div className={styles.resultBox}>
+                        <div className={styles.resultLabel}>
+                          {hasOverallAdjustments ? 'Profit Margin' : 'Total Profit Margin'}
+                        </div>
+                        {hasOverallAdjustments ? (
+                          <>
+                            <div className={styles.comparisonRow}>
+                              <div className={styles.comparisonColumn}>
+                                <div className={styles.comparisonSubLabel}>Original</div>
+                                <div className={styles.comparisonValue}>
+                                  ${originalTotalProfitMargin.toFixed(2)}
+                                </div>
+                              </div>
+                              <div className={styles.comparisonColumn}>
+                                <div className={styles.comparisonSubLabel}>Adjusted</div>
+                                <div className={styles.comparisonValue}>
+                                  ${adjustedTotalProfitMargin.toFixed(2)}
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              className={
+                                adjustedTotalProfitMargin > originalTotalProfitMargin
+                                  ? styles.deltaPositive
+                                  : styles.deltaNegative
+                              }
+                            >
+                              Δ {adjustedTotalProfitMargin > originalTotalProfitMargin ? '+' : ''}$
+                              {(adjustedTotalProfitMargin - originalTotalProfitMargin).toFixed(2)}
+                            </div>
+                          </>
+                        ) : (
+                          <div className={styles.resultValue}>
+                            ${originalTotalProfitMargin.toFixed(2)}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Average Margin */}
+                      <div className={styles.resultBox}>
+                        <div className={styles.resultLabel}>Average Margin</div>
+                        <div className={styles.resultValue}>{adjustedAvgMargin.toFixed(2)}%</div>
+                      </div>
+
+                      {/* Total Margin Change */}
+                      <div className={styles.resultBox}>
+                        <div className={styles.resultLabel}>Total Margin Change</div>
+                        <div
+                          className={
+                            adjustedAvgMargin > originalAvgMargin
+                              ? styles.positiveChange
+                              : adjustedAvgMargin < originalAvgMargin
+                              ? styles.negativeChange
+                              : styles.resultValue
+                          }
+                        >
+                          {adjustedAvgMargin > originalAvgMargin ? '+' : ''}
+                          {(adjustedAvgMargin - originalAvgMargin).toFixed(2)}%
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Products Table */}
+                    <div className={styles.overallProductsTable}>
+                      <h4>Impact on Each Product</h4>
+                      <table className={styles.resultsTable}>
+                        <thead>
+                          <tr>
+                            <th>Product</th>
+                            <th>Base CPU</th>
+                            <th>Dist CPU</th>
+                            <th>Promo CPU</th>
+                            <th>Total CPU</th>
+                            <th>Retail</th>
+                            <th>Margin</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {adjustedResults.map((adjusted, idx) => {
+                            const original = results[idx];
+                            const hasChange =
+                              adjusted.baseCPU !== original.baseCPU ||
+                              adjusted.distributionCPU !== original.distributionCPU ||
+                              adjusted.promoCPU !== original.promoCPU ||
+                              adjusted.retailPrice !== original.retailPrice;
+
+                            return (
+                              <tr key={adjusted.productId} className={hasChange ? styles.hasAdjustments : ''}>
+                                <td>{adjusted.productName}</td>
+                                <td>${adjusted.baseCPU.toFixed(2)}</td>
+                                <td>${adjusted.distributionCPU.toFixed(2)}</td>
+                                <td>${adjusted.promoCPU.toFixed(2)}</td>
+                                <td>
+                                  <strong>${adjusted.totalCPU.toFixed(2)}</strong>
+                                </td>
+                                <td>${adjusted.retailPrice.toFixed(2)}</td>
+                                <td>
+                                  <MarginQualityBadge
+                                    quality={adjusted.marginQuality}
+                                    marginPercentage={adjusted.margin.toFixed(2)}
+                                  />
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           )}
         </div>
