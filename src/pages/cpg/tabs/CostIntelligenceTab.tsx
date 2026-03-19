@@ -25,7 +25,6 @@ import VendorIntelTab from './intelligence/VendorIntelTab';
 import SmartAlertsTab from './intelligence/SmartAlertsTab';
 import styles from '../CPUTracker.module.css';
 import ScenarioBuilderTab from './intelligence/ScenarioBuilderTab';
-import lockAndKeyImage from '../../../assets/images/lock-and-key.png';
 
 export interface CostIntelligenceTabProps {
   companyId: string;
@@ -1390,33 +1389,9 @@ export default function CostIntelligenceTab({
         )}
 
         {/* Comparison Display */}
-        {selectedProductsForComparison.size === 0 && comparisonCategoryFilter.size === 0 && comparisonVariantFilter.size === 0 && comparisonVendorFilter.size === 0 ? (
-          <div style={{
-            textAlign: 'center',
-            padding: '4rem 2rem',
-            color: '#64748b',
-          }}>
-            <img
-              src={lockAndKeyImage}
-              alt=""
-              style={{
-                width: '120px',
-                height: 'auto',
-                margin: '0 auto 2rem',
-                display: 'block',
-              }}
-            />
-            <p style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.75rem', color: '#4b006e', letterSpacing: '-0.01em' }}>
-              Ready to Unlock Cost Intelligence?
-            </p>
-            <p style={{ fontSize: '1rem', color: '#6b7280', lineHeight: 1.6 }}>
-              Pick your products and let's see what makes them profitable
-            </p>
-          </div>
-        ) : (
-          <div ref={analysisContentRef}>
-            {/* Tab Content */}
-            {intelligenceTab === 'scenario' && (
+        <div ref={analysisContentRef}>
+          {/* Tab Content */}
+          {intelligenceTab === 'scenario' && (
                   <>
                     {console.log('🎯 Passing to ScenarioBuilderTab:', {
                       recipesCount: recipes.length,
@@ -1506,8 +1481,7 @@ export default function CostIntelligenceTab({
                     }}
                   />
                 )}
-          </div>
-        )}
+        </div>
       </section>
     </div>
   );

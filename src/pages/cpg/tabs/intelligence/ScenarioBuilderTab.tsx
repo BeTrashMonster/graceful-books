@@ -26,6 +26,7 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import styles from './ScenarioBuilderTab.module.css';
+import growthCoinsImage from '../../../../assets/images/growth-coins.png';
 
 // Product CPU data structure
 export interface ProductCPUData {
@@ -391,13 +392,20 @@ export default function ScenarioBuilderTab({
   if (productsToDisplay.length === 0) {
     return (
       <div className={styles.emptyState}>
-        <div className={styles.emptyIcon} aria-hidden="true">
-          🎯
-        </div>
-        <p className={styles.emptyTitle}>
-          No Products Selected
+        <img
+          src={growthCoinsImage}
+          alt=""
+          style={{
+            width: '180px',
+            height: 'auto',
+            margin: '0 auto 2rem',
+            display: 'block',
+          }}
+        />
+        <p className={styles.emptyTitle} style={{ color: '#4b006e', fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.75rem', letterSpacing: '-0.01em' }}>
+          Growing and Flowing
         </p>
-        <p className={styles.emptyDescription}>
+        <p className={styles.emptyDescription} style={{ color: '#6b7280', fontSize: '1rem', lineHeight: 1.6 }}>
           Select products above to build cost and pricing scenarios
         </p>
       </div>

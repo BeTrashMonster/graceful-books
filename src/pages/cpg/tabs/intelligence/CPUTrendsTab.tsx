@@ -20,6 +20,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { CPGCategory, CPGInvoice, FinishedProduct } from '../../../../db/schema/cpg.schema';
 import styles from './CPUTrendsTab.module.css';
+import lockAndKeyImage from '../../../../assets/images/lock-and-key.png';
 
 export interface CPUTrendsTabProps {
   companyId: string;
@@ -152,12 +153,58 @@ export default function CPUTrendsTab({
         let product: FinishedProduct | undefined;
         let cpuData: ProductCPUData | undefined;
         let productName = 'All Components';
+        let aggregateCPU: string | null = null;
+        let aggregateMargin: number | null = null;
+        let aggregateMSRP: string | null = null;
 
         if (productId !== 'all-components') {
           product = products.find(p => p.id === productId);
           cpuData = productCPUData.get(productId);
           if (!product) continue;
           productName = product.name;
+        } else {
+          // Generate dynamic name based on active filters
+          if (categoryFilter.size === 1) {
+            // Single category selected - use that category name
+            const categoryId = Array.from(categoryFilter)[0];
+            const category = categories.find(c => c.id === categoryId);
+            productName = category?.name || 'Components';
+          } else if (categoryFilter.size > 1) {
+            productName = 'Selected Categories';
+          } else if (vendorFilter.size === 1) {
+            const vendorName = Array.from(vendorFilter)[0];
+            productName = `Components from ${vendorName}`;
+          } else if (vendorFilter.size > 1 || variantFilter.size > 0) {
+            productName = 'Filtered Components';
+          } else {
+            productName = 'All Components';
+          }
+        }
+
+        // Calculate aggregate values for all-components view (not used for display, just legacy)
+        if (productId === 'all-components') {
+          const allProductData = Array.from(productCPUData.values()).filter(data => data.isComplete);
+          if (allProductData.length > 0) {
+            // Average CPU (legacy - not displayed)
+            const cpuValues = allProductData.map(data => data.cpu).filter(cpu => cpu !== null) as string[];
+            if (cpuValues.length > 0) {
+              const avgCPU = cpuValues.reduce((sum, cpu) => sum + parseFloat(cpu), 0) / cpuValues.length;
+              aggregateCPU = avgCPU.toFixed(2);
+            }
+
+            // Average Margin
+            const marginValues = allProductData.map(data => data.margin).filter(m => m !== null) as number[];
+            if (marginValues.length > 0) {
+              aggregateMargin = marginValues.reduce((sum, m) => sum + m, 0) / marginValues.length;
+            }
+
+            // Average MSRP
+            const msrpValues = allProductData.map(data => data.msrp).filter(msrp => msrp !== null) as string[];
+            if (msrpValues.length > 0) {
+              const avgMSRP = msrpValues.reduce((sum, msrp) => sum + parseFloat(msrp), 0) / msrpValues.length;
+              aggregateMSRP = avgMSRP.toFixed(2);
+            }
+          }
         }
 
         // Collect all unique components from invoices that match our filters
@@ -171,6 +218,15 @@ export default function CPUTrendsTab({
         // Collect price data for all components that match our filters
         filteredInvoices.forEach(inv => {
           Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
+            // For individual products, only include components in the product's recipe
+            if (productId !== 'all-components' && cpuData) {
+              const isInRecipe = cpuData.breakdown?.some(comp =>
+                comp.categoryId === attr.category_id &&
+                (!comp.variant || comp.variant === attr.variant)
+              );
+              if (!isInRecipe) return;
+            }
+
             // Apply category filter
             if (categoryFilter.size > 0 && !categoryFilter.has(attr.category_id)) return;
 
@@ -233,12 +289,42 @@ export default function CPUTrendsTab({
           // Sort components alphabetically by default
           componentTrends.sort((a, b) => a.componentName.localeCompare(b.componentName));
 
+          // Calculate CPU - use cpuData if available (which includes quantities)
+          let calculatedCPU = 0;
+          if (productId !== 'all-components' && cpuData) {
+            // For individual products, use the subtotals from breakdown (already includes quantities)
+            calculatedCPU = cpuData.breakdown?.reduce((sum, comp) => {
+              const subtotal = comp.subtotal ? parseFloat(comp.subtotal) : 0;
+              return sum + subtotal;
+            }, 0) || 0;
+          } else {
+            // For "all components", just sum unit prices
+            calculatedCPU = componentTrends.reduce((sum, comp) => sum + comp.current, 0);
+          }
+
+          // Determine which values to use
+          let displayCPU: string;
+          let displayMargin: string;
+          let displayMSRP: string;
+
+          if (productId === 'all-components') {
+            // For "All Components" view, don't show product-level metrics
+            displayCPU = 'N/A';
+            displayMargin = 'N/A';
+            displayMSRP = 'N/A';
+          } else {
+            // For individual products, use cpuData values directly (already calculated with quantities)
+            displayCPU = cpuData?.cpu || 'N/A';
+            displayMargin = cpuData?.margin !== null && cpuData?.margin !== undefined ? `${cpuData.margin.toFixed(1)}%` : 'N/A';
+            displayMSRP = cpuData?.msrp || product?.msrp || 'N/A';
+          }
+
           trends.push({
             productId: productId,
             productName: productName,
-            cpu: cpuData?.cpu || 'N/A',
-            margin: cpuData?.margin !== null && cpuData?.margin !== undefined ? `${cpuData.margin.toFixed(1)}%` : 'N/A',
-            msrp: cpuData?.msrp || 'N/A',
+            cpu: displayCPU,
+            margin: displayMargin,
+            msrp: displayMSRP,
             components: componentTrends,
           });
         }
@@ -501,8 +587,7 @@ export default function CPUTrendsTab({
       {/* Header with controls */}
       <div className={styles.header}>
         <div className={styles.headerText}>
-          <h3>CPU Trend Analysis</h3>
-          <p>Track component cost changes over time</p>
+          <h3 style={{ fontSize: '1.75rem' }}>CPU Trend Analysis</h3>
         </div>
         <div className={styles.headerControls}>
           <div style={{ position: 'relative' }}>
@@ -511,7 +596,28 @@ export default function CPUTrendsTab({
               aria-label="Export trend data"
               aria-haspopup="menu"
               aria-expanded={showExportMenu}
-              className={styles.exportButton}
+              style={{
+                padding: '0.625rem 1.25rem',
+                background: 'linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%)',
+                color: '#2d1b00',
+                border: '1px solid #B8860B',
+                borderRadius: '6px',
+                fontSize: '0.9375rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, #F4E5C3 0%, #E8D4A0 50%, #C9A961 100%)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(184, 134, 11, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
             >
               Export ▼
             </button>
@@ -540,10 +646,21 @@ export default function CPUTrendsTab({
       {/* Product trends */}
       {sortedProductTrends.length === 0 ? (
         <div className={styles.emptyState}>
-          <div className={styles.emptyIcon} aria-hidden="true">📊</div>
-          <div className={styles.emptyTitle}>No trend data available</div>
-          <div className={styles.emptyDescription}>
-            Select products to analyze cost trends over time
+          <img
+            src={lockAndKeyImage}
+            alt=""
+            style={{
+              width: '160px',
+              height: 'auto',
+              margin: '0 auto 2rem',
+              display: 'block',
+            }}
+          />
+          <div className={styles.emptyTitle} style={{ color: '#4b006e', fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.75rem', letterSpacing: '-0.01em' }}>
+            Ready to Unlock Cost Trends?
+          </div>
+          <div className={styles.emptyDescription} style={{ color: '#6b7280', fontSize: '1rem', lineHeight: 1.6 }}>
+            Select products to see how their component prices have evolved naturally over time
           </div>
         </div>
       ) : (
@@ -553,11 +670,13 @@ export default function CPUTrendsTab({
               {/* Product header */}
               <div className={styles.productHeader}>
                 <h4 className={styles.productName}>{product.productName}</h4>
-                <div className={styles.productMetrics}>
-                  <span>CPU: {product.cpu}</span>
-                  <span>Margin: {product.margin}</span>
-                  <span>MSRP: {product.msrp}</span>
-                </div>
+                {product.productId !== 'all-components' && (
+                  <div className={styles.productMetrics}>
+                    <span>CPU: {product.cpu}</span>
+                    <span>Margin: {product.margin}</span>
+                    <span>MSRP: {product.msrp}</span>
+                  </div>
+                )}
               </div>
 
               {/* Price Trend Chart */}

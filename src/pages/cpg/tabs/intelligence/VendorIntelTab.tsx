@@ -8,6 +8,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import type { CPGCategory, CPGInvoice, CPGVendor } from '../../../../db/schema/cpg.schema';
 import { db } from '../../../../db/database';
 import styles from './VendorIntelTab.module.css';
+import lockAndKeyImage from '../../../../assets/images/lock-and-key.png';
 
 export interface VendorIntelTabProps {
   companyId: string;
@@ -1323,11 +1324,22 @@ export default function VendorIntelTab({
   if (sortedVendors.length === 0) {
     return (
       <div className={styles.emptyState}>
-        <div className={styles.emptyIcon}>🏪</div>
-        <div className={styles.emptyTitle}>No vendor data available</div>
-        <div className={styles.emptyDescription}>
+        <img
+          src={lockAndKeyImage}
+          alt=""
+          style={{
+            width: '160px',
+            height: 'auto',
+            margin: '0 auto 2rem',
+            display: 'block',
+          }}
+        />
+        <div className={styles.emptyTitle} style={{ color: '#4b006e', fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.75rem', letterSpacing: '-0.01em' }}>
+          Ready to Unlock Vendor Intelligence?
+        </div>
+        <div className={styles.emptyDescription} style={{ color: '#6b7280', fontSize: '1rem', lineHeight: 1.6 }}>
           {selectedProducts.size === 0
-            ? 'Select products to analyze vendor pricing'
+            ? 'Select products to analyze vendor pricing and opportunities'
             : 'No vendor data available for selected products'}
         </div>
       </div>
