@@ -45,9 +45,9 @@ export default function RawMaterialsTab({
   onArchiveInvoice,
 }: RawMaterialsTabProps) {
   // Tab-specific state
-  const [rawMaterialsDatePreset, setRawMaterialsDatePreset] = useState<DateRangePreset>('3mo');
+  const [rawMaterialsDatePreset, setRawMaterialsDatePreset] = useState<DateRangePreset>('12mo');
   const [rawMaterialsDateRange, setRawMaterialsDateRange] = useState<{ start: string; end: string }>({
-    start: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    start: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     end: new Date().toISOString().split('T')[0],
   });
   const [rawMaterialsCategoryFilter, setRawMaterialsCategoryFilter] = useState<string | undefined>(undefined);
@@ -449,261 +449,453 @@ export default function RawMaterialsTab({
 
   return (
     <div id="raw-materials-panel" role="tabpanel" aria-labelledby="raw-materials-tab">
-      {/* Date Range & Export Controls */}
+      {/* SUMMARY STATS SECTION */}
       <div style={{
-        display: 'flex',
-        gap: '1rem',
+        background: '#ffffff',
+        borderLeft: '4px solid #D4AF37',
+        borderRight: '4px solid #D4AF37',
+        borderBottom: '4px solid #D4AF37',
+        borderRadius: '8px',
+        overflow: 'hidden',
+        boxShadow: '0 2px 8px rgba(184, 134, 11, 0.15)',
         marginBottom: '1.5rem',
-        flexWrap: 'wrap',
-        alignItems: 'center',
       }}>
-        {/* Date Range Preset */}
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <label style={{ fontSize: '0.875rem', fontWeight: 500, color: '#64748b' }}>
-            Date Range:
-          </label>
-          <select
-            value={rawMaterialsDatePreset}
-            onChange={(e) => handleRawMaterialsDatePresetChange(e.target.value as DateRangePreset)}
-            style={{
-              padding: '0.5rem 0.75rem',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              fontSize: '0.875rem',
-            }}
-            aria-label="Select date range preset"
-          >
-            <option value="3mo">Last 3 Months</option>
-            <option value="6mo">Last 6 Months</option>
-            <option value="12mo">Last 12 Months</option>
-            <option value="last-calendar-year">Last Calendar Year ({new Date().getFullYear() - 1})</option>
-            <option value="this-calendar-year">This Calendar Year ({new Date().getFullYear()})</option>
-            <option value="custom">Custom Range...</option>
-            <option value="all">All Time</option>
-          </select>
+        {/* Header with Export */}
+        <div style={{
+          background: '#4b006e',
+          color: 'white',
+          padding: '1.25rem 1.5rem',
+          fontSize: '1.5rem',
+          fontWeight: 600,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+          <span>Summary</span>
+
+          {/* Export Button */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setShowRawMaterialsExportMenu(!showRawMaterialsExportMenu)}
+              style={{
+                padding: '0.5rem 1rem',
+                background: '#D4AF37',
+                border: 'none',
+                borderRadius: '6px',
+                color: '#1a1a1a',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                transition: 'all 150ms',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#C4A137';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#D4AF37';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+              aria-label="Export raw materials data"
+              aria-expanded={showRawMaterialsExportMenu}
+              aria-haspopup="menu"
+            >
+              <span>📊</span>
+              <span>Export</span>
+              <span aria-hidden="true">▼</span>
+            </button>
+
+            {showRawMaterialsExportMenu && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                right: 0,
+                marginTop: '0.5rem',
+                background: 'white',
+                border: '2px solid #D4AF37',
+                borderRadius: '6px',
+                boxShadow: '0 4px 12px rgba(184, 134, 11, 0.25)',
+                overflow: 'hidden',
+                zIndex: 1000,
+                minWidth: '180px',
+              }}
+              role="menu"
+              >
+                <button
+                  onClick={() => {
+                    exportRawMaterialsCSVSummary();
+                    setShowRawMaterialsExportMenu(false);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 1rem',
+                    border: 'none',
+                    background: 'transparent',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    color: '#1a1a1a',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#E5F6DF'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  role="menuitem"
+                >
+                  📄 CSV Summary
+                </button>
+                <button
+                  onClick={() => {
+                    exportRawMaterialsPDFSummary();
+                    setShowRawMaterialsExportMenu(false);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 1rem',
+                    border: 'none',
+                    background: 'transparent',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    borderTop: '1px solid #e5e7eb',
+                    color: '#1a1a1a',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#E5F6DF'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  role="menuitem"
+                >
+                  📑 PDF Summary
+                </button>
+                <button
+                  onClick={() => {
+                    exportRawMaterialsCSVDetail();
+                    setShowRawMaterialsExportMenu(false);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 1rem',
+                    border: 'none',
+                    background: 'transparent',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    borderTop: '1px solid #e5e7eb',
+                    color: '#1a1a1a',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#E5F6DF'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  role="menuitem"
+                >
+                  📊 CSV Detailed
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Custom Date Inputs */}
-        {rawMaterialsDatePreset === 'custom' && (
-          <>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <label htmlFor="rm-start-date" style={{ fontSize: '0.875rem', fontWeight: 500, color: '#64748b' }}>
-                From:
-              </label>
-              <input
-                type="date"
-                id="rm-start-date"
-                value={rawMaterialsDateRange.start}
-                onChange={(e) => setRawMaterialsDateRange(prev => ({ ...prev, start: e.target.value }))}
-                onBlur={(e) => handleRawMaterialsDateBlur(e.target.value, (val) => setRawMaterialsDateRange(prev => ({ ...prev, start: val })))}
-                style={{
-                  padding: '0.5rem 0.75rem',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  fontSize: '0.875rem',
-                }}
-                aria-label="Start date for raw materials filter"
-              />
+        {/* Content - 3 Stat Cards */}
+        <div style={{
+          padding: '1.5rem',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '1.25rem',
+        }}>
+          {/* Total Spent */}
+          <div style={{
+            background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
+            borderRadius: '12px',
+            padding: '1.25rem',
+            color: 'white',
+          }}>
+            <div style={{ fontSize: '0.75rem', opacity: 0.9, fontWeight: 600, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Total Spent
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <label htmlFor="rm-end-date" style={{ fontSize: '0.875rem', fontWeight: 500, color: '#64748b' }}>
-                To:
-              </label>
-              <input
-                type="date"
-                id="rm-end-date"
-                value={rawMaterialsDateRange.end}
-                onChange={(e) => setRawMaterialsDateRange(prev => ({ ...prev, end: e.target.value }))}
-                onBlur={(e) => handleRawMaterialsDateBlur(e.target.value, (val) => setRawMaterialsDateRange(prev => ({ ...prev, end: val })))}
-                style={{
-                  padding: '0.5rem 0.75rem',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  fontSize: '0.875rem',
-                }}
-                aria-label="End date for raw materials filter"
-              />
+            <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
+              ${formatNumberWithCommas(rawMaterialStats.totalSpent)}
             </div>
-          </>
-        )}
+            <div style={{ fontSize: '0.75rem', opacity: 0.9, marginTop: '0.5rem' }}>
+              {filteredRawMaterialInvoices.length} {filteredRawMaterialInvoices.length === 1 ? 'invoice' : 'invoices'}
+            </div>
+          </div>
 
-        {/* Category Filter */}
-        <select
-          value={rawMaterialsCategoryFilter || ''}
-          onChange={(e) => setRawMaterialsCategoryFilter(e.target.value || undefined)}
-          className={styles.filterSelect}
-          aria-label="Filter by category"
-          style={{
-            padding: '0.5rem 0.75rem',
-            border: '1px solid #e5e7eb',
-            borderRadius: '6px',
-            fontSize: '0.875rem',
-          }}
-        >
-          <option value="">All Categories</option>
-          {[...categories].sort((a, b) => a.name.localeCompare(b.name)).map((cat) => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
-          ))}
-        </select>
+          {/* Average Invoice Amount */}
+          <div style={{
+            background: 'linear-gradient(135deg, #E8D4A0 0%, #D4AF37 100%)',
+            borderRadius: '12px',
+            padding: '1.25rem',
+          }}>
+            <div style={{ fontSize: '0.75rem', color: '#4b006e', fontWeight: 600, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Average Invoice
+            </div>
+            <div style={{ fontSize: '2rem', fontWeight: 700, color: '#4b006e', lineHeight: 1 }}>
+              {filteredRawMaterialInvoices.length > 0
+                ? `$${formatNumberWithCommas(rawMaterialStats.averageInvoiceAmount)}`
+                : '$0.00'}
+            </div>
+            <div style={{ fontSize: '0.75rem', color: '#4b006e', marginTop: '0.5rem' }}>
+              per invoice
+            </div>
+          </div>
 
-        {/* Variant Filter */}
-        <select
-          value={rawMaterialsVariantFilter}
-          onChange={(e) => setRawMaterialsVariantFilter(e.target.value)}
-          className={styles.filterSelect}
-          aria-label="Filter by variant"
-          style={{
-            padding: '0.5rem 0.75rem',
-            border: '1px solid #e5e7eb',
-            borderRadius: '6px',
-            fontSize: '0.875rem',
-          }}
-        >
-          <option value="">All Variants</option>
-          {availableVariants.map((variant) => (
-            <option key={variant} value={variant}>{variant}</option>
-          ))}
-        </select>
+          {/* Top Category/Variant/Vendor */}
+          <div style={{
+            background: 'linear-gradient(135deg, #D8E5D8 0%, #A8D5A8 100%)',
+            borderRadius: '12px',
+            padding: '1.25rem',
+          }}>
+            <div style={{ fontSize: '0.75rem', color: '#15803d', fontWeight: 600, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              {rawMaterialsCategoryFilter && rawMaterialStats.topCategory ? 'Top Category' :
+               rawMaterialsVariantFilter && rawMaterialStats.topVariant ? 'Top Variant' :
+               'Top Vendor'}
+            </div>
+            <div style={{ fontSize: '2rem', fontWeight: 700, color: '#166534', lineHeight: 1 }}>
+              {rawMaterialsCategoryFilter && rawMaterialStats.topCategory
+                ? `$${formatNumberWithCommas(rawMaterialStats.topCategory.total)}`
+                : rawMaterialsVariantFilter && rawMaterialStats.topVariant
+                ? `$${formatNumberWithCommas(rawMaterialStats.topVariant.total)}`
+                : rawMaterialStats.topVendor
+                ? `$${formatNumberWithCommas(rawMaterialStats.topVendor.total)}`
+                : '$0.00'}
+            </div>
+            <div style={{ fontSize: '0.75rem', color: '#15803d', marginTop: '0.5rem' }}>
+              {rawMaterialsCategoryFilter && rawMaterialStats.topCategory
+                ? rawMaterialStats.topCategory.name
+                : rawMaterialsVariantFilter && rawMaterialStats.topVariant
+                ? rawMaterialStats.topVariant.name
+                : rawMaterialStats.topVendor
+                ? rawMaterialStats.topVendor.name
+                : 'No data'}
+            </div>
+          </div>
+        </div>
+      </div>
 
-        {/* Vendor Filter */}
-        <input
-          type="search"
-          placeholder="Filter by vendor..."
-          value={rawMaterialsVendorFilter}
-          onChange={(e) => setRawMaterialsVendorFilter(e.target.value)}
-          className={styles.searchInput}
-          aria-label="Filter by vendor"
-          style={{
-            minWidth: '150px',
-            padding: '0.5rem 0.75rem',
-            border: '1px solid #e5e7eb',
-            borderRadius: '6px',
-            fontSize: '0.875rem',
-          }}
-          list="vendor-suggestions"
-        />
-        <datalist id="vendor-suggestions">
-          {Array.from(new Set(invoices.map(inv => inv.vendor_name))).sort().map(vendor => (
-            <option key={vendor} value={vendor} />
-          ))}
-        </datalist>
+      {/* FILTERS SECTION - Horizontal */}
+      <div style={{
+        background: '#ffffff',
+        borderLeft: '4px solid #D4AF37',
+        borderRight: '4px solid #D4AF37',
+        borderBottom: '4px solid #D4AF37',
+        borderRadius: '8px',
+        overflow: 'visible',
+        boxShadow: '0 2px 8px rgba(184, 134, 11, 0.15)',
+        marginBottom: '2rem',
+      }}>
+        {/* Header */}
+        <div style={{
+          background: '#4b006e',
+          color: 'white',
+          padding: '1rem 1.5rem',
+          fontSize: '1.5rem',
+          fontWeight: 600,
+        }}>
+          Filters
+        </div>
 
-        {/* Export Dropdown */}
-        <div style={{ marginLeft: 'auto', position: 'relative' }}>
-          <button
-            onClick={() => setShowRawMaterialsExportMenu(!showRawMaterialsExportMenu)}
-            style={{
-              padding: '0.5rem 1rem',
-              background: '#4b006e',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
-            aria-label="Export raw materials data"
-            aria-expanded={showRawMaterialsExportMenu}
-            aria-haspopup="menu"
-          >
-            Export
-            <span style={{ fontSize: '0.75rem' }} aria-hidden="true">▼</span>
-          </button>
-
-          {showRawMaterialsExportMenu && (
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              right: 0,
-              marginTop: '0.25rem',
-              background: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-              overflow: 'hidden',
-              zIndex: 1000,
-              minWidth: '200px',
-            }}
-            role="menu"
+        {/* Content - Horizontal Layout */}
+        <div style={{
+          padding: '1.25rem',
+          display: 'flex',
+          gap: '1rem',
+          flexWrap: 'wrap',
+          alignItems: 'flex-end',
+        }}>
+          {/* Date Range */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#4b006e', whiteSpace: 'nowrap' }}>
+              Date:
+            </label>
+            <select
+              value={rawMaterialsDatePreset}
+              onChange={(e) => handleRawMaterialsDatePresetChange(e.target.value as DateRangePreset)}
+              style={{
+                padding: '0.5rem',
+                border: '2px solid #D4AF37',
+                borderRadius: '6px',
+                fontSize: '0.8125rem',
+                backgroundColor: '#E5F6DF',
+                outline: 'none',
+                minWidth: '140px',
+              }}
+              aria-label="Select date range preset"
             >
-              <button
-                onClick={() => {
-                  exportRawMaterialsCSVSummary();
-                  setShowRawMaterialsExportMenu(false);
-                }}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  border: 'none',
-                  background: 'transparent',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                role="menuitem"
-              >
-                CSV Summary
-              </button>
-              <button
-                onClick={() => {
-                  exportRawMaterialsPDFSummary();
-                  setShowRawMaterialsExportMenu(false);
-                }}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  border: 'none',
-                  background: 'transparent',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  borderTop: '1px solid #e5e7eb',
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                role="menuitem"
-              >
-                PDF Summary
-              </button>
-              <button
-                onClick={() => {
-                  exportRawMaterialsCSVDetail();
-                  setShowRawMaterialsExportMenu(false);
-                }}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  border: 'none',
-                  background: 'transparent',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  borderTop: '1px solid #e5e7eb',
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                role="menuitem"
-              >
-                CSV Detail
-              </button>
-            </div>
+              <option value="3mo">3 Months</option>
+              <option value="6mo">6 Months</option>
+              <option value="12mo">12 Months</option>
+              <option value="last-calendar-year">Last Year</option>
+              <option value="this-calendar-year">This Year</option>
+              <option value="custom">Custom...</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
+
+          {/* Custom Date Inputs */}
+          {rawMaterialsDatePreset === 'custom' && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <label htmlFor="rm-start-date" style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#4b006e', whiteSpace: 'nowrap' }}>
+                  From:
+                </label>
+                <input
+                  type="date"
+                  id="rm-start-date"
+                  value={rawMaterialsDateRange.start}
+                  onChange={(e) => setRawMaterialsDateRange(prev => ({ ...prev, start: e.target.value }))}
+                  onBlur={(e) => handleRawMaterialsDateBlur(e.target.value, (val) => setRawMaterialsDateRange(prev => ({ ...prev, start: val })))}
+                  style={{
+                    padding: '0.5rem',
+                    border: '2px solid #D4AF37',
+                    borderRadius: '6px',
+                    fontSize: '0.8125rem',
+                    backgroundColor: '#E5F6DF',
+                    outline: 'none',
+                  }}
+                  aria-label="Start date"
+                />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <label htmlFor="rm-end-date" style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#4b006e', whiteSpace: 'nowrap' }}>
+                  To:
+                </label>
+                <input
+                  type="date"
+                  id="rm-end-date"
+                  value={rawMaterialsDateRange.end}
+                  onChange={(e) => setRawMaterialsDateRange(prev => ({ ...prev, end: e.target.value }))}
+                  onBlur={(e) => handleRawMaterialsDateBlur(e.target.value, (val) => setRawMaterialsDateRange(prev => ({ ...prev, end: val })))}
+                  style={{
+                    padding: '0.5rem',
+                    border: '2px solid #D4AF37',
+                    borderRadius: '6px',
+                    fontSize: '0.8125rem',
+                    backgroundColor: '#E5F6DF',
+                    outline: 'none',
+                  }}
+                  aria-label="End date"
+                />
+              </div>
+            </>
           )}
+
+          {/* Category */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#4b006e', whiteSpace: 'nowrap' }}>
+              Category:
+            </label>
+            <select
+              value={rawMaterialsCategoryFilter || ''}
+              onChange={(e) => setRawMaterialsCategoryFilter(e.target.value || undefined)}
+              style={{
+                padding: '0.5rem',
+                border: '2px solid #D4AF37',
+                borderRadius: '6px',
+                fontSize: '0.8125rem',
+                backgroundColor: '#E5F6DF',
+                outline: 'none',
+                minWidth: '140px',
+              }}
+              aria-label="Filter by category"
+            >
+              <option value="">All</option>
+              {[...categories].sort((a, b) => a.name.localeCompare(b.name)).map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Variant */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#4b006e', whiteSpace: 'nowrap' }}>
+              Variant:
+            </label>
+            <select
+              value={rawMaterialsVariantFilter}
+              onChange={(e) => setRawMaterialsVariantFilter(e.target.value)}
+              style={{
+                padding: '0.5rem',
+                border: '2px solid #D4AF37',
+                borderRadius: '6px',
+                fontSize: '0.8125rem',
+                backgroundColor: '#E5F6DF',
+                outline: 'none',
+                minWidth: '120px',
+              }}
+              aria-label="Filter by variant"
+            >
+              <option value="">All</option>
+              {availableVariants.map((variant) => (
+                <option key={variant} value={variant}>{variant}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Vendor */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#4b006e', whiteSpace: 'nowrap' }}>
+              Vendor:
+            </label>
+            <input
+              type="search"
+              placeholder="Search..."
+              value={rawMaterialsVendorFilter}
+              onChange={(e) => setRawMaterialsVendorFilter(e.target.value)}
+              style={{
+                padding: '0.5rem',
+                border: '2px solid #D4AF37',
+                borderRadius: '6px',
+                fontSize: '0.8125rem',
+                backgroundColor: '#E5F6DF',
+                outline: 'none',
+                minWidth: '140px',
+              }}
+              aria-label="Filter by vendor"
+              list="vendor-suggestions"
+            />
+            <datalist id="vendor-suggestions">
+              {Array.from(new Set(invoices.map(inv => inv.vendor_name))).sort().map(vendor => (
+                <option key={vendor} value={vendor} />
+              ))}
+            </datalist>
+          </div>
+
+          {/* Sort */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#4b006e', whiteSpace: 'nowrap' }}>
+              Sort:
+            </label>
+            <select
+              value={rawMaterialsSortBy}
+              onChange={(e) => setRawMaterialsSortBy(e.target.value as any)}
+              style={{
+                padding: '0.5rem',
+                border: '2px solid #D4AF37',
+                borderRadius: '6px',
+                fontSize: '0.8125rem',
+                backgroundColor: '#E5F6DF',
+                outline: 'none',
+                minWidth: '100px',
+              }}
+              aria-label="Sort invoices"
+            >
+              <option value="date-desc">Date ↓</option>
+              <option value="date-asc">Date ↑</option>
+              <option value="vendor">Vendor</option>
+              <option value="total-desc">Total ↓</option>
+              <option value="total-asc">Total ↑</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Active Filter Indicator */}
       {(rawMaterialsCategoryFilter || rawMaterialsVariantFilter || rawMaterialsVendorFilter) && (
         <div style={{
-          background: '#dbeafe',
-          border: '1px solid #0c4a6e',
+          background: '#E5F6DF',
+          border: '2px solid #D4AF37',
           borderRadius: '6px',
           padding: '0.75rem 1rem',
           marginBottom: '1rem',
@@ -711,7 +903,7 @@ export default function RawMaterialsTab({
           alignItems: 'center',
           gap: '0.5rem',
         }}>
-          <span style={{ fontSize: '0.875rem', color: '#0c4a6e', fontWeight: 500 }}>
+          <span style={{ fontSize: '0.875rem', color: '#4b006e', fontWeight: 500 }}>
             Active Filters:
             {rawMaterialsCategoryFilter && ` • Category: "${categories.find(c => c.id === rawMaterialsCategoryFilter)?.name}"`}
             {rawMaterialsVariantFilter && ` • Variant: "${rawMaterialsVariantFilter}"`}
@@ -727,11 +919,11 @@ export default function RawMaterialsTab({
               marginLeft: 'auto',
               padding: '0.25rem 0.75rem',
               background: 'transparent',
-              border: '1px solid #0c4a6e',
+              border: '2px solid #D4AF37',
               borderRadius: '4px',
-              color: '#0c4a6e',
+              color: '#4b006e',
               fontSize: '0.75rem',
-              fontWeight: 500,
+              fontWeight: 600,
               cursor: 'pointer',
             }}
             aria-label="Clear all filters"
@@ -741,117 +933,17 @@ export default function RawMaterialsTab({
         </div>
       )}
 
-      {/* Stat Boxes */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: '1rem',
-        marginBottom: '2rem',
-      }}>
-        {/* Total Spent */}
-        <div style={{
-          background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
-          borderRadius: '12px',
-          padding: '1.5rem',
-          color: 'white',
-        }}>
-          <div style={{ fontSize: '0.75rem', opacity: 0.9, fontWeight: 500, marginBottom: '0.5rem' }}>
-            Total Spent
-          </div>
-          <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
-            ${formatNumberWithCommas(rawMaterialStats.totalSpent)}
-          </div>
-          <div style={{ fontSize: '0.75rem', opacity: 0.9, marginTop: '0.5rem' }}>
-            {filteredRawMaterialInvoices.length} {filteredRawMaterialInvoices.length === 1 ? 'invoice' : 'invoices'}
-          </div>
-        </div>
-
-        {/* Average Invoice Amount */}
-        {filteredRawMaterialInvoices.length > 0 && (
-          <div style={{
-            background: '#f3e8ff',
-            border: '2px solid #9333ea',
-            borderRadius: '12px',
-            padding: '1.5rem',
-          }}>
-            <div style={{ fontSize: '0.75rem', color: '#6b21a8', fontWeight: 600, marginBottom: '0.5rem' }}>
-              Average Invoice Amount
-            </div>
-            <div style={{ fontSize: '2rem', fontWeight: 700, color: '#4b006e', lineHeight: 1 }}>
-              ${formatNumberWithCommas(rawMaterialStats.averageInvoiceAmount)}
-            </div>
-            <div style={{ fontSize: '0.75rem', color: '#6b21a8', marginTop: '0.5rem' }}>
-              per invoice
-            </div>
-          </div>
-        )}
-
-        {/* Top Category/Variant/Vendor by Spend */}
-        {rawMaterialsCategoryFilter && rawMaterialStats.topCategory ? (
-          <div style={{
-            background: '#dcfce7',
-            border: '2px solid #16a34a',
-            borderRadius: '12px',
-            padding: '1.5rem',
-          }}>
-            <div style={{ fontSize: '0.75rem', color: '#15803d', fontWeight: 600, marginBottom: '0.5rem' }}>
-              Top Category by Spend
-            </div>
-            <div style={{ fontSize: '2rem', fontWeight: 700, color: '#166534', lineHeight: 1 }}>
-              ${formatNumberWithCommas(rawMaterialStats.topCategory.total)}
-            </div>
-            <div style={{ fontSize: '0.75rem', color: '#15803d', marginTop: '0.5rem' }}>
-              {rawMaterialStats.topCategory.name}
-            </div>
-          </div>
-        ) : rawMaterialsVariantFilter && rawMaterialStats.topVariant ? (
-          <div style={{
-            background: '#dcfce7',
-            border: '2px solid #16a34a',
-            borderRadius: '12px',
-            padding: '1.5rem',
-          }}>
-            <div style={{ fontSize: '0.75rem', color: '#15803d', fontWeight: 600, marginBottom: '0.5rem' }}>
-              Top Variant by Spend
-            </div>
-            <div style={{ fontSize: '2rem', fontWeight: 700, color: '#166534', lineHeight: 1 }}>
-              ${formatNumberWithCommas(rawMaterialStats.topVariant.total)}
-            </div>
-            <div style={{ fontSize: '0.75rem', color: '#15803d', marginTop: '0.5rem' }}>
-              {rawMaterialStats.topVariant.name}
-            </div>
-          </div>
-        ) : rawMaterialStats.topVendor && (
-          <div style={{
-            background: '#dcfce7',
-            border: '2px solid #16a34a',
-            borderRadius: '12px',
-            padding: '1.5rem',
-          }}>
-            <div style={{ fontSize: '0.75rem', color: '#15803d', fontWeight: 600, marginBottom: '0.5rem' }}>
-              Top Vendor by Spend
-            </div>
-            <div style={{ fontSize: '2rem', fontWeight: 700, color: '#166534', lineHeight: 1 }}>
-              ${formatNumberWithCommas(rawMaterialStats.topVendor.total)}
-            </div>
-            <div style={{ fontSize: '0.75rem', color: '#15803d', marginTop: '0.5rem' }}>
-              {rawMaterialStats.topVendor.name}
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* Category Breakdown Visualization */}
       {rawMaterialStats.spendByCategory.size > 0 && (
         <div style={{
-          background: '#fef3c7',
-          border: '2px solid #f59e0b',
+          background: 'linear-gradient(135deg, #E8D4A0 0%, #D4AF37 100%)',
+          border: '2px solid #4b006e',
           borderRadius: '12px',
           padding: '1.5rem',
           marginBottom: '2rem',
         }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#78350f', marginBottom: '1rem' }}>
-            📊 Spend by Category
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#4b006e', marginBottom: '1rem' }}>
+            Spend by Category
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {Array.from(rawMaterialStats.spendByCategory.entries())
@@ -860,7 +952,7 @@ export default function RawMaterialsTab({
                 const percentage = (data.total / rawMaterialStats.totalSpent) * 100;
                 return (
                   <div key={categoryId} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{ minWidth: '120px', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>
+                    <div style={{ minWidth: '120px', fontSize: '1rem', fontWeight: 500, color: '#374151' }}>
                       {data.name}
                     </div>
                     <div style={{ flex: 1, position: 'relative' }}>
@@ -878,10 +970,10 @@ export default function RawMaterialsTab({
                         }} />
                       </div>
                     </div>
-                    <div style={{ minWidth: '100px', textAlign: 'right', fontSize: '0.875rem', fontWeight: 600, color: '#4b006e' }}>
+                    <div style={{ minWidth: '100px', textAlign: 'right', fontSize: '1rem', fontWeight: 600, color: '#4b006e' }}>
                       ${formatNumberWithCommas(data.total)}
                     </div>
-                    <div style={{ minWidth: '50px', textAlign: 'right', fontSize: '0.875rem', color: '#64748b' }}>
+                    <div style={{ minWidth: '50px', textAlign: 'right', fontSize: '1rem', color: '#64748b' }}>
                       {percentage.toFixed(1)}%
                     </div>
                   </div>
@@ -1041,6 +1133,9 @@ export default function RawMaterialsTab({
                         <button
                           className={styles.actionButton}
                           onClick={() => onViewInvoice(invoice.id)}
+                          style={{ background: '#4b006e', color: 'white' }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#6b21a8'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = '#4b006e'}
                           aria-label={`View invoice ${invoice.invoice_number || 'details'}`}
                         >
                           View

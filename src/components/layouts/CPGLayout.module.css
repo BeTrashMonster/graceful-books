@@ -1,7 +1,6 @@
 .layout {
   display: flex;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
 .sidebar {
@@ -10,7 +9,6 @@
   color: white;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
 }
 
 .logo {
@@ -81,7 +79,6 @@
 
 .main {
   flex: 1;
-  overflow-y: auto;
   background: #ffffff;
 }
 

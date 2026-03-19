@@ -31,6 +31,38 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Apply purple header styling when modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const timer = setTimeout(() => {
+      // Find elements using more specific selectors
+      const dialog = document.querySelector('[role="dialog"]');
+      if (!dialog) return;
+
+      // Modal header is the first child with h2 inside
+      const modalTitle = dialog.querySelector('#modal-title') as HTMLElement;
+      const modalHeader = modalTitle?.parentElement as HTMLElement;
+      const closeButton = dialog.querySelector('[aria-label="Close modal"]') as HTMLElement;
+
+      if (modalHeader) {
+        modalHeader.style.backgroundColor = '#4b006e';
+        modalHeader.style.padding = '0.75rem 1.5rem';
+        modalHeader.style.borderBottom = 'none';
+      }
+
+      if (modalTitle) {
+        modalTitle.style.color = '#ffffff';
+      }
+
+      if (closeButton) {
+        closeButton.style.color = '#ffffff';
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [isOpen]);
+
   useEffect(() => {
     if (!isOpen || !invoiceId) return;
 
@@ -114,7 +146,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
         size="lg"
         footer={
           <div className={styles.modalFooter}>
-            <Button variant="primary" onClick={onClose}>
+            <Button variant="gold" onClick={onClose}>
               Close
             </Button>
           </div>
@@ -153,7 +185,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
               Edit Invoice
             </Button>
           )}
-          <Button variant="primary" onClick={onClose}>
+          <Button variant="gold" onClick={onClose}>
             Close
           </Button>
         </div>
