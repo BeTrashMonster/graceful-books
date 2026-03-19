@@ -16,6 +16,14 @@
 .logo {
   padding: 2rem 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.logoImage {
+  width: 160px;
+  height: auto;
+  margin: 0 auto 1rem auto;
+  display: block;
 }
 
 .logo h1 {
@@ -217,4 +225,33 @@
 .quickAddDropdown button:hover {
   background: rgba(212, 175, 55, 0.15);
   color: #E8D4A0;
+}
+
+/* Bottom Nav (Settings) */
+.bottomNav {
+  padding: 1.5rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: auto;
+}
+
+.bottomNav a {
+  display: block;
+  padding: 0.75rem 1.5rem;
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: all 0.2s;
+  font-size: 0.9375rem;
+}
+
+.bottomNav a:hover {
+  background: rgba(212, 175, 55, 0.2);
+  color: #D4AF37;
+}
+
+.bottomNav a.active {
+  background: linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%);
+  color: #4b006e;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border: 1px solid #B8860B;
 }

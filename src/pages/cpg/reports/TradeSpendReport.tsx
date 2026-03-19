@@ -22,8 +22,8 @@ import styles from './TradeSpendReport.module.css';
 type StatusFilter = 'all' | 'draft' | 'submitted' | 'approved' | 'declined';
 type RecommendationFilter = 'all' | 'participate' | 'decline' | 'neutral';
 
-export const TradeSpendReport = () => {
-  const { currentCompany } = useAuth();
+export default function TradeSpendReport() {
+  const { companyId } = useAuth();
   const [summary, setSummary] = useState<TradeSpendSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +48,7 @@ export const TradeSpendReport = () => {
 
   useEffect(() => {
     loadReport();
-  }, [currentCompany, dateRange]);
+  }, [companyId, dateRange]);
 
   useEffect(() => {
     if (summary) {
@@ -57,14 +57,14 @@ export const TradeSpendReport = () => {
   }, [summary]);
 
   const loadReport = async () => {
-    if (!currentCompany) return;
+    if (!companyId) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
       const data = await getTradeSpendSummary(
-        currentCompany.id,
+        companyId,
         dateRange.startDate.getTime(),
         dateRange.endDate.getTime()
       );
@@ -197,7 +197,7 @@ export const TradeSpendReport = () => {
     Status: promo.status,
   }));
 
-  if (!currentCompany) {
+  if (!companyId) {
     return <div className={styles.container}>Please select a company</div>;
   }
 
@@ -381,4 +381,4 @@ export const TradeSpendReport = () => {
       )}
     </div>
   );
-};
+}

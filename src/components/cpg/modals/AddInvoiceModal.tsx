@@ -507,7 +507,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
           <Button variant="outline" onClick={handleClose} disabled={isSubmitting || isLoadingInvoice}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting || isLoadingInvoice}>
+          <Button variant="gold" onClick={handleSubmit} disabled={isSubmitting || isLoadingInvoice}>
             {isSubmitting
               ? (isEditMode ? 'Updating...' : isDuplicateMode ? 'Duplicating...' : 'Adding...')
               : (isEditMode ? 'Update Invoice' : isDuplicateMode ? 'Duplicate Invoice' : 'Add Invoice')
@@ -979,7 +979,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
           <div style={{ marginTop: '0.5rem', textAlign: 'center' }}>
             <Button
               type="button"
-              variant="outline"
+              variant="purple"
               size="sm"
               onClick={addCostItem}
               disabled={categories.length === 0}

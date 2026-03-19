@@ -19,8 +19,8 @@ import { generateCPGProfitLoss } from '../../../services/cpg/cpgReporting.servic
 import type { CPGProfitLossReport } from '../../../services/cpg/cpgReporting.service';
 import styles from './CPGProfitLoss.module.css';
 
-export const CPGProfitLoss = () => {
-  const { currentCompany } = useAuth();
+export default function CPGProfitLoss() {
+  const { companyId } = useAuth();
   const [report, setReport] = useState<CPGProfitLossReport | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,17 +37,17 @@ export const CPGProfitLoss = () => {
 
   useEffect(() => {
     loadReport();
-  }, [currentCompany, dateRange]);
+  }, [companyId, dateRange]);
 
   const loadReport = async () => {
-    if (!currentCompany) return;
+    if (!companyId) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
       const data = await generateCPGProfitLoss(
-        currentCompany.id,
+        companyId,
         dateRange.startDate.getTime(),
         dateRange.endDate.getTime()
       );
@@ -85,7 +85,7 @@ export const CPGProfitLoss = () => {
       ]
     : [];
 
-  if (!currentCompany) {
+  if (!companyId) {
     return <div className={styles.container}>Please select a company</div>;
   }
 
@@ -283,4 +283,4 @@ export const CPGProfitLoss = () => {
       )}
     </div>
   );
-};
+}

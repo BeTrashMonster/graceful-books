@@ -19,8 +19,8 @@ import { db } from '../../../db';
 import type { CPGDistributor } from '../../../db/schema/cpg.schema';
 import styles from './DistributionCostReport.module.css';
 
-export const DistributionCostReport = () => {
-  const { currentCompany } = useAuth();
+export default function DistributionCostReport() {
+  const { companyId } = useAuth();
   const [comparison, setComparison] = useState<DistributorComparison | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +31,7 @@ export const DistributionCostReport = () => {
 
   useEffect(() => {
     loadDistributors();
-  }, [currentCompany]);
+  }, [companyId]);
 
   useEffect(() => {
     if (selectedDistributorIds.length > 0) {
@@ -42,12 +42,12 @@ export const DistributionCostReport = () => {
   }, [selectedDistributorIds]);
 
   const loadDistributors = async () => {
-    if (!currentCompany) return;
+    if (!companyId) return;
 
     try {
       const distributors = await db.cpgDistributors
         .where('company_id')
-        .equals(currentCompany.id)
+        .equals(companyId)
         .and((dist) => dist.active && !dist.deleted_at)
         .toArray();
 
@@ -64,13 +64,13 @@ export const DistributionCostReport = () => {
   };
 
   const loadComparison = async () => {
-    if (!currentCompany || selectedDistributorIds.length === 0) return;
+    if (!companyId || selectedDistributorIds.length === 0) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
-      const data = await compareDistributors(currentCompany.id, selectedDistributorIds);
+      const data = await compareDistributors(companyId, selectedDistributorIds);
       setComparison(data);
     } catch (err) {
       console.error('Failed to load comparison:', err);
@@ -112,7 +112,7 @@ export const DistributionCostReport = () => {
       'Fee Count': dist.feeBreakdown.length,
     })) || [];
 
-  if (!currentCompany) {
+  if (!companyId) {
     return <div className={styles.container}>Please select a company</div>;
   }
 
@@ -283,4 +283,4 @@ export const DistributionCostReport = () => {
       )}
     </div>
   );
-};
+}

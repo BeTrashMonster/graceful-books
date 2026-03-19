@@ -22,8 +22,8 @@ import styles from './GrossMarginReport.module.css';
 type SortField = 'categoryName' | 'cpu' | 'grossMarginPercentage';
 type SortOrder = 'asc' | 'desc';
 
-export const GrossMarginReport = () => {
-  const { currentCompany } = useAuth();
+export default function GrossMarginReport() {
+  const { companyId } = useAuth();
   const [marginData, setMarginData] = useState<GrossMarginData[]>([]);
   const [filteredData, setFilteredData] = useState<GrossMarginData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,20 +45,20 @@ export const GrossMarginReport = () => {
   useEffect(() => {
     loadReport();
     loadFilterOptions();
-  }, [currentCompany]);
+  }, [companyId]);
 
   useEffect(() => {
     applyFiltersAndSort();
   }, [marginData, selectedCategory, selectedVariant, selectedMarginQuality, sortField, sortOrder]);
 
   const loadReport = async () => {
-    if (!currentCompany) return;
+    if (!companyId) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
-      const data = await getGrossMarginByProduct(currentCompany.id);
+      const data = await getGrossMarginByProduct(companyId);
       setMarginData(data);
     } catch (err) {
       console.error('Failed to load gross margin report:', err);
@@ -69,13 +69,13 @@ export const GrossMarginReport = () => {
   };
 
   const loadFilterOptions = async () => {
-    if (!currentCompany) return;
+    if (!companyId) return;
 
     try {
       // Load categories
       const cats = await db.cpgCategories
         .where('company_id')
-        .equals(currentCompany.id)
+        .equals(companyId)
         .and((cat) => cat.active && !cat.deleted_at)
         .toArray();
 
@@ -195,7 +195,7 @@ export const GrossMarginReport = () => {
     'Margin Quality': getMarginQualityLabel(item.marginQuality),
   }));
 
-  if (!currentCompany) {
+  if (!companyId) {
     return <div className={styles.container}>Please select a company</div>;
   }
 
@@ -399,4 +399,4 @@ export const GrossMarginReport = () => {
       )}
     </div>
   );
-};
+}

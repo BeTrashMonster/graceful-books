@@ -489,7 +489,7 @@ export function CategoryManager({
                 </Button>
 
                 <Button
-                  variant="primary"
+                  variant="gold"
                   size="md"
                   onClick={handleSaveCategory}
                   loading={isSaving}
@@ -544,7 +544,7 @@ export function CategoryManager({
                 )}
 
                 <Button
-                  variant="primary"
+                  variant="gold"
                   size="md"
                   onClick={handleAddCategory}
                   iconBefore={<span>+</span>}

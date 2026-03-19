@@ -386,10 +386,9 @@ export default function CPUTracker() {
             )}
 
             <Button
-              variant="outline"
+              variant="purple"
               size="md"
               onClick={() => setShowCategoryManager(true)}
-              iconBefore={<span aria-hidden="true">⚙️</span>}
             >
               Manage Categories
             </Button>
@@ -404,7 +403,7 @@ export default function CPUTracker() {
             </Button>
 
             <Button
-              variant="primary"
+              variant="gold"
               size="md"
               onClick={() => setShowInvoiceForm(true)}
               iconBefore={<span aria-hidden="true">+</span>}
@@ -440,7 +439,7 @@ export default function CPUTracker() {
               These are the different components that make up your product (like Oil, Bottle, Box, etc.).
             </p>
             <Button
-              variant="primary"
+              variant="gold"
               size="lg"
               onClick={() => setShowCategoryManager(true)}
               iconBefore={<span aria-hidden="true">⚙️</span>}
@@ -551,7 +550,7 @@ export default function CPUTracker() {
               You're all set! Now you can start entering invoices to track your costs.
             </p>
             <Button
-              variant="primary"
+              variant="gold"
               size="lg"
               onClick={() => setShowInvoiceForm(true)}
               iconBefore={<span aria-hidden="true">+</span>}
