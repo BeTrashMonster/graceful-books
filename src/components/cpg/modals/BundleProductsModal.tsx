@@ -412,7 +412,7 @@ export function BundleProductsModal({ isOpen, onClose, onSuccess, editingBundle 
         <div className={styles.actions}>
           <Button
             type="button"
-            variant="secondary"
+            variant="outline"
             onClick={handleClose}
             disabled={isSaving}
           >
@@ -420,7 +420,7 @@ export function BundleProductsModal({ isOpen, onClose, onSuccess, editingBundle 
           </Button>
           <Button
             type="submit"
-            variant="primary"
+            variant="gold"
             loading={isSaving}
             disabled={isSaving || isLoading}
           >

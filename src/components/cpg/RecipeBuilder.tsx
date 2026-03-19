@@ -672,7 +672,7 @@ export function RecipeBuilder({
           )}
         </div>
         <Button
-          variant="primary"
+          variant="gold"
           onClick={handleSave}
           disabled={isSubmitting || components.length === 0}
         >

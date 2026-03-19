@@ -428,10 +428,10 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
       <div className={styles.header}>
         <h1 className={styles.title}>My Finished Products</h1>
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <Button variant="secondary" size="md" onClick={handleOpenBundleModal}>
+          <Button variant="purple" size="md" onClick={handleOpenBundleModal}>
             + Bundle Products
           </Button>
-          <Button variant="primary" size="md" onClick={handleAddProduct}>
+          <Button variant="gold" size="md" onClick={handleAddProduct}>
             + Add Product
           </Button>
         </div>
@@ -467,7 +467,7 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
           <p className={styles.emptyText}>
             Add your first finished product to start tracking manufacturing costs.
           </p>
-          <Button variant="primary" size="md" onClick={handleAddProduct}>
+          <Button variant="gold" size="md" onClick={handleAddProduct}>
             + Add Your First Product
           </Button>
         </div>
@@ -504,8 +504,8 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                     key={`empty-${index}`}
                     className={styles.emptyGridCell}
                     style={{
-                      border: dragOverIndex === index ? '2px dashed #4b006e' : '2px dashed transparent',
-                      background: dragOverIndex === index ? '#f3e8ff' : 'transparent',
+                      border: dragOverIndex === index ? '2px dashed #D4AF37' : '2px dashed transparent',
+                      background: dragOverIndex === index ? '#FFF8DC' : 'transparent',
                       borderRadius: '12px',
                       minHeight: '200px',
                       transition: 'all 0.2s ease',
@@ -538,7 +538,7 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                     backgroundColor: isArchived ? '#f8f9fa' : bgColor,
                     position: 'relative',
                     cursor: isArchived ? 'default' : 'grab',
-                    border: dragOverIndex === index ? '2px solid #4b006e' : '1px solid #e2e8f0',
+                    border: dragOverIndex === index ? '3px solid #B8860B' : undefined,
                   }}
                 >
                   {/* Color Picker Button */}
@@ -585,7 +585,7 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                             CARD COLOR
                           </div>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                            {['#f3e8ff', '#f0fdf4', '#fef2f2', '#fffbeb', '#eff6ff', '#fce7f3', '#fef3c7', '#f0f9ff'].map(color => (
+                            {['#E8D4A0', '#f3e8ff', '#e9d5ff', '#E5D8DB', '#D5E8E5', '#E8E0D5', '#D8E5D8', '#E0D8E8'].map(color => (
                               <button
                                 key={color}
                                 onClick={() => {
@@ -596,7 +596,7 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                                   width: '32px',
                                   height: '32px',
                                   borderRadius: '6px',
-                                  border: cardColors[product.id] === color ? '3px solid #4b006e' : '1px solid #e5e7eb',
+                                  border: cardColors[product.id] === color ? '3px solid #D4AF37' : '1px solid #e5e7eb',
                                   background: color,
                                   cursor: 'pointer',
                                 }}
@@ -609,7 +609,7 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                             </label>
                             <input
                               type="text"
-                              placeholder="#f3e8ff"
+                              placeholder="#E8D4A0"
                               maxLength={7}
                               style={{
                                 width: '100%',
@@ -763,10 +763,9 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                       <>
                         {product.is_bundle ? (
                           <Button
-                            variant="primary"
+                            variant="purple"
                             size="sm"
                             onClick={() => handleEditBundle(product)}
-                            style={{ backgroundColor: '#8b5cf6', borderColor: '#8b5cf6' }}
                           >
                             Edit Bundle
                           </Button>
@@ -780,10 +779,9 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                               Edit
                             </Button>
                             <Button
-                              variant="primary"
+                              variant="purple"
                               size="sm"
                               onClick={() => handleOpenRecipe(product.id)}
-                              style={{ backgroundColor: '#4b006e', borderColor: '#4b006e' }}
                             >
                               Recipe
                             </Button>
@@ -869,7 +867,7 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                 Cancel
               </Button>
               <Button
-                variant="primary"
+                variant="gold"
                 onClick={() => {
                   handleArchiveProduct(deletingProductId);
                   setDeletingProductId(null);

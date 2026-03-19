@@ -220,7 +220,7 @@ export function AddProductModal({
           <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
+          <Button variant="gold" onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting
               ? 'Saving...'
               : editingProduct

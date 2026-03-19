@@ -334,18 +334,63 @@ export default function CPGDashboard() {
     <div className={styles.container}>
       {/* Header */}
       <div className={styles.header}>
-        <div>
-          <h1 className={styles.title}>Your Financial Ecosystem</h1>
-          <p className={styles.subtitle}>
-            Watch your money flow 🌸
-          </p>
+        <h1 className={styles.title}>Your Financial Ecosystem</h1>
+      </div>
+
+      {/* Legend */}
+      <div className={styles.legend}>
+        <h3>How to Use This View</h3>
+        <div className={styles.legendGrid}>
+          <div className={styles.legendItem}>
+            <span className={styles.legendIconCategory}>●</span>
+            <div>
+              <strong>Category Nodes</strong>
+              <p>Sized by total $ spent. Click to view invoices.</p>
+            </div>
+          </div>
+          <div className={styles.legendItem}>
+            <span className={styles.legendIconDistribution}>●</span>
+            <div>
+              <strong>Distribution</strong>
+              <p>Shipping & warehousing costs. Click to analyze.</p>
+            </div>
+          </div>
+          <div className={styles.legendItem}>
+            <span className={styles.legendIconPromo}>●</span>
+            <div>
+              <strong>Promos</strong>
+              <p>Promotional spend. Click to track ROI.</p>
+            </div>
+          </div>
+          <div className={styles.legendItem}>
+            <span className={styles.legendIconLine}>━</span>
+            <div>
+              <strong>Connections</strong>
+              <p>Categories used together in products. Hover to see which ones!</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Filter Panel */}
-      <div className={styles.filterPanel}>
-        {/* Date Range */}
-        <div className={styles.filterGroup}>
+      {/* Graph + Filters Side-by-Side */}
+      <div className={styles.mainLayout}>
+        {/* The Graph */}
+        <div className={styles.graphContainer}>
+          <FinancialWebGraph
+            nodes={webData.nodes}
+            connections={webData.connections}
+            onNodeClick={handleNodeClick}
+            onConnectionClick={handleConnectionClick}
+            width={1000}
+            height={700}
+          />
+        </div>
+
+        {/* Filter Panel - Sidebar */}
+        <div className={styles.filterPanel}>
+          <div className={styles.filterPanelContent}>
+            {/* Date Range */}
+            <div className={styles.filterGroup}>
           <label htmlFor="date-range" className={styles.filterLabel}>
             Time Period
           </label>
@@ -469,77 +514,8 @@ export default function CPGDashboard() {
             <span>Show only connected items</span>
           </label>
         </div>
-      </div>
-
-      {/* The Graph */}
-      {/*
-        CONCEPTUAL FRAMEWORK FOR FUTURE BOOKKEEPING INTEGRATION:
-
-        This graph visualizes two logical cost clusters:
-
-        1. RAW MATERIAL COSTS cluster:
-           - Category nodes (Bottle, Box, Lid, Oil, etc.)
-           - Connected by recipe relationships
-           - Represents direct material costs from CPU Tracker
-
-        2. CPG COSTS cluster:
-           - Distribution node (shipping & warehousing)
-           - Promo node (promotional spend & trade deals)
-           - Represents operational costs beyond raw materials
-
-        When integrated with main bookkeeping software:
-        - These clusters can be zoomed in on from the master financial web
-        - Each cluster acts as a drilldown entry point
-        - Raw Material Costs → CPG Module (this view)
-        - CPG Costs → Distribution + Promo modules
-
-        Visual grouping is implicit through force layout positioning,
-        not explicit circles (keeps UI clean while maintaining conceptual structure).
-      */}
-      <div className={styles.graphContainer}>
-        <FinancialWebGraph
-          nodes={webData.nodes}
-          connections={webData.connections}
-          onNodeClick={handleNodeClick}
-          onConnectionClick={handleConnectionClick}
-          width={1200}
-          height={700}
-        />
-      </div>
-
-      {/* Legend */}
-      <div className={styles.legend}>
-        <h3>How to Use This View</h3>
-        <div className={styles.legendGrid}>
-          <div className={styles.legendItem}>
-            <span className={styles.legendIconCategory}>●</span>
-            <div>
-              <strong>Category Nodes</strong>
-              <p>Sized by total $ spent. Click to view invoices.</p>
-            </div>
-          </div>
-          <div className={styles.legendItem}>
-            <span className={styles.legendIconDistribution}>●</span>
-            <div>
-              <strong>Distribution</strong>
-              <p>Shipping & warehousing costs. Click to analyze.</p>
-            </div>
-          </div>
-          <div className={styles.legendItem}>
-            <span className={styles.legendIconPromo}>●</span>
-            <div>
-              <strong>Promos</strong>
-              <p>Promotional spend. Click to track ROI.</p>
-            </div>
-          </div>
-          <div className={styles.legendItem}>
-            <span className={styles.legendIconLine}>━</span>
-            <div>
-              <strong>Connections</strong>
-              <p>Categories used together in products. Hover to see which ones!</p>
-            </div>
-          </div>
         </div>
+      </div>
       </div>
     </div>
   );

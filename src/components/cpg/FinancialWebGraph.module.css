@@ -25,15 +25,15 @@
 
 /* Links */
 .link {
-  stroke: #d8b4fe;
-  stroke-opacity: 0.4;
+  stroke: #E8D4A0;
+  stroke-opacity: 0.75;
   stroke-linecap: round;
   transition: all 0.3s ease;
 }
 
 .linkHover {
-  stroke: #a855f7;
-  stroke-opacity: 0.8;
+  stroke: #D4AF37;
+  stroke-opacity: 1;
   stroke-width: 4px !important;
 }
 
@@ -44,16 +44,16 @@
 
 /* Node Circles - Active (with data) */
 .nodeActive {
-  fill: #7c3aed;
-  stroke: #6d28d9;
+  fill: #4b006e;
+  stroke: #3a0052;
   stroke-width: 3px;
   transition: all 0.3s ease;
-  filter: drop-shadow(0 4px 8px rgba(124, 58, 237, 0.3));
+  filter: drop-shadow(0 4px 8px rgba(75, 0, 110, 0.3));
 }
 
 .nodeActive:hover {
   fill: #6d28d9;
-  filter: drop-shadow(0 6px 12px rgba(124, 58, 237, 0.5));
+  filter: drop-shadow(0 6px 12px rgba(75, 0, 110, 0.5));
 }
 
 /* Node Circles - Inactive (bud state) */
@@ -73,21 +73,21 @@
 
 /* Node circles by type */
 .nodeGroup circle[data-type="distribution"] {
-  fill: #10b981;
-  stroke: #059669;
+  fill: #509724;
+  stroke: #3d7219;
 }
 
 .nodeGroup circle[data-type="distribution"]:hover {
-  fill: #059669;
+  fill: #3d7219;
 }
 
 .nodeGroup circle[data-type="promo"] {
-  fill: #f59e0b;
-  stroke: #d97706;
+  fill: #D4AF37;
+  stroke: #B8860B;
 }
 
 .nodeGroup circle[data-type="promo"]:hover {
-  fill: #d97706;
+  fill: #B8860B;
 }
 
 /* Node Labels */
@@ -171,10 +171,10 @@
 /* Pulse animation for active nodes with data */
 @keyframes pulse {
   0%, 100% {
-    filter: drop-shadow(0 4px 8px rgba(124, 58, 237, 0.3));
+    filter: drop-shadow(0 4px 8px rgba(75, 0, 110, 0.3));
   }
   50% {
-    filter: drop-shadow(0 6px 12px rgba(124, 58, 237, 0.6));
+    filter: drop-shadow(0 6px 12px rgba(75, 0, 110, 0.6));
   }
 }
 
