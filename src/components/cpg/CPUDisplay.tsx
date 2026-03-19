@@ -616,14 +616,16 @@ export function CPUDisplay({
       case 'name':
         return a.productName.localeCompare(b.productName);
       case 'cpu-asc': {
-        const aCPU = a.cpu ? parseFloat(a.cpu) : Infinity;
-        const bCPU = b.cpu ? parseFloat(b.cpu) : Infinity;
-        return aCPU - bCPU;
-      }
-      case 'cpu-desc': {
+        // CPU ↑ = highest first, lowest last (descending)
         const aCPU = a.cpu ? parseFloat(a.cpu) : -Infinity;
         const bCPU = b.cpu ? parseFloat(b.cpu) : -Infinity;
         return bCPU - aCPU;
+      }
+      case 'cpu-desc': {
+        // CPU ↓ = lowest first, highest last (ascending)
+        const aCPU = a.cpu ? parseFloat(a.cpu) : Infinity;
+        const bCPU = b.cpu ? parseFloat(b.cpu) : Infinity;
+        return aCPU - bCPU;
       }
       case 'missing':
         return b.missingComponents.length - a.missingComponents.length;
@@ -732,522 +734,598 @@ export function CPUDisplay({
 
   return (
     <div className={styles.container}>
-      {/* All Filters in One Row: Date Range | All Products | Status | Sort | Export */}
+      {/* Filters and Summary Stats - Side by Side Section Boxes */}
       <div style={{
         display: 'flex',
-        gap: '1rem',
-        marginBottom: '1.5rem',
-        flexWrap: 'wrap',
-        alignItems: 'center',
+        gap: '2rem',
+        marginBottom: '2rem',
       }}>
-        {/* Date Range Filter */}
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <label style={{ fontSize: '0.875rem', fontWeight: 500, color: '#64748b' }}>
-            Date Range:
-          </label>
-          <select
-            value={dateRangeFilter}
-            onChange={(e) => setDateRangeFilter(e.target.value as DateRangePreset)}
-            style={{
-              padding: '0.5rem 0.75rem',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              fontSize: '0.875rem',
-            }}
-          >
-            <option value="3mo">Last 3 Months</option>
-            <option value="6mo">Last 6 Months</option>
-            <option value="12mo">Last 12 Months</option>
-            <option value="last-calendar-year">Last Calendar Year ({new Date().getFullYear() - 1})</option>
-            <option value="this-calendar-year">This Calendar Year ({new Date().getFullYear()})</option>
-            <option value="custom">Custom Range...</option>
-            <option value="all">All Time</option>
-          </select>
-        </div>
+        {/* FILTERS SECTION */}
+        <div style={{
+          flex: '0 0 auto',
+          width: '280px',
+          background: '#ffffff',
+          borderLeft: '4px solid #D4AF37',
+          borderRight: '4px solid #D4AF37',
+          borderBottom: '4px solid #D4AF37',
+          borderRadius: '8px',
+          overflow: 'visible',
+          boxShadow: '0 2px 8px rgba(184, 134, 11, 0.15)',
+        }}>
+          {/* Header */}
+          <div style={{
+            background: '#4b006e',
+            color: 'white',
+            padding: '1rem 1.5rem',
+            fontSize: '1.5rem',
+            fontWeight: 600,
+          }}>
+            Filters
+          </div>
 
-        {/* Custom Date Inputs */}
-        {dateRangeFilter === 'custom' && (
-          <>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <label style={{ fontSize: '0.875rem', fontWeight: 500, color: '#64748b' }}>
-                From:
+          {/* Content */}
+          <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {/* Date Range */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#4b006e', whiteSpace: 'nowrap', flex: '0 0 auto' }}>
+                Date:
               </label>
-              <input
-                type="date"
-                value={customStartDate}
-                onChange={(e) => setCustomStartDate(e.target.value)}
-                onBlur={(e) => handleDateBlur(e.target.value, setCustomStartDate)}
+              <select
+                value={dateRangeFilter}
+                onChange={(e) => setDateRangeFilter(e.target.value as DateRangePreset)}
                 style={{
-                  padding: '0.5rem 0.75rem',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  fontSize: '0.875rem',
-                }}
-              />
-            </div>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <label style={{ fontSize: '0.875rem', fontWeight: 500, color: '#64748b' }}>
-                To:
-              </label>
-              <input
-                type="date"
-                value={customEndDate}
-                onChange={(e) => setCustomEndDate(e.target.value)}
-                onBlur={(e) => handleDateBlur(e.target.value, setCustomEndDate)}
-                style={{
-                  padding: '0.5rem 0.75rem',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  fontSize: '0.875rem',
-                }}
-              />
-            </div>
-          </>
-        )}
-
-        {/* All Products Selector */}
-        {onProductSelectionChange && (
-          <div style={{ position: 'relative', minWidth: '200px' }}>
-            <button
-              onClick={() => setShowProductSelector(!showProductSelector)}
-              style={{
-                width: '100%',
-                padding: '0.5rem 0.75rem',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                fontSize: '0.875rem',
-                background: 'white',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-              aria-label="Select products to display"
-              aria-expanded={showProductSelector}
-            >
-              <span>
-                {selectedProducts.size === 0
-                  ? 'All Products'
-                  : selectedProducts.size === finishedProducts.length
-                  ? 'All Products Selected'
-                  : `${selectedProducts.size} Product${selectedProducts.size === 1 ? '' : 's'} Selected`}
-              </span>
-              <span aria-hidden="true">{showProductSelector ? '▲' : '▼'}</span>
-            </button>
-
-            {showProductSelector && (
-              <div style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                right: 0,
-                marginTop: '0.25rem',
-                background: 'white',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                zIndex: 20,
-                maxHeight: '300px',
-                overflowY: 'auto',
-              }}
-              role="menu"
-              >
-                {/* Select All / Clear All */}
-                <div style={{
+                  flex: 1,
                   padding: '0.5rem',
-                  borderBottom: '1px solid #e5e7eb',
-                  display: 'flex',
-                  gap: '0.5rem',
-                }}>
-                  <button
-                    onClick={() => onProductSelectionChange(new Set(finishedProducts.map((p: any) => p.id)))}
-                    style={{
-                      flex: 1,
-                      padding: '0.25rem 0.5rem',
-                      background: '#4b006e',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                    }}
-                    aria-label="Select all products"
-                  >
-                    Select All
-                  </button>
-                  <button
-                    onClick={() => onProductSelectionChange(new Set())}
-                    style={{
-                      flex: 1,
-                      padding: '0.25rem 0.5rem',
-                      background: '#f8fafc',
-                      color: '#64748b',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '4px',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                    }}
-                    aria-label="Clear all product selections"
-                  >
-                    Clear All
-                  </button>
-                </div>
+                  border: '2px solid #D4AF37',
+                  borderRadius: '6px',
+                  fontSize: '0.8125rem',
+                  backgroundColor: '#E5F6DF',
+                  outline: 'none',
+                }}
+              >
+                <option value="3mo">3 Months</option>
+                <option value="6mo">6 Months</option>
+                <option value="12mo">12 Months</option>
+                <option value="last-calendar-year">Last Year</option>
+                <option value="this-calendar-year">This Year</option>
+                <option value="custom">Custom</option>
+                <option value="all">All Time</option>
+              </select>
+            </div>
 
-                {/* Product List */}
-                {finishedProducts.map((product: any) => (
-                  <label
-                    key={product.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '0.5rem 0.75rem',
-                      cursor: 'pointer',
-                      borderBottom: '1px solid #f8fafc',
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedProducts.has(product.id)}
-                      onChange={(e) => {
-                        const newSet = new Set(selectedProducts);
-                        if (e.target.checked) {
-                          newSet.add(product.id);
-                        } else {
-                          newSet.delete(product.id);
-                        }
-                        onProductSelectionChange(newSet);
-                      }}
-                      style={{ marginRight: '0.5rem' }}
-                      aria-label={`Select ${product.name}`}
-                    />
-                    <span style={{ fontSize: '0.875rem' }}>{product.name}</span>
+            {/* Custom Date Range */}
+            {dateRangeFilter === 'custom' && (
+              <div style={{ marginLeft: '3.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b', width: '45px' }}>
+                    From:
                   </label>
-                ))}
+                  <input
+                    type="date"
+                    value={customStartDate}
+                    onChange={(e) => setCustomStartDate(e.target.value)}
+                    onBlur={(e) => handleDateBlur(e.target.value, setCustomStartDate)}
+                    style={{
+                      flex: 1,
+                      padding: '0.375rem',
+                      border: '2px solid #D4AF37',
+                      borderRadius: '6px',
+                      fontSize: '0.75rem',
+                      backgroundColor: '#E5F6DF',
+                      outline: 'none',
+                    }}
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b', width: '45px' }}>
+                    To:
+                  </label>
+                  <input
+                    type="date"
+                    value={customEndDate}
+                    onChange={(e) => setCustomEndDate(e.target.value)}
+                    onBlur={(e) => handleDateBlur(e.target.value, setCustomEndDate)}
+                    style={{
+                      flex: 1,
+                      padding: '0.375rem',
+                      border: '2px solid #D4AF37',
+                      borderRadius: '6px',
+                      fontSize: '0.75rem',
+                      backgroundColor: '#E5F6DF',
+                      outline: 'none',
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Product Selector */}
+            {onProductSelectionChange && (
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#4b006e', whiteSpace: 'nowrap', flex: '0 0 auto' }}>
+                  Products:
+                </label>
+                <button
+                  onClick={() => setShowProductSelector(!showProductSelector)}
+                  style={{
+                    flex: 1,
+                    padding: '0.5rem',
+                    border: '2px solid #D4AF37',
+                    borderRadius: '6px',
+                    fontSize: '0.8125rem',
+                    background: '#E5F6DF',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    outline: 'none',
+                  }}
+                  aria-label="Select products to display"
+                  aria-expanded={showProductSelector}
+                >
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {selectedProducts.size === 0
+                      ? 'All'
+                      : selectedProducts.size === finishedProducts.length
+                      ? 'All'
+                      : `${selectedProducts.size}`}
+                  </span>
+                  <span aria-hidden="true" style={{ marginLeft: '0.25rem' }}>{showProductSelector ? '▲' : '▼'}</span>
+                </button>
+
+                {showProductSelector && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    marginTop: '0.5rem',
+                    background: 'white',
+                    border: '2px solid #D4AF37',
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 12px rgba(184, 134, 11, 0.25)',
+                    zIndex: 1000,
+                    maxHeight: '300px',
+                    overflowY: 'auto',
+                  }}
+                  role="menu"
+                  >
+                    <div style={{
+                      padding: '0.5rem',
+                      borderBottom: '1px solid #e5e7eb',
+                      display: 'flex',
+                      gap: '0.5rem',
+                    }}>
+                      <button
+                        onClick={() => onProductSelectionChange(new Set(finishedProducts.map((p: any) => p.id)))}
+                        style={{
+                          flex: 1,
+                          padding: '0.375rem',
+                          background: '#4b006e',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        All
+                      </button>
+                      <button
+                        onClick={() => onProductSelectionChange(new Set())}
+                        style={{
+                          flex: 1,
+                          padding: '0.375rem',
+                          background: 'white',
+                          color: '#64748b',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '4px',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Clear
+                      </button>
+                    </div>
+
+                    {finishedProducts.map((product: any) => (
+                      <label
+                        key={product.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '0.5rem 0.75rem',
+                          cursor: 'pointer',
+                          borderBottom: '1px solid #f8fafc',
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = '#E5F6DF'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedProducts.has(product.id)}
+                          onChange={(e) => {
+                            const newSet = new Set(selectedProducts);
+                            if (e.target.checked) {
+                              newSet.add(product.id);
+                            } else {
+                              newSet.delete(product.id);
+                            }
+                            onProductSelectionChange(newSet);
+                          }}
+                          style={{ marginRight: '0.5rem' }}
+                        />
+                        <span style={{ fontSize: '0.8125rem' }}>{product.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Status Filter */}
+            {onStatusFilterChange && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#4b006e', whiteSpace: 'nowrap', flex: '0 0 auto' }}>
+                  Status:
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => onStatusFilterChange(e.target.value as 'all' | 'complete' | 'incomplete')}
+                  style={{
+                    flex: 1,
+                    padding: '0.5rem',
+                    border: '2px solid #D4AF37',
+                    borderRadius: '6px',
+                    fontSize: '0.8125rem',
+                    backgroundColor: '#E5F6DF',
+                    outline: 'none',
+                  }}
+                >
+                  <option value="all">All</option>
+                  <option value="complete">Complete</option>
+                  <option value="incomplete">Incomplete</option>
+                </select>
+              </div>
+            )}
+
+            {/* Sort */}
+            {onSortByChange && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#4b006e', whiteSpace: 'nowrap', flex: '0 0 auto' }}>
+                  Sort:
+                </label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => onSortByChange(e.target.value as 'name' | 'cpu-asc' | 'cpu-desc' | 'missing')}
+                  style={{
+                    flex: 1,
+                    padding: '0.5rem',
+                    border: '2px solid #D4AF37',
+                    borderRadius: '6px',
+                    fontSize: '0.8125rem',
+                    backgroundColor: '#E5F6DF',
+                    outline: 'none',
+                  }}
+                >
+                  <option value="name">Name</option>
+                  <option value="cpu-asc">CPU ↑</option>
+                  <option value="cpu-desc">CPU ↓</option>
+                  <option value="missing">Missing</option>
+                </select>
               </div>
             )}
           </div>
-        )}
-
-        {/* Status Filter */}
-        {onStatusFilterChange && (
-          <select
-            value={statusFilter}
-            onChange={(e) => onStatusFilterChange(e.target.value as 'all' | 'complete' | 'incomplete')}
-            style={{
-              padding: '0.5rem 0.75rem',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              fontSize: '0.875rem',
-            }}
-            aria-label="Filter by completion status"
-          >
-            <option value="all">Status: All</option>
-            <option value="complete">Status: Complete</option>
-            <option value="incomplete">Status: Incomplete</option>
-          </select>
-        )}
-
-        {/* Sort */}
-        {onSortByChange && (
-          <select
-            value={sortBy}
-            onChange={(e) => onSortByChange(e.target.value as 'name' | 'cpu-asc' | 'cpu-desc' | 'missing')}
-            style={{
-              padding: '0.5rem 0.75rem',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              fontSize: '0.875rem',
-            }}
-            aria-label="Sort products"
-          >
-            <option value="name">Sort: Name (A-Z)</option>
-            <option value="cpu-asc">Sort: CPU (Low to High)</option>
-            <option value="cpu-desc">Sort: CPU (High to Low)</option>
-            <option value="missing">Sort: Missing Components</option>
-          </select>
-        )}
-
-        {/* Export Dropdown */}
-        <div style={{ marginLeft: 'auto', position: 'relative' }}>
-          <button
-            onClick={() => setShowExportMenu(!showExportMenu)}
-            style={{
-              padding: '0.5rem 1rem',
-              background: '#4b006e',
-              border: 'none',
-              borderRadius: '6px',
-              color: 'white',
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
-          >
-            <span>Export</span>
-            <span aria-hidden="true">▼</span>
-          </button>
-
-          {showExportMenu && (
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              right: 0,
-              marginTop: '0.5rem',
-              background: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              zIndex: 10,
-              minWidth: '200px',
-            }}>
-              <button
-                onClick={() => {
-                  exportCSVSummary();
-                  setShowExportMenu(false);
-                }}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  border: 'none',
-                  background: 'transparent',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-              >
-                CSV Summary
-              </button>
-              <button
-                onClick={() => {
-                  exportPDFSummary();
-                  setShowExportMenu(false);
-                }}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  border: 'none',
-                  background: 'transparent',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-              >
-                PDF Summary
-              </button>
-              <button
-                onClick={() => {
-                  exportCSVDetail();
-                  setShowExportMenu(false);
-                }}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  border: 'none',
-                  background: 'transparent',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  borderTop: '1px solid #e5e7eb',
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-              >
-                CSV Detail Summary
-              </button>
-            </div>
-          )}
         </div>
-      </div>
 
-      {filteredProducts.length === 0 ? (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIcon} aria-hidden="true">
-            🔍
-          </div>
-          <p className={styles.emptyText}>
-            No products match your filters. Try adjusting your search or filters.
-          </p>
-        </div>
-      ) : (
-        <>
-          {/* Stat Boxes */}
+        {/* SUMMARY STATS SECTION */}
+        <div style={{
+          flex: 1,
+          background: '#ffffff',
+          borderLeft: '4px solid #D4AF37',
+          borderRight: '4px solid #D4AF37',
+          borderBottom: '4px solid #D4AF37',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          boxShadow: '0 2px 8px rgba(184, 134, 11, 0.15)',
+        }}>
+          {/* Header with Export */}
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '1rem',
-            marginBottom: '2rem',
+            background: '#4b006e',
+            color: 'white',
+            padding: '1.25rem 1.5rem',
+            fontSize: '1.5rem',
+            fontWeight: 600,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
           }}>
-            {/* First Stat - Dual Metrics */}
+            <span>Summary</span>
+
+            {/* Export Button */}
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: '#D4AF37',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: '#1a1a1a',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'all 150ms',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#C4A137';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#D4AF37';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <span>📊</span>
+                <span>Export</span>
+                <span aria-hidden="true">▼</span>
+              </button>
+
+              {showExportMenu && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: '0.5rem',
+                  background: 'white',
+                  border: '2px solid #D4AF37',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(184, 134, 11, 0.25)',
+                  zIndex: 100,
+                  minWidth: '200px',
+                }}>
+                  <button
+                    onClick={() => {
+                      exportCSVSummary();
+                      setShowExportMenu(false);
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem 1rem',
+                      border: 'none',
+                      background: 'transparent',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      color: '#1a1a1a',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#E5F6DF'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  >
+                    📄 CSV Summary
+                  </button>
+                  <button
+                    onClick={() => {
+                      exportPDFSummary();
+                      setShowExportMenu(false);
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem 1rem',
+                      border: 'none',
+                      background: 'transparent',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      color: '#1a1a1a',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#E5F6DF'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  >
+                    📑 PDF Summary
+                  </button>
+                  <button
+                    onClick={() => {
+                      exportCSVDetail();
+                      setShowExportMenu(false);
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem 1rem',
+                      border: 'none',
+                      background: 'transparent',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      borderTop: '1px solid #e5e7eb',
+                      color: '#1a1a1a',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#E5F6DF'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  >
+                    📊 CSV Detailed
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Content - 4 Stat Cards in Single Row */}
+          {filteredProducts.length === 0 ? (
+            <div style={{ padding: '3rem 2rem', textAlign: 'center' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
+              <p style={{ fontSize: '1rem', color: '#64748b' }}>
+                No products match your filters. Try adjusting your selection.
+              </p>
+            </div>
+          ) : (
             <div style={{
-              background: 'linear-gradient(135deg, #4b006e 0%, #6b21a8 100%)',
-              borderRadius: '12px',
               padding: '1.5rem',
-              display: 'flex',
-              gap: '1.5rem',
-              position: 'relative',
-              overflow: 'hidden',
-              color: 'white',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '1.25rem',
             }}>
-              {/* Left Metric */}
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 0 }}>
+              {/* Stat Card 1 - First Metric */}
+              <div style={{
+                background: 'white',
+                border: '2px solid #D4AF37',
+                borderRadius: '8px',
+                padding: '1.25rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.625rem',
+                boxShadow: '0 2px 4px rgba(184, 134, 11, 0.1)',
+                minHeight: '100%',
+              }}>
                 <select
                   value={firstStatLeftMetric}
                   onChange={(e) => setFirstStatLeftMetric(e.target.value as StatMetric)}
                   style={{
-                    fontSize: '0.75rem',
-                    color: 'white',
-                    fontWeight: 500,
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    fontSize: '0.6875rem',
+                    color: '#4b006e',
+                    fontWeight: 600,
+                    border: '1px solid #D4AF37',
                     borderRadius: '4px',
-                    background: 'rgba(255, 255, 255, 0.1)',
+                    background: '#E5F6DF',
                     cursor: 'pointer',
-                    padding: '0.25rem 0.5rem',
-                    maxWidth: '100%',
+                    padding: '0.25rem 0.375rem',
+                    outline: 'none',
                   }}
                 >
-                  <option value="total" style={{ color: '#1f2937' }}>Total Products</option>
-                  <option value="avg-cpu" style={{ color: '#1f2937' }}>Average CPU</option>
-                  <option value="avg-profit-dollars" style={{ color: '#1f2937' }}>Average Profit ($)</option>
-                  <option value="avg-profit-percent" style={{ color: '#1f2937' }}>Average Profit (%)</option>
-                  <option value="highest-cost" style={{ color: '#1f2937' }}>Most Expensive</option>
-                  <option value="lowest-cost" style={{ color: '#1f2937' }}>Least Expensive</option>
-                  <option value="avg-components" style={{ color: '#1f2937' }}>Avg Components</option>
+                  <option value="total">Total</option>
+                  <option value="avg-cpu">Avg CPU</option>
+                  <option value="avg-profit-dollars">Avg Profit ($)</option>
+                  <option value="avg-profit-percent">Avg Profit (%)</option>
+                  <option value="highest-cost">Most Exp.</option>
+                  <option value="lowest-cost">Least Exp.</option>
+                  <option value="avg-components">Avg Comp.</option>
                 </select>
-                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'white', lineHeight: 1 }}>
+                <div style={{ fontSize: '2rem', fontWeight: 700, color: '#4b006e', lineHeight: 1 }}>
                   {renderStatMetric(firstStatLeftMetric).value}
                 </div>
                 {renderStatMetric(firstStatLeftMetric).subtext && (
-                  <div style={{
-                    fontSize: '0.75rem',
-                    color: 'rgba(255, 255, 255, 0.9)',
-                    marginTop: '0.25rem',
-                    lineHeight: 1.4,
-                    wordWrap: 'break-word',
-                    overflowWrap: 'break-word',
-                  }}
-                  >
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {renderStatMetric(firstStatLeftMetric).subtext}
                   </div>
                 )}
               </div>
 
-              {/* Divider */}
+              {/* Stat Card 2 - Second Metric */}
               <div style={{
-                width: '1px',
-                background: 'rgba(255, 255, 255, 0.3)',
-                margin: '-1.5rem 0',
-              }} />
-
-              {/* Right Metric */}
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 0 }}>
+                background: 'white',
+                border: '2px solid #D4AF37',
+                borderRadius: '8px',
+                padding: '1.25rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.625rem',
+                boxShadow: '0 2px 4px rgba(184, 134, 11, 0.1)',
+                minHeight: '100%',
+              }}>
                 <select
                   value={firstStatRightMetric}
                   onChange={(e) => setFirstStatRightMetric(e.target.value as StatMetric)}
                   style={{
-                    fontSize: '0.75rem',
-                    color: 'white',
-                    fontWeight: 500,
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    fontSize: '0.6875rem',
+                    color: '#4b006e',
+                    fontWeight: 600,
+                    border: '1px solid #D4AF37',
                     borderRadius: '4px',
-                    background: 'rgba(255, 255, 255, 0.1)',
+                    background: '#E5F6DF',
                     cursor: 'pointer',
-                    padding: '0.25rem 0.5rem',
-                    maxWidth: '100%',
+                    padding: '0.25rem 0.375rem',
+                    outline: 'none',
                   }}
                 >
-                  <option value="total" style={{ color: '#1f2937' }}>Total Products</option>
-                  <option value="avg-cpu" style={{ color: '#1f2937' }}>Average CPU</option>
-                  <option value="avg-profit-dollars" style={{ color: '#1f2937' }}>Average Profit ($)</option>
-                  <option value="avg-profit-percent" style={{ color: '#1f2937' }}>Average Profit (%)</option>
-                  <option value="highest-cost" style={{ color: '#1f2937' }}>Most Expensive</option>
-                  <option value="lowest-cost" style={{ color: '#1f2937' }}>Least Expensive</option>
-                  <option value="avg-components" style={{ color: '#1f2937' }}>Avg Components</option>
+                  <option value="total">Total</option>
+                  <option value="avg-cpu">Avg CPU</option>
+                  <option value="avg-profit-dollars">Avg Profit ($)</option>
+                  <option value="avg-profit-percent">Avg Profit (%)</option>
+                  <option value="highest-cost">Most Exp.</option>
+                  <option value="lowest-cost">Least Exp.</option>
+                  <option value="avg-components">Avg Comp.</option>
                 </select>
-                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'white', lineHeight: 1 }}>
+                <div style={{ fontSize: '2rem', fontWeight: 700, color: '#4b006e', lineHeight: 1 }}>
                   {renderStatMetric(firstStatRightMetric).value}
                 </div>
                 {renderStatMetric(firstStatRightMetric).subtext && (
-                  <div style={{
-                    fontSize: '0.75rem',
-                    color: 'rgba(255, 255, 255, 0.9)',
-                    marginTop: '0.25rem',
-                    lineHeight: 1.4,
-                    wordWrap: 'break-word',
-                    overflowWrap: 'break-word',
-                  }}
-                  >
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {renderStatMetric(firstStatRightMetric).subtext}
                   </div>
                 )}
               </div>
+
+              {/* Stat Card 3 - Top Performer */}
+              {topPerformers.length > 0 && (
+                <div style={{
+                  background: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)',
+                  border: '2px solid #9333ea',
+                  borderRadius: '8px',
+                  padding: '1.25rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.5rem',
+                  boxShadow: '0 2px 4px rgba(147, 51, 234, 0.1)',
+                  minHeight: '100%',
+                }}>
+                  <div style={{ fontSize: '0.6875rem', color: '#6b21a8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Top Performer{topPerformers.length > 1 ? 's' : ''}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {topPerformers.map(p => p.productName).join(', ')}
+                  </div>
+                  <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1, color: '#4b006e' }}>
+                    {topPerformers[0].marginPercent?.toFixed(1)}%
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#6b21a8' }}>
+                    margin
+                  </div>
+                </div>
+              )}
+
+              {/* Stat Card 4 - Opportunity */}
+              {opportunities.length > 0 && (
+                <div style={{
+                  background: 'linear-gradient(135deg, #E5F6DF 0%, #D8E5D8 100%)',
+                  border: '2px solid #509724',
+                  borderRadius: '8px',
+                  padding: '1.25rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.5rem',
+                  boxShadow: '0 2px 4px rgba(80, 151, 36, 0.1)',
+                  minHeight: '100%',
+                }}>
+                  <div style={{ fontSize: '0.6875rem', color: '#3d7a1a', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Opportunit{opportunities.length > 1 ? 'ies' : 'y'}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#2d5a13', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {opportunities.map(p => p.productName).join(', ')}
+                  </div>
+                  <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1, color: '#2d5a13' }}>
+                    {opportunities[0].marginPercent?.toFixed(1)}%
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#3d7a1a' }}>
+                    margin
+                  </div>
+                </div>
+              )}
             </div>
+          )}
+        </div>
+      </div>
 
-            {/* Top Performer(s) - Handle Ties */}
-            {topPerformers.length > 0 && (
-              <div style={{
-                background: '#f3e8ff',
-                border: '2px solid #9333ea',
-                borderRadius: '12px',
-                padding: '1.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.5rem',
-              }}>
-                <div style={{ fontSize: '0.875rem', color: '#6b21a8', fontWeight: 600 }}>
-                  Top Performer{topPerformers.length > 1 ? 's' : ''}
-                </div>
-                <div style={{ fontSize: '1.125rem', fontWeight: 600, lineHeight: 1.3, color: '#4b006e' }}>
-                  {topPerformers.map(p => p.productName).join(', ')}
-                </div>
-                <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1, color: '#4b006e' }}>
-                  {topPerformers[0].marginPercent?.toFixed(1)}%
-                </div>
-                <div style={{ fontSize: '0.875rem', color: '#6b21a8' }}>
-                  margin
-                </div>
-              </div>
-            )}
-
-            {/* Opportunity/Opportunities - Handle Ties */}
-            {opportunities.length > 0 && (
-              <div style={{
-                background: '#dcfce7',
-                border: '2px solid #16a34a',
-                borderRadius: '12px',
-                padding: '1.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.5rem',
-              }}>
-                <div style={{ fontSize: '0.875rem', color: '#15803d', fontWeight: 600 }}>
-                  Opportunit{opportunities.length > 1 ? 'ies' : 'y'}
-                </div>
-                <div style={{ fontSize: '1.125rem', fontWeight: 600, lineHeight: 1.3, color: '#166534' }}>
-                  {opportunities.map(p => p.productName).join(', ')}
-                </div>
-                <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1, color: '#166534' }}>
-                  {opportunities[0].marginPercent?.toFixed(1)}%
-                </div>
-                <div style={{ fontSize: '0.875rem', color: '#15803d' }}>
-                  margin
-                </div>
-              </div>
-            )}
-          </div>
+      {filteredProducts.length > 0 && (
+        <>
 
           {/* View Toggle */}
           <div style={{
@@ -1300,25 +1378,40 @@ export function CPUDisplay({
           {viewMode === 'grid' && (() => {
             const orderedProducts = productsWithMetrics;
 
-            // Calculate grid size and position map
-            const maxPosition = Math.max(
-              ...orderedProducts.map(p => {
-                const key = p.sku || p.productName;
-                return productPositions[key] ?? 0;
-              }),
-              orderedProducts.length - 1
-            );
-            const gridSize = Math.max(maxPosition + 10, 20);
+            // When sorting is active (not default 'name'), place products sequentially
+            // When sorting by name, use saved drag-and-drop positions
+            const useSortedPositions = sortBy !== 'name';
 
-            // Create position map
-            const positionMap: Record<number, typeof orderedProducts[0]> = {};
-            orderedProducts.forEach(product => {
-              const key = product.sku || product.productName;
-              const position = productPositions[key];
-              if (position !== undefined) {
-                positionMap[position] = product;
-              }
-            });
+            let gridSize: number;
+            let positionMap: Record<number, typeof orderedProducts[0]>;
+
+            if (useSortedPositions) {
+              // Place sorted products in sequential positions (0, 1, 2, 3...)
+              gridSize = Math.max(orderedProducts.length + 10, 20);
+              positionMap = {};
+              orderedProducts.forEach((product, index) => {
+                positionMap[index] = product;
+              });
+            } else {
+              // Use saved drag-and-drop positions
+              const maxPosition = Math.max(
+                ...orderedProducts.map(p => {
+                  const key = p.sku || p.productName;
+                  return productPositions[key] ?? 0;
+                }),
+                orderedProducts.length - 1
+              );
+              gridSize = Math.max(maxPosition + 10, 20);
+
+              positionMap = {};
+              orderedProducts.forEach(product => {
+                const key = product.sku || product.productName;
+                const position = productPositions[key];
+                if (position !== undefined) {
+                  positionMap[position] = product;
+                }
+              });
+            }
 
             return (
               <div className={styles.grid}>
@@ -1356,8 +1449,12 @@ export function CPUDisplay({
                   // Determine background color - use custom if set, otherwise default
                   let bgColor = cardColors[productKey];
                   if (!bgColor) {
-                    // Default colors: light purple or light green (alternating for variety)
-                    bgColor = index % 2 === 0 ? '#f3e8ff' : '#f0fdf4'; // light purple : light green
+                    // Default colors: gold or green (alternating by row and column)
+                    // Row 0 starts with gold, Row 1 starts with green, etc.
+                    const row = Math.floor(index / 5);
+                    const col = index % 5;
+                    const shouldStartWithGold = row % 2 === 0;
+                    bgColor = (col % 2 === 0) === shouldStartWithGold ? '#E8D4A0' : '#D8E5D8'; // gold : green
                   }
 
                   return (
@@ -1372,10 +1469,10 @@ export function CPUDisplay({
                         background: bgColor,
                         border: '1px solid #e5e7eb',
                         borderRadius: '12px',
-                        padding: '1.5rem',
+                        padding: '1rem',
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '1rem',
+                        gap: '0.75rem',
                         transition: 'transform 150ms, box-shadow 150ms',
                         position: 'relative',
                         cursor: draggedProductKey === productKey ? 'grabbing' : 'grab',
@@ -1393,7 +1490,7 @@ export function CPUDisplay({
                     }}
                   >
                     {/* Color Picker Button */}
-                    <div style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
+                    <div style={{ position: 'absolute', top: '0.75rem', right: '0.75rem' }}>
                       <button
                         onClick={() => setShowColorPicker(showColorPicker === productKey ? null : productKey)}
                         style={{
@@ -1435,7 +1532,7 @@ export function CPUDisplay({
                             CARD COLOR
                           </div>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                            {['#f3e8ff', '#f0fdf4', '#fef2f2', '#fffbeb', '#eff6ff', '#fce7f3', '#fef3c7', '#f0f9ff'].map(color => (
+                            {['#E8D4A0', '#f3e8ff', '#e9d5ff', '#E5D8DB', '#D5E8E5', '#E8E0D5', '#D8E5D8', '#E0D8E8'].map(color => (
                               <button
                                 key={color}
                                 onClick={() => {
@@ -1504,7 +1601,7 @@ export function CPUDisplay({
 
                     {/* Header */}
                     <div style={{ paddingRight: '2rem' }}>
-                      <div style={{ fontWeight: 600, fontSize: '1.125rem', color: '#1f2937' }}>
+                      <div style={{ fontWeight: 600, fontSize: '1rem', color: '#1f2937' }}>
                         {product.productName}
                       </div>
                       {product.sku && (
@@ -1528,7 +1625,7 @@ export function CPUDisplay({
                       <>
                         {/* Cost Per Unit - Hero */}
                         <div style={{
-                          padding: '1.25rem',
+                          padding: '1rem',
                           background: 'white',
                           borderRadius: '8px',
                           textAlign: 'center',
@@ -1536,7 +1633,7 @@ export function CPUDisplay({
                           <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
                             Cost Per Unit
                           </div>
-                          <div style={{ fontSize: '3rem', fontWeight: 700, color: '#4b006e', lineHeight: 1 }}>
+                          <div style={{ fontSize: '2.25rem', fontWeight: 700, color: '#4b006e', lineHeight: 1 }}>
                             ${product.cost.toFixed(2)}
                           </div>
                         </div>
@@ -1545,7 +1642,7 @@ export function CPUDisplay({
                         <div style={{
                           display: 'grid',
                           gridTemplateColumns: product.profit !== null ? '1fr 1fr 1fr' : '1fr',
-                          gap: '0.75rem',
+                          gap: '0.625rem',
                           fontSize: '0.875rem',
                         }}>
                           {product.profit !== null && (
@@ -1616,7 +1713,7 @@ export function CPUDisplay({
                       <button
                         onClick={() => handleShowProductBreakdown(product)}
                         style={{
-                          padding: '0.75rem',
+                          padding: '0.625rem',
                           background: 'white',
                           border: '2px solid #4b006e',
                           borderRadius: '8px',
@@ -1769,7 +1866,7 @@ export function CPUDisplay({
                     // Use custom color if set, otherwise default (same as cards)
                     let rowBg = cardColors[productKey];
                     if (!rowBg) {
-                      rowBg = index % 2 === 0 ? '#f3e8ff' : '#f0fdf4';
+                      rowBg = index % 2 === 0 ? '#E8D4A0' : '#D8E5D8';
                     }
 
                     return (

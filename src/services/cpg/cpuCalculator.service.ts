@@ -193,6 +193,7 @@ export interface FinishedProductCPUResult {
  * Finished product CPU breakdown with product metadata
  */
 export interface FinishedProductCPUBreakdown {
+  productId: string;
   productName: string;
   sku: string | null;
   msrp: string | null;
@@ -1142,6 +1143,7 @@ export class CPUCalculatorService {
       }
 
       const result: FinishedProductCPUBreakdown = {
+        productId: productId,
         productName: product.name,
         sku: product.sku,
         msrp: product.msrp,
