@@ -494,11 +494,9 @@ export default function CostIntelligenceTab({
         {/* Analysis Type Tabs */}
         <div className="cost-intelligence-analysis-tabs" style={{
           display: 'flex',
-          gap: '0.375rem',
-          marginBottom: '1.5rem',
-          flexWrap: 'wrap',
-          borderBottom: '2px solid #e5e7eb',
-          paddingBottom: '0.5rem',
+          gap: '1rem',
+          marginBottom: '2rem',
+          borderBottom: '2px solid #e0e0e0',
           justifyContent: 'center',
         }}>
           {(Object.keys(analysisTypes) as IntelligenceSubTab[]).map((type) => {
@@ -510,29 +508,30 @@ export default function CostIntelligenceTab({
                 className="cost-intelligence-analysis-tab"
                 onClick={() => setIntelligenceTab(type)}
                 style={{
-                  padding: '0.625rem 1.25rem',
-                  background: isActive ? analysis.color : 'transparent',
-                  color: isActive ? 'white' : '#64748b',
+                  padding: '1rem 1.5rem',
+                  background: isActive
+                    ? 'linear-gradient(135deg, rgba(232, 212, 160, 0.1) 0%, rgba(212, 175, 55, 0.15) 100%)'
+                    : 'none',
+                  color: isActive ? '#D4AF37' : '#666',
                   border: 'none',
-                  borderBottom: isActive ? `3px solid ${analysis.color}` : '3px solid transparent',
-                  borderRadius: isActive ? '6px 6px 0 0' : '0',
-                  fontSize: '0.9375rem',
-                  fontWeight: isActive ? 700 : 600,
+                  borderBottom: isActive ? '3px solid #D4AF37' : '3px solid transparent',
+                  fontSize: '1rem',
+                  fontWeight: isActive ? 600 : 500,
                   cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  position: 'relative',
-                  letterSpacing: '0.01em',
+                  transition: 'all 0.2s ease',
+                  marginBottom: '-2px',
+                  whiteSpace: 'nowrap',
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.color = '#475569';
-                    e.currentTarget.style.background = '#f8fafc';
+                    e.currentTarget.style.color = '#D4AF37';
+                    e.currentTarget.style.background = 'rgba(212, 175, 55, 0.05)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.color = '#64748b';
-                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = '#666';
+                    e.currentTarget.style.background = 'none';
                   }
                 }}
               >
