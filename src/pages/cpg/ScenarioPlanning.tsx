@@ -1,16 +1,14 @@
 /**
- * Scenario Planning Page
+ * Strategy Planning Page
  *
- * Advanced analytics for CPG businesses including:
- * - Side-by-side distributor comparison (2-4 distributors)
- * - Interactive what-if pricing calculator with sliders
- * - Break-even analysis for new SKUs
- * - SKU rationalization recommendations
+ * Strategic planning tools for CPG businesses including:
+ * - What-If Calculator: Test pricing, costs, and scenarios (existing products + new ideas)
+ * - Compare Distributors: Side-by-side distributor comparison (2-4 distributors)
  *
- * Requirements: Group E1 - Scenario Planning
+ * Requirements: Group E1 - Strategy Planning
  *
  * @example
- * Route: /cpg/scenario-planning
+ * Route: /cpg/strategy-planning
  */
 
 import { useState, useEffect } from 'react';
@@ -22,18 +20,16 @@ import type { CPGDistributor } from '../../db/schema/cpg.schema';
 import { ScenarioPlanningService } from '../../services/cpg/scenarioPlanning.service';
 import { CompareDistributorsTab } from './tabs/scenario/CompareDistributorsTab';
 import { WhatIfCalculatorTab } from './tabs/scenario/WhatIfCalculatorTab';
-import { BreakEvenAnalysisTab } from './tabs/scenario/BreakEvenAnalysisTab';
-import { SKURationalizationTab } from './tabs/scenario/SKURationalizationTab';
 import styles from './ScenarioPlanning.module.css';
 
-type AnalysisType = 'compare' | 'whatif' | 'breakeven' | 'rationalize';
+type AnalysisType = 'whatif' | 'compare';
 
 /**
- * ScenarioPlanning Component
+ * Strategy Planning Component
  */
 export default function ScenarioPlanning() {
   const { companyId, deviceId } = useAuth();
-  const [analysisType, setAnalysisType] = useState<AnalysisType>('compare');
+  const [analysisType, setAnalysisType] = useState<AnalysisType>('whatif');
   const [distributors, setDistributors] = useState<CPGDistributor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,17 +81,11 @@ export default function ScenarioPlanning() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1>Scenario Planning</h1>
+        <h1>Strategy Planning</h1>
       </header>
 
       {/* Analysis Type Selector */}
       <div className={styles.analysisTypeSelector}>
-        <button
-          className={analysisType === 'compare' ? styles.active : ''}
-          onClick={() => setAnalysisType('compare')}
-        >
-          Compare Distributors
-        </button>
         <button
           className={analysisType === 'whatif' ? styles.active : ''}
           onClick={() => setAnalysisType('whatif')}
@@ -103,28 +93,14 @@ export default function ScenarioPlanning() {
           What-If Calculator
         </button>
         <button
-          className={analysisType === 'breakeven' ? styles.active : ''}
-          onClick={() => setAnalysisType('breakeven')}
+          className={analysisType === 'compare' ? styles.active : ''}
+          onClick={() => setAnalysisType('compare')}
         >
-          Break-Even Analysis
-        </button>
-        <button
-          className={analysisType === 'rationalize' ? styles.active : ''}
-          onClick={() => setAnalysisType('rationalize')}
-        >
-          SKU Rationalization
+          Compare Distributors
         </button>
       </div>
 
       {/* Tab Content */}
-      {analysisType === 'compare' && (
-        <CompareDistributorsTab
-          distributors={distributors}
-          companyId={companyId}
-          service={service}
-        />
-      )}
-
       {analysisType === 'whatif' && (
         <WhatIfCalculatorTab
           distributors={distributors}
@@ -133,16 +109,8 @@ export default function ScenarioPlanning() {
         />
       )}
 
-      {analysisType === 'breakeven' && (
-        <BreakEvenAnalysisTab
-          distributors={distributors}
-          companyId={companyId}
-          service={service}
-        />
-      )}
-
-      {analysisType === 'rationalize' && (
-        <SKURationalizationTab
+      {analysisType === 'compare' && (
+        <CompareDistributorsTab
           distributors={distributors}
           companyId={companyId}
           service={service}

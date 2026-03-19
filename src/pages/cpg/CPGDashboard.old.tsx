@@ -46,8 +46,8 @@ export default function CPGDashboard() {
           <p>Enter P&L and Balance Sheet data for your CPG business</p>
         </Link>
 
-        <Link to="/cpg/scenario-planning" className={styles.card}>
-          <h2>🎯 Scenario Planning</h2>
+        <Link to="/cpg/strategy-planning" className={styles.card}>
+          <h2>🎯 Strategy Planning</h2>
           <p>Model what-if scenarios and compare outcomes</p>
         </Link>
       </div>

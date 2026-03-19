@@ -232,10 +232,10 @@ export function CPGLayout() {
               📝 Financial Entry
             </Link>
             <Link
-              to="/cpg/scenario-planning"
-              className={isActive('/cpg/scenario-planning') ? styles.active : ''}
+              to="/cpg/strategy-planning"
+              className={isActive('/cpg/strategy-planning') ? styles.active : ''}
             >
-              🎯 Scenario Planning
+              🎯 Strategy Planning
             </Link>
           </div>
 

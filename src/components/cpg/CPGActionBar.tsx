@@ -49,7 +49,7 @@ export function CPGActionBar({ onAction }: CPGActionBarProps) {
     if (location.pathname.includes('analytics')) {
       return { label: '+ Add Data Point', action: 'add-data', showButton: true };
     }
-    if (location.pathname.includes('scenario-planning')) {
+    if (location.pathname.includes('strategy-planning')) {
       return { label: '+ New Scenario', action: 'add-scenario', showButton: true };
     }
     // Dashboard and reports - no primary button, just dropdown

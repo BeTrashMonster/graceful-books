@@ -138,11 +138,62 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
   });
 
   // ========================================
+  // State - Cost a New Idea Mode
+  // ========================================
+  const [calculatorMode, setCalculatorMode] = useState<'existing' | 'new-idea'>('existing');
+  const [targetRetailPrice, setTargetRetailPrice] = useState<string>('');
+  const [recipeIngredients, setRecipeIngredients] = useState<Array<{
+    id: string;
+    category: string;
+    variant: string;
+    quantity: string;
+    costPerUnit: string;
+  }>>([]);
+  const [newIngredient, setNewIngredient] = useState({
+    category: '',
+    variant: '',
+    quantity: '',
+    costPerUnit: '',
+  });
+
+  // Unit Cost Calculator state
+  const [calculatorType, setCalculatorType] = useState<'weight' | 'volume'>('weight');
+  const [calculatorPrice, setCalculatorPrice] = useState<string>('');
+  const [calculatorQuantity, setCalculatorQuantity] = useState<string>('');
+  const [calculatorFromUnit, setCalculatorFromUnit] = useState<string>('lb');
+  const [calculatorToQuantity, setCalculatorToQuantity] = useState<string>('');
+  const [calculatorToUnit, setCalculatorToUnit] = useState<string>('oz');
+  const [calculatedCPU, setCalculatedCPU] = useState<number | null>(null);
+
+  // Categories with full data (for variants lookup)
+  const [categoriesData, setCategoriesData] = useState<CPGCategory[]>([]);
+  const [availableVariants, setAvailableVariants] = useState<string[]>([]);
+
+  // New Idea calculation result
+  const [newIdeaResult, setNewIdeaResult] = useState<{
+    baseCPU: number;
+    distributionCPU: number;
+    promoCPU: number;
+    totalCPU: number;
+    retailPrice: number;
+    profitMargin: number;
+    marginPercentage: number;
+    marginQuality: 'good' | 'better' | 'best' | 'gutCheck';
+  } | null>(null);
+
+  // ========================================
   // Load Data on Mount
   // ========================================
   useEffect(() => {
     loadInitialData();
   }, [companyId]);
+
+  // ========================================
+  // Auto-calculate when calculator values change
+  // ========================================
+  useEffect(() => {
+    calculateUnitCost();
+  }, [calculatorPrice, calculatorQuantity, calculatorFromUnit, calculatorToQuantity, calculatorToUnit, calculatorType]);
 
   const loadInitialData = async () => {
     try {
@@ -235,6 +286,21 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
         .and(p => p.active && p.deleted_at === null)
         .toArray();
       setAllProducts(products);
+
+      // Load categories for Cost a New Idea mode
+      const categories = await db.cpgCategories
+        .where('company_id')
+        .equals(companyId)
+        .and(c => c.active && c.deleted_at === null)
+        .toArray();
+
+      // Sort by sort_order, then by name
+      categories.sort((a, b) => {
+        if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order;
+        return a.name.localeCompare(b.name);
+      });
+
+      setCategoriesData(categories);
 
     } catch (err) {
       console.error('Error loading initial data:', err);
@@ -625,6 +691,346 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
     overallAdjustments.distributionCPU !== 0 ||
     overallAdjustments.promoCPU !== 0 ||
     overallAdjustments.retailPrice !== 0;
+
+  // ========================================
+  // Cost a New Idea Helper Functions
+  // ========================================
+
+  // Unit conversion functions
+  const convertToBaseUnit = (value: number, fromUnit: string, type: 'weight' | 'volume'): number => {
+    if (type === 'weight') {
+      // Convert to grams as base unit
+      const weightConversions: Record<string, number> = {
+        'g': 1,
+        'kg': 1000,
+        'oz': 28.3495,
+        'lb': 453.592,
+      };
+      return value * (weightConversions[fromUnit] || 1);
+    } else {
+      // Convert to mL as base unit
+      const volumeConversions: Record<string, number> = {
+        'mL': 1,
+        'L': 1000,
+        'fl oz': 29.5735,
+        'cup': 236.588,
+        'pt': 473.176,
+        'qt': 946.353,
+        'gal': 3785.41,
+        'tsp': 4.92892,
+        'tbsp': 14.7868,
+      };
+      return value * (volumeConversions[fromUnit] || 1);
+    }
+  };
+
+  const calculateUnitCost = () => {
+    const price = parseFloat(calculatorPrice);
+    const fromQty = parseFloat(calculatorQuantity);
+    const toQty = parseFloat(calculatorToQuantity);
+
+    if (isNaN(price) || isNaN(fromQty) || isNaN(toQty) || fromQty <= 0 || toQty <= 0) {
+      setCalculatedCPU(null);
+      return;
+    }
+
+    // Convert both to base units
+    const fromBaseUnits = convertToBaseUnit(fromQty, calculatorFromUnit, calculatorType);
+    const toBaseUnits = convertToBaseUnit(toQty, calculatorToUnit, calculatorType);
+
+    // Calculate cost per recipe unit
+    const costPerBaseUnit = price / fromBaseUnits;
+    const cpu = costPerBaseUnit * toBaseUnits;
+
+    setCalculatedCPU(cpu);
+  };
+
+  const insertCalculatedCPU = () => {
+    if (calculatedCPU !== null && calculatorToQuantity) {
+      const qty = parseFloat(calculatorToQuantity);
+
+      // calculatedCPU is the TOTAL cost for the quantity
+      // We need cost PER unit for the recipe
+      const costPerUnit = qty > 0 ? calculatedCPU / qty : calculatedCPU;
+
+      // Add directly to recipe with calculated values
+      const ingredient = {
+        id: Date.now().toString(),
+        category: 'Unit Cost Calculation',
+        variant: '', // User can edit this
+        quantity: calculatorToQuantity,
+        costPerUnit: costPerUnit.toFixed(2),
+      };
+      setRecipeIngredients([...recipeIngredients, ingredient]);
+
+      // Reset calculator
+      setCalculatorPrice('');
+      setCalculatorQuantity('');
+      setCalculatorToQuantity('');
+      setCalculatedCPU(null);
+    }
+  };
+
+  // Handle category selection - populate variants and CPU
+  const handleCategoryChange = async (categoryName: string) => {
+    setNewIngredient({ ...newIngredient, category: categoryName, variant: '', costPerUnit: '' });
+    setAvailableVariants([]);
+
+    if (!categoryName) return;
+
+    // Find the category data
+    const category = categoriesData.find(c => c.name === categoryName);
+    if (!category) return;
+
+    // Set available variants
+    const variants = category.variants || [];
+    setAvailableVariants(variants);
+
+    // Auto-populate first variant if only one exists
+    if (variants.length === 1) {
+      handleVariantChange(categoryName, variants[0]);
+    }
+  };
+
+  // Handle variant selection - fetch average CPU from last 365 days
+  const handleVariantChange = async (categoryName: string, variantName: string) => {
+    if (!categoryName || !variantName) return;
+
+    // Set variant immediately
+    setNewIngredient(prev => ({ ...prev, category: categoryName, variant: variantName, costPerUnit: '' }));
+
+    try {
+      const oneYearAgo = Date.now() - (365 * 24 * 60 * 60 * 1000);
+
+      console.log('=== CPU LOOKUP DEBUG ===');
+      console.log('Looking for category:', `"${categoryName}"`);
+      console.log('Looking for variant:', `"${variantName}"`);
+
+      // Step 1: Find the category ID from the category name
+      const category = categoriesData.find(c => c.name === categoryName);
+      if (!category) {
+        console.log('❌ Category not found in categoriesData');
+        return;
+      }
+
+      console.log('✅ Found category ID:', category.id);
+
+      // Step 2: Get all invoices from last 365 days
+      const allInvoices = await db.cpgInvoices
+        .where('company_id')
+        .equals(companyId)
+        .and(inv =>
+          inv.active &&
+          inv.deleted_at === null &&
+          inv.invoice_date >= oneYearAgo
+        )
+        .toArray();
+
+      console.log('Total invoices in range:', allInvoices.length);
+
+      // Step 3: Search through cost_attribution for matching category_id + variant
+      const cpuValues: number[] = [];
+
+      console.log('Searching through', allInvoices.length, 'invoices...');
+
+      allInvoices.forEach((invoice, idx) => {
+        if (!invoice.cost_attribution || !invoice.calculated_cpus) {
+          console.log(`Invoice ${idx + 1}: No cost_attribution or calculated_cpus`);
+          return;
+        }
+
+        console.log(`Invoice ${idx + 1} (${invoice.invoice_number || invoice.id}):`);
+        console.log('  - cost_attribution keys:', Object.keys(invoice.cost_attribution));
+        console.log('  - calculated_cpus keys:', Object.keys(invoice.calculated_cpus));
+
+        // Search each cost_attribution entry
+        Object.entries(invoice.cost_attribution).forEach(([key, attribution]) => {
+          const categoryMatch = attribution.category_id === category.id;
+
+          // Strip quotes from both sides for comparison (variants might be stored with quotes)
+          const cleanAttributionVariant = attribution.variant?.replace(/^["']|["']$/g, '') || '';
+          const cleanLookupVariant = variantName.replace(/^["']|["']$/g, '');
+          const variantMatch = cleanAttributionVariant === cleanLookupVariant;
+
+          console.log(`    Checking key "${key}":`);
+          console.log(`      Category: ${attribution.category_id} === ${category.id} ? ${categoryMatch}`);
+          console.log(`      Variant: "${cleanAttributionVariant}" === "${cleanLookupVariant}" ? ${variantMatch}`);
+          console.log(`      Both match? ${categoryMatch && variantMatch}`);
+
+          if (categoryMatch && variantMatch) {
+            // Found a match! Get the CPU from calculated_cpus
+            // The CPU key format is: "category_id_variant" (e.g., "y4XR7LunYkgEyFOPqQhan_1 oz")
+            // NOT the cost_attribution key format (e.g., "BottleBranding_1oz")
+            const cpuKey = `${category.id}_${cleanAttributionVariant}`;
+
+            const cpuValue = invoice.calculated_cpus?.[cpuKey];
+            console.log(`      Looking for CPU with key "${cpuKey}"`);
+            console.log(`      Found CPU value:`, cpuValue);
+
+            const cpu = parseFloat(cpuValue || '0');
+            console.log(`      Parsed CPU:`, cpu);
+
+            if (cpu > 0) {
+              cpuValues.push(cpu);
+              console.log(`      ✅ MATCH! Added CPU: ${cpu}`);
+            } else {
+              console.log(`      ⚠️ CPU is 0 or invalid`);
+            }
+          }
+        });
+      });
+
+      console.log('Total CPU values found:', cpuValues.length, cpuValues);
+
+      if (cpuValues.length > 0) {
+        const avgCPU = cpuValues.reduce((sum, cpu) => sum + cpu, 0) / cpuValues.length;
+        console.log('✅ Average CPU:', avgCPU);
+        setNewIngredient(prev => ({ ...prev, variant: variantName, costPerUnit: avgCPU.toFixed(2) }));
+      } else {
+        console.log('❌ No CPU values found for this category+variant in last 365 days');
+      }
+    } catch (err) {
+      console.error('💥 Error fetching average CPU:', err);
+    }
+  };
+
+  const addIngredientToRecipe = () => {
+    if (!newIngredient.category || !newIngredient.quantity || !newIngredient.costPerUnit) {
+      return;
+    }
+
+    const ingredient = {
+      id: Date.now().toString(),
+      category: newIngredient.category,
+      variant: newIngredient.variant,
+      quantity: newIngredient.quantity,
+      costPerUnit: newIngredient.costPerUnit,
+    };
+
+    setRecipeIngredients([...recipeIngredients, ingredient]);
+    setNewIngredient({ category: '', variant: '', quantity: '', costPerUnit: '' });
+    setAvailableVariants([]);
+  };
+
+  const removeIngredientFromRecipe = (id: string) => {
+    setRecipeIngredients(recipeIngredients.filter(ing => ing.id !== id));
+  };
+
+  const updateRecipeIngredient = (id: string, field: string, value: string) => {
+    setRecipeIngredients(recipeIngredients.map(ing =>
+      ing.id === id ? { ...ing, [field]: value } : ing
+    ));
+  };
+
+  const calculateRecipeTotalCPU = (): number => {
+    return recipeIngredients.reduce((total, ing) => {
+      const qty = parseFloat(ing.quantity);
+      const cpu = parseFloat(ing.costPerUnit);
+      return total + (isNaN(qty) || isNaN(cpu) ? 0 : qty * cpu);
+    }, 0);
+  };
+
+  const exportRecipeCSV = () => {
+    const totalCPU = calculateRecipeTotalCPU();
+    const retailPrice = parseFloat(targetRetailPrice) || 0;
+    const profitMargin = retailPrice > 0 ? ((retailPrice - totalCPU) / retailPrice * 100) : 0;
+
+    let csv = 'New Product Costing Export\n';
+    csv += `Target Retail Price,$${targetRetailPrice || '0.00'}\n\n`;
+    csv += 'Category,Variant,Qty,Cost/Unit,Total Cost\n';
+
+    recipeIngredients.forEach(ing => {
+      const qty = parseFloat(ing.quantity) || 0;
+      const cpu = parseFloat(ing.costPerUnit) || 0;
+      const total = qty * cpu;
+      csv += `${ing.category},${ing.variant},${qty},$${cpu.toFixed(2)},$${total.toFixed(2)}\n`;
+    });
+
+    csv += `\nTotal Base CPU,,,,$${totalCPU.toFixed(2)}\n`;
+    csv += `Profit Margin (at target price),,,,${profitMargin.toFixed(1)}%\n`;
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `recipe-export-${Date.now()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
+  // ========================================
+  // Calculate New Idea Impact
+  // ========================================
+  const handleCalculateNewIdea = () => {
+    if (recipeIngredients.length === 0) {
+      setError('Please add ingredients to your recipe first.');
+      return;
+    }
+
+    if (!targetRetailPrice || parseFloat(targetRetailPrice) <= 0) {
+      setError('Please enter a target retail price.');
+      return;
+    }
+
+    try {
+      setCalculating(true);
+      setError(null);
+
+      // Base CPU from recipe
+      const baseCPU = calculateRecipeTotalCPU();
+
+      // Get distribution CPU if selected
+      let distributionCPU = 0;
+      if (selectedDistributorId) {
+        const distributorData = distributorsList.find(d => d.id === selectedDistributorId);
+        if (distributorData) {
+          if (distributorCPUMode === 'average' && distributorData.averageCPU !== null) {
+            distributionCPU = distributorData.averageCPU;
+          } else if (distributorCPUMode === 'recent' && distributorData.mostRecentCPU !== null) {
+            distributionCPU = distributorData.mostRecentCPU;
+          } else if (distributorCPUMode === 'custom' && distributorCustomCPU) {
+            const customValue = parseFloat(distributorCustomCPU);
+            if (!isNaN(customValue)) {
+              distributionCPU = customValue;
+            }
+          }
+        }
+      }
+
+      // Promo CPU for new ideas (no promo data exists yet for a hypothetical product)
+      const promoCPU = 0;
+
+      // Calculate totals
+      const totalCPU = baseCPU + distributionCPU + promoCPU;
+      const retailPrice = parseFloat(targetRetailPrice);
+      const profitMargin = retailPrice - totalCPU;
+      const marginPercentage = retailPrice > 0 ? ((profitMargin / retailPrice) * 100) : 0;
+
+      // Determine margin quality
+      const marginQuality = cpgSettings
+        ? getProfitMarginQualityWithSettings(marginPercentage.toFixed(2), cpgSettings)
+        : 'gutCheck';
+
+      setNewIdeaResult({
+        baseCPU,
+        distributionCPU,
+        promoCPU,
+        totalCPU,
+        retailPrice,
+        profitMargin,
+        marginPercentage,
+        marginQuality,
+      });
+
+      setCalculating(false);
+    } catch (err) {
+      console.error('Error calculating new idea:', err);
+      setError('Failed to calculate. Please try again.');
+      setCalculating(false);
+    }
+  };
 
   // ========================================
   // Render Helper Functions
@@ -1769,9 +2175,28 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
     <div className={styles.container}>
       {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}
 
-      {/* Selection Area */}
-      <div className={styles.selectionArea}>
-        <h3>Build Your Scenario</h3>
+      {/* Calculator Mode Toggle */}
+      <div className={styles.calculatorModeToggle}>
+        <button
+          className={calculatorMode === 'existing' ? styles.active : ''}
+          onClick={() => setCalculatorMode('existing')}
+        >
+          Existing Products
+        </button>
+        <button
+          className={calculatorMode === 'new-idea' ? styles.active : ''}
+          onClick={() => setCalculatorMode('new-idea')}
+        >
+          Cost a New Idea
+        </button>
+      </div>
+
+      {/* Existing Products Mode */}
+      {calculatorMode === 'existing' && (
+        <>
+          {/* Selection Area */}
+          <div className={styles.selectionArea}>
+            <h3>Build Your Scenario</h3>
 
         {/* Distributor Selection */}
         <div className={styles.formGroup}>
@@ -1844,6 +2269,482 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
       {/* Results */}
       {renderResults()}
+        </>
+      )}
+
+      {/* Cost a New Idea Mode */}
+      {calculatorMode === 'new-idea' && (
+        <div className={styles.newIdeaContainer}>
+          <div className={styles.newIdeaLayout}>
+            {/* Left Panel - Recipe Entry (70%) */}
+            <div className={styles.recipePanel}>
+              {/* Header for left section only */}
+              <h3 className={styles.buildYourIdeaHeader}>Build Your Idea</h3>
+
+              <div className={styles.targetPrice}>
+                <label>Target Retail Price:</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={targetRetailPrice}
+                  onChange={(e) => setTargetRetailPrice(e.target.value)}
+                  placeholder="$0.00"
+                  className={styles.targetPriceInput}
+                />
+              </div>
+
+              <div className={styles.addIngredientSection}>
+                <h4>Add Ingredient:</h4>
+                <div className={styles.ingredientInputRow}>
+                  {/* Category Selection */}
+                  <select
+                    value={newIngredient.category}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    className={styles.categorySelect}
+                  >
+                    <option value="">Category</option>
+                    {categoriesData.map(cat => (
+                      <option key={cat.id} value={cat.name}>{cat.name}</option>
+                    ))}
+                    <option value="__custom__">+ Custom</option>
+                  </select>
+
+                  {/* Custom Category Input */}
+                  {newIngredient.category === '__custom__' && (
+                    <input
+                      type="text"
+                      placeholder="Custom category name"
+                      onChange={(e) => setNewIngredient({ ...newIngredient, category: e.target.value, variant: '' })}
+                      className={styles.variantInput}
+                    />
+                  )}
+
+                  {/* Variant Selection/Input */}
+                  {newIngredient.category && newIngredient.category !== '__custom__' && (
+                    <>
+                      {availableVariants.length > 0 ? (
+                        <select
+                          value={newIngredient.variant}
+                          onChange={(e) => handleVariantChange(newIngredient.category, e.target.value)}
+                          className={styles.variantInput}
+                        >
+                          <option value="">Variant</option>
+                          {availableVariants.map(variant => (
+                            <option key={variant} value={variant}>{variant}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          placeholder="Variant (optional)"
+                          value={newIngredient.variant}
+                          onChange={(e) => setNewIngredient({ ...newIngredient, variant: e.target.value })}
+                          className={styles.variantInput}
+                        />
+                      )}
+                    </>
+                  )}
+
+                  {/* Quantity */}
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="Qty"
+                    value={newIngredient.quantity}
+                    onChange={(e) => setNewIngredient({ ...newIngredient, quantity: e.target.value })}
+                    className={styles.qtyInput}
+                  />
+
+                  {/* Cost Per Unit */}
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="$CPU"
+                    value={newIngredient.costPerUnit}
+                    onChange={(e) => setNewIngredient({ ...newIngredient, costPerUnit: e.target.value })}
+                    className={styles.cpuInput}
+                  />
+
+                  {/* Add Button */}
+                  <Button
+                    variant="gold"
+                    onClick={addIngredientToRecipe}
+                    disabled={!newIngredient.category || !newIngredient.quantity || !newIngredient.costPerUnit}
+                    style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+                  >
+                    Add to Recipe →
+                  </Button>
+                </div>
+              </div>
+
+              <div className={styles.recipeTableSection}>
+                <h4>Current Recipe:</h4>
+                {recipeIngredients.length > 0 ? (
+                  <table className={styles.recipeTable}>
+                    <thead>
+                      <tr>
+                        <th>Category</th>
+                        <th>Variant</th>
+                        <th>Qty</th>
+                        <th>CPU</th>
+                        <th>Total</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recipeIngredients.map(ing => {
+                        const qty = parseFloat(ing.quantity) || 0;
+                        const cpu = parseFloat(ing.costPerUnit) || 0;
+                        const total = qty * cpu;
+                        return (
+                          <tr key={ing.id}>
+                            <td>
+                              <input
+                                type="text"
+                                value={ing.category}
+                                onChange={(e) => updateRecipeIngredient(ing.id, 'category', e.target.value)}
+                                className={styles.recipeEditInput}
+                                placeholder="Category"
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="text"
+                                value={ing.variant}
+                                onChange={(e) => updateRecipeIngredient(ing.id, 'variant', e.target.value)}
+                                className={styles.recipeEditInput}
+                                placeholder="Variant"
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={ing.quantity}
+                                onChange={(e) => updateRecipeIngredient(ing.id, 'quantity', e.target.value)}
+                                className={styles.recipeEditInput}
+                                style={{ width: '80px' }}
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={ing.costPerUnit}
+                                onChange={(e) => updateRecipeIngredient(ing.id, 'costPerUnit', e.target.value)}
+                                className={styles.recipeEditInput}
+                                style={{ width: '90px' }}
+                              />
+                            </td>
+                            <td>${total.toFixed(2)}</td>
+                            <td>
+                              <button
+                                onClick={() => removeIngredientFromRecipe(ing.id)}
+                                className={styles.removeButton}
+                                title="Remove"
+                              >
+                                ×
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p className={styles.emptyRecipe}>No ingredients added yet.</p>
+                )}
+              </div>
+
+              {/* Recipe Summary */}
+              {recipeIngredients.length > 0 && (() => {
+                const totalCPU = calculateRecipeTotalCPU();
+                const retailPrice = parseFloat(targetRetailPrice) || 0;
+                const profitMargin = retailPrice - totalCPU;
+                const marginPercentage = retailPrice > 0 ? ((profitMargin / retailPrice) * 100) : 0;
+                const marginQuality = cpgSettings
+                  ? getProfitMarginQualityWithSettings(marginPercentage.toFixed(2), cpgSettings)
+                  : 'gutCheck';
+
+                return (
+                  <>
+                    <div className={styles.recipeSummary}>
+                      <div className={styles.metricColumn}>
+                        <div className={styles.metricLabel}>Total CPU</div>
+                        <div className={styles.metricValue}>${totalCPU.toFixed(2)}</div>
+                      </div>
+                      <div className={styles.metricColumn}>
+                        <div className={styles.metricLabel}>Total Profit Margin</div>
+                        <div className={styles.metricValue}>${profitMargin.toFixed(2)}</div>
+                      </div>
+                      <div className={styles.metricColumn}>
+                        <div className={styles.metricLabel}>Margin</div>
+                        <div className={styles.metricValue}>
+                          <MarginQualityBadge
+                            quality={marginQuality}
+                            marginPercentage={marginPercentage.toFixed(2)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.exportButtonContainer}>
+                      <button
+                        onClick={exportRecipeCSV}
+                        className={styles.exportRecipeButton}
+                      >
+                        Export Recipe (CSV)
+                      </button>
+                    </div>
+                  </>
+                );
+              })()}
+
+              {/* Distributor and Promo Selection for New Idea */}
+              {recipeIngredients.length > 0 && (
+                <>
+                  <div className={styles.newIdeaDistributor}>
+                    <h4>Test with Distribution & Promo:</h4>
+                    <div className={styles.horizontalFormGroup}>
+                      <label>Select Distributor:</label>
+                      <select
+                        value={selectedDistributorId}
+                        onChange={(e) => setSelectedDistributorId(e.target.value)}
+                        className={styles.greenDropdown}
+                      >
+                        <option value="">-- Select --</option>
+                        {distributorsList.map(dist => (
+                          <option key={dist.id} value={dist.id}>
+                            {dist.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {renderDistributorFields()}
+
+                    <div className={styles.horizontalFormGroup}>
+                      <label>Select Retailer Promo (optional):</label>
+                      <select
+                        value={selectedPromoId}
+                        onChange={(e) => setSelectedPromoId(e.target.value)}
+                        className={styles.greenDropdown}
+                      >
+                        <option value="">-- None --</option>
+                        {promosList.map(promo => (
+                          <option key={promo.id} value={promo.id}>
+                            {promo.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {renderPromoFields()}
+                  </div>
+
+                  <div className={styles.buttonContainer}>
+                    <Button
+                      variant="gold"
+                      onClick={handleCalculateNewIdea}
+                      disabled={calculating}
+                      style={{
+                        fontSize: '0.9375rem',
+                        padding: '0.875rem 1.5rem',
+                        borderRadius: '0.5rem',
+                      }}
+                    >
+                      {calculating ? 'Calculating...' : 'Calculate Impact'}
+                    </Button>
+                  </div>
+                </>
+              )}
+
+              {/* New Idea Results */}
+              {newIdeaResult && (
+                <div className={styles.newIdeaResults}>
+                  <h3>Your New Idea Analysis</h3>
+
+                  <div className={styles.resultsGrid}>
+                    <div className={styles.resultCard}>
+                      <div className={styles.resultLabel}>Base CPU (Recipe)</div>
+                      <div className={styles.resultValue}>${newIdeaResult.baseCPU.toFixed(2)}</div>
+                    </div>
+
+                    {newIdeaResult.distributionCPU > 0 && (
+                      <div className={styles.resultCard}>
+                        <div className={styles.resultLabel}>Distribution CPU</div>
+                        <div className={styles.resultValue}>${newIdeaResult.distributionCPU.toFixed(2)}</div>
+                      </div>
+                    )}
+
+                    <div className={styles.resultCard}>
+                      <div className={styles.resultLabel}>Total CPU</div>
+                      <div className={styles.resultValue}>${newIdeaResult.totalCPU.toFixed(2)}</div>
+                    </div>
+
+                    <div className={styles.resultCard}>
+                      <div className={styles.resultLabel}>Target Retail Price</div>
+                      <div className={styles.resultValue}>${newIdeaResult.retailPrice.toFixed(2)}</div>
+                    </div>
+
+                    <div className={styles.resultCard}>
+                      <div className={styles.resultLabel}>Profit Margin</div>
+                      <div className={styles.resultValue}>${newIdeaResult.profitMargin.toFixed(2)}</div>
+                    </div>
+
+                    <div className={styles.resultCard}>
+                      <div className={styles.resultLabel}>Margin %</div>
+                      <div className={styles.resultValue}>
+                        <MarginQualityBadge
+                          quality={newIdeaResult.marginQuality}
+                          marginPercentage={newIdeaResult.marginPercentage.toFixed(2)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Right Panel - Unit Cost Calculator (30%) */}
+            <div className={styles.calculatorPanel}>
+              <h4 className={styles.calculatorTitle}>Unit Cost Calculator</h4>
+
+              <div className={styles.calculatorToggle}>
+                <button
+                  className={calculatorType === 'weight' ? styles.active : ''}
+                  onClick={() => setCalculatorType('weight')}
+                >
+                  Weight
+                </button>
+                <button
+                  className={calculatorType === 'volume' ? styles.active : ''}
+                  onClick={() => setCalculatorType('volume')}
+                >
+                  Volume
+                </button>
+              </div>
+
+              <div className={styles.calculatorInputs}>
+                {/* I paid: $ */}
+                <div className={styles.calculatorField}>
+                  <label>I paid:</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="$"
+                    value={calculatorPrice}
+                    onChange={(e) => setCalculatorPrice(e.target.value)}
+                  />
+                </div>
+
+                {/* for X units */}
+                <div className={styles.calculatorField}>
+                  <label>for</label>
+                  <div className={styles.calculatorRow}>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="Qty"
+                      value={calculatorQuantity}
+                      onChange={(e) => setCalculatorQuantity(e.target.value)}
+                    />
+                    <select
+                      value={calculatorFromUnit}
+                      onChange={(e) => setCalculatorFromUnit(e.target.value)}
+                    >
+                      {calculatorType === 'weight' ? (
+                        <>
+                          <option value="oz">oz</option>
+                          <option value="lb">lb</option>
+                          <option value="g">g</option>
+                          <option value="kg">kg</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="fl oz">fl oz</option>
+                          <option value="cup">cup</option>
+                          <option value="pt">pt</option>
+                          <option value="qt">qt</option>
+                          <option value="L">L</option>
+                          <option value="mL">mL</option>
+                          <option value="gal">gal</option>
+                          <option value="tsp">tsp</option>
+                          <option value="tbsp">tbsp</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Recipe needs: X units */}
+                <div className={styles.calculatorField}>
+                  <label>Recipe needs:</label>
+                  <div className={styles.calculatorRow}>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="Qty"
+                      value={calculatorToQuantity}
+                      onChange={(e) => setCalculatorToQuantity(e.target.value)}
+                    />
+                    <select
+                      value={calculatorToUnit}
+                      onChange={(e) => setCalculatorToUnit(e.target.value)}
+                    >
+                      {calculatorType === 'weight' ? (
+                      <>
+                        <option value="oz">oz</option>
+                        <option value="lb">lb</option>
+                        <option value="g">g</option>
+                        <option value="kg">kg</option>
+                      </>
+                    ) : (
+                      <>
+                        <option value="fl oz">fl oz</option>
+                        <option value="cup">cup</option>
+                        <option value="pt">pt</option>
+                        <option value="qt">qt</option>
+                        <option value="L">L</option>
+                        <option value="mL">mL</option>
+                        <option value="gal">gal</option>
+                        <option value="tsp">tsp</option>
+                        <option value="tbsp">tbsp</option>
+                      </>
+                    )}
+                  </select>
+                </div>
+              </div>
+
+                <div className={styles.calculatorResult}>
+                  <strong>= CPU:</strong>
+                  <span className={styles.cpuResult}>
+                    {calculatedCPU !== null ? `$${calculatedCPU.toFixed(2)}` : '$--'}
+                  </span>
+                </div>
+
+                {calculatedCPU !== null && (
+                  <Button
+                    variant="gold"
+                    onClick={insertCalculatedCPU}
+                    style={{ width: '100%', padding: '0.5rem', fontSize: '0.875rem' }}
+                  >
+                    Add to Recipe →
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
