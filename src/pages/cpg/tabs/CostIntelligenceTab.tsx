@@ -25,6 +25,7 @@ import VendorIntelTab from './intelligence/VendorIntelTab';
 import SmartAlertsTab from './intelligence/SmartAlertsTab';
 import styles from '../CPUTracker.module.css';
 import ScenarioBuilderTab from './intelligence/ScenarioBuilderTab';
+import lockAndKeyImage from '../../../assets/images/lock-and-key.png';
 
 export interface CostIntelligenceTabProps {
   companyId: string;
@@ -123,6 +124,32 @@ export default function CostIntelligenceTab({
   // const [scenarioMSRP, setScenarioMSRP] = useState<Map<string, number>>(new Map());
   // const [adjustmentMode, setAdjustmentMode] = useState<Map<string, Map<string, 'percentage' | 'dollar'>>>(new Map());
   // const [msrpAdjustmentMode, setMsrpAdjustmentMode] = useState<Map<string, 'percentage' | 'dollar'>>(new Map());
+
+  // Track the last valid date range to prevent reload when switching to incomplete custom
+  const lastValidDateRangeRef = useRef<string>('12mo');
+
+  // Stable date range - only updates when there's an actual complete date range change
+  // This prevents reload when switching to 'custom' without dates filled
+  const stableDateRangeKey = useMemo(() => {
+    let newValue: string;
+
+    if (comparisonDateRange === 'custom') {
+      // Only update if BOTH dates are filled
+      if (comparisonCustomStartDate && comparisonCustomEndDate) {
+        newValue = `custom|${comparisonCustomStartDate}|${comparisonCustomEndDate}`;
+      } else {
+        // If custom selected but incomplete, keep using the last valid date range
+        return lastValidDateRangeRef.current;
+      }
+    } else {
+      // For all other date ranges, use the value directly
+      newValue = comparisonDateRange;
+    }
+
+    // Update the ref with the new valid value
+    lastValidDateRangeRef.current = newValue;
+    return newValue;
+  }, [comparisonDateRange, comparisonCustomStartDate, comparisonCustomEndDate]);
 
   // Load CPU data for selected products
   const loadProductCPUData = useCallback(async (productIds: string[]) => {
@@ -223,7 +250,8 @@ export default function CostIntelligenceTab({
     } finally {
       setIsLoadingCPUData(false);
     }
-  }, [finishedProducts, companyId, comparisonDateRange, comparisonCustomStartDate, comparisonCustomEndDate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finishedProducts, companyId, stableDateRangeKey]);
 
   // Handle date blur to convert 2-digit years to 20xx
   const handleDateBlur = useCallback((value: string, setter: (value: string) => void) => {
@@ -543,11 +571,16 @@ export default function CostIntelligenceTab({
 
             {/* Product Selector with Filters */}
         <div style={{
-          background: 'white',
-          border: '1px solid #e5e7eb',
+          background: '#ffffff',
+          borderLeft: '4px solid #D4AF37',
+          borderRight: '4px solid #D4AF37',
+          borderBottom: '4px solid #D4AF37',
+          borderTop: 'none',
           borderRadius: '8px',
-          padding: '1rem',
-          marginBottom: '1.5rem',
+          padding: '1.5rem',
+          marginBottom: '2rem',
+          overflow: 'visible',
+          boxShadow: '0 2px 8px rgba(184, 134, 11, 0.15)',
         }}>
           {/* Filter Row */}
           <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
@@ -560,11 +593,11 @@ export default function CostIntelligenceTab({
                 style={{
                   width: '100%',
                   padding: '0.625rem 0.875rem',
-                  border: '1px solid #cbd5e1',
+                  border: '2px solid #D4AF37',
                   borderRadius: '6px',
                   fontSize: '0.875rem',
                   fontWeight: 500,
-                  background: 'white',
+                  background: '#E5F6DF',
                   color: '#475569',
                   textAlign: 'left',
                   cursor: 'pointer',
@@ -692,11 +725,11 @@ export default function CostIntelligenceTab({
                 style={{
                   width: '100%',
                   padding: '0.625rem 0.875rem',
-                  border: '1px solid #cbd5e1',
+                  border: '2px solid #D4AF37',
                   borderRadius: '6px',
                   fontSize: '0.875rem',
                   fontWeight: 500,
-                  background: 'white',
+                  background: '#E5F6DF',
                   color: '#475569',
                   textAlign: 'left',
                   cursor: 'pointer',
@@ -823,11 +856,11 @@ export default function CostIntelligenceTab({
                 style={{
                   width: '100%',
                   padding: '0.625rem 0.875rem',
-                  border: '1px solid #cbd5e1',
+                  border: '2px solid #D4AF37',
                   borderRadius: '6px',
                   fontSize: '0.875rem',
                   fontWeight: 500,
-                  background: 'white',
+                  background: '#E5F6DF',
                   color: '#475569',
                   textAlign: 'left',
                   cursor: 'pointer',
@@ -953,11 +986,11 @@ export default function CostIntelligenceTab({
                 style={{
                   width: '100%',
                   padding: '0.625rem 0.875rem',
-                  border: '1px solid #cbd5e1',
+                  border: '2px solid #D4AF37',
                   borderRadius: '6px',
                   fontSize: '0.875rem',
                   fontWeight: 500,
-                  background: 'white',
+                  background: '#E5F6DF',
                   color: '#475569',
                   textAlign: 'left',
                   cursor: 'pointer',
@@ -1083,11 +1116,11 @@ export default function CostIntelligenceTab({
                 flex: '1 1 auto',
                 minWidth: '140px',
                 padding: '0.625rem 0.875rem',
-                border: '1px solid #cbd5e1',
+                border: '2px solid #D4AF37',
                 borderRadius: '6px',
                 fontSize: '0.875rem',
                 fontWeight: 500,
-                background: 'white',
+                background: '#E5F6DF',
                 color: '#475569',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
@@ -1114,11 +1147,11 @@ export default function CostIntelligenceTab({
                   style={{
                     flex: '0 1 140px',
                     padding: '0.625rem 0.875rem',
-                    border: '1px solid #cbd5e1',
+                    border: '2px solid #D4AF37',
                     borderRadius: '6px',
                     fontSize: '0.875rem',
                     fontWeight: 500,
-                    background: 'white',
+                    background: '#E5F6DF',
                     color: '#475569',
                     cursor: 'pointer',
                   }}
@@ -1132,11 +1165,11 @@ export default function CostIntelligenceTab({
                   style={{
                     flex: '0 1 140px',
                     padding: '0.625rem 0.875rem',
-                    border: '1px solid #cbd5e1',
+                    border: '2px solid #D4AF37',
                     borderRadius: '6px',
                     fontSize: '0.875rem',
                     fontWeight: 500,
-                    background: 'white',
+                    background: '#E5F6DF',
                     color: '#475569',
                     cursor: 'pointer',
                   }}
@@ -1363,12 +1396,21 @@ export default function CostIntelligenceTab({
             padding: '4rem 2rem',
             color: '#64748b',
           }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }} aria-hidden="true">📊</div>
-            <p style={{ fontSize: '1.125rem', fontWeight: 500, marginBottom: '0.5rem' }}>
-              Select products to compare
+            <img
+              src={lockAndKeyImage}
+              alt=""
+              style={{
+                width: '120px',
+                height: 'auto',
+                margin: '0 auto 2rem',
+                display: 'block',
+              }}
+            />
+            <p style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.75rem', color: '#4b006e', letterSpacing: '-0.01em' }}>
+              Ready to Unlock Cost Intelligence?
             </p>
-            <p style={{ fontSize: '0.875rem' }}>
-              Use the dropdown above or click a quick select button to get started
+            <p style={{ fontSize: '1rem', color: '#6b7280', lineHeight: 1.6 }}>
+              Pick your products and let's see what makes them profitable
             </p>
           </div>
         ) : (

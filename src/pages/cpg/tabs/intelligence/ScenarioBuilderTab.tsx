@@ -416,6 +416,10 @@ export default function ScenarioBuilderTab({
         // Filter components based on active filters
         const filteredComponents = filterComponents(productId, cpuData.breakdown);
 
+        // Check if all components have no cost data (null or zero subtotals)
+        const hasNoCostData = filteredComponents.length > 0 &&
+          filteredComponents.every(c => !c.subtotal || parseFloat(c.subtotal) === 0);
+
         const scenario = calculateScenarioCPU(productId);
         const scenarioCPUValue = scenario?.cpu || baseCPU;
         const scenarioMSRPValue = scenarioMSRP.get(productId) || baseMSRP;
@@ -571,6 +575,15 @@ export default function ScenarioBuilderTab({
                   fontSize: '0.875rem',
                 }}>
                   No components match the current filters
+                </div>
+              ) : hasNoCostData ? (
+                <div style={{
+                  padding: '2rem',
+                  textAlign: 'center',
+                  color: 'var(--color-text-secondary, #64748b)',
+                  fontSize: '0.875rem',
+                }}>
+                  No cost data available for this date range
                 </div>
               ) : (
                 <div className={styles.componentList}>

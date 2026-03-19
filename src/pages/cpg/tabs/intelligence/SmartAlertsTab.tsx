@@ -21,6 +21,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import type { CPGCategory, CPGInvoice } from '../../../../db/schema/cpg.schema';
+import bullseyeImage from '../../../../assets/images/bullseye.png';
 
 export interface SmartAlertsTabProps {
   companyId: string;
@@ -784,12 +785,21 @@ export default function SmartAlertsTab({
           background: '#f8fafc',
           borderRadius: '8px',
         }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
-          <p style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-            All Clear
+          <img
+            src={bullseyeImage}
+            alt=""
+            style={{
+              width: '120px',
+              height: 'auto',
+              margin: '0 auto 2rem',
+              display: 'block',
+            }}
+          />
+          <p style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.75rem', color: '#4b006e', letterSpacing: '-0.01em' }}>
+            Nothing to See Here (And That's Great!)
           </p>
-          <p style={{ fontSize: '0.875rem' }}>
-            No alerts at this time. Your pricing looks stable!
+          <p style={{ fontSize: '1rem', color: '#6b7280', lineHeight: 1.6 }}>
+            Your costs are looking stable. We'll let you know if anything needs attention!
           </p>
         </div>
       ) : (
