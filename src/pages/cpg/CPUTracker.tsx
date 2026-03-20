@@ -531,6 +531,20 @@ export default function CPUTracker() {
                 categories={categories}
                 invoices={invoices}
                 onOpenCategoryManager={() => setShowCategoryManager(true)}
+                onViewInvoice={(id) => {
+                  setSelectedInvoiceId(id);
+                  setShowInvoiceDetails(true);
+                }}
+                onEditInvoice={(id) => {
+                  setEditingInvoiceId(id);
+                  setInvoiceFormMode('edit');
+                  setShowInvoiceForm(true);
+                }}
+                onDuplicateInvoice={(id) => {
+                  setEditingInvoiceId(id);
+                  setInvoiceFormMode('duplicate');
+                  setShowInvoiceForm(true);
+                }}
                 initialIntelligenceTab={urlNavigationParams?.intelligenceTab || (vendorIntelRequest ? 'vendors' : undefined)}
                 initialVendorFilter={vendorIntelRequest?.vendorName}
                 initialCategoryFilter={urlNavigationParams?.categoryId}

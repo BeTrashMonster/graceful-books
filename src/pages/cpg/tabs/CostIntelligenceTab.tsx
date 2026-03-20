@@ -33,6 +33,9 @@ export interface CostIntelligenceTabProps {
   invoices: CPGInvoice[];
   recipes?: any[]; // Product recipes that define which variant each product uses
   onOpenCategoryManager: () => void;
+  onViewInvoice?: (invoiceId: string) => void;
+  onEditInvoice?: (invoiceId: string) => void;
+  onDuplicateInvoice?: (invoiceId: string) => void;
   initialIntelligenceTab?: IntelligenceSubTab;
   initialVendorFilter?: string;
   initialCategoryFilter?: string; // Single category filter (for Vendor Intel)
@@ -60,6 +63,9 @@ export default function CostIntelligenceTab({
   categories,
   invoices,
   onOpenCategoryManager,
+  onViewInvoice,
+  onEditInvoice,
+  onDuplicateInvoice,
   initialIntelligenceTab,
   initialVendorFilter,
   initialCategoryFilter,
@@ -1448,6 +1454,9 @@ export default function CostIntelligenceTab({
                     variantFilter={comparisonVariantFilter}
                     vendorFilter={comparisonVendorFilter}
                     onOpenCategoryManager={onOpenCategoryManager}
+                    onViewInvoice={onViewInvoice}
+                    onEditInvoice={onEditInvoice}
+                    onDuplicateInvoice={onDuplicateInvoice}
                   />
                 )}
 

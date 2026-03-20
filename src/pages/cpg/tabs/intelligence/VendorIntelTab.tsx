@@ -9,6 +9,7 @@ import type { CPGCategory, CPGInvoice, CPGVendor } from '../../../../db/schema/c
 import { db } from '../../../../db/database';
 import styles from './VendorIntelTab.module.css';
 import lockAndKeyImage from '../../../../assets/images/lock-and-key.png';
+import pointingFingerImage from '../../../../assets/images/pointing-finger.png';
 
 export interface VendorIntelTabProps {
   companyId: string;
@@ -22,6 +23,9 @@ export interface VendorIntelTabProps {
   variantFilter?: Set<string>;
   vendorFilter?: Set<string>;
   onOpenCategoryManager: () => void;
+  onViewInvoice?: (invoiceId: string) => void;
+  onEditInvoice?: (invoiceId: string) => void;
+  onDuplicateInvoice?: (invoiceId: string) => void;
 }
 
 interface ProductCPUData {
@@ -102,6 +106,9 @@ export default function VendorIntelTab({
   variantFilter = new Set(),
   vendorFilter = new Set(),
   onOpenCategoryManager,
+  onViewInvoice,
+  onEditInvoice,
+  onDuplicateInvoice,
 }: VendorIntelTabProps) {
   const [viewMode, setViewMode] = useState<'component' | 'vendor'>('vendor');
   const [selectedVendor, setSelectedVendor] = useState<VendorOverview | null>(null);
@@ -2221,36 +2228,42 @@ export default function VendorIntelTab({
                               <td>{formatNumber(componentCount)} component{componentCount !== 1 ? 's' : ''}</td>
                               <td>
                                 <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                                  <button style={{
-                                    padding: '0.375rem 0.75rem',
-                                    background: 'white',
-                                    color: '#4b006e',
-                                    border: '1px solid #d1d5db',
-                                    borderRadius: '4px',
-                                    fontSize: '0.75rem',
-                                    fontWeight: 500,
-                                    cursor: 'pointer',
-                                  }}>View</button>
-                                  <button style={{
-                                    padding: '0.375rem 0.75rem',
-                                    background: 'white',
-                                    color: '#4b006e',
-                                    border: '1px solid #d1d5db',
-                                    borderRadius: '4px',
-                                    fontSize: '0.75rem',
-                                    fontWeight: 500,
-                                    cursor: 'pointer',
-                                  }}>Edit</button>
-                                  <button style={{
-                                    padding: '0.375rem 0.75rem',
-                                    background: 'white',
-                                    color: '#4b006e',
-                                    border: '1px solid #d1d5db',
-                                    borderRadius: '4px',
-                                    fontSize: '0.75rem',
-                                    fontWeight: 500,
-                                    cursor: 'pointer',
-                                  }}>Duplicate</button>
+                                  <button
+                                    onClick={() => onViewInvoice?.(inv.id)}
+                                    style={{
+                                      padding: '0.375rem 0.75rem',
+                                      background: 'white',
+                                      color: '#4b006e',
+                                      border: '1px solid #d1d5db',
+                                      borderRadius: '4px',
+                                      fontSize: '0.75rem',
+                                      fontWeight: 500,
+                                      cursor: 'pointer',
+                                    }}>View</button>
+                                  <button
+                                    onClick={() => onEditInvoice?.(inv.id)}
+                                    style={{
+                                      padding: '0.375rem 0.75rem',
+                                      background: 'white',
+                                      color: '#4b006e',
+                                      border: '1px solid #d1d5db',
+                                      borderRadius: '4px',
+                                      fontSize: '0.75rem',
+                                      fontWeight: 500,
+                                      cursor: 'pointer',
+                                    }}>Edit</button>
+                                  <button
+                                    onClick={() => onDuplicateInvoice?.(inv.id)}
+                                    style={{
+                                      padding: '0.375rem 0.75rem',
+                                      background: 'white',
+                                      color: '#4b006e',
+                                      border: '1px solid #d1d5db',
+                                      borderRadius: '4px',
+                                      fontSize: '0.75rem',
+                                      fontWeight: 500,
+                                      cursor: 'pointer',
+                                    }}>Duplicate</button>
                                 </div>
                               </td>
                             </tr>
@@ -2275,9 +2288,18 @@ export default function VendorIntelTab({
               textAlign: 'center',
               color: '#64748b',
             }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👈</div>
-              <div style={{ fontSize: '1rem', fontWeight: 500 }}>
-                Select a vendor to view details
+              <img
+                src={pointingFingerImage}
+                alt=""
+                style={{
+                  width: '80px',
+                  height: 'auto',
+                  margin: '0 auto 1.5rem',
+                  display: 'block',
+                }}
+              />
+              <div style={{ fontSize: '1rem', fontWeight: 500, color: '#4b006e' }}>
+                Tap a vendor card to reveal the story
               </div>
             </div>
           )}
