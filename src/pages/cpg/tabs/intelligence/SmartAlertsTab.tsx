@@ -673,12 +673,12 @@ export default function SmartAlertsTab({
     };
   }, [smartAlerts]);
 
-  // Alert border colors
-  const borderColors = {
-    urgent: '#dc2626',
-    warning: '#ea580c',
-    opportunity: '#16a34a',
-    info: '#0284c7',
+  // Alert colors - dark moody romantic palette
+  const alertColors = {
+    urgent: '#7f1d1d',      // Deep burgundy
+    warning: '#8b4f5e',     // Dusty desert rose
+    opportunity: '#065f46', // Deep emerald
+    info: '#1e3a8a',        // Deep navy
   };
 
   return (
@@ -691,10 +691,10 @@ export default function SmartAlertsTab({
         marginBottom: '1.5rem',
       }}>
         {[
-          { type: 'urgent', label: 'Urgent', color: '#dc2626' },
-          { type: 'warning', label: 'Warnings', color: '#ea580c' },
-          { type: 'opportunity', label: 'Opportunities', color: '#16a34a' },
-          { type: 'info', label: 'Info', color: '#0284c7' },
+          { type: 'urgent', label: 'Urgent', color: '#7f1d1d' },          // Deep burgundy
+          { type: 'warning', label: 'Warnings', color: '#8b4f5e' },       // Dusty desert rose
+          { type: 'opportunity', label: 'Opportunities', color: '#065f46' }, // Deep emerald
+          { type: 'info', label: 'Info', color: '#1e3a8a' },              // Deep navy
         ].map(({ type, label, color }) => {
           const count = alertCounts[type as keyof typeof alertCounts];
           const isActive = alertFilter === type;
@@ -705,24 +705,25 @@ export default function SmartAlertsTab({
               aria-pressed={isActive}
               aria-label={`Filter ${label} alerts (${count})`}
               style={{
-                padding: '1rem',
+                padding: '1rem 1.5rem',
                 background: isActive ? 'white' : color,
                 color: isActive ? color : 'white',
                 border: `2px solid ${color}`,
                 borderRadius: '8px',
                 fontWeight: 600,
                 cursor: 'pointer',
-                fontSize: '0.875rem',
+                fontSize: '0.9375rem',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '0.25rem',
                 transition: 'all 0.2s',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
               }}
             >
               <span>{label}</span>
               <span style={{
-                fontSize: '1.25rem',
+                fontSize: '1.5rem',
                 fontWeight: 700,
               }}>
                 {count}
@@ -745,12 +746,21 @@ export default function SmartAlertsTab({
               onClick={() => setAlertFilter('all')}
               aria-label="Show all alerts"
               style={{
-                padding: '0.5rem 0.75rem',
-                background: '#f8fafc',
-                border: '1px solid #e5e7eb',
+                padding: '0.625rem 1.25rem',
+                background: 'white',
+                color: '#4b006e',
+                border: '2px solid #D4AF37',
                 borderRadius: '6px',
-                fontSize: '0.875rem',
+                fontSize: '0.9375rem',
+                fontWeight: 600,
                 cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#F4E5C3';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'white';
               }}
             >
               ← Show All
@@ -762,14 +772,30 @@ export default function SmartAlertsTab({
           aria-pressed={showDismissedAlerts}
           aria-label={`${showDismissedAlerts ? 'Hide' : 'View'} dismissed alerts (${dismissedAlerts.size})`}
           style={{
-            padding: '0.5rem 0.75rem',
-            background: showDismissedAlerts ? '#4b006e' : 'white',
-            color: showDismissedAlerts ? 'white' : '#4b006e',
-            border: `1px solid ${showDismissedAlerts ? '#4b006e' : '#e5e7eb'}`,
+            padding: '0.625rem 1.25rem',
+            background: showDismissedAlerts
+              ? 'linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%)'
+              : 'white',
+            color: showDismissedAlerts ? '#2d1b00' : '#4b006e',
+            border: `2px solid ${showDismissedAlerts ? '#B8860B' : '#D4AF37'}`,
             borderRadius: '6px',
-            fontSize: '0.875rem',
+            fontSize: '0.9375rem',
             fontWeight: 600,
             cursor: 'pointer',
+            boxShadow: showDismissedAlerts
+              ? '0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+              : 'none',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            if (!showDismissedAlerts) {
+              e.currentTarget.style.background = '#F4E5C3';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!showDismissedAlerts) {
+              e.currentTarget.style.background = 'white';
+            }
           }}
         >
           {showDismissedAlerts ? 'Hide' : 'View'} Dismissed ({dismissedAlerts.size})
@@ -805,7 +831,7 @@ export default function SmartAlertsTab({
       ) : (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
+          gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '1rem',
         }}>
           {(showDismissedAlerts ? dismissedAlertsForDisplay : filteredAlerts).map(alert => {
@@ -817,15 +843,16 @@ export default function SmartAlertsTab({
                 role="alert"
                 aria-live={alert.type === 'urgent' ? 'assertive' : 'polite'}
                 style={{
-                  padding: '1rem',
-                  background: 'white',
-                  border: `2px solid ${borderColors[alert.type]}`,
-                  borderLeft: `6px solid ${borderColors[alert.type]}`,
+                  padding: '1.25rem',
+                  background: alertColors[alert.type],
+                  border: 'none',
                   borderRadius: '8px',
                   opacity: isDismissed ? 0.6 : 1,
                   display: 'flex',
                   flexDirection: 'column',
                   height: '100%',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+                  color: 'white',
                 }}
               >
                 {/* Header with icon, title, and dismiss button */}
@@ -840,8 +867,7 @@ export default function SmartAlertsTab({
                     alignItems: 'center',
                     gap: '0.5rem',
                   }}>
-                    <span style={{ fontSize: '1.5rem' }} aria-hidden="true">{alert.icon}</span>
-                    <h4 style={{ fontSize: '0.9375rem', fontWeight: 700, margin: 0, lineHeight: 1.2 }}>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, lineHeight: 1.2, color: 'white' }}>
                       {alert.title}
                     </h4>
                   </div>
@@ -849,16 +875,24 @@ export default function SmartAlertsTab({
                     onClick={() => isDismissed ? handleRestoreAlert(alert.id) : handleDismissAlert(alert.id)}
                     aria-label={isDismissed ? `Restore ${alert.title}` : `Dismiss ${alert.title}`}
                     style={{
-                      padding: '0.25rem 0.625rem',
-                      background: isDismissed ? '#16a34a' : '#f8fafc',
-                      color: isDismissed ? 'white' : '#64748b',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '4px',
-                      fontSize: '0.75rem',
+                      padding: '0.375rem 0.875rem',
+                      background: 'rgba(255, 255, 255, 0.2)',
+                      color: 'white',
+                      border: '1px solid rgba(255, 255, 255, 0.4)',
+                      borderRadius: '6px',
+                      fontSize: '0.8125rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       whiteSpace: 'nowrap',
                       flexShrink: 0,
+                      transition: 'all 0.2s',
+                      backdropFilter: 'blur(10px)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
                     }}
                   >
                     {isDismissed ? 'Restore' : 'Dismiss'}
@@ -866,7 +900,7 @@ export default function SmartAlertsTab({
                 </div>
 
                 {/* Message */}
-                <p style={{ fontSize: '0.875rem', margin: '0 0 0.75rem 0', color: '#1e293b', fontWeight: 500 }}>
+                <p style={{ fontSize: '0.875rem', margin: '0 0 0.75rem 0', color: 'rgba(255, 255, 255, 0.95)', fontWeight: 400, lineHeight: 1.5 }}>
                   {alert.message}
                 </p>
 
@@ -875,13 +909,15 @@ export default function SmartAlertsTab({
                   <div style={{
                     fontSize: '0.8125rem',
                     margin: '0 0 0.75rem 0',
-                    color: '#4b006e',
+                    color: 'white',
                     fontWeight: 600,
-                    padding: '0.5rem',
-                    background: '#f3e8ff',
-                    borderRadius: '4px',
+                    padding: '0.625rem 0.875rem',
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    borderRadius: '6px',
+                    backdropFilter: 'blur(10px)',
                   }}>
-                    💡 {alert.action}
+                    {alert.action}
                   </div>
                 )}
 
@@ -890,7 +926,7 @@ export default function SmartAlertsTab({
                   <p style={{
                     fontSize: '0.75rem',
                     margin: '0 0 0.75rem 0',
-                    color: '#64748b',
+                    color: 'rgba(255, 255, 255, 0.75)',
                     fontStyle: 'italic',
                   }}>
                     {alert.context}
@@ -901,17 +937,18 @@ export default function SmartAlertsTab({
                 {alert.bestAlternative && alert.bestAlternative.savings > 0 && (
                   <div style={{
                     marginBottom: '0.75rem',
-                    padding: '0.625rem',
-                    background: '#dcfce7',
-                    border: '1px solid #16a34a',
-                    borderRadius: '4px',
+                    padding: '0.75rem 1rem',
+                    background: 'rgba(255, 255, 255, 0.25)',
+                    border: '1px solid rgba(255, 255, 255, 0.4)',
+                    borderRadius: '6px',
+                    backdropFilter: 'blur(10px)',
                   }}>
-                    <div style={{ fontSize: '0.6875rem', fontWeight: 600, color: '#15803d', marginBottom: '0.25rem', textTransform: 'uppercase' }}>
-                      💰 Best Alternative
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'white', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Best Alternative
                     </div>
-                    <div style={{ fontSize: '0.8125rem', color: '#166534' }}>
+                    <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.95)' }}>
                       <strong>{alert.bestAlternative.vendor}</strong>: ${alert.bestAlternative.price.toFixed(2)}/unit
-                      <div style={{ color: '#16a34a', fontWeight: 600, marginTop: '0.125rem' }}>
+                      <div style={{ color: 'white', fontWeight: 700, marginTop: '0.25rem', fontSize: '0.9375rem' }}>
                         Save ${alert.bestAlternative.savings.toFixed(2)}/unit
                       </div>
                     </div>
@@ -930,14 +967,26 @@ export default function SmartAlertsTab({
                     }}
                     style={{
                       marginTop: 'auto',
-                      padding: '0.5rem 1rem',
-                      background: '#4b006e',
-                      color: 'white',
-                      border: 'none',
+                      padding: '0.625rem 1.25rem',
+                      background: 'white',
+                      color: alertColors[alert.type],
+                      border: '2px solid white',
                       borderRadius: '6px',
-                      fontSize: '0.8125rem',
-                      fontWeight: 600,
+                      fontSize: '0.875rem',
+                      fontWeight: 700,
                       cursor: 'pointer',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.25)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'white';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.2)';
                     }}
                   >
                     → View in Vendor Intel
