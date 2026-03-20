@@ -54,21 +54,21 @@
 
 /* Focus state - WCAG 2.1 AA 3:1 contrast */
 .checkboxInput:focus-visible + .checkboxBox {
-  outline: 3px solid #4a90e2;
+  outline: 3px solid #D4AF37;
   outline-offset: 2px;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 
 /* Hover state */
 .checkboxInput:hover:not(:disabled) + .checkboxBox {
-  border-color: #4a90e2;
-  background-color: #f0f7ff;
+  border-color: #D4AF37;
+  background-color: rgba(232, 212, 160, 0.1);
 }
 
 /* Checked state */
 .checkboxInput:checked + .checkboxBox {
-  background-color: #4a90e2;
-  border-color: #4a90e2;
+  background-color: #D4AF37;
+  border-color: #D4AF37;
 }
 
 /* Check icon */
@@ -109,8 +109,8 @@
 
 /* Indeterminate state */
 .indeterminate {
-  background-color: #4a90e2;
-  border-color: #4a90e2;
+  background-color: #D4AF37;
+  border-color: #D4AF37;
 }
 
 .indeterminateIcon {

@@ -1,22 +1,29 @@
-/* Card Component Styles */
+/* Card Component Styles - Audacious Design System */
 
 .card {
-  background-color: var(--color-bg-base);
-  border-radius: var(--border-radius-lg);
+  background-color: #ffffff;
+  border-radius: 8px;
   transition: all var(--transition-base);
+  overflow: hidden;
+  border-left: 4px solid #D4AF37;
+  border-right: 4px solid #D4AF37;
+  border-bottom: 4px solid #D4AF37;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
 }
 
 /* Variants */
 .default {
-  background-color: var(--color-bg-base);
+  background-color: #ffffff;
 }
 
 .bordered {
-  border: var(--border-width) solid var(--color-border);
+  border-left: 4px solid #D4AF37;
+  border-right: 4px solid #D4AF37;
+  border-bottom: 4px solid #D4AF37;
 }
 
 .elevated {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
 }
 
 /* Padding */
@@ -25,40 +32,61 @@
 }
 
 .padding-sm {
-  padding: var(--spacing-md);
+  padding: 0;
 }
 
 .padding-md {
-  padding: var(--spacing-lg);
+  padding: 0;
 }
 
 .padding-lg {
-  padding: var(--spacing-xl);
+  padding: 0;
 }
 
 /* Hoverable */
 .hoverable {
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .hoverable:hover {
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 4px 16px rgba(184, 134, 11, 0.25);
   transform: translateY(-2px);
+  border-left-color: #B8860B;
+  border-right-color: #B8860B;
+  border-bottom-color: #B8860B;
 }
 
-/* Card Sections */
+/* Card Sections - Section Box Anatomy */
 .header {
-  padding-bottom: var(--spacing-md);
-  border-bottom: var(--border-width) solid var(--color-border-light);
-  margin-bottom: var(--spacing-md);
+  padding: 1.25rem 2rem;
+  background: #4b006e;
+  color: #ffffff;
+  border-bottom: none;
+  margin: 0;
+}
+
+.header h3,
+.header h2,
+.header h4 {
+  color: #ffffff;
+  margin: 0 0 0.25rem 0;
+}
+
+.header p {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
 }
 
 .body {
   flex: 1;
+  padding: 2rem;
+  background: #ffffff;
 }
 
 .footer {
-  padding-top: var(--spacing-md);
-  border-top: var(--border-width) solid var(--color-border-light);
-  margin-top: var(--spacing-md);
+  padding: 1.5rem 2rem;
+  border-top: 2px solid #e0e0e0;
+  margin-top: 0;
+  background: #ffffff;
 }

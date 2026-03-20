@@ -210,15 +210,15 @@
 }
 
 .successLink {
-  color: #5b21b6;
+  color: #D4AF37;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .successLink:hover {
-  color: #6d28d9;
+  color: #B8860B;
   text-decoration: underline;
 }
 
@@ -243,7 +243,9 @@
 .confirmModalTitle {
   margin: 0;
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: #4b006e;
+  letter-spacing: -0.01em;
 }
 
 .confirmModalMessage {

@@ -1,18 +1,50 @@
 /**
- * DistributionResultsDisplay Styles
+ * DistributionResultsDisplay Styles - Audacious Design System
  */
 
+.headerWithActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.quickActions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.headerButton {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.headerButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #ffffff;
+  transform: translateY(-1px);
+}
+
 .resultsTitle {
-  margin: 0 0 0.5rem 0;
+  margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #111827;
+  color: #ffffff;
+  letter-spacing: -0.01em;
 }
 
 .resultsDescription {
   margin: 0;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #666;
 }
 
 .resultsGrid {
@@ -24,8 +56,9 @@
 .sectionTitle {
   margin: 0 0 1rem 0;
   font-size: 1.125rem;
-  font-weight: 600;
-  color: #1f2937;
+  font-weight: 700;
+  color: #4b006e;
+  letter-spacing: -0.01em;
 }
 
 /* Summary Section */
@@ -37,23 +70,28 @@
 
 .summaryCard {
   padding: 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%);
+  color: #2d1b00;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 2px solid #B8860B;
 }
 
 .summaryLabel {
   font-size: 0.875rem;
-  font-weight: 500;
-  opacity: 0.9;
+  font-weight: 600;
+  color: #2d1b00;
+  opacity: 0.85;
   margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .summaryValue {
   font-size: 2rem;
   font-weight: 700;
   line-height: 1;
+  color: #2d1b00;
 }
 
 /* Variants Section */
@@ -71,15 +109,20 @@
 
 .variantCard {
   padding: 1.5rem;
-  background-color: #f9fafb;
-  border: 2px solid #e5e7eb;
-  border-radius: 0.5rem;
+  background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
+  border-left: 4px solid #D4AF37;
+  border-right: 2px solid #e0e0e0;
+  border-top: 2px solid #e0e0e0;
+  border-bottom: 2px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
   transition: all 0.2s ease;
 }
 
 .variantCard:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border-left-color: #B8860B;
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.25);
+  transform: translateY(-2px);
 }
 
 .variantHeader {
@@ -96,7 +139,8 @@
   margin: 0;
   font-size: 1.25rem;
   font-weight: 700;
-  color: #111827;
+  color: #4b006e;
+  letter-spacing: -0.01em;
 }
 
 .variantMetrics {
@@ -181,16 +225,16 @@
 }
 
 .breakdownTable thead {
-  background-color: #f9fafb;
+  background: linear-gradient(135deg, rgba(75, 0, 110, 0.05) 0%, rgba(75, 0, 110, 0.08) 100%);
 }
 
 .breakdownTable th {
   padding: 0.75rem 1rem;
   text-align: left;
   font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-  border-bottom: 2px solid #e5e7eb;
+  font-weight: 700;
+  color: #4b006e;
+  border-bottom: 2px solid #D4AF37;
 }
 
 .breakdownTable td {
@@ -225,13 +269,14 @@
 
 .emptyState {
   padding: 2rem;
-  background-color: #f9fafb;
-  border: 1px dashed #d1d5db;
-  border-radius: 0.375rem;
-  color: #6b7280;
-  font-size: 0.875rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border: 2px dashed #D4AF37;
+  border-radius: 8px;
+  color: #666;
+  font-size: 1rem;
   text-align: center;
   margin: 0;
+  font-weight: 500;
 }
 
 .actions {
@@ -304,7 +349,7 @@
   height: 6px;
   -webkit-appearance: none;
   appearance: none;
-  background: linear-gradient(90deg, #e5e7eb 0%, #7c3aed 100%);
+  background: linear-gradient(90deg, #e5e7eb 0%, #D4AF37 100%);
   border-radius: 3px;
   outline: none;
   cursor: pointer;
@@ -315,31 +360,31 @@
   appearance: none;
   width: 18px;
   height: 18px;
-  background: #7c3aed;
+  background: #D4AF37;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 2px 6px rgba(184, 134, 11, 0.4);
   transition: all 0.2s;
 }
 
 .slider::-webkit-slider-thumb:hover {
-  background: #6d28d9;
+  background: #B8860B;
   transform: scale(1.1);
 }
 
 .slider::-moz-range-thumb {
   width: 18px;
   height: 18px;
-  background: #7c3aed;
+  background: #D4AF37;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 2px 6px rgba(184, 134, 11, 0.4);
   border: none;
   transition: all 0.2s;
 }
 
 .slider::-moz-range-thumb:hover {
-  background: #6d28d9;
+  background: #B8860B;
   transform: scale(1.1);
 }
 
@@ -347,7 +392,7 @@
   min-width: 4rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #7c3aed;
+  color: #D4AF37;
 }
 
 .fixedQuantity {

@@ -1,26 +1,27 @@
 /**
- * DistributionCalculatorForm Styles
+ * DistributionCalculatorForm Styles - Audacious Design System
  */
 
 .formTitle {
   margin: 0 0 0.5rem 0;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #111827;
+  color: #4b006e;
+  letter-spacing: -0.01em;
 }
 
 .formDescription {
   margin: 0;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #666;
 }
 
 .formGrid {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  max-width: 75%;
-  margin-left: 3rem;
+  max-width: 100%;
+  margin-left: 0;
 }
 
 .section {
@@ -39,21 +40,22 @@
 .sectionTitle {
   margin: 0;
   font-size: 1.125rem;
-  font-weight: 600;
-  color: #1f2937;
+  font-weight: 700;
+  color: #4b006e;
+  letter-spacing: -0.01em;
 }
 
 .sectionDescription {
   margin: 0;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #666;
 }
 
 .subsectionTitle {
   margin: 0 0 0.5rem 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #374151;
+  color: #4b006e;
 }
 
 .inputRow {
@@ -84,7 +86,7 @@
   justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
-  background: linear-gradient(135deg, #5b21b6 0%, #6d28d9 100%);
+  background: #4b006e;
   color: white;
   border-radius: 50%;
   font-weight: 700;
@@ -92,7 +94,7 @@
   flex-shrink: 0;
   align-self: flex-start;
   margin-top: 0.5rem;
-  box-shadow: 0 2px 4px rgba(91, 33, 182, 0.3);
+  box-shadow: 0 2px 8px rgba(75, 0, 110, 0.4);
 }
 
 .variantFields {
@@ -226,8 +228,8 @@
 
 .variantInput:focus {
   outline: none;
-  border-color: #7c3aed;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
 }
 
 .variantInputAmount {
@@ -249,8 +251,8 @@
 
 .variantInputAmount:focus {
   outline: none;
-  border-color: #7c3aed;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
 }
 
 /* Amount Wrapper for Currency Inputs */
@@ -297,12 +299,13 @@
 /* Empty State */
 .emptyState {
   padding: 2rem;
-  background-color: #f9fafb;
-  border: 1px dashed #d1d5db;
-  border-radius: 0.375rem;
-  color: #6b7280;
-  font-size: 0.875rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border: 2px dashed #D4AF37;
+  border-radius: 8px;
+  color: #666;
+  font-size: 1rem;
   text-align: center;
+  font-weight: 500;
 }
 
 .emptyState p {
@@ -365,8 +368,8 @@
 }
 
 .radioOption:hover {
-  border-color: #7c3aed;
-  background-color: #faf5ff;
+  border-color: #D4AF37;
+  background: linear-gradient(135deg, rgba(232, 212, 160, 0.1) 0%, rgba(255, 255, 255, 0.5) 100%);
 }
 
 .radioOption input[type="radio"] {
@@ -377,7 +380,7 @@
 
 .radioOption input[type="radio"]:checked + span {
   font-weight: 600;
-  color: #7c3aed;
+  color: #4b006e;
 }
 
 /* Error Alert */

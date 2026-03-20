@@ -805,34 +805,72 @@ export function DistributionCalculatorForm({
       <Card>
         <CardHeader>
           <h3 className={styles.sectionTitle}>Shipment Configuration</h3>
-          <p className={styles.sectionDescription}>
-            Configure your shipment details and pallet capacity
-          </p>
         </CardHeader>
         <CardBody>
-          <div className={styles.inputRow}>
-            <Input
-              label="Number of Pallets"
-              type="number"
-              min="1"
-              value={numPallets}
-              onChange={(e) => setNumPallets(e.target.value)}
-              error={errors.numPallets}
-              required
-              fullWidth
-            />
-            <Input
-              label="Standard Units per Pallet"
-              type="number"
-              min="1"
-              value={defaultUnitsPerPallet}
-              onChange={(e) => setDefaultUnitsPerPallet(e.target.value)}
-              error={errors.defaultUnitsPerPallet}
-              helperText="Default capacity for each pallet"
-              required
-              fullWidth
-            />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '3rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <label style={{ fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', whiteSpace: 'nowrap' }}>
+                Number of Pallets <span style={{ color: '#dc2626' }}>*</span>
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={numPallets}
+                onChange={(e) => setNumPallets(e.target.value)}
+                required
+                style={{
+                  width: '150px',
+                  padding: '0.625rem 0.875rem',
+                  border: '2px solid #e0e0e0',
+                  borderRadius: '6px',
+                  backgroundColor: '#E5F6DF',
+                  fontSize: '1rem',
+                  color: '#1f2937',
+                  transition: 'all 0.15s',
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#D4AF37';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(212, 175, 55, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#e0e0e0';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <label style={{ fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', whiteSpace: 'nowrap' }}>
+                Standard Units per Pallet <span style={{ color: '#dc2626' }}>*</span>
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={defaultUnitsPerPallet}
+                onChange={(e) => setDefaultUnitsPerPallet(e.target.value)}
+                required
+                style={{
+                  width: '150px',
+                  padding: '0.625rem 0.875rem',
+                  border: '2px solid #e0e0e0',
+                  borderRadius: '6px',
+                  backgroundColor: '#E5F6DF',
+                  fontSize: '1rem',
+                  color: '#1f2937',
+                  transition: 'all 0.15s',
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#D4AF37';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(212, 175, 55, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#e0e0e0';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
+            </div>
           </div>
+          {errors.numPallets && <div className={styles.errorText}>{errors.numPallets}</div>}
+          {errors.defaultUnitsPerPallet && <div className={styles.errorText}>{errors.defaultUnitsPerPallet}</div>}
         </CardBody>
       </Card>
 
@@ -846,16 +884,27 @@ export function DistributionCalculatorForm({
           <Card key={pallet.id}>
             <CardHeader>
               <div className={styles.sectionHeader}>
-                <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
                   <h3 className={styles.sectionTitle}>
                     Pallet {index + 1}
                     <span className={`${styles.unitsIndicator} ${isOverCapacity ? styles.overCapacity : ''}`}>
                       {totalUnits} / {maxUnits} units
                     </span>
                   </h3>
-                  <p className={styles.sectionDescription}>
-                    Configure products and quantities for this pallet
-                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <label className={styles.variantLabel} style={{ color: 'rgba(255, 255, 255, 0.9)', marginBottom: 0 }}>Max Units:</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={pallet.maxUnits}
+                      onChange={(e) => {
+                        const newMaxUnits = parseInt(e.target.value) || 100;
+                        updatePallet(pallet.id, { maxUnits: newMaxUnits });
+                      }}
+                      className={styles.variantInput}
+                      style={{ width: '100px', marginBottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
+                    />
+                  </div>
                 </div>
                 <Button
                   type="button"
@@ -870,20 +919,6 @@ export function DistributionCalculatorForm({
 
             {pallet.isExpanded && (
               <CardBody>
-                <div className={styles.palletCapacityRow}>
-                  <label className={styles.variantLabel}>Max Units for this Pallet:</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={pallet.maxUnits}
-                    onChange={(e) => {
-                      const newMaxUnits = parseInt(e.target.value) || 100;
-                      updatePallet(pallet.id, { maxUnits: newMaxUnits });
-                    }}
-                    className={styles.variantInput}
-                    style={{ width: '120px', marginBottom: '1rem' }}
-                  />
-                </div>
 
                 {pallet.products.map((product, pIdx) => (
                   <div key={product.id} className={styles.variantRow}>
@@ -1061,7 +1096,7 @@ export function DistributionCalculatorForm({
 
       {/* ===== ACTIONS ===== */}
       <div className={styles.formActions}>
-        <Button type="submit" variant="primary" loading={loading} disabled={loading}>
+        <Button type="submit" variant="gold" loading={loading} disabled={loading}>
           Calculate Distribution Costs
         </Button>
       </div>

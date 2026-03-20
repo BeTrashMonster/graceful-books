@@ -1,5 +1,5 @@
 /**
- * DistributorSelector Styles
+ * DistributorSelector Styles - Audacious Design System
  */
 
 .container {
@@ -9,13 +9,14 @@
 }
 
 .selectWrapper {
-  max-width: 50%;
+  width: 100%;
 }
 
 .selectWrapper label {
   font-size: 1.125rem;
-  font-weight: 600;
-  color: #1f2937;
+  font-weight: 700;
+  color: #4b006e;
+  letter-spacing: -0.01em;
 }
 
 .addButtonWrapper {
@@ -24,14 +25,15 @@
 }
 
 .emptyState {
-  padding: 1rem;
-  background-color: #f9fafb;
-  border: 1px dashed #d1d5db;
-  border-radius: 0.375rem;
-  color: #6b7280;
-  font-size: 0.875rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border: 2px dashed #D4AF37;
+  border-radius: 8px;
+  color: #666;
+  font-size: 1rem;
   text-align: center;
   margin: 0;
+  font-weight: 500;
 }
 
 /* Mobile responsive */

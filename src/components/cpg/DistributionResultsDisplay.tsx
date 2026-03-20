@@ -127,33 +127,28 @@ export function DistributionResultsDisplay({
         <div className={styles.headerWithActions}>
           <div>
             <h3 className={styles.resultsTitle}>Distribution Cost Analysis</h3>
-            <p className={styles.resultsDescription}>
-              Your distribution costs and profit margins for this shipment.
-            </p>
           </div>
           <div className={styles.quickActions}>
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={() => {
                 // TODO: Implement export to Excel
                 console.log('Export to Excel');
               }}
               title="Download these numbers to Excel"
+              className={styles.headerButton}
             >
-              📊 Export
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
+              Export
+            </button>
+            <button
               onClick={() => {
                 // TODO: Implement duplicate scenario
                 console.log('Duplicate scenario');
               }}
               title="Create a copy to try different numbers"
+              className={styles.headerButton}
             >
-              📋 Duplicate
-            </Button>
+              Duplicate
+            </button>
           </div>
         </div>
       </CardHeader>
@@ -165,13 +160,6 @@ export function DistributionResultsDisplay({
             <div className={styles.summaryCard}>
               <div className={styles.summaryLabel}>
                 Total Distribution Cost
-                <button
-                  className={styles.helpIcon}
-                  title="The total cost your distributor charges for this shipment, including all fees like pallet costs, storage, and delivery."
-                  onClick={(e) => e.preventDefault()}
-                >
-                  ?
-                </button>
               </div>
               <div className={styles.summaryValue}>
                 ${parseFloat(results.totalDistributionCost).toLocaleString('en-US', {
@@ -184,13 +172,6 @@ export function DistributionResultsDisplay({
             <div className={styles.summaryCard}>
               <div className={styles.summaryLabel}>
                 Distribution Cost Per Unit
-                <button
-                  className={styles.helpIcon}
-                  title="Total distribution cost divided by the number of units in this shipment. This gets added to your base cost per unit."
-                  onClick={(e) => e.preventDefault()}
-                >
-                  ?
-                </button>
               </div>
               <div className={styles.summaryValue}>
                 ${parseFloat(results.distributionCostPerUnit).toFixed(2)}
@@ -202,13 +183,6 @@ export function DistributionResultsDisplay({
           <div className={styles.variantsSection}>
             <h4 className={styles.sectionTitle}>
               Your Products
-              <button
-                className={styles.helpIconSmall}
-                title="Each product shows your cost to make it, cost to ship it, and how much profit you'll make when it sells."
-                onClick={(e) => e.preventDefault()}
-              >
-                ?
-              </button>
             </h4>
 
             <div className={styles.variantCards}>
@@ -232,13 +206,6 @@ export function DistributionResultsDisplay({
                           <div className={styles.metric}>
                             <span className={styles.metricLabel}>
                               Cost to Make It
-                              <button
-                                className={styles.helpIconTiny}
-                                title="This is what it costs you to produce this product (ingredients, packaging, labor, etc.)"
-                                onClick={(e) => e.preventDefault()}
-                              >
-                                ?
-                              </button>
                             </span>
                             <span className={styles.metricValue}>
                               ${parseFloat(params.variantData[variantName]!.base_cpu).toFixed(2)}
@@ -275,13 +242,6 @@ export function DistributionResultsDisplay({
                       <div className={styles.metric}>
                         <span className={styles.metricLabel}>
                           Net Profit Margin
-                          <button
-                            className={styles.helpIconTiny}
-                            title={`${parseFloat(variantResult.net_profit_margin).toFixed(2)}% means for every dollar you sell, you keep ${(parseFloat(variantResult.net_profit_margin) / 100).toFixed(2)} cents as profit.`}
-                            onClick={(e) => e.preventDefault()}
-                          >
-                            ?
-                          </button>
                         </span>
                         <span className={styles.metricValue}>
                           {parseFloat(variantResult.net_profit_margin).toFixed(2)}%
@@ -292,13 +252,6 @@ export function DistributionResultsDisplay({
                         <div className={styles.metric}>
                           <span className={styles.metricLabel}>
                             MSRP
-                            <button
-                              className={styles.helpIconTiny}
-                              title="Manufacturer's Suggested Retail Price - calculated by adding your markup percentage to your total cost per unit."
-                              onClick={(e) => e.preventDefault()}
-                            >
-                              ?
-                            </button>
                           </span>
                           <span className={styles.metricValue}>
                             ${parseFloat(variantResult.msrp).toFixed(2)}
@@ -316,13 +269,6 @@ export function DistributionResultsDisplay({
           <div className={styles.breakdownSection}>
             <h4 className={styles.sectionTitle}>
               Fee Breakdown
-              <button
-                className={styles.helpIconSmall}
-                title="Itemized list of all distributor fees included in this calculation. Understanding each fee helps you negotiate or compare distributors."
-                onClick={(e) => e.preventDefault()}
-              >
-                ?
-              </button>
             </h4>
 
             {results.feeBreakdown.length > 0 ? (
@@ -398,11 +344,10 @@ export function DistributionResultsDisplay({
               </p>
             </div>
             <Button
-              variant="primary"
+              variant="gold"
               onClick={onSave}
               loading={saving}
               disabled={saving}
-              iconBefore={<span>💾</span>}
             >
               Save Calculation
             </Button>

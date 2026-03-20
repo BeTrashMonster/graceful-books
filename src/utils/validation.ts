@@ -735,7 +735,7 @@ export const DistributionCalcParamsSchema = z
         })
       )
       .max(100, 'Maximum 100 fees per calculation'),
-    msrpMarkupPercentage: markupPercentageSchema.optional(),
+    msrpMarkupPercentage: markupPercentageSchema.nullish(),
   })
   .refine(
     (data) => {

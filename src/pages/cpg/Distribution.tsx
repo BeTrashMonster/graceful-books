@@ -1112,35 +1112,38 @@ export default function Distribution() {
           <div className={styles.calculationsSection}>
             {/* Distributor Selection */}
             <div className={styles.section}>
-              <DistributorSelector
-                distributors={distributors}
-                selectedDistributorId={selectedDistributorId}
-                onSelect={setSelectedDistributorId}
-                loading={loading}
-                hideAddButton={true}
-              />
-
-              {/* Action Buttons */}
-              {selectedDistributor && (
-                <div className={styles.distributorActions}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowEditDistributorModal(true)}
-                  >
-                    Edit Distributor Profile
-                  </Button>
-                  {(calculationResults || hasUnsavedResults) && (
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
+                <div style={{ flex: '0 0 auto', minWidth: '300px' }}>
+                  <DistributorSelector
+                    distributors={distributors}
+                    selectedDistributorId={selectedDistributorId}
+                    onSelect={setSelectedDistributorId}
+                    loading={loading}
+                    hideAddButton={true}
+                  />
+                </div>
+                {/* Action Buttons */}
+                {selectedDistributor && (
+                  <div className={styles.distributorActions} style={{ paddingBottom: '0.375rem' }}>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={handleClearData}
+                      onClick={() => setShowEditDistributorModal(true)}
                     >
-                      Clear Data
+                      Edit Distributor Profile
                     </Button>
-                  )}
-                </div>
-              )}
+                    {(calculationResults || hasUnsavedResults) && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleClearData}
+                      >
+                        Clear Data
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Calculator Form */}
@@ -1169,7 +1172,6 @@ export default function Distribution() {
                 alignItems: 'center',
                 gap: '0.75rem'
               }}>
-                <span style={{ fontSize: '1.5rem' }}>⚠️</span>
                 <div>
                   <strong style={{ color: '#92400e' }}>Form Modified</strong>
                   <p style={{ margin: '0.25rem 0 0 0', color: '#92400e', fontSize: '0.875rem' }}>
@@ -1296,7 +1298,7 @@ export default function Distribution() {
                     fontSize: '0.875rem',
                     color: '#92400e',
                   }}>
-                    <strong>⚠️ Note:</strong> Your choice will update the existing record in place.
+                    <strong>Note:</strong> Your choice will update the existing record in place.
                   </div>
                 )}
 
@@ -1313,16 +1315,16 @@ export default function Distribution() {
                       transition: 'all 0.2s',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = '#3b82f6';
-                      e.currentTarget.style.background = '#eff6ff';
+                      e.currentTarget.style.borderColor = '#D4AF37';
+                      e.currentTarget.style.background = 'rgba(232, 212, 160, 0.1)';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.borderColor = '#d1d5db';
                       e.currentTarget.style.background = 'white';
                     }}
                   >
-                    <div style={{ fontWeight: 600, fontSize: '1rem', color: '#111827', marginBottom: '0.25rem' }}>
-                      💭 {editingCalculationId ? 'Convert to Draft' : 'Save as Draft'}
+                    <div style={{ fontWeight: 600, fontSize: '1rem', color: '#4b006e', marginBottom: '0.25rem' }}>
+                      {editingCalculationId ? 'Convert to Draft' : 'Save as Draft'}
                     </div>
                     <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                       {editingCalculationId
@@ -1343,16 +1345,16 @@ export default function Distribution() {
                       transition: 'all 0.2s',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = '#10b981';
-                      e.currentTarget.style.background = '#f0fdf4';
+                      e.currentTarget.style.borderColor = '#D4AF37';
+                      e.currentTarget.style.background = 'rgba(232, 212, 160, 0.1)';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.borderColor = '#d1d5db';
                       e.currentTarget.style.background = 'white';
                     }}
                   >
-                    <div style={{ fontWeight: 600, fontSize: '1rem', color: '#111827', marginBottom: '0.25rem' }}>
-                      📄 {editingCalculationId ? 'Update Invoice' : 'Save as Invoice'}
+                    <div style={{ fontWeight: 600, fontSize: '1rem', color: '#4b006e', marginBottom: '0.25rem' }}>
+                      {editingCalculationId ? 'Update Invoice' : 'Save as Invoice'}
                     </div>
                     <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                       {editingCalculationId
@@ -1396,13 +1398,13 @@ export default function Distribution() {
                     fontSize: '0.875rem',
                     color: '#991b1b',
                   }}>
-                    <strong>⚠️ Warning:</strong> This will remove the invoice status. The record will no longer appear in Analytics under "Distributor Costs" invoices.
+                    <strong>Warning:</strong> This will remove the invoice status. The record will no longer appear in Analytics under "Distributor Costs" invoices.
                   </div>
                 )}
 
                 {/* Scenario Name */}
                 <div style={{ marginBottom: '1rem', marginTop: '1rem' }}>
-                  <label htmlFor="scenario-name" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+                  <label htmlFor="scenario-name" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', marginBottom: '0.5rem' }}>
                     Scenario Name <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <input
@@ -1413,13 +1415,13 @@ export default function Distribution() {
                     placeholder="ex: 3 Pallets Test, Holiday Rush Scenario"
                     required
                     autoFocus
-                    style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem', fontSize: '0.875rem' }}
+                    style={{ width: '100%', padding: '0.625rem 0.875rem', border: '2px solid #e0e0e0', borderRadius: '6px', fontSize: '1rem', backgroundColor: '#E5F6DF' }}
                   />
                 </div>
 
                 {/* Calculation Date */}
                 <div style={{ marginBottom: '1rem' }}>
-                  <label htmlFor="calculation-date-draft" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+                  <label htmlFor="calculation-date-draft" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', marginBottom: '0.5rem' }}>
                     Date
                   </label>
                   <input
@@ -1429,7 +1431,7 @@ export default function Distribution() {
                     onChange={(e) => setCalculationDate(e.target.value)}
                     onBlur={(e) => handleDateBlur(e.target.value, setCalculationDate)}
                     max={new Date().toISOString().split('T')[0]}
-                    style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem', fontSize: '0.875rem' }}
+                    style={{ width: '100%', padding: '0.625rem 0.875rem', border: '2px solid #e0e0e0', borderRadius: '6px', fontSize: '1rem', backgroundColor: '#E5F6DF' }}
                   />
                 </div>
 
@@ -1442,7 +1444,7 @@ export default function Distribution() {
                     Back
                   </Button>
                   <Button
-                    variant="primary"
+                    variant="gold"
                     onClick={handleSaveScenario}
                     loading={savingScenario}
                     disabled={savingScenario}
@@ -1476,13 +1478,13 @@ export default function Distribution() {
                     fontSize: '0.875rem',
                     color: '#1e40af',
                   }}>
-                    <strong>ℹ️ Editing Mode:</strong> You are updating an existing invoice.
+                    <strong>Editing Mode:</strong> You are updating an existing invoice.
                   </div>
                 )}
 
             {/* Invoice Date */}
             <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="calculation-date" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+              <label htmlFor="calculation-date" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', marginBottom: '0.5rem' }}>
                 Invoice Date <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <input
@@ -1493,13 +1495,13 @@ export default function Distribution() {
                 onBlur={(e) => handleDateBlur(e.target.value, setCalculationDate)}
                 max={new Date().toISOString().split('T')[0]}
                 required
-                style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem', fontSize: '0.875rem' }}
+                style={{ width: '100%', padding: '0.625rem 0.875rem', border: '2px solid #e0e0e0', borderRadius: '6px', fontSize: '1rem', backgroundColor: '#E5F6DF' }}
               />
             </div>
 
             {/* Invoice Number */}
             <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="invoice-number" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+              <label htmlFor="invoice-number" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', marginBottom: '0.5rem' }}>
                 Invoice Number
               </label>
               <input
@@ -1508,13 +1510,13 @@ export default function Distribution() {
                 value={invoiceNumber}
                 onChange={(e) => setInvoiceNumber(e.target.value)}
                 placeholder="INV-12345"
-                style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem', fontSize: '0.875rem' }}
+                style={{ width: '100%', padding: '0.625rem 0.875rem', border: '2px solid #e0e0e0', borderRadius: '6px', fontSize: '1rem', backgroundColor: '#E5F6DF' }}
               />
             </div>
 
             {/* Invoice Total Amount */}
             <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="invoice-total" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+              <label htmlFor="invoice-total" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', marginBottom: '0.5rem' }}>
                 Invoice Total Amount <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
@@ -1533,12 +1535,12 @@ export default function Distribution() {
                     }
                   }}
                   required
-                  style={{ width: '100%', padding: '0.5rem 0.75rem 0.5rem 1.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem', fontSize: '0.875rem' }}
+                  style={{ width: '100%', padding: '0.625rem 0.875rem 0.625rem 1.75rem', border: '2px solid #e0e0e0', borderRadius: '6px', fontSize: '1rem', backgroundColor: '#E5F6DF' }}
                 />
               </div>
               {calculationResults && parseFloat(invoiceTotalAmount || '0') !== parseFloat(calculationResults.totalDistributionCost) && invoiceTotalAmount && (
                 <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: '0.375rem', fontSize: '0.75rem', color: '#92400e' }}>
-                  ⚠️ Invoice total (${invoiceTotalAmount}) differs from calculated cost (${calculationResults.totalDistributionCost}).
+                  Invoice total (${invoiceTotalAmount}) differs from calculated cost (${calculationResults.totalDistributionCost}).
                   Difference: ${Math.abs(parseFloat(invoiceTotalAmount) - parseFloat(calculationResults.totalDistributionCost)).toFixed(2)}
                 </div>
               )}
@@ -1546,7 +1548,7 @@ export default function Distribution() {
 
             {/* Due Date */}
             <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="due-date" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+              <label htmlFor="due-date" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', marginBottom: '0.5rem' }}>
                 Due Date
               </label>
               <input
@@ -1555,14 +1557,14 @@ export default function Distribution() {
                 value={invoiceDueDate}
                 onChange={(e) => setInvoiceDueDate(e.target.value)}
                 onBlur={(e) => handleDateBlur(e.target.value, setInvoiceDueDate)}
-                style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem', fontSize: '0.875rem' }}
+                style={{ width: '100%', padding: '0.625rem 0.875rem', border: '2px solid #e0e0e0', borderRadius: '6px', fontSize: '1rem', backgroundColor: '#E5F6DF' }}
               />
               <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>Defaults to Net 30</p>
             </div>
 
             {/* Payment Status */}
             <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="payment-status" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+              <label htmlFor="payment-status" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', marginBottom: '0.5rem' }}>
                 Payment Status
               </label>
               <select
@@ -1578,7 +1580,7 @@ export default function Distribution() {
                     setAmountPaid('');
                   }
                 }}
-                style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem', fontSize: '0.875rem', background: 'white' }}
+                style={{ width: '100%', padding: '0.625rem 0.875rem', border: '2px solid #e0e0e0', borderRadius: '6px', fontSize: '1rem', backgroundColor: '#E5F6DF' }}
               >
                 <option value="unpaid">Unpaid</option>
                 <option value="partially_paid">Partially Paid</option>
@@ -1590,7 +1592,7 @@ export default function Distribution() {
             {(paymentStatus === 'partially_paid' || paymentStatus === 'paid') && (
               <>
                 <div style={{ marginBottom: '1rem' }}>
-                  <label htmlFor="amount-paid" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+                  <label htmlFor="amount-paid" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', marginBottom: '0.5rem' }}>
                     Amount Paid <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <div style={{ position: 'relative' }}>
@@ -1604,7 +1606,7 @@ export default function Distribution() {
                       value={amountPaid}
                       onChange={(e) => setAmountPaid(e.target.value)}
                       required
-                      style={{ width: '100%', padding: '0.5rem 0.75rem 0.5rem 1.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem', fontSize: '0.875rem' }}
+                      style={{ width: '100%', padding: '0.625rem 0.875rem 0.625rem 1.75rem', border: '2px solid #e0e0e0', borderRadius: '6px', fontSize: '1rem', backgroundColor: '#E5F6DF' }}
                     />
                   </div>
                   {paymentStatus === 'partially_paid' && amountPaid && invoiceTotalAmount && (
@@ -1615,7 +1617,7 @@ export default function Distribution() {
                 </div>
 
                 <div style={{ marginBottom: '1rem' }}>
-                  <label htmlFor="payment-date" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+                  <label htmlFor="payment-date" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', marginBottom: '0.5rem' }}>
                     Payment Date <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <input
@@ -1626,13 +1628,13 @@ export default function Distribution() {
                     onBlur={(e) => handleDateBlur(e.target.value, setPaymentDate)}
                     max={new Date().toISOString().split('T')[0]}
                     required
-                    style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem', fontSize: '0.875rem' }}
+                    style={{ width: '100%', padding: '0.625rem 0.875rem', border: '2px solid #e0e0e0', borderRadius: '6px', fontSize: '1rem', backgroundColor: '#E5F6DF' }}
                   />
                 </div>
 
                 {/* Payment Account - Smart Dropdown */}
                 <div style={{ marginBottom: '1rem' }}>
-                  <label htmlFor="payment-account" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+                  <label htmlFor="payment-account" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', marginBottom: '0.5rem' }}>
                     Payment Account <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <select
@@ -1640,7 +1642,7 @@ export default function Distribution() {
                     value={paymentAccountId}
                     onChange={(e) => setPaymentAccountId(e.target.value)}
                     required
-                    style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem', fontSize: '0.875rem', background: 'white' }}
+                    style={{ width: '100%', padding: '0.625rem 0.875rem', border: '2px solid #e0e0e0', borderRadius: '6px', fontSize: '1rem', backgroundColor: '#E5F6DF' }}
                   >
                     <option value="">Select payment account...</option>
                     {paymentAccounts.length > 0 ? (
@@ -1674,7 +1676,7 @@ export default function Distribution() {
                   paymentAccountId === 'checking'
                 )) && (
                   <div style={{ marginBottom: '1rem' }}>
-                    <label htmlFor="check-number" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+                    <label htmlFor="check-number" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', marginBottom: '0.5rem' }}>
                       Check Number
                     </label>
                     <input
@@ -1683,7 +1685,7 @@ export default function Distribution() {
                       value={checkNumber}
                       onChange={(e) => setCheckNumber(e.target.value)}
                       placeholder="1234"
-                      style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem', fontSize: '0.875rem' }}
+                      style={{ width: '100%', padding: '0.625rem 0.875rem', border: '2px solid #e0e0e0', borderRadius: '6px', fontSize: '1rem', backgroundColor: '#E5F6DF' }}
                     />
                   </div>
                 )}
@@ -1699,7 +1701,7 @@ export default function Distribution() {
                     Back
                   </Button>
                   <Button
-                    variant="primary"
+                    variant="gold"
                     onClick={handleSaveScenario}
                     loading={savingScenario}
                     disabled={savingScenario}
