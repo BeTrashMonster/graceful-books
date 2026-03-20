@@ -424,7 +424,6 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
 
       {scenarios.length === 0 ? (
         <div className={styles.emptyState}>
-          <div className={styles.emptyStateIcon}>💭</div>
           <h3 className={styles.emptyStateTitle}>No Saved Scenarios Yet</h3>
           <p className={styles.emptyStateMessage}>
             Draft scenarios let you explore "what-if" calculations without creating invoices or accounting entries.
@@ -443,8 +442,8 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
 
           {/* Action Toolbar */}
           {selectedScenarios.size > 0 && (
-            <div style={{ padding: '1rem', background: '#eff6ff', border: '1px solid #dbeafe', borderRadius: '8px', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontSize: '0.875rem', fontWeight: 500, color: '#1e40af' }}>
+            <div style={{ padding: '1rem', background: 'linear-gradient(135deg, rgba(232, 212, 160, 0.1) 0%, rgba(255, 255, 255, 0.5) 100%)', border: '2px solid #D4AF37', borderRadius: '8px', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#4b006e' }}>
                 {selectedScenarios.size} scenario{selectedScenarios.size !== 1 ? 's' : ''} selected
               </div>
               <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -453,13 +452,24 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
                     onClick={() => setShowComparisonModal(true)}
                     style={{
                       padding: '0.5rem 1rem',
-                      background: '#3b82f6',
+                      background: '#D4AF37',
                       color: 'white',
                       border: 'none',
                       borderRadius: '6px',
                       cursor: 'pointer',
                       fontSize: '0.875rem',
-                      fontWeight: 500,
+                      fontWeight: 600,
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#B8860B';
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(184, 134, 11, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#D4AF37';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
                     }}
                   >
                     Compare Side-by-Side
@@ -470,13 +480,24 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
                     onClick={() => setShowExportMenu(!showExportMenu)}
                     style={{
                       padding: '0.5rem 1rem',
-                      background: '#10b981',
+                      background: '#D4AF37',
                       color: 'white',
                       border: 'none',
                       borderRadius: '6px',
                       cursor: 'pointer',
                       fontSize: '0.875rem',
-                      fontWeight: 500,
+                      fontWeight: 600,
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#B8860B';
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(184, 134, 11, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#D4AF37';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
                     }}
                   >
                     Export Selected ▼
@@ -506,12 +527,19 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
                             cursor: 'pointer',
                             fontSize: '0.875rem',
                             color: '#374151',
+                            fontWeight: 500,
                           }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = '#f9fafb'}
-                          onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(232, 212, 160, 0.2)';
+                            e.currentTarget.style.color = '#4b006e';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'none';
+                            e.currentTarget.style.color = '#374151';
+                          }}
                           title="Export detailed data table with all products, fees, and calculations"
                         >
-                          📋 Detailed Data Table CSV
+                          Detailed Data Table CSV
                         </button>
                         <button
                           onClick={exportSelectedToCSV}
@@ -524,12 +552,19 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
                             cursor: 'pointer',
                             fontSize: '0.875rem',
                             color: '#374151',
+                            fontWeight: 500,
                           }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = '#f9fafb'}
-                          onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(232, 212, 160, 0.2)';
+                            e.currentTarget.style.color = '#4b006e';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'none';
+                            e.currentTarget.style.color = '#374151';
+                          }}
                           title="Export summary CSV with scenario names, totals, and dates"
                         >
-                          📊 Summary CSV
+                          Summary CSV
                         </button>
                         <button
                           onClick={exportSelectedToPDF}
@@ -542,12 +577,19 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
                             cursor: 'pointer',
                             fontSize: '0.875rem',
                             color: '#374151',
+                            fontWeight: 500,
                           }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = '#f9fafb'}
-                          onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(232, 212, 160, 0.2)';
+                            e.currentTarget.style.color = '#4b006e';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'none';
+                            e.currentTarget.style.color = '#374151';
+                          }}
                           title="Export summary PDF report"
                         >
-                          📄 Summary PDF
+                          Summary PDF
                         </button>
                       </div>
                     </>
@@ -558,11 +600,21 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
                   style={{
                     padding: '0.5rem 1rem',
                     background: 'white',
-                    color: '#6b7280',
-                    border: '1px solid #d1d5db',
+                    color: '#4b006e',
+                    border: '2px solid #D4AF37',
                     borderRadius: '6px',
                     cursor: 'pointer',
                     fontSize: '0.875rem',
+                    fontWeight: 600,
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(232, 212, 160, 0.2)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'white';
+                    e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
                   Clear Selection
@@ -714,32 +766,32 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
           size="xl"
         >
           {/* Decision Summary */}
-          <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#ecfdf5', border: '1px solid #10b981', borderRadius: '8px' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#065f46', margin: '0 0 0.75rem 0' }}>
-              💡 Quick Decision Guide
+          <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'linear-gradient(135deg, rgba(232, 212, 160, 0.1) 0%, rgba(255, 255, 255, 0.5) 100%)', border: '2px solid #D4AF37', borderRadius: '8px' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#4b006e', margin: '0 0 0.75rem 0' }}>
+              Quick Decision Guide
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', fontSize: '0.875rem' }}>
               <div>
                 <div style={{ color: '#6b7280', marginBottom: '0.25rem' }}>Best Overall Cost</div>
-                <div style={{ fontWeight: 600, color: '#065f46' }}>
+                <div style={{ fontWeight: 700, color: '#4b006e' }}>
                   {selectedItems.find(s => parseFloat(s.total_distribution_cost) === lowestCost)?.calculation_name}
                 </div>
-                <div style={{ fontSize: '0.8125rem', color: '#059669' }}>{formatCurrency(lowestCost.toFixed(2))}</div>
+                <div style={{ fontSize: '0.8125rem', color: '#B8860B', fontWeight: 600 }}>{formatCurrency(lowestCost.toFixed(2))}</div>
               </div>
               <div>
                 <div style={{ color: '#6b7280', marginBottom: '0.25rem' }}>Best Cost Per Unit</div>
-                <div style={{ fontWeight: 600, color: '#065f46' }}>
+                <div style={{ fontWeight: 700, color: '#4b006e' }}>
                   {selectedItems.find(s => parseFloat(s.distribution_cost_per_unit) === lowestCostPerUnit)?.calculation_name}
                 </div>
-                <div style={{ fontSize: '0.8125rem', color: '#059669' }}>{formatCurrency(lowestCostPerUnit.toFixed(2))}/unit</div>
+                <div style={{ fontSize: '0.8125rem', color: '#B8860B', fontWeight: 600 }}>{formatCurrency(lowestCostPerUnit.toFixed(2))}/unit</div>
               </div>
               {lowestCost < highestCost && (
                 <div>
                   <div style={{ color: '#6b7280', marginBottom: '0.25rem' }}>Potential Savings</div>
-                  <div style={{ fontWeight: 600, color: '#065f46' }}>
+                  <div style={{ fontWeight: 700, color: '#4b006e' }}>
                     {formatCurrency((highestCost - lowestCost).toFixed(2))}
                   </div>
-                  <div style={{ fontSize: '0.8125rem', color: '#059669' }}>
+                  <div style={{ fontSize: '0.8125rem', color: '#B8860B', fontWeight: 600 }}>
                     ({(((highestCost - lowestCost) / highestCost) * 100).toFixed(1)}% reduction)
                   </div>
                 </div>
@@ -750,10 +802,10 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
               <thead>
-                <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
-                  <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#374151' }}>Field</th>
+                <tr style={{ background: 'linear-gradient(135deg, rgba(75, 0, 110, 0.05) 0%, rgba(75, 0, 110, 0.08) 100%)', borderBottom: '2px solid #D4AF37' }}>
+                  <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 700, color: '#4b006e' }}>Field</th>
                   {selectedItems.map((scenario, idx) => (
-                      <th key={scenario.id} style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#374151' }}>
+                      <th key={scenario.id} style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 700, color: '#4b006e' }}>
                         {scenario.calculation_name}
                         {idx === 0 && <div style={{ fontSize: '0.75rem', fontWeight: 400, color: '#6b7280', marginTop: '0.25rem' }}>Baseline</div>}
                       </th>
@@ -784,12 +836,12 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
 
                     return (
                       <td key={scenario.id} style={{ padding: '0.75rem' }}>
-                        <div style={{ fontWeight: 600, color: isBest ? '#059669' : isWorst ? '#dc2626' : '#111827' }}>
+                        <div style={{ fontWeight: 600, color: isBest ? '#B8860B' : isWorst ? '#dc2626' : '#111827' }}>
                           {formatCurrency(scenario.total_distribution_cost)}
-                          {isBest && <span style={{ marginLeft: '0.5rem', fontSize: '0.8125rem' }}>✅ Best</span>}
+                          {isBest && <span style={{ marginLeft: '0.5rem', fontSize: '0.8125rem', color: '#B8860B', fontWeight: 700 }}>Best</span>}
                         </div>
                         {idx > 0 && diff !== 0 && (
-                          <div style={{ fontSize: '0.75rem', color: diff < 0 ? '#059669' : '#dc2626', marginTop: '0.25rem' }}>
+                          <div style={{ fontSize: '0.75rem', color: diff < 0 ? '#B8860B' : '#dc2626', marginTop: '0.25rem', fontWeight: 600 }}>
                             {diff < 0 ? '↓' : '↑'} {formatCurrency(Math.abs(diff).toFixed(2))} ({diffPercent > 0 ? '+' : ''}{diffPercent.toFixed(1)}%)
                           </div>
                         )}
@@ -808,12 +860,12 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
 
                     return (
                       <td key={scenario.id} style={{ padding: '0.75rem' }}>
-                        <div style={{ fontWeight: 600, color: isBest ? '#059669' : isWorst ? '#dc2626' : '#111827' }}>
+                        <div style={{ fontWeight: 600, color: isBest ? '#B8860B' : isWorst ? '#dc2626' : '#111827' }}>
                           {formatCurrency(scenario.distribution_cost_per_unit)}
-                          {isBest && <span style={{ marginLeft: '0.5rem', fontSize: '0.8125rem' }}>✅ Best</span>}
+                          {isBest && <span style={{ marginLeft: '0.5rem', fontSize: '0.8125rem', color: '#B8860B', fontWeight: 700 }}>Best</span>}
                         </div>
                         {idx > 0 && diff !== 0 && (
-                          <div style={{ fontSize: '0.75rem', color: diff < 0 ? '#059669' : '#dc2626', marginTop: '0.25rem' }}>
+                          <div style={{ fontSize: '0.75rem', color: diff < 0 ? '#B8860B' : '#dc2626', marginTop: '0.25rem', fontWeight: 600 }}>
                             {diff < 0 ? '↓' : '↑'} {formatCurrency(Math.abs(diff).toFixed(2))} ({diffPercent > 0 ? '+' : ''}{diffPercent.toFixed(1)}%)
                           </div>
                         )}
@@ -830,8 +882,8 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
               </tbody>
             </table>
             {selectedScenarios.size > 4 && (
-              <div style={{ marginTop: '1rem', padding: '1rem', background: '#fef3c7', border: '1px solid #fbbf24', borderRadius: '6px', fontSize: '0.875rem', color: '#92400e' }}>
-                ℹ️ Showing first 4 scenarios. You have {selectedScenarios.size - 4} more selected.
+              <div style={{ marginTop: '1rem', padding: '1rem', background: 'linear-gradient(135deg, rgba(232, 212, 160, 0.2) 0%, rgba(255, 255, 255, 0.5) 100%)', border: '2px solid #D4AF37', borderRadius: '6px', fontSize: '0.875rem', color: '#4b006e', fontWeight: 600 }}>
+                Showing first 4 scenarios. You have {selectedScenarios.size - 4} more selected.
               </div>
             )}
           </div>
