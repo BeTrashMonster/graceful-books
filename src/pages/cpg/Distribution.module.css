@@ -321,58 +321,63 @@
   gap: 1rem;
   margin-bottom: 2rem;
   flex-wrap: wrap;
+  align-items: flex-end;
 }
 
 .filterGroup {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  min-width: 150px;
+  min-width: 180px;
+  flex: 1;
 }
 
 .filterLabel {
   font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
+  font-weight: 600;
+  color: #4b006e;
 }
 
 .filterSelect {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  color: #1f2937;
-  background: white;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: #1a1a1a;
+  background: #E5F6DF;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
 }
 
-.filterSelect:hover {
-  border-color: #9ca3af;
+.filterSelect:hover:not(:focus) {
+  border-color: #D4AF37;
 }
 
 .filterSelect:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
 }
 
 /* Loading and No Data */
 .loading {
-  padding: 2rem;
+  padding: 3rem;
   text-align: center;
-  color: #6b7280;
-  font-size: 1rem;
+  color: #4b006e;
+  font-size: 1.125rem;
+  font-weight: 600;
 }
 
 .noData {
-  padding: 3rem;
+  padding: 4rem;
   text-align: center;
-  color: #6b7280;
-  font-size: 1rem;
-  background: #f9fafb;
-  border-radius: 0.5rem;
+  color: #666;
+  font-size: 1.125rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border-radius: 8px;
+  border: 2px dashed #D4AF37;
   margin: 2rem 0;
+  font-weight: 500;
 }
 
 /* Statistics Grid */
@@ -398,10 +403,10 @@
 }
 
 .comparisonDistributorName {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4b006e;
+  margin: 0 0 1rem 0;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -409,151 +414,191 @@
 
 .primaryBadge {
   display: inline-block;
-  padding: 0.25rem 0.75rem;
-  background: #dbeafe;
-  color: #1e40af;
-  border-radius: 0.375rem;
+  padding: 0.375rem 1rem;
+  background: #4b006e;
+  color: white;
+  border-radius: 6px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .comparisonBadge {
   display: inline-block;
-  padding: 0.25rem 0.75rem;
-  background: #fed7aa;
-  color: #9a3412;
-  border-radius: 0.375rem;
+  padding: 0.375rem 1rem;
+  background: linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%);
+  color: #2d1b00;
+  border-radius: 6px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .statCard {
   padding: 1.5rem;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
+  border-left: 4px solid #D4AF37;
+  border-right: 2px solid #e0e0e0;
+  border-top: 2px solid #e0e0e0;
+  border-bottom: 2px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  transition: all 0.2s;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.25);
 }
 
 .statLabel {
   font-size: 0.875rem;
-  color: #6b7280;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+  color: #666;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .statValue {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #4b006e;
 }
 
 /* Trend Direction Styles */
 .trendIncreasing {
-  color: #ef4444;
+  color: #dc2626;
+  font-weight: 700;
 }
 
 .trendDecreasing {
-  color: #10b981;
+  color: #509724;
+  font-weight: 700;
 }
 
 .trendStable {
-  color: #6b7280;
+  color: #666;
+  font-weight: 700;
 }
 
 /* Chart Container */
 .chartContainer {
-  padding: 2rem;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
+  background: #ffffff;
+  border-left: 4px solid #D4AF37;
+  border-right: 4px solid #D4AF37;
+  border-bottom: 4px solid #D4AF37;
+  border-radius: 8px;
   margin-bottom: 2rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  padding: 0;
+  overflow: hidden;
 }
 
 .chartTitle {
-  font-size: 1.25rem;
+  font-size: 2rem;
   font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 1.5rem 0;
+  color: #ffffff;
+  margin: 0;
+  padding: 1.25rem 2rem;
+  background: #4b006e;
+}
+
+.chartContent {
+  padding: 2rem;
 }
 
 /* Chart Tooltip */
 .chartTooltip {
   background: white;
-  padding: 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1rem 1.25rem;
+  border-left: 3px solid #D4AF37;
+  border-right: 1px solid #e0e0e0;
+  border-top: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .tooltipDate {
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 0.5rem 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  font-weight: 700;
+  color: #4b006e;
+  margin: 0 0 0.75rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #D4AF37;
+  font-size: 0.9375rem;
 }
 
 .chartTooltip p {
-  margin: 0.25rem 0;
+  margin: 0.5rem 0;
   font-size: 0.875rem;
-  color: #374151;
+  color: #1a1a1a;
+  font-weight: 500;
 }
 
 .tooltipDetail {
-  margin-top: 0.5rem !important;
-  padding-top: 0.5rem;
-  border-top: 1px solid #e5e7eb;
-  font-size: 0.75rem !important;
-  color: #6b7280 !important;
+  margin-top: 0.75rem !important;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e0e0e0;
+  font-size: 0.8125rem !important;
+  color: #666 !important;
 }
 
 /* Table */
 .tableContainer {
   margin-top: 2rem;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  overflow-x: auto;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  border-left: 4px solid #D4AF37;
+  border-right: 4px solid #D4AF37;
+  border-bottom: 4px solid #D4AF37;
+  border-radius: 8px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
 }
 
 .tableTitle {
-  font-size: 1.25rem;
+  font-size: 2rem;
   font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 1rem 0;
+  color: #ffffff;
+  margin: 0;
+  padding: 1.25rem 2rem;
+  background: #4b006e;
+}
+
+.tableContent {
+  padding: 1.5rem;
+  overflow-x: auto;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 
 .table th {
   text-align: left;
-  padding: 0.75rem 1rem;
-  background: #f9fafb;
-  color: #374151;
-  font-weight: 600;
-  border-bottom: 2px solid #e5e7eb;
+  padding: 1rem 1.5rem;
+  background: #f3e8ff;
+  color: #4b006e;
+  font-weight: 700;
+  border-bottom: 2px solid #D4AF37;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.875rem;
 }
 
 .table td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e5e7eb;
-  color: #1f2937;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
+  color: #1a1a1a;
 }
 
 .table tbody tr:hover {
-  background: #f9fafb;
+  background: linear-gradient(90deg, rgba(232, 212, 160, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
 }
 
 .table tbody tr:last-child td {
@@ -568,28 +613,29 @@
 
 /* Export Section */
 .exportButton {
-  padding: 0.5rem 0.75rem;
-  background: white;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%);
+  color: #2d1b00;
+  border: 2px solid #B8860B;
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .exportButton:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .exportButton:focus {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2), 0 4px 12px rgba(184, 134, 11, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 /* Export Dropdown */

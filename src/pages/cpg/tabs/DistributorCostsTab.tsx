@@ -1179,7 +1179,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
             <>
               {/* Statistics Cards */}
               {showComparison ? (
-                <div className={styles.comparisonStatsContainer}>
+                <div className={styles.comparisonStatsContainer} style={{ marginTop: '3rem' }}>
                   {/* Primary Distributor Stats */}
                   <div className={styles.comparisonStatsSection}>
                     <h3 className={styles.comparisonDistributorName}>
@@ -1320,19 +1320,19 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
               {/* Distributor Cost Chart */}
               {distributorTrend.data_points.length > 0 ? (
                 <div className={styles.chartContainer}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <h2 className={styles.chartTitle} style={{ margin: 0 }}>
+                  <div className={styles.chartTitle} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>
                       Distribution Cost Trend
                       {showComparison && compareDistributorTrend
                         ? ` - ${distributorTrend.distributor_name} vs ${compareDistributorTrend.distributor_name}`
                         : ` - ${distributorTrend.distributor_name}`}
-                    </h2>
+                    </span>
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                       {/* View Toggle for Comparison Mode */}
                       {showComparison && compareDistributorTrend && (
                         <div style={{
                           display: 'inline-flex',
-                          background: '#f3f4f6',
+                          background: 'rgba(255, 255, 255, 0.15)',
                           borderRadius: '6px',
                           padding: '2px',
                           marginRight: '0.5rem'
@@ -1343,12 +1343,12 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                               padding: '0.4rem 0.8rem',
                               border: 'none',
                               borderRadius: '4px',
-                              background: comparisonChartView === 'trend' ? '#fff' : 'transparent',
-                              fontWeight: comparisonChartView === 'trend' ? '600' : 'normal',
-                              color: comparisonChartView === 'trend' ? '#1f2937' : '#6b7280',
+                              background: comparisonChartView === 'trend' ? 'linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%)' : 'transparent',
+                              fontWeight: '600',
+                              color: comparisonChartView === 'trend' ? '#2d1b00' : '#ffffff',
                               cursor: 'pointer',
                               fontSize: '0.875rem',
-                              boxShadow: comparisonChartView === 'trend' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                              boxShadow: comparisonChartView === 'trend' ? '0 2px 6px rgba(184, 134, 11, 0.4)' : 'none',
                               transition: 'all 0.2s'
                             }}
                           >
@@ -1360,12 +1360,12 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                               padding: '0.4rem 0.8rem',
                               border: 'none',
                               borderRadius: '4px',
-                              background: comparisonChartView === 'bars' ? '#fff' : 'transparent',
-                              fontWeight: comparisonChartView === 'bars' ? '600' : 'normal',
-                              color: comparisonChartView === 'bars' ? '#1f2937' : '#6b7280',
+                              background: comparisonChartView === 'bars' ? 'linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%)' : 'transparent',
+                              fontWeight: '600',
+                              color: comparisonChartView === 'bars' ? '#2d1b00' : '#ffffff',
                               cursor: 'pointer',
                               fontSize: '0.875rem',
-                              boxShadow: comparisonChartView === 'bars' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                              boxShadow: comparisonChartView === 'bars' ? '0 2px 6px rgba(184, 134, 11, 0.4)' : 'none',
                               transition: 'all 0.2s'
                             }}
                           >
@@ -1378,11 +1378,17 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                         onClick={() => {
                           exportChartToPDF(distributorTrend, compareDistributorTrend);
                         }}
+                        style={{
+                          padding: '0.5rem 1rem',
+                          fontSize: '0.875rem',
+                          boxShadow: '0 2px 6px rgba(184, 134, 11, 0.4)'
+                        }}
                       >
-                        📄 Export as PDF
+                        Export Chart
                       </button>
                     </div>
                   </div>
+                  <div className={styles.chartContent}>
 
                   {/* Insight Banner - Only show when NOT comparing */}
                   {!showComparison && (() => {
@@ -1845,24 +1851,30 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                       </div>
                     </>
                   )}
+                  </div>
                 </div>
               ) : null}
 
               {/* Calculations History Table */}
               {distributorTrend.data_points.length > 0 && (
                 <div className={styles.tableContainer}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                    <h2 className={styles.tableTitle} style={{ margin: 0 }}>
+                  <div className={styles.tableTitle} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>
                       Calculation History Summary for {distributorTrend.distributor_name}
-                    </h2>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                    </span>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                       {/* Column Selector */}
                       <div style={{ position: 'relative' }}>
                         <button
                           className={styles.exportButton}
                           onClick={() => setShowColumnSelector(!showColumnSelector)}
+                          style={{
+                            padding: '0.5rem 1rem',
+                            fontSize: '0.875rem',
+                            boxShadow: '0 2px 6px rgba(184, 134, 11, 0.4)'
+                          }}
                         >
-                          ⚙️ Columns
+                          Columns
                         </button>
                         {showColumnSelector && (
                           <div className={styles.columnSelector}>
@@ -1894,8 +1906,13 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                         <button
                           className={styles.exportButton}
                           onClick={() => setShowTableExportMenu(!showTableExportMenu)}
+                          style={{
+                            padding: '0.5rem 1rem',
+                            fontSize: '0.875rem',
+                            boxShadow: '0 2px 6px rgba(184, 134, 11, 0.4)'
+                          }}
                         >
-                          📥 Export Table ▼
+                          Export Table
                         </button>
                         {showTableExportMenu && (
                           <div className={styles.exportDropdown}>
@@ -1968,6 +1985,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                       </div>
                     </div>
                   </div>
+                  <div className={styles.tableContent}>
                   <table className={styles.table}>
                     <thead>
                       <tr>
@@ -2018,7 +2036,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                                   style={{
                                     padding: '0.25rem 0.75rem',
                                     fontSize: '0.875rem',
-                                    background: '#3b82f6',
+                                    background: '#4b006e',
                                     color: 'white',
                                     border: 'none',
                                     borderRadius: '4px',
@@ -2034,6 +2052,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                       })}
                     </tbody>
                   </table>
+                  </div>
                 </div>
               )}
 
