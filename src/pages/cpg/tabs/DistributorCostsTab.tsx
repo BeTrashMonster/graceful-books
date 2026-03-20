@@ -47,12 +47,16 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
   const navigate = useNavigate();
   const service = createHistoricalAnalyticsService(db);
 
+  // Read URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const distributorParam = urlParams.get('distributor');
+
   // State
   const [isLoading, setIsLoading] = useState(false);
   const [dateRange, setDateRange] = useState<DateRangePreset>('12mo');
   const [customStartDate, setCustomStartDate] = useState<string>('');
   const [customEndDate, setCustomEndDate] = useState<string>('');
-  const [selectedDistributor, setSelectedDistributor] = useState<string>('all');
+  const [selectedDistributor, setSelectedDistributor] = useState<string>(distributorParam || 'all');
   const [compareDistributor, setCompareDistributor] = useState<string | null>(null);
   const [showComparison, setShowComparison] = useState<boolean>(false);
   const [comparisonChartView, setComparisonChartView] = useState<'trend' | 'bars'>('trend');

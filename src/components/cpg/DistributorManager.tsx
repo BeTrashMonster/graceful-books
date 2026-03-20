@@ -1068,6 +1068,12 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
   // Main content to be rendered either in modal or embedded
   const managerContent = (
     <div className={embedded ? styles.embeddedContainer : styles.container}>
+      {embedded && (
+        <div className={styles.embeddedHeader}>
+          <h2 className={styles.embeddedTitle}>Manage Distributors</h2>
+        </div>
+      )}
+      <div className={embedded ? styles.contentWrapper : ''}>
           {isLoading ? (
             <div className={styles.loadingState}>
               <div className={styles.loadingSpinner}>⏳</div>
@@ -1081,7 +1087,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                   <h3>No distributors yet</h3>
                   <p>Get started by adding your first distributor</p>
                   <Button
-                    variant="primary"
+                    variant="gold"
                     onClick={() => setShowAddModal(true)}
                     style={{ marginTop: '1rem' }}
                   >
@@ -1093,7 +1099,6 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                   {/* Search and Sort Controls */}
                   <div className={styles.controls}>
                     <div className={styles.searchWrapper}>
-                      <span className={styles.searchIcon}>🔍</span>
                       <input
                         type="text"
                         placeholder="Search distributors..."
@@ -1145,35 +1150,23 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
 
                       {/* Custom Date Pickers on Dashboard */}
                       {dateRangeFilter === 'custom' && (
-                        <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                           <input
                             type="date"
                             value={customStartDate}
                             onChange={(e) => setCustomStartDate(e.target.value)}
                             onBlur={(e) => handleDateBlur(e.target.value, setCustomStartDate)}
                             placeholder="Start"
-                            style={{
-                              padding: '0.5rem',
-                              border: '1px solid #d1d5db',
-                              borderRadius: '6px',
-                              fontSize: '0.875rem',
-                              width: '140px',
-                            }}
+                            className={styles.dateInput}
                           />
-                          <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>to</span>
+                          <span style={{ color: '#666', fontSize: '1rem', fontWeight: 600 }}>to</span>
                           <input
                             type="date"
                             value={customEndDate}
                             onChange={(e) => setCustomEndDate(e.target.value)}
                             onBlur={(e) => handleDateBlur(e.target.value, setCustomEndDate)}
                             placeholder="End"
-                            style={{
-                              padding: '0.5rem',
-                              border: '1px solid #d1d5db',
-                              borderRadius: '6px',
-                              fontSize: '0.875rem',
-                              width: '140px',
-                            }}
+                            className={styles.dateInput}
                           />
                         </div>
                       )}
@@ -1344,7 +1337,8 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
               )}
             </>
           )}
-        </div>
+      </div>
+    </div>
   );
 
   return (
@@ -1365,7 +1359,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
               <Button variant="outline" onClick={() => setShowAddModal(true)}>
                 + Add Distributor
               </Button>
-              <Button variant="primary" onClick={onClose}>
+              <Button variant="gold" onClick={onClose}>
                 Done
               </Button>
             </div>
@@ -1382,6 +1376,11 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
         title="Add New Distributor"
         size="xl"
         closeOnBackdropClick={false}
+        headerStyle={{
+          background: '#4b006e',
+          color: 'white',
+          borderBottom: '3px solid #D4AF37',
+        }}
       >
         <DistributorProfileForm
           onSubmit={handleCreateSubmit}
@@ -1397,6 +1396,11 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
         title="Edit Distributor"
         size="xl"
         closeOnBackdropClick={false}
+        headerStyle={{
+          background: '#4b006e',
+          color: 'white',
+          borderBottom: '3px solid #D4AF37',
+        }}
       >
         {editingDistributor && (
           <DistributorProfileForm
@@ -1433,7 +1437,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
               Cancel
             </Button>
             <Button
-              variant="primary"
+              variant="gold"
               onClick={() => handleRecalculateConfirm()}
               loading={isSaving}
               disabled={isSaving}
@@ -1658,9 +1662,8 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                   Cancel
                 </Button>
                 <Button
-                  variant="primary"
+                  variant="gold"
                   onClick={handlePayInvoice}
-                  style={{ backgroundColor: '#10b981' }}
                 >
                   Record Payment
                 </Button>
@@ -1852,126 +1855,66 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
             {/* Backdrop */}
             <div
               onClick={closeInvoiceDrawer}
-              style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: 'rgba(0, 0, 0, 0.5)',
-                zIndex: 1000,
-                animation: 'fadeIn 0.2s ease-out',
-              }}
+              className={styles.drawerBackdrop}
             />
 
             {/* Drawer */}
-            <div
-              style={{
-                position: 'fixed',
-                top: 0,
-                right: 0,
-                bottom: 0,
-                width: 'min(800px, 90vw)',
-                background: 'white',
-                boxShadow: '-4px 0 24px rgba(0, 0, 0, 0.15)',
-                zIndex: 1001,
-                display: 'flex',
-                flexDirection: 'column',
-                animation: 'slideInRight 0.3s ease-out',
-              }}
-            >
+            <div className={styles.drawer}>
               {/* Header */}
-              <div style={{
-                padding: '1.5rem 2rem',
-                borderBottom: '1px solid #e5e7eb',
-                background: '#f9fafb',
-              }}>
-                {/* Top row: Name, Stats, and Buttons */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <div className={styles.drawerHeader}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#111827', margin: '0 0 0.5rem 0' }}>
+                    <h2 className={styles.drawerTitle}>
                       {selectedDistributorForInvoices.name}
                     </h2>
-                    <div style={{ fontSize: '0.875rem', color: '#6b7280', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div className={styles.drawerSubtitle}>
                       <span>
                         {data ? `$${data.avgCostPerUnit}/unit average` : 'No calculations yet'}
                       </span>
                       <span>•</span>
                       <span>
-                        📦 {invoices.length} invoice{invoices.length !== 1 ? 's' : ''} ({getDateRangeLabel()})
+                        {invoices.length} invoice{invoices.length !== 1 ? 's' : ''} ({getDateRangeLabel()})
                       </span>
                     </div>
                   </div>
 
-                  {/* Action Buttons Group */}
-                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                  <button
+                    onClick={closeInvoiceDrawer}
+                    className={styles.drawerCloseButton}
+                    aria-label="Close"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className={styles.drawerActions}>
                     <button
                       onClick={() => {
                         setEditingDistributor(selectedDistributorForInvoices);
                         closeInvoiceDrawer();
                       }}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        fontSize: '0.875rem',
-                        fontWeight: 500,
-                        color: '#374151',
-                        background: 'white',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        transition: 'background 0.15s',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = '#f9fafb';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'white';
-                      }}
+                      className={styles.drawerButton}
                     >
                       <span>✏️</span>
                       Edit Distributor
                     </button>
-
-                    <button
-                      onClick={closeInvoiceDrawer}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        fontSize: '1.5rem',
-                        cursor: 'pointer',
-                        color: '#6b7280',
-                        padding: '0.5rem',
-                        lineHeight: 1,
-                      }}
-                      aria-label="Close"
-                    >
-                      ✕
-                    </button>
                   </div>
                 </div>
 
+              {/* Content */}
+              <div className={styles.drawerContent}>
                 {/* Controls: Date Filter */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <label htmlFor="drawer-date-filter" style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: 500 }}>
+                <div className={styles.drawerFilters}>
+                  <div className={styles.drawerFilterGroup}>
+                    <label htmlFor="drawer-date-filter" className={styles.drawerFilterLabel}>
                       Show invoices from:
                     </label>
                     <select
                       id="drawer-date-filter"
                       value={dateRangeFilter}
                       onChange={(e) => setDateRangeFilter(e.target.value as typeof dateRangeFilter)}
-                      style={{
-                        padding: '0.5rem 0.75rem',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        fontSize: '0.875rem',
-                        color: '#374151',
-                        background: 'white',
-                        cursor: 'pointer',
-                      }}
+                      className={styles.drawerFilterSelect}
                     >
                       <optgroup label="Recent Activity">
                         <option value="today">Today</option>
@@ -2001,70 +1944,60 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
 
                   {/* Custom Date Pickers */}
                   {dateRangeFilter === 'custom' && (
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginLeft: '0.5rem' }}>
+                    <div className={styles.drawerFilterGroup} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                       <input
                         type="date"
                         value={customStartDate}
                         onChange={(e) => setCustomStartDate(e.target.value)}
                         onBlur={(e) => handleDateBlur(e.target.value, setCustomStartDate)}
                         placeholder="Start date"
-                        style={{
-                          padding: '0.375rem 0.5rem',
-                          border: '1px solid #d1d5db',
-                          borderRadius: '4px',
-                          fontSize: '0.8125rem',
-                        }}
+                        className={styles.dateInput}
+                        style={{ flex: 1 }}
                       />
-                      <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>to</span>
+                      <span style={{ color: '#666', fontSize: '1rem', fontWeight: 600 }}>to</span>
                       <input
                         type="date"
                         value={customEndDate}
                         onChange={(e) => setCustomEndDate(e.target.value)}
                         onBlur={(e) => handleDateBlur(e.target.value, setCustomEndDate)}
                         placeholder="End date"
-                        style={{
-                          padding: '0.375rem 0.5rem',
-                          border: '1px solid #d1d5db',
-                          borderRadius: '4px',
-                          fontSize: '0.8125rem',
-                        }}
+                        className={styles.dateInput}
+                        style={{ flex: 1 }}
                       />
                     </div>
                   )}
                 </div>
-              </div>
-
-              {/* Content */}
-              <div style={{ flex: 1, overflow: 'auto', padding: '2rem' }}>
                 {/* Export Button */}
-                <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+                <div style={{ marginBottom: '0.25rem', display: 'flex', justifyContent: 'flex-end' }}>
                   <div style={{ position: 'relative' }}>
                     <button
                       onClick={() => setShowExportMenu(!showExportMenu)}
                       style={{
-                        padding: '0.5rem 1rem',
-                        border: '1px solid #6366f1',
+                        padding: '0.625rem 1.25rem',
+                        background: 'linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%)',
+                        color: '#2d1b00',
+                        border: '2px solid #B8860B',
                         borderRadius: '6px',
-                        fontSize: '0.875rem',
-                        fontWeight: 500,
-                        color: '#6366f1',
-                        background: 'white',
+                        fontSize: '0.9375rem',
+                        fontWeight: 600,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.5rem',
-                        transition: 'all 0.15s',
+                        transition: 'all 0.2s',
+                        boxShadow: '0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = '#eef2ff';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(184, 134, 11, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'white';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
                       }}
                     >
-                      <span>📥</span>
                       Export
-                      <span style={{ fontSize: '0.7rem' }}>▼</span>
+                      <span style={{ fontSize: '0.75rem' }}>▼</span>
                     </button>
 
                     {/* Export Menu Dropdown */}
@@ -2342,21 +2275,26 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                                     window.location.href = `/cpg/distribution-cost?tab=calculations&distributor=${selectedDistributorForInvoices.id}&calculation=${invoice.id}`;
                                   }}
                                   style={{
-                                    background: '#6366f1',
+                                    background: '#4b006e',
                                     color: 'white',
                                     border: 'none',
                                     padding: '0.375rem 0.875rem',
                                     borderRadius: '6px',
                                     cursor: 'pointer',
                                     fontSize: '0.8125rem',
-                                    fontWeight: 500,
-                                    transition: 'background 0.15s',
+                                    fontWeight: 600,
+                                    transition: 'all 0.2s',
+                                    boxShadow: '0 2px 6px rgba(75, 0, 110, 0.3)',
                                   }}
                                   onMouseEnter={(e) => {
-                                    e.currentTarget.style.background = '#4f46e5';
+                                    e.currentTarget.style.background = '#6d28d9';
+                                    e.currentTarget.style.transform = 'translateY(-1px)';
+                                    e.currentTarget.style.boxShadow = '0 4px 8px rgba(75, 0, 110, 0.4)';
                                   }}
                                   onMouseLeave={(e) => {
-                                    e.currentTarget.style.background = '#6366f1';
+                                    e.currentTarget.style.background = '#4b006e';
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.boxShadow = '0 2px 6px rgba(75, 0, 110, 0.3)';
                                   }}
                                 >
                                   Edit
@@ -2370,21 +2308,26 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                                       setPaymentAmount(amountDue);
                                     }}
                                     style={{
-                                      background: '#10b981',
+                                      background: '#065f46',
                                       color: 'white',
                                       border: 'none',
                                       padding: '0.375rem 0.875rem',
                                       borderRadius: '6px',
                                       cursor: 'pointer',
                                       fontSize: '0.8125rem',
-                                      fontWeight: 500,
-                                      transition: 'background 0.15s',
+                                      fontWeight: 600,
+                                      transition: 'all 0.2s',
+                                      boxShadow: '0 2px 6px rgba(6, 95, 70, 0.3)',
                                     }}
                                     onMouseEnter={(e) => {
-                                      e.currentTarget.style.background = '#059669';
+                                      e.currentTarget.style.background = '#047857';
+                                      e.currentTarget.style.transform = 'translateY(-1px)';
+                                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(6, 95, 70, 0.4)';
                                     }}
                                     onMouseLeave={(e) => {
-                                      e.currentTarget.style.background = '#10b981';
+                                      e.currentTarget.style.background = '#065f46';
+                                      e.currentTarget.style.transform = 'translateY(0)';
+                                      e.currentTarget.style.boxShadow = '0 2px 6px rgba(6, 95, 70, 0.3)';
                                     }}
                                   >
                                     Pay Invoice
@@ -2393,23 +2336,25 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                                 <button
                                   onClick={() => setDeletingCalculationId(invoice.id)}
                                   style={{
-                                    background: 'none',
+                                    background: 'white',
                                     color: '#dc2626',
-                                    border: '1px solid #fecaca',
+                                    border: '2px solid #dc2626',
                                     padding: '0.375rem 0.875rem',
                                     borderRadius: '6px',
                                     cursor: 'pointer',
                                     fontSize: '0.8125rem',
-                                    fontWeight: 500,
-                                    transition: 'all 0.15s',
+                                    fontWeight: 600,
+                                    transition: 'all 0.2s',
                                   }}
                                   onMouseEnter={(e) => {
                                     e.currentTarget.style.background = '#fef2f2';
-                                    e.currentTarget.style.borderColor = '#dc2626';
+                                    e.currentTarget.style.transform = 'translateY(-1px)';
+                                    e.currentTarget.style.boxShadow = '0 2px 6px rgba(220, 38, 38, 0.3)';
                                   }}
                                   onMouseLeave={(e) => {
-                                    e.currentTarget.style.background = 'none';
-                                    e.currentTarget.style.borderColor = '#fecaca';
+                                    e.currentTarget.style.background = 'white';
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.boxShadow = 'none';
                                   }}
                                 >
                                   Delete

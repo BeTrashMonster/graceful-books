@@ -1013,14 +1013,35 @@ export default function Distribution() {
       {/* Page Header */}
       <div className={styles.header}>
         <h1 className={styles.title}>Distribution Center</h1>
-        <Button
-          variant="primary"
-          size="md"
+        <button
           onClick={() => setShowAddDistributorModal(true)}
-          iconBefore={<span aria-hidden="true">+</span>}
+          style={{
+            padding: '0.75rem 1.5rem',
+            background: 'linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%)',
+            color: '#2d1b00',
+            border: '2px solid #B8860B',
+            borderRadius: '8px',
+            fontSize: '1rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+            transition: 'all 0.2s',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(184, 134, 11, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
+          }}
         >
+          <span style={{ fontSize: '1.25rem', fontWeight: 700 }} aria-hidden="true">+</span>
           Add Distributor
-        </Button>
+        </button>
       </div>
 
       {/* Error Message */}

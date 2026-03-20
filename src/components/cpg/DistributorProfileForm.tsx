@@ -674,7 +674,7 @@ export function DistributorProfileForm({
           </Button>
           <Button
             type="submit"
-            variant="primary"
+            variant="gold"
             loading={loading}
             disabled={loading}
           >
@@ -935,7 +935,7 @@ export function DistributorProfileForm({
               </Button>
               <Button
                 type="button"
-                variant="primary"
+                variant="gold"
                 onClick={() => setShowQuickAddCustomizer(false)}
               >
                 Done
