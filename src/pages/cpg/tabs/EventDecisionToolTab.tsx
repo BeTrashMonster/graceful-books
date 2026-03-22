@@ -5,9 +5,11 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { nanoid } from 'nanoid';
 import { Button } from '../../../components/core/Button';
 import { Input } from '../../../components/forms/Input';
+import { EventImpactSummary } from '../../../components/cpg/EventImpactSummary';
 import { useAuth } from '../../../contexts/AuthContext';
 import { db } from '../../../db';
 import { EventAnalyzerService } from '../../../services/cpg/eventAnalyzer.service';
@@ -481,6 +483,7 @@ export function EventDecisionToolTab() {
               type="text"
               value={formData.location}
               onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+              required={false}
               fullWidth
               helperText="Optional: Track events by venue"
             />
@@ -622,7 +625,7 @@ export function EventDecisionToolTab() {
               <span aria-hidden="true">{showProductDropdown ? '▲' : '▼'}</span>
             </button>
 
-            {showProductDropdown && (
+            {showProductDropdown && createPortal(
               <div
                 ref={productDropdownRef}
                 className={styles.productDropdownMenu}
@@ -662,7 +665,8 @@ export function EventDecisionToolTab() {
                     <span>{product.displayName}</span>
                   </label>
                 ))}
-              </div>
+              </div>,
+              document.body
             )}
           </div>
 
@@ -797,112 +801,167 @@ export function EventDecisionToolTab() {
         <div ref={resultsRef} className={styles.results}>
           <h2 className={styles.resultsTitle}>Event Analysis Results</h2>
 
-          <div className={styles.resultsContent}>
-            {/* Summary Card */}
-            <div className={styles.summaryCard}>
-              <h3>Event Summary</h3>
-              <p><strong>Total Event Cost:</strong> ${parseFloat(analysisResult.totalEventCost).toFixed(2)}</p>
-              {analysisResult.totalActualLaborCost && (
-                <p><strong>Actual Labor Cost:</strong> ${parseFloat(analysisResult.totalActualLaborCost).toFixed(2)}</p>
-              )}
-              {analysisResult.totalOpportunityCost && (
-                <p><strong>Opportunity Cost (Sweat Equity):</strong> ${parseFloat(analysisResult.totalOpportunityCost).toFixed(2)}</p>
-              )}
-              <p><strong>Break-Even Units:</strong> {parseFloat(analysisResult.breakEvenUnits).toFixed(0)} total units</p>
-              <p className={styles.recommendation}>
-                <strong>Recommendation:</strong> {analysisResult.recommendation === 'participate' ? '✓ Participate' : analysisResult.recommendation === 'decline' ? '✗ Decline' : '○ Neutral'}
-              </p>
-              <p className={styles.recommendationReason}>{analysisResult.recommendationReason}</p>
-            </div>
-
-            {/* Product Comparisons */}
-            <h3 className={styles.comparisonTitle}>Product Analysis</h3>
-            {Object.entries(analysisResult.variantResults).map(([productName, results]: [string, any]) => {
-              const retailPrice = parseFloat(formData.productData[productName]?.retailPrice || '0');
+          <EventImpactSummary
+            totalEventCost={analysisResult.totalEventCost}
+            totalTravelingCost={formData.travelingCosts || null}
+            totalActualLaborCost={analysisResult.totalActualLaborCost || null}
+            totalOpportunityCost={analysisResult.totalOpportunityCost || null}
+            totalUnits={(() => {
+              const total = Object.values(formData.productData).reduce(
+                (sum, data) => sum + parseFloat(data.unitsBringing || '0'),
+                0
+              );
+              return total.toString();
+            })()}
+            breakEvenUnits={analysisResult.breakEvenUnits}
+            averageRetailPrice={(() => {
+              const products = Object.keys(analysisResult.variantResults);
+              if (products.length === 0) return undefined;
+              const totalPrice = products.reduce((sum, name) => {
+                return sum + parseFloat(formData.productData[name]?.retailPrice || '0');
+              }, 0);
+              return (totalPrice / products.length).toString();
+            })()}
+            averageCPU={(() => {
+              const products = Object.keys(analysisResult.variantResults);
+              if (products.length === 0) return undefined;
+              const totalCPU = products.reduce((sum, name) => {
+                const results = analysisResult.variantResults[name];
+                const baseCPU = parseFloat(results.cpuWithEvent) - parseFloat(results.eventCostPerUnit);
+                return sum + baseCPU;
+              }, 0);
+              return (totalCPU / products.length).toString();
+            })()}
+            averageEventCostPerUnit={(() => {
+              const products = Object.keys(analysisResult.variantResults);
+              if (products.length === 0) return undefined;
+              const totalEventCost = products.reduce((sum, name) => {
+                const results = analysisResult.variantResults[name];
+                return sum + parseFloat(results.eventCostPerUnit);
+              }, 0);
+              return (totalEventCost / products.length).toString();
+            })()}
+            averageGrossProfitWithEvent={(() => {
+              const products = Object.keys(analysisResult.variantResults);
+              if (products.length === 0) return undefined;
+              const totalGrossProfit = products.reduce((sum, name) => {
+                const results = analysisResult.variantResults[name];
+                const retailPrice = parseFloat(formData.productData[name]?.retailPrice || '0');
+                const totalCost = parseFloat(results.cpuWithEvent) + (results.laborCostPerUnit ? parseFloat(results.laborCostPerUnit) : 0);
+                return sum + (retailPrice - totalCost);
+              }, 0);
+              return (totalGrossProfit / products.length).toString();
+            })()}
+            averageMarginWithEvent={(() => {
+              const products = Object.keys(analysisResult.variantResults);
+              if (products.length === 0) return undefined;
+              const totalMargin = products.reduce((sum, name) => {
+                const results = analysisResult.variantResults[name];
+                const margin = parseFloat(results.netProfitMarginWithLabor || results.netProfitMarginWithEvent);
+                return sum + margin;
+              }, 0);
+              return (totalMargin / products.length).toString();
+            })()}
+            variantData={Object.keys(analysisResult.variantResults).map(name => {
+              const results = analysisResult.variantResults[name];
               const baseCPU = parseFloat(results.cpuWithEvent) - parseFloat(results.eventCostPerUnit);
-              const eventCost = parseFloat(results.eventCostPerUnit);
-              const laborCost = results.laborCostPerUnit ? parseFloat(results.laborCostPerUnit) : 0;
+              return {
+                name,
+                unitsAvailable: parseFloat(formData.productData[name]?.unitsBringing || '0'),
+                retailPrice: parseFloat(formData.productData[name]?.retailPrice || '0'),
+                eventCostPerUnit: parseFloat(results.eventCostPerUnit),
+                baseCPU,
+              };
+            })}
+          />
 
-              // WITHOUT Event scenario
-              const grossProfitWithout = retailPrice - baseCPU;
-              const marginWithout = retailPrice > 0 ? ((grossProfitWithout / retailPrice) * 100).toFixed(2) : '0.00';
-              const marginQualityWithout = getMarginQuality(marginWithout);
+          {/* Product Comparisons */}
+          <h3 className={styles.comparisonTitle}>Product Analysis</h3>
+          {Object.entries(analysisResult.variantResults).map(([productName, results]: [string, any]) => {
+            const retailPrice = parseFloat(formData.productData[productName]?.retailPrice || '0');
+            const baseCPU = parseFloat(results.cpuWithEvent) - parseFloat(results.eventCostPerUnit);
+            const eventCost = parseFloat(results.eventCostPerUnit);
+            const laborCost = results.laborCostPerUnit ? parseFloat(results.laborCostPerUnit) : 0;
 
-              // WITH Event scenario
-              const totalCostWith = baseCPU + eventCost + laborCost;
-              const grossProfitWith = retailPrice - totalCostWith;
-              const marginWith = parseFloat(results.netProfitMarginWithLabor || results.netProfitMarginWithEvent);
-              const marginQualityWith = results.marginQualityWithEvent;
+            // WITHOUT Event scenario
+            const grossProfitWithout = retailPrice - baseCPU;
+            const marginWithout = retailPrice > 0 ? ((grossProfitWithout / retailPrice) * 100).toFixed(2) : '0.00';
+            const marginQualityWithout = getMarginQuality(marginWithout);
 
-              return (
-                <div key={productName} className={styles.comparisonCard}>
-                  <h4>{productName}</h4>
+            // WITH Event scenario
+            const totalCostWith = baseCPU + eventCost + laborCost;
+            const grossProfitWith = retailPrice - totalCostWith;
+            const marginWith = parseFloat(results.netProfitMarginWithLabor || results.netProfitMarginWithEvent);
+            const marginQualityWith = results.marginQualityWithEvent;
 
-                  <div className={styles.comparisonGrid}>
-                    {/* WITHOUT Event */}
-                    <div className={styles.comparisonColumn}>
-                      <div className={styles.columnHeader}>
-                        <span>✗ WITHOUT Event</span>
+            return (
+              <div key={productName} className={styles.comparisonCard}>
+                <h4>{productName}</h4>
+
+                <div className={styles.comparisonGrid}>
+                  {/* WITHOUT Event */}
+                  <div className={styles.comparisonColumn}>
+                    <div className={styles.columnHeader}>
+                      <span>✗ WITHOUT Event</span>
+                    </div>
+                    <div className={styles.plStatement}>
+                      <div className={styles.plRow}>
+                        <span>Retail Price</span>
+                        <span>${retailPrice.toFixed(2)}</span>
                       </div>
-                      <div className={styles.plStatement}>
-                        <div className={styles.plRow}>
-                          <span>Retail Price</span>
-                          <span>${retailPrice.toFixed(2)}</span>
-                        </div>
-                        <div className={styles.plRowCost}>
-                          <span>Less: CPU</span>
-                          <span>(${baseCPU.toFixed(2)})</span>
-                        </div>
-                        <div className={styles.plRowDivider}>
-                          <span>Gross Profit</span>
-                          <span>${grossProfitWithout.toFixed(2)}</span>
-                        </div>
-                        <div className={`${styles.plRowMargin} ${styles[getMarginColorClass(marginQualityWithout)]}`}>
-                          <span>Margin</span>
-                          <span>{marginWithout}%</span>
-                        </div>
+                      <div className={styles.plRowCost}>
+                        <span>Less: CPU</span>
+                        <span>(${baseCPU.toFixed(2)})</span>
+                      </div>
+                      <div className={styles.plRowDivider}>
+                        <span>Gross Profit</span>
+                        <span>${grossProfitWithout.toFixed(2)}</span>
+                      </div>
+                      <div className={`${styles.plRowMargin} ${styles[getMarginColorClass(marginQualityWithout)]}`}>
+                        <span>Margin</span>
+                        <span>{marginWithout}%</span>
                       </div>
                     </div>
+                  </div>
 
-                    {/* WITH Event */}
-                    <div className={styles.comparisonColumn}>
-                      <div className={styles.columnHeader}>
-                        <span>✓ WITH Event</span>
+                  {/* WITH Event */}
+                  <div className={styles.comparisonColumn}>
+                    <div className={styles.columnHeader}>
+                      <span>✓ WITH Event</span>
+                    </div>
+                    <div className={styles.plStatement}>
+                      <div className={styles.plRow}>
+                        <span>Retail Price</span>
+                        <span>${retailPrice.toFixed(2)}</span>
                       </div>
-                      <div className={styles.plStatement}>
-                        <div className={styles.plRow}>
-                          <span>Retail Price</span>
-                          <span>${retailPrice.toFixed(2)}</span>
-                        </div>
+                      <div className={styles.plRowCost}>
+                        <span>Less: CPU</span>
+                        <span>(${baseCPU.toFixed(2)})</span>
+                      </div>
+                      <div className={styles.plRowCost}>
+                        <span>Less: Event Cost/Unit</span>
+                        <span>(${eventCost.toFixed(2)})</span>
+                      </div>
+                      {laborCost > 0 && (
                         <div className={styles.plRowCost}>
-                          <span>Less: CPU</span>
-                          <span>(${baseCPU.toFixed(2)})</span>
+                          <span>Less: Labor/Unit</span>
+                          <span>(${laborCost.toFixed(2)})</span>
                         </div>
-                        <div className={styles.plRowCost}>
-                          <span>Less: Event Cost/Unit</span>
-                          <span>(${eventCost.toFixed(2)})</span>
-                        </div>
-                        {laborCost > 0 && (
-                          <div className={styles.plRowCost}>
-                            <span>Less: Labor/Unit</span>
-                            <span>(${laborCost.toFixed(2)})</span>
-                          </div>
-                        )}
-                        <div className={styles.plRowDivider}>
-                          <span>Gross Profit</span>
-                          <span>${grossProfitWith.toFixed(2)}</span>
-                        </div>
-                        <div className={`${styles.plRowMargin} ${styles[getMarginColorClass(marginQualityWith)]}`}>
-                          <span>Margin</span>
-                          <span>{marginWith.toFixed(2)}%</span>
-                        </div>
+                      )}
+                      <div className={styles.plRowDivider}>
+                        <span>Gross Profit</span>
+                        <span>${grossProfitWith.toFixed(2)}</span>
+                      </div>
+                      <div className={`${styles.plRowMargin} ${styles[getMarginColorClass(marginQualityWith)]}`}>
+                        <span>Margin</span>
+                        <span>{marginWith.toFixed(2)}%</span>
                       </div>
                     </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

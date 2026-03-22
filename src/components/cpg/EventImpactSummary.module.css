@@ -1,0 +1,671 @@
+/* Event Impact Summary Styles */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0;
+  background: #ffffff;
+  border-radius: 8px;
+  border-left: 4px solid #D4AF37;
+  border-right: 4px solid #D4AF37;
+  border-bottom: 4px solid #D4AF37;
+  border-top: none;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 2rem;
+  background: #4b006e;
+  color: #ffffff;
+  margin: 0;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.toggleButton {
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+  padding: 0;
+}
+
+.toggleButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.toggleButton:focus {
+  outline: none;
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  padding: 0 2rem 2rem 2rem;
+}
+
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
+  border-radius: 8px;
+  border-left: 4px solid #D4AF37;
+  border-right: 2px solid #e0e0e0;
+  border-top: 2px solid #e0e0e0;
+  border-bottom: 2px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  transition: all 0.2s ease;
+}
+
+.metricCard:hover {
+  transform: translateY(-2px);
+  border-left-color: #B8860B;
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.25);
+}
+
+.prominentCard {
+  background: linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%);
+  border: 2px solid #B8860B;
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.prominentCard .metricLabel {
+  color: #2d1b00;
+  opacity: 0.85;
+  font-weight: 600;
+}
+
+.prominentCard .metricValue {
+  color: #2d1b00;
+}
+
+.prominentCard .totalCost .currency {
+  color: #2d1b00;
+  opacity: 0.85;
+}
+
+.prominentCard .totalCost .amount {
+  color: #2d1b00;
+}
+
+.metricLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metricValue {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #111827;
+}
+
+.metricDescription {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+/* Total Cost Styling */
+.totalCost {
+  align-items: baseline;
+}
+
+.totalCost .currency {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.totalCost .amount {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #0ea5e9;
+}
+
+/* Actual Labor Cost */
+.actualCost .currency {
+  color: #dc2626;
+}
+
+.actualCost .amount {
+  color: #dc2626;
+}
+
+/* Opportunity Cost */
+.opportunityCost .currency {
+  color: #f59e0b;
+}
+
+.opportunityCost .amount {
+  color: #f59e0b;
+}
+
+/* Total Units Styling */
+.totalUnits .value {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+/* Break-Even Card */
+.breakEvenCard {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-left: 4px solid #10b981;
+}
+
+.breakEvenValue .value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #065f46;
+}
+
+/* Total Out of Pocket */
+.totalOutOfPocket {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border: 2px solid #dc2626;
+}
+
+.totalOutOfPocket .metricLabel {
+  color: #7f1d1d;
+}
+
+.totalOutOfPocket .totalCost .currency,
+.totalOutOfPocket .totalCost .amount {
+  color: #7f1d1d;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .metricValue {
+    font-size: 1.75rem;
+  }
+
+  .totalCost .amount {
+    font-size: 2rem;
+  }
+}
+
+/* Tablet responsive */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .metricsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+  flex-wrap: wrap;
+}
+
+.tab,
+.tabActive {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6b7280;
+  transition: all 0.2s;
+  margin-bottom: -2px;
+}
+
+.tab:hover {
+  color: #a855f7;
+  background: #faf5ff;
+}
+
+.tab:focus,
+.tabActive:focus {
+  outline: 2px solid #a855f7;
+  outline-offset: 2px;
+}
+
+.tabActive {
+  color: #a855f7;
+  border-bottom-color: #a855f7;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .metricCard {
+    transition: none;
+  }
+
+  .metricCard:hover {
+    transform: none;
+  }
+
+  .tab,
+  .tabActive {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .prominentCard {
+    border-width: 3px;
+  }
+
+  .breakEvenCard {
+    border-left-width: 6px;
+  }
+}
+
+/* Unit Adjuster Styles */
+.unitAdjuster {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  border: 2px solid #a855f7;
+  border-radius: var(--border-radius-lg, 12px);
+  margin-top: 1rem;
+}
+
+.adjusterHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.adjusterTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.adjusterDescription {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.adjusterControls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Slider Container */
+.sliderContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.sliderLabel {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.sliderWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #a855f7 0%, #d8b4fe 100%);
+  outline: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #7c3aed;
+  border: 3px solid #ffffff;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #7c3aed;
+  border: 3px solid #ffffff;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.sliderValues {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sliderMinMax {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  font-weight: 500;
+}
+
+.sliderCurrent {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #7c3aed;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.percentageBadge {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  background: var(--color-surface, #ffffff);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius-full, 9999px);
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+/* Comparison Cards */
+.comparisonCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.scenarioCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
+}
+
+.adjustedScenario {
+  border: 2px solid #7c3aed;
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+}
+
+.scenarioHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.scenarioIcon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.scenarioTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.scenarioMetrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.scenarioMetric {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.scenarioLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.scenarioValue {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.higherCost {
+  color: #dc2626;
+}
+
+.costIncrease {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #dc2626;
+}
+
+.lowerProfit {
+  color: #dc2626;
+}
+
+.profitDecrease {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #dc2626;
+}
+
+/* Asterisk for tooltips */
+.asterisk {
+  color: #7c3aed;
+  font-weight: 700;
+  margin-left: 0.25rem;
+  cursor: help;
+  text-decoration: none;
+}
+
+/* Per-Variant Sliders */
+.variantSliders {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.variantSlider {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+}
+
+.variantSliderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.variantName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.variantUnitsValue {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #7c3aed;
+}
+
+.variantMetrics {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.variantMetric {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.variantMetric strong {
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.variantMetricDivider {
+  color: var(--color-border, #e5e7eb);
+  font-weight: 300;
+}
+
+/* Totals Display */
+.totalsDisplay {
+  padding: 1.25rem;
+  background: var(--color-surface, #ffffff);
+  border: 2px solid #7c3aed;
+  border-radius: var(--border-radius-md, 8px);
+  margin-top: 0.5rem;
+}
+
+.totalsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.totalItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.totalLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.totalValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+}
+
+.totalValueHighlight {
+  color: #7c3aed;
+}
+
+/* Mobile responsive for unit adjuster */
+@media (max-width: 768px) {
+  .unitAdjuster {
+    padding: 1rem;
+  }
+
+  .comparisonCards {
+    grid-template-columns: 1fr;
+  }
+
+  .sliderCurrent {
+    font-size: 1rem;
+  }
+
+  .scenarioValue {
+    font-size: 1rem;
+  }
+
+  .totalsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .totalValue {
+    font-size: 1.25rem;
+  }
+
+  .tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .tab,
+  .tabActive {
+    white-space: nowrap;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+}
