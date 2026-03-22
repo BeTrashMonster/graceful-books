@@ -169,6 +169,18 @@ export function FinancialTimeline({
     }).format(num);
   };
 
+  // Format date range for tooltip
+  const formatDateRange = (periodStart: number, periodEnd: number) => {
+    const startDate = new Date(periodStart);
+    const endDate = new Date(periodEnd);
+
+    const formatOptions: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+    const start = startDate.toLocaleDateString('en-US', formatOptions);
+    const end = endDate.toLocaleDateString('en-US', formatOptions);
+
+    return `${start} - ${end}`;
+  };
+
   // Handle mouse enter with position calculation
   const handleMouseEnter = (month: number, index: number) => {
     setHoveredMonth(month);
@@ -239,8 +251,15 @@ export function FinancialTimeline({
             {/* P&L Section */}
             <div className={styles.tooltipSection}>
               <div className={styles.tooltipHeader}>
-                <span className={styles.tooltipIcon}>📄</span>
-                <span className={styles.tooltipLabel}>Profit & Loss</span>
+                <div className={styles.tooltipHeaderLeft}>
+                  <span className={styles.tooltipIcon}>📄</span>
+                  <span className={styles.tooltipLabel}>Profit & Loss</span>
+                </div>
+                {monthsData[hoveredMonth]?.plData && (
+                  <span className={styles.tooltipDateRange}>
+                    {formatDateRange(monthsData[hoveredMonth].plData!.period_start, monthsData[hoveredMonth].plData!.period_end)}
+                  </span>
+                )}
               </div>
               {monthsData[hoveredMonth]?.hasPL && monthsData[hoveredMonth]?.plData ? (
                 <div className={styles.tooltipStats}>
@@ -271,8 +290,15 @@ export function FinancialTimeline({
             {/* Balance Sheet Section */}
             <div className={styles.tooltipSection}>
               <div className={styles.tooltipHeader}>
-                <span className={styles.tooltipIcon}>⚖</span>
-                <span className={styles.tooltipLabel}>Balance Sheet</span>
+                <div className={styles.tooltipHeaderLeft}>
+                  <span className={styles.tooltipIcon}>⚖</span>
+                  <span className={styles.tooltipLabel}>Balance Sheet</span>
+                </div>
+                {monthsData[hoveredMonth]?.bsData && (
+                  <span className={styles.tooltipDateRange}>
+                    {formatDateRange(monthsData[hoveredMonth].bsData!.period_start, monthsData[hoveredMonth].bsData!.period_end)}
+                  </span>
+                )}
               </div>
               {monthsData[hoveredMonth]?.hasBS && monthsData[hoveredMonth]?.bsData ? (
                 <div className={styles.tooltipStats}>

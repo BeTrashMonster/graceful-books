@@ -285,9 +285,15 @@
 .tooltipHeader {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: space-between;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #e9d5ff;
+}
+
+.tooltipHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .tooltipIcon {
@@ -298,6 +304,13 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: #4b006e;
+}
+
+.tooltipDateRange {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #9ca3af;
+  white-space: nowrap;
 }
 
 .tooltipStats {
