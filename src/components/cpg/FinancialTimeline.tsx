@@ -31,6 +31,8 @@ interface MonthData {
   year: number;
   hasPL: boolean;
   hasBS: boolean;
+  isFullPL: boolean;
+  isFullBS: boolean;
   plData?: StandaloneFinancials;
   bsData?: StandaloneFinancials;
 }
@@ -60,6 +62,22 @@ export function FinancialTimeline({
 
   const years = Array.from(allYears).sort((a, b) => b - a);
 
+  // Helper function to check if a statement covers the full month
+  const isFullMonth = (periodStart: number, periodEnd: number, month: number, year: number): boolean => {
+    const startDate = new Date(periodStart);
+    const endDate = new Date(periodEnd);
+
+    // Get the first and last day of the month
+    const monthStart = new Date(year, month, 1);
+    const monthEnd = new Date(year, month + 1, 0, 23, 59, 59);
+
+    // Check if the period covers the entire month (within 1 day tolerance for date handling)
+    const coversStart = startDate <= new Date(monthStart.getTime() + 24 * 60 * 60 * 1000);
+    const coversEnd = endDate >= new Date(monthEnd.getTime() - 24 * 60 * 60 * 1000);
+
+    return coversStart && coversEnd;
+  };
+
   // Build month data for selected year
   const monthsData: MonthData[] = MONTHS.map((_, index) => {
     const month = index;
@@ -80,6 +98,8 @@ export function FinancialTimeline({
       year: selectedYear,
       hasPL: !!plStatement,
       hasBS: !!bsStatement,
+      isFullPL: plStatement ? isFullMonth(plStatement.period_start, plStatement.period_end, month, selectedYear) : false,
+      isFullBS: bsStatement ? isFullMonth(bsStatement.period_start, bsStatement.period_end, month, selectedYear) : false,
       plData: plStatement,
       bsData: bsStatement,
     };
@@ -87,17 +107,49 @@ export function FinancialTimeline({
 
   // Get status class for month
   const getMonthClass = (data: MonthData) => {
-    if (data.hasPL && data.hasBS) return styles.monthBoth; // Green
-    if (data.hasPL || data.hasBS) return styles.monthOne; // Yellow
-    return styles.monthNone; // Gray
+    // Both statements entered
+    if (data.hasPL && data.hasBS) {
+      // Check if both are full month
+      if (data.isFullPL && data.isFullBS) {
+        return styles.monthBothFull; // Green - truly complete!
+      } else {
+        return styles.monthBothPartial; // Blue/Teal - partial data
+      }
+    }
+
+    // One statement entered
+    if (data.hasPL || data.hasBS) {
+      const isFull = data.hasPL ? data.isFullPL : data.isFullBS;
+      if (isFull) {
+        return styles.monthOneFull; // Yellow with ✓
+      } else {
+        return styles.monthOnePartial; // Yellow with ◐
+      }
+    }
+
+    return styles.monthNone; // Gray - not started
   };
 
   // Get status indicator
   const getStatusIndicator = (data: MonthData) => {
-    if (data.hasPL && data.hasBS) return '✓✓';
-    if (data.hasPL) return '✓ P&L';
-    if (data.hasBS) return '✓ BS';
-    return '○';
+    // Both statements
+    if (data.hasPL && data.hasBS) {
+      if (data.isFullPL && data.isFullBS) {
+        return '✓✓'; // Both full
+      } else {
+        return '◐◐'; // Both partial
+      }
+    }
+
+    // One statement
+    if (data.hasPL) {
+      return data.isFullPL ? '✓ P&L' : '◐ P&L';
+    }
+    if (data.hasBS) {
+      return data.isFullBS ? '✓ BS' : '◐ BS';
+    }
+
+    return '○'; // Not started
   };
 
   // Check if month is currently selected
@@ -256,12 +308,16 @@ export function FinancialTimeline({
       <div className={styles.legend}>
         <div className={styles.legendTitle}>Status</div>
         <div className={styles.legendItem}>
-          <span className={`${styles.legendDot} ${styles.legendBoth}`}></span>
-          <span>Both Statements</span>
+          <span className={`${styles.legendDot} ${styles.legendBothFull}`}></span>
+          <span>Full Month Complete</span>
+        </div>
+        <div className={styles.legendItem}>
+          <span className={`${styles.legendDot} ${styles.legendBothPartial}`}></span>
+          <span>Partial Month Data</span>
         </div>
         <div className={styles.legendItem}>
           <span className={`${styles.legendDot} ${styles.legendOne}`}></span>
-          <span>One Statement</span>
+          <span>One Statement Only</span>
         </div>
         <div className={styles.legendItem}>
           <span className={`${styles.legendDot} ${styles.legendNone}`}></span>
