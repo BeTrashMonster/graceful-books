@@ -76,6 +76,7 @@ export function EventDecisionToolTab() {
   const productDropdownRef = useRef<HTMLDivElement>(null);
   const productButtonRef = useRef<HTMLButtonElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
   // Load products and settings
   useEffect(() => {
@@ -137,6 +138,17 @@ export function EventDecisionToolTab() {
       setIsLoadingData(false);
     }
   };
+
+  // Calculate dropdown position
+  useEffect(() => {
+    if (showProductDropdown && productButtonRef.current) {
+      const rect = productButtonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 8,
+        left: rect.left,
+      });
+    }
+  }, [showProductDropdown]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -316,6 +328,11 @@ export function EventDecisionToolTab() {
     try {
       const service = new EventAnalyzerService(db);
 
+      // Filter out incomplete labor entries (must have hours and hourlyRate filled in)
+      const completeLaborEntries = formData.laborEntries.filter(e =>
+        e.hours && e.hourlyRate && parseFloat(e.hours) > 0 && parseFloat(e.hourlyRate) > 0
+      );
+
       // Create event
       const event = await service.createEvent({
         companyId,
@@ -325,7 +342,7 @@ export function EventDecisionToolTab() {
         eventEndDate: new Date(formData.eventEndDate).getTime(),
         eventCost: formData.eventCost,
         travelingFees: formData.travelingCosts || undefined,
-        laborEntries: formData.laborEntries.length > 0 ? formData.laborEntries.map(e => ({
+        laborEntries: completeLaborEntries.length > 0 ? completeLaborEntries.map(e => ({
           id: e.id,
           description: e.description,
           hours: e.hours,
@@ -334,10 +351,23 @@ export function EventDecisionToolTab() {
         })) : undefined,
       }, deviceId);
 
+      // Prepare variant data - ensure all values are strings
+      const variantEventData: Record<string, any> = {};
+      formData.selectedProducts.forEach(productName => {
+        const data = formData.productData[productName];
+        if (data) {
+          variantEventData[productName] = {
+            retailPrice: data.retailPrice || '0',
+            unitsBringing: data.unitsBringing || '0',
+            baseCPU: data.baseCPU || '0',
+          };
+        }
+      });
+
       // Analyze event
       const result = await service.analyzeEvent({
         eventId: event.id,
-        variantEventData: formData.productData,
+        variantEventData,
       }, deviceId);
 
       setAnalysisResult(result);
@@ -538,7 +568,7 @@ export function EventDecisionToolTab() {
 
           <Button
             type="button"
-            variant="secondary"
+            variant="purple"
             size="md"
             onClick={addLaborEntry}
             className={styles.addLaborButton}
@@ -578,6 +608,10 @@ export function EventDecisionToolTab() {
                 ref={productDropdownRef}
                 className={styles.productDropdownMenu}
                 role="menu"
+                style={{
+                  top: `${dropdownPosition.top}px`,
+                  left: `${dropdownPosition.left}px`,
+                }}
               >
                 <div className={styles.productDropdownActions}>
                   <button
@@ -728,7 +762,7 @@ export function EventDecisionToolTab() {
         <div className={styles.actions}>
           <Button
             type="submit"
-            variant="primary"
+            variant="gold"
             size="lg"
             loading={isLoading}
             disabled={isLoading}

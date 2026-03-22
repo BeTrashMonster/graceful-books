@@ -199,18 +199,15 @@
 }
 
 .productDropdownMenu {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  left: 0;
-  width: 100%;
-  max-width: 400px;
+  position: fixed;
+  width: 400px;
   max-height: 300px;
   overflow-y: auto;
   background: white;
   border: 2px solid #D4AF37;
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(184, 134, 11, 0.2);
-  z-index: 10;
+  z-index: 1000;
 }
 
 .productDropdownActions {
