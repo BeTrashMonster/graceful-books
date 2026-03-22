@@ -4,33 +4,40 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 1.5rem;
-  background: var(--color-surface, #ffffff);
-  border-radius: var(--border-radius-lg, 12px);
-  border: 1px solid var(--color-border, #e5e7eb);
+  padding: 0;
+  background: #ffffff;
+  border-radius: 8px;
+  border-left: 4px solid #D4AF37;
+  border-right: 4px solid #D4AF37;
+  border-bottom: 4px solid #D4AF37;
+  border-top: none;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  overflow: hidden;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid var(--color-border, #e5e7eb);
-  margin-bottom: 1rem;
+  padding: 1.25rem 2rem;
+  background: #4b006e;
+  color: #ffffff;
+  margin: 0;
 }
 
 .title {
   font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--color-text-primary, #111827);
+  font-weight: 700;
+  color: #ffffff;
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .toggleButton {
   background: transparent;
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: var(--border-radius-sm, 4px);
-  color: var(--color-text-secondary, #6b7280);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 6px;
+  color: #ffffff;
   font-size: 1.25rem;
   font-weight: 600;
   width: 2rem;
@@ -45,21 +52,22 @@
 }
 
 .toggleButton:hover {
-  background: var(--color-surface-elevated, #f9fafb);
-  border-color: var(--color-primary, #7c3aed);
-  color: var(--color-primary, #7c3aed);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #ffffff;
+  transform: translateY(-1px);
 }
 
 .toggleButton:focus {
   outline: none;
-  border-color: var(--color-primary, #7c3aed);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 }
 
 .metricsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.25rem;
+  padding: 0 2rem 2rem 2rem;
 }
 
 .metricCard {
@@ -67,26 +75,51 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 1.25rem;
-  background: var(--color-surface-elevated, #f9fafb);
-  border-radius: var(--border-radius-md, 8px);
-  border: 1px solid var(--color-border, #e5e7eb);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
+  border-radius: 8px;
+  border-left: 4px solid #D4AF37;
+  border-right: 2px solid #e0e0e0;
+  border-top: 2px solid #e0e0e0;
+  border-bottom: 2px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  transition: all 0.2s ease;
 }
 
 .metricCard:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+  border-left-color: #B8860B;
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.25);
 }
 
 .prominentCard {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border: 2px solid #0ea5e9;
+  background: linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%);
+  border: 2px solid #B8860B;
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.prominentCard .metricLabel {
+  color: #2d1b00;
+  opacity: 0.85;
+  font-weight: 600;
+}
+
+.prominentCard .metricValue {
+  color: #2d1b00;
+}
+
+.prominentCard .totalCost .currency {
+  color: #2d1b00;
+  opacity: 0.85;
+}
+
+.prominentCard .totalCost .amount {
+  color: #2d1b00;
 }
 
 .metricLabel {
   font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text-secondary, #6b7280);
+  font-weight: 600;
+  color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -98,7 +131,7 @@
   font-size: 2rem;
   font-weight: 700;
   line-height: 1;
-  color: var(--color-text-primary, #111827);
+  color: #111827;
 }
 
 .metricDescription {

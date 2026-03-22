@@ -1044,6 +1044,7 @@ export default function SalesPromoDecisionTool() {
                             onClick={handleSaveForLater}
                             loading={isSaving}
                             disabled={isSaving}
+                            className={styles.saveDraftButton}
                           >
                             {editPromoId ? 'Update Draft' : 'Save for Later'}
                           </Button>

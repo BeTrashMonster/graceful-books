@@ -3,43 +3,43 @@
 /* Tabs */
 .tabs {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
   margin-bottom: 2rem;
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 2px solid #e0e0e0;
 }
 
 .tab {
-  padding: 0.75rem 1.5rem;
+  flex: 1;
+  padding: 1rem 1.5rem;
   border: none;
   background: none;
-  color: #64748b;
-  font-size: 1.125rem;
-  font-weight: 600;
+  color: #666;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
   border-bottom: 3px solid transparent;
   transition: all 0.2s ease;
-  margin-bottom: -2px;
+  margin-bottom: 0;
   white-space: nowrap;
-  border-radius: 0.375rem 0.375rem 0 0;
 }
 
 .tab:hover {
-  color: #4b006e;
-  background: rgba(75, 0, 110, 0.05);
+  color: #D4AF37;
+  background: rgba(212, 175, 55, 0.05);
 }
 
 .tabActive {
-  padding: 0.75rem 1.5rem;
+  flex: 1;
+  padding: 1rem 1.5rem;
   border: none;
-  background: rgba(75, 0, 110, 0.05);
-  color: #4b006e;
-  font-size: 1.125rem;
+  background: linear-gradient(135deg, rgba(232, 212, 160, 0.1) 0%, rgba(212, 175, 55, 0.15) 100%);
+  color: #D4AF37;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  border-bottom: 3px solid #4b006e;
-  margin-bottom: -2px;
+  border-bottom: 3px solid #D4AF37;
+  margin-bottom: 0;
   white-space: nowrap;
-  border-radius: 0.375rem 0.375rem 0 0;
 }
 
 .tabContent {
@@ -104,23 +104,27 @@
   flex-direction: column;
   gap: 1.5rem;
   padding: 2rem;
-  background: var(--color-surface, #ffffff);
-  border-radius: var(--border-radius-lg, 12px);
-  border: 2px solid var(--color-border, #e5e7eb);
-  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+  background: #ffffff;
+  border-radius: 8px;
+  border-left: 4px solid #D4AF37;
+  border-right: 4px solid #D4AF37;
+  border-bottom: 4px solid #D4AF37;
+  border-top: none;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
 }
 
 .decisionTitle {
   font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--color-text-primary, #111827);
+  font-weight: 700;
+  color: #4b006e;
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .decisionDescription {
   font-size: 1rem;
   line-height: 1.6;
-  color: var(--color-text-secondary, #6b7280);
+  color: #6b7280;
   margin: 0;
 }
 
@@ -133,8 +137,8 @@
 
 .notesLabel {
   font-size: 0.9375rem;
-  font-weight: 500;
-  color: var(--color-text-primary, #111827);
+  font-weight: 600;
+  color: #4b006e;
 }
 
 .notesTextarea {
@@ -143,18 +147,18 @@
   font-size: 1rem;
   font-family: inherit;
   line-height: 1.6;
-  color: var(--color-text-primary, #111827);
-  background: var(--color-surface, #ffffff);
-  border: 1px solid var(--color-border, #d1d5db);
-  border-radius: var(--border-radius-md, 8px);
+  color: #111827;
+  background: #E5F6DF;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
   resize: vertical;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s;
 }
 
 .notesTextarea:focus {
   outline: none;
-  border-color: var(--color-primary, #0066cc);
-  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
 }
 
 .notesTextarea::placeholder {
@@ -171,21 +175,42 @@
 }
 
 .approveButton {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  border: none;
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%) !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 600 !important;
 }
 
 .approveButton:hover {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #B8860B 0%, #9A7209 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.4) !important;
 }
 
 .declineButton {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  border: none;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  border: none !important;
+  font-weight: 600 !important;
 }
 
 .declineButton:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4) !important;
+}
+
+.saveDraftButton {
+  background: white !important;
+  color: #D4AF37 !important;
+  border: 2px solid #D4AF37 !important;
+  font-weight: 600 !important;
+}
+
+.saveDraftButton:hover {
+  background: rgba(232, 212, 160, 0.2) !important;
+  border-color: #B8860B !important;
+  color: #B8860B !important;
+  transform: translateY(-1px) !important;
 }
 
 /* Mobile responsive */
@@ -275,12 +300,12 @@
   align-items: flex-start;
   gap: 1.5rem;
   padding: 2rem;
-  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-  border: 2px solid #10b981;
-  border-radius: 0.75rem;
+  background: linear-gradient(135deg, rgba(232, 212, 160, 0.1) 0%, rgba(212, 175, 55, 0.15) 100%);
+  border: 2px solid #D4AF37;
+  border-radius: 8px;
   margin-bottom: 1.5rem;
   animation: slideDown 0.3s ease-out;
-  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1);
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.2);
 }
 
 .successIcon {
@@ -289,7 +314,7 @@
   justify-content: center;
   width: 3rem;
   height: 3rem;
-  background: #10b981;
+  background: #D4AF37;
   color: white;
   border-radius: 50%;
   font-size: 1.75rem;
@@ -307,26 +332,26 @@
 .successText {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #065f46;
+  color: #4b006e;
   margin: 0;
   line-height: 1.6;
 }
 
 .successLink {
   font-size: 0.9375rem;
-  color: #065f46;
+  color: #4b006e;
   margin: 0;
 }
 
 .link {
-  color: #047857;
+  color: #B8860B;
   font-weight: 600;
   text-decoration: underline;
   transition: color 0.2s ease;
 }
 
 .link:hover {
-  color: #065f46;
+  color: #D4AF37;
 }
 
 @keyframes slideDown {

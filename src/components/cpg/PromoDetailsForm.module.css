@@ -4,34 +4,66 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  padding: 1.5rem;
-  background: var(--color-surface, #ffffff);
-  border-radius: var(--border-radius-lg, 12px);
+  padding: 0;
+  background: #ffffff;
+  border-radius: 8px;
+  border-left: 4px solid #D4AF37;
+  border-right: 4px solid #D4AF37;
+  border-bottom: 4px solid #D4AF37;
+  border-top: none;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  overflow: hidden;
 }
 
 .section {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  padding: 0 2rem 2rem 2rem;
+}
+
+.section:first-child {
+  padding-top: 0;
+}
+
+.section:last-child {
+  padding-bottom: 2.5rem;
 }
 
 .sectionHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--color-border, #e5e7eb);
+  padding: 1.25rem 2rem;
+  background: #4b006e;
+  color: #ffffff;
+  margin: 0 -4px 1.5rem -4px;
 }
 
 .sectionTitle {
   font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--color-text-primary, #111827);
+  font-weight: 700;
+  color: #4b006e;
   margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.sectionHeader .sectionTitle {
+  color: #ffffff;
 }
 
 .clearButton {
   flex-shrink: 0;
+  background: transparent !important;
+  color: #ffffff !important;
+  border: 2px solid rgba(255, 255, 255, 0.8) !important;
+  font-weight: 600 !important;
+}
+
+.clearButton:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: #ffffff !important;
+  transform: translateY(-1px) !important;
 }
 
 .sectionDescription {
@@ -51,23 +83,30 @@
 /* Variant Card */
 .variantCard {
   padding: 1.25rem;
-  background: linear-gradient(135deg, #f3ebff 0%, #ede5ff 100%);
-  border: 1px solid #e9d5ff;
-  border-radius: var(--border-radius-md, 8px);
-  transition: box-shadow 0.2s ease;
+  background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
+  border-left: 4px solid #D4AF37;
+  border-right: 2px solid #e0e0e0;
+  border-top: 2px solid #e0e0e0;
+  border-bottom: 2px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  transition: all 0.2s ease;
 }
 
 .variantCard:hover {
-  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
+  border-left-color: #B8860B;
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.25);
+  transform: translateY(-2px);
 }
 
 .variantTitle {
   font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-text-primary, #111827);
+  font-weight: 700;
+  color: #4b006e;
   margin: 0 0 1rem 0;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  border-bottom: 2px solid #D4AF37;
+  letter-spacing: -0.01em;
 }
 
 .variantRow {
@@ -91,27 +130,39 @@
 
 .demoHoursTitle {
   font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-text-primary, #111827);
+  font-weight: 700;
+  color: #4b006e;
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .demoHoursDescription {
   font-size: 0.9375rem;
   line-height: 1.6;
-  color: var(--color-text-secondary, #6b7280);
+  color: #6b7280;
   margin: 0;
 }
 
 .tipText {
-  color: var(--color-primary, #7c3aed);
+  color: #4b006e;
   font-size: 0.875rem;
   font-style: italic;
+  font-weight: 500;
 }
 
 .addDemoButton {
   width: auto !important;
   align-self: flex-start;
+  background: #D4AF37 !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+
+.addDemoButton:hover {
+  background: #B8860B !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.4) !important;
 }
 
 .demoEntriesList {
@@ -400,17 +451,21 @@
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--color-border, #e5e7eb);
+  padding: 1.5rem 2rem 2rem 2rem;
+  margin: 0;
+  border-top: 2px solid #e5e7eb;
 }
 
 .analyzeButton {
-  background: #4b006e !important;
+  background: #D4AF37 !important;
   color: white !important;
+  font-weight: 600 !important;
 }
 
 .analyzeButton:hover {
-  background: #6d28d9 !important;
+  background: #B8860B !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.4) !important;
 }
 
 /* Mobile responsive */
