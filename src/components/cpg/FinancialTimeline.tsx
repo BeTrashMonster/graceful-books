@@ -1,14 +1,16 @@
 /**
- * Financial Timeline Component
+ * Financial Timeline Component (Vertical Sidebar Version)
  *
- * Displays a compact timeline view of completed financial statements by month.
- * Shows P&L and Balance Sheet completion status with color coding.
+ * Displays a vertical month navigator for financial statements.
+ * Shows P&L and Balance Sheet completion status with intuitive indicators.
  *
  * Features:
- * - Year filter dropdown
- * - Color-coded month boxes (green/yellow/gray)
- * - Hover preview with financial totals
- * - Click to view/edit specific period
+ * - Vertical month list (all 12 months visible)
+ * - Year selector at top
+ * - Status indicators (both/one/none)
+ * - Hover preview with key financial info
+ * - Click to select month
+ * - Sticky positioning
  */
 
 import { useState } from 'react';
@@ -33,7 +35,7 @@ interface MonthData {
   bsData?: StandaloneFinancials;
 }
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export function FinancialTimeline({
   plStatements,
@@ -81,18 +83,19 @@ export function FinancialTimeline({
     };
   });
 
-  // Determine status for display
-  const getStatus = () => {
-    const hasAnyManual = monthsData.some(m => m.hasPL || m.hasBS);
-    if (!hasAnyManual) return '';
-    return 'Manual Entry';
+  // Get status class for month
+  const getMonthClass = (data: MonthData) => {
+    if (data.hasPL && data.hasBS) return styles.monthBoth; // Green
+    if (data.hasPL || data.hasBS) return styles.monthOne; // Yellow
+    return styles.monthNone; // Gray
   };
 
-  // Get color class for month box
-  const getMonthClass = (data: MonthData) => {
-    if (data.hasPL && data.hasBS) return styles.monthComplete; // Green
-    if (data.hasPL || data.hasBS) return styles.monthPartial; // Yellow
-    return styles.monthEmpty; // Gray
+  // Get status indicator
+  const getStatusIndicator = (data: MonthData) => {
+    if (data.hasPL && data.hasBS) return '✓✓';
+    if (data.hasPL) return '✓ P&L';
+    if (data.hasBS) return '✓ BS';
+    return '○';
   };
 
   // Check if month is currently selected
@@ -100,115 +103,93 @@ export function FinancialTimeline({
     return selectedMonth === data.month && propSelectedYear === data.year;
   };
 
+  // Format currency for tooltip
+  const formatCurrency = (value: string | number | undefined) => {
+    if (!value) return '$0.00';
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(num);
+  };
+
   return (
     <div className={styles.timeline}>
-      {/* Header with year filter */}
-      <div className={styles.timelineHeader}>
-        <div className={styles.yearFilter}>
-          <label htmlFor="year-select" className={styles.yearLabel}>Year:</label>
-          <select
-            id="year-select"
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-            className={styles.yearSelect}
-          >
-            {years.map(year => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-        </div>
-        {getStatus() && (
-          <div className={styles.status}>Status: {getStatus()}</div>
-        )}
+      {/* Header */}
+      <div className={styles.header}>
+        <h3 className={styles.title}>Select Month</h3>
+        <select
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+          className={styles.yearSelect}
+          aria-label="Select year"
+        >
+          {years.map(year => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* Month boxes */}
-      <div className={styles.monthsContainer}>
-        {monthsData.map((data, index) => (
+      {/* Vertical Month List */}
+      <div className={styles.monthList}>
+        {monthsData.map((data) => (
           <div
-            key={index}
-            className={`${styles.monthBox} ${getMonthClass(data)} ${isMonthSelected(data) ? styles.monthSelected : ''}`}
+            key={data.month}
+            className={`${styles.monthRow} ${getMonthClass(data)} ${isMonthSelected(data) ? styles.monthSelected : ''}`}
             onClick={() => onMonthClick(data.month, data.year, { pl: data.hasPL, bs: data.hasBS })}
-            onMouseEnter={() => setHoveredMonth(index)}
+            onMouseEnter={() => setHoveredMonth(data.month)}
             onMouseLeave={() => setHoveredMonth(null)}
+            role="button"
+            tabIndex={0}
+            aria-label={`${MONTHS[data.month]} ${selectedYear}`}
           >
-            <span className={styles.monthName}>{MONTHS[index]}</span>
-            <span className={styles.monthIndicator}>
-              {data.hasPL && data.hasBS ? '✓✓' : data.hasPL ? '✓' : data.hasBS ? '✓' : ''}
-            </span>
+            <span className={styles.monthName}>{MONTHS[data.month]}</span>
+            <span className={styles.monthStatus}>{getStatusIndicator(data)}</span>
 
-            {/* Hover Preview Tooltip */}
-            {hoveredMonth === index && (
+            {/* Hover Tooltip */}
+            {hoveredMonth === data.month && (
               <div className={styles.tooltip}>
                 <div className={styles.tooltipContent}>
-                  {/* P&L Card */}
-                  <div className={styles.previewCard}>
-                    <div className={styles.previewHeader}>
-                      <span className={styles.previewIcon}>📄</span>
-                      <span className={styles.previewTitle}>P&L</span>
+                  <h4 className={styles.tooltipTitle}>{MONTHS[data.month]} {selectedYear}</h4>
+
+                  <div className={styles.tooltipSection}>
+                    <div className={styles.tooltipHeader}>
+                      <span className={styles.tooltipIcon}>📄</span>
+                      <span className={styles.tooltipLabel}>Profit & Loss</span>
                     </div>
                     {data.hasPL && data.plData ? (
-                      <div className={styles.previewStats}>
-                        <div className={styles.previewStat}>
-                          <span>Revenue:</span>
-                          <span>${data.plData.totals.revenue || '0.00'}</span>
-                        </div>
-                        <div className={styles.previewStat}>
-                          <span>COGS:</span>
-                          <span>${data.plData.totals.cogs || '0.00'}</span>
-                        </div>
-                        <div className={styles.previewStat}>
-                          <span>Expenses:</span>
-                          <span>${data.plData.totals.expenses || '0.00'}</span>
-                        </div>
-                        <div className={`${styles.previewStat} ${styles.previewTotal}`}>
+                      <div className={styles.tooltipStats}>
+                        <div className={styles.tooltipStat}>
                           <span>Net Income:</span>
                           <span className={parseFloat(data.plData.totals.net_income || '0') >= 0 ? styles.positive : styles.negative}>
-                            ${data.plData.totals.net_income || '0.00'}
+                            {formatCurrency(data.plData.totals.net_income)}
                           </span>
                         </div>
                       </div>
                     ) : (
-                      <div className={styles.previewEmpty}>
-                        <p>Click to add this month's P&L report</p>
-                      </div>
+                      <p className={styles.tooltipEmpty}>Not entered yet</p>
                     )}
                   </div>
 
-                  {/* Balance Sheet Card */}
-                  <div className={styles.previewCard}>
-                    <div className={styles.previewHeader}>
-                      <span className={styles.previewIcon}>📄</span>
-                      <span className={styles.previewTitle}>Balance Sheet</span>
+                  <div className={styles.tooltipSection}>
+                    <div className={styles.tooltipHeader}>
+                      <span className={styles.tooltipIcon}>⚖</span>
+                      <span className={styles.tooltipLabel}>Balance Sheet</span>
                     </div>
                     {data.hasBS && data.bsData ? (
-                      <div className={styles.previewStats}>
-                        <div className={styles.previewStat}>
-                          <span>Assets:</span>
-                          <span>${data.bsData.totals.total_assets || '0.00'}</span>
-                        </div>
-                        <div className={styles.previewStat}>
-                          <span>Liabilities:</span>
-                          <span>${data.bsData.totals.total_liabilities || '0.00'}</span>
-                        </div>
-                        <div className={`${styles.previewStat} ${styles.previewTotal}`}>
-                          <span>Equity:</span>
-                          <span>${data.bsData.totals.equity || '0.00'}</span>
-                        </div>
-                        <div className={styles.balanceStatus}>
-                          {data.bsData.totals.is_balanced ? (
-                            <span className={styles.balanced}>✓ Balanced</span>
-                          ) : (
-                            <span className={styles.unbalanced}>⚠ Needs Review</span>
-                          )}
-                        </div>
+                      <div className={styles.tooltipStats}>
+                        {data.bsData.totals.is_balanced ? (
+                          <div className={styles.balanced}>✓ Balanced</div>
+                        ) : (
+                          <div className={styles.unbalanced}>⚠ Needs Review</div>
+                        )}
                       </div>
                     ) : (
-                      <div className={styles.previewEmpty}>
-                        <p>Click to add this month's Balance Sheet</p>
-                      </div>
+                      <p className={styles.tooltipEmpty}>Not entered yet</p>
                     )}
                   </div>
                 </div>
@@ -220,17 +201,18 @@ export function FinancialTimeline({
 
       {/* Legend */}
       <div className={styles.legend}>
+        <div className={styles.legendTitle}>Status</div>
         <div className={styles.legendItem}>
-          <span className={`${styles.legendBox} ${styles.monthComplete}`}></span>
-          <span>Both P&L and Balance Sheet complete</span>
+          <span className={`${styles.legendDot} ${styles.legendBoth}`}></span>
+          <span>Both Statements</span>
         </div>
         <div className={styles.legendItem}>
-          <span className={`${styles.legendBox} ${styles.monthPartial}`}></span>
-          <span>P&L or Balance Sheet only</span>
+          <span className={`${styles.legendDot} ${styles.legendOne}`}></span>
+          <span>One Statement</span>
         </div>
         <div className={styles.legendItem}>
-          <span className={`${styles.legendBox} ${styles.monthEmpty}`}></span>
-          <span>No data</span>
+          <span className={`${styles.legendDot} ${styles.legendNone}`}></span>
+          <span>Not Started</span>
         </div>
       </div>
     </div>

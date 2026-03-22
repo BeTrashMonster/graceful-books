@@ -24,7 +24,6 @@ import { db } from '../../db';
 import { getDeviceId } from '../../db/crdt';
 import { PLEntryForm } from '../../components/cpg/PLEntryForm';
 import { BalanceSheetEntryForm } from '../../components/cpg/BalanceSheetEntryForm';
-import { SKUTracker } from '../../components/cpg/SKUTracker';
 import { FinancialTimeline } from '../../components/cpg/FinancialTimeline';
 import {
   type StandaloneFinancials,
@@ -46,7 +45,6 @@ export default function FinancialStatementEntry() {
   // Data state
   const [plStatements, setPlStatements] = useState<StandaloneFinancials[]>([]);
   const [balanceSheets, setBalanceSheets] = useState<StandaloneFinancials[]>([]);
-  const [skuCount, setSkuCount] = useState(0);
 
   // Selected period from timeline
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
@@ -84,16 +82,8 @@ export default function FinancialStatementEntry() {
           .filter(s => s.statement_type === 'balance_sheet' && s.active)
           .toArray();
 
-        // Load SKU count from CPG finished products (exclude bundles)
-        const products = await db.cpgFinishedProducts
-          .where('company_id')
-          .equals(companyId)
-          .filter(p => p.active && p.deleted_at === null && !p.is_bundle)
-          .toArray();
-
         setPlStatements(plData || []);
         setBalanceSheets(bsData || []);
-        setSkuCount(products.length);
       } catch (err) {
         console.error('Error loading financial statements:', err);
         setError('Oops! We had trouble loading your financial data. Let\'s try that again.');
@@ -288,10 +278,6 @@ export default function FinancialStatementEntry() {
     }
   };
 
-  const handleManageProducts = () => {
-    navigate(`/cpg/products`);
-  };
-
   const handleTabSwitch = (newTab: 'pl' | 'balance_sheet') => {
     // Check for unsaved changes before switching tabs
     if (hasUnsavedChanges) {
@@ -432,23 +418,21 @@ export default function FinancialStatementEntry() {
       )}
 
       <div className={styles.content}>
-        {/* Left Column: Forms */}
-        <div className={styles.leftColumn}>
-          {/* Financial Timeline */}
-          <div className={styles.timelineBox}>
-            <FinancialTimeline
-              plStatements={plStatements}
-              balanceSheets={balanceSheets}
-              onMonthClick={handleMonthClick}
-              selectedMonth={selectedMonth}
-              selectedYear={selectedYear}
-            />
-          </div>
+        {/* Left Column: Month Navigator */}
+        <aside className={styles.sidebar}>
+          <FinancialTimeline
+            plStatements={plStatements}
+            balanceSheets={balanceSheets}
+            onMonthClick={handleMonthClick}
+            selectedMonth={selectedMonth}
+            selectedYear={selectedYear}
+          />
+        </aside>
 
-          {/* Tab Navigation and Forms */}
-          <div className={styles.mainColumn}>
-            {/* Tab Navigation */}
-            <div className={styles.tabs}>
+        {/* Right Column: Forms */}
+        <div className={styles.mainColumn}>
+          {/* Tab Navigation */}
+          <div className={styles.tabs}>
             <button
               type="button"
               className={`${styles.tab} ${activeTab === 'pl' ? styles.active : ''}`}
@@ -499,17 +483,7 @@ export default function FinancialStatementEntry() {
               </div>
             )}
           </div>
-          </div>
         </div>
-
-        {/* Right Column: SKU Tracker */}
-        <aside className={styles.sidebar}>
-          <SKUTracker
-            companyId={companyId}
-            skuCount={skuCount}
-            onManageProducts={handleManageProducts}
-          />
-        </aside>
       </div>
     </div>
   );
