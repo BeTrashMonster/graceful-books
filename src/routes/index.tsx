@@ -49,6 +49,9 @@ const DistributionCostReport = lazy(() => import('../pages/cpg/reports/Distribut
 const GrossMarginReport = lazy(() => import('../pages/cpg/reports/GrossMarginReport'))
 const TradeSpendReport = lazy(() => import('../pages/cpg/reports/TradeSpendReport'))
 
+// Test Pages
+const LoaderTest = lazy(() => import('../pages/LoaderTest'))
+
 export function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
@@ -60,6 +63,7 @@ export function AppRoutes() {
         {/* Developer tools - accessible without full layout */}
         <Route path="/dev-tools" element={<DevTools />} />
         <Route path="/developer-tools" element={<DevTools />} />
+        <Route path="/loader-test" element={<LoaderTest />} />
 
         {/* Onboarding routes */}
         <Route path="/onboarding" element={<Onboarding />} />
