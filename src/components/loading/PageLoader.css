@@ -71,16 +71,20 @@
 .page-loader__icon {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  font-size: 3rem;
+  justify-content: center;
+  gap: 1.5rem;
   margin-bottom: 0.5rem;
   position: relative;
   z-index: 1;
+  min-height: 100px;
 }
 
 .treasure {
+  width: 80px;
+  height: 80px;
   animation: pulse 2s ease-in-out infinite;
-  display: inline-block;
+  display: block;
+  filter: drop-shadow(0 4px 12px rgba(212, 175, 55, 0.4));
 }
 
 @keyframes pulse {
@@ -93,25 +97,28 @@
 }
 
 .sparkle {
+  width: 50px;
+  height: 50px;
   animation: float 3s ease-in-out infinite;
-  display: inline-block;
+  display: block;
+  filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.3));
 }
 
-.sparkle:first-child {
+.sparkle:first-of-type {
   animation-delay: 0s;
 }
 
-.sparkle:last-child {
+.sparkle.sparkle--right {
   animation-delay: 1.5s;
 }
 
 @keyframes float {
   0%, 100% {
     transform: translateY(0) rotate(0deg);
-    opacity: 0.8;
+    opacity: 0.85;
   }
   50% {
-    transform: translateY(-10px) rotate(180deg);
+    transform: translateY(-12px) rotate(180deg);
     opacity: 1;
   }
 }
@@ -207,7 +214,18 @@
   }
 
   .page-loader__icon {
-    font-size: 2.5rem;
+    gap: 1rem;
+    min-height: 70px;
+  }
+
+  .treasure {
+    width: 60px;
+    height: 60px;
+  }
+
+  .sparkle {
+    width: 36px;
+    height: 36px;
   }
 
   .page-loader__title {

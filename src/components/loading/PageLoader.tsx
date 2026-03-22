@@ -22,9 +22,9 @@ export function PageLoader({ message = 'Loading your workspace...' }: PageLoader
     <div className="page-loader" role="status" aria-live="polite" aria-label={message}>
       <div className="page-loader__card">
         <div className="page-loader__icon">
-          <span className="sparkle">✨</span>
-          <span className="treasure">💰</span>
-          <span className="sparkle">✨</span>
+          <img src="/assets/sparkle-1.png" alt="" className="sparkle" />
+          <img src="/assets/hourglass.png" alt="" className="treasure" />
+          <img src="/assets/sparkle-2.png" alt="" className="sparkle sparkle--right" />
         </div>
         <h2 className="page-loader__title">Gathering Your Data</h2>
         <p className="page-loader__message">{message}</p>
