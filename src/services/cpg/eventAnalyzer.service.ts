@@ -498,6 +498,5 @@ export class EventAnalyzerService {
   }
 }
 
-export const eventAnalyzerService = new EventAnalyzerService(
-  (global as any).__db || require('../../db').db
-);
+// Export class for instantiation by consumers
+// Usage: const service = new EventAnalyzerService(db);
