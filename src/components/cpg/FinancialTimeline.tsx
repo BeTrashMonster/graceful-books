@@ -113,7 +113,7 @@ export function FinancialTimeline({
       if (data.isFullPL && data.isFullBS) {
         return styles.monthBothFull; // Green - truly complete!
       } else {
-        return styles.monthBothPartial; // Blue/Teal - partial data
+        return styles.monthBothPartial; // Purple - partial data (in progress!)
       }
     }
 
