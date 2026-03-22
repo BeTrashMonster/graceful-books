@@ -5,7 +5,7 @@ interface PageLoaderProps {
   message?: string
 }
 
-export function PageLoader({ message = 'Loading...' }: PageLoaderProps) {
+export function PageLoader({ message = 'Loading your workspace...' }: PageLoaderProps) {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
@@ -20,11 +20,20 @@ export function PageLoader({ message = 'Loading...' }: PageLoaderProps) {
 
   return (
     <div className="page-loader" role="status" aria-live="polite" aria-label={message}>
-      <div className="page-loader__content">
-        <div className="page-loader__spinner" aria-hidden="true">
-          <div className="spinner"></div>
+      <div className="page-loader__card">
+        <div className="page-loader__icon">
+          <span className="sparkle">✨</span>
+          <span className="treasure">💰</span>
+          <span className="sparkle">✨</span>
         </div>
+        <h2 className="page-loader__title">Gathering Your Data</h2>
         <p className="page-loader__message">{message}</p>
+        <div className="page-loader__bar">
+          <div className="page-loader__progress"></div>
+        </div>
+        <p className="page-loader__tip">
+          💜 Take a deep breath - you're building something great!
+        </p>
       </div>
     </div>
   )
