@@ -227,6 +227,12 @@ export function CPGLayout() {
               💰 Promo Analysis
             </Link>
             <Link
+              to="/cpg/events-analysis"
+              className={isActive('/cpg/events-analysis') ? styles.active : ''}
+            >
+              🎪 Events Analysis
+            </Link>
+            <Link
               to="/cpg/financial-entry"
               className={isActive('/cpg/financial-entry') ? styles.active : ''}
             >

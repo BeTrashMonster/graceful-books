@@ -549,6 +549,128 @@ export const validateCPGSalesPromo = (promo: Partial<CPGSalesPromo>): string[] =
 };
 
 // ============================================================================
+// CPG Event - Farmers Market / Event Analysis & Tracking
+// ============================================================================
+
+export interface CPGEvent extends BaseEntity {
+  id: string;
+  company_id: string;
+  event_name: string;
+  location: string;
+  event_start_date: number;
+  event_end_date: number;
+
+  // Event costs
+  event_cost: string; // Total cost (booth fee, permits, supplies, etc.)
+  traveling_fees: string | null; // Optional (gas, hotel, flights, food, etc.)
+
+  // Labor costs (same structure as promos)
+  labor_entries: Array<{
+    id: string;
+    description: string;
+    hours: string;
+    hourly_rate: string;
+    cost_type: 'actual' | 'opportunity'; // actual = paying someone, opportunity = owner's time
+  }> | null;
+
+  // Variant-specific event data (products brought to event)
+  variant_event_data: Record<
+    string,
+    {
+      retail_price: string;
+      units_bringing: string;
+      base_cpu: string; // From CPU calculations
+    }
+  >;
+
+  // Calculated results per variant
+  variant_event_results: Record<
+    string,
+    {
+      event_cost_per_unit: string; // (Event cost + traveling fees) / total units
+      cpu_with_event: string; // Base CPU + Event cost per unit
+      labor_cost_per_unit: string | null; // Labor cost per unit (if applicable)
+      total_cost_with_labor: string | null; // CPU + event cost + labor cost
+      net_profit_margin_with_event: string;
+      net_profit_margin_without_event: string; // For comparison
+      net_profit_margin_with_labor: string | null; // Margin after all costs including labor
+      margin_quality_with_event: 'gutCheck' | 'good' | 'better' | 'best';
+    }
+  >;
+
+  total_event_cost: string; // Total event cost (event_cost + traveling_fees)
+  total_actual_labor_cost: string | null; // Total actual labor cost (cash out of pocket)
+  total_opportunity_cost: string | null; // Total opportunity cost (owner's time valued)
+  recommendation: 'participate' | 'decline' | 'neutral' | null; // Based on margin thresholds
+
+  // Actual performance tracking (for completed events)
+  variant_actual_units_sold: Record<string, number> | null; // Per-variant actual units sold
+  variant_units_damaged: Record<string, number> | null; // Per-variant damaged units
+  variant_units_demo: Record<string, number> | null; // Per-variant demo units
+  actual_total_revenue: string | null; // Calculated from actuals
+  actual_total_profit: string | null; // Revenue - all costs
+  actual_roi: string | null; // ROI percentage
+
+  notes: string | null;
+  status: 'planned' | 'completed';
+  active: boolean;
+  created_at: number;
+  updated_at: number;
+  deleted_at: number | null;
+  version_vector: Record<string, number>;
+}
+
+export const cpgEventsSchema =
+  'id, company_id, location, event_start_date, status, active, [company_id+status], [company_id+location], updated_at, deleted_at';
+
+export const createDefaultCPGEvent = (
+  companyId: string,
+  eventName: string,
+  deviceId: string
+): Partial<CPGEvent> => {
+  const now = Date.now();
+  return {
+    company_id: companyId,
+    event_name: eventName,
+    location: '',
+    event_start_date: now,
+    event_end_date: now,
+    event_cost: '0',
+    traveling_fees: null,
+    labor_entries: null,
+    variant_event_data: {},
+    variant_event_results: {},
+    total_event_cost: '0.00',
+    total_actual_labor_cost: null,
+    total_opportunity_cost: null,
+    recommendation: null,
+    variant_actual_units_sold: null,
+    variant_units_damaged: null,
+    variant_units_demo: null,
+    actual_total_revenue: null,
+    actual_total_profit: null,
+    actual_roi: null,
+    notes: null,
+    status: 'planned',
+    active: true,
+    created_at: now,
+    updated_at: now,
+    deleted_at: null,
+    version_vector: { [deviceId]: 1 },
+  };
+};
+
+export const validateCPGEvent = (event: Partial<CPGEvent>): string[] => {
+  const errors: string[] = [];
+  if (!event.company_id) errors.push('company_id is required');
+  if (!event.event_name || event.event_name.trim() === '')
+    errors.push('event_name is required');
+  if (!event.location || event.location.trim() === '')
+    errors.push('location is required');
+  return errors;
+};
+
+// ============================================================================
 // Helper Functions
 // ============================================================================
 

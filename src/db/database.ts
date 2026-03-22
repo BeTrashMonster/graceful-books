@@ -206,6 +206,7 @@ import {
   cpgDistributorsSchema,
   cpgDistributionCalculationsSchema,
   cpgSalesPromosSchema,
+  cpgEventsSchema,
   cpgFinishedProductsSchema,
   cpgRecipesSchema,
   cpgSettingsSchema,
@@ -217,6 +218,7 @@ import type {
   CPGDistributor,
   CPGDistributionCalculation,
   CPGSalesPromo,
+  CPGEvent,
   CPGFinishedProduct,
   CPGRecipe,
   CPGSettings,
@@ -311,6 +313,7 @@ export class TreasureChestDB extends Dexie {
   cpgDistributors!: Table<CPGDistributor, string>;
   cpgDistributionCalculations!: Table<CPGDistributionCalculation, string>;
   cpgSalesPromos!: Table<CPGSalesPromo, string>;
+  cpgEvents!: Table<CPGEvent, string>;
   cpgFinishedProducts!: Table<CPGFinishedProduct, string>;
   cpgRecipes!: Table<CPGRecipe, string>;
   cpgProductLinks!: Table<CPGProductLink, string>;
@@ -1368,6 +1371,86 @@ export class TreasureChestDB extends Dexie {
       skuCountTrackers: skuCountTrackersSchema,
     });
 
+    // Version 24: Add CPG Events table for farmers market / event analysis
+    this.version(24).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+      recentActivity: recentActivitySchema,
+      conflict_history: conflictHistorySchema,
+      conflict_notifications: conflictNotificationsSchema,
+      comments: commentsSchema,
+      mentions: mentionsSchema,
+      emailQueue: emailQueueSchema,
+      emailLogs: emailLogsSchema,
+      emailNotificationPreferences: emailNotificationPreferencesSchema,
+      subscriptions: subscriptionsSchema,
+      advisorClients: advisorClientsSchema,
+      advisorTeamMembers: advisorTeamMembersSchema,
+      paymentMethods: paymentMethodsSchema,
+      billingInvoices: billingInvoicesSchema,
+      stripeWebhookEvents: stripeWebhookEventsSchema,
+      charityDistributions: charityDistributionsSchema,
+      charities: charitiesSchema,
+      financialGoals: financialGoalsSchema,
+      goalProgressSnapshots: goalProgressSnapshotsSchema,
+      taxDocuments: taxDocumentsSchema,
+      taxCategoryStatus: taxCategoryStatusSchema,
+      taxPrepSessions: taxPrepSessionsSchema,
+      taxAdvisorAccess: taxAdvisorAccessSchema,
+      taxPackages: taxPackagesSchema,
+      currencies: currenciesSchema,
+      exchangeRates: exchangeRatesSchema,
+      cpgCategories: cpgCategoriesSchema,
+      cpgInvoices: cpgInvoicesSchema,
+      cpgVendors: cpgVendorsSchema,
+      cpgDistributors: cpgDistributorsSchema,
+      cpgDistributionCalculations: cpgDistributionCalculationsSchema,
+      cpgSalesPromos: cpgSalesPromosSchema,
+      cpgEvents: cpgEventsSchema,
+      cpgFinishedProducts: cpgFinishedProductsSchema,
+      cpgRecipes: cpgRecipesSchema,
+      cpgProductLinks: cpgProductLinksSchema,
+      cpgSettings: cpgSettingsSchema,
+      standaloneFinancials: standaloneFinancialsSchema,
+      skuCountTrackers: skuCountTrackersSchema,
+    });
+
     // Version 19: Add CPG (Consumer Packaged Goods) tables
     this.version(19).stores({
       accounts: accountsSchema,
@@ -1569,6 +1652,7 @@ export class TreasureChestDB extends Dexie {
     this.cpgDistributors.hook('updating', updateTimestamp);
     this.cpgDistributionCalculations.hook('updating', updateTimestamp);
     this.cpgSalesPromos.hook('updating', updateTimestamp);
+    this.cpgEvents.hook('updating', updateTimestamp);
     this.cpgFinishedProducts.hook('updating', updateTimestamp);
     this.cpgRecipes.hook('updating', updateTimestamp);
     this.cpgProductLinks.hook('updating', updateTimestamp);
