@@ -4,28 +4,34 @@
  * Plan farmers markets and events - calculate costs, margins, and break-even points
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { nanoid } from 'nanoid';
 import { Button } from '../../../components/core/Button';
+import { Input } from '../../../components/forms/Input';
 import { useAuth } from '../../../contexts/AuthContext';
 import { db } from '../../../db';
 import { EventAnalyzerService } from '../../../services/cpg/eventAnalyzer.service';
 import { cpuCalculatorService } from '../../../services/cpg/cpuCalculator.service';
+import { getProfitMarginQualityWithSettings, createDefaultCPGSettings } from '../../../db/schema/cpg.schema';
+import type { CPGSettings } from '../../../db/schema/cpg.schema';
 import styles from './EventDecisionToolTab.module.css';
+
+interface LaborEntry {
+  id: string;
+  description: string;
+  hours: string;
+  hourlyRate: string;
+  costType: 'actual' | 'opportunity';
+}
 
 interface FormData {
   eventName: string;
-  location: string;
   eventStartDate: string;
   eventEndDate: string;
+  location: string;
   eventCost: string;
-  travelingFees: string;
-  laborEntries: Array<{
-    id: string;
-    description: string;
-    hours: string;
-    hourlyRate: string;
-    costType: 'actual' | 'opportunity';
-  }>;
+  travelingCosts: string;
+  laborEntries: LaborEntry[];
   selectedProducts: string[];
   productData: Record<string, {
     retailPrice: string;
@@ -34,93 +40,276 @@ interface FormData {
   }>;
 }
 
+interface Product {
+  id: string;
+  name: string;
+  displayName: string;
+  sku: string | null;
+  msrp: string;
+  cpu: string;
+}
+
 export function EventDecisionToolTab() {
   const { companyId, deviceId } = useAuth();
 
   const [formData, setFormData] = useState<FormData>({
     eventName: '',
-    location: '',
     eventStartDate: '',
     eventEndDate: '',
+    location: '',
     eventCost: '',
-    travelingFees: '',
+    travelingCosts: '',
     laborEntries: [],
     selectedProducts: [],
     productData: {},
   });
 
-  const [products, setProducts] = useState<Array<{ id: string; name: string; sku: string | null; msrp: string }>>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showProductDropdown, setShowProductDropdown] = useState(false);
+  const [cpgSettings, setCpgSettings] = useState<CPGSettings | null>(null);
 
-  // Load products
+  const productDropdownRef = useRef<HTMLDivElement>(null);
+  const productButtonRef = useRef<HTMLButtonElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  // Load products and settings
   useEffect(() => {
-    loadProducts();
+    loadData();
   }, [companyId]);
 
-  const loadProducts = async () => {
-    const prods = await db.cpgFinishedProducts
-      .where('company_id')
-      .equals(companyId)
-      .filter(p => p.active && !p.deleted_at)
-      .toArray();
+  const loadData = async () => {
+    setIsLoadingData(true);
+    try {
+      // Load CPG settings
+      let settings = await db.cpgSettings
+        .where('company_id')
+        .equals(companyId)
+        .and((s) => s.active && !s.deleted_at)
+        .first();
 
-    const productsWithCPU = await Promise.all(
-      prods.map(async (p) => {
-        try {
-          const cpu = await cpuCalculatorService.getFinishedProductCPUBreakdown(p.id, companyId);
-          return {
-            id: p.id,
-            name: p.sku ? `${p.sku} - ${p.name}` : p.name,
-            sku: p.sku,
-            msrp: p.msrp || '0',
-            cpu: cpu.cpu || '0',
-          };
-        } catch {
-          return null;
-        }
-      })
-    );
-
-    setProducts(productsWithCPU.filter(Boolean) as any);
-  };
-
-  const handleProductSelect = (productId: string, selected: boolean) => {
-    if (selected) {
-      const product = products.find(p => p.id === productId);
-      if (product) {
-        setFormData(prev => ({
-          ...prev,
-          selectedProducts: [...prev.selectedProducts, product.name],
-          productData: {
-            ...prev.productData,
-            [product.name]: {
-              retailPrice: product.msrp,
-              unitsBringing: '0',
-              baseCPU: (product as any).cpu,
-            },
-          },
-        }));
+      if (!settings) {
+        const defaultSettings = createDefaultCPGSettings(companyId, deviceId);
+        await db.cpgSettings.add(defaultSettings as CPGSettings);
+        settings = defaultSettings as CPGSettings;
       }
-    } else {
-      const product = products.find(p => p.id === productId);
-      if (product) {
-        setFormData(prev => {
-          const newSelected = prev.selectedProducts.filter(id => id !== product.name);
-          const newData = { ...prev.productData };
-          delete newData[product.name];
-          return {
-            ...prev,
-            selectedProducts: newSelected,
-            productData: newData,
-          };
-        });
-      }
+      setCpgSettings(settings);
+
+      // Load products
+      const prods = await db.cpgFinishedProducts
+        .where('company_id')
+        .equals(companyId)
+        .filter(p => p.active && !p.deleted_at)
+        .toArray();
+
+      const productsWithCPU = await Promise.all(
+        prods.map(async (p) => {
+          try {
+            const cpuBreakdown = await cpuCalculatorService.getFinishedProductCPUBreakdown(p.id, companyId);
+            const displayName = p.sku ? `${p.sku} - ${p.name}` : p.name;
+            return {
+              id: p.id,
+              name: p.name,
+              displayName,
+              sku: p.sku,
+              msrp: p.msrp || '0',
+              cpu: cpuBreakdown.cpu || '0',
+            };
+          } catch {
+            return null;
+          }
+        })
+      );
+
+      // Filter out failed products and sort alphabetically
+      const validProducts = productsWithCPU.filter(Boolean) as Product[];
+      validProducts.sort((a, b) => a.displayName.localeCompare(b.displayName));
+
+      setProducts(validProducts);
+    } catch (err) {
+      console.error('Error loading data:', err);
+      setError('Failed to load products');
+    } finally {
+      setIsLoadingData(false);
     }
   };
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      const isOutsideButton = productButtonRef.current && !productButtonRef.current.contains(target);
+      const isOutsideDropdown = productDropdownRef.current && !productDropdownRef.current.contains(target);
+
+      if (isOutsideButton && isOutsideDropdown) {
+        setShowProductDropdown(false);
+      }
+    };
+
+    if (showProductDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showProductDropdown]);
+
+  // Handle date blur to fix 2-digit year entries (26 -> 2026, not 0026)
+  const handleDateBlur = (field: 'eventStartDate' | 'eventEndDate', value: string) => {
+    if (!value) return;
+
+    try {
+      const parts = value.split('-');
+      if (parts.length === 3) {
+        let year = parseInt(parts[0], 10);
+
+        // If year is 2 digits (0-99), convert to current century
+        if (year >= 0 && year < 100) {
+          year += 2000;
+          const fixedDate = `${year}-${parts[1]}-${parts[2]}`;
+          setFormData((prev) => ({ ...prev, [field]: fixedDate }));
+        }
+      }
+    } catch (e) {
+      // Invalid date format, ignore
+    }
+  };
+
+  const handleProductSelect = (productId: string, selected: boolean) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    if (selected) {
+      setFormData(prev => ({
+        ...prev,
+        selectedProducts: [...prev.selectedProducts, product.displayName],
+        productData: {
+          ...prev.productData,
+          [product.displayName]: {
+            retailPrice: product.msrp,
+            unitsBringing: '',
+            baseCPU: product.cpu,
+          },
+        },
+      }));
+    } else {
+      setFormData(prev => {
+        const newSelected = prev.selectedProducts.filter(name => name !== product.displayName);
+        const newData = { ...prev.productData };
+        delete newData[product.displayName];
+        return {
+          ...prev,
+          selectedProducts: newSelected,
+          productData: newData,
+        };
+      });
+    }
+  };
+
+  const handleSelectAllProducts = () => {
+    const allProductNames = products.map(p => p.displayName);
+    const allProductData: Record<string, any> = {};
+    products.forEach(p => {
+      allProductData[p.displayName] = {
+        retailPrice: p.msrp,
+        unitsBringing: '',
+        baseCPU: p.cpu,
+      };
+    });
+    setFormData(prev => ({
+      ...prev,
+      selectedProducts: allProductNames,
+      productData: allProductData,
+    }));
+  };
+
+  const handleClearAllProducts = () => {
+    setFormData(prev => ({
+      ...prev,
+      selectedProducts: [],
+      productData: {},
+    }));
+  };
+
+  const addLaborEntry = () => {
+    const newEntry: LaborEntry = {
+      id: nanoid(),
+      description: '',
+      hours: '',
+      hourlyRate: '',
+      costType: 'actual',
+    };
+    setFormData(prev => ({
+      ...prev,
+      laborEntries: [...prev.laborEntries, newEntry],
+    }));
+  };
+
+  const removeLaborEntry = (id: string) => {
+    setFormData(prev => ({
+      ...prev,
+      laborEntries: prev.laborEntries.filter(entry => entry.id !== id),
+    }));
+  };
+
+  const handleLaborEntryChange = (id: string, field: keyof Omit<LaborEntry, 'id'>, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      laborEntries: prev.laborEntries.map(entry =>
+        entry.id === id ? { ...entry, [field]: value } : entry
+      ),
+    }));
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.eventName.trim()) {
+      newErrors.eventName = 'Event name is required';
+    }
+
+    if (!formData.eventStartDate) {
+      newErrors.eventStartDate = 'Start date is required';
+    }
+
+    if (!formData.eventEndDate) {
+      newErrors.eventEndDate = 'End date is required';
+    }
+
+    if (formData.eventStartDate && formData.eventEndDate) {
+      const startDate = new Date(formData.eventStartDate);
+      const endDate = new Date(formData.eventEndDate);
+      if (endDate < startDate) {
+        newErrors.eventEndDate = 'End date must be after start date';
+      }
+    }
+
+    if (!formData.eventCost || parseFloat(formData.eventCost) < 0) {
+      newErrors.eventCost = 'Event cost is required';
+    }
+
+    if (formData.selectedProducts.length === 0) {
+      newErrors.selectedProducts = 'Please select at least one product';
+    }
+
+    formData.selectedProducts.forEach(productName => {
+      const data = formData.productData[productName];
+      if (!data.unitsBringing || parseFloat(data.unitsBringing) <= 0) {
+        newErrors[`product_${productName}_units`] = `${productName}: Units must be greater than 0`;
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleAnalyze = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -135,8 +324,14 @@ export function EventDecisionToolTab() {
         eventStartDate: new Date(formData.eventStartDate).getTime(),
         eventEndDate: new Date(formData.eventEndDate).getTime(),
         eventCost: formData.eventCost,
-        travelingFees: formData.travelingFees || undefined,
-        laborEntries: formData.laborEntries.length > 0 ? formData.laborEntries : undefined,
+        travelingFees: formData.travelingCosts || undefined,
+        laborEntries: formData.laborEntries.length > 0 ? formData.laborEntries.map(e => ({
+          id: e.id,
+          description: e.description,
+          hours: e.hours,
+          hourly_rate: e.hourlyRate,
+          cost_type: e.costType,
+        })) : undefined,
       }, deviceId);
 
       // Analyze event
@@ -146,233 +341,517 @@ export function EventDecisionToolTab() {
       }, deviceId);
 
       setAnalysisResult(result);
+
+      // Scroll to results
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     } catch (err: any) {
+      console.error('Analysis error:', err);
       setError(err.message || 'Analysis failed');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const addLaborEntry = () => {
-    setFormData(prev => ({
-      ...prev,
-      laborEntries: [
-        ...prev.laborEntries,
-        {
-          id: Date.now().toString(),
-          description: '',
-          hours: '',
-          hourlyRate: '',
-          costType: 'actual',
-        },
-      ],
-    }));
+  const getMarginQuality = (marginPercentage: string): 'gutCheck' | 'good' | 'better' | 'best' => {
+    if (!cpgSettings) {
+      const margin = parseFloat(marginPercentage);
+      if (margin < 50) return 'gutCheck';
+      if (margin < 60) return 'good';
+      if (margin < 70) return 'better';
+      return 'best';
+    }
+    return getProfitMarginQualityWithSettings(marginPercentage, cpgSettings);
   };
+
+  const getMarginColorClass = (quality: 'gutCheck' | 'good' | 'better' | 'best'): string => {
+    const colorMap = {
+      gutCheck: 'marginGutCheck',
+      good: 'marginGood',
+      better: 'marginBetter',
+      best: 'marginBest',
+    };
+    return colorMap[quality];
+  };
+
+  if (isLoadingData) {
+    return (
+      <div className={styles.loading}>
+        <div className={styles.loadingSpinner}></div>
+        <p>Loading event planning tools...</p>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
-      <div className={styles.form}>
-        <h2 className={styles.sectionTitle}>Event Details</h2>
+      <form onSubmit={(e) => { e.preventDefault(); handleAnalyze(); }} className={styles.form} noValidate>
 
-        <div className={styles.formGrid}>
-          <div className={styles.formGroup}>
-            <label>Event Name *</label>
-            <input
+        {/* Event Details Section */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Event Details</h3>
+
+          {/* Row 1: Event Name, Start Date, End Date */}
+          <div className={styles.row}>
+            <Input
+              label="Event Name"
               type="text"
               value={formData.eventName}
               onChange={(e) => setFormData(prev => ({ ...prev, eventName: e.target.value }))}
-              className={styles.input}
+              error={errors.eventName}
+              required
+              fullWidth
             />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>Location *</label>
-            <input
-              type="text"
-              value={formData.location}
-              onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>Start Date *</label>
-            <input
+            <Input
+              label="Start Date"
               type="date"
               value={formData.eventStartDate}
               onChange={(e) => setFormData(prev => ({ ...prev, eventStartDate: e.target.value }))}
-              className={styles.input}
+              onBlur={(e) => handleDateBlur('eventStartDate', e.target.value)}
+              error={errors.eventStartDate}
+              required
+              fullWidth
             />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>End Date *</label>
-            <input
+            <Input
+              label="End Date"
               type="date"
               value={formData.eventEndDate}
               onChange={(e) => setFormData(prev => ({ ...prev, eventEndDate: e.target.value }))}
-              className={styles.input}
+              onBlur={(e) => handleDateBlur('eventEndDate', e.target.value)}
+              error={errors.eventEndDate}
+              required
+              fullWidth
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label>Event Cost *</label>
-            <input
+          {/* Row 2: Location, Event Cost, Traveling Costs */}
+          <div className={styles.row}>
+            <Input
+              label="Location"
+              type="text"
+              value={formData.location}
+              onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+              fullWidth
+              helperText="Optional: Track events by venue"
+            />
+            <Input
+              label="Event Cost"
               type="number"
+              step="0.01"
+              min="0"
               value={formData.eventCost}
               onChange={(e) => setFormData(prev => ({ ...prev, eventCost: e.target.value }))}
-              className={styles.input}
-              placeholder="0.00"
+              error={errors.eventCost}
+              required
+              fullWidth
+              helperText="Booth fees, permits, supplies, etc."
             />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>Traveling Fees</label>
-            <input
+            <Input
+              label="Traveling Costs"
               type="number"
-              value={formData.travelingFees}
-              onChange={(e) => setFormData(prev => ({ ...prev, travelingFees: e.target.value }))}
-              className={styles.input}
-              placeholder="0.00"
+              step="0.01"
+              min="0"
+              value={formData.travelingCosts}
+              onChange={(e) => setFormData(prev => ({ ...prev, travelingCosts: e.target.value }))}
+              fullWidth
+              helperText="Gas, hotel, flights, food, etc."
             />
           </div>
         </div>
 
-        <h3 className={styles.subsectionTitle}>Labor Costs</h3>
-        <Button onClick={addLaborEntry} variant="secondary" size="sm">
-          + Add Labor Entry
-        </Button>
+        {/* Labor Section */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Labor Costs</h3>
+          <p className={styles.sectionDescription}>
+            Track labor for the event. Add multiple entries if you and employees will be working.
+          </p>
 
-        {formData.laborEntries.map((entry, idx) => (
-          <div key={entry.id} className={styles.laborEntry}>
-            <input
-              type="text"
-              placeholder="Description"
-              value={entry.description}
-              onChange={(e) => {
-                const newEntries = [...formData.laborEntries];
-                newEntries[idx].description = e.target.value;
-                setFormData(prev => ({ ...prev, laborEntries: newEntries }));
-              }}
-              className={styles.input}
-            />
-            <input
-              type="number"
-              placeholder="Hours"
-              value={entry.hours}
-              onChange={(e) => {
-                const newEntries = [...formData.laborEntries];
-                newEntries[idx].hours = e.target.value;
-                setFormData(prev => ({ ...prev, laborEntries: newEntries }));
-              }}
-              className={styles.inputSmall}
-            />
-            <input
-              type="number"
-              placeholder="$/hour"
-              value={entry.hourlyRate}
-              onChange={(e) => {
-                const newEntries = [...formData.laborEntries];
-                newEntries[idx].hourlyRate = e.target.value;
-                setFormData(prev => ({ ...prev, laborEntries: newEntries }));
-              }}
-              className={styles.inputSmall}
-            />
-            <select
-              value={entry.costType}
-              onChange={(e) => {
-                const newEntries = [...formData.laborEntries];
-                newEntries[idx].costType = e.target.value as 'actual' | 'opportunity';
-                setFormData(prev => ({ ...prev, laborEntries: newEntries }));
-              }}
-              className={styles.select}
-            >
-              <option value="actual">Paid Labor</option>
-              <option value="opportunity">Sweat Equity</option>
-            </select>
-          </div>
-        ))}
-
-        <h3 className={styles.subsectionTitle}>Products</h3>
-        <div className={styles.productList}>
-          {products.map(product => (
-            <label key={product.id} className={styles.productCheckbox}>
-              <input
-                type="checkbox"
-                checked={formData.selectedProducts.includes(product.name)}
-                onChange={(e) => handleProductSelect(product.id, e.target.checked)}
-              />
-              <span>{product.name}</span>
-            </label>
+          {formData.laborEntries.map((entry, index) => (
+            <fieldset key={entry.id} className={styles.laborEntryCard}>
+              <legend className={styles.laborEntryLegend}>Labor Entry {index + 1}</legend>
+              <button
+                type="button"
+                onClick={() => removeLaborEntry(entry.id)}
+                className={styles.removeButton}
+                aria-label={`Remove labor entry ${index + 1}`}
+              >
+                ✕
+              </button>
+              <div className={styles.laborEntryFields}>
+                <div className={styles.laborEntryRow}>
+                  <Input
+                    label="Hours"
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    value={entry.hours}
+                    onChange={(e) => handleLaborEntryChange(entry.id, 'hours', e.target.value)}
+                    fullWidth
+                  />
+                  <Input
+                    label="Hourly Rate"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={entry.hourlyRate}
+                    onChange={(e) => handleLaborEntryChange(entry.id, 'hourlyRate', e.target.value)}
+                    fullWidth
+                  />
+                  <Input
+                    label="Description"
+                    type="text"
+                    value={entry.description}
+                    onChange={(e) => handleLaborEntryChange(entry.id, 'description', e.target.value)}
+                    fullWidth
+                    placeholder="ex: Millie working the booth"
+                  />
+                </div>
+                <div className={styles.costTypeSelector}>
+                  <label className={styles.costTypeLabel}>Cost Type:</label>
+                  <div className={styles.radioGroup}>
+                    <label className={styles.radioLabel}>
+                      <input
+                        type="radio"
+                        name={`costType_${entry.id}`}
+                        value="actual"
+                        checked={entry.costType === 'actual'}
+                        onChange={() => handleLaborEntryChange(entry.id, 'costType', 'actual')}
+                      />
+                      <span>Actual Cost (paid helping hands)</span>
+                    </label>
+                    <label className={styles.radioLabel}>
+                      <input
+                        type="radio"
+                        name={`costType_${entry.id}`}
+                        value="opportunity"
+                        checked={entry.costType === 'opportunity'}
+                        onChange={() => handleLaborEntryChange(entry.id, 'costType', 'opportunity')}
+                      />
+                      <span>Sweat Equity (owner's time)</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
           ))}
+
+          <Button
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={addLaborEntry}
+            className={styles.addLaborButton}
+          >
+            ✨ Add Labor Entry
+          </Button>
         </div>
 
-        {formData.selectedProducts.map(productName => (
-          <div key={productName} className={styles.productDetails}>
-            <h4>{productName}</h4>
-            <div className={styles.formGrid}>
-              <div className={styles.formGroup}>
-                <label>Retail Price</label>
-                <input
-                  type="number"
-                  value={formData.productData[productName]?.retailPrice || ''}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    productData: {
-                      ...prev.productData,
-                      [productName]: {
-                        ...prev.productData[productName],
-                        retailPrice: e.target.value,
-                      },
-                    },
-                  }))}
-                  className={styles.input}
-                />
+        {/* Product Selection */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Select Products for this Event</h3>
+          {errors.selectedProducts && (
+            <div className={styles.errorMessage}>{errors.selectedProducts}</div>
+          )}
+
+          <div className={styles.productSelector}>
+            <button
+              type="button"
+              ref={productButtonRef}
+              className={styles.productDropdown}
+              onClick={() => setShowProductDropdown(!showProductDropdown)}
+              aria-expanded={showProductDropdown}
+              aria-haspopup="menu"
+            >
+              <span>
+                {formData.selectedProducts.length === 0
+                  ? 'No Products Selected'
+                  : formData.selectedProducts.length === products.length
+                  ? 'All Products Selected'
+                  : `${formData.selectedProducts.length} Product${formData.selectedProducts.length === 1 ? '' : 's'} Selected`}
+              </span>
+              <span aria-hidden="true">{showProductDropdown ? '▲' : '▼'}</span>
+            </button>
+
+            {showProductDropdown && (
+              <div
+                ref={productDropdownRef}
+                className={styles.productDropdownMenu}
+                role="menu"
+              >
+                <div className={styles.productDropdownActions}>
+                  <button
+                    type="button"
+                    onClick={handleSelectAllProducts}
+                    className={styles.selectAllButton}
+                  >
+                    Select All
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleClearAllProducts}
+                    className={styles.clearAllButton}
+                  >
+                    Clear All
+                  </button>
+                </div>
+
+                {products.map(product => (
+                  <label
+                    key={product.id}
+                    className={styles.productCheckboxLabel}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.selectedProducts.includes(product.displayName)}
+                      onChange={(e) => handleProductSelect(product.id, e.target.checked)}
+                    />
+                    <span>{product.displayName}</span>
+                  </label>
+                ))}
               </div>
-              <div className={styles.formGroup}>
-                <label>Units Bringing</label>
-                <input
-                  type="number"
-                  value={formData.productData[productName]?.unitsBringing || ''}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    productData: {
-                      ...prev.productData,
-                      [productName]: {
-                        ...prev.productData[productName],
-                        unitsBringing: e.target.value,
-                      },
-                    },
-                  }))}
-                  className={styles.input}
-                />
-              </div>
-            </div>
+            )}
           </div>
-        ))}
 
-        {error && <div className={styles.error}>{error}</div>}
-
-        <Button
-          onClick={handleAnalyze}
-          loading={isLoading}
-          disabled={!formData.eventName || !formData.location || formData.selectedProducts.length === 0}
-          size="lg"
-        >
-          Analyze Event
-        </Button>
-
-        {analysisResult && (
-          <div className={styles.results}>
-            <h2>Analysis Results</h2>
-            <div className={styles.resultCard}>
-              <p><strong>Break-Even Units:</strong> {analysisResult.breakEvenUnits}</p>
-              <p><strong>Recommendation:</strong> {analysisResult.recommendation}</p>
-              <p>{analysisResult.recommendationReason}</p>
+          {formData.selectedProducts.length > 0 && (
+            <div className={styles.selectedProductsList}>
+              <h4 className={styles.selectedProductsTitle}>
+                Selected Products ({formData.selectedProducts.length}):
+              </h4>
+              <div className={styles.selectedProductsGrid}>
+                {formData.selectedProducts.map(productName => (
+                  <div key={productName} className={styles.selectedProductChip}>
+                    <span>{productName}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const product = products.find(p => p.displayName === productName);
+                        if (product) handleProductSelect(product.id, false);
+                      }}
+                      className={styles.removeChipButton}
+                      aria-label={`Remove ${productName}`}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
+          )}
+        </div>
+
+        {/* Product Details */}
+        {formData.selectedProducts.length > 0 && (
+          <div className={styles.section}>
+            <h3 className={styles.sectionTitle}>Product Details</h3>
+            <p className={styles.sectionDescription}>
+              Enter quantities you're bringing. Retail prices and base CPUs are pre-filled.
+            </p>
+
+            {formData.selectedProducts.map(productName => (
+              <div key={productName} className={styles.productDetailsCard}>
+                <h4 className={styles.productDetailsTitle}>{productName}</h4>
+                <div className={styles.productDetailsRow}>
+                  <Input
+                    label="Retail Price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.productData[productName]?.retailPrice || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      productData: {
+                        ...prev.productData,
+                        [productName]: {
+                          ...prev.productData[productName],
+                          retailPrice: e.target.value,
+                        },
+                      },
+                    }))}
+                    fullWidth
+                    helperText="Price customers pay"
+                  />
+                  <Input
+                    label="Units Bringing"
+                    type="number"
+                    step="1"
+                    min="0"
+                    value={formData.productData[productName]?.unitsBringing || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      productData: {
+                        ...prev.productData,
+                        [productName]: {
+                          ...prev.productData[productName],
+                          unitsBringing: e.target.value,
+                        },
+                      },
+                    }))}
+                    error={errors[`product_${productName}_units`]}
+                    required
+                    fullWidth
+                    helperText="How many units are you bringing?"
+                  />
+                  <Input
+                    label="Base CPU"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.productData[productName]?.baseCPU || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      productData: {
+                        ...prev.productData,
+                        [productName]: {
+                          ...prev.productData[productName],
+                          baseCPU: e.target.value,
+                        },
+                      },
+                    }))}
+                    fullWidth
+                    helperText="Your cost per unit"
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         )}
-      </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className={styles.error}>
+            {error}
+          </div>
+        )}
+
+        {/* Submit Button */}
+        <div className={styles.actions}>
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            loading={isLoading}
+            disabled={isLoading}
+            className={styles.analyzeButton}
+          >
+            Analyze Event
+          </Button>
+        </div>
+      </form>
+
+      {/* Results */}
+      {analysisResult && (
+        <div ref={resultsRef} className={styles.results}>
+          <h2 className={styles.resultsTitle}>Event Analysis Results</h2>
+
+          <div className={styles.resultsContent}>
+            {/* Summary Card */}
+            <div className={styles.summaryCard}>
+              <h3>Event Summary</h3>
+              <p><strong>Total Event Cost:</strong> ${parseFloat(analysisResult.totalEventCost).toFixed(2)}</p>
+              {analysisResult.totalActualLaborCost && (
+                <p><strong>Actual Labor Cost:</strong> ${parseFloat(analysisResult.totalActualLaborCost).toFixed(2)}</p>
+              )}
+              {analysisResult.totalOpportunityCost && (
+                <p><strong>Opportunity Cost (Sweat Equity):</strong> ${parseFloat(analysisResult.totalOpportunityCost).toFixed(2)}</p>
+              )}
+              <p><strong>Break-Even Units:</strong> {parseFloat(analysisResult.breakEvenUnits).toFixed(0)} total units</p>
+              <p className={styles.recommendation}>
+                <strong>Recommendation:</strong> {analysisResult.recommendation === 'participate' ? '✓ Participate' : analysisResult.recommendation === 'decline' ? '✗ Decline' : '○ Neutral'}
+              </p>
+              <p className={styles.recommendationReason}>{analysisResult.recommendationReason}</p>
+            </div>
+
+            {/* Product Comparisons */}
+            <h3 className={styles.comparisonTitle}>Product Analysis</h3>
+            {Object.entries(analysisResult.variantResults).map(([productName, results]: [string, any]) => {
+              const retailPrice = parseFloat(formData.productData[productName]?.retailPrice || '0');
+              const baseCPU = parseFloat(results.cpuWithEvent) - parseFloat(results.eventCostPerUnit);
+              const eventCost = parseFloat(results.eventCostPerUnit);
+              const laborCost = results.laborCostPerUnit ? parseFloat(results.laborCostPerUnit) : 0;
+
+              // WITHOUT Event scenario
+              const grossProfitWithout = retailPrice - baseCPU;
+              const marginWithout = retailPrice > 0 ? ((grossProfitWithout / retailPrice) * 100).toFixed(2) : '0.00';
+              const marginQualityWithout = getMarginQuality(marginWithout);
+
+              // WITH Event scenario
+              const totalCostWith = baseCPU + eventCost + laborCost;
+              const grossProfitWith = retailPrice - totalCostWith;
+              const marginWith = parseFloat(results.netProfitMarginWithLabor || results.netProfitMarginWithEvent);
+              const marginQualityWith = results.marginQualityWithEvent;
+
+              return (
+                <div key={productName} className={styles.comparisonCard}>
+                  <h4>{productName}</h4>
+
+                  <div className={styles.comparisonGrid}>
+                    {/* WITHOUT Event */}
+                    <div className={styles.comparisonColumn}>
+                      <div className={styles.columnHeader}>
+                        <span>✗ WITHOUT Event</span>
+                      </div>
+                      <div className={styles.plStatement}>
+                        <div className={styles.plRow}>
+                          <span>Retail Price</span>
+                          <span>${retailPrice.toFixed(2)}</span>
+                        </div>
+                        <div className={styles.plRowCost}>
+                          <span>Less: CPU</span>
+                          <span>(${baseCPU.toFixed(2)})</span>
+                        </div>
+                        <div className={styles.plRowDivider}>
+                          <span>Gross Profit</span>
+                          <span>${grossProfitWithout.toFixed(2)}</span>
+                        </div>
+                        <div className={`${styles.plRowMargin} ${styles[getMarginColorClass(marginQualityWithout)]}`}>
+                          <span>Margin</span>
+                          <span>{marginWithout}%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* WITH Event */}
+                    <div className={styles.comparisonColumn}>
+                      <div className={styles.columnHeader}>
+                        <span>✓ WITH Event</span>
+                      </div>
+                      <div className={styles.plStatement}>
+                        <div className={styles.plRow}>
+                          <span>Retail Price</span>
+                          <span>${retailPrice.toFixed(2)}</span>
+                        </div>
+                        <div className={styles.plRowCost}>
+                          <span>Less: CPU</span>
+                          <span>(${baseCPU.toFixed(2)})</span>
+                        </div>
+                        <div className={styles.plRowCost}>
+                          <span>Less: Event Cost/Unit</span>
+                          <span>(${eventCost.toFixed(2)})</span>
+                        </div>
+                        {laborCost > 0 && (
+                          <div className={styles.plRowCost}>
+                            <span>Less: Labor/Unit</span>
+                            <span>(${laborCost.toFixed(2)})</span>
+                          </div>
+                        )}
+                        <div className={styles.plRowDivider}>
+                          <span>Gross Profit</span>
+                          <span>${grossProfitWith.toFixed(2)}</span>
+                        </div>
+                        <div className={`${styles.plRowMargin} ${styles[getMarginColorClass(marginQualityWith)]}`}>
+                          <span>Margin</span>
+                          <span>{marginWith.toFixed(2)}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
