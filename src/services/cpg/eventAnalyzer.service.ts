@@ -59,7 +59,7 @@ export interface LaborEntry {
 export interface CreateEventParams {
   companyId: string;
   eventName: string;
-  location: string;
+  location?: string;
   eventStartDate: number;
   eventEndDate: number;
   eventCost: string;
@@ -133,7 +133,7 @@ export class EventAnalyzerService {
       id: nanoid(),
       ...createDefaultCPGEvent(params.companyId, params.eventName, deviceId),
       event_name: params.eventName,
-      location: params.location,
+      location: params.location || '',
       event_start_date: params.eventStartDate,
       event_end_date: params.eventEndDate,
       event_cost: params.eventCost,
@@ -236,7 +236,14 @@ export class EventAnalyzerService {
       totalActualLaborCost = new Decimal(0);
       totalOpportunityCost = new Decimal(0);
 
-      event.labor_entries.forEach(entry => {
+      // Filter out incomplete entries (defensive coding)
+      const validEntries = event.labor_entries.filter(entry =>
+        entry.hours && entry.hourly_rate &&
+        !isNaN(parseFloat(entry.hours)) &&
+        !isNaN(parseFloat(entry.hourly_rate))
+      );
+
+      validEntries.forEach(entry => {
         const hours = new Decimal(entry.hours);
         const rate = new Decimal(entry.hourly_rate);
         const cost = hours.times(rate);
@@ -258,6 +265,12 @@ export class EventAnalyzerService {
     let variantCount = 0;
 
     for (const [variantName, variantData] of Object.entries(params.variantEventData)) {
+      // Defensive check - ensure values exist and are valid
+      if (!variantData.retailPrice || !variantData.baseCPU || !variantData.unitsBringing) {
+        serviceLogger.warn('Skipping variant with missing data', { variantName, variantData });
+        continue;
+      }
+
       const retailPrice = new Decimal(variantData.retailPrice);
       const baseCPU = new Decimal(variantData.baseCPU);
 

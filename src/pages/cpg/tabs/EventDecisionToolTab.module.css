@@ -206,8 +206,9 @@
   background: white;
   border: 2px solid #D4AF37;
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.2);
-  z-index: 1000;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  -webkit-overflow-scrolling: touch;
 }
 
 .productDropdownActions {

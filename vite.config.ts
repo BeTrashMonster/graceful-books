@@ -141,12 +141,14 @@ export default defineConfig({
     open: true,
   },
   build: {
-    sourcemap: true,
+    outDir: 'dist',
+    sourcemap: false, // Disable source maps in production for security
     rollupOptions: {
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'db-vendor': ['dexie', 'dexie-react-hooks'],
+          'crypto': ['argon2-browser'], // Separate crypto library for caching
         },
       },
     },

@@ -351,17 +351,36 @@ export function EventDecisionToolTab() {
         })) : undefined,
       }, deviceId);
 
-      // Prepare variant data - ensure all values are strings
+      // Prepare variant data - ensure all values are valid strings with numbers
       const variantEventData: Record<string, any> = {};
       formData.selectedProducts.forEach(productName => {
         const data = formData.productData[productName];
         if (data) {
+          // Ensure we have valid numeric strings, defaulting to '0' if empty/invalid
+          const retailPrice = data.retailPrice && !isNaN(parseFloat(data.retailPrice))
+            ? data.retailPrice
+            : '0';
+          const unitsBringing = data.unitsBringing && !isNaN(parseFloat(data.unitsBringing))
+            ? data.unitsBringing
+            : '0';
+          const baseCPU = data.baseCPU && !isNaN(parseFloat(data.baseCPU))
+            ? data.baseCPU
+            : '0';
+
           variantEventData[productName] = {
-            retailPrice: data.retailPrice || '0',
-            unitsBringing: data.unitsBringing || '0',
-            baseCPU: data.baseCPU || '0',
+            retailPrice,
+            unitsBringing,
+            baseCPU,
           };
         }
+      });
+
+      // Debug log the data being sent
+      console.log('Analyzing event with data:', {
+        eventId: event.id,
+        variantEventData,
+        eventCost: formData.eventCost,
+        travelingCosts: formData.travelingCosts,
       });
 
       // Analyze event

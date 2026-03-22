@@ -22,6 +22,7 @@ import type {
   SyncChange,
 } from '../sync/syncProtocol';
 import { SYNC_PROTOCOL_VERSION } from '../sync/syncProtocol';
+import { SYNC_URL, MOCK_API } from '../config/api';
 
 /**
  * Mock sync server using localStorage
@@ -206,6 +207,11 @@ class MockSyncServer {
 }
 
 /**
+ * Sync server URL configured via environment variables:
+ * - Development: ws://localhost:8080
+ * - Production: wss://sync.audacious.money
+ */
+/**
  * Sync API client
  *
  * Provides methods to interact with the sync server.
@@ -307,7 +313,7 @@ class SyncApiClient {
 /**
  * Singleton sync API client instance
  */
-export const syncApi = new SyncApiClient(true);
+export const syncApi = new SyncApiClient(MOCK_API);
 
 /**
  * Create a new sync API client
