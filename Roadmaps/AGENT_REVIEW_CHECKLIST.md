@@ -299,3 +299,122 @@ Before marking task complete:
 - [ ] No new `console.log` statements (except in error boundaries)
 - [ ] Follows existing code patterns and structure
 - [ ] User-facing text uses Steadiness communication style
+
+---
+
+## 11. Completion Verification (MANDATORY)
+
+**Before marking your task complete, you MUST verify your work.**
+
+See **AGENT_COMPLETION_PROTOCOL.md** for full requirements.
+
+### File Existence Verification
+- [ ] Every claimed file verified with `ls -la /path/to/file`
+- [ ] Line counts shown with `wc -l /path/to/file`
+- [ ] First 10 lines shown with `head -10 /path/to/file`
+- [ ] Verification output included in completion report
+
+### Code Verification
+- [ ] No TODO/FIXME without justification
+- [ ] All imports reference files that exist
+- [ ] Code files are primary deliverables (not documentation)
+- [ ] Package.json scripts reference files that exist
+
+### Functional Verification
+- [ ] Scripts added to package.json actually run
+- [ ] Middleware can be imported without errors
+- [ ] API endpoints tested with curl or similar
+- [ ] Database migrations can be parsed
+
+### Test Verification
+- [ ] If tests claimed, test files exist
+- [ ] Test files can be executed: `bun test path/to/test.test.ts`
+- [ ] Test results shown (pass/fail counts)
+- [ ] Never claim tests without running them
+
+### Dependency Verification
+- [ ] All imported files verified to exist
+- [ ] All dependencies listed in package.json
+- [ ] No imports from non-existent files
+
+### Integration Verification
+- [ ] Files you depend on have the exports you need
+- [ ] Verified by reading dependency files
+- [ ] No assumptions about what other files contain
+
+---
+
+## Completion Report Requirements
+
+Your completion summary MUST include:
+
+### For Each File Created:
+```markdown
+### /absolute/path/to/file.ts
+**Purpose:** [What it does]
+
+**Verification:**
+\```bash
+$ ls -la /absolute/path/to/file.ts
+-rw-r--r-- 1 user group 1234 Jan 01 12:00 file.ts
+
+$ wc -l /absolute/path/to/file.ts
+150 /absolute/path/to/file.ts
+\```
+
+**Key Functions:** [List main functions]
+**Dependencies:** [What it imports - verified to exist]
+**TODOs:** [None OR justified list]
+```
+
+### For Test Files:
+```markdown
+### /path/to/test.test.ts
+
+**Test Run:**
+\```bash
+$ bun test /path/to/test.test.ts
+✅ 10 tests passed
+❌ 2 tests failed (reasons documented)
+\```
+```
+
+### For Scripts Added to package.json:
+```markdown
+### "scriptName": "bun run path/to/file.ts"
+
+**Verification:**
+\```bash
+$ bun run scriptName --help
+[Show it doesn't error with "file not found"]
+\```
+```
+
+---
+
+## RED FLAGS - Task is NOT Complete if:
+
+- ❌ Any claimed file doesn't exist
+- ❌ File is empty or only has comments
+- ❌ TODOs without justification
+- ❌ Tests claimed but file doesn't exist
+- ❌ Tests claimed but won't run
+- ❌ Package.json scripts reference non-existent files
+- ❌ Imports reference non-existent files
+- ❌ Completion report lacks verification commands
+- ❌ Documentation is primary deliverable (code should be)
+- ❌ Claims without evidence
+
+---
+
+## Process
+
+1. **Do the work** - Create the actual files
+2. **Verify your work** - Run all verification steps
+3. **Document verification** - Include outputs in report
+4. **Submit completion** - With proof of work
+
+**Never claim completion without verification.**
+
+This ensures integrity and enables parallel orchestration with confidence.
+

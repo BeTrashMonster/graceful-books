@@ -1,0 +1,24 @@
+{
+  "name": "audacious-money-backend",
+  "version": "0.1.0",
+  "description": "Backend API for Audacious Money platform",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "migrate:up": "bun run src/db/migrate.ts up",
+    "migrate:down": "bun run src/db/migrate.ts down",
+    "migrate:status": "bun run src/db/migrate.ts status",
+    "db:setup": "bun run migrate:up"
+  },
+  "dependencies": {
+    "hono": "^4.0.0",
+    "pg": "^8.11.3",
+    "@node-rs/argon2": "^1.8.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.0",
+    "bun-types": "latest"
+  }
+}
