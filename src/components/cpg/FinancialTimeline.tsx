@@ -184,6 +184,7 @@ export function FinancialTimeline({
           <div className={styles.tooltipContent}>
             <h4 className={styles.tooltipTitle}>{MONTHS[hoveredMonth]} {selectedYear}</h4>
 
+            {/* P&L Section */}
             <div className={styles.tooltipSection}>
               <div className={styles.tooltipHeader}>
                 <span className={styles.tooltipIcon}>📄</span>
@@ -192,6 +193,18 @@ export function FinancialTimeline({
               {monthsData[hoveredMonth]?.hasPL && monthsData[hoveredMonth]?.plData ? (
                 <div className={styles.tooltipStats}>
                   <div className={styles.tooltipStat}>
+                    <span>Revenue:</span>
+                    <span>{formatCurrency(monthsData[hoveredMonth].plData!.totals.revenue)}</span>
+                  </div>
+                  <div className={styles.tooltipStat}>
+                    <span>COGS:</span>
+                    <span>{formatCurrency(monthsData[hoveredMonth].plData!.totals.cogs)}</span>
+                  </div>
+                  <div className={styles.tooltipStat}>
+                    <span>Expenses:</span>
+                    <span>{formatCurrency(monthsData[hoveredMonth].plData!.totals.expenses)}</span>
+                  </div>
+                  <div className={`${styles.tooltipStat} ${styles.tooltipTotal}`}>
                     <span>Net Income:</span>
                     <span className={parseFloat(monthsData[hoveredMonth].plData!.totals.net_income || '0') >= 0 ? styles.positive : styles.negative}>
                       {formatCurrency(monthsData[hoveredMonth].plData!.totals.net_income)}
@@ -203,6 +216,7 @@ export function FinancialTimeline({
               )}
             </div>
 
+            {/* Balance Sheet Section */}
             <div className={styles.tooltipSection}>
               <div className={styles.tooltipHeader}>
                 <span className={styles.tooltipIcon}>⚖</span>
@@ -210,11 +224,25 @@ export function FinancialTimeline({
               </div>
               {monthsData[hoveredMonth]?.hasBS && monthsData[hoveredMonth]?.bsData ? (
                 <div className={styles.tooltipStats}>
-                  {monthsData[hoveredMonth].bsData!.totals.is_balanced ? (
-                    <div className={styles.balanced}>✓ Balanced</div>
-                  ) : (
-                    <div className={styles.unbalanced}>⚠ Needs Review</div>
-                  )}
+                  <div className={styles.tooltipStat}>
+                    <span>Assets:</span>
+                    <span>{formatCurrency(monthsData[hoveredMonth].bsData!.totals.total_assets)}</span>
+                  </div>
+                  <div className={styles.tooltipStat}>
+                    <span>Liabilities:</span>
+                    <span>{formatCurrency(monthsData[hoveredMonth].bsData!.totals.total_liabilities)}</span>
+                  </div>
+                  <div className={`${styles.tooltipStat} ${styles.tooltipTotal}`}>
+                    <span>Equity:</span>
+                    <span>{formatCurrency(monthsData[hoveredMonth].bsData!.totals.equity)}</span>
+                  </div>
+                  <div className={styles.balanceStatus}>
+                    {monthsData[hoveredMonth].bsData!.totals.is_balanced ? (
+                      <div className={styles.balanced}>✓ Balanced</div>
+                    ) : (
+                      <div className={styles.unbalanced}>⚠ Needs Review</div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <p className={styles.tooltipEmpty}>Not entered yet</p>
