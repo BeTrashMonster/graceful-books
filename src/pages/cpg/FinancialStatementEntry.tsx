@@ -388,8 +388,29 @@ export default function FinancialStatementEntry() {
 
   if (isLoading) {
     return (
-      <div className={styles.loading}>
-        <p>Loading your financial data...</p>
+      <div className={styles.page}>
+        <div className="page-header">
+          <h1 className="page-title">Financial Statement Entry</h1>
+        </div>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingCard}>
+            <div className={styles.loadingIcon}>
+              <span className={styles.sparkle}>✨</span>
+              <span className={styles.treasure}>💰</span>
+              <span className={styles.sparkle}>✨</span>
+            </div>
+            <h2 className={styles.loadingTitle}>Gathering Your Financial Records</h2>
+            <p className={styles.loadingMessage}>
+              We're organizing your treasure chest of data...
+            </p>
+            <div className={styles.loadingBar}>
+              <div className={styles.loadingProgress}></div>
+            </div>
+            <p className={styles.loadingTip}>
+              💜 Take a deep breath - you're building something great!
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
