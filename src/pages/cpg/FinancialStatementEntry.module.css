@@ -92,7 +92,7 @@
   margin: 0 auto;
   padding: 1rem 2rem;
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 1fr 280px;
   gap: 1.5rem;
   align-items: start;
 }

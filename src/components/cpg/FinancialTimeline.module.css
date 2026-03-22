@@ -197,7 +197,7 @@
 /* Tooltip */
 .tooltip {
   position: absolute;
-  left: calc(100% + 1rem);
+  right: calc(100% + 1rem);
   top: 0;
   z-index: 9999;
   pointer-events: none;
@@ -207,7 +207,7 @@
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateX(-10px);
+    transform: translateX(10px);
   }
   to {
     opacity: 1;

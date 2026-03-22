@@ -418,18 +418,7 @@ export default function FinancialStatementEntry() {
       )}
 
       <div className={styles.content}>
-        {/* Left Column: Month Navigator */}
-        <aside className={styles.sidebar}>
-          <FinancialTimeline
-            plStatements={plStatements}
-            balanceSheets={balanceSheets}
-            onMonthClick={handleMonthClick}
-            selectedMonth={selectedMonth}
-            selectedYear={selectedYear}
-          />
-        </aside>
-
-        {/* Right Column: Forms */}
+        {/* Left Column: Forms */}
         <div className={styles.mainColumn}>
           {/* Tab Navigation */}
           <div className={styles.tabs}>
@@ -484,6 +473,17 @@ export default function FinancialStatementEntry() {
             )}
           </div>
         </div>
+
+        {/* Right Column: Month Navigator */}
+        <aside className={styles.sidebar}>
+          <FinancialTimeline
+            plStatements={plStatements}
+            balanceSheets={balanceSheets}
+            onMonthClick={handleMonthClick}
+            selectedMonth={selectedMonth}
+            selectedYear={selectedYear}
+          />
+        </aside>
       </div>
     </div>
   );
