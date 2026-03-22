@@ -13,7 +13,7 @@
  * - Sticky positioning
  */
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { StandaloneFinancials } from '../../db/schema/standaloneFinancials.schema';
 import styles from './FinancialTimeline.module.css';
 
@@ -47,6 +47,8 @@ export function FinancialTimeline({
 }: FinancialTimelineProps) {
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [hoveredMonth, setHoveredMonth] = useState<number | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, right: 0 });
+  const monthRowRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Get all years that have data
   const allYears = new Set<number>();
@@ -115,6 +117,21 @@ export function FinancialTimeline({
     }).format(num);
   };
 
+  // Handle mouse enter with position calculation
+  const handleMouseEnter = (month: number, index: number) => {
+    setHoveredMonth(month);
+
+    // Calculate tooltip position based on month row position
+    const monthRow = monthRowRefs.current[index];
+    if (monthRow) {
+      const rect = monthRow.getBoundingClientRect();
+      setTooltipPosition({
+        top: rect.top,
+        right: window.innerWidth - rect.left + 16, // 16px gap from left edge of month row
+      });
+    }
+  };
+
   return (
     <div className={styles.timeline}>
       {/* Header */}
@@ -136,12 +153,13 @@ export function FinancialTimeline({
 
       {/* Vertical Month List */}
       <div className={styles.monthList}>
-        {monthsData.map((data) => (
+        {monthsData.map((data, index) => (
           <div
             key={data.month}
+            ref={el => monthRowRefs.current[index] = el}
             className={`${styles.monthRow} ${getMonthClass(data)} ${isMonthSelected(data) ? styles.monthSelected : ''}`}
             onClick={() => onMonthClick(data.month, data.year, { pl: data.hasPL, bs: data.hasBS })}
-            onMouseEnter={() => setHoveredMonth(data.month)}
+            onMouseEnter={() => handleMouseEnter(data.month, index)}
             onMouseLeave={() => setHoveredMonth(null)}
             role="button"
             tabIndex={0}
@@ -149,55 +167,62 @@ export function FinancialTimeline({
           >
             <span className={styles.monthName}>{MONTHS[data.month]}</span>
             <span className={styles.monthStatus}>{getStatusIndicator(data)}</span>
-
-            {/* Hover Tooltip */}
-            {hoveredMonth === data.month && (
-              <div className={styles.tooltip}>
-                <div className={styles.tooltipContent}>
-                  <h4 className={styles.tooltipTitle}>{MONTHS[data.month]} {selectedYear}</h4>
-
-                  <div className={styles.tooltipSection}>
-                    <div className={styles.tooltipHeader}>
-                      <span className={styles.tooltipIcon}>📄</span>
-                      <span className={styles.tooltipLabel}>Profit & Loss</span>
-                    </div>
-                    {data.hasPL && data.plData ? (
-                      <div className={styles.tooltipStats}>
-                        <div className={styles.tooltipStat}>
-                          <span>Net Income:</span>
-                          <span className={parseFloat(data.plData.totals.net_income || '0') >= 0 ? styles.positive : styles.negative}>
-                            {formatCurrency(data.plData.totals.net_income)}
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className={styles.tooltipEmpty}>Not entered yet</p>
-                    )}
-                  </div>
-
-                  <div className={styles.tooltipSection}>
-                    <div className={styles.tooltipHeader}>
-                      <span className={styles.tooltipIcon}>⚖</span>
-                      <span className={styles.tooltipLabel}>Balance Sheet</span>
-                    </div>
-                    {data.hasBS && data.bsData ? (
-                      <div className={styles.tooltipStats}>
-                        {data.bsData.totals.is_balanced ? (
-                          <div className={styles.balanced}>✓ Balanced</div>
-                        ) : (
-                          <div className={styles.unbalanced}>⚠ Needs Review</div>
-                        )}
-                      </div>
-                    ) : (
-                      <p className={styles.tooltipEmpty}>Not entered yet</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         ))}
       </div>
+
+      {/* Hover Tooltip - Rendered outside scroll container */}
+      {hoveredMonth !== null && (
+        <div
+          className={styles.tooltip}
+          style={{
+            position: 'fixed',
+            top: `${tooltipPosition.top}px`,
+            right: `${tooltipPosition.right}px`,
+          }}
+        >
+          <div className={styles.tooltipContent}>
+            <h4 className={styles.tooltipTitle}>{MONTHS[hoveredMonth]} {selectedYear}</h4>
+
+            <div className={styles.tooltipSection}>
+              <div className={styles.tooltipHeader}>
+                <span className={styles.tooltipIcon}>📄</span>
+                <span className={styles.tooltipLabel}>Profit & Loss</span>
+              </div>
+              {monthsData[hoveredMonth]?.hasPL && monthsData[hoveredMonth]?.plData ? (
+                <div className={styles.tooltipStats}>
+                  <div className={styles.tooltipStat}>
+                    <span>Net Income:</span>
+                    <span className={parseFloat(monthsData[hoveredMonth].plData!.totals.net_income || '0') >= 0 ? styles.positive : styles.negative}>
+                      {formatCurrency(monthsData[hoveredMonth].plData!.totals.net_income)}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <p className={styles.tooltipEmpty}>Not entered yet</p>
+              )}
+            </div>
+
+            <div className={styles.tooltipSection}>
+              <div className={styles.tooltipHeader}>
+                <span className={styles.tooltipIcon}>⚖</span>
+                <span className={styles.tooltipLabel}>Balance Sheet</span>
+              </div>
+              {monthsData[hoveredMonth]?.hasBS && monthsData[hoveredMonth]?.bsData ? (
+                <div className={styles.tooltipStats}>
+                  {monthsData[hoveredMonth].bsData!.totals.is_balanced ? (
+                    <div className={styles.balanced}>✓ Balanced</div>
+                  ) : (
+                    <div className={styles.unbalanced}>⚠ Needs Review</div>
+                  )}
+                </div>
+              ) : (
+                <p className={styles.tooltipEmpty}>Not entered yet</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Legend */}
       <div className={styles.legend}>
