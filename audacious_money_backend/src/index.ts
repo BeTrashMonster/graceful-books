@@ -4,7 +4,7 @@
  * Initializes database, starts server, and handles graceful shutdown
  */
 
-import { serve } from 'bun';
+import { serve } from '@hono/node-server';
 import app from './app.js';
 import { initializeDatabase, closeDatabase } from './db/connection.js';
 
