@@ -16,6 +16,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { getDatabase, checkDatabaseHealth } from './db/connection.js';
 import { success } from './utils/responses.js';
 import authRoutes from './routes/auth.js';
+import webhookRoutes from './routes/webhooks.js';
 
 // Create Hono app
 const app = new Hono();
@@ -45,6 +46,9 @@ app.use('*', async (c, next) => {
 // ==========================================
 // Rate Limiting (Stricter for auth endpoints)
 // ==========================================
+
+// Webhook routes (must be before rate limiting)
+app.route('/webhooks', webhookRoutes);
 
 // Auth endpoints: 5 requests per minute
 app.use('/auth/*', rateLimiter({ max: 5, window: 60 }));
