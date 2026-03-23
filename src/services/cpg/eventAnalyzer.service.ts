@@ -243,11 +243,18 @@ export class EventAnalyzerService {
       totalOpportunityCost = new Decimal(0);
 
       // Filter out incomplete entries (defensive coding)
-      const validEntries = event.labor_entries.filter(entry =>
-        entry.hours && entry.hourly_rate &&
-        !isNaN(parseFloat(entry.hours)) &&
-        !isNaN(parseFloat(entry.hourly_rate))
-      );
+      const validEntries = event.labor_entries.filter(entry => {
+        serviceLogger.info('Checking labor entry', {
+          entry,
+          hasHours: !!entry.hours,
+          hasHourlyRate: !!entry.hourly_rate,
+          hoursValue: entry.hours,
+          hourlyRateValue: entry.hourly_rate,
+        });
+        return entry.hours && entry.hourly_rate &&
+          !isNaN(parseFloat(entry.hours)) &&
+          !isNaN(parseFloat(entry.hourly_rate));
+      });
 
       serviceLogger.info('Valid labor entries', {
         total: event.labor_entries.length,
