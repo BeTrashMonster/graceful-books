@@ -126,6 +126,14 @@ export function EventImpactSummary({
     (totalActualLaborCost ? parseFloat(totalActualLaborCost) : 0) +
     (totalOpportunityCost ? parseFloat(totalOpportunityCost) : 0);
 
+  // Debug logging
+  console.log('EventImpactSummary received:', {
+    totalActualLaborCost,
+    totalOpportunityCost,
+    totalLaborCost,
+    hasLaborCosts: totalLaborCost > 0,
+  });
+
   // Calculate per-unit costs
   const expectedLaborCostPerUnit = totalUnitsNum > 0 ? totalLaborCost / totalUnitsNum : 0;
   const adjustedLaborCostPerUnit = adjustedUnits > 0 ? totalLaborCost / adjustedUnits : 0;

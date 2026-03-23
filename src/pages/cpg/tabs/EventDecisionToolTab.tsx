@@ -400,6 +400,12 @@ export function EventDecisionToolTab() {
         variantEventData,
       }, deviceId);
 
+      console.log('Analysis result:', {
+        totalActualLaborCost: result.totalActualLaborCost,
+        totalOpportunityCost: result.totalOpportunityCost,
+        totalEventCost: result.totalEventCost,
+      });
+
       setAnalysisResult(result);
 
       // Scroll to results
