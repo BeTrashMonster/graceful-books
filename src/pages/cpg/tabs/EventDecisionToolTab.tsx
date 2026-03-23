@@ -50,7 +50,11 @@ interface Product {
   cpu: string;
 }
 
-export function EventDecisionToolTab() {
+interface EventDecisionToolTabProps {
+  editEventId?: string | null;
+}
+
+export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps) {
   const { companyId, deviceId } = useAuth();
 
   const [formData, setFormData] = useState<FormData>({
@@ -83,6 +87,13 @@ export function EventDecisionToolTab() {
   useEffect(() => {
     loadData();
   }, [companyId]);
+
+  // Load event for editing
+  useEffect(() => {
+    if (editEventId && companyId) {
+      loadEventForEditing(editEventId);
+    }
+  }, [editEventId, companyId]);
 
   const loadData = async () => {
     setIsLoadingData(true);
@@ -137,6 +148,119 @@ export function EventDecisionToolTab() {
       setError('Failed to load products');
     } finally {
       setIsLoadingData(false);
+    }
+  };
+
+  const loadEventForEditing = async (eventId: string) => {
+    try {
+      setError(null);
+
+      // Fetch the event from database
+      const event = await db.cpgEvents.get(eventId);
+      if (!event) {
+        setError('Event not found');
+        return;
+      }
+
+      // Convert timestamps to YYYY-MM-DD format for date inputs
+      const startDate = new Date(event.event_start_date).toISOString().split('T')[0];
+      const endDate = new Date(event.event_end_date).toISOString().split('T')[0];
+
+      // Prepare labor entries if they exist
+      const laborEntries: LaborEntry[] = event.labor_entries
+        ? event.labor_entries.map(e => ({
+            id: e.id,
+            description: e.description || '',
+            hours: e.hours,
+            hourlyRate: e.hourly_rate,
+            costType: e.cost_type,
+          }))
+        : [];
+
+      // Prepare product data if it exists
+      const selectedProducts: string[] = [];
+      const productData: Record<string, { retailPrice: string; unitsBringing: string; baseCPU: string }> = {};
+
+      if (event.variant_event_data) {
+        Object.entries(event.variant_event_data).forEach(([name, data]: [string, any]) => {
+          selectedProducts.push(name);
+          productData[name] = {
+            retailPrice: data.retail_price?.toString() || '0',
+            unitsBringing: data.units_bringing?.toString() || '0',
+            baseCPU: data.base_cpu?.toString() || '0',
+          };
+        });
+      }
+
+      // Populate form with event data
+      setFormData({
+        eventName: event.event_name,
+        eventStartDate: startDate,
+        eventEndDate: endDate,
+        location: event.location || '',
+        eventCost: event.event_cost?.toString() || '0',
+        travelingCosts: event.traveling_fees?.toString() || '',
+        laborEntries,
+        selectedProducts,
+        productData,
+      });
+
+      // Reconstruct analysis results from event data if they exist
+      if (event.variant_event_results && Object.keys(event.variant_event_results).length > 0) {
+        // Convert variant_event_results from snake_case to camelCase
+        const variantResults: Record<string, any> = {};
+        for (const [variantName, result] of Object.entries(event.variant_event_results)) {
+          variantResults[variantName] = {
+            eventCostPerUnit: result.event_cost_per_unit,
+            cpuWithEvent: result.cpu_with_event,
+            laborCostPerUnit: result.labor_cost_per_unit,
+            totalCostWithLabor: result.total_cost_with_labor,
+            netProfitMarginWithEvent: result.net_profit_margin_with_event,
+            netProfitMarginWithoutEvent: result.net_profit_margin_without_event,
+            netProfitMarginWithLabor: result.net_profit_margin_with_labor,
+            marginQualityWithEvent: result.margin_quality_with_event,
+            marginDifference: '0', // Not stored, calculate if needed
+          };
+        }
+
+        // Calculate total units
+        const totalUnits = Object.values(event.variant_event_data || {}).reduce(
+          (sum, data: any) => sum + parseFloat(data.units_bringing || '0'),
+          0
+        );
+
+        // Calculate break-even units (approximate)
+        const breakEvenUnits = totalUnits; // Simplified - actual calculation would be more complex
+
+        const analysisResult = {
+          eventId: event.id,
+          eventName: event.event_name,
+          location: event.location,
+          eventStartDate: event.event_start_date,
+          eventEndDate: event.event_end_date,
+          eventCost: event.event_cost,
+          travelingFees: event.traveling_fees,
+          laborEntries: laborEntries,
+          variantResults,
+          totalEventCost: event.total_event_cost,
+          totalActualLaborCost: event.total_actual_labor_cost,
+          totalOpportunityCost: event.total_opportunity_cost,
+          totalUnits: totalUnits.toString(),
+          breakEvenUnits: breakEvenUnits.toString(),
+          recommendation: event.recommendation || 'neutral',
+          recommendationReason: '', // Not stored
+        };
+
+        setAnalysisResult(analysisResult);
+
+        // Scroll to results after a brief delay
+        setTimeout(() => {
+          resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+      }
+    } catch (err) {
+      console.error('Failed to load event:', err);
+      setError('Failed to load event for editing');
     }
   };
 
@@ -302,8 +426,9 @@ export function EventDecisionToolTab() {
     }
 
     if (formData.eventStartDate && formData.eventEndDate) {
-      const startDate = new Date(formData.eventStartDate);
-      const endDate = new Date(formData.eventEndDate);
+      // Parse dates in local timezone for comparison
+      const startDate = new Date(formData.eventStartDate + 'T00:00:00');
+      const endDate = new Date(formData.eventEndDate + 'T00:00:00');
       if (endDate < startDate) {
         newErrors.eventEndDate = 'End date must be after start date';
       }
@@ -347,12 +472,17 @@ export function EventDecisionToolTab() {
       console.log('Complete labor entries:', completeLaborEntries);
 
       // Create event
+      // Parse dates in local timezone (not UTC)
+      // Adding 'T00:00:00' forces the date to be interpreted as local midnight
+      const localStartDate = new Date(formData.eventStartDate + 'T00:00:00').getTime();
+      const localEndDate = new Date(formData.eventEndDate + 'T23:59:59').getTime();
+
       const event = await service.createEvent({
         companyId,
         eventName: formData.eventName,
         location: formData.location,
-        eventStartDate: new Date(formData.eventStartDate).getTime(),
-        eventEndDate: new Date(formData.eventEndDate).getTime(),
+        eventStartDate: localStartDate,
+        eventEndDate: localEndDate,
         eventCost: formData.eventCost,
         travelingFees: formData.travelingCosts || undefined,
         laborEntries: completeLaborEntries.length > 0 ? completeLaborEntries.map(e => ({

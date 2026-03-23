@@ -1,0 +1,392 @@
+/* Mark Event Complete Modal Styles */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.description {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+.description strong {
+  color: var(--color-primary, #7c3aed);
+  font-weight: 600;
+}
+
+/* Compact Summary */
+.summaryCompact {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3ebff 100%);
+  border: 1px solid #e9d5ff;
+  border-radius: var(--border-radius-md, 8px);
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.summaryMetric {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.summaryLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.summaryValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-primary, #7c3aed);
+}
+
+.summaryMax {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--color-text-secondary, #6b7280);
+  margin-left: 0.25rem;
+}
+
+/* Sell-Through Bar */
+.sellThroughBar {
+  width: 100%;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.sellThroughFill {
+  height: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  border-radius: 9999px;
+}
+
+.excellentSellThrough {
+  background: #10b981;
+}
+
+.goodSellThrough {
+  background: #3b82f6;
+}
+
+.moderateSellThrough {
+  background: #f59e0b;
+}
+
+.lowSellThrough {
+  background: #ef4444;
+}
+
+.sellThroughPct {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-primary, #7c3aed);
+}
+
+/* ROI Color Coding */
+.excellentROI {
+  color: #10b981 !important;
+}
+
+.goodROI {
+  color: #3b82f6 !important;
+}
+
+.moderateROI {
+  color: #f59e0b !important;
+}
+
+.negativeROI {
+  color: #ef4444 !important;
+}
+
+.paybackNote {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+/* Variant Section - Event-specific */
+.variantSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.variantList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+/* Custom scrollbar */
+.variantList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.variantList::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 3px;
+}
+
+.variantList::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.variantList::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Event variant row with 3 inputs */
+.variantRowEvent {
+  display: grid;
+  grid-template-columns: 1.5fr 3fr 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.variantRowEvent:hover {
+  border-color: var(--color-primary, #7c3aed);
+  box-shadow: 0 1px 4px rgba(124, 58, 237, 0.1);
+}
+
+.variantInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.variantName {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.variantAvailable {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+/* Three input group for sold/damaged/demo */
+.variantInputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.variantInputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.inputLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.input {
+  width: 100%;
+  padding: 0.5rem 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  text-align: center;
+}
+
+.input:hover {
+  border-color: var(--color-primary, #7c3aed);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary, #7c3aed);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.variantMetrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-end;
+}
+
+.variantSellThrough {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary, #7c3aed);
+  text-align: right;
+}
+
+.variantPayback {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary, #7c3aed);
+  text-align: right;
+}
+
+.variantPlaceholder {
+  font-size: 1.25rem;
+  color: var(--color-border, #e5e7eb);
+  text-align: center;
+  width: 100%;
+}
+
+/* Variant Summary */
+.variantSummary {
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3ebff 100%);
+  border: 1px solid #e9d5ff;
+  border-radius: var(--border-radius-md, 8px);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary, #7c3aed);
+  text-align: center;
+}
+
+/* Error Message */
+.error {
+  padding: 0.75rem 1rem;
+  background: #fee;
+  border: 1px solid #dc2626;
+  border-radius: var(--border-radius-md, 8px);
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+/* Button Overrides for Audacious Theme */
+.actions button {
+  min-width: 120px;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Primary Button (Submit/Mark Complete) */
+.actions button[data-variant="primary"],
+.actions button[type="submit"],
+.form button[type="submit"] {
+  background: linear-gradient(135deg, #4b006e 0%, #6b21a8 100%) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(75, 0, 110, 0.2);
+}
+
+.actions button[data-variant="primary"]:hover:not(:disabled),
+.actions button[type="submit"]:hover:not(:disabled),
+.form button[type="submit"]:hover:not(:disabled) {
+  background: linear-gradient(135deg, #6b21a8 0%, #7e22ce 100%) !important;
+  box-shadow: 0 4px 12px rgba(75, 0, 110, 0.3);
+  transform: translateY(-1px);
+}
+
+.actions button[data-variant="primary"]:disabled,
+.actions button[type="submit"]:disabled,
+.form button[type="submit"]:disabled {
+  background: #9ca3af !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Secondary Button (Cancel) */
+.actions button[data-variant="secondary"],
+.actions button[type="button"],
+.form button[type="button"] {
+  background: white !important;
+  color: #4b006e !important;
+  border: 2px solid #D4AF37 !important;
+}
+
+.actions button[data-variant="secondary"]:hover:not(:disabled),
+.actions button[type="button"]:hover:not(:disabled),
+.form button[type="button"]:hover:not(:disabled) {
+  background: rgba(232, 212, 160, 0.15) !important;
+  border-color: #B8860B !important;
+  color: #3d0057 !important;
+  transform: translateY(-1px);
+}
+
+.actions button[data-variant="secondary"]:disabled,
+.actions button[type="button"]:disabled,
+.form button[type="button"]:disabled {
+  border-color: #e5e7eb !important;
+  color: #9ca3af !important;
+  background: #f9fafb !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .summaryCompact {
+    grid-template-columns: 1fr;
+  }
+
+  .variantRowEvent {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .variantInputs {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .variantMetrics {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}

@@ -138,15 +138,7 @@ export class EventAnalyzerService {
       event_end_date: params.eventEndDate,
       event_cost: params.eventCost,
       traveling_fees: params.travelingFees || null,
-      labor_entries: params.laborEntries
-        ? params.laborEntries.map(entry => ({
-            id: entry.id,
-            description: entry.description,
-            hours: entry.hours,
-            hourly_rate: entry.hourlyRate,
-            cost_type: entry.costType,
-          }))
-        : null,
+      labor_entries: params.laborEntries || null,
       notes: params.notes || null,
     } as CPGEvent;
 

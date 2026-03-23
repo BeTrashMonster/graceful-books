@@ -5,7 +5,8 @@
  * Features two tabs: Decision Tool (planning) and Event Tracker (historical data)
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { EventDecisionToolTab } from './tabs/EventDecisionToolTab';
 import { EventTrackerTab } from './tabs/EventTrackerTab';
 import styles from './EventsAnalysis.module.css';
@@ -13,7 +14,26 @@ import styles from './EventsAnalysis.module.css';
 type ViewTab = 'decision-tool' | 'event-tracker';
 
 export default function EventsAnalysis() {
-  const [activeTab, setActiveTab] = useState<ViewTab>('decision-tool');
+  const [searchParams] = useSearchParams();
+
+  // Check if we're editing an existing event
+  const editEventId = searchParams.get('edit');
+
+  // Tab State - default to decision-tool, or check URL param
+  const [activeTab, setActiveTab] = useState<ViewTab>(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'event-tracker') {
+      return 'event-tracker';
+    }
+    return 'decision-tool';
+  });
+
+  // Switch to decision-tool tab when editing an event
+  useEffect(() => {
+    if (editEventId) {
+      setActiveTab('decision-tool');
+    }
+  }, [editEventId]);
 
   return (
     <div className="page">
@@ -43,7 +63,7 @@ export default function EventsAnalysis() {
 
       {/* Tab Content */}
       <div className={styles.tabContent} role="tabpanel">
-        {activeTab === 'decision-tool' && <EventDecisionToolTab />}
+        {activeTab === 'decision-tool' && <EventDecisionToolTab editEventId={editEventId} />}
         {activeTab === 'event-tracker' && <EventTrackerTab />}
       </div>
     </div>

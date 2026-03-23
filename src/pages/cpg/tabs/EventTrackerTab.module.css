@@ -197,48 +197,34 @@
 }
 
 /* Status Badges */
-.statusApproved {
+.statusUpcoming {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background: #dcfce7;
-  color: #166534;
+  background: #f3e8ff;
+  color: #6b21a8;
   border-radius: 0.25rem;
   font-weight: 500;
   font-size: 0.875rem;
-  text-transform: capitalize;
 }
 
-.statusDeclined {
+.statusPending {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background: #fee2e2;
-  color: #991b1b;
+  background: #fef3c7;
+  color: #92400e;
   border-radius: 0.25rem;
   font-weight: 500;
   font-size: 0.875rem;
-  text-transform: capitalize;
+  animation: pulse 2s ease-in-out infinite;
 }
 
-.statusDraft {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  background: #fef9c3;
-  color: #854d0e;
-  border-radius: 0.25rem;
-  font-weight: 500;
-  font-size: 0.875rem;
-  text-transform: capitalize;
-}
-
-.statusActive {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  background: #dbeafe;
-  color: #1e40af;
-  border-radius: 0.25rem;
-  font-weight: 500;
-  font-size: 0.875rem;
-  text-transform: capitalize;
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .statusCompleted {
@@ -249,7 +235,6 @@
   border-radius: 0.25rem;
   font-weight: 500;
   font-size: 0.875rem;
-  text-transform: capitalize;
 }
 
 /* Margin Quality Badges */
