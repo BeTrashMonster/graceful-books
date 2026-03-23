@@ -344,6 +344,8 @@ export function EventDecisionToolTab() {
         e.hours && e.hourlyRate && parseFloat(e.hours) > 0 && parseFloat(e.hourlyRate) > 0
       );
 
+      console.log('Complete labor entries:', completeLaborEntries);
+
       // Create event
       const event = await service.createEvent({
         companyId,
@@ -361,6 +363,12 @@ export function EventDecisionToolTab() {
           cost_type: e.costType,
         })) : undefined,
       }, deviceId);
+
+      console.log('Event created:', {
+        eventId: event.id,
+        laborEntries: event.labor_entries,
+        laborEntriesLength: event.labor_entries?.length || 0,
+      });
 
       // Prepare variant data - ensure all values are valid strings with numbers
       const variantEventData: Record<string, any> = {};

@@ -232,6 +232,12 @@ export class EventAnalyzerService {
     let totalOpportunityCost: Decimal | null = null;
     let laborCostPerUnit: Decimal | null = null;
 
+    serviceLogger.info('Labor entries check', {
+      hasLaborEntries: !!event.labor_entries,
+      laborEntriesLength: event.labor_entries?.length || 0,
+      laborEntries: event.labor_entries,
+    });
+
     if (event.labor_entries && event.labor_entries.length > 0) {
       totalActualLaborCost = new Decimal(0);
       totalOpportunityCost = new Decimal(0);
@@ -242,6 +248,12 @@ export class EventAnalyzerService {
         !isNaN(parseFloat(entry.hours)) &&
         !isNaN(parseFloat(entry.hourly_rate))
       );
+
+      serviceLogger.info('Valid labor entries', {
+        total: event.labor_entries.length,
+        valid: validEntries.length,
+        validEntries,
+      });
 
       validEntries.forEach(entry => {
         const hours = new Decimal(entry.hours);

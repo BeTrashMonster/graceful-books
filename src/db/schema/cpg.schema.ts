@@ -665,8 +665,7 @@ export const validateCPGEvent = (event: Partial<CPGEvent>): string[] => {
   if (!event.company_id) errors.push('company_id is required');
   if (!event.event_name || event.event_name.trim() === '')
     errors.push('event_name is required');
-  if (!event.location || event.location.trim() === '')
-    errors.push('location is required');
+  // Location is optional - removed validation
   return errors;
 };
 
