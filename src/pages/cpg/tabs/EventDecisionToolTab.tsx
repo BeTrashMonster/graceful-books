@@ -492,7 +492,6 @@ export function EventDecisionToolTab() {
               type="text"
               value={formData.location}
               onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-              required={false}
               fullWidth
               helperText="Optional: Track events by venue"
             />
