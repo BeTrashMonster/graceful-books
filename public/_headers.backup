@@ -1,15 +1,13 @@
-# HTTP Security and Cache Control Headers for Audacious Money
-# Cloudflare Pages automatically applies these headers
-# Updated: 2026-03-22
+# HTTP Security and Cache Control Headers for Graceful Books
+# Cloudflare Pages / Netlify automatically applies these headers
+# Updated: 2026-02-23
 
 # SECURITY HEADERS (Applied to all routes)
 # These headers protect against XSS, clickjacking, and other web vulnerabilities
 /*
   # Content Security Policy - Prevents XSS and data injection attacks
-  # Note: More restrictive than dev mode (no 'unsafe-eval')
-  # Stripe domains: js.stripe.com, api.stripe.com
-  # API domains: api.audacious.money, sync.audacious.money
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com; connect-src 'self' https://api.audacious.money wss://sync.audacious.money https://api.stripe.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; frame-src https://js.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self'
+  # Note: More restrictive than dev mode (no 'unsafe-inline', 'unsafe-eval')
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
 
   # X-Frame-Options - Prevents clickjacking (DENY = cannot be framed by any site)
   X-Frame-Options: DENY
@@ -30,7 +28,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
 
   # Permissions-Policy - Restricts browser feature access
-  # Denies access to geolocation, microphone, and camera (not needed for financial app)
+  # Denies access to geolocation, microphone, and camera (not needed for accounting app)
   Permissions-Policy: geolocation=(), microphone=(), camera=()
 
 # HTML - Never cache (always check for updates)

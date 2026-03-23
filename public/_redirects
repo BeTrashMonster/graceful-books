@@ -1,0 +1,26 @@
+# Cloudflare Pages Redirects Configuration for Audacious Money
+# This file handles SPA (Single Page Application) routing
+# Updated: 2026-03-22
+
+# =====================================================
+# SPA FALLBACK ROUTING
+# =====================================================
+# All routes serve index.html for client-side routing
+# This allows React Router to handle all navigation
+# Status 200 = rewrite (not redirect), preserves URL in browser
+/*    /index.html   200
+
+# =====================================================
+# API PROXY (Optional - for development/testing)
+# =====================================================
+# Uncomment these lines if you need CORS-free API access during development
+# In production, backend CORS should be properly configured
+# /api/*  https://api.audacious.money/:splat  200
+# /sync/*  wss://sync.audacious.money/:splat  200
+
+# =====================================================
+# LEGACY REDIRECTS (if needed)
+# =====================================================
+# Add any legacy URL redirects here
+# Example:
+# /old-path  /new-path  301

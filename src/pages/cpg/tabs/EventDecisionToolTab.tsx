@@ -854,7 +854,9 @@ export function EventDecisionToolTab() {
               const totalGrossProfit = products.reduce((sum, name) => {
                 const results = analysisResult.variantResults[name];
                 const retailPrice = parseFloat(formData.productData[name]?.retailPrice || '0');
-                const totalCost = parseFloat(results.cpuWithEvent) + (results.laborCostPerUnit ? parseFloat(results.laborCostPerUnit) : 0);
+                // Include labor cost in total cost (based on expected units)
+                const laborCost = results.laborCostPerUnit ? parseFloat(results.laborCostPerUnit) : 0;
+                const totalCost = parseFloat(results.cpuWithEvent) + laborCost;
                 return sum + (retailPrice - totalCost);
               }, 0);
               return (totalGrossProfit / products.length).toString();
@@ -864,7 +866,11 @@ export function EventDecisionToolTab() {
               if (products.length === 0) return undefined;
               const totalMargin = products.reduce((sum, name) => {
                 const results = analysisResult.variantResults[name];
-                const margin = parseFloat(results.netProfitMarginWithLabor || results.netProfitMarginWithEvent);
+                const retailPrice = parseFloat(formData.productData[name]?.retailPrice || '0');
+                // Calculate margin WITHOUT labor cost - component will recalculate with labor
+                const totalCostWithoutLabor = parseFloat(results.cpuWithEvent);
+                const grossProfitWithoutLabor = retailPrice - totalCostWithoutLabor;
+                const margin = retailPrice > 0 ? (grossProfitWithoutLabor / retailPrice) * 100 : 0;
                 return sum + margin;
               }, 0);
               return (totalMargin / products.length).toString();
