@@ -5,7 +5,6 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { nanoid } from 'nanoid';
 import { Button } from '../../../components/core/Button';
 import { Input } from '../../../components/forms/Input';
@@ -141,12 +140,22 @@ export function EventDecisionToolTab() {
     }
   };
 
-  // Calculate dropdown position
+  // Calculate dropdown position with viewport awareness
   useEffect(() => {
     if (showProductDropdown && productButtonRef.current) {
       const rect = productButtonRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const spaceBelow = viewportHeight - rect.bottom - 20; // 20px margin
+      const spaceAbove = rect.top - 20; // 20px margin
+
+      // Calculate max height based on available space
+      const maxHeight = Math.min(300, Math.max(200, spaceBelow));
+
+      // If not enough space below, position above
+      const shouldPositionAbove = spaceBelow < 200 && spaceAbove > spaceBelow;
+
       setDropdownPosition({
-        top: rect.bottom + 8,
+        top: shouldPositionAbove ? rect.top - maxHeight - 4 : rect.bottom + 4,
         left: rect.left,
       });
     }
@@ -625,7 +634,7 @@ export function EventDecisionToolTab() {
               <span aria-hidden="true">{showProductDropdown ? '▲' : '▼'}</span>
             </button>
 
-            {showProductDropdown && createPortal(
+            {showProductDropdown && (
               <div
                 ref={productDropdownRef}
                 className={styles.productDropdownMenu}
@@ -665,8 +674,7 @@ export function EventDecisionToolTab() {
                     <span>{product.displayName}</span>
                   </label>
                 ))}
-              </div>,
-              document.body
+              </div>
             )}
           </div>
 

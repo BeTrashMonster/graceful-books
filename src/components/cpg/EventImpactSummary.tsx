@@ -289,23 +289,6 @@ export function EventImpactSummary({
             Units bringing to this event
           </div>
         </div>
-
-        {/* Break-Even Units */}
-        <div className={clsx(styles.metricCard, styles.breakEvenCard)}>
-          <div className={styles.metricLabel}>Break-Even Units</div>
-          <div className={clsx(styles.metricValue, styles.breakEvenValue)}>
-            <span className={styles.value}>
-              {breakEvenUnitsNum.toLocaleString('en-US', {
-                maximumFractionDigits: 0,
-              })}
-            </span>
-          </div>
-          <div className={styles.metricDescription}>
-            {breakEvenPercentage < 100
-              ? `${breakEvenPercentage.toFixed(0)}% of total units`
-              : 'More than bringing!'}
-          </div>
-        </div>
       </div>
 
       {/* Interactive Unit Adjuster */}
