@@ -67,8 +67,13 @@ class ApiClient {
 
         console.error('🌐 API Error response:', errorData);
 
-        // Backend returns errors in { error: { code, message } } format
+        // Backend returns errors in { error: { code, message, details } } format
         const errorInfo = errorData.error || errorData;
+
+        // Log details if present for debugging
+        if (errorInfo.details) {
+          console.error('🌐 Validation details:', errorInfo.details);
+        }
 
         const error: ApiError = {
           message: errorInfo.message || 'Request failed',
@@ -87,11 +92,12 @@ class ApiClient {
       // Parse and return JSON response
       return await response.json();
     } catch (error) {
-      // Network errors or parsing errors
-      if (error instanceof Error && 'status' in error) {
+      // If it's already an ApiError (thrown from !response.ok above), re-throw it
+      if (error && typeof error === 'object' && 'status' in error) {
         throw error; // Already an ApiError
       }
 
+      // Otherwise it's a network/parsing error
       throw {
         message: error instanceof Error ? error.message : 'Network error',
         status: 0,
