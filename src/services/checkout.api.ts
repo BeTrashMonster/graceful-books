@@ -21,7 +21,8 @@ export interface CreateCheckoutSessionResponse {
 export async function createCheckoutSession(
   productId: string // UUID
 ): Promise<CreateCheckoutSessionResponse> {
-  return await api.post<CreateCheckoutSessionResponse>('/users/me/products', {
+  const response = await api.post<{ data: CreateCheckoutSessionResponse }>('/users/me/products', {
     productId,
   });
+  return response.data;
 }

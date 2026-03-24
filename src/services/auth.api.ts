@@ -49,23 +49,24 @@ interface LoginResponse {
  * Sign up a new user
  */
 export async function signup(data: SignupRequest): Promise<SignupResponse> {
-  const response = await api.post<SignupResponse>('/auth/signup', data);
-  return response;
+  const response = await api.post<{ data: SignupResponse }>('/auth/signup', data);
+  return response.data;
 }
 
 /**
  * Log in an existing user
  */
 export async function login(data: LoginRequest): Promise<LoginResponse> {
-  const response = await api.post<LoginResponse>('/auth/login', data);
-  return response;
+  const response = await api.post<{ data: LoginResponse }>('/auth/login', data);
+  return response.data;
 }
 
 /**
  * Request a password reset email
  */
 export async function forgotPassword(email: string): Promise<{ message: string }> {
-  return await api.post('/auth/forgot-password', { email });
+  const response = await api.post<{ data: { message: string } }>('/auth/forgot-password', { email });
+  return response.data;
 }
 
 /**
@@ -75,12 +76,14 @@ export async function resetPassword(
   token: string,
   password: string
 ): Promise<{ message: string }> {
-  return await api.post('/auth/reset-password', { token, password });
+  const response = await api.post<{ data: { message: string } }>('/auth/reset-password', { token, password });
+  return response.data;
 }
 
 /**
  * Verify email using token from email
  */
 export async function verifyEmail(token: string): Promise<{ message: string }> {
-  return await api.post('/auth/verify-email', { token });
+  const response = await api.post<{ data: { message: string } }>('/auth/verify-email', { token });
+  return response.data;
 }

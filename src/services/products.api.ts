@@ -22,12 +22,14 @@ export interface Product {
  * Get all active products
  */
 export async function getProducts(): Promise<Product[]> {
-  return await api.get<Product[]>('/products');
+  const response = await api.get<{ data: Product[] }>('/products');
+  return response.data;
 }
 
 /**
  * Get a specific product by slug
  */
 export async function getProductBySlug(slug: string): Promise<Product> {
-  return await api.get<Product>(`/products/${slug}`);
+  const response = await api.get<{ data: Product }>(`/products/${slug}`);
+  return response.data;
 }
