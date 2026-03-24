@@ -82,6 +82,7 @@ export const signupSchema = z.object({
   lastName: nameSchema,
   companyName: companyNameSchema,
   affiliateCode: affiliateCodeSchema,
+  charityId: z.number().int().positive().optional(),
 });
 
 /**

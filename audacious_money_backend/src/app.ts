@@ -17,6 +17,7 @@ import { getDatabase, checkDatabaseHealth } from './db/connection.js';
 import { success } from './utils/responses.js';
 import authRoutes from './routes/auth.js';
 import webhookRoutes from './routes/webhooks.js';
+import testEmailRoutes from './routes/test-email.js';
 
 // Create Hono app
 const app = new Hono();
@@ -91,6 +92,9 @@ app.get('/health', async (c) => {
 // ==========================================
 
 app.route('/auth', authRoutes);
+
+// Test email routes (DELETE IN PRODUCTION!)
+app.route('/test', testEmailRoutes);
 
 // TODO: Add more route groups as they are implemented
 // app.route('/users', userRoutes);

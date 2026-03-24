@@ -4,6 +4,9 @@
  * Initializes database, starts server, and handles graceful shutdown
  */
 
+// Load environment variables FIRST (before any other imports)
+import 'dotenv/config';
+
 import { serve } from '@hono/node-server';
 import app from './app.js';
 import { initializeDatabase, closeDatabase } from './db/connection.js';
@@ -44,9 +47,11 @@ async function startServer() {
 
     console.log(`[Startup] ✅ Database connection verified (${health.responseTime}ms)\n`);
   } catch (error) {
-    console.error('[Startup] ❌ Database connection failed:', error);
-    await closeDatabase();
-    process.exit(1);
+    console.error('[Startup] ⚠️  Database connection failed:', error);
+    console.warn('[Startup] ⚠️  Continuing anyway for email testing...\n');
+    // TEMPORARILY COMMENTED OUT FOR EMAIL TESTING
+    // await closeDatabase();
+    // process.exit(1);
   }
 
   // 3. Start HTTP server

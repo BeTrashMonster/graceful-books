@@ -30,7 +30,7 @@ Optional:
 - [ ] Digital Ocean account
 - [ ] Cloudflare account (already have)
 - [ ] Stripe account
-- [ ] SendGrid/Twilio account (for emails)
+- [ ] Postmark account (for emails)
 - [ ] GitHub account (for repo hosting)
 
 ### 2. Domain Configuration
@@ -243,7 +243,7 @@ git push -u origin main
    STRIPE_WEBHOOK_SECRET=[from Stripe webhook setup]
    JWT_SECRET=[generate with: openssl rand -hex 32]
    APP_URL=https://app.audacious.money
-   SENDGRID_API_KEY=[from SendGrid]
+   POSTMARK_SERVER_TOKEN=[from Postmark]
    NODE_ENV=production
    ```
 
@@ -497,61 +497,60 @@ stripe trigger checkout.session.completed
 
 ---
 
-## Part 6: Email Configuration (SendGrid)
+## Part 6: Email Configuration (Postmark)
 
-### Step 6.1: SendGrid Setup
+### Step 6.1: Postmark Setup
 
-1. Create SendGrid account
-2. Create API key with "Mail Send" permission
-3. Add to Digital Ocean environment variables:
+1. Create Postmark account at https://postmarkapp.com
+2. Create a new server (or use Default Server)
+3. Get Server API token from API Tokens tab
+4. Add to Digital Ocean environment variables:
    ```
-   SENDGRID_API_KEY=SG.xxxxx
-   SENDGRID_FROM_EMAIL=noreply@audacious.money
-   SENDGRID_FROM_NAME=Audacious Money
+   POSTMARK_SERVER_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+   POSTMARK_FROM_EMAIL=noreply@audacious.money
+   POSTMARK_FROM_NAME=Audacious Money
    ```
 
 ### Step 6.2: Verify Domain
 
-**SendGrid → Sender Authentication:**
+**Postmark → Sender Signatures → Domains:**
 
-1. Authenticate domain: `audacious.money`
-2. Add DNS records to Cloudflare:
+1. Click "Add Domain"
+2. Enter: `audacious.money`
+3. Postmark provides DNS records to add
+4. Add DNS records to Cloudflare:
    ```
+   Type: TXT
+   Name: 20240320._domainkey.audacious.money
+   Value: k=rsa; p=MIGfMA0GCSqGSIb3DQEBA... (from Postmark)
+   Proxy: DNS only (grey cloud)
+
    Type: CNAME
-   Name: em1234
-   Target: u1234567.wl123.sendgrid.net
-
-   Type: CNAME
-   Name: s1._domainkey
-   Target: s1.domainkey.u1234567.wl123.sendgrid.net
-
-   Type: CNAME
-   Name: s2._domainkey
-   Target: s2.domainkey.u1234567.wl123.sendgrid.net
+   Name: pm-bounces.audacious.money
+   Target: pm.mtasv.net
+   Proxy: DNS only (grey cloud)
    ```
 
-3. Verify in SendGrid
+5. Click "Verify" in Postmark (may take a few minutes)
+6. Once verified, you can send from any @audacious.money address
 
-### Step 6.3: Create Email Templates
+### Step 6.3: Email Templates
 
-**SendGrid → Email API → Dynamic Templates:**
+**No external templates needed!**
 
-1. Create templates:
-   - Welcome email
-   - Trial started
-   - Trial ending soon (7 days before)
-   - Trial converted
-   - Payment failed
-   - Subscription cancelled
-   - Password reset
-   - Email verification
+Email templates are built into the code at:
+`audacious_money_backend/src/services/email.service.ts`
 
-2. Note template IDs, add to environment:
-   ```
-   SENDGRID_TEMPLATE_WELCOME=d-xxxxx
-   SENDGRID_TEMPLATE_TRIAL_STARTED=d-xxxxx
-   etc.
-   ```
+All emails include:
+- Welcome email
+- Trial started
+- Trial ending soon (7 days before)
+- Payment failed
+- Subscription cancelled
+- Password reset
+- Email verification
+
+To customize: Edit the HTML/text in email.service.ts
 
 ---
 
@@ -679,8 +678,8 @@ const logger = pino({
 - [ ] Initial data seeded (charities, products)
 - [ ] Stripe products created
 - [ ] Stripe webhook configured
-- [ ] SendGrid domain verified
-- [ ] Email templates created
+- [ ] Postmark domain verified
+- [ ] Email service tested
 - [ ] SSL certificates active
 - [ ] CORS configured
 - [ ] Monitoring enabled
@@ -761,8 +760,8 @@ Cloudflare Pages:         $0 (free tier sufficient)
 
 Stripe:                   $0 base + 2.9% + 30¢ per transaction
 
-SendGrid:                 $0 (free tier: 100 emails/day)
-                          OR $15/month (40,000 emails)
+Postmark:                 $0 (free tier: 100 emails/month)
+                          OR $15/month (10,000 emails)
 
 Total Infrastructure:     ~$25-40/month to start
 ```

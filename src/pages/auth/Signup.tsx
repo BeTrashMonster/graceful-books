@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { CharitySelector } from '../../components/charity';
 import type { Charity } from '../../types/database.types';
+import { signup } from '../../services/auth.api';
 
 type SignupStep = 'credentials' | 'charity';
 
@@ -11,7 +12,12 @@ export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [selectedCharity, setSelectedCharity] = useState<Charity | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleCredentialsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,25 +35,58 @@ export default function Signup() {
     setSelectedCharity(charity);
   };
 
-  const handleCompleteSignup = () => {
+  const handleCompleteSignup = async () => {
     if (!selectedCharity) {
       alert('Please select a charity to support');
       return;
     }
 
-    // TODO: Implement actual signup with charity selection
-    // For now, just set a mock user in localStorage with charity info
-    localStorage.setItem(
-      'graceful_books_user',
-      JSON.stringify({
-        email,
-        selected_charity_id: selectedCharity.id,
-        selected_charity_name: selectedCharity.name,
-      })
-    );
+    setIsLoading(true);
+    setError(null);
 
-    // Redirect to onboarding
-    navigate('/onboarding');
+    try {
+      // Call backend API to create account
+      const response = await signup({
+        email,
+        password,
+        firstName,
+        lastName,
+        companyName: companyName || undefined,
+        charityId: selectedCharity.id,
+      });
+
+      // Store session data
+      sessionStorage.setItem(
+        'graceful_books_session',
+        JSON.stringify({
+          token: response.token,
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+          userEmail: response.user.email,
+          userId: response.user.id,
+        })
+      );
+
+      // Store user info for protected routes
+      localStorage.setItem(
+        'graceful_books_user',
+        JSON.stringify({
+          userIdentifier: response.user.email,
+          supportKey: response.user.supportKey,
+          charityId: selectedCharity.id,
+          charityName: selectedCharity.name,
+        })
+      );
+
+      // Redirect to onboarding
+      navigate('/onboarding');
+    } catch (err: any) {
+      console.error('Signup error:', err);
+      setError(
+        err.message || 'Something unexpected happened. Please try again.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleBack = () => {
@@ -96,7 +135,81 @@ export default function Signup() {
             </p>
           </div>
 
+          {error && (
+            <div
+              style={{
+                backgroundColor: 'var(--color-error-light, #fef2f2)',
+                border: '1px solid var(--color-error, #dc2626)',
+                color: 'var(--color-error-dark, #991b1b)',
+                padding: '0.75rem 1rem',
+                borderRadius: '0.375rem',
+                marginBottom: '1.5rem',
+                fontSize: '0.875rem',
+              }}
+              role="alert"
+            >
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleCredentialsSubmit}>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+              <div style={{ flex: 1 }}>
+                <label
+                  htmlFor="firstName"
+                  style={{
+                    display: 'block',
+                    marginBottom: '0.5rem',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                  }}
+                >
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  id="firstName"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem',
+                    border: '1px solid var(--color-border, #e5e7eb)',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                  }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label
+                  htmlFor="lastName"
+                  style={{
+                    display: 'block',
+                    marginBottom: '0.5rem',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                  }}
+                >
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  id="lastName"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem',
+                    border: '1px solid var(--color-border, #e5e7eb)',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                  }}
+                />
+              </div>
+            </div>
+
             <div style={{ marginBottom: '1rem' }}>
               <label
                 htmlFor="email"
@@ -115,6 +228,33 @@ export default function Signup() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                style={{
+                  width: '100%',
+                  padding: '0.5rem',
+                  border: '1px solid var(--color-border, #e5e7eb)',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1rem' }}>
+              <label
+                htmlFor="companyName"
+                style={{
+                  display: 'block',
+                  marginBottom: '0.5rem',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                }}
+              >
+                Company Name (Optional)
+              </label>
+              <input
+                type="text"
+                id="companyName"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
                 style={{
                   width: '100%',
                   padding: '0.5rem',
@@ -263,21 +403,26 @@ export default function Signup() {
             </button>
             <button
               onClick={handleCompleteSignup}
-              disabled={!selectedCharity}
+              disabled={!selectedCharity || isLoading}
               style={{
                 padding: '0.75rem 1.5rem',
-                backgroundColor: selectedCharity
-                  ? 'var(--color-primary, #3b82f6)'
-                  : 'var(--color-border, #e5e7eb)',
-                color: selectedCharity ? 'white' : 'var(--color-text-secondary, #6b7280)',
+                backgroundColor:
+                  selectedCharity && !isLoading
+                    ? 'var(--color-primary, #3b82f6)'
+                    : 'var(--color-border, #e5e7eb)',
+                color:
+                  selectedCharity && !isLoading
+                    ? 'white'
+                    : 'var(--color-text-secondary, #6b7280)',
                 border: 'none',
                 borderRadius: '0.375rem',
                 fontSize: '0.875rem',
                 fontWeight: 500,
-                cursor: selectedCharity ? 'pointer' : 'not-allowed',
+                cursor:
+                  selectedCharity && !isLoading ? 'pointer' : 'not-allowed',
               }}
             >
-              Create Account
+              {isLoading ? 'Creating Your Account...' : 'Create Account'}
             </button>
           </div>
         </div>
