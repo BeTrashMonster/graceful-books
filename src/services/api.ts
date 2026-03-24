@@ -43,17 +43,29 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
+    console.log(`🌐 API Request: ${options.method || 'GET'} ${url}`);
+    if (options.body) {
+      console.log('🌐 Request body:', options.body);
+    }
+    if (token) {
+      console.log('🌐 Auth token present:', token.substring(0, 20) + '...');
+    }
+
     try {
       const response = await fetch(url, {
         ...options,
         headers,
       });
 
+      console.log(`🌐 Response status: ${response.status} ${response.statusText}`);
+
       // Handle error responses
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({
           message: 'An unexpected error occurred',
         }));
+
+        console.error('🌐 API Error response:', errorData);
 
         const error: ApiError = {
           message: errorData.message || 'Request failed',

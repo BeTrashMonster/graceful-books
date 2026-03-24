@@ -137,13 +137,36 @@ export default function Signup() {
       }
 
       // Create Stripe checkout session and redirect
-      const { createCheckoutSession } = await import('../../services/checkout.api');
-      const checkoutSession = await createCheckoutSession(productToPurchase.id);
+      try {
+        console.log('🔵 About to import createCheckoutSession');
+        const { createCheckoutSession } = await import('../../services/checkout.api');
 
-      // Redirect to Stripe checkout
-      window.location.href = checkoutSession.url;
+        console.log('🔵 Calling createCheckoutSession with ID:', productToPurchase.id);
+        console.log('🔵 Product ID type:', typeof productToPurchase.id);
+
+        const checkoutSession = await createCheckoutSession(productToPurchase.id);
+
+        console.log('✅ Checkout session created:', checkoutSession);
+        console.log('✅ Stripe URL:', checkoutSession.url);
+
+        // Redirect to Stripe checkout
+        alert(`SUCCESS! Redirecting to Stripe: ${checkoutSession.url}`);
+        window.location.href = checkoutSession.url;
+      } catch (checkoutError: any) {
+        console.error('❌ CHECKOUT ERROR:', checkoutError);
+        console.error('❌ Error message:', checkoutError.message);
+        console.error('❌ Error stack:', checkoutError.stack);
+        console.error('❌ Full error object:', JSON.stringify(checkoutError, null, 2));
+
+        alert(`CHECKOUT FAILED: ${checkoutError.message || JSON.stringify(checkoutError)}`);
+        throw checkoutError; // Re-throw to outer catch
+      }
     } catch (err: any) {
-      console.error('Signup error:', err);
+      console.error('❌ SIGNUP ERROR:', err);
+      console.error('❌ Full error:', JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
+
+      alert(`SIGNUP FAILED: ${err.message || 'Unknown error'}`);
+
       setError(
         err.message || 'Something unexpected happened. Please try again.'
       );
