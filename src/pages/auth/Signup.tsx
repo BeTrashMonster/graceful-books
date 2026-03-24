@@ -1,13 +1,15 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { CharitySelector } from '../../components/charity';
 import type { Charity } from '../../types/database.types';
 import { signup } from '../../services/auth.api';
+import { getProducts, type Product } from '../../services/products.api';
 
-type SignupStep = 'credentials' | 'charity';
+type SignupStep = 'credentials' | 'charity' | 'product';
 
 export default function Signup() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState<SignupStep>('credentials');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,8 +18,29 @@ export default function Signup() {
   const [lastName, setLastName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [selectedCharity, setSelectedCharity] = useState<Charity | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [upgradeToBookkeeping, setUpgradeToBookkeeping] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Load products on mount
+  useEffect(() => {
+    getProducts().then((prods) => {
+      setProducts(prods);
+
+      // Pre-select product from URL query param
+      const productSlug = searchParams.get('product');
+      if (productSlug) {
+        const product = prods.find(p => p.slug === productSlug);
+        if (product) {
+          setSelectedProduct(product);
+        }
+      }
+    }).catch((err) => {
+      console.error('Failed to load products:', err);
+    });
+  }, [searchParams]);
 
   const handleCredentialsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,9 +58,17 @@ export default function Signup() {
     setSelectedCharity(charity);
   };
 
-  const handleCompleteSignup = async () => {
+  const handleCharityContinue = () => {
     if (!selectedCharity) {
-      alert('Please select a charity to support');
+      setError('Please select a charity to support');
+      return;
+    }
+    setStep('product');
+  };
+
+  const handleCompleteSignup = async () => {
+    if (!selectedProduct) {
+      setError('Please select a product');
       return;
     }
 
@@ -52,7 +83,7 @@ export default function Signup() {
         firstName,
         lastName,
         companyName: companyName || undefined,
-        charityId: selectedCharity.id,
+        charityId: selectedCharity?.id,
       });
 
       // Store session data
@@ -60,24 +91,27 @@ export default function Signup() {
         'graceful_books_session',
         JSON.stringify({
           token: response.token,
-          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
           userEmail: response.user.email,
           userId: response.user.id,
         })
       );
 
-      // Store user info for protected routes
+      // Store user info with selected product for checkout
       localStorage.setItem(
         'graceful_books_user',
         JSON.stringify({
           userIdentifier: response.user.email,
           supportKey: response.user.supportKey,
-          charityId: selectedCharity.id,
-          charityName: selectedCharity.name,
+          charityId: selectedCharity?.id,
+          charityName: selectedCharity?.name,
+          selectedProduct: selectedProduct.slug,
+          upgradeToBookkeeping,
         })
       );
 
-      // Redirect to onboarding
+      // TODO: Redirect to Stripe checkout with selected product
+      // For now, go to onboarding
       navigate('/onboarding');
     } catch (err: any) {
       console.error('Signup error:', err);
@@ -104,7 +138,7 @@ export default function Signup() {
         padding: '1rem',
       }}
     >
-      {step === 'credentials' ? (
+      {step === 'credentials' && (
         <div
           style={{
             width: '100%',
@@ -360,7 +394,9 @@ export default function Signup() {
             </Link>
           </div>
         </div>
-      ) : (
+      )}
+
+      {step === 'charity' && (
         <div
           style={{
             width: '100%',
@@ -402,16 +438,16 @@ export default function Signup() {
               Back
             </button>
             <button
-              onClick={handleCompleteSignup}
-              disabled={!selectedCharity || isLoading}
+              onClick={handleCharityContinue}
+              disabled={!selectedCharity}
               style={{
                 padding: '0.75rem 1.5rem',
                 backgroundColor:
-                  selectedCharity && !isLoading
+                  selectedCharity
                     ? 'var(--color-primary, #3b82f6)'
                     : 'var(--color-border, #e5e7eb)',
                 color:
-                  selectedCharity && !isLoading
+                  selectedCharity
                     ? 'white'
                     : 'var(--color-text-secondary, #6b7280)',
                 border: 'none',
@@ -419,10 +455,243 @@ export default function Signup() {
                 fontSize: '0.875rem',
                 fontWeight: 500,
                 cursor:
-                  selectedCharity && !isLoading ? 'pointer' : 'not-allowed',
+                  selectedCharity ? 'pointer' : 'not-allowed',
               }}
             >
-              {isLoading ? 'Creating Your Account...' : 'Create Account'}
+              Continue to Product Selection
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === 'product' && (
+        <div
+          style={{
+            width: '100%',
+            maxWidth: '800px',
+            backgroundColor: 'var(--color-surface, #ffffff)',
+            padding: '2rem',
+            borderRadius: '0.5rem',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          }}
+        >
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <h1
+              style={{
+                fontSize: '1.5rem',
+                fontWeight: 600,
+                marginBottom: '0.5rem',
+              }}
+            >
+              Choose Your Product
+            </h1>
+            <p
+              style={{
+                color: 'var(--color-text-secondary, #6b7280)',
+                fontSize: '0.875rem',
+              }}
+            >
+              {selectedProduct
+                ? `You've selected ${selectedProduct.name}. Want to upgrade?`
+                : 'Select the product that fits your needs'}
+            </p>
+          </div>
+
+          {error && (
+            <div
+              style={{
+                backgroundColor: 'var(--color-error-light, #fef2f2)',
+                border: '1px solid var(--color-error, #dc2626)',
+                color: 'var(--color-error-dark, #991b1b)',
+                padding: '0.75rem 1rem',
+                borderRadius: '0.375rem',
+                marginBottom: '1.5rem',
+                fontSize: '0.875rem',
+              }}
+              role="alert"
+            >
+              {error}
+            </div>
+          )}
+
+          {/* Selected/Pre-selected Product */}
+          {selectedProduct && (
+            <div
+              style={{
+                border: '2px solid var(--color-primary, #3b82f6)',
+                borderRadius: '0.5rem',
+                padding: '1.5rem',
+                marginBottom: '1.5rem',
+                backgroundColor: 'var(--color-primary-light, #eff6ff)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+                    {selectedProduct.name}
+                  </h3>
+                  <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                    {selectedProduct.description}
+                  </p>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-primary, #3b82f6)' }}>
+                    ${selectedProduct.price_usd.toFixed(2)}
+                    <span style={{ fontSize: '0.875rem', fontWeight: 400 }}>
+                      /{selectedProduct.billing_cycle === 'monthly' ? 'month' : 'product'}
+                    </span>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    backgroundColor: 'var(--color-primary, #3b82f6)',
+                    color: 'white',
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: '9999px',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                  }}
+                >
+                  SELECTED
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Bookkeeping Suite Upgrade Option */}
+          {selectedProduct && selectedProduct.slug !== 'bookkeeping' && (
+            <div
+              style={{
+                border: '1px solid var(--color-border, #e5e7eb)',
+                borderRadius: '0.5rem',
+                padding: '1.5rem',
+                marginBottom: '1.5rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'start', gap: '1rem' }}>
+                <input
+                  type="checkbox"
+                  id="upgrade-bookkeeping"
+                  checked={upgradeToBookkeeping}
+                  onChange={(e) => setUpgradeToBookkeeping(e.target.checked)}
+                  style={{
+                    width: '1.25rem',
+                    height: '1.25rem',
+                    marginTop: '0.25rem',
+                    cursor: 'pointer',
+                  }}
+                />
+                <div style={{ flex: 1 }}>
+                  <label
+                    htmlFor="upgrade-bookkeeping"
+                    style={{
+                      fontSize: '1rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'block',
+                      marginBottom: '0.5rem',
+                    }}
+                  >
+                    Upgrade to Bookkeeping Suite
+                  </label>
+                  <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '0.75rem' }}>
+                    Get full access to all products plus advanced bookkeeping features.
+                    Includes everything in {selectedProduct.name} and more.
+                  </p>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-success, #10b981)' }}>
+                    ${(40).toFixed(2)}/month
+                    <span style={{ fontSize: '0.875rem', fontWeight: 400, color: 'var(--color-text-secondary, #6b7280)' }}>
+                      {' '}(includes your ${selectedProduct.price_usd.toFixed(2)} selection)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Product Selection Dropdown (if no product pre-selected) */}
+          {!selectedProduct && products.length > 0 && (
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label
+                htmlFor="product-select"
+                style={{
+                  display: 'block',
+                  marginBottom: '0.5rem',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                }}
+              >
+                Select a Product
+              </label>
+              <select
+                id="product-select"
+                value={selectedProduct?.id || ''}
+                onChange={(e) => {
+                  const product = products.find(p => p.id === parseInt(e.target.value));
+                  setSelectedProduct(product || null);
+                }}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid var(--color-border, #e5e7eb)',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                }}
+              >
+                <option value="">Choose a product...</option>
+                {products.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.name} - ${product.price_usd.toFixed(2)}/{product.billing_cycle === 'monthly' ? 'mo' : 'product'}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Navigation Buttons */}
+          <div
+            style={{
+              display: 'flex',
+              gap: '1rem',
+              marginTop: '2rem',
+              justifyContent: 'space-between',
+            }}
+          >
+            <button
+              onClick={() => setStep('charity')}
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor: 'transparent',
+                color: 'var(--color-text-secondary, #6b7280)',
+                border: '1px solid var(--color-border, #e5e7eb)',
+                borderRadius: '0.375rem',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                cursor: 'pointer',
+              }}
+            >
+              Back
+            </button>
+            <button
+              onClick={handleCompleteSignup}
+              disabled={!selectedProduct || isLoading}
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor:
+                  selectedProduct && !isLoading
+                    ? 'var(--color-primary, #3b82f6)'
+                    : 'var(--color-border, #e5e7eb)',
+                color:
+                  selectedProduct && !isLoading
+                    ? 'white'
+                    : 'var(--color-text-secondary, #6b7280)',
+                border: 'none',
+                borderRadius: '0.375rem',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                cursor:
+                  selectedProduct && !isLoading ? 'pointer' : 'not-allowed',
+              }}
+            >
+              {isLoading ? 'Creating Your Account...' : 'Continue to Checkout'}
             </button>
           </div>
         </div>

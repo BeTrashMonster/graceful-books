@@ -18,6 +18,7 @@ import { success } from './utils/responses.js';
 import authRoutes from './routes/auth.js';
 import webhookRoutes from './routes/webhooks.js';
 import testEmailRoutes from './routes/test-email.js';
+import productRoutes from './routes/products.js';
 
 // Create Hono app
 const app = new Hono();
@@ -92,6 +93,9 @@ app.get('/health', async (c) => {
 // ==========================================
 
 app.route('/auth', authRoutes);
+
+// Public product routes
+app.route('/products', productRoutes);
 
 // Test email routes (DELETE IN PRODUCTION!)
 app.route('/test', testEmailRoutes);
