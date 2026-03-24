@@ -69,10 +69,15 @@ export default function Signup() {
   };
 
   const handleCompleteSignup = async () => {
+    alert('🔴 BUTTON CLICKED! handleCompleteSignup is running!');
+
     if (!selectedProduct) {
+      alert('ERROR: No product selected!');
       setError('Please select a product');
       return;
     }
+
+    alert(`Product selected: ${selectedProduct.name} (ID: ${selectedProduct.id})`);
 
     setIsLoading(true);
     setError(null);
