@@ -115,9 +115,22 @@ export default function Signup() {
       // Otherwise, use the selected product
       let productToPurchase = selectedProduct;
       if (upgradeToBookkeeping) {
-        const bookkeepingProduct = products.find(p => p.slug === 'bookkeeping');
+        const bookkeepingProduct = products.find(p => p.slug === 'bookkeeping-suite');
         if (bookkeepingProduct) {
           productToPurchase = bookkeepingProduct;
+
+          // Update localStorage to reflect the upgraded product
+          localStorage.setItem(
+            'graceful_books_user',
+            JSON.stringify({
+              userIdentifier: response.user.email,
+              supportKey: response.user.supportKey,
+              charityId: selectedCharity?.id,
+              charityName: selectedCharity?.name,
+              selectedProduct: bookkeepingProduct.slug,
+              upgradeToBookkeeping: true,
+            })
+          );
         }
       }
 
@@ -571,7 +584,7 @@ export default function Signup() {
           )}
 
           {/* Bookkeeping Suite Upgrade Option */}
-          {selectedProduct && selectedProduct.slug !== 'bookkeeping' && (
+          {selectedProduct && selectedProduct.slug !== 'bookkeeping-suite' && selectedProduct.slug !== 'fractional-cfo' && (
             <div
               style={{
                 border: '1px solid var(--color-border, #e5e7eb)',

@@ -28,26 +28,26 @@ export default function CheckoutSuccess() {
   }, [searchParams]);
 
   const handleContinue = () => {
-    // Navigate to onboarding or dashboard
+    // Navigate to onboarding or dashboard based on product
     const userData = localStorage.getItem('graceful_books_user');
 
     if (userData) {
       const { selectedProduct } = JSON.parse(userData);
 
-      // Route based on selected product
-      if (selectedProduct === 'cpg' || selectedProduct === 'cpu-calculator') {
-        // CPG users go to CPG worksheet, not business assessment
-        navigate('/cpg-worksheet');
-      } else if (selectedProduct === 'bookkeeping' || selectedProduct === 'fractional-cfo') {
-        // Bookkeeping and CFO users go through business assessment
-        navigate('/onboarding');
+      // Route based on selected product slug
+      if (selectedProduct === 'cpu-cpg-calculator') {
+        // CPG users go to CPG dashboard, not business assessment
+        navigate('/cpg/dashboard');
+      } else if (selectedProduct === 'bookkeeping-suite' || selectedProduct === 'fractional-cfo') {
+        // Bookkeeping and Full Number Suite users go through business assessment
+        navigate('/onboarding/assessment');
       } else {
-        // Other products go to their specific onboarding
-        navigate('/onboarding');
+        // Other products (budgeting, debt-management, service-provider-management) skip assessment
+        navigate('/dashboard');
       }
     } else {
-      // Fallback to general onboarding
-      navigate('/onboarding');
+      // Fallback to dashboard
+      navigate('/dashboard');
     }
   };
 
