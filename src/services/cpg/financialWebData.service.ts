@@ -25,8 +25,14 @@ export interface OperationalNode {
   id: string;
   name: string;
   totalSpent: string;
-  type: 'distribution' | 'promo';
+  type: 'distribution' | 'promo' | 'events';
   isActive: boolean; // Based on whether feature is activated
+  details?: {
+    eventCosts?: string;
+    travelingCosts?: string;
+    paidLabor?: string;
+    sweatEquity?: string;
+  };
 }
 
 export type GraphNode = CategoryNode | OperationalNode;
@@ -111,9 +117,10 @@ export class FinancialWebDataService {
       isActive: true,
     }));
 
-    // Get distribution and promo totals
+    // Get distribution, promo, and events totals
     const distributionTotal = await this.getDistributionTotal(companyId, startDate, endDate);
     const promoTotal = await this.getPromoTotal(companyId, startDate, endDate);
+    const eventsData = await this.getEventsTotal(companyId, startDate, endDate);
 
     // Build operational nodes
     const operationalNodes: OperationalNode[] = [];
@@ -135,6 +142,22 @@ export class FinancialWebDataService {
         totalSpent: promoTotal.toFixed(2),
         type: 'promo',
         isActive: this.isFeatureActive('promo'),
+      });
+    }
+
+    if (eventsData.total.greaterThan(0) || this.isFeatureActive('events')) {
+      operationalNodes.push({
+        id: 'events',
+        name: 'Events',
+        totalSpent: eventsData.total.toFixed(2),
+        type: 'events',
+        isActive: this.isFeatureActive('events'),
+        details: {
+          eventCosts: eventsData.eventCosts.toFixed(2),
+          travelingCosts: eventsData.travelingCosts.toFixed(2),
+          paidLabor: eventsData.paidLabor.toFixed(2),
+          sweatEquity: eventsData.sweatEquity.toFixed(2),
+        },
       });
     }
 
@@ -290,6 +313,66 @@ export class FinancialWebDataService {
   }
 
   /**
+   * Get total events costs in date range
+   * Returns breakdown of event costs, traveling, paid labor, and sweat equity
+   */
+  private async getEventsTotal(
+    companyId: string,
+    startDate: number,
+    endDate: number
+  ): Promise<{
+    total: Decimal;
+    eventCosts: Decimal;
+    travelingCosts: Decimal;
+    paidLabor: Decimal;
+    sweatEquity: Decimal;
+  }> {
+    const events = await this.db.cpgEvents
+      .where('company_id')
+      .equals(companyId)
+      .and((event) =>
+        !event.deleted_at &&
+        event.event_start_date >= startDate &&
+        event.event_end_date <= endDate
+      )
+      .toArray();
+
+    let eventCosts = new Decimal(0);
+    let travelingCosts = new Decimal(0);
+    let paidLabor = new Decimal(0);
+    let sweatEquity = new Decimal(0);
+
+    events.forEach((event) => {
+      // Add event costs
+      eventCosts = eventCosts.plus(event.event_cost || '0');
+
+      // Add traveling costs
+      if (event.traveling_fees) {
+        travelingCosts = travelingCosts.plus(event.traveling_fees);
+      }
+
+      // Add paid labor (actual) and sweat equity (opportunity cost)
+      if (event.total_actual_labor_cost) {
+        paidLabor = paidLabor.plus(event.total_actual_labor_cost);
+      }
+      if (event.total_opportunity_cost) {
+        sweatEquity = sweatEquity.plus(event.total_opportunity_cost);
+      }
+    });
+
+    // Total = event costs + traveling + paid labor (NOT sweat equity)
+    const total = eventCosts.plus(travelingCosts).plus(paidLabor);
+
+    return {
+      total,
+      eventCosts,
+      travelingCosts,
+      paidLabor,
+      sweatEquity,
+    };
+  }
+
+  /**
    * Get recipe connections between categories
    * Shows which categories appear together in product recipes
    */
@@ -371,7 +454,7 @@ export class FinancialWebDataService {
    * Check if a feature is activated
    * For now, features are always active. This will be enhanced later.
    */
-  private isFeatureActive(feature: 'distribution' | 'promo'): boolean {
+  private isFeatureActive(feature: 'distribution' | 'promo' | 'events'): boolean {
     // TODO: Implement feature activation tracking
     // For now, return true (all features available)
     return true;

@@ -19,6 +19,10 @@ export default function EventsAnalysis() {
   // Check if we're editing an existing event
   const editEventId = searchParams.get('edit');
 
+  // Extract date range parameters from URL (passed from dashboard)
+  const urlStartDate = searchParams.get('startDate');
+  const urlEndDate = searchParams.get('endDate');
+
   // Tab State - default to decision-tool, or check URL param
   const [activeTab, setActiveTab] = useState<ViewTab>(() => {
     const tabParam = searchParams.get('tab');
@@ -64,7 +68,12 @@ export default function EventsAnalysis() {
       {/* Tab Content */}
       <div className={styles.tabContent} role="tabpanel">
         {activeTab === 'decision-tool' && <EventDecisionToolTab editEventId={editEventId} />}
-        {activeTab === 'event-tracker' && <EventTrackerTab />}
+        {activeTab === 'event-tracker' && (
+          <EventTrackerTab
+            urlStartDate={urlStartDate}
+            urlEndDate={urlEndDate}
+          />
+        )}
       </div>
     </div>
   );

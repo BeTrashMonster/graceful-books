@@ -251,6 +251,15 @@ export default function CPGDashboard() {
       navigate('/cpg/distribution-cost');
     } else if (nodeType === 'promo') {
       navigate('/cpg/promo-decision?tab=promo-tracker');
+    } else if (nodeType === 'events') {
+      // Navigate to Event Tracker with matching date filter
+      const { startDate, endDate } = getDateRange();
+      const params = new URLSearchParams({
+        tab: 'event-tracker',
+        startDate: startDate.toString(),
+        endDate: endDate.toString(),
+      });
+      navigate(`/cpg/events-analysis?${params.toString()}`);
     }
   };
 
@@ -332,58 +341,20 @@ export default function CPGDashboard() {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <h1 className={styles.title}>Your Financial Ecosystem</h1>
-      </div>
-
-      {/* Legend */}
-      <div className={styles.legend}>
-        <h3>How to Use This View</h3>
-        <div className={styles.legendGrid}>
-          <div className={styles.legendItem}>
-            <span className={styles.legendIconCategory}>●</span>
-            <div>
-              <strong>Category Nodes</strong>
-              <p>Sized by total $ spent. Click to view invoices.</p>
-            </div>
-          </div>
-          <div className={styles.legendItem}>
-            <span className={styles.legendIconDistribution}>●</span>
-            <div>
-              <strong>Distribution</strong>
-              <p>Shipping & warehousing costs. Click to analyze.</p>
-            </div>
-          </div>
-          <div className={styles.legendItem}>
-            <span className={styles.legendIconPromo}>●</span>
-            <div>
-              <strong>Promos</strong>
-              <p>Promotional spend. Click to track ROI.</p>
-            </div>
-          </div>
-          <div className={styles.legendItem}>
-            <span className={styles.legendIconLine}>━</span>
-            <div>
-              <strong>Connections</strong>
-              <p>Categories used together in products. Hover to see which ones!</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Graph + Filters Side-by-Side */}
       <div className={styles.mainLayout}>
         {/* The Graph */}
         <div className={styles.graphContainer}>
-          <FinancialWebGraph
-            nodes={webData.nodes}
-            connections={webData.connections}
-            onNodeClick={handleNodeClick}
-            onConnectionClick={handleConnectionClick}
-            width={1000}
-            height={700}
-          />
+          <div>
+            <FinancialWebGraph
+              nodes={webData.nodes}
+              connections={webData.connections}
+              onNodeClick={handleNodeClick}
+              onConnectionClick={handleConnectionClick}
+              width={1000}
+              height={700}
+            />
+          </div>
         </div>
 
         {/* Filter Panel - Sidebar */}
@@ -516,6 +487,48 @@ export default function CPGDashboard() {
         </div>
         </div>
       </div>
+      </div>
+
+      {/* Legend */}
+      <div className={styles.legend}>
+        <h3>How to Use This View</h3>
+        <div className={styles.legendGrid}>
+          <div className={styles.legendItem}>
+            <span className={styles.legendIconCategory}>●</span>
+            <div>
+              <strong>Category Nodes</strong>
+              <p>Sized by total $ spent. Click to view invoices.</p>
+            </div>
+          </div>
+          <div className={styles.legendItem}>
+            <span className={styles.legendIconDistribution}>●</span>
+            <div>
+              <strong>Distribution</strong>
+              <p>Shipping & warehousing costs. Click to analyze.</p>
+            </div>
+          </div>
+          <div className={styles.legendItem}>
+            <span className={styles.legendIconPromo}>●</span>
+            <div>
+              <strong>Promos</strong>
+              <p>Promotional spend. Click to track ROI.</p>
+            </div>
+          </div>
+          <div className={styles.legendItem}>
+            <span className={styles.legendIconEvents}>●</span>
+            <div>
+              <strong>Events</strong>
+              <p>Event costs, travel, and labor. Click to view tracker.</p>
+            </div>
+          </div>
+          <div className={styles.legendItem}>
+            <span className={styles.legendIconLine}>━</span>
+            <div>
+              <strong>Connections</strong>
+              <p>Categories used together in products. Hover to see which ones!</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

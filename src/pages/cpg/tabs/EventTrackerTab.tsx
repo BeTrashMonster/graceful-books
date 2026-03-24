@@ -17,7 +17,12 @@ import styles from './EventTrackerTab.module.css';
 type EventStatus = 'all' | 'upcoming' | 'pending' | 'completed';
 type MarginQuality = 'all' | 'gutCheck' | 'good' | 'better' | 'best';
 
-export function EventTrackerTab() {
+interface EventTrackerTabProps {
+  urlStartDate?: string | null;
+  urlEndDate?: string | null;
+}
+
+export function EventTrackerTab({ urlStartDate, urlEndDate }: EventTrackerTabProps) {
   const navigate = useNavigate();
   const { companyId } = useAuth();
 
@@ -84,6 +89,15 @@ export function EventTrackerTab() {
 
   const getFilteredEvents = (): CPGEvent[] => {
     let filtered = [...events];
+
+    // Apply URL date range filter if provided (from dashboard)
+    if (urlStartDate && urlEndDate) {
+      const start = parseInt(urlStartDate);
+      const end = parseInt(urlEndDate);
+      filtered = filtered.filter((event) => {
+        return event.event_start_date >= start && event.event_end_date <= end;
+      });
+    }
 
     // Filter by status using smart status logic
     if (statusFilter !== 'all') {

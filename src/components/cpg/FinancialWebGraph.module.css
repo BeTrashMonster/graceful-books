@@ -90,6 +90,15 @@
   fill: #B8860B;
 }
 
+.nodeGroup circle[data-type="events"] {
+  fill: #B87333;
+  stroke: #8B5A2B;
+}
+
+.nodeGroup circle[data-type="events"]:hover {
+  fill: #8B5A2B;
+}
+
 /* Node Labels */
 .nodeLabel {
   fill: #1f2937;

@@ -19,10 +19,7 @@ interface FinancialWebGraphProps {
   height?: number;
 }
 
-interface D3Node extends d3.SimulationNodeDatum, GraphNode {
-  x?: number;
-  y?: number;
-}
+type D3Node = (GraphNode & d3.SimulationNodeDatum);
 
 interface D3Link extends d3.SimulationLinkDatum<D3Node> {
   source: D3Node | string;
@@ -154,10 +151,23 @@ export function FinancialWebGraph({
         // Grow node slightly
         d3.select(this).transition().duration(200).attr('r', nodeScale(parseFloat(d.totalSpent)) * 1.1);
 
-        // Show tooltip
-        const tooltipContent = d.type === 'category'
-          ? `${d.name}\n$${parseFloat(d.totalSpent).toLocaleString()} spent\n${d.invoiceCount} invoices`
-          : `${d.name}\n$${parseFloat(d.totalSpent).toLocaleString()} total`;
+        // Show tooltip with detailed breakdown for events
+        let tooltipContent: string;
+        if (d.type === 'category') {
+          tooltipContent = `${d.name}\n$${parseFloat(d.totalSpent).toLocaleString()} spent\n${d.invoiceCount} invoices`;
+        } else if (d.type === 'events' && d.details) {
+          const eventCosts = parseFloat(d.details.eventCosts || '0');
+          const travelingCosts = parseFloat(d.details.travelingCosts || '0');
+          const paidLabor = parseFloat(d.details.paidLabor || '0');
+          const sweatEquity = parseFloat(d.details.sweatEquity || '0');
+          tooltipContent = `${d.name} (Total: $${parseFloat(d.totalSpent).toLocaleString()})\n` +
+            `Event Costs: $${eventCosts.toLocaleString()}\n` +
+            `Traveling: $${travelingCosts.toLocaleString()}\n` +
+            `Paid Labor: $${paidLabor.toLocaleString()}\n` +
+            `Sweat Equity: $${sweatEquity.toLocaleString()} (not included)`;
+        } else {
+          tooltipContent = `${d.name}\n$${parseFloat(d.totalSpent).toLocaleString()} total`;
+        }
 
         setTooltip({
           visible: true,

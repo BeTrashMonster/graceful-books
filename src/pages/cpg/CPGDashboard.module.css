@@ -50,12 +50,31 @@
   border-right: 4px solid #D4AF37;
   border-bottom: 4px solid #D4AF37;
   border-radius: 8px;
-  padding: 2rem;
+  padding: 0;
   box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  display: flex;
+  flex-direction: column;
+  min-height: 700px;
+  overflow: hidden;
+}
+
+.graphContainer::before {
+  content: 'Your Financial Ecosystem';
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 1.25rem 2rem;
+  color: #ffffff;
+  background: #4b006e;
+}
+
+.graphContainer > div {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 700px;
+  padding: 2rem;
 }
 
 /* Filter Panel - Sidebar */
@@ -304,6 +323,12 @@
 .legendIconPromo {
   font-size: 2rem;
   color: #D4AF37;
+  line-height: 1;
+}
+
+.legendIconEvents {
+  font-size: 2rem;
+  color: #B87333;
   line-height: 1;
 }
 
