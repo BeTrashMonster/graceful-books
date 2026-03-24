@@ -13,24 +13,16 @@ export default function CheckoutSuccess() {
   const [isProcessing, setIsProcessing] = useState(true);
 
   useEffect(() => {
-    console.log('[CheckoutSuccess] Component mounted');
-    console.log('[CheckoutSuccess] Current URL:', window.location.href);
-    console.log('[CheckoutSuccess] Search params:', searchParams.toString());
-
     const sessionId = searchParams.get('session_id');
-    console.log('[CheckoutSuccess] session_id from URL:', sessionId);
 
     if (!sessionId) {
-      console.error('[CheckoutSuccess] No session_id in URL');
+      console.error('No session_id in URL');
       setIsProcessing(false);
       return;
     }
 
-    console.log('[CheckoutSuccess] Waiting 2 seconds for webhook processing...');
-
     // Give the webhook a moment to process
     setTimeout(() => {
-      console.log('[CheckoutSuccess] Processing complete, ready to continue');
       setIsProcessing(false);
     }, 2000);
   }, [searchParams]);
@@ -39,29 +31,19 @@ export default function CheckoutSuccess() {
     // Navigate to onboarding or dashboard based on product
     const userData = localStorage.getItem('graceful_books_user');
 
-    console.log('[CheckoutSuccess] handleContinue called');
-    console.log('[CheckoutSuccess] userData from localStorage:', userData);
-
     if (userData) {
       const parsed = JSON.parse(userData);
       const { selectedProduct } = parsed;
 
-      console.log('[CheckoutSuccess] Parsed userData:', parsed);
-      console.log('[CheckoutSuccess] selectedProduct:', selectedProduct);
-
       // Route based on selected product slug
       if (selectedProduct === 'cpu-cpg-calculator') {
-        console.log('[CheckoutSuccess] Routing CPG user to /cpg/dashboard');
         navigate('/cpg/dashboard');
       } else if (selectedProduct === 'bookkeeping-suite' || selectedProduct === 'fractional-cfo') {
-        console.log('[CheckoutSuccess] Routing bookkeeping/CFO user to /onboarding/assessment');
         navigate('/onboarding/assessment');
       } else {
-        console.log('[CheckoutSuccess] Routing other product user to /dashboard');
         navigate('/dashboard');
       }
     } else {
-      console.log('[CheckoutSuccess] No userData found, routing to /dashboard');
       navigate('/dashboard');
     }
   };

@@ -26,27 +26,21 @@ export default function Signup() {
 
   // Load products on mount
   useEffect(() => {
-    console.log('[Signup] Loading products...');
     getProducts()
       .then((prods) => {
-        console.log('[Signup] Products loaded:', prods);
         setProducts(prods);
 
         // Pre-select product from URL query param
         const productSlug = searchParams.get('product');
-        console.log('[Signup] Product slug from URL:', productSlug);
-
         if (productSlug) {
           const product = prods.find(p => p.slug === productSlug);
-          console.log('[Signup] Found product for slug:', product);
           if (product) {
-          setSelectedProduct(product);
+            setSelectedProduct(product);
+          }
         }
-      }
       })
       .catch((err) => {
-        console.error('[Signup] Failed to load products:', err);
-        alert('ERROR: Failed to load products. Check console for details.');
+        console.error('Failed to load products:', err);
       });
   }, [searchParams]);
 
@@ -118,19 +112,12 @@ export default function Signup() {
         })
       );
 
-      console.log('[Signup] Account created successfully');
-      console.log('[Signup] Selected product:', selectedProduct);
-      console.log('[Signup] Upgrade to bookkeeping:', upgradeToBookkeeping);
-
       // Determine which product to purchase
       // If user selected upgrade to bookkeeping, use bookkeeping product
       // Otherwise, use the selected product
       let productToPurchase = selectedProduct;
       if (upgradeToBookkeeping) {
-        console.log('[Signup] Looking for bookkeeping-suite product...');
         const bookkeepingProduct = products.find(p => p.slug === 'bookkeeping-suite');
-        console.log('[Signup] Found bookkeeping product:', bookkeepingProduct);
-
         if (bookkeepingProduct) {
           productToPurchase = bookkeepingProduct;
 
@@ -149,32 +136,14 @@ export default function Signup() {
         }
       }
 
-      console.log('[Signup] Product to purchase:', productToPurchase);
-      console.log('[Signup] Product ID:', productToPurchase.id);
-
       // Create Stripe checkout session and redirect
-      console.log('[Signup] Importing createCheckoutSession...');
       const { createCheckoutSession } = await import('../../services/checkout.api');
-
-      console.log('[Signup] Calling createCheckoutSession with product ID:', productToPurchase.id);
       const checkoutSession = await createCheckoutSession(productToPurchase.id);
-
-      console.log('[Signup] Checkout session created:', checkoutSession);
-      console.log('[Signup] Stripe URL:', checkoutSession.url);
-      console.log('[Signup] Redirecting to Stripe...');
 
       // Redirect to Stripe checkout
       window.location.href = checkoutSession.url;
     } catch (err: any) {
-      console.error('='.repeat(50));
-      console.error('[Signup] ERROR OCCURRED:');
-      console.error('[Signup] Error object:', err);
-      console.error('[Signup] Error message:', err.message);
-      console.error('[Signup] Error stack:', err.stack);
-      console.error('='.repeat(50));
-
-      alert(`ERROR: ${err.message || 'Something unexpected happened'}`);
-
+      console.error('Signup error:', err);
       setError(
         err.message || 'Something unexpected happened. Please try again.'
       );
