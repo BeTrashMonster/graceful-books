@@ -108,6 +108,8 @@
     "jsdom": "^24.0.0",
     "typescript": "^5.3.3",
     "vite": "^6.4.1",
+    "vite-plugin-top-level-await": "^1.6.0",
+    "vite-plugin-wasm": "^3.6.0",
     "vitest": "^4.0.17"
   },
   "engines": {

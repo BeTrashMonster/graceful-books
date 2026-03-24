@@ -5,8 +5,6 @@
  * Uses pdf-parse to extract text and pattern matching to identify transactions.
  */
 
-import * as pdfParseModule from 'pdf-parse';
-const pdfParse = (pdfParseModule as any).default || pdfParseModule;
 import { nanoid } from 'nanoid';
 import type {
   ParsedStatement,
@@ -17,6 +15,24 @@ import { logger } from '../logger';
 import { AppError, ErrorCode } from '../errors';
 
 /**
+ * Lazy-load pdf-parse to avoid build issues
+ * In future, this will be replaced with a browser-compatible PDF library like pdf.js
+ */
+async function getPdfParse() {
+  try {
+    // @ts-ignore - pdf-parse has inconsistent exports between CJS and ESM
+    const module = await import('pdf-parse');
+    // @ts-ignore
+    return module.default || module;
+  } catch (error) {
+    throw new AppError(
+      ErrorCode.VALIDATION_ERROR,
+      'PDF parsing is not available in this environment. Please use CSV format instead.'
+    );
+  }
+}
+
+/**
  * Parse PDF bank statement file
  */
 export async function parsePDFStatement(file: File): Promise<ParsedStatement> {
@@ -24,6 +40,9 @@ export async function parsePDFStatement(file: File): Promise<ParsedStatement> {
     // Convert file to ArrayBuffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+
+    // Lazy-load pdf-parse
+    const pdfParse = await getPdfParse();
 
     // Extract text from PDF
     const pdfData = await pdfParse(buffer);
@@ -351,6 +370,9 @@ export async function extractPDFText(file: File): Promise<PDFParseResult> {
   try {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+
+    // Lazy-load pdf-parse
+    const pdfParse = await getPdfParse();
     const pdfData = await pdfParse(buffer);
 
     return {

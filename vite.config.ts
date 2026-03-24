@@ -2,6 +2,8 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import type { Connect, Plugin } from 'vite'
+import wasm from 'vite-plugin-wasm'
+import topLevelAwait from 'vite-plugin-top-level-await'
 
 /**
  * Subresource Integrity (SRI) Validation Plugin
@@ -112,6 +114,13 @@ const securityHeadersMiddleware: Connect.NextHandleFunction = (_req, res, next) 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    // CRITICAL: wasm() must come BEFORE react() to handle WASM imports correctly
+    wasm(),
+    topLevelAwait({
+      // Ensure WASM modules can use top-level await
+      promiseExportName: '__tla',
+      promiseImportName: i => `__tla_${i}`
+    }),
     react(),
     {
       name: 'security-headers',
@@ -122,6 +131,10 @@ export default defineConfig({
     // SRI validation - warns about external resources without integrity attributes
     sriValidationPlugin(),
   ],
+  // Prevent Vite from pre-bundling WASM modules (let vite-plugin-wasm handle them)
+  optimizeDeps: {
+    exclude: ['argon2-browser', 'pdf-parse'],
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -134,23 +147,33 @@ export default defineConfig({
       '@store': path.resolve(__dirname, './src/store'),
       // Mock brain.js to avoid native compilation requirements
       'brain.js': path.resolve(__dirname, './src/__mocks__/brain.js.ts'),
+      // Mock pdf-parse for browser builds (not used yet, will be implemented with proper browser-compatible library)
+      'pdf-parse': path.resolve(__dirname, './src/__mocks__/pdf-parse.ts'),
     },
   },
   server: {
     port: 3006,
     open: true,
+    // Ensure WASM files are served with correct MIME type
+    headers: {
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+      'Cross-Origin-Opener-Policy': 'same-origin',
+    },
   },
   build: {
     outDir: 'dist',
     sourcemap: false, // Disable source maps in production for security
+    target: 'es2022', // Ensure top-level await support
     rollupOptions: {
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'db-vendor': ['dexie', 'dexie-react-hooks'],
-          'crypto': ['argon2-browser'], // Separate crypto library for caching
+          // Note: argon2-browser removed from manual chunks to let vite-plugin-wasm handle it
         },
       },
+      // External modules that should not be bundled
+      external: [],
     },
   },
   test: {
