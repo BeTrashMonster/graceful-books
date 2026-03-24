@@ -79,13 +79,14 @@ export default function Signup() {
 
     try {
       // Call backend API to create account
+      // Note: charityId omitted due to backend validation bug (expects number but DB uses UUID)
+      // TODO: Fix backend to accept UUID, then save charity selection after signup
       const response = await signup({
         email,
         password,
         firstName,
         lastName,
         companyName: companyName || undefined,
-        charityId: selectedCharity?.id,
       });
 
       // Store session data in sessionStorage
@@ -360,6 +361,13 @@ export default function Signup() {
                   fontSize: '0.875rem',
                 }}
               />
+              <p style={{
+                marginTop: '0.5rem',
+                fontSize: '0.75rem',
+                color: 'var(--color-text-secondary, #6b7280)'
+              }}>
+                Must be 8+ characters with uppercase, lowercase, number, and special character (!@#$%^&*)
+              </p>
             </div>
 
             <div style={{ marginBottom: '1.5rem' }}>
