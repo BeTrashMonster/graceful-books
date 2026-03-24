@@ -62,14 +62,17 @@ class ApiClient {
       // Handle error responses
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({
-          message: 'An unexpected error occurred',
+          error: { message: 'An unexpected error occurred' },
         }));
 
         console.error('🌐 API Error response:', errorData);
 
+        // Backend returns errors in { error: { code, message } } format
+        const errorInfo = errorData.error || errorData;
+
         const error: ApiError = {
-          message: errorData.message || 'Request failed',
-          code: errorData.code,
+          message: errorInfo.message || 'Request failed',
+          code: errorInfo.code,
           status: response.status,
         };
 
