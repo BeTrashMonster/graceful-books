@@ -73,6 +73,14 @@ webhooks.post('/stripe', async (c) => {
         await handleSubscriptionResumed(event.data.object);
         break;
 
+      case 'customer.subscription.pending_update_applied':
+        await handleSubscriptionPendingUpdateApplied(event.data.object);
+        break;
+
+      case 'customer.subscription.pending_update_expired':
+        await handleSubscriptionPendingUpdateExpired(event.data.object);
+        break;
+
       case 'customer.subscription.trial_will_end':
         await handleSubscriptionTrialWillEnd(event.data.object);
         break;
@@ -341,6 +349,74 @@ async function handleSubscriptionResumed(subscription: any) {
     console.log('[Webhook] Subscription resumed successfully');
   } catch (error) {
     console.error('[Webhook] Error processing subscription resumed:', error);
+  }
+}
+
+async function handleSubscriptionPendingUpdateApplied(subscription: any) {
+  console.log('[Webhook] Processing customer.subscription.pending_update_applied');
+  console.log('[Webhook] Subscription ID:', subscription.id);
+
+  const db = getDatabase();
+
+  try {
+    // A pending update has been applied - update subscription details
+    // This happens when a scheduled plan change goes into effect
+    let status = subscription.status;
+    if (status === 'trialing') status = 'trialing';
+    else if (status === 'active') status = 'active';
+    else if (status === 'past_due') status = 'past_due';
+    else if (status === 'canceled' || status === 'unpaid') status = 'cancelled';
+    else if (status === 'paused') status = 'paused';
+
+    await db.query(
+      `UPDATE user_products
+       SET status = $1,
+           current_period_start = to_timestamp($2),
+           current_period_end = to_timestamp($3),
+           updated_at = NOW()
+       WHERE stripe_subscription_id = $4`,
+      [
+        status,
+        subscription.current_period_start,
+        subscription.current_period_end,
+        subscription.id,
+      ]
+    );
+
+    console.log('[Webhook] Pending update applied successfully');
+  } catch (error) {
+    console.error('[Webhook] Error processing pending update applied:', error);
+  }
+}
+
+async function handleSubscriptionPendingUpdateExpired(subscription: any) {
+  console.log('[Webhook] Processing customer.subscription.pending_update_expired');
+  console.log('[Webhook] Subscription ID:', subscription.id);
+
+  const db = getDatabase();
+
+  try {
+    // A pending update has expired without being applied
+    // This could happen if customer cancelled the scheduled change
+    // Generally no action needed, but log it for tracking
+    console.log('[Webhook] Pending update expired - no action taken');
+
+    // Optional: Could send notification to user that scheduled change was cancelled
+    const result = await db.query(
+      `SELECT u.email, u.first_name, p.name as product_name
+       FROM user_products up
+       JOIN users u ON u.id = up.user_id
+       JOIN products p ON p.id = up.product_id
+       WHERE up.stripe_subscription_id = $1`,
+      [subscription.id]
+    );
+
+    if (result.rows.length > 0) {
+      const { email, first_name } = result.rows[0];
+      console.log(`[Webhook] Scheduled change expired for ${email}`);
+    }
+  } catch (error) {
+    console.error('[Webhook] Error processing pending update expired:', error);
   }
 }
 
