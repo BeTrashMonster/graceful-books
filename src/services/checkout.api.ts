@@ -7,7 +7,7 @@
 import { api } from './api';
 
 export interface CreateCheckoutSessionRequest {
-  productId: number;
+  productId: string; // UUID
 }
 
 export interface CreateCheckoutSessionResponse {
@@ -19,7 +19,7 @@ export interface CreateCheckoutSessionResponse {
  * Create a Stripe checkout session for a product
  */
 export async function createCheckoutSession(
-  productId: number
+  productId: string // UUID
 ): Promise<CreateCheckoutSessionResponse> {
   return await api.post<CreateCheckoutSessionResponse>('/users/me/products', {
     productId,

@@ -28,7 +28,7 @@ users.use('*', requireAuth);
  * Create a Stripe checkout session for a product subscription
  */
 const createCheckoutSchema = z.object({
-  productId: z.number().int().positive(),
+  productId: z.string().uuid(),
 });
 
 users.post('/me/products', async (c) => {

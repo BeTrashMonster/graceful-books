@@ -7,7 +7,7 @@
 import { api } from './api';
 
 export interface Product {
-  id: number;
+  id: string; // UUID from database
   name: string;
   slug: string;
   description: string;
