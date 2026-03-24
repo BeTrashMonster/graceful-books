@@ -14,9 +14,13 @@
  *   bun run migrate:status - Show migration status
  */
 
+// Load environment variables first
+import 'dotenv/config';
+
 import { Client } from 'pg';
 import { readdir, readFile } from 'fs/promises';
-import { join, basename } from 'path';
+import { join, basename, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 /**
  * Migration record structure
@@ -55,6 +59,9 @@ class MigrationClient {
 
     this.client = new Client({
       connectionString: databaseUrl,
+      ssl: {
+        rejectUnauthorized: false, // Accept self-signed certs from managed databases
+      },
     });
   }
 
@@ -328,7 +335,10 @@ async function main() {
   const command = process.argv[2];
 
   // Migrations directory is relative to this file
-  const migrationsDir = join(import.meta.dir, 'migrations');
+  // Node.js ESM: convert import.meta.url to directory path
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = dirname(__filename);
+  const migrationsDir = join(__dirname, 'migrations');
 
   const system = new MigrationSystem(migrationsDir);
 
