@@ -86,7 +86,7 @@ export default function Signup() {
         charityId: selectedCharity?.id,
       });
 
-      // Store session data
+      // Store session data in sessionStorage
       sessionStorage.setItem(
         'graceful_books_session',
         JSON.stringify({
@@ -110,9 +110,23 @@ export default function Signup() {
         })
       );
 
-      // TODO: Redirect to Stripe checkout with selected product
-      // For now, go to onboarding
-      navigate('/onboarding');
+      // Determine which product to purchase
+      // If user selected upgrade to bookkeeping, use bookkeeping product
+      // Otherwise, use the selected product
+      let productToPurchase = selectedProduct;
+      if (upgradeToBookkeeping) {
+        const bookkeepingProduct = products.find(p => p.slug === 'bookkeeping');
+        if (bookkeepingProduct) {
+          productToPurchase = bookkeepingProduct;
+        }
+      }
+
+      // Create Stripe checkout session and redirect
+      const { createCheckoutSession } = await import('../../services/checkout.api');
+      const checkoutSession = await createCheckoutSession(productToPurchase.id);
+
+      // Redirect to Stripe checkout
+      window.location.href = checkoutSession.url;
     } catch (err: any) {
       console.error('Signup error:', err);
       setError(
