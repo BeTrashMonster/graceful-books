@@ -20,10 +20,10 @@ products.get('/', async (c) => {
 
   try {
     const result = await db.query(
-      `SELECT id, name, slug, description, price_usd, billing_cycle, stripe_price_id, active, sort_order
+      `SELECT id, name, slug, description, price_monthly as price_usd, 'monthly' as billing_cycle, stripe_price_id, active, display_order as sort_order
        FROM products
        WHERE active = true
-       ORDER BY sort_order ASC`
+       ORDER BY display_order ASC`
     );
 
     return success(c, result.rows);
@@ -44,7 +44,7 @@ products.get('/:slug', async (c) => {
 
   try {
     const result = await db.query(
-      `SELECT id, name, slug, description, price_usd, billing_cycle, stripe_price_id, active, sort_order
+      `SELECT id, name, slug, description, price_monthly as price_usd, 'monthly' as billing_cycle, stripe_price_id, active, display_order as sort_order
        FROM products
        WHERE slug = $1 AND active = true`,
       [slug]
