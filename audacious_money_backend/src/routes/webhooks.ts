@@ -33,11 +33,16 @@ webhooks.post('/stripe', async (c) => {
       return c.json({ error: 'Missing signature' }, 400);
     }
 
-    // TODO: Verify Stripe signature
-    // For now, we'll just parse and log the event
-    // In production, MUST verify signature using stripe.webhooks.constructEvent()
+    // Verify Stripe signature
+    const { verifyWebhookSignature } = await import('../services/stripe.service.js');
 
-    const event = JSON.parse(body);
+    let event;
+    try {
+      event = verifyWebhookSignature(body, signature, webhookSecret);
+    } catch (err: any) {
+      console.error('[Webhook] Signature verification failed:', err.message);
+      return c.json({ error: 'Invalid signature' }, 400);
+    }
 
     console.log(`[Webhook] Received event: ${event.type}`);
     console.log(`[Webhook] Event ID: ${event.id}`);
@@ -102,9 +107,90 @@ async function handleCheckoutSessionCompleted(session: any) {
   console.log('[Webhook] Customer:', session.customer);
   console.log('[Webhook] Subscription:', session.subscription);
 
-  // TODO: Create user_product record
-  // TODO: Update user subscription status
-  // TODO: Send welcome email
+  const db = getDatabase();
+
+  try {
+    const userId = parseInt(session.metadata?.userId || session.client_reference_id);
+    const productId = parseInt(session.metadata?.productId);
+
+    if (!userId || !productId) {
+      console.error('[Webhook] Missing userId or productId in session metadata');
+      return;
+    }
+
+    // Check if user_product record already exists
+    const existingRecord = await db.query(
+      `SELECT id FROM user_products WHERE user_id = $1 AND product_id = $2`,
+      [userId, productId]
+    );
+
+    if (existingRecord.rows.length > 0) {
+      console.log('[Webhook] user_product record already exists, updating status');
+      await db.query(
+        `UPDATE user_products
+         SET stripe_subscription_id = $1,
+             stripe_customer_id = $2,
+             status = 'active',
+             current_period_start = to_timestamp($3),
+             current_period_end = to_timestamp($4),
+             updated_at = NOW()
+         WHERE user_id = $5 AND product_id = $6`,
+        [
+          session.subscription,
+          session.customer,
+          session.subscription ? null : Date.now() / 1000, // Use subscription times if available
+          session.subscription ? null : Date.now() / 1000,
+          userId,
+          productId,
+        ]
+      );
+    } else {
+      console.log('[Webhook] Creating new user_product record');
+      await db.query(
+        `INSERT INTO user_products (
+          user_id,
+          product_id,
+          stripe_subscription_id,
+          stripe_customer_id,
+          status,
+          current_period_start,
+          current_period_end
+        ) VALUES ($1, $2, $3, $4, 'active', NOW(), NOW() + INTERVAL '30 days')`,
+        [userId, productId, session.subscription, session.customer]
+      );
+    }
+
+    // Get user details for welcome email
+    const userResult = await db.query(
+      `SELECT email, first_name FROM users WHERE id = $1`,
+      [userId]
+    );
+
+    if (userResult.rows.length > 0) {
+      const user = userResult.rows[0];
+      const { sendProductWelcomeEmail } = await import('../services/email.service.js');
+
+      // Get product details
+      const productResult = await db.query(
+        `SELECT name FROM products WHERE id = $1`,
+        [productId]
+      );
+
+      if (productResult.rows.length > 0) {
+        await sendProductWelcomeEmail(
+          user.email,
+          user.first_name,
+          productResult.rows[0].name
+        );
+        console.log('[Webhook] Welcome email sent to:', user.email);
+      }
+    }
+
+    console.log('[Webhook] Checkout session completed successfully');
+  } catch (error) {
+    console.error('[Webhook] Error processing checkout session:', error);
+    throw error;
+  }
 }
 
 async function handleSubscriptionCreated(subscription: any) {
@@ -112,8 +198,30 @@ async function handleSubscriptionCreated(subscription: any) {
   console.log('[Webhook] Subscription ID:', subscription.id);
   console.log('[Webhook] Customer:', subscription.customer);
 
-  // TODO: Create user_product record if not from checkout
-  // TODO: Update user subscription status
+  const db = getDatabase();
+
+  try {
+    const userId = parseInt(subscription.metadata?.userId);
+
+    if (!userId) {
+      console.log('[Webhook] No userId in subscription metadata, likely handled by checkout.session.completed');
+      return;
+    }
+
+    // Update subscription details if record exists
+    await db.query(
+      `UPDATE user_products
+       SET current_period_start = to_timestamp($1),
+           current_period_end = to_timestamp($2),
+           updated_at = NOW()
+       WHERE stripe_subscription_id = $3`,
+      [subscription.current_period_start, subscription.current_period_end, subscription.id]
+    );
+
+    console.log('[Webhook] Subscription created successfully');
+  } catch (error) {
+    console.error('[Webhook] Error processing subscription created:', error);
+  }
 }
 
 async function handleSubscriptionUpdated(subscription: any) {
@@ -121,33 +229,119 @@ async function handleSubscriptionUpdated(subscription: any) {
   console.log('[Webhook] Subscription ID:', subscription.id);
   console.log('[Webhook] Status:', subscription.status);
 
-  // TODO: Update user_product record
-  // TODO: Handle plan changes, upgrades, downgrades
+  const db = getDatabase();
+
+  try {
+    // Map Stripe status to our status
+    let status = subscription.status;
+    if (status === 'trialing') status = 'trialing';
+    else if (status === 'active') status = 'active';
+    else if (status === 'past_due') status = 'past_due';
+    else if (status === 'canceled' || status === 'unpaid') status = 'cancelled';
+    else if (status === 'paused') status = 'paused';
+
+    await db.query(
+      `UPDATE user_products
+       SET status = $1,
+           current_period_start = to_timestamp($2),
+           current_period_end = to_timestamp($3),
+           cancel_at_period_end = $4,
+           updated_at = NOW()
+       WHERE stripe_subscription_id = $5`,
+      [
+        status,
+        subscription.current_period_start,
+        subscription.current_period_end,
+        subscription.cancel_at_period_end || false,
+        subscription.id,
+      ]
+    );
+
+    console.log('[Webhook] Subscription updated successfully');
+  } catch (error) {
+    console.error('[Webhook] Error processing subscription updated:', error);
+  }
 }
 
 async function handleSubscriptionDeleted(subscription: any) {
   console.log('[Webhook] Processing customer.subscription.deleted');
   console.log('[Webhook] Subscription ID:', subscription.id);
 
-  // TODO: Update user_product status to cancelled
-  // TODO: Update subscription end date
-  // TODO: Send cancellation confirmation email
+  const db = getDatabase();
+
+  try {
+    await db.query(
+      `UPDATE user_products
+       SET status = 'cancelled',
+           cancelled_at = to_timestamp($1),
+           updated_at = NOW()
+       WHERE stripe_subscription_id = $2`,
+      [subscription.canceled_at || Math.floor(Date.now() / 1000), subscription.id]
+    );
+
+    // Get user details for cancellation email
+    const result = await db.query(
+      `SELECT u.email, u.first_name, p.name as product_name
+       FROM user_products up
+       JOIN users u ON u.id = up.user_id
+       JOIN products p ON p.id = up.product_id
+       WHERE up.stripe_subscription_id = $1`,
+      [subscription.id]
+    );
+
+    if (result.rows.length > 0) {
+      const { email, first_name, product_name } = result.rows[0];
+      const { sendSubscriptionCancelledEmail } = await import('../services/email.service.js');
+      await sendSubscriptionCancelledEmail(email, first_name, product_name);
+      console.log('[Webhook] Cancellation email sent');
+    }
+
+    console.log('[Webhook] Subscription deleted successfully');
+  } catch (error) {
+    console.error('[Webhook] Error processing subscription deleted:', error);
+  }
 }
 
 async function handleSubscriptionPaused(subscription: any) {
   console.log('[Webhook] Processing customer.subscription.paused');
   console.log('[Webhook] Subscription ID:', subscription.id);
 
-  // TODO: Update user_product status to paused
-  // TODO: Send pause confirmation email
+  const db = getDatabase();
+
+  try {
+    await db.query(
+      `UPDATE user_products
+       SET status = 'paused',
+           updated_at = NOW()
+       WHERE stripe_subscription_id = $1`,
+      [subscription.id]
+    );
+
+    console.log('[Webhook] Subscription paused successfully');
+  } catch (error) {
+    console.error('[Webhook] Error processing subscription paused:', error);
+  }
 }
 
 async function handleSubscriptionResumed(subscription: any) {
   console.log('[Webhook] Processing customer.subscription.resumed');
   console.log('[Webhook] Subscription ID:', subscription.id);
 
-  // TODO: Update user_product status to active
-  // TODO: Send resume confirmation email
+  const db = getDatabase();
+
+  try {
+    await db.query(
+      `UPDATE user_products
+       SET status = 'active',
+           updated_at = NOW()
+       WHERE stripe_subscription_id = $1`,
+      [subscription.id]
+    );
+
+    console.log('[Webhook] Subscription resumed successfully');
+  } catch (error) {
+    console.error('[Webhook] Error processing subscription resumed:', error);
+  }
 }
 
 async function handleSubscriptionTrialWillEnd(subscription: any) {
@@ -155,8 +349,29 @@ async function handleSubscriptionTrialWillEnd(subscription: any) {
   console.log('[Webhook] Subscription ID:', subscription.id);
   console.log('[Webhook] Trial ends:', subscription.trial_end);
 
-  // TODO: Send trial ending reminder email
-  // TODO: Notify user to add payment method if needed
+  const db = getDatabase();
+
+  try {
+    // Get user details for trial reminder email
+    const result = await db.query(
+      `SELECT u.email, u.first_name, p.name as product_name
+       FROM user_products up
+       JOIN users u ON u.id = up.user_id
+       JOIN products p ON p.id = up.product_id
+       WHERE up.stripe_subscription_id = $1`,
+      [subscription.id]
+    );
+
+    if (result.rows.length > 0) {
+      const { email, first_name, product_name } = result.rows[0];
+      // TODO: Create sendTrialEndingEmail function in email.service.ts
+      console.log(`[Webhook] Trial ending soon for ${email} - ${product_name}`);
+    }
+
+    console.log('[Webhook] Trial will end notification processed');
+  } catch (error) {
+    console.error('[Webhook] Error processing trial will end:', error);
+  }
 }
 
 async function handleInvoicePaymentSucceeded(invoice: any) {
@@ -164,9 +379,44 @@ async function handleInvoicePaymentSucceeded(invoice: any) {
   console.log('[Webhook] Invoice ID:', invoice.id);
   console.log('[Webhook] Amount paid:', invoice.amount_paid / 100, invoice.currency.toUpperCase());
 
-  // TODO: Create payment record
-  // TODO: Send payment receipt email
-  // TODO: Update subscription status if needed
+  const db = getDatabase();
+
+  try {
+    // Find the user_product record for this subscription
+    if (invoice.subscription) {
+      const result = await db.query(
+        `SELECT up.user_id, up.product_id, u.email, u.first_name, p.name as product_name
+         FROM user_products up
+         JOIN users u ON u.id = up.user_id
+         JOIN products p ON p.id = up.product_id
+         WHERE up.stripe_subscription_id = $1`,
+        [invoice.subscription]
+      );
+
+      if (result.rows.length > 0) {
+        const { user_id, product_id, email, first_name, product_name } = result.rows[0];
+
+        // Create payment record (if payments table exists)
+        // For now, just log it
+        console.log(`[Webhook] Payment successful for user ${user_id}, product ${product_id}`);
+
+        // Send receipt email
+        const { sendPaymentReceiptEmail } = await import('../services/email.service.js');
+        await sendPaymentReceiptEmail(
+          email,
+          first_name,
+          product_name,
+          invoice.amount_paid / 100,
+          invoice.currency.toUpperCase()
+        );
+        console.log('[Webhook] Payment receipt sent');
+      }
+    }
+
+    console.log('[Webhook] Invoice payment succeeded processed');
+  } catch (error) {
+    console.error('[Webhook] Error processing invoice payment succeeded:', error);
+  }
 }
 
 async function handleInvoicePaymentFailed(invoice: any) {
@@ -174,9 +424,47 @@ async function handleInvoicePaymentFailed(invoice: any) {
   console.log('[Webhook] Invoice ID:', invoice.id);
   console.log('[Webhook] Amount due:', invoice.amount_due / 100, invoice.currency.toUpperCase());
 
-  // TODO: Update subscription status to past_due
-  // TODO: Send payment failure notification
-  // TODO: Retry payment or pause subscription
+  const db = getDatabase();
+
+  try {
+    // Update subscription status to past_due
+    if (invoice.subscription) {
+      await db.query(
+        `UPDATE user_products
+         SET status = 'past_due',
+             updated_at = NOW()
+         WHERE stripe_subscription_id = $1`,
+        [invoice.subscription]
+      );
+
+      // Get user details for payment failure notification
+      const result = await db.query(
+        `SELECT u.email, u.first_name, p.name as product_name
+         FROM user_products up
+         JOIN users u ON u.id = up.user_id
+         JOIN products p ON p.id = up.product_id
+         WHERE up.stripe_subscription_id = $1`,
+        [invoice.subscription]
+      );
+
+      if (result.rows.length > 0) {
+        const { email, first_name, product_name } = result.rows[0];
+        const { sendPaymentFailedEmail } = await import('../services/email.service.js');
+        await sendPaymentFailedEmail(
+          email,
+          first_name,
+          product_name,
+          invoice.amount_due / 100,
+          invoice.currency.toUpperCase()
+        );
+        console.log('[Webhook] Payment failure notification sent');
+      }
+    }
+
+    console.log('[Webhook] Invoice payment failed processed');
+  } catch (error) {
+    console.error('[Webhook] Error processing invoice payment failed:', error);
+  }
 }
 
 export default webhooks;
