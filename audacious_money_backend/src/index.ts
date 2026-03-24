@@ -2,10 +2,10 @@
  * Audacious Money Backend - Server Entry Point
  *
  * Initializes database, starts server, and handles graceful shutdown
+ *
+ * Note: Environment variables are provided by Digital Ocean in production.
+ * For local development, create a .env file or set environment variables manually.
  */
-
-// Load environment variables FIRST (before any other imports)
-import 'dotenv/config';
 
 import { serve } from '@hono/node-server';
 import app from './app.js';
