@@ -53,6 +53,9 @@ export default function Login() {
         })
       );
 
+      // Trigger auth context to reload
+      window.dispatchEvent(new Event('graceful_books_login'));
+
       // Determine redirect based on user's products
       const products = data.data.products || [];
       const hasBookkeeping = products.some((p: any) => p.slug === 'bookkeeping-suite');

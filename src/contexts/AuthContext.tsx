@@ -2,7 +2,7 @@
  * Auth Context
  *
  * Provides authentication state and user/company information throughout the app.
- * Reads from localStorage where auth data is stored after login.
+ * Reads from sessionStorage where auth data is stored after login.
  */
 
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react'
@@ -30,34 +30,43 @@ export function AuthProvider({ children }: AuthProviderProps) {
     companyId: null,
     currentCompany: null,
     deviceId: null,
-    role: 'admin',
+    role: 'user',
     isLoading: true,
   })
 
   useEffect(() => {
-    // Load auth data from localStorage
+    // Load auth data from sessionStorage (new authentication system)
     const loadAuthData = () => {
       try {
-        const userData = localStorage.getItem('graceful_books_user')
-        if (userData) {
-          const parsed = JSON.parse(userData)
+        const sessionData = sessionStorage.getItem('graceful_books_session')
+        if (sessionData) {
+          const parsed = JSON.parse(sessionData)
+
+          // Extract user data from session
+          const user = parsed.user || {}
+          const userId = user.id || null
+
           setAuthState({
-            isAuthenticated: true,
-            userIdentifier: parsed.userIdentifier || null,
-            companyId: parsed.companyId || null,
-            currentCompany: parsed.currentCompany || null,
-            deviceId: parsed.deviceId || null,
-            role: parsed.role || 'admin',
+            isAuthenticated: !!parsed.token,
+            userIdentifier: user.email || null,
+            companyId: userId, // Use user ID as company ID for data isolation
+            currentCompany: userId ? {
+              id: userId,
+              name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email
+            } : null,
+            deviceId: userId, // Use user ID as device ID for now
+            role: 'user',
             isLoading: false,
           })
         } else {
+          // No session found
           setAuthState({
             isAuthenticated: false,
             userIdentifier: null,
             companyId: null,
             currentCompany: null,
             deviceId: null,
-            role: 'admin',
+            role: 'user',
             isLoading: false,
           })
         }
@@ -69,7 +78,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           companyId: null,
           currentCompany: null,
           deviceId: null,
-          role: 'admin',
+          role: 'user',
           isLoading: false,
         })
       }
@@ -77,15 +86,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     loadAuthData()
 
-    // Listen for storage changes (e.g., login in another tab)
+    // Listen for session storage changes
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'graceful_books_user') {
+      if (e.key === 'graceful_books_session') {
         loadAuthData()
       }
     }
 
+    // Also listen for custom login event
+    const handleLogin = () => {
+      loadAuthData()
+    }
+
     window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
+    window.addEventListener('graceful_books_login', handleLogin)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('graceful_books_login', handleLogin)
+    }
   }, [])
 
   return <AuthContext.Provider value={authState}>{children}</AuthContext.Provider>
