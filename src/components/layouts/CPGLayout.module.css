@@ -252,3 +252,21 @@
   box-shadow: 0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   border: 1px solid #B8860B;
 }
+
+.logoutButton {
+  width: 100%;
+  display: block;
+  padding: 0.75rem 1.5rem;
+  color: #cbd5e1;
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logoutButton:hover {
+  background: rgba(220, 38, 38, 0.2);
+  color: #fca5a5;
+}

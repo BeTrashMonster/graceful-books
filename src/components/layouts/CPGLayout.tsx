@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { AddCategoryModal } from '../cpg/modals/AddCategoryModal';
 import { AddInvoiceModal } from '../cpg/modals/AddInvoiceModal';
 import { AddProductModal } from '../cpg/modals/AddProductModal';
@@ -24,6 +24,7 @@ type ModalType = 'add-invoice' | 'add-product' | 'add-distributor' | 'add-catego
 
 export function CPGLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { companyId, deviceId } = useAuth();
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [returnToModal, setReturnToModal] = useState<ModalType>(null);
@@ -32,6 +33,13 @@ export function CPGLayout() {
   const [showQuickAdd, setShowQuickAdd] = useState(false);
 
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path);
+
+  const handleLogout = () => {
+    // Clear session storage
+    sessionStorage.removeItem('graceful_books_session');
+    // Redirect to login
+    navigate('/login');
+  };
 
   // Load categories for CategoryManager
   useEffect(() => {
@@ -282,6 +290,12 @@ export function CPGLayout() {
           >
             ⚙️ Settings
           </Link>
+          <button
+            onClick={handleLogout}
+            className={styles.logoutButton}
+          >
+            🚪 Logout
+          </button>
         </div>
       </nav>
 
