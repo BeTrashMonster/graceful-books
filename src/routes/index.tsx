@@ -33,6 +33,8 @@ const AccountRegisterPage = lazy(() => import('../pages/AccountRegisterPage'))
 const NotFound = lazy(() => import('../pages/NotFound'))
 const Forbidden = lazy(() => import('../pages/Forbidden'))
 const AdminCharities = lazy(() => import('../pages/admin/AdminCharities'))
+const AdminLogin = lazy(() => import('../pages/admin/AdminLogin'))
+const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'))
 const DevTools = lazy(() => import('../pages/DevTools'))
 
 // CPG Module Pages
@@ -64,6 +66,10 @@ export function AppRoutes() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/checkout/success" element={<CheckoutSuccess />} />
         <Route path="/checkout/cancel" element={<CheckoutCancel />} />
+
+        {/* Admin routes (no layout) */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
         {/* Developer tools - accessible without full layout */}
         <Route path="/dev-tools" element={<DevTools />} />
