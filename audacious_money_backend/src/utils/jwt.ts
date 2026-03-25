@@ -130,7 +130,7 @@ export async function verifyToken(token: string): Promise<TokenPayload> {
   const secret = getJwtSecret();
 
   try {
-    const payload = await verify(token, secret);
+    const payload = await verify(token, secret, 'HS256');
     console.log('[JWT] Token verified successfully:', { userId: (payload as any).userId });
     return payload as TokenPayload;
   } catch (error) {
