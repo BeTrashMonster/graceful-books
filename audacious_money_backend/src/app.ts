@@ -20,6 +20,7 @@ import webhookRoutes from './routes/webhooks.js';
 import testEmailRoutes from './routes/test-email.js';
 import productRoutes from './routes/products.js';
 import userRoutes from './routes/users.js';
+import adminRoutes from './routes/admin.js';
 
 // Create Hono app
 const app = new Hono();
@@ -104,8 +105,8 @@ app.route('/users', userRoutes);
 // Test email routes (DELETE IN PRODUCTION!)
 app.route('/test', testEmailRoutes);
 
-// TODO: Add more route groups as they are implemented
-// app.route('/admin', adminRoutes);
+// Admin routes
+app.route('/admin', adminRoutes);
 
 // ==========================================
 // Error Handling (Must be last)
