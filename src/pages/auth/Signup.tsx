@@ -26,19 +26,16 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Load products on mount
+  // Load products on mount and auto-select CPG Costing Tool
   useEffect(() => {
     getProducts()
       .then((prods) => {
         setProducts(prods);
 
-        // Pre-select product from URL query param
-        const productSlug = searchParams.get('product');
-        if (productSlug) {
-          const product = prods.find(p => p.slug === productSlug);
-          if (product) {
-            setSelectedProduct(product);
-          }
+        // Always auto-select CPG Costing Tool
+        const cpgProduct = prods.find(p => p.slug === 'cpg-costing-tool');
+        if (cpgProduct) {
+          setSelectedProduct(cpgProduct);
         }
       })
       .catch((err) => {
@@ -67,7 +64,8 @@ export default function Signup() {
       setError('Please select a charity to support');
       return;
     }
-    setStep('product');
+    // Skip product selection - go straight to signup with CPG Costing Tool
+    handleCompleteSignup();
   };
 
   const handleCompleteSignup = async () => {
