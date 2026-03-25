@@ -188,10 +188,104 @@ auth.post('/signup', validate(signupSchema), async (c) => {
  *
  * Authenticate user and return JWT token
  *
- * TODO: Implement in Task 1.2
+ * Request body:
+ * - email: string (required)
+ * - password: string (required)
+ *
+ * Response:
+ * - 200: Login successful with token
+ * - 401: Invalid credentials
+ * - 403: Account inactive or locked
  */
-auth.post('/login', async (c) => {
-  return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Not implemented yet');
+auth.post('/login', validate(loginSchema), async (c) => {
+  const { email, password } = c.get('validatedData') as {
+    email: string;
+    password: string;
+  };
+  const db = c.get('db');
+
+  try {
+    // Look up user by email
+    const result = await db.query(
+      `SELECT id, email, password_hash, first_name, last_name, account_status, email_verified
+       FROM users
+       WHERE email = $1`,
+      [email]
+    );
+
+    // User not found
+    if (result.rowCount === 0) {
+      // Track failed login attempt
+      const ipAddress =
+        c.req.header('x-forwarded-for')?.split(',')[0].trim() ||
+        c.req.header('x-real-ip') ||
+        c.req.header('cf-connecting-ip') ||
+        '';
+      await trackFailedLogin(db, email, ipAddress);
+      return unauthorized(c, ErrorCodes.INVALID_CREDENTIALS, ErrorMessages.INVALID_CREDENTIALS);
+    }
+
+    const user = result.rows[0];
+
+    // Check if account is active
+    if (user.account_status !== 'active') {
+      return forbidden(
+        c,
+        ErrorCodes.ACCOUNT_INACTIVE,
+        'Your account is not active. Please contact support for assistance.'
+      );
+    }
+
+    // Verify password using timing-safe comparison
+    const isValidPassword = await timingSafeVerify(password, user.password_hash);
+
+    if (!isValidPassword) {
+      // Track failed login attempt
+      const ipAddress =
+        c.req.header('x-forwarded-for')?.split(',')[0].trim() ||
+        c.req.header('x-real-ip') ||
+        c.req.header('cf-connecting-ip') ||
+        '';
+      await trackFailedLogin(db, email, ipAddress);
+      return unauthorized(c, ErrorCodes.INVALID_CREDENTIALS, ErrorMessages.INVALID_CREDENTIALS);
+    }
+
+    // Clear any failed login attempts
+    await clearFailedLogins(db, email);
+
+    // Generate JWT token
+    const token = await generateUserToken(user.id, user.email);
+
+    // Update last login timestamp
+    await db.query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]);
+
+    // Create audit log entry
+    const ipAddress =
+      c.req.header('x-forwarded-for')?.split(',')[0].trim() ||
+      c.req.header('x-real-ip') ||
+      c.req.header('cf-connecting-ip') ||
+      '';
+
+    await db.query(
+      `INSERT INTO admin_audit_log (action, resource_type, resource_id, ip_address)
+       VALUES ('user_login', 'user', $1, $2)`,
+      [user.id, ipAddress]
+    );
+
+    return success(c, {
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        emailVerified: user.email_verified,
+      },
+    });
+  } catch (error) {
+    console.error('[Auth] Login error:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
+  }
 });
 
 /**

@@ -1,301 +1,252 @@
 /**
  * Login Page
  *
- * Passphrase-based authentication using zero-knowledge architecture.
- * Uses the auth module for secure login and the component library for accessibility.
+ * User authentication using email and password.
  */
 
-import { useState, useCallback } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Input } from '../../components/forms/Input'
-import { Button } from '../../components/core/Button'
-import { login, storePassphraseTestData, createPassphraseTestData } from '../../auth/login'
-import type { LoginResponse } from '../../auth/types'
-import { logger } from '../../utils/logger'
+import { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
-const authLogger = logger.child('Auth')
+const API_URL = 'https://api.audacious.money';
 
 export default function Login() {
-  const navigate = useNavigate()
-  const location = useLocation()
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Form state
-  const [companyId, setCompanyId] = useState('')
-  const [userIdentifier, setUserIdentifier] = useState('')
-  const [passphrase, setPassphrase] = useState('')
-  const [rememberDevice, setRememberDevice] = useState(false)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // UI state
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  // For demo: Create test data if none exists
-  const ensureTestData = useCallback(async () => {
-    const testDataKey = `passphrase-test-${companyId}`
-    if (!localStorage.getItem(testDataKey) && companyId) {
-      // For demo purposes, create test data with the entered passphrase
-      // In production, this would be created during signup
-      const testData = await createPassphraseTestData(passphrase, companyId)
-      await storePassphraseTestData(testData)
-      authLogger.debug('Created test passphrase data for demo')
-    }
-  }, [companyId, passphrase])
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setIsLoading(true)
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
 
     try {
-      // Ensure test data exists (demo only - remove in production)
-      await ensureTestData()
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      // Generate a basic device fingerprint
-      const deviceFingerprint = `${navigator.userAgent}-${screen.width}x${screen.height}`
+      const data = await response.json();
 
-      // Attempt login using the auth module
-      const response: LoginResponse = await login({
-        passphrase,
-        companyId,
-        userIdentifier,
-        rememberDevice,
-        deviceFingerprint,
-      })
-
-      if (response.success) {
-        // Store session data
-        sessionStorage.setItem('graceful_books_session', JSON.stringify({
-          token: response.token,
-          expiresAt: response.expiresAt,
-          userIdentifier,
-          companyId,
-        }))
-
-        // Store device token if requested
-        if (response.deviceToken) {
-          localStorage.setItem('graceful_books_device_token', response.deviceToken)
-        }
-
-        // Store user info for protected routes
-        localStorage.setItem('graceful_books_user', JSON.stringify({
-          userIdentifier,
-          companyId,
-        }))
-
-        authLogger.info('Login successful', { userIdentifier, companyId })
-
-        // Redirect to the page they were trying to access, or dashboard
-        const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard'
-        navigate(from, { replace: true })
-      } else {
-        // Show user-friendly error message
-        setError(getUserFriendlyError(response.errorCode, response.error))
-        authLogger.warn('Login failed', { errorCode: response.errorCode })
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Login failed');
       }
-    } catch (err) {
-      authLogger.error('Login error', err)
-      setError("We couldn't sign you in right now. Please try again in a moment.")
+
+      // Store user session
+      sessionStorage.setItem(
+        'graceful_books_session',
+        JSON.stringify({
+          token: data.data.token,
+          user: data.data.user,
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        })
+      );
+
+      // Redirect to the page they were trying to access, or dashboard
+      const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
+    } catch (err: any) {
+      setError(getUserFriendlyError(err.message));
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <div className="auth-header">
-          <h1>Welcome to Graceful Books</h1>
-          <p>Sign in to your account. Take your time - we'll guide you through.</p>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f9fafb',
+        padding: '1rem',
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '400px',
+          backgroundColor: '#ffffff',
+          padding: '2rem',
+          borderRadius: '0.5rem',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <h1
+            style={{
+              fontSize: '1.5rem',
+              fontWeight: 600,
+              marginBottom: '0.5rem',
+            }}
+          >
+            Welcome to Graceful Books
+          </h1>
+          <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+            Sign in to your account. Take your time - we'll guide you through.
+          </p>
         </div>
 
         {error && (
-          <div className="auth-error" role="alert">
+          <div
+            style={{
+              padding: '0.75rem',
+              marginBottom: '1rem',
+              backgroundColor: '#fee2e2',
+              border: '1px solid #fecaca',
+              borderRadius: '0.375rem',
+              color: '#dc2626',
+              fontSize: '0.875rem',
+            }}
+          >
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <Input
-            label="Company ID"
-            type="text"
-            value={companyId}
-            onChange={(e) => setCompanyId(e.target.value)}
-            required
-            fullWidth
-            helperText="The unique identifier for your company"
-            autoComplete="organization"
-          />
-
-          <Input
-            label="Email"
-            type="email"
-            value={userIdentifier}
-            onChange={(e) => setUserIdentifier(e.target.value)}
-            required
-            fullWidth
-            autoComplete="email"
-          />
-
-          <Input
-            label="Passphrase"
-            type="password"
-            value={passphrase}
-            onChange={(e) => setPassphrase(e.target.value)}
-            required
-            fullWidth
-            helperText="Your secret passphrase - never share this with anyone"
-            autoComplete="current-password"
-          />
-
-          <div className="auth-checkbox">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={rememberDevice}
-                onChange={(e) => setRememberDevice(e.target.checked)}
-              />
-              <span>Remember this device for 30 days</span>
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '1rem' }}>
+            <label
+              htmlFor="email"
+              style={{
+                display: 'block',
+                marginBottom: '0.5rem',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+              }}
+            >
+              Email
             </label>
-            <p className="checkbox-helper-text">
-              This is a convenience feature to make signing in easier.
-              It does not replace your passphrase security.
-            </p>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              style={{
+                width: '100%',
+                padding: '0.5rem 0.75rem',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.375rem',
+                fontSize: '0.875rem',
+              }}
+            />
           </div>
 
-          <Button
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label
+              htmlFor="password"
+              style={{
+                display: 'block',
+                marginBottom: '0.5rem',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+              }}
+            >
+              Password
+            </label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                style={{
+                  width: '100%',
+                  padding: '0.5rem 0.75rem',
+                  paddingRight: '2.5rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '0.5rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '0.25rem',
+                  fontSize: '1.25rem',
+                }}
+              >
+                {showPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
+          </div>
+
+          <button
             type="submit"
-            variant="primary"
-            fullWidth
-            loading={isLoading}
             disabled={isLoading}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              backgroundColor: isLoading ? '#9ca3af' : '#6366f1',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '0.375rem',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+            }}
           >
             {isLoading ? 'Signing you in...' : 'Sign In'}
-          </Button>
+          </button>
         </form>
 
-        <div className="auth-footer">
+        <div
+          style={{
+            marginTop: '1.5rem',
+            textAlign: 'center',
+            fontSize: '0.875rem',
+            color: '#6b7280',
+          }}
+        >
           <span>Don't have an account? </span>
-          <Link to="/signup">Create one here</Link>
+          <Link
+            to="/signup"
+            style={{
+              color: '#3b82f6',
+              textDecoration: 'none',
+            }}
+          >
+            Create one here
+          </Link>
         </div>
       </div>
-
-      <style>{`
-        .auth-page {
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background-color: var(--color-background, #f9fafb);
-          padding: 1rem;
-        }
-
-        .auth-container {
-          width: 100%;
-          max-width: 420px;
-          background-color: var(--color-surface, #ffffff);
-          padding: 2rem;
-          border-radius: 0.5rem;
-          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-        }
-
-        .auth-header {
-          text-align: center;
-          margin-bottom: 2rem;
-        }
-
-        .auth-header h1 {
-          font-size: 1.5rem;
-          font-weight: 600;
-          margin-bottom: 0.5rem;
-          color: var(--color-text-primary, #111827);
-        }
-
-        .auth-header p {
-          color: var(--color-text-secondary, #6b7280);
-          font-size: 0.875rem;
-        }
-
-        .auth-error {
-          background-color: var(--color-error-light, #fef2f2);
-          border: 1px solid var(--color-error, #dc2626);
-          color: var(--color-error-dark, #991b1b);
-          padding: 0.75rem 1rem;
-          border-radius: 0.375rem;
-          margin-bottom: 1.5rem;
-          font-size: 0.875rem;
-        }
-
-        .auth-form {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        }
-
-        .auth-checkbox {
-          display: flex;
-          align-items: center;
-        }
-
-        .checkbox-label {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          cursor: pointer;
-          font-size: 0.875rem;
-          color: var(--color-text-secondary, #6b7280);
-        }
-
-        .checkbox-label input[type="checkbox"] {
-          width: 1rem;
-          height: 1rem;
-          cursor: pointer;
-        }
-
-        .checkbox-helper-text {
-          margin: 0.375rem 0 0 1.5rem;
-          font-size: 0.75rem;
-          color: var(--color-text-tertiary, #9ca3af);
-          line-height: 1.4;
-        }
-
-        .auth-footer {
-          margin-top: 1.5rem;
-          text-align: center;
-          font-size: 0.875rem;
-          color: var(--color-text-secondary, #6b7280);
-        }
-
-        .auth-footer a {
-          color: var(--color-primary, #3b82f6);
-          text-decoration: none;
-        }
-
-        .auth-footer a:hover {
-          text-decoration: underline;
-        }
-      `}</style>
     </div>
-  )
+  );
 }
 
 /**
- * Convert error codes to user-friendly messages (Steadiness style)
+ * Convert error messages to user-friendly format (Steadiness style)
  */
-function getUserFriendlyError(
-  errorCode?: string,
-  defaultMessage?: string
-): string {
-  switch (errorCode) {
-    case 'INVALID_PASSPHRASE':
-      return "That passphrase doesn't seem to match what we have on file. Please double-check and try again. No worries - take your time."
-
-    case 'RATE_LIMITED':
-      return "We've noticed a few unsuccessful attempts. For your security, please wait a few minutes before trying again. Your account is safe."
-
-    case 'ACCOUNT_LOCKED':
-      return "Your account has been temporarily locked for security. Please contact support or wait 15 minutes to try again."
-
-    default:
-      return defaultMessage || "Something unexpected happened. Please try again, and if this continues, let us know."
+function getUserFriendlyError(message: string): string {
+  if (message.includes('Invalid email or password')) {
+    return "That email or password doesn't seem to match what we have on file. Please double-check and try again. No worries - take your time.";
   }
+
+  if (message.includes('not active')) {
+    return 'Your account is not active. Please contact support for assistance.';
+  }
+
+  return "We couldn't sign you in right now. Please try again in a moment.";
 }
