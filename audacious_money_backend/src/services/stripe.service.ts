@@ -29,7 +29,7 @@ export async function createCheckoutSession({
   metadata,
 }: {
   priceId: string;
-  userId: number;
+  userId: string; // Changed from number to string (UUID)
   userEmail: string;
   successUrl: string;
   cancelUrl: string;
@@ -47,15 +47,15 @@ export async function createCheckoutSession({
     success_url: successUrl,
     cancel_url: cancelUrl,
     customer_email: userEmail,
-    client_reference_id: userId.toString(),
+    client_reference_id: userId, // Already a string, no need to convert
     allow_promotion_codes: true, // Enable promo code field in checkout
     metadata: {
-      userId: userId.toString(),
+      userId: userId, // Already a string
       ...metadata,
     },
     subscription_data: {
       metadata: {
-        userId: userId.toString(),
+        userId: userId, // Already a string
         ...metadata,
       },
     },

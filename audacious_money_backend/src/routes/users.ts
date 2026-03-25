@@ -103,7 +103,7 @@ users.post('/me/products', async (c) => {
       successUrl,
       cancelUrl,
       metadata: {
-        productId: productId.toString(),
+        productId: productId, // Already a string (UUID)
         productSlug: product.slug,
       },
     });
