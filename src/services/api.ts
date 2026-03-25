@@ -5,7 +5,12 @@
  * Handles authentication tokens, error handling, and request/response formatting.
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Use production API in production mode, localhost in development
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.MODE === 'production'
+    ? 'https://api.audacious.money'
+    : 'http://localhost:3001');
 
 interface ApiError {
   message: string;
