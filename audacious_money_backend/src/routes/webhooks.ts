@@ -118,13 +118,17 @@ async function handleCheckoutSessionCompleted(session: any) {
   const db = getDatabase();
 
   try {
-    const userId = parseInt(session.metadata?.userId || session.client_reference_id);
-    const productId = parseInt(session.metadata?.productId);
+    const userId = session.metadata?.userId || session.client_reference_id;
+    const productId = session.metadata?.productId;
 
     if (!userId || !productId) {
       console.error('[Webhook] Missing userId or productId in session metadata');
+      console.error('[Webhook] Session metadata:', session.metadata);
       return;
     }
+
+    console.log('[Webhook] User ID:', userId);
+    console.log('[Webhook] Product ID:', productId);
 
     // Check if user_product record already exists
     const existingRecord = await db.query(
@@ -209,12 +213,14 @@ async function handleSubscriptionCreated(subscription: any) {
   const db = getDatabase();
 
   try {
-    const userId = parseInt(subscription.metadata?.userId);
+    const userId = subscription.metadata?.userId;
 
     if (!userId) {
       console.log('[Webhook] No userId in subscription metadata, likely handled by checkout.session.completed');
       return;
     }
+
+    console.log('[Webhook] User ID from subscription metadata:', userId);
 
     // Update subscription details if record exists
     await db.query(
