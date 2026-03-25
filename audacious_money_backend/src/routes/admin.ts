@@ -57,7 +57,7 @@ admin.post('/login', validate(loginSchema), async (c) => {
     }
 
     // Verify password using timing-safe comparison
-    const isValidPassword = await timingSafeVerify(adminUser.password_hash, password);
+    const isValidPassword = await timingSafeVerify(password, adminUser.password_hash);
 
     if (!isValidPassword) {
       return unauthorized(c, ErrorCodes.INVALID_CREDENTIALS, ErrorMessages.INVALID_CREDENTIALS);
@@ -167,7 +167,7 @@ admin.patch('/me/password', requireAdmin, validate(changePasswordSchema), async 
     const { password_hash } = result.rows[0];
 
     // Verify current password
-    const isValidPassword = await timingSafeVerify(password_hash, currentPassword);
+    const isValidPassword = await timingSafeVerify(currentPassword, password_hash);
 
     if (!isValidPassword) {
       return unauthorized(c, ErrorCodes.INVALID_CREDENTIALS, 'Current password is incorrect');
