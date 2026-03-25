@@ -39,8 +39,10 @@ export type TokenPayload = UserTokenPayload | AdminTokenPayload;
 function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
+    console.error('[JWT] FATAL: JWT_SECRET is not set in environment');
     throw new Error('JWT_SECRET environment variable is not set');
   }
+  console.log(`[JWT] Using JWT_SECRET: ${secret.substring(0, 8)}...${secret.substring(secret.length - 8)}`);
   return secret;
 }
 
@@ -60,6 +62,7 @@ export async function generateUserToken(
   email: string,
   role: 'user' = 'user'
 ): Promise<string> {
+  console.log(`[JWT] Generating token for user: ${userId}`);
   const secret = getJwtSecret();
   const expiresIn = 60 * 60 * 24 * 7; // 7 days in seconds
 
@@ -70,7 +73,9 @@ export async function generateUserToken(
     exp: Math.floor(Date.now() / 1000) + expiresIn,
   };
 
-  return await sign(payload, secret);
+  const token = await sign(payload, secret);
+  console.log(`[JWT] Token generated: ${token.substring(0, 30)}...`);
+  return token;
 }
 
 /**
@@ -121,12 +126,18 @@ export async function generateAdminToken(
  * }
  */
 export async function verifyToken(token: string): Promise<TokenPayload> {
+  console.log(`[JWT] Verifying token: ${token.substring(0, 30)}...`);
   const secret = getJwtSecret();
 
   try {
     const payload = await verify(token, secret);
+    console.log('[JWT] Token verified successfully:', { userId: (payload as any).userId });
     return payload as TokenPayload;
   } catch (error) {
+    console.error('[JWT] Token verification failed');
+    console.error('[JWT] Error details:', error);
+    console.error('[JWT] Token that failed:', token.substring(0, 50));
+    console.error('[JWT] Secret used (first 8):', secret.substring(0, 8));
     throw new Error('Invalid or expired token');
   }
 }
