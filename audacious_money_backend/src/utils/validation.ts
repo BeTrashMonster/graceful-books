@@ -82,7 +82,7 @@ export const signupSchema = z.object({
   lastName: nameSchema,
   companyName: companyNameSchema,
   affiliateCode: affiliateCodeSchema,
-  charityId: z.number().int().positive().optional(),
+  // Note: charityId removed - charity selections stored in user_charity_selections table separately
 });
 
 /**

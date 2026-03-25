@@ -75,6 +75,12 @@ class ApiClient {
           console.error('🌐 Validation details:', errorInfo.details);
         }
 
+        // Log full error data for INTERNAL_ERROR to help debugging
+        if (errorInfo.code === 'INTERNAL_ERROR') {
+          console.error('🔴 Internal server error - check backend logs at https://api.audacious.money');
+          console.error('🔴 Full error response:', errorData);
+        }
+
         const error: ApiError = {
           message: errorInfo.message || 'Request failed',
           code: errorInfo.code,
