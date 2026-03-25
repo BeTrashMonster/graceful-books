@@ -25,6 +25,14 @@ const HOST = process.env.HOST || '0.0.0.0';
 async function startServer() {
   console.log('🚀 Starting Audacious Money Backend...\n');
 
+  // 0. Verify JWT_SECRET is set
+  if (!process.env.JWT_SECRET) {
+    console.error('❌ FATAL: JWT_SECRET environment variable is not set');
+    console.error('   Set JWT_SECRET in DigitalOcean environment variables or .env file');
+    process.exit(1);
+  }
+  console.log(`[Startup] JWT_SECRET loaded: ${process.env.JWT_SECRET.substring(0, 8)}...`);
+
   // 1. Initialize database connection
   console.log('[Startup] Initializing database connection...');
   try {
