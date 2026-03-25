@@ -48,6 +48,7 @@ export async function createCheckoutSession({
     cancel_url: cancelUrl,
     customer_email: userEmail,
     client_reference_id: userId.toString(),
+    allow_promotion_codes: true, // Enable promo code field in checkout
     metadata: {
       userId: userId.toString(),
       ...metadata,
