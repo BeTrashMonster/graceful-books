@@ -52,7 +52,7 @@ users.post('/me/products', async (c) => {
   try {
     // Get product details including Stripe price ID
     const productResult = await db.query(
-      `SELECT id, name, slug, stripe_price_id, price_usd
+      `SELECT id, name, slug, stripe_price_id, price_monthly
        FROM products
        WHERE id = $1 AND active = true`,
       [productId]
