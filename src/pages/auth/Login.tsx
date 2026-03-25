@@ -48,13 +48,34 @@ export default function Login() {
         JSON.stringify({
           token: data.data.token,
           user: data.data.user,
+          products: data.data.products || [],
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
         })
       );
 
-      // Redirect to the page they were trying to access, or dashboard
-      const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
-      navigate(from, { replace: true });
+      // Determine redirect based on user's products
+      const products = data.data.products || [];
+      const hasBookkeeping = products.some((p: any) => p.slug === 'bookkeeping-suite');
+      const hasCPG = products.some((p: any) => p.slug === 'cpu-cpg-calculator');
+
+      // If they were trying to access a specific page, go there
+      const requestedPath = (location.state as { from?: { pathname: string } })?.from?.pathname;
+
+      let redirectPath;
+      if (requestedPath && requestedPath !== '/') {
+        redirectPath = requestedPath;
+      } else if (hasCPG && !hasBookkeeping) {
+        // Only has CPG access → redirect to CPG dashboard
+        redirectPath = '/cpg';
+      } else if (hasBookkeeping) {
+        // Has bookkeeping access → redirect to bookkeeping dashboard
+        redirectPath = '/dashboard';
+      } else {
+        // No products or unknown products → redirect to dashboard (will show access denied if needed)
+        redirectPath = '/dashboard';
+      }
+
+      navigate(redirectPath, { replace: true });
     } catch (err: any) {
       setError(getUserFriendlyError(err.message));
     } finally {

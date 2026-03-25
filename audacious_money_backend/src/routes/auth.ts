@@ -256,6 +256,23 @@ auth.post('/login', validate(loginSchema), async (c) => {
     // Generate JWT token
     const token = await generateUserToken(user.id, user.email);
 
+    // Get user's products
+    const productsResult = await db.query(
+      `SELECT up.product_id, up.status, p.name, p.slug
+       FROM user_products up
+       JOIN products p ON up.product_id = p.id
+       WHERE up.user_id = $1 AND up.status IN ('trial', 'active')
+       ORDER BY up.activated_at DESC`,
+      [user.id]
+    );
+
+    const products = productsResult.rows.map((row) => ({
+      id: row.product_id,
+      name: row.name,
+      slug: row.slug,
+      status: row.status,
+    }));
+
     // Update last login timestamp
     await db.query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]);
 
@@ -281,6 +298,7 @@ auth.post('/login', validate(loginSchema), async (c) => {
         lastName: user.last_name,
         emailVerified: user.email_verified,
       },
+      products,
     });
   } catch (error) {
     console.error('[Auth] Login error:', error);

@@ -81,8 +81,8 @@ export function AppRoutes() {
         <Route path="/onboarding/assessment" element={<Assessment />} />
         <Route path="/onboarding/setup" element={<Setup />} />
 
-        {/* Protected routes with layout */}
-        <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+        {/* Protected routes with layout - Bookkeeping Suite only */}
+        <Route element={<ProtectedRoute requireProduct="bookkeeping-suite"><MainLayout /></ProtectedRoute>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/accounts" element={<ChartOfAccounts />} />
@@ -101,8 +101,8 @@ export function AppRoutes() {
           <Route path="/settings" element={<Settings />} />
         </Route>
 
-        {/* CPG Module - Protected routes with CPG-specific layout */}
-        <Route element={<ProtectedRoute><CPGLayout /></ProtectedRoute>}>
+        {/* CPG Module - Protected routes with CPG-specific layout - CPG Tool only */}
+        <Route element={<ProtectedRoute requireProduct="cpu-cpg-calculator"><CPGLayout /></ProtectedRoute>}>
           <Route path="/cpg" element={<CPGDashboard />} />
           <Route path="/cpg/dashboard" element={<CPGDashboard />} />
           <Route path="/cpg/products" element={<FinishedProducts />} />
