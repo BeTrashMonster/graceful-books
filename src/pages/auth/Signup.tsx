@@ -46,7 +46,7 @@ export default function Signup() {
       });
   }, [searchParams]);
 
-  const handleCredentialsSubmit = (e: React.FormEvent) => {
+  const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -54,8 +54,63 @@ export default function Signup() {
       return;
     }
 
-    // Move to charity selection step
-    setStep('charity');
+    // Skip charity and product selection - go straight to checkout with CPG Costing Tool
+    const cpgProduct = products.find(p => p.slug === 'cpu-cpg-calculator');
+    if (!cpgProduct) {
+      setError('Product not loaded yet. Please try again.');
+      return;
+    }
+
+    setSelectedProduct(cpgProduct);
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Call backend API to create account
+      const response = await signup({
+        email,
+        password,
+        firstName,
+        lastName,
+        companyName: companyName || undefined,
+      });
+
+      // Store session data in sessionStorage
+      sessionStorage.setItem(
+        'graceful_books_session',
+        JSON.stringify({
+          token: response.token,
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          userEmail: response.user.email,
+          userId: response.user.id,
+        })
+      );
+
+      // Store user info with selected product for checkout
+      localStorage.setItem(
+        'graceful_books_user',
+        JSON.stringify({
+          userIdentifier: response.user.email,
+          supportKey: response.user.supportKey,
+          selectedProduct: cpgProduct.slug,
+          upgradeToBookkeeping: false,
+        })
+      );
+
+      // Create Stripe checkout session and redirect
+      const { createCheckoutSession } = await import('../../services/checkout.api');
+      const checkoutSession = await createCheckoutSession(cpgProduct.id);
+
+      // Redirect to Stripe checkout
+      window.location.href = checkoutSession.url;
+    } catch (err: any) {
+      console.error('Signup error:', err);
+      setError(
+        err.message || 'Something unexpected happened. Please try again.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCharitySelect = (charity: Charity) => {
