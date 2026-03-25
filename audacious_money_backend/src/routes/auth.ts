@@ -138,11 +138,14 @@ auth.post('/signup', validate(signupSchema), async (c) => {
     });
 
     // Create audit log entry
-    const ipAddress =
+    // x-forwarded-for can contain multiple IPs (client, proxy1, proxy2)
+    // Extract just the first IP (the actual client IP)
+    const ipAddressRaw =
       c.req.header('x-forwarded-for') ||
       c.req.header('x-real-ip') ||
       c.req.header('cf-connecting-ip') ||
-      null;
+      '';
+    const ipAddress = ipAddressRaw.split(',')[0].trim() || null;
 
     await db.query(
       `
@@ -258,11 +261,14 @@ auth.post('/forgot-password', validate(passwordResetRequestSchema), async (c) =>
     });
 
     // Create audit log entry
-    const ipAddress =
+    // x-forwarded-for can contain multiple IPs (client, proxy1, proxy2)
+    // Extract just the first IP (the actual client IP)
+    const ipAddressRaw =
       c.req.header('x-forwarded-for') ||
       c.req.header('x-real-ip') ||
       c.req.header('cf-connecting-ip') ||
-      null;
+      '';
+    const ipAddress = ipAddressRaw.split(',')[0].trim() || null;
 
     await db.query(
       `
