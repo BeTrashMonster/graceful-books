@@ -93,7 +93,7 @@ export default function Login() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#f9fafb',
+        background: 'linear-gradient(135deg, #4b006e 0%, #6d28d9 100%)',
         padding: '1rem',
       }}
     >
@@ -104,22 +104,23 @@ export default function Login() {
           backgroundColor: '#ffffff',
           padding: '2rem',
           borderRadius: '0.5rem',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          boxShadow: '0 8px 24px rgba(75, 0, 110, 0.3)',
+          border: '2px solid #D4AF37',
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h1
             style={{
-              fontSize: '1.5rem',
-              fontWeight: 600,
-              marginBottom: '0.5rem',
+              fontSize: '1.875rem',
+              fontWeight: 700,
+              background: 'linear-gradient(135deg, #4b006e 0%, #6d28d9 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
             }}
           >
-            Welcome to Graceful Books
+            Welcome to Audacious Money
           </h1>
-          <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-            Sign in to your account. Take your time - we'll guide you through.
-          </p>
         </div>
 
         {error && (
@@ -128,7 +129,7 @@ export default function Login() {
               padding: '0.75rem',
               marginBottom: '1rem',
               backgroundColor: '#fee2e2',
-              border: '1px solid #fecaca',
+              border: '2px solid #dc2626',
               borderRadius: '0.375rem',
               color: '#dc2626',
               fontSize: '0.875rem',
@@ -146,7 +147,8 @@ export default function Login() {
                 display: 'block',
                 marginBottom: '0.5rem',
                 fontSize: '0.875rem',
-                fontWeight: 500,
+                fontWeight: 600,
+                color: '#4b006e',
               }}
             >
               Email
@@ -161,7 +163,7 @@ export default function Login() {
               style={{
                 width: '100%',
                 padding: '0.5rem 0.75rem',
-                border: '1px solid #d1d5db',
+                border: '2px solid #D4AF37',
                 borderRadius: '0.375rem',
                 fontSize: '0.875rem',
               }}
@@ -175,7 +177,8 @@ export default function Login() {
                 display: 'block',
                 marginBottom: '0.5rem',
                 fontSize: '0.875rem',
-                fontWeight: 500,
+                fontWeight: 600,
+                color: '#4b006e',
               }}
             >
               Password
@@ -192,7 +195,7 @@ export default function Login() {
                   width: '100%',
                   padding: '0.5rem 0.75rem',
                   paddingRight: '2.5rem',
-                  border: '1px solid #d1d5db',
+                  border: '2px solid #D4AF37',
                   borderRadius: '0.375rem',
                   fontSize: '0.875rem',
                 }}
@@ -223,13 +226,14 @@ export default function Login() {
             style={{
               width: '100%',
               padding: '0.75rem',
-              backgroundColor: isLoading ? '#9ca3af' : '#6366f1',
+              background: isLoading ? '#9ca3af' : 'linear-gradient(135deg, #4b006e 0%, #6d28d9 100%)',
               color: '#ffffff',
-              border: 'none',
+              border: '2px solid #D4AF37',
               borderRadius: '0.375rem',
               fontSize: '0.875rem',
-              fontWeight: 600,
+              fontWeight: 700,
               cursor: isLoading ? 'not-allowed' : 'pointer',
+              boxShadow: isLoading ? 'none' : '0 4px 12px rgba(75, 0, 110, 0.3)',
             }}
           >
             {isLoading ? 'Signing you in...' : 'Sign In'}
@@ -241,15 +245,16 @@ export default function Login() {
             marginTop: '1.5rem',
             textAlign: 'center',
             fontSize: '0.875rem',
-            color: '#6b7280',
+            color: '#4b5563',
           }}
         >
           <span>Don't have an account? </span>
           <Link
             to="/signup"
             style={{
-              color: '#3b82f6',
+              color: '#4b006e',
               textDecoration: 'none',
+              fontWeight: 600,
             }}
           >
             Create one here
