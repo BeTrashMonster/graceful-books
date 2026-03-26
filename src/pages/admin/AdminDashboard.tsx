@@ -16,6 +16,25 @@ interface User {
   lastLoginAt: string | null;
 }
 
+interface UserProduct {
+  id: string;
+  productId: string;
+  name: string;
+  slug: string;
+  status: string;
+  activatedAt: string;
+  expiresAt: string | null;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  price_usd: number;
+  active: boolean;
+}
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
@@ -29,6 +48,11 @@ export default function AdminDashboard() {
   });
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+  const [userProducts, setUserProducts] = useState<Record<string, UserProduct[]>>({});
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [showAddProduct, setShowAddProduct] = useState<string | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
 
   // Get admin session
   const getAdminSession = () => {
@@ -42,25 +66,34 @@ export default function AdminDashboard() {
 
   const session = getAdminSession();
 
-  // Fetch users
+  // Fetch users and products
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       if (!session) return;
 
       try {
-        const response = await fetch(`${API_URL}/admin/users`, {
+        // Fetch users
+        const usersResponse = await fetch(`${API_URL}/admin/users`, {
           headers: {
             'Authorization': `Bearer ${session.token}`,
           },
         });
 
-        const data = await response.json();
+        const usersData = await usersResponse.json();
 
-        if (!response.ok) {
-          throw new Error(data.error?.message || 'Failed to fetch users');
+        if (!usersResponse.ok) {
+          throw new Error(usersData.error?.message || 'Failed to fetch users');
         }
 
-        setUsers(data.data.users);
+        setUsers(usersData.data.users);
+
+        // Fetch all products
+        const productsResponse = await fetch(`${API_URL}/products`);
+        const productsData = await productsResponse.json();
+
+        if (productsResponse.ok) {
+          setAllProducts(productsData.data || []);
+        }
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -68,7 +101,7 @@ export default function AdminDashboard() {
       }
     };
 
-    fetchUsers();
+    fetchData();
   }, []);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
@@ -114,6 +147,127 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     sessionStorage.removeItem('graceful_books_admin_session');
     navigate('/admin/login');
+  };
+
+  const fetchUserProducts = async (userId: string) => {
+    if (!session) return;
+
+    try {
+      const response = await fetch(`${API_URL}/admin/users/${userId}/products`, {
+        headers: {
+          'Authorization': `Bearer ${session.token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUserProducts((prev) => ({ ...prev, [userId]: data.data.products }));
+      }
+    } catch (err) {
+      console.error('Error fetching user products:', err);
+    }
+  };
+
+  const handleToggleUser = async (userId: string) => {
+    if (expandedUserId === userId) {
+      setExpandedUserId(null);
+    } else {
+      setExpandedUserId(userId);
+      if (!userProducts[userId]) {
+        await fetchUserProducts(userId);
+      }
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, userEmail: string) => {
+    if (!session) return;
+
+    if (!confirm(`Are you sure you want to delete user ${userEmail}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/admin/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Failed to delete user');
+      }
+
+      // Remove user from list
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+      alert('User deleted successfully');
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    }
+  };
+
+  const handleAddProduct = async (userId: string) => {
+    if (!session || !selectedProductId) return;
+
+    try {
+      const response = await fetch(`${API_URL}/admin/users/${userId}/products`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.token}`,
+        },
+        body: JSON.stringify({
+          productId: selectedProductId,
+          status: 'active',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Failed to add product');
+      }
+
+      // Refresh user products
+      await fetchUserProducts(userId);
+      setShowAddProduct(null);
+      setSelectedProductId('');
+      alert('Product added successfully');
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    }
+  };
+
+  const handleRemoveProduct = async (userId: string, productId: string, productName: string) => {
+    if (!session) return;
+
+    if (!confirm(`Remove ${productName} from this user?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/admin/users/${userId}/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Failed to remove product');
+      }
+
+      // Refresh user products
+      await fetchUserProducts(userId);
+      alert('Product removed successfully');
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    }
   };
 
   if (isLoading) {
@@ -202,6 +356,7 @@ export default function AdminDashboard() {
             <table style={{ width: '100%', fontSize: '0.875rem' }}>
               <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
                 <tr>
+                  <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, width: '40px' }}></th>
                   <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Name</th>
                   <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Email</th>
                   <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>
@@ -216,38 +371,209 @@ export default function AdminDashboard() {
                   <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>
                     Created
                   </th>
+                  <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
-                  <tr key={user.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <td style={{ padding: '0.75rem' }}>
-                      {user.firstName} {user.lastName}
-                    </td>
-                    <td style={{ padding: '0.75rem' }}>{user.email}</td>
-                    <td style={{ padding: '0.75rem' }}>{user.companyName || '-'}</td>
-                    <td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>
-                      {user.supportKey}
-                    </td>
-                    <td style={{ padding: '0.75rem' }}>
-                      <span
-                        style={{
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '0.25rem',
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                          backgroundColor:
-                            user.accountStatus === 'active' ? '#dcfce7' : '#fee2e2',
-                          color: user.accountStatus === 'active' ? '#16a34a' : '#dc2626',
-                        }}
-                      >
-                        {user.accountStatus}
-                      </span>
-                    </td>
-                    <td style={{ padding: '0.75rem' }}>
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </td>
-                  </tr>
+                  <>
+                    <tr key={user.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '0.75rem' }}>
+                        <button
+                          onClick={() => handleToggleUser(user.id)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontSize: '1rem',
+                            padding: '0.25rem',
+                          }}
+                        >
+                          {expandedUserId === user.id ? '▼' : '▶'}
+                        </button>
+                      </td>
+                      <td style={{ padding: '0.75rem' }}>
+                        {user.firstName} {user.lastName}
+                      </td>
+                      <td style={{ padding: '0.75rem' }}>{user.email}</td>
+                      <td style={{ padding: '0.75rem' }}>{user.companyName || '-'}</td>
+                      <td style={{ padding: '0.75rem', fontFamily: 'monospace', fontSize: '0.75rem' }}>
+                        {user.supportKey}
+                      </td>
+                      <td style={{ padding: '0.75rem' }}>
+                        <span
+                          style={{
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '0.25rem',
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            backgroundColor:
+                              user.accountStatus === 'active' ? '#dcfce7' : '#fee2e2',
+                            color: user.accountStatus === 'active' ? '#16a34a' : '#dc2626',
+                          }}
+                        >
+                          {user.accountStatus}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.75rem' }}>
+                        {new Date(user.createdAt).toLocaleDateString()}
+                      </td>
+                      <td style={{ padding: '0.75rem' }}>
+                        <button
+                          onClick={() => handleDeleteUser(user.id, user.email)}
+                          style={{
+                            padding: '0.375rem 0.75rem',
+                            backgroundColor: '#dc2626',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '0.375rem',
+                            cursor: 'pointer',
+                            fontSize: '0.75rem',
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                    {expandedUserId === user.id && (
+                      <tr key={`${user.id}-products`} style={{ backgroundColor: '#f9fafb' }}>
+                        <td colSpan={8} style={{ padding: '1rem' }}>
+                          <div style={{ marginLeft: '2rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                              <h4 style={{ fontWeight: 600, fontSize: '0.875rem' }}>Products</h4>
+                              <button
+                                onClick={() => setShowAddProduct(user.id)}
+                                style={{
+                                  padding: '0.375rem 0.75rem',
+                                  backgroundColor: '#3b82f6',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '0.375rem',
+                                  cursor: 'pointer',
+                                  fontSize: '0.75rem',
+                                }}
+                              >
+                                + Add Product
+                              </button>
+                            </div>
+
+                            {showAddProduct === user.id && (
+                              <div style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: 'white', borderRadius: '0.375rem', border: '1px solid #e5e7eb' }}>
+                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                  <select
+                                    value={selectedProductId}
+                                    onChange={(e) => setSelectedProductId(e.target.value)}
+                                    style={{
+                                      flex: 1,
+                                      padding: '0.5rem',
+                                      border: '1px solid #d1d5db',
+                                      borderRadius: '0.375rem',
+                                      fontSize: '0.875rem',
+                                    }}
+                                  >
+                                    <option value="">Select a product...</option>
+                                    {allProducts
+                                      .filter(p => !userProducts[user.id]?.find(up => up.productId === p.id))
+                                      .map((product) => (
+                                        <option key={product.id} value={product.id}>
+                                          {product.name}
+                                        </option>
+                                      ))}
+                                  </select>
+                                  <button
+                                    onClick={() => handleAddProduct(user.id)}
+                                    disabled={!selectedProductId}
+                                    style={{
+                                      padding: '0.5rem 1rem',
+                                      backgroundColor: selectedProductId ? '#16a34a' : '#e5e7eb',
+                                      color: selectedProductId ? 'white' : '#6b7280',
+                                      border: 'none',
+                                      borderRadius: '0.375rem',
+                                      cursor: selectedProductId ? 'pointer' : 'not-allowed',
+                                      fontSize: '0.75rem',
+                                    }}
+                                  >
+                                    Add
+                                  </button>
+                                  <button
+                                    onClick={() => { setShowAddProduct(null); setSelectedProductId(''); }}
+                                    style={{
+                                      padding: '0.5rem 1rem',
+                                      backgroundColor: '#e5e7eb',
+                                      color: '#374151',
+                                      border: 'none',
+                                      borderRadius: '0.375rem',
+                                      cursor: 'pointer',
+                                      fontSize: '0.75rem',
+                                    }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {userProducts[user.id] && userProducts[user.id].length > 0 ? (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                {userProducts[user.id].map((product) => (
+                                  <div
+                                    key={product.id}
+                                    style={{
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'center',
+                                      padding: '0.75rem',
+                                      backgroundColor: 'white',
+                                      borderRadius: '0.375rem',
+                                      border: '1px solid #e5e7eb',
+                                    }}
+                                  >
+                                    <div>
+                                      <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                                        {product.name}
+                                      </div>
+                                      <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                                        Status: <span
+                                          style={{
+                                            fontWeight: 600,
+                                            color: product.status === 'active' ? '#16a34a' : '#6b7280',
+                                          }}
+                                        >
+                                          {product.status}
+                                        </span>
+                                        {' • '}
+                                        Activated: {new Date(product.activatedAt).toLocaleDateString()}
+                                      </div>
+                                    </div>
+                                    <button
+                                      onClick={() => handleRemoveProduct(user.id, product.productId, product.name)}
+                                      style={{
+                                        padding: '0.375rem 0.75rem',
+                                        backgroundColor: '#dc2626',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '0.375rem',
+                                        cursor: 'pointer',
+                                        fontSize: '0.75rem',
+                                      }}
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div style={{ padding: '1rem', textAlign: 'center', color: '#6b7280', fontSize: '0.875rem' }}>
+                                No products assigned
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
                 ))}
               </tbody>
             </table>
