@@ -4,6 +4,7 @@ import { CharitySelector } from '../../components/charity';
 import type { Charity } from '../../types/database.types';
 import { signup } from '../../services/auth.api';
 import { getProducts, type Product } from '../../services/products.api';
+import styles from './Signup.module.css';
 
 type SignupStep = 'credentials' | 'charity' | 'product';
 
@@ -221,76 +222,34 @@ export default function Signup() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'var(--color-background, #f9fafb)',
-        padding: '1rem',
-      }}
-    >
+    <div className={styles.container}>
       {step === 'credentials' && (
-        <div
-          style={{
-            width: '100%',
-            maxWidth: '400px',
-            backgroundColor: 'var(--color-surface, #ffffff)',
-            padding: '2rem',
-            borderRadius: '0.5rem',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          }}
-        >
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <h1
-              style={{
-                fontSize: '1.5rem',
-                fontWeight: 600,
-                marginBottom: '0.5rem',
-              }}
-            >
-              Create Your Account
-            </h1>
-            <p
-              style={{
-                color: 'var(--color-text-secondary, #6b7280)',
-                fontSize: '0.875rem',
-              }}
-            >
-              Start your journey with Graceful Books
+        <div className={styles.card}>
+          <div className={styles.logoContainer}>
+            <img
+              src="/assets/audacious-logo.png"
+              alt="Audacious Money"
+              className={styles.logo}
+            />
+          </div>
+
+          <div className={styles.header}>
+            <h1 className={styles.title}>Create Your Account</h1>
+            <p className={styles.subtitle}>
+              Start your journey with Audacious Money
             </p>
           </div>
 
           {error && (
-            <div
-              style={{
-                backgroundColor: 'var(--color-error-light, #fef2f2)',
-                border: '1px solid var(--color-error, #dc2626)',
-                color: 'var(--color-error-dark, #991b1b)',
-                padding: '0.75rem 1rem',
-                borderRadius: '0.375rem',
-                marginBottom: '1.5rem',
-                fontSize: '0.875rem',
-              }}
-              role="alert"
-            >
+            <div className={styles.errorAlert} role="alert">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleCredentialsSubmit}>
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-              <div style={{ flex: 1 }}>
-                <label
-                  htmlFor="firstName"
-                  style={{
-                    display: 'block',
-                    marginBottom: '0.5rem',
-                    fontSize: '0.875rem',
-                    fontWeight: 500,
-                  }}
-                >
+          <form onSubmit={handleCredentialsSubmit} className={styles.form}>
+            <div className={styles.nameRow}>
+              <div className={styles.formGroup}>
+                <label htmlFor="firstName" className={styles.label}>
                   First Name
                 </label>
                 <input
@@ -299,25 +258,11 @@ export default function Signup() {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem',
-                    border: '1px solid var(--color-border, #e5e7eb)',
-                    borderRadius: '0.375rem',
-                    fontSize: '0.875rem',
-                  }}
+                  className={styles.input}
                 />
               </div>
-              <div style={{ flex: 1 }}>
-                <label
-                  htmlFor="lastName"
-                  style={{
-                    display: 'block',
-                    marginBottom: '0.5rem',
-                    fontSize: '0.875rem',
-                    fontWeight: 500,
-                  }}
-                >
+              <div className={styles.formGroup}>
+                <label htmlFor="lastName" className={styles.label}>
                   Last Name
                 </label>
                 <input
@@ -326,27 +271,13 @@ export default function Signup() {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem',
-                    border: '1px solid var(--color-border, #e5e7eb)',
-                    borderRadius: '0.375rem',
-                    fontSize: '0.875rem',
-                  }}
+                  className={styles.input}
                 />
               </div>
             </div>
 
-            <div style={{ marginBottom: '1rem' }}>
-              <label
-                htmlFor="email"
-                style={{
-                  display: 'block',
-                  marginBottom: '0.5rem',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                }}
-              >
+            <div className={styles.formGroup}>
+              <label htmlFor="email" className={styles.label}>
                 Email
               </label>
               <input
@@ -355,26 +286,12 @@ export default function Signup() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                style={{
-                  width: '100%',
-                  padding: '0.5rem',
-                  border: '1px solid var(--color-border, #e5e7eb)',
-                  borderRadius: '0.375rem',
-                  fontSize: '0.875rem',
-                }}
+                className={styles.input}
               />
             </div>
 
-            <div style={{ marginBottom: '1rem' }}>
-              <label
-                htmlFor="companyName"
-                style={{
-                  display: 'block',
-                  marginBottom: '0.5rem',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                }}
-              >
+            <div className={styles.formGroup}>
+              <label htmlFor="companyName" className={styles.label}>
                 Company Name (Optional)
               </label>
               <input
@@ -382,114 +299,54 @@ export default function Signup() {
                 id="companyName"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.5rem',
-                  border: '1px solid var(--color-border, #e5e7eb)',
-                  borderRadius: '0.375rem',
-                  fontSize: '0.875rem',
-                }}
+                className={styles.input}
               />
             </div>
 
-            <div style={{ marginBottom: '1rem' }}>
-              <label
-                htmlFor="password"
-                style={{
-                  display: 'block',
-                  marginBottom: '0.5rem',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                }}
-              >
+            <div className={styles.formGroup}>
+              <label htmlFor="password" className={styles.label}>
                 Password
               </label>
-              <div style={{ position: 'relative' }}>
+              <div className={styles.passwordGroup}>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem',
-                    paddingRight: '2.5rem',
-                    border: '1px solid var(--color-border, #e5e7eb)',
-                    borderRadius: '0.375rem',
-                    fontSize: '0.875rem',
-                  }}
+                  className={styles.passwordInput}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: '0.5rem',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '0.25rem',
-                    color: 'var(--color-text-secondary, #6b7280)',
-                  }}
+                  className={styles.togglePassword}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? '👁️' : '👁️‍🗨️'}
                 </button>
               </div>
-              <p style={{
-                marginTop: '0.5rem',
-                fontSize: '0.75rem',
-                color: 'var(--color-text-secondary, #6b7280)'
-              }}>
+              <p className={styles.passwordHint}>
                 Must be 8+ characters with uppercase, lowercase, number, and special character (!@#$%^&*)
               </p>
             </div>
 
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label
-                htmlFor="confirmPassword"
-                style={{
-                  display: 'block',
-                  marginBottom: '0.5rem',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                }}
-              >
+            <div className={styles.formGroup}>
+              <label htmlFor="confirmPassword" className={styles.label}>
                 Confirm Password
               </label>
-              <div style={{ position: 'relative' }}>
+              <div className={styles.passwordGroup}>
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   id="confirmPassword"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem',
-                    paddingRight: '2.5rem',
-                    border: '1px solid var(--color-border, #e5e7eb)',
-                    borderRadius: '0.375rem',
-                    fontSize: '0.875rem',
-                  }}
+                  className={styles.passwordInput}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: '0.5rem',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '0.25rem',
-                    color: 'var(--color-text-secondary, #6b7280)',
-                  }}
+                  className={styles.togglePassword}
                   aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                 >
                   {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
@@ -499,39 +356,17 @@ export default function Signup() {
 
             <button
               type="submit"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                backgroundColor: 'var(--color-primary, #3b82f6)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '0.375rem',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                cursor: 'pointer',
-              }}
+              className={styles.submitButton}
             >
               Continue
             </button>
           </form>
 
-          <div
-            style={{
-              marginTop: '1.5rem',
-              textAlign: 'center',
-              fontSize: '0.875rem',
-            }}
-          >
-            <span style={{ color: 'var(--color-text-secondary, #6b7280)' }}>
+          <div className={styles.footer}>
+            <span className={styles.footerText}>
               Already have an account?{' '}
             </span>
-            <Link
-              to="/login"
-              style={{
-                color: 'var(--color-primary, #3b82f6)',
-                textDecoration: 'none',
-              }}
-            >
+            <Link to="/login" className={styles.footerLink}>
               Sign in
             </Link>
           </div>
@@ -539,16 +374,7 @@ export default function Signup() {
       )}
 
       {step === 'charity' && (
-        <div
-          style={{
-            width: '100%',
-            maxWidth: '1200px',
-            backgroundColor: 'var(--color-surface, #ffffff)',
-            padding: '2rem',
-            borderRadius: '0.5rem',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          }}
-        >
+        <div className={styles.wideCard}>
           <CharitySelector
             selectedCharityId={selectedCharity?.id}
             onSelect={handleCharitySelect}
@@ -556,49 +382,14 @@ export default function Signup() {
             showFilters
           />
 
-          <div
-            style={{
-              display: 'flex',
-              gap: '1rem',
-              marginTop: '2rem',
-              justifyContent: 'space-between',
-            }}
-          >
-            <button
-              onClick={handleBack}
-              style={{
-                padding: '0.75rem 1.5rem',
-                backgroundColor: 'transparent',
-                color: 'var(--color-text-secondary, #6b7280)',
-                border: '1px solid var(--color-border, #e5e7eb)',
-                borderRadius: '0.375rem',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                cursor: 'pointer',
-              }}
-            >
+          <div className={styles.navigationButtons}>
+            <button onClick={handleBack} className={styles.backButton}>
               Back
             </button>
             <button
               onClick={handleCharityContinue}
               disabled={!selectedCharity}
-              style={{
-                padding: '0.75rem 1.5rem',
-                backgroundColor:
-                  selectedCharity
-                    ? 'var(--color-primary, #3b82f6)'
-                    : 'var(--color-border, #e5e7eb)',
-                color:
-                  selectedCharity
-                    ? 'white'
-                    : 'var(--color-text-secondary, #6b7280)',
-                border: 'none',
-                borderRadius: '0.375rem',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                cursor:
-                  selectedCharity ? 'pointer' : 'not-allowed',
-              }}
+              className={styles.continueButton}
             >
               Continue to Product Selection
             </button>
@@ -607,32 +398,10 @@ export default function Signup() {
       )}
 
       {step === 'product' && (
-        <div
-          style={{
-            width: '100%',
-            maxWidth: '800px',
-            backgroundColor: 'var(--color-surface, #ffffff)',
-            padding: '2rem',
-            borderRadius: '0.5rem',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          }}
-        >
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <h1
-              style={{
-                fontSize: '1.5rem',
-                fontWeight: 600,
-                marginBottom: '0.5rem',
-              }}
-            >
-              Choose Your Product
-            </h1>
-            <p
-              style={{
-                color: 'var(--color-text-secondary, #6b7280)',
-                fontSize: '0.875rem',
-              }}
-            >
+        <div className={styles.mediumCard}>
+          <div className={styles.header}>
+            <h1 className={styles.title}>Choose Your Product</h1>
+            <p className={styles.subtitle}>
               {selectedProduct
                 ? `You've selected ${selectedProduct.name}. Want to upgrade?`
                 : 'Select the product that fits your needs'}
@@ -640,58 +409,30 @@ export default function Signup() {
           </div>
 
           {error && (
-            <div
-              style={{
-                backgroundColor: 'var(--color-error-light, #fef2f2)',
-                border: '1px solid var(--color-error, #dc2626)',
-                color: 'var(--color-error-dark, #991b1b)',
-                padding: '0.75rem 1rem',
-                borderRadius: '0.375rem',
-                marginBottom: '1.5rem',
-                fontSize: '0.875rem',
-              }}
-              role="alert"
-            >
+            <div className={styles.errorAlert} role="alert">
               {error}
             </div>
           )}
 
           {/* Selected/Pre-selected Product */}
           {selectedProduct && (
-            <div
-              style={{
-                border: '2px solid var(--color-primary, #3b82f6)',
-                borderRadius: '0.5rem',
-                padding: '1.5rem',
-                marginBottom: '1.5rem',
-                backgroundColor: 'var(--color-primary-light, #eff6ff)',
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+            <div className={styles.productCard}>
+              <div className={styles.productCardHeader}>
                 <div>
-                  <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+                  <h3 className={styles.productTitle}>
                     {selectedProduct.name}
                   </h3>
-                  <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                  <p className={styles.productDescription}>
                     {selectedProduct.description}
                   </p>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-primary, #3b82f6)' }}>
+                  <div className={styles.productPrice}>
                     ${selectedProduct.price_usd.toFixed(2)}
-                    <span style={{ fontSize: '0.875rem', fontWeight: 400 }}>
+                    <span className={styles.priceCycle}>
                       /{selectedProduct.billing_cycle === 'monthly' ? 'month' : 'product'}
                     </span>
                   </div>
                 </div>
-                <div
-                  style={{
-                    backgroundColor: 'var(--color-primary, #3b82f6)',
-                    color: 'white',
-                    padding: '0.25rem 0.75rem',
-                    borderRadius: '9999px',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                  }}
-                >
+                <div className={styles.selectedBadge}>
                   SELECTED
                 </div>
               </div>
@@ -700,47 +441,29 @@ export default function Signup() {
 
           {/* Bookkeeping Suite Upgrade Option */}
           {selectedProduct && selectedProduct.slug !== 'bookkeeping-suite' && selectedProduct.slug !== 'fractional-cfo' && (
-            <div
-              style={{
-                border: '1px solid var(--color-border, #e5e7eb)',
-                borderRadius: '0.5rem',
-                padding: '1.5rem',
-                marginBottom: '1.5rem',
-              }}
-            >
+            <div className={styles.upgradeCard}>
               <div style={{ display: 'flex', alignItems: 'start', gap: '1rem' }}>
                 <input
                   type="checkbox"
                   id="upgrade-bookkeeping"
                   checked={upgradeToBookkeeping}
                   onChange={(e) => setUpgradeToBookkeeping(e.target.checked)}
-                  style={{
-                    width: '1.25rem',
-                    height: '1.25rem',
-                    marginTop: '0.25rem',
-                    cursor: 'pointer',
-                  }}
+                  className={styles.upgradeCheckbox}
                 />
                 <div style={{ flex: 1 }}>
                   <label
                     htmlFor="upgrade-bookkeeping"
-                    style={{
-                      fontSize: '1rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      display: 'block',
-                      marginBottom: '0.5rem',
-                    }}
+                    className={styles.upgradeLabel}
                   >
                     Upgrade to Bookkeeping Suite
                   </label>
-                  <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '0.75rem' }}>
+                  <p className={styles.productDescription}>
                     Get full access to all products plus advanced bookkeeping features.
                     Includes everything in {selectedProduct.name} and more.
                   </p>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-success, #10b981)' }}>
+                  <div className={styles.productPrice} style={{ fontSize: '1.25rem' }}>
                     ${(40).toFixed(2)}/month
-                    <span style={{ fontSize: '0.875rem', fontWeight: 400, color: 'var(--color-text-secondary, #6b7280)' }}>
+                    <span className={styles.priceCycle}>
                       {' '}(includes your ${selectedProduct.price_usd.toFixed(2)} selection)
                     </span>
                   </div>
@@ -751,16 +474,8 @@ export default function Signup() {
 
           {/* Product Selection Dropdown (if no product pre-selected) */}
           {!selectedProduct && products.length > 0 && (
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label
-                htmlFor="product-select"
-                style={{
-                  display: 'block',
-                  marginBottom: '0.5rem',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                }}
-              >
+            <div className={styles.formGroup} style={{ marginBottom: '1.5rem' }}>
+              <label htmlFor="product-select" className={styles.label}>
                 Select a Product
               </label>
               <select
@@ -770,13 +485,7 @@ export default function Signup() {
                   const product = products.find(p => p.id === parseInt(e.target.value));
                   setSelectedProduct(product || null);
                 }}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1px solid var(--color-border, #e5e7eb)',
-                  borderRadius: '0.375rem',
-                  fontSize: '0.875rem',
-                }}
+                className={styles.input}
               >
                 <option value="">Choose a product...</option>
                 {products.map((product) => (
@@ -789,49 +498,17 @@ export default function Signup() {
           )}
 
           {/* Navigation Buttons */}
-          <div
-            style={{
-              display: 'flex',
-              gap: '1rem',
-              marginTop: '2rem',
-              justifyContent: 'space-between',
-            }}
-          >
+          <div className={styles.navigationButtons}>
             <button
               onClick={() => setStep('charity')}
-              style={{
-                padding: '0.75rem 1.5rem',
-                backgroundColor: 'transparent',
-                color: 'var(--color-text-secondary, #6b7280)',
-                border: '1px solid var(--color-border, #e5e7eb)',
-                borderRadius: '0.375rem',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                cursor: 'pointer',
-              }}
+              className={styles.backButton}
             >
               Back
             </button>
             <button
               onClick={handleCompleteSignup}
               disabled={!selectedProduct || isLoading}
-              style={{
-                padding: '0.75rem 1.5rem',
-                backgroundColor:
-                  selectedProduct && !isLoading
-                    ? 'var(--color-primary, #3b82f6)'
-                    : 'var(--color-border, #e5e7eb)',
-                color:
-                  selectedProduct && !isLoading
-                    ? 'white'
-                    : 'var(--color-text-secondary, #6b7280)',
-                border: 'none',
-                borderRadius: '0.375rem',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                cursor:
-                  selectedProduct && !isLoading ? 'pointer' : 'not-allowed',
-              }}
+              className={styles.continueButton}
             >
               {isLoading ? 'Creating Your Account...' : 'Continue to Checkout'}
             </button>
