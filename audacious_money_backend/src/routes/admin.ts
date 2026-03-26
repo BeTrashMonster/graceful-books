@@ -221,7 +221,7 @@ admin.delete('/users/:userId', requireAdmin, async (c) => {
       '';
 
     await db.query(
-      `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address, details)
+      `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address, old_values)
        VALUES ('user_deleted', 'user', $1, $2, $3, $4)`,
       [userId, adminId, ipAddress, JSON.stringify({ email: user.email })]
     );
@@ -351,7 +351,7 @@ admin.post('/users/:userId/products', requireAdmin, validate(addProductSchema), 
       '';
 
     await db.query(
-      `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address, details)
+      `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address, new_values)
        VALUES ('product_assigned', 'user', $1, $2, $3, $4)`,
       [
         userId,
@@ -417,7 +417,7 @@ admin.delete('/users/:userId/products/:productId', requireAdmin, async (c) => {
       '';
 
     await db.query(
-      `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address, details)
+      `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address, old_values)
        VALUES ('product_removed', 'user', $1, $2, $3, $4)`,
       [userId, adminId, ipAddress, JSON.stringify({ productId, productName: product.name })]
     );

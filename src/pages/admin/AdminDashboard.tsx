@@ -203,8 +203,12 @@ export default function AdminDashboard() {
 
       const data = await response.json();
 
+      console.log('Delete response:', { status: response.status, data });
+
       if (!response.ok) {
-        throw new Error(data.error?.message || 'Failed to delete user');
+        const errorMsg = data.error?.message || data.message || JSON.stringify(data);
+        console.error('Delete failed:', errorMsg);
+        throw new Error(errorMsg);
       }
 
       // Remove user from list and close if expanded
@@ -220,6 +224,7 @@ export default function AdminDashboard() {
       });
       alert('User deleted successfully');
     } catch (err: any) {
+      console.error('Delete user error:', err);
       alert(`Error deleting user: ${err.message}`);
     }
   };
