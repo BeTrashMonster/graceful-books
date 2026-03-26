@@ -109,6 +109,15 @@ export default function Login() {
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <img
+            src="/assets/audacious-logo.png"
+            alt="Audacious Money"
+            style={{
+              width: '180px',
+              height: 'auto',
+              marginBottom: '1.5rem',
+            }}
+          />
           <h1
             style={{
               fontSize: '1.875rem',
@@ -119,7 +128,7 @@ export default function Login() {
               backgroundClip: 'text',
             }}
           >
-            Welcome to Audacious Money
+            Hello! Welcome Back!
           </h1>
         </div>
 
@@ -226,17 +235,17 @@ export default function Login() {
             style={{
               width: '100%',
               padding: '0.75rem',
-              background: isLoading ? '#9ca3af' : 'linear-gradient(135deg, #4b006e 0%, #6d28d9 100%)',
-              color: '#ffffff',
-              border: '2px solid #D4AF37',
+              background: isLoading ? '#9ca3af' : 'linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%)',
+              color: isLoading ? '#ffffff' : '#2d1b00',
+              border: isLoading ? 'none' : '1px solid #B8860B',
               borderRadius: '0.375rem',
               fontSize: '0.875rem',
               fontWeight: 700,
               cursor: isLoading ? 'not-allowed' : 'pointer',
-              boxShadow: isLoading ? 'none' : '0 4px 12px rgba(75, 0, 110, 0.3)',
+              boxShadow: isLoading ? 'none' : '0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
             }}
           >
-            {isLoading ? 'Signing you in...' : 'Sign In'}
+            {isLoading ? 'Signing you in...' : "Let's Go!"}
           </button>
         </form>
 
