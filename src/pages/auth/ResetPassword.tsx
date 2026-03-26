@@ -46,6 +46,22 @@ export default function ResetPassword() {
       setError('Password must be at least 8 characters long.');
       return;
     }
+    if (!/[A-Z]/.test(password)) {
+      setError('Password must contain at least one uppercase letter.');
+      return;
+    }
+    if (!/[a-z]/.test(password)) {
+      setError('Password must contain at least one lowercase letter.');
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      setError('Password must contain at least one number.');
+      return;
+    }
+    if (!/[^A-Za-z0-9]/.test(password)) {
+      setError('Password must contain at least one special character (!@#$%^&* etc).');
+      return;
+    }
 
     setIsLoading(true);
 
@@ -127,7 +143,7 @@ export default function ResetPassword() {
             Set New Password
           </h1>
           <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-            Choose a strong password for your account.
+            Your password must include uppercase, lowercase, number, and special character.
           </p>
         </div>
 
@@ -189,7 +205,7 @@ export default function ResetPassword() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="new-password"
-                  placeholder="At least 8 characters"
+                  placeholder="e.g., MyP@ssw0rd!"
                   style={{
                     width: '100%',
                     padding: '0.5rem 0.75rem',
