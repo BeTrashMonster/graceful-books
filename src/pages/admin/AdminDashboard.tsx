@@ -162,10 +162,16 @@ export default function AdminDashboard() {
       const data = await response.json();
 
       if (response.ok) {
-        setUserProducts((prev) => ({ ...prev, [userId]: data.data.products }));
+        setUserProducts((prev) => ({ ...prev, [userId]: data.data.products || [] }));
+      } else {
+        console.error('Error fetching user products:', data.error?.message);
+        setUserProducts((prev) => ({ ...prev, [userId]: [] }));
+        alert(`Error loading products: ${data.error?.message || 'Unknown error'}`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching user products:', err);
+      setUserProducts((prev) => ({ ...prev, [userId]: [] }));
+      alert(`Error loading products: ${err.message}`);
     }
   };
 
@@ -201,16 +207,28 @@ export default function AdminDashboard() {
         throw new Error(data.error?.message || 'Failed to delete user');
       }
 
-      // Remove user from list
+      // Remove user from list and close if expanded
       setUsers((prev) => prev.filter((u) => u.id !== userId));
+      if (expandedUserId === userId) {
+        setExpandedUserId(null);
+      }
+      // Clean up user products from state
+      setUserProducts((prev) => {
+        const newState = { ...prev };
+        delete newState[userId];
+        return newState;
+      });
       alert('User deleted successfully');
     } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      alert(`Error deleting user: ${err.message}`);
     }
   };
 
   const handleAddProduct = async (userId: string) => {
-    if (!session || !selectedProductId) return;
+    if (!session || !selectedProductId) {
+      alert('Please select a product first');
+      return;
+    }
 
     try {
       const response = await fetch(`${API_URL}/admin/users/${userId}/products`, {
@@ -235,9 +253,10 @@ export default function AdminDashboard() {
       await fetchUserProducts(userId);
       setShowAddProduct(null);
       setSelectedProductId('');
-      alert('Product added successfully');
+      alert('Product added successfully!');
     } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      console.error('Error adding product:', err);
+      alert(`Error adding product: ${err.message}`);
     }
   };
 
@@ -264,9 +283,10 @@ export default function AdminDashboard() {
 
       // Refresh user products
       await fetchUserProducts(userId);
-      alert('Product removed successfully');
+      alert('Product removed successfully!');
     } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      console.error('Error removing product:', err);
+      alert(`Error removing product: ${err.message}`);
     }
   };
 
@@ -474,13 +494,17 @@ export default function AdminDashboard() {
                                     }}
                                   >
                                     <option value="">Select a product...</option>
-                                    {allProducts
-                                      .filter(p => !userProducts[user.id]?.find(up => up.productId === p.id))
-                                      .map((product) => (
-                                        <option key={product.id} value={product.id}>
-                                          {product.name}
-                                        </option>
-                                      ))}
+                                    {allProducts && allProducts.length > 0 ? (
+                                      allProducts
+                                        .filter(p => !userProducts[user.id]?.find(up => up.productId === p.id))
+                                        .map((product) => (
+                                          <option key={product.id} value={product.id}>
+                                            {product.name}
+                                          </option>
+                                        ))
+                                    ) : (
+                                      <option value="" disabled>No products available</option>
+                                    )}
                                   </select>
                                   <button
                                     onClick={() => handleAddProduct(user.id)}
