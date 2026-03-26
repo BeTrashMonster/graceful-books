@@ -78,6 +78,15 @@ export function CPGSettings() {
   const [reportingSectionExpanded, setReportingSectionExpanded] = useState(false);
   const [dataSectionExpanded, setDataSectionExpanded] = useState(false);
   const [companySectionExpanded, setCompanySectionExpanded] = useState(false);
+  const [accountSectionExpanded, setAccountSectionExpanded] = useState(false);
+
+  // Change Password state
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   /**
    * Load settings on mount
@@ -260,6 +269,93 @@ export function CPGSettings() {
   };
 
   /**
+   * Change password
+   */
+  const handleChangePassword = async () => {
+    setPasswordError(null);
+    setPasswordSuccess(null);
+
+    // Validation
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      setPasswordError('All password fields are required');
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError("New passwords don't match");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setPasswordError('Password must be at least 8 characters');
+      return;
+    }
+
+    if (!/[A-Z]/.test(newPassword)) {
+      setPasswordError('Password must contain at least one uppercase letter');
+      return;
+    }
+
+    if (!/[a-z]/.test(newPassword)) {
+      setPasswordError('Password must contain at least one lowercase letter');
+      return;
+    }
+
+    if (!/[0-9]/.test(newPassword)) {
+      setPasswordError('Password must contain at least one number');
+      return;
+    }
+
+    if (!/[^A-Za-z0-9]/.test(newPassword)) {
+      setPasswordError('Password must contain at least one special character');
+      return;
+    }
+
+    setIsChangingPassword(true);
+
+    try {
+      const API_URL = 'https://api.audacious.money';
+      const session = sessionStorage.getItem('graceful_books_session');
+      if (!session) {
+        setPasswordError('Not authenticated. Please log in again.');
+        return;
+      }
+
+      const { token } = JSON.parse(session);
+
+      const response = await fetch(`${API_URL}/users/me/password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Failed to change password');
+      }
+
+      setPasswordSuccess('Password changed successfully!');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmNewPassword('');
+
+      setTimeout(() => setPasswordSuccess(null), 5000);
+    } catch (error) {
+      console.error('Password change error:', error);
+      setPasswordError(error instanceof Error ? error.message : 'Failed to change password');
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
+  /**
    * Reset to defaults
    */
   const handleReset = async () => {
@@ -379,7 +475,118 @@ export function CPGSettings() {
         </div>
       )}
 
-      {/* Settings Sections - Ordered: Company Profile first, then alphabetically */}
+      {/* Settings Sections - Ordered: Account Security, Company Profile, then alphabetically */}
+
+      {/* Account Security Section */}
+      <div className={styles.settingsSection}>
+        <div
+          className={styles.sectionHeader}
+          onClick={() => setAccountSectionExpanded(!accountSectionExpanded)}
+        >
+          <div className={styles.sectionHeaderLeft}>
+            <span className={styles.sectionIcon}>🔐</span>
+            <div className={styles.sectionHeaderContent}>
+              <h2 className={styles.sectionTitle}>Account Security</h2>
+              <p className={styles.sectionSubtitle}>
+                Change your password
+              </p>
+            </div>
+          </div>
+          <span className={`${styles.expandIcon} ${accountSectionExpanded ? styles.expanded : ''}`}>
+            ▼
+          </span>
+        </div>
+
+        <div className={`${styles.sectionContent} ${accountSectionExpanded ? styles.expanded : ''}`}>
+          <div className={styles.sectionInner}>
+            <p className={styles.sectionDescription}>
+              Update your account password. Make sure it's strong and unique.
+            </p>
+
+            {/* Password Success Message */}
+            {passwordSuccess && (
+              <div className={styles.successMessage} style={{ marginBottom: '1rem' }}>
+                <span className={styles.messageIcon}>✓</span>
+                {passwordSuccess}
+              </div>
+            )}
+
+            {/* Password Error Message */}
+            {passwordError && (
+              <div className={styles.errorMessage} style={{ marginBottom: '1rem' }}>
+                <span className={styles.messageIcon}>✕</span>
+                {passwordError}
+              </div>
+            )}
+
+            <div className={styles.formGrid}>
+              {/* Current Password */}
+              <div className={styles.formFieldFull}>
+                <label className={styles.label} htmlFor="current-password">
+                  Current Password
+                </label>
+                <input
+                  id="current-password"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className={styles.input}
+                  placeholder="Enter your current password"
+                  autoComplete="current-password"
+                />
+              </div>
+
+              {/* New Password */}
+              <div className={styles.formField}>
+                <label className={styles.label} htmlFor="new-password">
+                  New Password
+                </label>
+                <input
+                  id="new-password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className={styles.input}
+                  placeholder="Enter new password"
+                  autoComplete="new-password"
+                />
+                <p className={styles.fieldHint}>
+                  Must include uppercase, lowercase, number, and special character
+                </p>
+              </div>
+
+              {/* Confirm New Password */}
+              <div className={styles.formField}>
+                <label className={styles.label} htmlFor="confirm-new-password">
+                  Confirm New Password
+                </label>
+                <input
+                  id="confirm-new-password"
+                  type="password"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  className={styles.input}
+                  placeholder="Re-enter new password"
+                  autoComplete="new-password"
+                />
+              </div>
+            </div>
+
+            {/* Change Password Button */}
+            <div className={styles.actions}>
+              <Button
+                variant="primary"
+                size="md"
+                onClick={handleChangePassword}
+                loading={isChangingPassword}
+                disabled={isChangingPassword}
+              >
+                Change Password
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Company Profile Section */}
       <div className={styles.settingsSection}>

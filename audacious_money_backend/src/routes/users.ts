@@ -12,10 +12,12 @@ import {
   success,
   badRequest,
   notFound,
+  unauthorized,
   ErrorCodes,
   ErrorMessages,
 } from '../utils/responses.js';
 import { createCheckoutSession } from '../services/stripe.service.js';
+import { hashPassword, timingSafeVerify } from '../utils/password.js';
 
 const users = new Hono<HonoEnv>();
 
@@ -114,6 +116,87 @@ users.post('/me/products', async (c) => {
     });
   } catch (error) {
     console.error('[Checkout] Error creating checkout session:', error);
+    throw error;
+  }
+});
+
+/**
+ * PUT /users/me/password
+ *
+ * Change user password
+ */
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
+});
+
+users.put('/me/password', async (c) => {
+  const userId = c.get('userId');
+  const db = c.get('db');
+
+  // Validate request body
+  const parseResult = changePasswordSchema.safeParse(await c.req.json());
+  if (!parseResult.success) {
+    return badRequest(
+      c,
+      ErrorCodes.VALIDATION_ERROR,
+      'Invalid request data',
+      parseResult.error.errors
+    );
+  }
+
+  const { currentPassword, newPassword } = parseResult.data;
+
+  try {
+    // Get current password hash
+    const userResult = await db.query(
+      'SELECT password_hash FROM users WHERE id = $1',
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'User not found');
+    }
+
+    const user = userResult.rows[0];
+
+    // Verify current password
+    const isValid = await timingSafeVerify(currentPassword, user.password_hash);
+    if (!isValid) {
+      return unauthorized(c, ErrorCodes.INVALID_CREDENTIALS, 'Current password is incorrect');
+    }
+
+    // Hash new password
+    const newPasswordHash = await hashPassword(newPassword);
+
+    // Update password
+    await db.query(
+      'UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2',
+      [newPasswordHash, userId]
+    );
+
+    // Create audit log entry
+    const ipAddressRaw =
+      c.req.header('x-forwarded-for') ||
+      c.req.header('x-real-ip') ||
+      c.req.header('cf-connecting-ip') ||
+      '';
+    const ipAddress = ipAddressRaw.split(',')[0].trim() || null;
+
+    await db.query(
+      `INSERT INTO admin_audit_log (action, resource_type, resource_id, ip_address)
+       VALUES ('password_changed', 'user', $1, $2)`,
+      [userId, ipAddress]
+    );
+
+    return success(c, { message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('[Users] Change password error:', error);
     throw error;
   }
 });
