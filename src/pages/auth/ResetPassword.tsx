@@ -87,11 +87,9 @@ export default function ResetPassword() {
         navigate('/login');
       }, 3000);
     } catch (err: any) {
-      if (err.message.includes('expired') || err.message.includes('invalid')) {
-        setError(err.message);
-      } else {
-        setError("We couldn't reset your password right now. Please try again or request a new reset link.");
-      }
+      // Show the actual error message from the backend
+      console.error('Reset password error:', err);
+      setError(err.message || "We couldn't reset your password right now. Please try again or request a new reset link.");
     } finally {
       setIsLoading(false);
     }
