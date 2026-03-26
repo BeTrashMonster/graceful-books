@@ -488,11 +488,12 @@ auth.post('/reset-password', validate(passwordResetSchema), async (c) => {
       );
 
       // Create audit log entry
-      const ipAddress =
+      const ipAddressRaw =
         c.req.header('x-forwarded-for') ||
         c.req.header('x-real-ip') ||
         c.req.header('cf-connecting-ip') ||
-        null;
+        '';
+      const ipAddress = ipAddressRaw.split(',')[0].trim() || null;
 
       await db.query(
         `
