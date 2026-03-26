@@ -29,18 +29,18 @@ export async function sendWelcomeEmail(
     Subject: 'Welcome to Audacious Money! 🌟',
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #2563eb;">Welcome to Audacious Money!</h1>
+        <h1 style="color: #4b006e;">Welcome to Audacious Money!</h1>
         <p>Hi there,</p>
         <p>We're thrilled to have you join us. You're taking an important step toward financial clarity and confidence.</p>
 
-        <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3 style="margin-top: 0;">Your Account Details</h3>
+        <div style="background: #f9f5ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #D4AF37;">
+          <h3 style="margin-top: 0; color: #4b006e;">Your Account Details</h3>
           <p><strong>Email:</strong> ${to}</p>
           <p><strong>Support Key:</strong> ${supportKey}</p>
           <p style="font-size: 14px; color: #6b7280;">Keep your Support Key safe - you'll need it if you ever contact our support team.</p>
         </div>
 
-        <h3>What's Next?</h3>
+        <h3 style="color: #4b006e;">What's Next?</h3>
         <ol>
           <li>Complete your onboarding assessment</li>
           <li>Select your charity to support</li>
@@ -53,7 +53,7 @@ export async function sendWelcomeEmail(
 
         <p>— The Audacious Money Team</p>
 
-        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+        <hr style="border: none; border-top: 2px solid #D4AF37; margin: 30px 0;">
         <p style="font-size: 12px; color: #9ca3af;">
           Audacious Money<br>
           Building financial confidence, one step at a time.
@@ -103,7 +103,7 @@ export async function sendTrialStartedEmail(
     Subject: `Your ${productName} trial has started!`,
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #2563eb;">Your Trial Has Started!</h1>
+        <h1 style="color: #4b006e;">Your Trial Has Started!</h1>
         <p>Great news! Your 30-day trial of <strong>${productName}</strong> is now active.</p>
 
         <div style="background: #ecfdf5; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
@@ -111,7 +111,7 @@ export async function sendTrialStartedEmail(
           <p style="margin: 10px 0 0 0; font-size: 14px; color: #065f46;">No charges until your trial ends. Cancel anytime.</p>
         </div>
 
-        <h3>Make the Most of Your Trial</h3>
+        <h3 style="color: #4b006e;">Make the Most of Your Trial</h3>
         <ul>
           <li>Explore all features without limits</li>
           <li>Set up your financial workflows</li>
@@ -215,17 +215,17 @@ export async function sendPasswordResetEmail(
     Subject: 'Reset your Audacious Money password',
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #2563eb;">Reset Your Password</h1>
+        <h1 style="color: #4b006e;">Reset Your Password</h1>
         <p>We received a request to reset your password for your Audacious Money account.</p>
 
         <div style="margin: 30px 0;">
-          <a href="${resetUrl}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+          <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #4b006e 0%, #6d28d9 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; border: 2px solid #D4AF37;">
             Reset Your Password
           </a>
         </div>
 
         <p style="font-size: 14px; color: #6b7280;">Or copy and paste this link into your browser:</p>
-        <p style="font-size: 14px; color: #2563eb; word-break: break-all;">${resetUrl}</p>
+        <p style="font-size: 14px; color: #4b006e; word-break: break-all;">${resetUrl}</p>
 
         <div style="background: #fef2f2; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ef4444;">
           <p style="margin: 0; font-size: 14px; color: #991b1b;"><strong>Important:</strong> This link expires in 1 hour for security.</p>

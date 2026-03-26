@@ -368,7 +368,8 @@ auth.post('/forgot-password', validate(passwordResetRequestSchema), async (c) =>
     );
 
     // Send password reset email (async, don't block response)
-    sendPasswordResetEmail(user.email, user.id, user.first_name).catch((error) => {
+    const appUrl = process.env.FRONTEND_URL || 'https://app.audacious.money';
+    sendPasswordResetEmail(user.email, token, appUrl).catch((error) => {
       console.error('[Auth] Error sending password reset email:', error);
     });
 
