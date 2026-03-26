@@ -26,7 +26,7 @@ import {
   ErrorCodes,
   ErrorMessages,
 } from '../utils/responses.js';
-import { sendVerificationEmail, sendPasswordResetEmail } from '../services/email.js';
+import { sendVerificationEmail, sendPasswordResetEmail } from '../services/email.service.js';
 import { trackAffiliateSignup } from '../services/affiliate.js';
 import { trackFailedLogin, clearFailedLogins } from '../services/security.js';
 

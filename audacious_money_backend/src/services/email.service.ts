@@ -414,3 +414,17 @@ export async function sendTestEmail(to: string): Promise<void> {
     MessageStream: 'outbound'
   });
 }
+
+/**
+ * Send email verification email (for auth route compatibility)
+ */
+export async function sendVerificationEmail(
+  email: string,
+  userId: string,
+  firstName: string
+): Promise<void> {
+  const appUrl = process.env.FRONTEND_URL || 'https://app.audacious.money';
+  // For now, just send welcome email since email verification isn't required
+  // In the future, this could send a verification token
+  await sendWelcomeEmail(email, firstName, userId.substring(0, 8).toUpperCase());
+}
