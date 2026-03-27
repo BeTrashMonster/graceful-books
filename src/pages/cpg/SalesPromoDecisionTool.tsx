@@ -176,6 +176,11 @@ export default function SalesPromoDecisionTool() {
 
   // Load finished products (SKUs) and their CPUs
   useEffect(() => {
+    // Don't try to load if companyId isn't available yet
+    if (!companyId) {
+      return;
+    }
+
     const loadProductsAndCPUs = async () => {
       try {
         setIsLoadingData(true);
@@ -247,8 +252,8 @@ export default function SalesPromoDecisionTool() {
         setSuccessMessage(null);
         setErrorMessage({
           title: 'Unable to Load Product Data',
-          message: 'We had trouble loading your products from the database. This could be a temporary issue.',
-          action: 'Try refreshing the page. If the problem continues, check that your products are properly saved in the Product Catalog.',
+          message: 'We had trouble loading your products from the database. This happens when products haven\'t been fully set up yet.',
+          action: 'Please visit "My Products" to ensure your products have recipes and ingredient costs, then try again. If you just uploaded data, give it a moment to finish processing.',
         });
       } finally {
         setIsLoadingData(false);

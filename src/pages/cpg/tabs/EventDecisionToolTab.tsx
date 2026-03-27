@@ -96,6 +96,11 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
   }, [editEventId, companyId]);
 
   const loadData = async () => {
+    // Don't try to load if companyId isn't available yet
+    if (!companyId) {
+      return;
+    }
+
     setIsLoadingData(true);
     try {
       // Load CPG settings
@@ -145,7 +150,7 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
       setProducts(validProducts);
     } catch (err) {
       console.error('Error loading data:', err);
-      setError('Failed to load products');
+      setError('Unable to load product data. Please visit "My Products" to ensure your products have recipes and ingredient costs set up, then try again. If you just uploaded data, give it a moment to finish processing.');
     } finally {
       setIsLoadingData(false);
     }

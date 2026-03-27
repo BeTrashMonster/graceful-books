@@ -64,20 +64,6 @@ export default function ScenarioPlanning() {
     return <Loading message="Loading distributors..." />;
   }
 
-  if (distributors.length === 0) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.emptyState}>
-          <h2>No Distributors Found</h2>
-          <p>You need to create at least one distributor before using scenario planning.</p>
-          <Button variant="primary" onClick={() => (window.location.href = '/cpg/distribution-cost')}>
-            Go to Distribution Center
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -110,11 +96,23 @@ export default function ScenarioPlanning() {
       )}
 
       {analysisType === 'compare' && (
-        <CompareDistributorsTab
-          distributors={distributors}
-          companyId={companyId}
-          service={service}
-        />
+        <>
+          {distributors.length < 2 ? (
+            <div className={styles.emptyState}>
+              <h2>Not Enough Distributors</h2>
+              <p>You need at least 2 distributors to compare them side-by-side. Create distributors first, then come back to compare their costs and terms.</p>
+              <Button variant="purple" onClick={() => (window.location.href = '/cpg/distribution-cost')}>
+                Go to Distribution Center
+              </Button>
+            </div>
+          ) : (
+            <CompareDistributorsTab
+              distributors={distributors}
+              companyId={companyId}
+              service={service}
+            />
+          )}
+        </>
       )}
     </div>
   );
