@@ -261,20 +261,88 @@
   border: 1px solid #B8860B;
 }
 
-.logoutButton {
+/* Account Menu (Company Dropdown) */
+.accountMenuButton {
   width: 100%;
-  display: block;
-  padding: 0.75rem 1.5rem;
-  color: #cbd5e1;
-  background: transparent;
-  border: none;
-  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #E8D4A0;
   font-size: 0.9375rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  border-radius: 0.5rem;
+  margin: 0 1.5rem;
 }
 
-.logoutButton:hover {
-  background: rgba(220, 38, 38, 0.2);
-  color: #fca5a5;
+.accountMenuButton:hover {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: #D4AF37;
+}
+
+.companyName {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountMenuArrow {
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+  color: #D4AF37;
+}
+
+.accountMenuDropup {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  margin: 0 1.5rem 0.5rem 1.5rem;
+  background: rgba(0, 0, 0, 0.95);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  animation: slideUpFade 0.2s ease-out;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.accountMenuDropup .menuItem {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: transparent;
+  color: #cbd5e1;
+  border: none;
+  text-align: left;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: block;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.accountMenuDropup .menuItem:last-child {
+  border-bottom: none;
+}
+
+.accountMenuDropup .menuItem:hover {
+  background: rgba(212, 175, 55, 0.15);
+  color: #E8D4A0;
 }

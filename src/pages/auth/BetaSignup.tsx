@@ -163,13 +163,14 @@ export default function BetaSignup() {
 
           <div className={styles.formGroup}>
             <label htmlFor="companyName" className={styles.label}>
-              Company Name (Optional)
+              Company Name
             </label>
             <input
               type="text"
               id="companyName"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
+              required
               className={styles.input}
             />
           </div>

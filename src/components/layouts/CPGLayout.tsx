@@ -31,8 +31,26 @@ export function CPGLayout() {
   const [categories, setCategories] = useState<CPGCategory[]>([]);
   const [savingDistributor, setSavingDistributor] = useState(false);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const [companyName, setCompanyName] = useState('My Company');
 
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path);
+
+  // Load company name from session
+  useEffect(() => {
+    const session = sessionStorage.getItem('graceful_books_session');
+    if (session) {
+      try {
+        const sessionData = JSON.parse(session);
+        // Try to get company name from user object
+        if (sessionData.user?.companyName) {
+          setCompanyName(sessionData.user.companyName);
+        }
+      } catch (error) {
+        console.error('Failed to parse session:', error);
+      }
+    }
+  }, []);
 
   const handleLogout = () => {
     // Clear session storage
@@ -284,18 +302,40 @@ export function CPGLayout() {
         </div>
 
         <div className={styles.bottomNav}>
-          <Link
-            to="/cpg/settings"
-            className={isActive('/cpg/settings') ? styles.active : ''}
-          >
-            ⚙️ Settings
-          </Link>
           <button
-            onClick={handleLogout}
-            className={styles.logoutButton}
+            className={styles.accountMenuButton}
+            onClick={() => setShowAccountMenu(!showAccountMenu)}
           >
-            🚪 Logout
+            <span className={styles.companyName}>{companyName}</span>
+            <span className={styles.accountMenuArrow}>{showAccountMenu ? '▲' : '▼'}</span>
           </button>
+          {showAccountMenu && (
+            <div className={styles.accountMenuDropup}>
+              <Link
+                to="/cpg/company-profile"
+                className={styles.menuItem}
+                onClick={() => setShowAccountMenu(false)}
+              >
+                Company Profile
+              </Link>
+              <Link
+                to="/cpg/settings"
+                className={styles.menuItem}
+                onClick={() => setShowAccountMenu(false)}
+              >
+                Settings
+              </Link>
+              <button
+                onClick={() => {
+                  setShowAccountMenu(false);
+                  handleLogout();
+                }}
+                className={styles.menuItem}
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       </nav>
 
