@@ -50,14 +50,21 @@ export default function BetaSignup() {
         throw new Error(data.error?.message || 'Signup failed');
       }
 
-      // Store session data in sessionStorage
+      // Store session data in sessionStorage (same format as Login)
       sessionStorage.setItem(
         'graceful_books_session',
         JSON.stringify({
           token: data.data.token,
+          user: data.data.user,
+          products: [
+            {
+              id: data.data.cpgProduct.id,
+              name: data.data.cpgProduct.name,
+              slug: 'cpu-cpg-calculator',
+              status: 'active',
+            }
+          ],
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-          userEmail: data.data.user.email,
-          userId: data.data.user.id,
         })
       );
 
@@ -71,8 +78,11 @@ export default function BetaSignup() {
         })
       );
 
-      // Redirect to CPG dashboard
-      navigate('/cpg/dashboard');
+      // Trigger auth context to reload (same as Login)
+      window.dispatchEvent(new Event('graceful_books_login'));
+
+      // Redirect to CPU Tracker
+      navigate('/cpg/cpu-tracker');
     } catch (err: any) {
       console.error('Beta signup error:', err);
       setError(
