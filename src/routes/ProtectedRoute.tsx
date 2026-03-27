@@ -9,6 +9,12 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children, requireProduct }: ProtectedRouteProps) {
   const location = useLocation();
 
+  // DEV MODE: Skip auth check on localhost for development
+  const isDev = import.meta.env.DEV && window.location.hostname === 'localhost';
+  if (isDev) {
+    return <>{children}</>;
+  }
+
   // Check if user is authenticated
   const getSession = () => {
     try {
