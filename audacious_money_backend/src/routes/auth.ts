@@ -307,6 +307,159 @@ auth.post('/login', validate(loginSchema), async (c) => {
 });
 
 /**
+ * POST /auth/beta-signup
+ *
+ * Beta tester signup - creates account and grants immediate free access to CPG tool
+ * No payment required, no trial period, instant activation
+ *
+ * Request body: Same as /auth/signup
+ *
+ * Response:
+ * - 201: Account created with CPG access
+ * - 409: Email already exists
+ * - 400: Validation error
+ */
+auth.post('/beta-signup', validate(signupSchema), async (c) => {
+  console.log('[Auth] ===== BETA SIGNUP REQUEST RECEIVED =====');
+
+  const data = c.get('validatedData') as {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    companyName?: string;
+    affiliateCode?: string;
+  };
+
+  console.log('[Auth] Beta signup data:', {
+    email: data.email,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    hasCompanyName: !!data.companyName
+  });
+
+  const db = c.get('db');
+
+  try {
+    // Check if email already exists
+    const existingUser = await db.query('SELECT 1 FROM users WHERE email = $1', [
+      data.email,
+    ]);
+
+    if (existingUser.rowCount > 0) {
+      console.log('[Auth] Email already exists, returning conflict');
+      return conflict(c, ErrorCodes.EMAIL_EXISTS, ErrorMessages.EMAIL_EXISTS);
+    }
+
+    // Hash password
+    const passwordHash = await hashPassword(data.password);
+
+    // Insert user into database
+    const userResult = await db.query(
+      `
+      INSERT INTO users (email, password_hash, first_name, last_name, company_name)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id, email, first_name, last_name, support_key, email_verified, created_at
+      `,
+      [
+        data.email,
+        passwordHash,
+        data.firstName,
+        data.lastName,
+        data.companyName || null,
+      ]
+    );
+
+    const user = userResult.rows[0];
+    console.log('[Auth] Beta user created:', { id: user.id, email: user.email, supportKey: user.support_key });
+
+    // Get CPG product
+    const productResult = await db.query(
+      `SELECT id, name FROM products WHERE slug = $1`,
+      ['cpu-cpg-calculator']
+    );
+
+    if (productResult.rowCount === 0) {
+      console.error('[Auth] CPG product not found!');
+      return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Product configuration error');
+    }
+
+    const cpgProduct = productResult.rows[0];
+
+    // Auto-assign CPG product with active status (beta testers get free access)
+    await db.query(
+      `
+      INSERT INTO user_products (user_id, product_id, status, activated_at)
+      VALUES ($1, $2, 'active', NOW())
+      `,
+      [user.id, cpgProduct.id]
+    );
+
+    console.log('[Auth] CPG product assigned to beta user');
+
+    // Track affiliate if provided
+    if (data.affiliateCode) {
+      trackAffiliateSignup(db, user.id, data.affiliateCode).catch((error) => {
+        console.error('[Auth] Error tracking affiliate:', error);
+      });
+    }
+
+    // Generate JWT token
+    const token = await generateUserToken(user.id, user.email);
+
+    // Send verification email (async, don't block)
+    sendVerificationEmail(user.email, user.id, user.first_name).catch((error) => {
+      console.error('[Auth] Error sending verification email:', error);
+    });
+
+    // Create audit log entry
+    const ipAddressRaw =
+      c.req.header('x-forwarded-for') ||
+      c.req.header('x-real-ip') ||
+      c.req.header('cf-connecting-ip') ||
+      '';
+    const ipAddress = ipAddressRaw.split(',')[0].trim() || null;
+
+    await db.query(
+      `
+      INSERT INTO admin_audit_log (action, resource_type, resource_id, ip_address)
+      VALUES ('beta_signup', 'user', $1, $2)
+      `,
+      [user.id, ipAddress]
+    );
+
+    console.log('[Auth] Beta signup complete!');
+
+    // Return success response
+    return created(
+      c,
+      {
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          supportKey: user.support_key,
+          emailVerified: user.email_verified,
+          createdAt: user.created_at,
+        },
+        token,
+        cpgProduct: {
+          id: cpgProduct.id,
+          name: cpgProduct.name,
+        },
+      },
+      'Welcome to the beta! Your CPG tool access is ready.'
+    );
+  } catch (error) {
+    console.error('[Auth] ===== BETA SIGNUP ERROR =====');
+    console.error('[Auth] Error:', error);
+    console.error('[Auth] ===========================');
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
+  }
+});
+
+/**
  * POST /auth/verify-email
  *
  * Verify user's email address using token from email

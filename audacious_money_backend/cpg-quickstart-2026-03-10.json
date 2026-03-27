@@ -1,0 +1,278 @@
+{
+  "version": "1.0.0",
+  "created_at": "2026-03-05T16:43:40.664Z",
+  "categories": [
+    {
+      "id": "temp-1773165734523-wiela2i0e",
+      "name": "Burritos",
+      "variants": [],
+      "sort_order": 0
+    },
+    {
+      "id": "temp-1773165772012-zuee2xsyi",
+      "name": "Salads",
+      "variants": [
+        ".5g",
+        "1g",
+        "2g",
+        "3.5g"
+      ],
+      "sort_order": 1
+    },
+    {
+      "id": "temp-1773165814599-johqbzdlw",
+      "name": "Glass",
+      "variants": [
+        "Small",
+        "Medium",
+        "Large"
+      ],
+      "sort_order": 2
+    },
+    {
+      "id": "temp-1773166372789-cu979bkjy",
+      "name": "Forks",
+      "variants": [
+        ".5g",
+        "1g",
+        "2g",
+        "3.5g"
+      ],
+      "sort_order": 3
+    }
+  ],
+  "finished_products": [
+    {
+      "id": "temp-1773165900744-mhw9nxjyy",
+      "name": "Dream Burrito",
+      "msrp": "12.00",
+      "sku": "DB-1001"
+    },
+    {
+      "id": "temp-1773165967142-pkbjdreo7",
+      "name": "Lemon Burrito",
+      "msrp": "15.00",
+      "sku": "LB-1001"
+    },
+    {
+      "id": "temp-1773165995873-4koxxyaye",
+      "name": "Space Salad Combo",
+      "msrp": "8.00",
+      "sku": "SS-1234"
+    },
+    {
+      "id": "temp-1773166013655-s5loscwlg",
+      "name": "Ground Salad Combo",
+      "msrp": "9.00",
+      "sku": "GS-1234"
+    },
+    {
+      "id": "temp-1773166030505-sxwa7b2w5",
+      "name": "Small Cup",
+      "msrp": "15.00",
+      "sku": "SC-4321"
+    },
+    {
+      "id": "temp-1773166045076-zxynfgqjp",
+      "name": "Medium Cup",
+      "msrp": "25.00",
+      "sku": "MC-4321"
+    },
+    {
+      "id": "temp-1773166452273-yytjs2pu5",
+      "name": "Large Cup",
+      "msrp": "250.00",
+      "sku": "LC-4321"
+    }
+  ],
+  "recipes": [
+    {
+      "product_id": "temp-1773165900744-mhw9nxjyy",
+      "items": [
+        {
+          "category_id": "temp-1773165772012-zuee2xsyi",
+          "variant": "1g",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1773166372789-cu979bkjy",
+          "variant": "1g",
+          "quantity": "1"
+        }
+      ]
+    },
+    {
+      "product_id": "temp-1773165967142-pkbjdreo7",
+      "items": [
+        {
+          "category_id": "temp-1773165772012-zuee2xsyi",
+          "variant": "3.5g",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1773166372789-cu979bkjy",
+          "variant": "3.5g",
+          "quantity": "1"
+        }
+      ]
+    },
+    {
+      "product_id": "temp-1773166030505-sxwa7b2w5",
+      "items": [
+        {
+          "category_id": "temp-1773165814599-johqbzdlw",
+          "variant": "Medium",
+          "quantity": "1"
+        }
+      ]
+    },
+    {
+      "product_id": "temp-1773166045076-zxynfgqjp",
+      "items": [
+        {
+          "category_id": "temp-1773165814599-johqbzdlw",
+          "variant": "Medium",
+          "quantity": "1"
+        }
+      ]
+    },
+    {
+      "product_id": "temp-1773166452273-yytjs2pu5",
+      "items": [
+        {
+          "category_id": "temp-1773165814599-johqbzdlw",
+          "variant": "Large",
+          "quantity": "1"
+        }
+      ]
+    },
+    {
+      "product_id": "temp-1773165995873-4koxxyaye",
+      "items": [
+        {
+          "category_id": "temp-1773165772012-zuee2xsyi",
+          "variant": "1g",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1773165814599-johqbzdlw",
+          "variant": "Small",
+          "quantity": "1"
+        }
+      ]
+    },
+    {
+      "product_id": "temp-1773166013655-s5loscwlg",
+      "items": [
+        {
+          "category_id": "temp-1773165772012-zuee2xsyi",
+          "variant": "1g",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1773165814599-johqbzdlw",
+          "variant": "Small",
+          "quantity": "1"
+        }
+      ]
+    }
+  ],
+  "invoices": [
+    {
+      "id": "temp-1773166940475-4kyytzwww",
+      "vendor_name": "Lettuce Grower",
+      "invoice_date": "2026-03-09",
+      "invoice_number": "INV-1234",
+      "items": [
+        {
+          "category_id": "temp-1773165772012-zuee2xsyi",
+          "variant": "3.5g",
+          "quantity": "150",
+          "unit_cost": "2.50"
+        },
+        {
+          "category_id": "temp-1773166372789-cu979bkjy",
+          "variant": "1g",
+          "quantity": "875",
+          "unit_cost": "0.10"
+        },
+        {
+          "category_id": "temp-1773165814599-johqbzdlw",
+          "variant": "Small",
+          "quantity": "15",
+          "unit_cost": "12.50"
+        }
+      ]
+    },
+    {
+      "id": "temp-1773167194139-lt7dn9t6f",
+      "vendor_name": "Plates and Such",
+      "invoice_date": "2026-03-07",
+      "invoice_number": "INV-3456",
+      "items": [
+        {
+          "category_id": "temp-1773165772012-zuee2xsyi",
+          "variant": ".5g",
+          "quantity": "50",
+          "unit_cost": "1.25"
+        },
+        {
+          "category_id": "temp-1773165772012-zuee2xsyi",
+          "variant": "1g",
+          "quantity": "500",
+          "unit_cost": "2.50"
+        },
+        {
+          "category_id": "temp-1773165772012-zuee2xsyi",
+          "variant": "2g",
+          "quantity": "100",
+          "unit_cost": "4.75"
+        },
+        {
+          "category_id": "temp-1773165814599-johqbzdlw",
+          "variant": "Medium",
+          "quantity": "10",
+          "unit_cost": "10.00"
+        },
+        {
+          "category_id": "temp-1773165814599-johqbzdlw",
+          "variant": "Large",
+          "quantity": "12",
+          "unit_cost": "125.00"
+        }
+      ]
+    },
+    {
+      "id": "temp-1773167279250-2q7rac0vt",
+      "vendor_name": "Silver Seller",
+      "invoice_date": "2026-03-05",
+      "invoice_number": "INV-7890",
+      "items": [
+        {
+          "category_id": "temp-1773166372789-cu979bkjy",
+          "variant": ".5g",
+          "quantity": "50",
+          "unit_cost": "0.10"
+        },
+        {
+          "category_id": "temp-1773166372789-cu979bkjy",
+          "variant": "1g",
+          "quantity": "50",
+          "unit_cost": "0.20"
+        },
+        {
+          "category_id": "temp-1773166372789-cu979bkjy",
+          "variant": "2g",
+          "quantity": "50",
+          "unit_cost": "0.40"
+        },
+        {
+          "category_id": "temp-1773166372789-cu979bkjy",
+          "variant": "3.5g",
+          "quantity": "100",
+          "unit_cost": "0.50"
+        }
+      ]
+    }
+  ]
+}

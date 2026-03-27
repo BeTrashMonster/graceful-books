@@ -23,6 +23,7 @@ const CustomerPortal = lazy(() => import('../pages/CustomerPortal'))
 const Settings = lazy(() => import('../pages/Settings'))
 const Login = lazy(() => import('../pages/auth/Login'))
 const Signup = lazy(() => import('../pages/auth/Signup'))
+const BetaSignup = lazy(() => import('../pages/auth/BetaSignup'))
 const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword'))
 const ResetPassword = lazy(() => import('../pages/auth/ResetPassword'))
 const CheckoutSuccess = lazy(() => import('../pages/checkout/CheckoutSuccess'))
@@ -66,6 +67,7 @@ export function AppRoutes() {
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/beta-signup" element={<BetaSignup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/checkout/success" element={<CheckoutSuccess />} />

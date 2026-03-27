@@ -1,0 +1,378 @@
+/* Compare Scenarios Tab Styles - Audacious Design System */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1.5rem 0;
+}
+
+/* Selector Card */
+.selectorCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 8px;
+  border-left: 4px solid #D4AF37;
+  border-right: 4px solid #D4AF37;
+  border-bottom: 4px solid #D4AF37;
+  border-top: none;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4b006e;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.sectionDescription {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.selectorGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.selectorField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #4b006e;
+}
+
+.select {
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: #111827;
+  background: #E5F6DF;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.select option {
+  background: white;
+  color: #111827;
+}
+
+/* Comparison Card */
+.comparisonCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(232, 212, 160, 0.05) 0%, rgba(212, 175, 55, 0.1) 100%);
+  border: 2px solid #D4AF37;
+  border-radius: 8px;
+}
+
+/* Scenario Headers */
+.scenarioHeaders {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.scenarioHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  background: white;
+  border-radius: 6px;
+  border: 2px solid #e0e0e0;
+}
+
+.scenarioName {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #4b006e;
+  margin: 0;
+}
+
+.scenarioMethod {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.scenarioBadge {
+  margin-top: 0.25rem;
+}
+
+.activeBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.savedBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Comparison Table */
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.comparisonTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.comparisonTable thead {
+  background: #4b006e;
+  color: white;
+}
+
+.comparisonTable th {
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #D4AF37;
+}
+
+.productColumn {
+  width: 25%;
+  min-width: 150px;
+}
+
+.scenarioColumn {
+  min-width: 200px;
+}
+
+.comparisonTable tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.comparisonTable tbody tr:hover {
+  background: rgba(232, 212, 160, 0.05);
+}
+
+.comparisonTable td {
+  padding: 1rem;
+  font-size: 0.9375rem;
+}
+
+.productName {
+  font-weight: 600;
+  color: #111827;
+}
+
+.numericCell {
+  font-weight: 500;
+  color: #4b006e;
+  font-family: monospace;
+}
+
+.noDataCell {
+  text-align: center;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.scenarioCell {
+  background: rgba(232, 212, 160, 0.05);
+}
+
+.cellContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cellRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cellLabel {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cellValue {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  font-family: monospace;
+}
+
+/* Placeholder Card */
+.placeholderCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background: #f9fafb;
+  border: 2px dashed #e0e0e0;
+  border-radius: 8px;
+}
+
+.placeholderText {
+  font-size: 1.125rem;
+  color: #9ca3af;
+  margin: 0;
+  text-align: center;
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: white;
+  border-radius: 8px;
+  border: 2px dashed #e5e7eb;
+  margin: 2rem 0;
+}
+
+.emptyStateIcon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+}
+
+.emptyStateTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 1rem 0;
+}
+
+.emptyStateMessage {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: #6b7280;
+  margin: 0;
+  max-width: 500px;
+}
+
+/* Mobile responsive */
+@media (max-width: 1024px) {
+  .selectorGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .scenarioHeaders {
+    grid-template-columns: 1fr;
+  }
+
+  .tableWrapper {
+    overflow-x: scroll;
+  }
+
+  .comparisonTable {
+    min-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem 0;
+  }
+
+  .selectorCard,
+  .comparisonCard {
+    padding: 1.5rem;
+  }
+
+  .comparisonTable th,
+  .comparisonTable td {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .emptyState {
+    padding: 3rem 1.5rem;
+  }
+
+  .emptyStateIcon {
+    font-size: 3rem;
+  }
+
+  .emptyStateTitle {
+    font-size: 1.25rem;
+  }
+
+  .emptyStateMessage {
+    font-size: 1rem;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .select,
+  .comparisonTable tbody tr {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .selectorCard,
+  .comparisonCard {
+    border-width: 3px;
+  }
+
+  .select {
+    border-width: 2px;
+  }
+
+  .comparisonTable th {
+    border-bottom-width: 3px;
+  }
+}

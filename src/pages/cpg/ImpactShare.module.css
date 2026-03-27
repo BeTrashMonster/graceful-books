@@ -1,0 +1,101 @@
+/* Impact Share Page Styles - Audacious Design System */
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.tab {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border: none;
+  background: none;
+  color: #666;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: #D4AF37;
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.tabActive {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border: none;
+  background: linear-gradient(135deg, rgba(232, 212, 160, 0.1) 0%, rgba(212, 175, 55, 0.15) 100%);
+  color: #D4AF37;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 3px solid #D4AF37;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.tabContent {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .tabs {
+    flex-direction: column;
+    gap: 0;
+    border-bottom: none;
+  }
+
+  .tab,
+  .tabActive {
+    border-bottom: 2px solid #e0e0e0;
+    border-radius: 0;
+  }
+
+  .tabActive {
+    border-left: 4px solid #D4AF37;
+    border-bottom: 2px solid #D4AF37;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .tabContent {
+    animation: none;
+  }
+
+  .tab,
+  .tabActive {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .tab {
+    border-width: 2px;
+  }
+
+  .tabActive {
+    border-width: 4px;
+  }
+}
