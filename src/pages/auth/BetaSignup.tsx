@@ -107,7 +107,7 @@ export default function BetaSignup() {
         <div className={styles.header}>
           <h1 className={styles.title}>Join the Beta</h1>
           <p className={styles.subtitle}>
-            Get free access to the CPG Costing Tool
+            Be among the first to explore as you build your money confidence
           </p>
         </div>
 
