@@ -5,7 +5,7 @@ interface PageLoaderProps {
   message?: string
 }
 
-export function PageLoader({ message = 'Loading your workspace...' }: PageLoaderProps) {
+export function PageLoader({ message = "This is the 'calm before your confidence' moment" }: PageLoaderProps) {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
