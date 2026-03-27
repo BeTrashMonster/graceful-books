@@ -105,7 +105,7 @@ auth.post('/signup', validate(signupSchema), async (c) => {
       `
       INSERT INTO users (email, password_hash, first_name, last_name, company_name)
       VALUES ($1, $2, $3, $4, $5)
-      RETURNING id, email, first_name, last_name, support_key, email_verified, created_at
+      RETURNING id, email, first_name, last_name, company_name, support_key, email_verified, created_at
       `,
       [
         data.email,
@@ -164,6 +164,7 @@ auth.post('/signup', validate(signupSchema), async (c) => {
           email: user.email,
           firstName: user.first_name,
           lastName: user.last_name,
+          companyName: user.company_name,
           supportKey: user.support_key,
           emailVerified: user.email_verified,
           createdAt: user.created_at,
@@ -207,7 +208,7 @@ auth.post('/login', validate(loginSchema), async (c) => {
   try {
     // Look up user by email
     const result = await db.query(
-      `SELECT id, email, password_hash, first_name, last_name, account_status, email_verified
+      `SELECT id, email, password_hash, first_name, last_name, company_name, account_status, email_verified
        FROM users
        WHERE email = $1`,
       [email]
@@ -296,6 +297,7 @@ auth.post('/login', validate(loginSchema), async (c) => {
         email: user.email,
         firstName: user.first_name,
         lastName: user.last_name,
+        companyName: user.company_name,
         emailVerified: user.email_verified,
       },
       products,
@@ -359,7 +361,7 @@ auth.post('/beta-signup', validate(signupSchema), async (c) => {
       `
       INSERT INTO users (email, password_hash, first_name, last_name, company_name)
       VALUES ($1, $2, $3, $4, $5)
-      RETURNING id, email, first_name, last_name, support_key, email_verified, created_at
+      RETURNING id, email, first_name, last_name, company_name, support_key, email_verified, created_at
       `,
       [
         data.email,
@@ -439,6 +441,7 @@ auth.post('/beta-signup', validate(signupSchema), async (c) => {
           email: user.email,
           firstName: user.first_name,
           lastName: user.last_name,
+          companyName: user.company_name,
           supportKey: user.support_key,
           emailVerified: user.email_verified,
           createdAt: user.created_at,

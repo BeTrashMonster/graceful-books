@@ -38,18 +38,33 @@ export function CPGLayout() {
 
   // Load company name from session
   useEffect(() => {
-    const session = sessionStorage.getItem('graceful_books_session');
-    if (session) {
-      try {
-        const sessionData = JSON.parse(session);
-        // Try to get company name from user object
-        if (sessionData.user?.companyName) {
-          setCompanyName(sessionData.user.companyName);
+    const loadCompanyName = () => {
+      const session = sessionStorage.getItem('graceful_books_session');
+      if (session) {
+        try {
+          const sessionData = JSON.parse(session);
+          // Try to get company name from user object
+          if (sessionData.user?.companyName) {
+            setCompanyName(sessionData.user.companyName);
+          }
+        } catch (error) {
+          console.error('Failed to parse session:', error);
         }
-      } catch (error) {
-        console.error('Failed to parse session:', error);
       }
-    }
+    };
+
+    // Load on mount
+    loadCompanyName();
+
+    // Listen for company name updates from Company Profile page
+    const handleCompanyNameUpdate = (event: CustomEvent) => {
+      if (event.detail?.companyName) {
+        setCompanyName(event.detail.companyName);
+      }
+    };
+
+    window.addEventListener('company-name-updated', handleCompanyNameUpdate as EventListener);
+    return () => window.removeEventListener('company-name-updated', handleCompanyNameUpdate as EventListener);
   }, []);
 
   const handleLogout = () => {

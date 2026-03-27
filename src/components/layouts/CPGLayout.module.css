@@ -237,6 +237,7 @@
   padding: 1.5rem 0;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   margin-top: auto;
+  position: relative;
 }
 
 .bottomNav a {
@@ -263,15 +264,15 @@
 
 /* Account Menu (Company Dropdown) */
 .accountMenuButton {
-  width: 100%;
+  width: calc(100% - 3rem);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.875rem 1.5rem;
+  padding: 0.875rem 1rem;
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(212, 175, 55, 0.3);
   color: #E8D4A0;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -300,16 +301,16 @@
 
 .accountMenuDropup {
   position: absolute;
-  bottom: 100%;
-  left: 0;
-  right: 0;
-  margin: 0 1.5rem 0.5rem 1.5rem;
+  bottom: calc(100% + 0.5rem);
+  left: 1.5rem;
+  right: 1.5rem;
   background: rgba(0, 0, 0, 0.95);
   border-radius: 0.5rem;
   overflow: hidden;
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(212, 175, 55, 0.3);
   animation: slideUpFade 0.2s ease-out;
+  z-index: 1000;
 }
 
 @keyframes slideUpFade {
