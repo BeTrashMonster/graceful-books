@@ -110,7 +110,7 @@ export const passwordResetTemplate: EmailTemplate = {
     <body>
       <div class="container">
         <div class="header">
-          <h1>🔐 Reset Your Password</h1>
+          <h1>Reset Your Password</h1>
         </div>
         <div class="content">
           <p>Hi {{firstName}},</p>
@@ -183,7 +183,7 @@ export const trialStartedTemplate: EmailTemplate = {
         </div>
         <div class="content">
           <p>Hi {{firstName}},</p>
-          <p>Your 30-day trial of <strong>{{productName}}</strong> is now active. You have full access to explore everything at your own pace.</p>
+          <p>Your 14-day trial of <strong>{{productName}}</strong> is now active. You have full access to explore everything at your own pace.</p>
           <div class="highlight">
             <p><strong>Here's what's included in your trial:</strong></p>
             <ul>
@@ -208,7 +208,7 @@ Your Trial is Active
 
 Hi {{firstName}},
 
-Your 30-day trial of {{productName}} is now active. You have full access to explore everything at your own pace.
+Your 14-day trial of {{productName}} is now active. You have full access to explore everything at your own pace.
 
 Here's what's included in your trial:
 - Full access to all features
@@ -255,7 +255,7 @@ export const paymentFailedTemplate: EmailTemplate = {
     <body>
       <div class="container">
         <div class="header">
-          <h1>💳 Payment Update Needed</h1>
+          <h1>Payment Update Needed</h1>
         </div>
         <div class="content">
           <p>Hi {{firstName}},</p>
@@ -331,7 +331,7 @@ export const supportSessionGrantedTemplate: EmailTemplate = {
     <body>
       <div class="container">
         <div class="header">
-          <h1>🛟 Support Session Active</h1>
+          <h1>Support Session Active</h1>
         </div>
         <div class="content">
           <p>Hi {{firstName}},</p>
