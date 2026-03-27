@@ -20,20 +20,16 @@ export function PageLoader({ message = 'Loading your workspace...' }: PageLoader
 
   return (
     <div className="page-loader" role="status" aria-live="polite" aria-label={message}>
-      <div className="page-loader__card">
-        <div className="page-loader__icon">
-          <img src="/assets/sparkle-1.png" alt="" className="sparkle" />
-          <img src="/assets/hourglass.png" alt="" className="treasure" />
-          <img src="/assets/sparkle-2.png" alt="" className="sparkle sparkle--right" />
+      <div className="page-loader__content">
+        <div className="page-loader__logo">
+          <img src="/assets/audacious-logo.png" alt="Audacious Money" />
         </div>
-        <h2 className="page-loader__title">Gathering Your Data</h2>
+        <div className="page-loader__spinner">
+          <div className="page-loader__spinner-ring"></div>
+          <div className="page-loader__spinner-ring"></div>
+          <div className="page-loader__spinner-ring"></div>
+        </div>
         <p className="page-loader__message">{message}</p>
-        <div className="page-loader__bar">
-          <div className="page-loader__progress"></div>
-        </div>
-        <p className="page-loader__tip">
-          💜 Take a deep breath - you're building something great!
-        </p>
       </div>
     </div>
   )
