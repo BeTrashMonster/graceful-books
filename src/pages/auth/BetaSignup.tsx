@@ -71,8 +71,8 @@ export default function BetaSignup() {
         })
       );
 
-      // Redirect to CPG app
-      window.location.href = 'https://graceful-books.audaciousmoney.com';
+      // Redirect to CPG dashboard
+      navigate('/cpg/dashboard');
     } catch (err: any) {
       console.error('Beta signup error:', err);
       setError(
