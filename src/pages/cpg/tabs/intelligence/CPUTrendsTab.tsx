@@ -496,15 +496,19 @@ export default function CPUTrendsTab({
    */
   const handleExportCSV = () => {
     const rows: string[] = [];
-    rows.push('Product,Component,Current Price,Average Price,Price Change %,Last Purchase (days ago),Volatility,Trend');
+    rows.push('Product,Component,Type,Current Price,Average Price,Price Change %,Last Purchase (days ago),Volatility,Trend');
 
     sortedProductTrends.forEach(product => {
       product.components.forEach(comp => {
-        const volatility = Math.abs(comp.change) < 5 ? 'low' : Math.abs(comp.change) < 15 ? 'medium' : 'high';
-        const trend = comp.change > 5 ? 'increasing' : comp.change < -5 ? 'decreasing' : 'stable';
+        const type = comp.isLabor ? 'Labor' : 'Material';
+        const volatility = comp.isLabor ? 'N/A' : (Math.abs(comp.change) < 5 ? 'low' : Math.abs(comp.change) < 15 ? 'medium' : 'high');
+        const trend = comp.isLabor ? 'N/A' : (comp.change > 5 ? 'increasing' : comp.change < -5 ? 'decreasing' : 'stable');
+        const avgPrice = comp.isLabor ? 'N/A' : comp.avg.toFixed(2);
+        const priceChange = comp.isLabor ? 'N/A' : comp.change.toFixed(1);
+        const lastBuy = comp.isLabor ? 'N/A' : comp.lastBuyDays.toString();
 
         rows.push(
-          `"${product.productName}","${comp.componentName}","${comp.current.toFixed(2)}","${comp.avg.toFixed(2)}","${comp.change.toFixed(1)}","${comp.lastBuyDays}","${volatility}","${trend}"`
+          `"${product.productName}","${comp.componentName}","${type}","${comp.current.toFixed(2)}","${avgPrice}","${priceChange}","${lastBuy}","${volatility}","${trend}"`
         );
       });
     });
@@ -580,9 +584,9 @@ export default function CPUTrendsTab({
       const tableData = product.components.map(comp => [
         comp.componentName,
         `$${comp.current.toFixed(2)}`,
-        `$${comp.avg.toFixed(2)}`,
-        comp.change !== 0 ? `${comp.change > 0 ? '+' : ''}${comp.change.toFixed(1)}%` : '—',
-        `${comp.lastBuyDays}d`,
+        comp.isLabor ? 'N/A' : `$${comp.avg.toFixed(2)}`,
+        comp.isLabor ? 'N/A' : (comp.change !== 0 ? `${comp.change > 0 ? '+' : ''}${comp.change.toFixed(1)}%` : '—'),
+        comp.isLabor ? 'N/A' : `${comp.lastBuyDays}d`,
       ]);
 
       autoTable(doc, {
@@ -768,12 +772,13 @@ export default function CPUTrendsTab({
                         key={comp.componentName}
                         type="monotone"
                         dataKey={comp.componentName}
-                        stroke={getComponentColor(idx)}
-                        strokeWidth={2}
-                        dot={{ r: 3, strokeWidth: 2 }}
-                        activeDot={{ r: 5 }}
+                        stroke={comp.isLabor ? '#D4AF37' : getComponentColor(idx)}
+                        strokeWidth={comp.isLabor ? 3 : 2}
+                        dot={{ r: comp.isLabor ? 4 : 3, strokeWidth: 2, fill: comp.isLabor ? '#D4AF37' : undefined }}
+                        activeDot={{ r: comp.isLabor ? 6 : 5 }}
                         connectNulls={true}
                         name={comp.componentName}
+                        strokeDasharray={comp.isLabor ? '5 5' : undefined}
                       />
                     ))}
                   </LineChart>
