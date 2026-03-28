@@ -17,8 +17,9 @@
  */
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import type { CPGCategory, CPGInvoice, CPGRecipe } from '../../../db/schema/cpg.schema';
+import type { CPGCategory, CPGInvoice, CPGRecipe, CPGLaborRole } from '../../../db/schema/cpg.schema';
 import { cpuCalculatorService } from '../../../services/cpg/cpuCalculator.service';
+import { LaborRoleService } from '../../../services/cpg/laborRole.service';
 import { db } from '../../../db/database';
 import CPUTrendsTab from './intelligence/CPUTrendsTab';
 import VendorIntelTab from './intelligence/VendorIntelTab';
@@ -96,6 +97,7 @@ export default function CostIntelligenceTab({
   const [comparisonVendorFilter, setComparisonVendorFilter] = useState<Set<string>>(
     initialVendorFilter ? new Set([initialVendorFilter]) : new Set()
   );
+  const [comparisonLaborFilter, setComparisonLaborFilter] = useState<Set<string>>(new Set());
   const [comparisonDateRange, setComparisonDateRange] = useState<'3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all'>(
     initialStartDate && initialEndDate ? 'custom' : '12mo'
   );
@@ -119,6 +121,7 @@ export default function CostIntelligenceTab({
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showVariantDropdown, setShowVariantDropdown] = useState(false);
   const [showVendorDropdown, setShowVendorDropdown] = useState(false);
+  const [showLaborDropdown, setShowLaborDropdown] = useState(false);
 
   // Product CPU data
   const [productCPUData, setProductCPUData] = useState<Map<string, ProductCPUData>>(new Map());
@@ -126,6 +129,9 @@ export default function CostIntelligenceTab({
 
   // Product recipes (defines which variant each product uses for each component)
   const [recipes, setRecipes] = useState<CPGRecipe[]>([]);
+
+  // Labor roles data
+  const [laborRoles, setLaborRoles] = useState<CPGLaborRole[]>([]);
 
   // Sub-tab navigation
   const [intelligenceTab, setIntelligenceTab] = useState<IntelligenceSubTab>(initialIntelligenceTab || 'scenario');
@@ -308,6 +314,22 @@ export default function CostIntelligenceTab({
     loadRecipes();
   }, [companyId]);
 
+  // Load labor roles for filtering
+  useEffect(() => {
+    const loadLaborRoles = async () => {
+      try {
+        const laborRoleService = new LaborRoleService(db);
+        const roles = await laborRoleService.getRoles(companyId);
+        console.log('👷 Loaded labor roles:', roles.length, roles);
+        setLaborRoles(roles);
+      } catch (err) {
+        console.error('Failed to load labor roles:', err);
+      }
+    };
+
+    loadLaborRoles();
+  }, [companyId]);
+
   // Load CPU data for ALL products on mount (needed for filtering)
   useEffect(() => {
     if (finishedProducts.length > 0) {
@@ -358,13 +380,14 @@ export default function CostIntelligenceTab({
     return Array.from(vendors).sort();
   }, [invoices]);
 
-  // Get filtered products based on category, variant, and vendor filters
+  // Get filtered products based on category, variant, vendor, and labor filters
   // This determines which PRODUCTS to show, not which components within products
   const getFilteredProducts = useCallback(() => {
     // If no filters active, show all products
     if (comparisonCategoryFilter.size === 0 &&
         comparisonVariantFilter.size === 0 &&
-        comparisonVendorFilter.size === 0) {
+        comparisonVendorFilter.size === 0 &&
+        comparisonLaborFilter.size === 0) {
       return finishedProducts;
     }
 
@@ -409,9 +432,19 @@ export default function CostIntelligenceTab({
         if (!hasVendor) return false;
       }
 
+      // Labor filter - check if product has any of the selected labor roles
+      if (comparisonLaborFilter.size > 0) {
+        if (!cpuData || !cpuData.laborBreakdown || cpuData.laborBreakdown.length === 0) {
+          // No labor data - include product optimistically
+          return true;
+        }
+        const hasLabor = cpuData.laborBreakdown.some(labor => comparisonLaborFilter.has(labor.roleId));
+        if (!hasLabor) return false;
+      }
+
       return true;
     });
-  }, [finishedProducts, comparisonCategoryFilter, comparisonVariantFilter, comparisonVendorFilter, productCPUData, invoices, recipes]);
+  }, [finishedProducts, comparisonCategoryFilter, comparisonVariantFilter, comparisonVendorFilter, comparisonLaborFilter, productCPUData, invoices, recipes]);
 
   // Quick select functions
   const selectAllProducts = useCallback(() => {
@@ -600,7 +633,7 @@ export default function CostIntelligenceTab({
           boxShadow: '0 2px 8px rgba(184, 134, 11, 0.15)',
         }}>
           {/* Filter Row */}
-          <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.75rem', flexWrap: 'nowrap', alignItems: 'flex-start', overflowX: 'auto' }}>
             {/* Product Dropdown Selector */}
             <div style={{ position: 'relative', flex: '1 1 auto', minWidth: '120px' }}>
               <button
@@ -1124,6 +1157,148 @@ export default function CostIntelligenceTab({
               )}
             </div>
 
+            {/* Labor Filter */}
+            <div style={{ position: 'relative', flex: '1 1 auto', minWidth: '100px' }}>
+              <button
+                onClick={() => setShowLaborDropdown(!showLaborDropdown)}
+                aria-expanded={showLaborDropdown}
+                aria-label="Filter by labor roles"
+                style={{
+                  width: '100%',
+                  padding: '0.625rem 0.875rem',
+                  border: '2px solid #D4AF37',
+                  borderRadius: '6px',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  background: '#E5F6DF',
+                  color: '#475569',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <span>
+                  {comparisonLaborFilter.size === 0
+                    ? 'Labor'
+                    : `${comparisonLaborFilter.size} Selected`}
+                </span>
+                <span aria-hidden="true" style={{ fontSize: '0.75rem' }}>{showLaborDropdown ? '▲' : '▼'}</span>
+              </button>
+
+              {showLaborDropdown && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  marginTop: '0.25rem',
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                  zIndex: 1000,
+                  maxHeight: '250px',
+                  overflowY: 'auto',
+                }}>
+                  {/* Select All / Clear All */}
+                  <div style={{
+                    padding: '0.375rem',
+                    borderBottom: '1px solid #e5e7eb',
+                    display: 'flex',
+                    gap: '0.375rem',
+                  }}>
+                    <button
+                      onClick={() => {
+                        const allRoleIds = laborRoles.map(role => role.id);
+                        setComparisonLaborFilter(new Set(allRoleIds));
+                        setShowLaborDropdown(false);
+                      }}
+                      aria-label="Select all labor roles"
+                      style={{
+                        flex: 1,
+                        padding: '0.5rem',
+                        background: '#f8fafc',
+                        color: '#475569',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={() => setComparisonLaborFilter(new Set())}
+                      aria-label="Clear all labor roles"
+                      style={{
+                        flex: 1,
+                        padding: '0.5rem',
+                        background: 'white',
+                        color: '#64748b',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      Clear All
+                    </button>
+                  </div>
+
+                  {/* Labor Roles List */}
+                  {laborRoles.length === 0 ? (
+                    <div style={{
+                      padding: '0.75rem',
+                      textAlign: 'center',
+                      color: '#9ca3af',
+                      fontSize: '0.8125rem',
+                    }}>
+                      No labor roles found
+                    </div>
+                  ) : (
+                    laborRoles.map(role => (
+                      <label
+                        key={role.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '0.4rem 0.625rem',
+                          cursor: 'pointer',
+                          borderBottom: '1px solid #f8fafc',
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={comparisonLaborFilter.has(role.id)}
+                          onChange={(e) => {
+                            const newSet = new Set(comparisonLaborFilter);
+                            if (e.target.checked) {
+                              newSet.add(role.id);
+                            } else {
+                              newSet.delete(role.id);
+                            }
+                            setComparisonLaborFilter(newSet);
+                          }}
+                          style={{ marginRight: '0.5rem' }}
+                          aria-label={`Select ${role.role_name}`}
+                        />
+                        <span style={{ fontSize: '0.8125rem' }}>{role.role_name}</span>
+                      </label>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Date Range for Analysis */}
             <select
               value={comparisonDateRange}
@@ -1425,6 +1600,7 @@ export default function CostIntelligenceTab({
                       categoryFilter={comparisonCategoryFilter}
                       variantFilter={comparisonVariantFilter}
                       vendorFilter={comparisonVendorFilter}
+                      laborFilter={comparisonLaborFilter}
                       recipes={recipes}
                       invoices={invoices}
                     />
@@ -1443,6 +1619,7 @@ export default function CostIntelligenceTab({
                     categoryFilter={comparisonCategoryFilter}
                     variantFilter={comparisonVariantFilter}
                     vendorFilter={comparisonVendorFilter}
+                    laborFilter={comparisonLaborFilter}
                   />
                 )}
 
@@ -1465,6 +1642,7 @@ export default function CostIntelligenceTab({
                     categoryFilter={comparisonCategoryFilter}
                     variantFilter={comparisonVariantFilter}
                     vendorFilter={comparisonVendorFilter}
+                    laborFilter={comparisonLaborFilter}
                     onOpenCategoryManager={onOpenCategoryManager}
                     onViewInvoice={onViewInvoice}
                     onEditInvoice={onEditInvoice}

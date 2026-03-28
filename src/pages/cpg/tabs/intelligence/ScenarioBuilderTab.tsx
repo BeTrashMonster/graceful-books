@@ -67,6 +67,7 @@ export interface ScenarioBuilderTabProps {
   categoryFilter?: Set<string>;
   variantFilter?: Set<string>;
   vendorFilter?: Set<string>;
+  laborFilter?: Set<string>;
   recipes?: any[];
   invoices?: any[];
 }
@@ -79,6 +80,7 @@ export default function ScenarioBuilderTab({
   categoryFilter = new Set(),
   variantFilter = new Set(),
   vendorFilter = new Set(),
+  laborFilter = new Set(),
   recipes = [],
   invoices = [],
 }: ScenarioBuilderTabProps) {
@@ -198,6 +200,19 @@ export default function ScenarioBuilderTab({
     });
   }, [categoryFilter, variantFilter, vendorFilter, recipes, invoices, finishedProducts]);
 
+  // Filter labor roles based on active labor filter
+  const filterLaborRoles = useCallback((laborBreakdown?: LaborBreakdown[]): LaborBreakdown[] => {
+    if (!laborBreakdown) return [];
+
+    // If no labor filter active, show all labor roles
+    if (laborFilter.size === 0) {
+      return laborBreakdown;
+    }
+
+    // Filter to only show labor roles that match the filter
+    return laborBreakdown.filter(labor => laborFilter.has(labor.roleId));
+  }, [laborFilter]);
+
   // Calculate scenario CPU for a product based on component and labor adjustments
   const calculateScenarioCPU = useCallback(
     (productId: string): { cpu: number; materialCPU: number; laborCost: number; components: ComponentBreakdown[] } | null => {
@@ -233,7 +248,10 @@ export default function ScenarioBuilderTab({
         const laborAdj = laborAdjustments.get(productId) || new Map();
         const laborMode = laborModes.get(productId) || 'percentage';
 
-        data.laborBreakdown.forEach((role) => {
+        // Filter labor roles based on laborFilter
+        const filteredLaborRoles = filterLaborRoles(data.laborBreakdown);
+
+        filteredLaborRoles.forEach((role) => {
           const baseCost = parseFloat(role.costPerUnit);
           const adjustment = laborAdj.get(role.roleId) || 0;
 
@@ -252,7 +270,7 @@ export default function ScenarioBuilderTab({
 
       return { cpu: totalCPU, materialCPU, laborCost, components };
     },
-    [productCPUData, scenarioAdjustments, productModes, laborAdjustments, laborModes]
+    [productCPUData, scenarioAdjustments, productModes, laborAdjustments, laborModes, filterLaborRoles]
   );
 
   // Calculate scenario margin
@@ -844,7 +862,7 @@ export default function ScenarioBuilderTab({
             </div>
 
               {/* Labor Costs Section */}
-              {data.laborBreakdown && data.laborBreakdown.length > 0 && (
+              {filterLaborRoles(data.laborBreakdown).length > 0 && (
                 <div className={styles.sliderSection} style={{ marginTop: '1.5rem' }}>
                   <div className={styles.sliderSectionTitle} style={{ color: '#D4AF37' }}>
                     Labor Costs
@@ -867,7 +885,7 @@ export default function ScenarioBuilderTab({
                   </div>
 
                   <div className={styles.componentList}>
-                    {data.laborBreakdown.map((role, idx) => {
+                    {filterLaborRoles(data.laborBreakdown).map((role, idx) => {
                       const baseCost = parseFloat(role.costPerUnit);
                       const currentAdj = laborAdjustments.get(productId)?.get(role.roleId) || 0;
                       const currentMode = laborModes.get(productId) || 'percentage';
