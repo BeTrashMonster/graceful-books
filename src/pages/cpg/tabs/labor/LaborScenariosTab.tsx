@@ -484,33 +484,43 @@ export function LaborScenariosTab() {
                   <>
                     {/* Product Header Row */}
                     <tr key={`product-${productId}`} className={styles.productHeader}>
-                      <td colSpan={3}>{group.productName}</td>
-                      <td colSpan={5} className={styles.productCPUSummary}>
+                      <td colSpan={8}>{group.productName}</td>
+                    </tr>
+
+                    {/* CPU Summary Row */}
+                    <tr key={`cpu-${productId}`} className={styles.cpuSummaryRow}>
+                      <td colSpan={8}>
                         {(() => {
                           const summary = cpuSummaries.find(s => s.productId === productId);
                           if (!summary) return null;
                           const laborChange = summary.scenarioLaborCPU - summary.currentLaborCPU;
                           const cpuChange = summary.scenarioTotalCPU - summary.currentTotalCPU;
                           return (
-                            <>
-                              <span className={styles.cpuMetric}>
-                                Labor CPU: <strong>${summary.currentLaborCPU.toFixed(2)} → ${summary.scenarioLaborCPU.toFixed(2)}</strong>
+                            <div className={styles.cpuSummaryContent}>
+                              <div className={styles.cpuItem}>
+                                <span className={styles.cpuLabel}>Labor CPU:</span>
+                                <span className={styles.cpuValues}>
+                                  ${summary.currentLaborCPU.toFixed(2)} → ${summary.scenarioLaborCPU.toFixed(2)}
+                                </span>
                                 {laborChange !== 0 && (
-                                  <span className={laborChange > 0 ? styles.cpuIncreaseInline : styles.cpuDecreaseInline}>
-                                    ({laborChange > 0 ? '+' : ''}${laborChange.toFixed(2)})
+                                  <span className={laborChange > 0 ? styles.cpuChangeNegative : styles.cpuChangePositive}>
+                                    {laborChange > 0 ? '+' : ''}${laborChange.toFixed(2)}
                                   </span>
                                 )}
-                              </span>
-                              <span className={styles.cpuDivider}>|</span>
-                              <span className={styles.cpuMetric}>
-                                Total CPU: <strong>${summary.currentTotalCPU.toFixed(2)} → ${summary.scenarioTotalCPU.toFixed(2)}</strong>
+                              </div>
+                              <div className={styles.cpuDivider}></div>
+                              <div className={styles.cpuItem}>
+                                <span className={styles.cpuLabel}>Total CPU:</span>
+                                <span className={styles.cpuValues}>
+                                  ${summary.currentTotalCPU.toFixed(2)} → ${summary.scenarioTotalCPU.toFixed(2)}
+                                </span>
                                 {cpuChange !== 0 && (
-                                  <span className={cpuChange > 0 ? styles.cpuIncreaseInline : styles.cpuDecreaseInline}>
-                                    ({cpuChange > 0 ? '+' : ''}${cpuChange.toFixed(2)})
+                                  <span className={cpuChange > 0 ? styles.cpuChangeNegative : styles.cpuChangePositive}>
+                                    {cpuChange > 0 ? '+' : ''}${cpuChange.toFixed(2)}
                                   </span>
                                 )}
-                              </span>
-                            </>
+                              </div>
+                            </div>
                           );
                         })()}
                       </td>

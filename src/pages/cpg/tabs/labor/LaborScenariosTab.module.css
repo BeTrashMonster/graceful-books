@@ -20,21 +20,20 @@
   padding: 1.5rem;
   background: white;
   border-radius: 8px;
-  border: 2px solid #D4AF37; /* Gold border */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .heading {
-  color: #4b006e; /* Royal purple */
-  font-size: 1.75rem;
-  font-weight: 700;
+  color: #111827;
+  font-size: 1.25rem;
+  font-weight: 600;
   margin: 0 0 0.5rem 0;
-  letter-spacing: -0.01em;
 }
 
 .subheading {
   color: #6b7280;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   margin: 0 0 1.5rem 0;
   line-height: 1.5;
 }
@@ -52,10 +51,10 @@
 
 .filterLabel {
   display: block;
-  font-weight: 600;
-  color: #4b006e; /* Royal purple */
+  font-weight: 500;
+  color: #374151;
   margin-bottom: 0.5rem;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
 }
 
 .filterDropdown {
@@ -64,39 +63,39 @@
 
 .filterButton {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.875rem;
   background: white;
-  border: 2px solid #D4AF37; /* Gold border */
+  border: 1px solid #d1d5db;
   border-radius: 6px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: #1f2937;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #374151;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.2s;
+  transition: all 0.15s;
 }
 
 .filterButton:hover {
-  border-color: #B8860B; /* Darker gold */
-  background: #fffbf0;
+  border-color: #9ca3af;
+  background: #f9fafb;
 }
 
 .dropdownIcon {
   font-size: 0.75rem;
-  color: #D4AF37;
+  color: #9ca3af;
 }
 
 .dropdownMenu {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  top: calc(100% + 0.25rem);
   left: 0;
   right: 0;
   background: white;
-  border: 2px solid #D4AF37;
+  border: 1px solid #d1d5db;
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   max-height: 300px;
   overflow-y: auto;
   z-index: 100;
@@ -278,30 +277,30 @@
 .tableSection {
   margin-bottom: 2rem;
   background: white;
-  border-radius: 12px;
-  border: 3px solid #D4AF37; /* Gold border */
-  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.1);
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
 
 .table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
 }
 
 .table thead tr:first-child {
-  background: #4b006e;
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
 }
 
 .table thead tr:first-child th {
-  padding: 1.25rem 1.5rem;
+  padding: 1rem 1.25rem;
   text-align: center;
-  font-weight: 700;
-  font-size: 0.9375rem;
+  font-weight: 600;
+  font-size: 0.8125rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.05em;
+  color: #1f2937;
 }
 
 .table thead tr:first-child th:first-child {
@@ -311,50 +310,46 @@
 .roleColumn {
   width: 20%;
   text-align: left !important;
-  color: white;
 }
 
 .currentSection {
-  background: linear-gradient(135deg, #7e22ce 0%, #6a1b9a 100%);
-  color: white !important;
+  background: #f3f4f6;
+  color: #4b006e !important;
   text-align: center !important;
-  border-left: 2px solid rgba(255, 255, 255, 0.15);
-  border-right: 2px solid rgba(255, 255, 255, 0.15);
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-weight: 600;
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
 }
 
 .scenarioSection {
-  background: linear-gradient(135deg, #F4E4B8 0%, #D4AF37 50%, #C9A959 100%);
-  color: #2d1b00 !important;
+  background: #fffbf0;
+  color: #92400e !important;
   text-align: center !important;
-  border-left: 2px solid rgba(45, 27, 0, 0.15);
-  border-right: 2px solid rgba(45, 27, 0, 0.15);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+  border-left: 1px solid #fbbf24;
+  border-right: 1px solid #fbbf24;
 }
 
 .deltaColumn {
   width: 10%;
   text-align: center !important;
-  color: white;
-  font-weight: 700;
+  color: #6b7280;
+  font-weight: 600;
 }
 
 .subheader {
-  background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%);
+  background: #f9fafb;
 }
 
 .subheader th {
-  padding: 0.875rem 1rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
   text-align: center;
-  color: rgba(255, 255, 255, 0.95);
+  color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 2px solid #D4AF37;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .subheader th:first-child {
@@ -363,59 +358,70 @@
 
 /* Product Header Row */
 .productHeader {
-  background: linear-gradient(135deg, #f3e8ff 0%, #E6D5F5 100%);
-  border-top: 3px solid #D4AF37;
-  border-bottom: 3px solid #D4AF37;
+  background: #f9fafb;
+  border-top: 2px solid #e5e7eb;
 }
 
 .productHeader td {
-  padding: 1.25rem 1.5rem;
-  font-weight: 700;
-  font-size: 1.125rem;
-  color: #4b006e;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: #111827;
+  letter-spacing: 0.01em;
 }
 
-.productCPUSummary {
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-  text-transform: none !important;
+/* CPU Summary Row */
+.cpuSummaryRow {
+  background: #fefce8;
+  border-bottom: 1px solid #fde047;
+}
+
+.cpuSummaryRow td {
+  padding: 0.75rem 1.25rem;
+}
+
+.cpuSummaryContent {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  justify-content: flex-end;
+  gap: 2rem;
+  font-size: 0.8125rem;
 }
 
-.cpuMetric {
+.cpuItem {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #6b7280;
 }
 
-.cpuMetric strong {
-  color: #4b006e;
+.cpuLabel {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.cpuValues {
+  color: #111827;
+  font-weight: 600;
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
-  font-weight: 700;
+}
+
+.cpuChangePositive {
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 0.75rem;
+  margin-left: 0.25rem;
+}
+
+.cpuChangeNegative {
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 0.75rem;
+  margin-left: 0.25rem;
 }
 
 .cpuDivider {
-  color: #D4AF37;
-  font-weight: 400;
-  font-size: 1rem;
-}
-
-.cpuIncreaseInline {
-  color: #dc2626;
-  font-weight: 700;
-  font-size: 0.8125rem;
-}
-
-.cpuDecreaseInline {
-  color: #16a34a;
-  font-weight: 700;
-  font-size: 0.8125rem;
+  width: 1px;
+  height: 1rem;
+  background: #d1d5db;
 }
 
 /* Data Rows */
@@ -524,14 +530,14 @@
   padding: 1.5rem;
   background: white;
   border-radius: 8px;
-  border: 2px solid #D4AF37; /* Gold border */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .impactHeading {
-  color: #4b006e; /* Royal purple */
-  font-size: 1.5rem;
-  font-weight: 700;
+  color: #111827;
+  font-size: 1.125rem;
+  font-weight: 600;
   margin: 0 0 1rem 0;
 }
 
@@ -546,7 +552,7 @@
 
 .impactProduct {
   font-weight: 600;
-  color: #4b006e;
+  color: #111827;
   flex: 1;
 }
 
@@ -560,7 +566,7 @@
 
 .impactScenario {
   font-weight: 600;
-  color: #1f2937;
+  color: #111827;
 }
 
 .impactIncrease {
@@ -579,15 +585,16 @@
   align-items: center;
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 2px solid #D4AF37;
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #4b006e;
+  border-top: 2px solid #e5e7eb;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
 }
 
 .totalValue {
-  color: #D4AF37;
-  font-size: 1.5rem;
+  color: #111827;
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 /* Empty State */
