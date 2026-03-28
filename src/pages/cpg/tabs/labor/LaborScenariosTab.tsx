@@ -692,13 +692,6 @@ export function LaborScenariosTab() {
               </tbody>
             </table>
 
-            <div className={styles.impactTotal}>
-              <span>Total Cost Impact:</span>
-              <span className={styles.totalValue}>
-                ${cpuSummaries.reduce((sum, s) => sum + (s.scenarioLaborCPU - s.currentLaborCPU), 0).toFixed(2)}
-              </span>
-            </div>
-
             <div className={styles.impactFooter}>
               <Button
                 variant="gold"
