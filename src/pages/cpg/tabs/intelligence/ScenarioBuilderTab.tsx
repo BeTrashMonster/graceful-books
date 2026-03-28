@@ -209,8 +209,22 @@ export default function ScenarioBuilderTab({
       return laborBreakdown;
     }
 
+    // Debug logging
+    console.log('🔍 Labor Filter Active:', {
+      filterSize: laborFilter.size,
+      filterContents: Array.from(laborFilter),
+      laborBreakdownRoles: laborBreakdown.map(l => ({ roleId: l.roleId, roleName: l.roleName })),
+    });
+
     // Filter to only show labor roles that match the filter
-    return laborBreakdown.filter(labor => laborFilter.has(labor.roleId));
+    const filtered = laborBreakdown.filter(labor => {
+      const isIncluded = laborFilter.has(labor.roleId);
+      console.log(`  Role ${labor.roleName} (${labor.roleId}): ${isIncluded ? '✅ INCLUDED' : '❌ EXCLUDED'}`);
+      return isIncluded;
+    });
+
+    console.log('  Final filtered count:', filtered.length);
+    return filtered;
   }, [laborFilter]);
 
   // Calculate scenario CPU for a product based on component and labor adjustments

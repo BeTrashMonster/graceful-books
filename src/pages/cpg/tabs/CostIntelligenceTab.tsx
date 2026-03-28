@@ -1285,12 +1285,21 @@ export default function CostIntelligenceTab({
                             type="checkbox"
                             checked={comparisonLaborFilter.has(role.id)}
                             onChange={(e) => {
+                              console.log('🎯 Labor filter changed:', {
+                                role: role.role_name,
+                                roleId: role.id,
+                                checked: e.target.checked,
+                                currentFilterSize: comparisonLaborFilter.size,
+                              });
                               const newSet = new Set(comparisonLaborFilter);
                               if (e.target.checked) {
                                 newSet.add(role.id);
+                                console.log('  ➕ Added to filter. New size:', newSet.size);
                               } else {
                                 newSet.delete(role.id);
+                                console.log('  ➖ Removed from filter. New size:', newSet.size);
                               }
+                              console.log('  📊 New filter contents:', Array.from(newSet));
                               setComparisonLaborFilter(newSet);
                             }}
                             style={{ marginRight: '0.5rem' }}
