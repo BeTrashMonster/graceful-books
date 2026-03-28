@@ -2030,6 +2030,7 @@ export function CPUDisplay({
             setShowProductBreakdown(false);
             setSelectedProduct(null);
           }}
+          productId={selectedProduct.productId}
           productName={selectedProduct.productName}
           totalCPU={selectedProduct.cpu}
           isComplete={selectedProduct.isComplete}

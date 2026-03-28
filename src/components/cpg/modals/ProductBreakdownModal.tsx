@@ -17,6 +17,7 @@ import { db } from '../../../db/database';
 import { InvoiceDetailsModal } from './InvoiceDetailsModal';
 import { AddInvoiceModal } from './AddInvoiceModal';
 import { VendorDetailsModal } from './VendorDetailsModal';
+import { LaborRoleService } from '../../../services/cpg/laborRole.service';
 import type { CPGInvoice } from '../../../db/schema/cpg.schema';
 import styles from './CPGModals.module.css';
 
@@ -33,6 +34,7 @@ export interface ProductBreakdownComponent {
 export interface ProductBreakdownModalProps {
   isOpen: boolean;
   onClose: () => void;
+  productId?: string;
   productName: string;
   totalCPU: string | null;
   isComplete: boolean;
@@ -77,6 +79,7 @@ interface InvoiceContribution {
 export function ProductBreakdownModal({
   isOpen,
   onClose,
+  productId,
   productName,
   totalCPU,
   isComplete,
@@ -100,12 +103,53 @@ export function ProductBreakdownModal({
   const [showVendorDetails, setShowVendorDetails] = useState(false);
   const [selectedVendorName, setSelectedVendorName] = useState<string | null>(null);
 
+  // Labor state
+  const [laborBreakdown, setLaborBreakdown] = useState<Array<{
+    roleId: string;
+    roleName: string;
+    hoursPerUnit: string;
+    hourlyRate: string;
+    costPerUnit: string;
+  }>>([]);
+  const [laborTotalCost, setLaborTotalCost] = useState<string>('0.00');
+  const [materialCPU, setMaterialCPU] = useState<string | null>(null);
+  const [laborService] = useState(() => new LaborRoleService(db));
+
   // Select first component by default when modal opens
   useEffect(() => {
     if (isOpen && breakdown.length > 0 && !selectedComponent) {
       setSelectedComponent(breakdown[0]);
     }
   }, [isOpen, breakdown]);
+
+  // Load labor costs when modal opens
+  useEffect(() => {
+    if (!isOpen || !productId) return;
+
+    const loadLaborCosts = async () => {
+      try {
+        const result = await laborService.calculateProductLaborCost(productId);
+        setLaborBreakdown(result.breakdown);
+        setLaborTotalCost(result.totalLaborCostPerUnit);
+
+        // Calculate material-only CPU (total CPU - labor cost)
+        if (totalCPU) {
+          const total = parseFloat(totalCPU);
+          const labor = parseFloat(result.totalLaborCostPerUnit);
+          setMaterialCPU((total - labor).toFixed(2));
+        } else {
+          setMaterialCPU(null);
+        }
+      } catch (error) {
+        console.error('Failed to load labor costs:', error);
+        setLaborBreakdown([]);
+        setLaborTotalCost('0.00');
+        setMaterialCPU(totalCPU);
+      }
+    };
+
+    loadLaborCosts();
+  }, [isOpen, productId, totalCPU]);
 
   // Load invoice contributions when component is selected
   useEffect(() => {
@@ -791,10 +835,54 @@ export function ProductBreakdownModal({
               borderRadius: '8px',
               marginBottom: '1rem',
             }}>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Total Cost</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: isComplete ? '#10b981' : '#f59e0b' }}>
-                {isComplete && totalCPU ? `$${totalCPU}` : 'Incomplete'}
-              </div>
+              {(() => {
+                const hasLaborCost = parseFloat(laborTotalCost) > 0;
+
+                if (!isComplete || !totalCPU) {
+                  return (
+                    <>
+                      <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Total Cost</div>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f59e0b' }}>
+                        Incomplete
+                      </div>
+                    </>
+                  );
+                }
+
+                if (!hasLaborCost) {
+                  return (
+                    <>
+                      <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Total Cost</div>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>
+                        ${totalCPU}
+                      </div>
+                    </>
+                  );
+                }
+
+                return (
+                  <>
+                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.5rem' }}>Materials</div>
+                    <div style={{ fontSize: '1.125rem', fontWeight: 600, color: '#10b981', marginBottom: '0.5rem' }}>
+                      ${materialCPU}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Labor</div>
+                    <div style={{ fontSize: '1.125rem', fontWeight: 600, color: '#D4AF37', marginBottom: '0.75rem' }}>
+                      +${laborTotalCost}
+                    </div>
+                    <div style={{
+                      paddingTop: '0.75rem',
+                      borderTop: '1px solid rgba(0,0,0,0.1)',
+                      marginTop: '0.5rem'
+                    }}>
+                      <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Total Cost</div>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>
+                        ${totalCPU}
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
               {msrpNumber && (
                 <div style={{ fontSize: '0.8125rem', color: '#6b7280', marginTop: '0.5rem' }}>
                   MSRP: ${msrpNumber.toFixed(2)}
@@ -847,7 +935,7 @@ export function ProductBreakdownModal({
 
             {/* Component List */}
             <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#6b7280', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.025em' }}>
-              Components ({breakdown.length})
+              Materials ({breakdown.length})
             </div>
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {[...breakdown].sort((a, b) => a.categoryName.localeCompare(b.categoryName)).map((component, index) => {
@@ -913,6 +1001,52 @@ export function ProductBreakdownModal({
                   </button>
                 );
               })}
+
+              {/* Labor Section */}
+              {laborBreakdown.length > 0 && (
+                <>
+                  <div style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    color: '#6b7280',
+                    marginTop: '1rem',
+                    marginBottom: '0.5rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.025em'
+                  }}>
+                    Labor ({laborBreakdown.length})
+                  </div>
+                  {laborBreakdown.map((role, index) => (
+                    <div
+                      key={role.roleId}
+                      style={{
+                        padding: '0.75rem',
+                        background: '#FFF9E6',
+                        border: '2px solid #D4AF37',
+                        borderRadius: '8px',
+                        textAlign: 'left',
+                      }}
+                    >
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: '0.25rem',
+                      }}>
+                        <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#1f2937' }}>
+                          {role.roleName}
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                        {parseFloat(role.hoursPerUnit).toFixed(2)} hrs @ ${parseFloat(role.hourlyRate).toFixed(2)}/hr
+                      </div>
+                      <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#D4AF37', marginTop: '0.25rem' }}>
+                        ${parseFloat(role.costPerUnit).toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
             </div>
           </div>
 

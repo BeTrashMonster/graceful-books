@@ -38,6 +38,7 @@ import {
   detectSuspiciousCalculation,
   formatValidationError,
 } from '../../utils/validation';
+import { LaborRoleService } from './laborRole.service';
 
 // Configure Decimal.js for currency precision (2 decimal places for currency)
 Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_UP });
@@ -157,7 +158,9 @@ export interface CPUTrend {
  * Finished product CPU calculation result
  */
 export interface FinishedProductCPUResult {
-  cpu: string | null;
+  cpu: string | null; // Total CPU (materials + labor)
+  materialCPU: string | null; // CPU from materials only
+  laborCost: string | null; // Labor cost per unit
   breakdown: Array<{
     categoryName: string;
     categoryId: string;
@@ -167,6 +170,13 @@ export interface FinishedProductCPUResult {
     unitCost: string | null;
     subtotal: string | null;
     hasCostData: boolean;
+  }>;
+  laborBreakdown?: Array<{
+    roleId: string;
+    roleName: string;
+    hoursPerUnit: string;
+    hourlyRate: string;
+    costPerUnit: string;
   }>;
   isComplete: boolean;
   bundleStructure?: {
@@ -962,9 +972,14 @@ export class CPUCalculatorService {
 
         const aggregatedBreakdown = Array.from(aggregatedMap.values());
 
+        // Bundles don't have direct labor assignments (labor comes from components)
+        // So we just return material CPU as total CPU for bundles
         return {
           cpu: isComplete ? totalCPU.toFixed(2) : null,
+          materialCPU: isComplete ? totalCPU.toFixed(2) : null,
+          laborCost: null, // Bundles get labor from component products
           breakdown: aggregatedBreakdown,
+          laborBreakdown: undefined,
           isComplete,
           bundleStructure: {
             products: bundleProducts,
@@ -983,7 +998,10 @@ export class CPUCalculatorService {
         serviceLogger.debug('No recipe found for product', { productId });
         return {
           cpu: null,
+          materialCPU: null,
+          laborCost: null,
           breakdown: [],
+          laborBreakdown: undefined,
           isComplete: false,
         };
       }
@@ -1060,15 +1078,34 @@ export class CPUCalculatorService {
         });
       }
 
+      // Calculate labor costs for this product
+      const laborService = new LaborRoleService(this.db);
+      const laborResult = await laborService.calculateProductLaborCost(productId);
+      const laborCost = new Decimal(laborResult.totalLaborCostPerUnit);
+      const hasLaborCost = laborCost.greaterThan(0);
+
+      // Calculate total CPU (materials + labor)
+      const materialCPU = isComplete ? totalCPU : null;
+      let finalCPU: string | null = null;
+
+      if (materialCPU !== null) {
+        finalCPU = totalCPU.plus(laborCost).toFixed(2);
+      }
+
       const result: FinishedProductCPUResult = {
-        cpu: isComplete ? totalCPU.toFixed(2) : null,
+        cpu: finalCPU,
+        materialCPU: materialCPU ? totalCPU.toFixed(2) : null,
+        laborCost: hasLaborCost ? laborCost.toFixed(2) : null,
         breakdown,
+        laborBreakdown: hasLaborCost ? laborResult.breakdown : undefined,
         isComplete,
       };
 
       serviceLogger.info('Finished product CPU calculated', {
         productId,
-        cpu: result.cpu,
+        materialCPU: result.materialCPU,
+        laborCost: result.laborCost,
+        totalCPU: result.cpu,
         isComplete: result.isComplete,
         componentCount: breakdown.length,
       });
@@ -1083,7 +1120,10 @@ export class CPUCalculatorService {
       // Return empty result on error (graceful degradation)
       return {
         cpu: null,
+        materialCPU: null,
+        laborCost: null,
         breakdown: [],
+        laborBreakdown: undefined,
         isComplete: false,
       };
     }
