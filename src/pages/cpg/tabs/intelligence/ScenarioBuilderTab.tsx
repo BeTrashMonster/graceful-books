@@ -862,7 +862,7 @@ export default function ScenarioBuilderTab({
             </div>
 
               {/* Labor Costs Section */}
-              {filterLaborRoles(data.laborBreakdown).length > 0 && (
+              {filterLaborRoles(cpuData.laborBreakdown).length > 0 && (
                 <div className={styles.sliderSection} style={{ marginTop: '1.5rem' }}>
                   <div className={styles.sliderSectionTitle} style={{ color: '#D4AF37' }}>
                     Labor Costs
@@ -885,7 +885,7 @@ export default function ScenarioBuilderTab({
                   </div>
 
                   <div className={styles.componentList}>
-                    {filterLaborRoles(data.laborBreakdown).map((role, idx) => {
+                    {filterLaborRoles(cpuData.laborBreakdown).map((role, idx) => {
                       const baseCost = parseFloat(role.costPerUnit);
                       const currentAdj = laborAdjustments.get(productId)?.get(role.roleId) || 0;
                       const currentMode = laborModes.get(productId) || 'percentage';
