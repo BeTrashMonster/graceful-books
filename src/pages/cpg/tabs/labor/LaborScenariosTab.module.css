@@ -377,6 +377,47 @@
   letter-spacing: 0.03em;
 }
 
+.productCPUSummary {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.cpuMetric {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+}
+
+.cpuMetric strong {
+  color: #4b006e;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+  font-weight: 700;
+}
+
+.cpuDivider {
+  color: #D4AF37;
+  font-weight: 400;
+  font-size: 1rem;
+}
+
+.cpuIncreaseInline {
+  color: #dc2626;
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
+
+.cpuDecreaseInline {
+  color: #16a34a;
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
+
 /* Data Rows */
 .table tbody tr:not(.productHeader):not(.hypotheticalRow) {
   border-bottom: 1px solid #e5e7eb;

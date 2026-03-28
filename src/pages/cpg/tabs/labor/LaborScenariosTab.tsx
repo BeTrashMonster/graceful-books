@@ -456,56 +456,6 @@ export function LaborScenariosTab() {
         </Button>
       </div>
 
-      {/* CPU Impact Summary - Big Picture */}
-      {scenarioGenerated && cpuSummaries.length > 0 && (
-        <div className={styles.cpuSummarySection}>
-          <h2 className={styles.cpuSummaryHeading}>Product CPU Impact</h2>
-          <p className={styles.cpuSummarySubheading}>
-            See how labor changes affect your overall cost per unit
-          </p>
-
-          <div className={styles.cpuSummaryGrid}>
-            {cpuSummaries.map(summary => (
-              <div key={summary.productId} className={styles.cpuSummaryCard}>
-                <h3 className={styles.cpuProductName}>{summary.productName}</h3>
-
-                <div className={styles.cpuBreakdown}>
-                  <div className={styles.cpuBreakdownRow}>
-                    <span className={styles.cpuLabel}>Material CPU:</span>
-                    <span className={styles.cpuValue}>${summary.materialCPU.toFixed(2)}</span>
-                  </div>
-                  <div className={styles.cpuBreakdownRow}>
-                    <span className={styles.cpuLabel}>Labor CPU:</span>
-                    <span className={styles.cpuValueLabor}>
-                      ${summary.currentLaborCPU.toFixed(2)} → ${summary.scenarioLaborCPU.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className={styles.cpuTotalRow}>
-                  <div className={styles.cpuTotalLabel}>Total CPU</div>
-                  <div className={styles.cpuTotalValues}>
-                    <span className={styles.cpuCurrentTotal}>${summary.currentTotalCPU.toFixed(2)}</span>
-                    <span className={styles.cpuArrow}>→</span>
-                    <span className={styles.cpuScenarioTotal}>${summary.scenarioTotalCPU.toFixed(2)}</span>
-                  </div>
-                </div>
-
-                {summary.cpuChange !== 0 && (
-                  <div className={summary.cpuChange > 0 ? styles.cpuImpactNegative : styles.cpuImpactPositive}>
-                    {summary.cpuChange > 0 ? '↑' : '↓'} ${Math.abs(summary.cpuChange).toFixed(2)}
-                    ({summary.cpuChangePercent > 0 ? '+' : ''}{summary.cpuChangePercent.toFixed(1)}%)
-                    <div className={styles.cpuImpactText}>
-                      {summary.cpuChange > 0 ? 'Higher cost' : 'Cost savings'}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Scenario Table */}
       {scenarioGenerated && productGroups.length > 0 && (
         <>
@@ -534,7 +484,36 @@ export function LaborScenariosTab() {
                   <>
                     {/* Product Header Row */}
                     <tr key={`product-${productId}`} className={styles.productHeader}>
-                      <td colSpan={8}>{group.productName}</td>
+                      <td colSpan={3}>{group.productName}</td>
+                      <td colSpan={5} className={styles.productCPUSummary}>
+                        {(() => {
+                          const summary = cpuSummaries.find(s => s.productId === productId);
+                          if (!summary) return null;
+                          const laborChange = summary.scenarioLaborCPU - summary.currentLaborCPU;
+                          const cpuChange = summary.scenarioTotalCPU - summary.currentTotalCPU;
+                          return (
+                            <>
+                              <span className={styles.cpuMetric}>
+                                Labor CPU: <strong>${summary.currentLaborCPU.toFixed(2)} → ${summary.scenarioLaborCPU.toFixed(2)}</strong>
+                                {laborChange !== 0 && (
+                                  <span className={laborChange > 0 ? styles.cpuIncreaseInline : styles.cpuDecreaseInline}>
+                                    ({laborChange > 0 ? '+' : ''}${laborChange.toFixed(2)})
+                                  </span>
+                                )}
+                              </span>
+                              <span className={styles.cpuDivider}>|</span>
+                              <span className={styles.cpuMetric}>
+                                Total CPU: <strong>${summary.currentTotalCPU.toFixed(2)} → ${summary.scenarioTotalCPU.toFixed(2)}</strong>
+                                {cpuChange !== 0 && (
+                                  <span className={cpuChange > 0 ? styles.cpuIncreaseInline : styles.cpuDecreaseInline}>
+                                    ({cpuChange > 0 ? '+' : ''}${cpuChange.toFixed(2)})
+                                  </span>
+                                )}
+                              </span>
+                            </>
+                          );
+                        })()}
+                      </td>
                     </tr>
 
                     {/* Role Rows */}
