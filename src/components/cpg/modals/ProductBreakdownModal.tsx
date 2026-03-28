@@ -869,38 +869,56 @@ export function ProductBreakdownModal({
 
                 return (
                   <>
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.5rem' }}>Cost Breakdown</div>
+                    {/* MSRP - right aligned */}
+                    {msrpNumber && (
+                      <div style={{ fontSize: '0.8125rem', color: '#6b7280', marginBottom: '0.5rem', textAlign: 'right' }}>
+                        MSRP: ${msrpNumber.toFixed(2)}
+                      </div>
+                    )}
+
+                    {/* Labels row */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      marginBottom: '0.25rem'
+                    }}>
+                      <div style={{ flex: 1, textAlign: 'center' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>Materials</span>
+                      </div>
+                      <span style={{ width: '1.5rem' }}></span>
+                      <div style={{ flex: 1, textAlign: 'center' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>Labor</span>
+                      </div>
+                      <span style={{ width: '1.5rem' }}></span>
+                      <div style={{ flex: 1, textAlign: 'center' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>Total</span>
+                      </div>
+                    </div>
+
+                    {/* Values row with operators */}
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.5rem',
                       fontSize: '1rem',
-                      fontWeight: 600,
-                      flexWrap: 'wrap'
+                      fontWeight: 600
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>Materials</span>
+                      <div style={{ flex: 1, textAlign: 'center' }}>
                         <span style={{ color: '#10b981' }}>${materialCPU}</span>
                       </div>
-                      <span style={{ color: '#6b7280', fontSize: '1.25rem', fontWeight: 400 }}>+</span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>Labor</span>
+                      <span style={{ color: '#6b7280', fontSize: '1.25rem', fontWeight: 400, width: '1.5rem', textAlign: 'center' }}>+</span>
+                      <div style={{ flex: 1, textAlign: 'center' }}>
                         <span style={{ color: '#D4AF37' }}>${laborTotalCost}</span>
                       </div>
-                      <span style={{ color: '#6b7280', fontSize: '1.25rem', fontWeight: 400 }}>=</span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>Total</span>
+                      <span style={{ color: '#6b7280', fontSize: '1.25rem', fontWeight: 400, width: '1.5rem', textAlign: 'center' }}>=</span>
+                      <div style={{ flex: 1, textAlign: 'center' }}>
                         <span style={{ color: '#10b981', fontSize: '1.25rem', fontWeight: 700 }}>${totalCPU}</span>
                       </div>
                     </div>
                   </>
                 );
               })()}
-              {msrpNumber && (
-                <div style={{ fontSize: '0.8125rem', color: '#6b7280', marginTop: '0.5rem' }}>
-                  MSRP: ${msrpNumber.toFixed(2)}
-                </div>
-              )}
             </div>
 
             {/* Export Button */}
