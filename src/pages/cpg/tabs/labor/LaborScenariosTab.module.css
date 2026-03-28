@@ -303,11 +303,15 @@
 .table thead tr:first-child th {
   padding: 1rem 1.25rem;
   text-align: center;
-  font-weight: 600;
-  font-size: 0.875rem;
+  font-weight: 700;
+  font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: white;
+  position: sticky;
+  top: 0;
+  background: #4b006e;
+  z-index: 11;
 }
 
 .table thead tr:first-child th:first-child {
@@ -358,8 +362,8 @@
   letter-spacing: 0.05em;
   border-bottom: 2px solid #D4AF37;
   position: sticky;
-  top: 53px;
-  z-index: 9;
+  top: 57px;
+  z-index: 10;
   background: #5b0a8e;
 }
 
@@ -460,28 +464,41 @@
 
 /* Vertical lines separating sections */
 .table tbody td:nth-child(1) {
-  border-right: 2px solid #e5e7eb;
+  border-right: 3px solid #9ca3af;
 }
 
 .table tbody td:nth-child(4) {
-  border-right: 2px solid #e5e7eb;
+  border-right: 3px solid #9ca3af;
 }
 
 .table tbody td:nth-child(7) {
-  border-right: 2px solid #e5e7eb;
+  border-right: 3px solid #9ca3af;
 }
 
-/* Header vertical lines */
-.table thead th:nth-child(1) {
+/* Header vertical lines - main header */
+.table thead tr:first-child th:nth-child(1) {
   border-right: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-.table thead th:nth-child(2) {
+.table thead tr:first-child th:nth-child(2) {
   border-right: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-.table thead th:nth-child(3) {
+.table thead tr:first-child th:nth-child(3) {
   border-right: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Subheader vertical lines */
+.subheader th:nth-child(1) {
+  border-right: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.subheader th:nth-child(4) {
+  border-right: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.subheader th:nth-child(7) {
+  border-right: 3px solid rgba(255, 255, 255, 0.3);
 }
 
 .hypotheticalRow {
