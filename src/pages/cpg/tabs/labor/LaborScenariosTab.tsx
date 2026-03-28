@@ -619,15 +619,18 @@ export function LaborScenariosTab() {
                   <th>Product</th>
                   <th>Current Labor Cost</th>
                   <th>Scenario Labor Cost</th>
-                  <th>Change</th>
+                  <th>Change (%)</th>
                   <th>Total Current CPU</th>
                   <th>Total Scenario CPU</th>
-                  <th>Change</th>
+                  <th>Change ($)</th>
                 </tr>
               </thead>
               <tbody>
                 {cpuSummaries.map(summary => {
                   const laborChange = summary.scenarioLaborCPU - summary.currentLaborCPU;
+                  const laborChangePercent = summary.currentLaborCPU > 0
+                    ? (laborChange / summary.currentLaborCPU) * 100
+                    : 0;
                   const cpuChange = summary.scenarioTotalCPU - summary.currentTotalCPU;
 
                   return (
@@ -636,7 +639,7 @@ export function LaborScenariosTab() {
                       <td className={styles.impactCost}>${summary.currentLaborCPU.toFixed(2)}</td>
                       <td className={styles.impactCost}>${summary.scenarioLaborCPU.toFixed(2)}</td>
                       <td className={laborChange > 0 ? styles.impactIncrease : styles.impactDecrease}>
-                        {laborChange > 0 ? '+' : ''}${laborChange.toFixed(2)}
+                        {laborChange > 0 ? '+' : ''}{laborChangePercent.toFixed(1)}%
                       </td>
                       <td className={styles.impactCost}>${summary.currentTotalCPU.toFixed(2)}</td>
                       <td className={styles.impactCost}>${summary.scenarioTotalCPU.toFixed(2)}</td>
@@ -646,6 +649,46 @@ export function LaborScenariosTab() {
                     </tr>
                   );
                 })}
+                {/* Totals Row */}
+                <tr className={styles.totalsRow}>
+                  <td className={styles.totalsLabel}>TOTAL</td>
+                  <td className={styles.impactCost}>
+                    ${cpuSummaries.reduce((sum, s) => sum + s.currentLaborCPU, 0).toFixed(2)}
+                  </td>
+                  <td className={styles.impactCost}>
+                    ${cpuSummaries.reduce((sum, s) => sum + s.scenarioLaborCPU, 0).toFixed(2)}
+                  </td>
+                  <td className={(() => {
+                    const totalCurrent = cpuSummaries.reduce((sum, s) => sum + s.currentLaborCPU, 0);
+                    const totalScenario = cpuSummaries.reduce((sum, s) => sum + s.scenarioLaborCPU, 0);
+                    const totalChange = totalScenario - totalCurrent;
+                    const totalChangePercent = totalCurrent > 0 ? (totalChange / totalCurrent) * 100 : 0;
+                    return totalChange > 0 ? styles.impactIncrease : styles.impactDecrease;
+                  })()}>
+                    {(() => {
+                      const totalCurrent = cpuSummaries.reduce((sum, s) => sum + s.currentLaborCPU, 0);
+                      const totalScenario = cpuSummaries.reduce((sum, s) => sum + s.scenarioLaborCPU, 0);
+                      const totalChange = totalScenario - totalCurrent;
+                      const totalChangePercent = totalCurrent > 0 ? (totalChange / totalCurrent) * 100 : 0;
+                      return `${totalChange > 0 ? '+' : ''}${totalChangePercent.toFixed(1)}%`;
+                    })()}
+                  </td>
+                  <td className={styles.impactCost}>
+                    ${cpuSummaries.reduce((sum, s) => sum + s.currentTotalCPU, 0).toFixed(2)}
+                  </td>
+                  <td className={styles.impactCost}>
+                    ${cpuSummaries.reduce((sum, s) => sum + s.scenarioTotalCPU, 0).toFixed(2)}
+                  </td>
+                  <td className={(() => {
+                    const totalChange = cpuSummaries.reduce((sum, s) => sum + (s.scenarioTotalCPU - s.currentTotalCPU), 0);
+                    return totalChange > 0 ? styles.impactIncrease : styles.impactDecrease;
+                  })()}>
+                    {(() => {
+                      const totalChange = cpuSummaries.reduce((sum, s) => sum + (s.scenarioTotalCPU - s.currentTotalCPU), 0);
+                      return `${totalChange > 0 ? '+' : ''}$${totalChange.toFixed(2)}`;
+                    })()}
+                  </td>
+                </tr>
               </tbody>
             </table>
 
