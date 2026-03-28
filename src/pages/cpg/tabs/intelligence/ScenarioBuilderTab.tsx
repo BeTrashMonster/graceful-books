@@ -546,7 +546,9 @@ export default function ScenarioBuilderTab({
         const scenarioMSRPValue = scenarioMSRP.get(productId) || baseMSRP;
         const scenarioMarginValue = calculateScenarioMargin(productId, scenarioCPUValue) || baseMargin;
 
-        const hasAdjustments = (scenarioAdjustments.get(productId)?.size || 0) > 0 || scenarioMSRP.has(productId);
+        const hasAdjustments = (scenarioAdjustments.get(productId)?.size || 0) > 0 ||
+                               (laborAdjustments.get(productId)?.size || 0) > 0 ||
+                               scenarioMSRP.has(productId);
 
         const cpuDelta = scenarioCPUValue - baseCPU;
         const marginDelta = scenarioMarginValue - baseMargin;
@@ -840,6 +842,123 @@ export default function ScenarioBuilderTab({
               </div>
               )}
             </div>
+
+              {/* Labor Costs Section */}
+              {data.laborBreakdown && data.laborBreakdown.length > 0 && (
+                <div className={styles.sliderSection} style={{ marginTop: '1.5rem' }}>
+                  <div className={styles.sliderSectionTitle} style={{ color: '#D4AF37' }}>
+                    Labor Costs
+                    <div className={styles.componentModeToggle}>
+                      <button
+                        className={`${styles.modeButton} ${(laborModes.get(productId) || 'percentage') === 'percentage' ? styles.active : ''}`}
+                        onClick={() => handleLaborModeToggle(productId, 'percentage')}
+                        aria-label="Switch to percentage mode for labor"
+                      >
+                        %
+                      </button>
+                      <button
+                        className={`${styles.modeButton} ${(laborModes.get(productId) || 'percentage') === 'dollar' ? styles.active : ''}`}
+                        onClick={() => handleLaborModeToggle(productId, 'dollar')}
+                        aria-label="Switch to dollar mode for labor"
+                      >
+                        $
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className={styles.componentList}>
+                    {data.laborBreakdown.map((role, idx) => {
+                      const baseCost = parseFloat(role.costPerUnit);
+                      const currentAdj = laborAdjustments.get(productId)?.get(role.roleId) || 0;
+                      const currentMode = laborModes.get(productId) || 'percentage';
+
+                      let adjustedCost;
+                      let displayAdjustment;
+                      if (currentMode === 'percentage') {
+                        adjustedCost = baseCost * (1 + currentAdj / 100);
+                        displayAdjustment = currentAdj !== 0 ? `${currentAdj > 0 ? '+' : ''}${currentAdj.toFixed(2)}%` : null;
+                      } else {
+                        adjustedCost = baseCost + currentAdj;
+                        displayAdjustment = currentAdj !== 0 ? `${currentAdj > 0 ? '+' : ''}$${Math.abs(currentAdj).toFixed(2)}` : null;
+                      }
+
+                      // Slider range based on mode
+                      let sliderMin, sliderMax, sliderStep;
+                      if (currentMode === 'percentage') {
+                        sliderMin = -50;
+                        sliderMax = 100;
+                        sliderStep = 1;
+                      } else {
+                        sliderMin = -baseCost * 0.5;
+                        sliderMax = baseCost * 1.0;
+                        sliderStep = 0.01;
+                      }
+
+                      return (
+                        <div
+                          key={idx}
+                          className={`${styles.componentItem} ${currentAdj !== 0 ? styles.adjusted : ''}`}
+                          style={{ borderColor: currentAdj !== 0 ? '#D4AF37' : undefined }}
+                        >
+                          {/* Role Name */}
+                          <div className={styles.componentName} style={{ color: '#D4AF37' }}>
+                            <div>{role.roleName}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#B8941F', marginTop: '0.125rem' }}>
+                              {parseFloat(role.hoursPerUnit).toFixed(2)} hrs @ ${parseFloat(role.hourlyRate).toFixed(2)}/hr
+                            </div>
+                          </div>
+
+                          {/* Slider with badge underneath */}
+                          <div className={styles.componentSliderWrapper}>
+                            <input
+                              id={`labor-slider-${productId}-${role.roleId}`}
+                              type="range"
+                              min={sliderMin}
+                              max={sliderMax}
+                              step={sliderStep}
+                              value={currentAdj}
+                              onChange={(e) => {
+                                const adj = parseFloat(e.target.value);
+                                handleLaborAdjustment(productId, role.roleId, adj);
+                              }}
+                              aria-label={`Adjust labor cost for ${role.roleName}`}
+                              aria-valuemin={sliderMin}
+                              aria-valuemax={sliderMax}
+                              aria-valuenow={currentAdj}
+                              aria-valuetext={displayAdjustment || 'No adjustment'}
+                              className={styles.slider}
+                              style={{
+                                background: currentAdj !== 0 ? 'linear-gradient(90deg, #FFF9E6 0%, #D4AF37 50%, #FFF9E6 100%)' : undefined
+                              }}
+                            />
+                            {/* Badge shows underneath slider if adjusted */}
+                            {displayAdjustment && (
+                              <div className={styles.sliderBadgeWrapper}>
+                                <span
+                                  className={`${styles.componentAdjustmentBadge} ${
+                                    currentAdj > 0 ? styles.increase : styles.decrease
+                                  }`}
+                                  style={{
+                                    backgroundColor: currentAdj > 0 ? '#FFF9E6' : '#FFE8E8',
+                                    color: currentAdj > 0 ? '#D4AF37' : '#DC2626'
+                                  }}
+                                >
+                                  {displayAdjustment}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Value */}
+                          <div className={styles.componentValue} style={{ color: '#D4AF37' }}>
+                            <span>${formatNumberWithCommas(adjustedCost)}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Reset Button */}
               {hasAdjustments && (

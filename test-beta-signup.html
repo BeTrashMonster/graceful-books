@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Beta Signup</title>
+</head>
+<body>
+    <h1>Test Beta Signup Endpoint</h1>
+    <button onclick="testSignup()">Test Beta Signup</button>
+    <pre id="result"></pre>
+
+    <script>
+        async function testSignup() {
+            const result = document.getElementById('result');
+            result.textContent = 'Testing...';
+
+            try {
+                const response = await fetch('https://api.audacious.money/auth/beta-signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'test' + Date.now() + '@example.com',
+                        password: 'TestPass123!',
+                        firstName: 'Test',
+                        lastName: 'User',
+                        companyName: 'Test Company'
+                    })
+                });
+
+                const data = await response.json();
+                result.textContent = JSON.stringify({
+                    status: response.status,
+                    ok: response.ok,
+                    data: data
+                }, null, 2);
+            } catch (error) {
+                result.textContent = 'ERROR: ' + error.message + '\n\nThis is the "Failed to fetch" error!';
+                console.error('Full error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
