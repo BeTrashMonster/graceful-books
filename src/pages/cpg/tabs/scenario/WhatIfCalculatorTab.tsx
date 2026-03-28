@@ -162,6 +162,19 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
     costPerUnit: '',
   });
 
+  // Labor roles for recipe
+  const [recipeLaborRoles, setRecipeLaborRoles] = useState<Array<{
+    id: string;
+    roleName: string;
+    hoursPerUnit: string;
+    hourlyRate: string;
+  }>>([]);
+  const [newLaborRole, setNewLaborRole] = useState({
+    roleName: '',
+    hoursPerUnit: '',
+    hourlyRate: '',
+  });
+
   // Unit Cost Calculator state
   const [calculatorType, setCalculatorType] = useState<'weight' | 'volume'>('weight');
   const [calculatorPrice, setCalculatorPrice] = useState<string>('');
@@ -177,6 +190,8 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
   // New Idea calculation result
   const [newIdeaResult, setNewIdeaResult] = useState<{
+    materialCPU: number;
+    laborCost: number;
     baseCPU: number;
     distributionCPU: number;
     promoCPU: number;
@@ -954,7 +969,34 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
     ));
   };
 
-  const calculateRecipeTotalCPU = (): number => {
+  // Labor role recipe functions
+  const addLaborRoleToRecipe = () => {
+    if (!newLaborRole.roleName || !newLaborRole.hoursPerUnit || !newLaborRole.hourlyRate) {
+      return;
+    }
+
+    const laborRole = {
+      id: Date.now().toString(),
+      roleName: newLaborRole.roleName,
+      hoursPerUnit: newLaborRole.hoursPerUnit,
+      hourlyRate: newLaborRole.hourlyRate,
+    };
+
+    setRecipeLaborRoles([...recipeLaborRoles, laborRole]);
+    setNewLaborRole({ roleName: '', hoursPerUnit: '', hourlyRate: '' });
+  };
+
+  const removeLaborRoleFromRecipe = (id: string) => {
+    setRecipeLaborRoles(recipeLaborRoles.filter(role => role.id !== id));
+  };
+
+  const updateRecipeLaborRole = (id: string, field: string, value: string) => {
+    setRecipeLaborRoles(recipeLaborRoles.map(role =>
+      role.id === id ? { ...role, [field]: value } : role
+    ));
+  };
+
+  const calculateRecipeMaterialCPU = (): number => {
     return recipeIngredients.reduce((total, ing) => {
       const qty = parseFloat(ing.quantity);
       const cpu = parseFloat(ing.costPerUnit);
@@ -962,13 +1004,30 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
     }, 0);
   };
 
+  const calculateRecipeLaborCost = (): number => {
+    return recipeLaborRoles.reduce((total, role) => {
+      const hours = parseFloat(role.hoursPerUnit);
+      const rate = parseFloat(role.hourlyRate);
+      return total + (isNaN(hours) || isNaN(rate) ? 0 : hours * rate);
+    }, 0);
+  };
+
+  const calculateRecipeTotalCPU = (): number => {
+    return calculateRecipeMaterialCPU() + calculateRecipeLaborCost();
+  };
+
   const exportRecipeCSV = () => {
+    const materialCPU = calculateRecipeMaterialCPU();
+    const laborCost = calculateRecipeLaborCost();
     const totalCPU = calculateRecipeTotalCPU();
     const retailPrice = parseFloat(targetRetailPrice) || 0;
     const profitMargin = retailPrice > 0 ? ((retailPrice - totalCPU) / retailPrice * 100) : 0;
 
     let csv = 'New Product Costing Export\n';
     csv += `Target Retail Price,$${targetRetailPrice || '0.00'}\n\n`;
+
+    // Materials section
+    csv += 'MATERIALS\n';
     csv += 'Category,Variant,Qty,Cost/Unit,Total Cost\n';
 
     recipeIngredients.forEach(ing => {
@@ -978,7 +1037,24 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
       csv += `${ing.category},${ing.variant},${qty},$${cpu.toFixed(2)},$${total.toFixed(2)}\n`;
     });
 
-    csv += `\nTotal Base CPU,,,,$${totalCPU.toFixed(2)}\n`;
+    csv += `Material CPU Subtotal,,,,$${materialCPU.toFixed(2)}\n\n`;
+
+    // Labor section
+    if (recipeLaborRoles.length > 0) {
+      csv += 'LABOR\n';
+      csv += 'Role,Hours/Unit,Rate ($/hr),Cost/Unit\n';
+
+      recipeLaborRoles.forEach(role => {
+        const hours = parseFloat(role.hoursPerUnit) || 0;
+        const rate = parseFloat(role.hourlyRate) || 0;
+        const costPerUnit = hours * rate;
+        csv += `${role.roleName},${hours},$${rate.toFixed(2)},$${costPerUnit.toFixed(2)}\n`;
+      });
+
+      csv += `Labor Cost Subtotal,,,$${laborCost.toFixed(2)}\n\n`;
+    }
+
+    csv += `Total Base CPU,,,,$${totalCPU.toFixed(2)}\n`;
     csv += `Profit Margin (at target price),,,,${profitMargin.toFixed(1)}%\n`;
 
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -1010,7 +1086,9 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
       setCalculating(true);
       setError(null);
 
-      // Base CPU from recipe
+      // Base CPU from recipe (material + labor)
+      const materialCPU = calculateRecipeMaterialCPU();
+      const laborCost = calculateRecipeLaborCost();
       const baseCPU = calculateRecipeTotalCPU();
 
       // Get distribution CPU if selected
@@ -1046,6 +1124,8 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
         : 'gutCheck';
 
       setNewIdeaResult({
+        materialCPU,
+        laborCost,
         baseCPU,
         distributionCPU,
         promoCPU,
@@ -2692,8 +2772,130 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                 )}
               </div>
 
+              {/* Labor Roles Section */}
+              <div className={styles.laborRolesSection} style={{ marginTop: '2rem' }}>
+                <h4 style={{ color: '#D4AF37' }}>Labor Roles:</h4>
+                <div className={styles.addLaborSection}>
+                  <div className={styles.laborInputRow} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                    {/* Role Name */}
+                    <input
+                      type="text"
+                      placeholder="Role Name (e.g., Chef, Packager)"
+                      value={newLaborRole.roleName}
+                      onChange={(e) => setNewLaborRole({ ...newLaborRole, roleName: e.target.value })}
+                      className={styles.laborInput}
+                      style={{ flex: '2', padding: '0.5rem', border: '2px solid #D4AF37', borderRadius: '4px' }}
+                    />
+
+                    {/* Hours Per Unit */}
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="Hours/Unit"
+                      value={newLaborRole.hoursPerUnit}
+                      onChange={(e) => setNewLaborRole({ ...newLaborRole, hoursPerUnit: e.target.value })}
+                      className={styles.hoursInput}
+                      style={{ width: '120px', padding: '0.5rem', border: '2px solid #D4AF37', borderRadius: '4px' }}
+                    />
+
+                    {/* Hourly Rate */}
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="$/Hour"
+                      value={newLaborRole.hourlyRate}
+                      onChange={(e) => setNewLaborRole({ ...newLaborRole, hourlyRate: e.target.value })}
+                      className={styles.rateInput}
+                      style={{ width: '120px', padding: '0.5rem', border: '2px solid #D4AF37', borderRadius: '4px' }}
+                    />
+
+                    {/* Add Button */}
+                    <Button
+                      variant="gold"
+                      onClick={addLaborRoleToRecipe}
+                      disabled={!newLaborRole.roleName || !newLaborRole.hoursPerUnit || !newLaborRole.hourlyRate}
+                      style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+                    >
+                      Add Labor →
+                    </Button>
+                  </div>
+                </div>
+
+                {recipeLaborRoles.length > 0 && (
+                  <table className={styles.recipeTable} style={{ marginTop: '1rem', borderColor: '#D4AF37' }}>
+                    <thead>
+                      <tr style={{ backgroundColor: '#FFF9E6' }}>
+                        <th style={{ color: '#D4AF37' }}>Role</th>
+                        <th style={{ color: '#D4AF37' }}>Hours/Unit</th>
+                        <th style={{ color: '#D4AF37' }}>Rate ($/hr)</th>
+                        <th style={{ color: '#D4AF37' }}>Cost/Unit</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recipeLaborRoles.map(role => {
+                        const hours = parseFloat(role.hoursPerUnit) || 0;
+                        const rate = parseFloat(role.hourlyRate) || 0;
+                        const costPerUnit = hours * rate;
+                        return (
+                          <tr key={role.id} style={{ backgroundColor: '#FFF9E6' }}>
+                            <td>
+                              <input
+                                type="text"
+                                value={role.roleName}
+                                onChange={(e) => updateRecipeLaborRole(role.id, 'roleName', e.target.value)}
+                                className={styles.recipeEditInput}
+                                placeholder="Role Name"
+                                style={{ color: '#D4AF37', fontWeight: 600 }}
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={role.hoursPerUnit}
+                                onChange={(e) => updateRecipeLaborRole(role.id, 'hoursPerUnit', e.target.value)}
+                                className={styles.recipeEditInput}
+                                style={{ width: '100px', color: '#D4AF37' }}
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={role.hourlyRate}
+                                onChange={(e) => updateRecipeLaborRole(role.id, 'hourlyRate', e.target.value)}
+                                className={styles.recipeEditInput}
+                                style={{ width: '100px', color: '#D4AF37' }}
+                              />
+                            </td>
+                            <td style={{ color: '#D4AF37', fontWeight: 600 }}>${costPerUnit.toFixed(2)}</td>
+                            <td>
+                              <button
+                                onClick={() => removeLaborRoleFromRecipe(role.id)}
+                                className={styles.removeButton}
+                                title="Remove"
+                                style={{ color: '#D4AF37' }}
+                              >
+                                ×
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+
               {/* Recipe Summary */}
-              {recipeIngredients.length > 0 && (() => {
+              {(recipeIngredients.length > 0 || recipeLaborRoles.length > 0) && (() => {
+                const materialCPU = calculateRecipeMaterialCPU();
+                const laborCost = calculateRecipeLaborCost();
                 const totalCPU = calculateRecipeTotalCPU();
                 const retailPrice = parseFloat(targetRetailPrice) || 0;
                 const profitMargin = retailPrice - totalCPU;
@@ -2705,6 +2907,16 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                 return (
                   <>
                     <div className={styles.recipeSummary}>
+                      <div className={styles.metricColumn}>
+                        <div className={styles.metricLabel}>Material CPU</div>
+                        <div className={styles.metricValue}>${materialCPU.toFixed(2)}</div>
+                      </div>
+                      <div className={styles.metricColumn}>
+                        <div className={styles.metricLabel} style={{ color: '#D4AF37' }}>Labor Cost</div>
+                        <div className={styles.metricValue} style={{ color: '#D4AF37', fontWeight: 600 }}>
+                          ${laborCost.toFixed(2)}
+                        </div>
+                      </div>
                       <div className={styles.metricColumn}>
                         <div className={styles.metricLabel}>Total CPU</div>
                         <div className={styles.metricValue}>${totalCPU.toFixed(2)}</div>
@@ -2802,7 +3014,19 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
                   <div className={styles.resultsGrid}>
                     <div className={styles.resultCard}>
-                      <div className={styles.resultLabel}>Base CPU (Recipe)</div>
+                      <div className={styles.resultLabel}>Material CPU</div>
+                      <div className={styles.resultValue}>${newIdeaResult.materialCPU.toFixed(2)}</div>
+                    </div>
+
+                    <div className={styles.resultCard}>
+                      <div className={styles.resultLabel} style={{ color: '#D4AF37' }}>Labor Cost</div>
+                      <div className={styles.resultValue} style={{ color: '#D4AF37', fontWeight: 600 }}>
+                        ${newIdeaResult.laborCost.toFixed(2)}
+                      </div>
+                    </div>
+
+                    <div className={styles.resultCard}>
+                      <div className={styles.resultLabel}>Base CPU (Material + Labor)</div>
                       <div className={styles.resultValue}>${newIdeaResult.baseCPU.toFixed(2)}</div>
                     </div>
 
