@@ -270,63 +270,67 @@ export default function CPUTrendsTab({
           });
         });
 
+        // Determine filter visibility
+        const hasMaterialFilters = categoryFilter.size > 0 || variantFilter.size > 0 || vendorFilter.size > 0;
+        const hasLaborFilters = laborFilter.size > 0;
+        const hasAnyFilters = hasMaterialFilters || hasLaborFilters;
+        const showMaterialsSection = !hasAnyFilters || hasMaterialFilters;
+        const showLaborSection = !hasAnyFilters || hasLaborFilters;
+
         // Build component trends from collected data
         const componentTrends: ComponentTrendData[] = [];
-        componentDataMap.forEach((data) => {
-          if (data.priceHistory.length === 0) return;
 
-          // Sort by date (oldest to newest for charting)
-          data.priceHistory.sort((a, b) => a.date - b.date);
+        // Add material components if filters allow
+        if (showMaterialsSection) {
+          componentDataMap.forEach((data) => {
+            if (data.priceHistory.length === 0) return;
 
-          // Calculate current (most recent), average, and change
-          const currentPrice = data.priceHistory[data.priceHistory.length - 1].price;
-          const avgPrice = data.priceHistory.reduce((sum, p) => sum + p.price, 0) / data.priceHistory.length;
-          const priceChange = ((currentPrice - avgPrice) / avgPrice) * 100;
+            // Sort by date (oldest to newest for charting)
+            data.priceHistory.sort((a, b) => a.date - b.date);
 
-          // Calculate days since last purchase
-          const lastBuyDate = data.priceHistory[data.priceHistory.length - 1].date;
-          const lastBuyDays = Math.floor((today - lastBuyDate) / (24 * 60 * 60 * 1000));
+            // Calculate current (most recent), average, and change
+            const currentPrice = data.priceHistory[data.priceHistory.length - 1].price;
+            const avgPrice = data.priceHistory.reduce((sum, p) => sum + p.price, 0) / data.priceHistory.length;
+            const priceChange = ((currentPrice - avgPrice) / avgPrice) * 100;
 
-          componentTrends.push({
-            componentName: data.variant
-              ? `${data.categoryName} (${data.variant})`
-              : data.categoryName,
-            current: currentPrice,
-            avg: avgPrice,
-            change: priceChange,
-            lastBuyDays,
-            priceHistory: data.priceHistory,
+            // Calculate days since last purchase
+            const lastBuyDate = data.priceHistory[data.priceHistory.length - 1].date;
+            const lastBuyDays = Math.floor((today - lastBuyDate) / (24 * 60 * 60 * 1000));
+
+            componentTrends.push({
+              componentName: data.variant
+                ? `${data.categoryName} (${data.variant})`
+                : data.categoryName,
+              current: currentPrice,
+              avg: avgPrice,
+              change: priceChange,
+              lastBuyDays,
+              priceHistory: data.priceHistory,
+            });
           });
-        });
+        }
 
         // Add labor cost data if available and filters allow
-        if (productId !== 'all-components' && cpuData?.laborBreakdown) {
-          const hasMaterialFilters = categoryFilter.size > 0 || variantFilter.size > 0 || vendorFilter.size > 0;
-          const hasLaborFilters = laborFilter.size > 0;
-          const hasAnyFilters = hasMaterialFilters || hasLaborFilters;
-          const showLaborSection = !hasAnyFilters || hasLaborFilters;
+        if (productId !== 'all-components' && cpuData?.laborBreakdown && showLaborSection) {
+          cpuData.laborBreakdown.forEach(labor => {
+            // Apply labor filter
+            if (laborFilter.size > 0 && !laborFilter.has(labor.roleId)) return;
 
-          if (showLaborSection) {
-            cpuData.laborBreakdown.forEach(labor => {
-              // Apply labor filter
-              if (laborFilter.size > 0 && !laborFilter.has(labor.roleId)) return;
+            const costPerUnit = parseFloat(labor.costPerUnit);
+            if (isNaN(costPerUnit) || costPerUnit <= 0) return;
 
-              const costPerUnit = parseFloat(labor.costPerUnit);
-              if (isNaN(costPerUnit) || costPerUnit <= 0) return;
-
-              // Labor doesn't have historical data, so we create a single point
-              // representing the current cost
-              componentTrends.push({
-                componentName: `${labor.roleName} (Labor)`,
-                current: costPerUnit,
-                avg: costPerUnit, // No history, so avg = current
-                change: 0, // No history, so no change
-                lastBuyDays: 0, // N/A for labor
-                priceHistory: [{ date: today, price: costPerUnit }],
-                isLabor: true,
-              });
+            // Labor doesn't have historical data, so we create a single point
+            // representing the current cost
+            componentTrends.push({
+              componentName: `${labor.roleName} (Labor)`,
+              current: costPerUnit,
+              avg: costPerUnit, // No history, so avg = current
+              change: 0, // No history, so no change
+              lastBuyDays: 0, // N/A for labor
+              priceHistory: [{ date: today, price: costPerUnit }],
+              isLabor: true,
             });
-          }
+          });
         }
 
         if (componentTrends.length > 0) {
