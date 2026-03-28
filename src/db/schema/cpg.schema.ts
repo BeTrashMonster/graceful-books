@@ -1194,6 +1194,340 @@ export const validateCPGSettings = (settings: Partial<CPGSettings>, isUpdate = f
 };
 
 // ============================================================================
+// CPG Labor Role - Employee roles and rates for labor cost tracking
+// ============================================================================
+
+/**
+ * CPG Labor Role
+ * Represents an employee role/position with compensation details.
+ * Supports both hourly and salary compensation types.
+ */
+export interface CPGLaborRole extends BaseEntity {
+  id: string;
+  company_id: string;
+  role_name: string; // e.g., "Production Worker", "Packaging Specialist", "Owner"
+  description: string | null;
+
+  // Compensation
+  compensation_type: 'hourly' | 'salary';
+  hourly_rate: string | null; // For hourly workers (e.g., "20.00")
+  salary_amount: string | null; // For salaried employees (e.g., "52000.00")
+  salary_period: 'yearly' | 'monthly' | 'biweekly' | 'weekly' | null; // How salary is stated
+  calculated_hourly_rate: string | null; // Calculated from salary for CPU purposes
+
+  notes: string | null;
+  active: boolean;
+  created_at: number;
+  updated_at: number;
+  deleted_at: number | null;
+  version_vector: Record<string, number>;
+}
+
+export const cpgLaborRolesSchema =
+  'id, company_id, role_name, [company_id+active], active, updated_at, deleted_at';
+
+/**
+ * Create a default CPG labor role with all required fields
+ */
+export const createDefaultCPGLaborRole = (
+  companyId: string,
+  roleName: string,
+  deviceId: string
+): Partial<CPGLaborRole> => {
+  const now = Date.now();
+  return {
+    company_id: companyId,
+    role_name: roleName,
+    description: null,
+    compensation_type: 'hourly',
+    hourly_rate: '20.00', // Default from CPG Settings
+    salary_amount: null,
+    salary_period: null,
+    calculated_hourly_rate: null,
+    notes: null,
+    active: true,
+    created_at: now,
+    updated_at: now,
+    deleted_at: null,
+    version_vector: { [deviceId]: 1 },
+  };
+};
+
+/**
+ * Validate a CPG labor role
+ * Returns array of error messages (empty if valid)
+ */
+export const validateCPGLaborRole = (
+  role: Partial<CPGLaborRole>,
+  existingRoles?: CPGLaborRole[]
+): string[] => {
+  const errors: string[] = [];
+
+  // company_id required
+  if (!role.company_id) {
+    errors.push('company_id is required');
+  }
+
+  // role_name required, non-empty
+  if (!role.role_name || role.role_name.trim() === '') {
+    errors.push('role_name is required');
+  }
+
+  // role_name must be unique within company
+  if (role.role_name && role.company_id && existingRoles) {
+    const duplicate = existingRoles.find(
+      (r) =>
+        r.id !== role.id &&
+        r.company_id === role.company_id &&
+        r.role_name.toLowerCase() === role.role_name!.toLowerCase() &&
+        r.deleted_at === null
+    );
+    if (duplicate) {
+      errors.push(`A role named "${role.role_name}" already exists`);
+    }
+  }
+
+  // compensation_type required
+  if (!role.compensation_type) {
+    errors.push('compensation_type is required');
+  }
+
+  // Validate compensation based on type
+  if (role.compensation_type === 'hourly') {
+    if (!role.hourly_rate || role.hourly_rate.trim() === '') {
+      errors.push('hourly_rate is required for hourly compensation');
+    } else {
+      const rate = parseFloat(role.hourly_rate);
+      if (isNaN(rate) || rate <= 0) {
+        errors.push('hourly_rate must be a positive number');
+      }
+    }
+  } else if (role.compensation_type === 'salary') {
+    if (!role.salary_amount || role.salary_amount.trim() === '') {
+      errors.push('salary_amount is required for salary compensation');
+    } else {
+      const amount = parseFloat(role.salary_amount);
+      if (isNaN(amount) || amount <= 0) {
+        errors.push('salary_amount must be a positive number');
+      }
+    }
+    if (!role.salary_period) {
+      errors.push('salary_period is required for salary compensation');
+    }
+  }
+
+  return errors;
+};
+
+/**
+ * Calculate hourly rate from salary
+ * Uses standard work year assumptions:
+ * - Yearly: 2080 hours (52 weeks × 40 hours)
+ * - Monthly: 173.33 hours (2080 / 12)
+ * - Biweekly: 80 hours (2 weeks × 40 hours)
+ * - Weekly: 40 hours
+ */
+export const calculateHourlyRateFromSalary = (
+  salaryAmount: string,
+  salaryPeriod: 'yearly' | 'monthly' | 'biweekly' | 'weekly'
+): string => {
+  const amount = parseFloat(salaryAmount);
+  if (isNaN(amount) || amount <= 0) return '0.00';
+
+  let hoursPerPeriod: number;
+  switch (salaryPeriod) {
+    case 'yearly':
+      hoursPerPeriod = 2080; // 52 weeks × 40 hours
+      break;
+    case 'monthly':
+      hoursPerPeriod = 173.33; // 2080 / 12
+      break;
+    case 'biweekly':
+      hoursPerPeriod = 80; // 2 weeks × 40 hours
+      break;
+    case 'weekly':
+      hoursPerPeriod = 40;
+      break;
+    default:
+      return '0.00';
+  }
+
+  const hourlyRate = amount / hoursPerPeriod;
+  return hourlyRate.toFixed(2);
+};
+
+// ============================================================================
+// CPG Product Labor - Junction table for product-labor assignments
+// ============================================================================
+
+/**
+ * CPG Product Labor
+ * Links finished products to labor roles with hour assignments.
+ * Supports both per-batch and per-unit hour entry.
+ */
+export interface CPGProductLabor extends BaseEntity {
+  id: string;
+  company_id: string;
+  finished_product_id: string; // Links to cpg_finished_products
+  labor_role_id: string; // Links to cpg_labor_roles
+
+  // Hours assignment
+  entry_mode: 'per_batch' | 'per_unit'; // How user entered the hours
+  hours_per_batch: string | null; // Hours per batch (e.g., "8.00" for 8 hours per batch)
+  batch_size: string | null; // Units produced per batch (e.g., "100" units)
+  hours_per_unit: string | null; // Direct per-unit entry OR calculated from per-batch
+
+  notes: string | null;
+  active: boolean;
+  created_at: number;
+  updated_at: number;
+  deleted_at: number | null;
+  version_vector: Record<string, number>;
+}
+
+export const cpgProductLaborsSchema =
+  'id, company_id, finished_product_id, labor_role_id, [company_id+finished_product_id], [company_id+labor_role_id], active, updated_at, deleted_at';
+
+/**
+ * Create a default CPG product labor assignment with all required fields
+ */
+export const createDefaultCPGProductLabor = (
+  companyId: string,
+  finishedProductId: string,
+  laborRoleId: string,
+  deviceId: string
+): Partial<CPGProductLabor> => {
+  const now = Date.now();
+  return {
+    company_id: companyId,
+    finished_product_id: finishedProductId,
+    labor_role_id: laborRoleId,
+    entry_mode: 'per_batch', // Default to per-batch
+    hours_per_batch: null,
+    batch_size: null,
+    hours_per_unit: null,
+    notes: null,
+    active: true,
+    created_at: now,
+    updated_at: now,
+    deleted_at: null,
+    version_vector: { [deviceId]: 1 },
+  };
+};
+
+/**
+ * Validate a CPG product labor assignment
+ * Returns array of error messages (empty if valid)
+ */
+export const validateCPGProductLabor = (
+  productLabor: Partial<CPGProductLabor>,
+  existingAssignments?: CPGProductLabor[]
+): string[] => {
+  const errors: string[] = [];
+
+  // company_id required
+  if (!productLabor.company_id) {
+    errors.push('company_id is required');
+  }
+
+  // finished_product_id required
+  if (!productLabor.finished_product_id) {
+    errors.push('finished_product_id is required');
+  }
+
+  // labor_role_id required
+  if (!productLabor.labor_role_id) {
+    errors.push('labor_role_id is required');
+  }
+
+  // Cannot assign same role to same product twice
+  if (
+    productLabor.finished_product_id &&
+    productLabor.labor_role_id &&
+    existingAssignments
+  ) {
+    const duplicate = existingAssignments.find(
+      (a) =>
+        a.id !== productLabor.id &&
+        a.finished_product_id === productLabor.finished_product_id &&
+        a.labor_role_id === productLabor.labor_role_id &&
+        a.deleted_at === null
+    );
+    if (duplicate) {
+      errors.push('This role is already assigned to this product');
+    }
+  }
+
+  // entry_mode required
+  if (!productLabor.entry_mode) {
+    errors.push('entry_mode is required');
+  }
+
+  // Validate based on entry mode
+  if (productLabor.entry_mode === 'per_batch') {
+    if (!productLabor.hours_per_batch || productLabor.hours_per_batch.trim() === '') {
+      errors.push('hours_per_batch is required for per-batch entry');
+    } else {
+      const hours = parseFloat(productLabor.hours_per_batch);
+      if (isNaN(hours) || hours <= 0) {
+        errors.push('hours_per_batch must be a positive number');
+      }
+    }
+    if (!productLabor.batch_size || productLabor.batch_size.trim() === '') {
+      errors.push('batch_size is required for per-batch entry');
+    } else {
+      const size = parseFloat(productLabor.batch_size);
+      if (isNaN(size) || size <= 0) {
+        errors.push('batch_size must be a positive number');
+      }
+    }
+  } else if (productLabor.entry_mode === 'per_unit') {
+    if (!productLabor.hours_per_unit || productLabor.hours_per_unit.trim() === '') {
+      errors.push('hours_per_unit is required for per-unit entry');
+    } else {
+      const hours = parseFloat(productLabor.hours_per_unit);
+      if (isNaN(hours) || hours <= 0) {
+        errors.push('hours_per_unit must be a positive number');
+      }
+    }
+  }
+
+  return errors;
+};
+
+/**
+ * Calculate hours per unit from batch data
+ */
+export const calculateHoursPerUnit = (
+  hoursPerBatch: string,
+  batchSize: string
+): string => {
+  const hours = parseFloat(hoursPerBatch);
+  const size = parseFloat(batchSize);
+
+  if (isNaN(hours) || isNaN(size) || size === 0) return '0.00';
+
+  const hoursPerUnit = hours / size;
+  return hoursPerUnit.toFixed(4); // Use 4 decimals for precision
+};
+
+/**
+ * Calculate labor cost per unit
+ */
+export const calculateLaborCostPerUnit = (
+  hoursPerUnit: string,
+  hourlyRate: string
+): string => {
+  const hours = parseFloat(hoursPerUnit);
+  const rate = parseFloat(hourlyRate);
+
+  if (isNaN(hours) || isNaN(rate)) return '0.00';
+
+  const cost = hours * rate;
+  return cost.toFixed(2);
+};
+
+// ============================================================================
 // Variant Normalization Utility
 // ============================================================================
 

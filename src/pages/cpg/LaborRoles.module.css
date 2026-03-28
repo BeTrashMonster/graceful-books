@@ -1,0 +1,313 @@
+/* Labor + Roles Page Styles */
+
+.container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* Disclaimer */
+.disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: #FFF9E6;
+  border: 1px solid #D4AF37;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.disclaimerIcon {
+  flex-shrink: 0;
+  color: #D4AF37;
+  margin-top: 2px;
+}
+
+.disclaimer p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #5C4D2C;
+  line-height: 1.5;
+}
+
+/* Error State */
+.error {
+  padding: 1rem 1.25rem;
+  background: #FEE;
+  border: 1px solid #F88;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.error p {
+  margin: 0;
+  color: #C00;
+  font-size: 0.875rem;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #F8F9FA;
+  border-radius: 12px;
+  border: 2px dashed #D0D5DD;
+}
+
+.emptyStateIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.emptyState h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 0.75rem 0;
+}
+
+.emptyState p {
+  font-size: 0.95rem;
+  color: #666;
+  margin: 0 0 2rem 0;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Table */
+.tableContainer {
+  background: white;
+  border-radius: 12px;
+  border-left: 3px solid #D4AF37;
+  border-right: 3px solid #D4AF37;
+  border-bottom: 3px solid #D4AF37;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: #4b006e;
+}
+
+.table thead th {
+  padding: 1rem 1.25rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #E5E7EB;
+  transition: background-color 0.15s ease;
+}
+
+.table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: #F9FAFB;
+}
+
+.table tbody td {
+  padding: 1rem 1.25rem;
+  font-size: 0.95rem;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.roleName {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.compensation {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', 'Source Code Pro', monospace;
+  color: #059669;
+  font-weight: 500;
+}
+
+.description {
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.noDescription {
+  color: #9CA3AF;
+  font-style: italic;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badgeHourly {
+  background: #DBEAFE;
+  color: #1E40AF;
+}
+
+.badgeSalary {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.actionButton {
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #6B7280;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.actionButton:hover {
+  background: #F3F4F6;
+  border-color: #9CA3AF;
+  color: #374151;
+}
+
+.actionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.deleteButton:hover {
+  background: #FEE2E2;
+  border-color: #FCA5A5;
+  color: #DC2626;
+}
+
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #E5E7EB;
+  border-top-color: #6B7280;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Confirmation Dialog */
+.confirmOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  backdrop-filter: blur(4px);
+}
+
+.confirmDialog {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+}
+
+.confirmTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 1rem 0;
+}
+
+.confirmMessage {
+  font-size: 0.95rem;
+  color: #4B5563;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.6;
+}
+
+.confirmMessage strong {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .header button {
+    width: 100%;
+  }
+
+  .tableContainer {
+    overflow-x: auto;
+  }
+
+  .table {
+    min-width: 700px;
+  }
+}

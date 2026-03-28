@@ -20,7 +20,9 @@ import type { CPGFinishedProduct } from '../../db/schema/cpg.schema';
 import { checkFinishedProductHasRecipes } from '../../db/schema/cpg.schema';
 import { AddProductModal } from './modals/AddProductModal';
 import { BundleProductsModal } from './modals/BundleProductsModal';
+import { LaborAssignmentModal } from './modals/LaborAssignmentModal';
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
+import { LaborRoleService } from '../../services/cpg/laborRole.service';
 import styles from './FinishedProductManager.module.css';
 
 export interface FinishedProductManagerProps {
@@ -31,7 +33,9 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
   const { companyId } = useAuth();
   const [products, setProducts] = useState<CPGFinishedProduct[]>([]);
   const [productCPUs, setProductCPUs] = useState<Map<string, string | null>>(new Map());
+  const [productLaborCosts, setProductLaborCosts] = useState<Map<string, string>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
+  const [laborService] = useState(() => new LaborRoleService(db));
   const [error, setError] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBundleModal, setShowBundleModal] = useState(false);
@@ -40,6 +44,9 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
   const [showArchived, setShowArchived] = useState(false);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
   const [showPermanentDeleteConfirm, setShowPermanentDeleteConfirm] = useState(false);
+  const [showLaborModal, setShowLaborModal] = useState(false);
+  const [laborProductId, setLaborProductId] = useState<string | null>(null);
+  const [laborProductName, setLaborProductName] = useState<string>('');
 
   // Card colors (stored by product ID)
   const [cardColors, setCardColors] = useState<Record<string, string>>({});
@@ -124,6 +131,24 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
         }
       }
       setProductCPUs(cpuMap);
+
+      // Calculate labor costs for each product
+      const laborMap = new Map<string, string>();
+      for (const product of allProducts) {
+        if (!product.is_bundle) {
+          try {
+            const laborCost = await laborService.calculateProductLaborCost(product.id);
+            laborMap.set(product.id, laborCost.totalLaborCostPerUnit);
+          } catch (err) {
+            console.error(`Failed to calculate labor cost for product ${product.id}:`, err);
+            laborMap.set(product.id, '0.00');
+          }
+        } else {
+          // For bundles, labor is calculated from components
+          laborMap.set(product.id, '0.00');
+        }
+      }
+      setProductLaborCosts(laborMap);
     } catch (err) {
       console.error('Failed to load products:', err);
       setError('Oops! We had trouble loading your products. Please refresh the page.');
@@ -326,6 +351,23 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
     if (onOpenRecipeBuilder) {
       onOpenRecipeBuilder(productId);
     }
+  };
+
+  const handleOpenLabor = (product: CPGFinishedProduct) => {
+    setLaborProductId(product.id);
+    setLaborProductName(product.name);
+    setShowLaborModal(true);
+  };
+
+  const handleCloseLaborModal = () => {
+    setShowLaborModal(false);
+    setLaborProductId(null);
+    setLaborProductName('');
+  };
+
+  const handleLaborSuccess = () => {
+    // Reload products to update any labor cost calculations
+    loadProducts();
   };
 
   // Color picker helpers
@@ -748,14 +790,57 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                         </span>
                       </div>
                     )}
-                    <div className={styles.detailRow}>
-                      <span className={styles.detailLabel}>CPU:</span>
-                      <span className={styles.detailValue}>
-                        {productCPUs.get(product.id) !== null && productCPUs.get(product.id) !== undefined
-                          ? `$${productCPUs.get(product.id)}`
-                          : 'N/A'}
-                      </span>
-                    </div>
+
+                    {/* CPU Breakdown with Labor */}
+                    {(() => {
+                      const materialCPU = productCPUs.get(product.id);
+                      const laborCost = productLaborCosts.get(product.id) || '0.00';
+                      const hasLaborCost = parseFloat(laborCost) > 0;
+                      const hasMaterialCPU = materialCPU !== null && materialCPU !== undefined;
+
+                      if (!hasMaterialCPU) {
+                        return (
+                          <div className={styles.detailRow}>
+                            <span className={styles.detailLabel}>CPU:</span>
+                            <span className={styles.detailValue}>N/A</span>
+                          </div>
+                        );
+                      }
+
+                      const totalCPU = parseFloat(materialCPU) + parseFloat(laborCost);
+
+                      if (hasLaborCost) {
+                        return (
+                          <>
+                            <div className={styles.detailRow}>
+                              <span className={styles.detailLabel}>Materials:</span>
+                              <span className={styles.detailValue}>${materialCPU}</span>
+                            </div>
+                            <div className={styles.detailRow}>
+                              <span className={styles.detailLabel}>Labor:</span>
+                              <span className={styles.detailValue} style={{ color: '#D4AF37' }}>+${laborCost}</span>
+                            </div>
+                            <div className={styles.detailRow} style={{
+                              paddingTop: '0.5rem',
+                              borderTop: '1px solid rgba(0,0,0,0.1)',
+                              marginTop: '0.25rem'
+                            }}>
+                              <span className={styles.detailLabel} style={{ fontWeight: 700 }}>Total CPU:</span>
+                              <span className={styles.detailValue} style={{ fontWeight: 700, color: '#D4AF37' }}>
+                                ${totalCPU.toFixed(2)}
+                              </span>
+                            </div>
+                          </>
+                        );
+                      } else {
+                        return (
+                          <div className={styles.detailRow}>
+                            <span className={styles.detailLabel}>CPU:</span>
+                            <span className={styles.detailValue}>${materialCPU}</span>
+                          </div>
+                        );
+                      }
+                    })()}
                   </div>
 
                   <div className={styles.productActions}>
@@ -784,6 +869,13 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                               onClick={() => handleOpenRecipe(product.id)}
                             >
                               Recipe
+                            </Button>
+                            <Button
+                              variant="gold"
+                              size="sm"
+                              onClick={() => handleOpenLabor(product)}
+                            >
+                              Labor
                             </Button>
                           </>
                         )}
@@ -829,6 +921,17 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
         onSuccess={handleBundleSuccess}
         editingBundle={editingBundle}
       />
+
+      {/* Labor Assignment Modal */}
+      {laborProductId && (
+        <LaborAssignmentModal
+          isOpen={showLaborModal}
+          onClose={handleCloseLaborModal}
+          onSuccess={handleLaborSuccess}
+          productId={laborProductId}
+          productName={laborProductName}
+        />
+      )}
 
       {/* Archive/Delete Confirmation Modal */}
       {deletingProductId && !showPermanentDeleteConfirm && (

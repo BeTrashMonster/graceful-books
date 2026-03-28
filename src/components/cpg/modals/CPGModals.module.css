@@ -35,6 +35,59 @@
   font-size: 0.9375rem;
 }
 
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.compensationToggle {
+  display: flex;
+  gap: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #D1D5DB;
+}
+
+.toggleButton {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  background: white;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-right: 1px solid #D1D5DB;
+}
+
+.toggleButton:last-child {
+  border-right: none;
+}
+
+.toggleButton:hover {
+  background: #F9FAFB;
+}
+
+.toggleActive {
+  background: linear-gradient(135deg, #6B46C1 0%, #805AD5 100%);
+  color: white;
+  font-weight: 600;
+}
+
+.toggleActive:hover {
+  background: linear-gradient(135deg, #553C9A 0%, #6B46C1 100%);
+}
+
 .successAlert {
   padding: 1.5rem;
   background: linear-gradient(135deg, rgba(75, 0, 110, 0.05), rgba(255, 215, 0, 0.05));

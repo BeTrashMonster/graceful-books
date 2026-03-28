@@ -210,6 +210,8 @@ import {
   cpgFinishedProductsSchema,
   cpgRecipesSchema,
   cpgSettingsSchema,
+  cpgLaborRolesSchema,
+  cpgProductLaborsSchema,
 } from './schema/cpg.schema';
 import type {
   CPGCategory,
@@ -222,6 +224,8 @@ import type {
   CPGFinishedProduct,
   CPGRecipe,
   CPGSettings,
+  CPGLaborRole,
+  CPGProductLabor,
 } from './schema/cpg.schema';
 import {
   standaloneFinancialsSchema,
@@ -318,6 +322,8 @@ export class TreasureChestDB extends Dexie {
   cpgRecipes!: Table<CPGRecipe, string>;
   cpgProductLinks!: Table<CPGProductLink, string>;
   cpgSettings!: Table<CPGSettings, string>;
+  cpgLaborRoles!: Table<CPGLaborRole, string>;
+  cpgProductLabors!: Table<CPGProductLabor, string>;
   standaloneFinancials!: Table<StandaloneFinancials, string>;
   skuCountTrackers!: Table<SKUCountTracker, string>;
 
@@ -1447,6 +1453,8 @@ export class TreasureChestDB extends Dexie {
       cpgRecipes: cpgRecipesSchema,
       cpgProductLinks: cpgProductLinksSchema,
       cpgSettings: cpgSettingsSchema,
+      cpgLaborRoles: cpgLaborRolesSchema,
+      cpgProductLabors: cpgProductLaborsSchema,
       standaloneFinancials: standaloneFinancialsSchema,
       skuCountTrackers: skuCountTrackersSchema,
     });
@@ -1657,6 +1665,8 @@ export class TreasureChestDB extends Dexie {
     this.cpgRecipes.hook('updating', updateTimestamp);
     this.cpgProductLinks.hook('updating', updateTimestamp);
     this.cpgSettings.hook('updating', updateTimestamp);
+    this.cpgLaborRoles.hook('updating', updateTimestamp);
+    this.cpgProductLabors.hook('updating', updateTimestamp);
     this.standaloneFinancials.hook('updating', updateTimestamp);
     this.skuCountTrackers.hook('updating', updateTimestamp);
   }

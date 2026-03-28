@@ -256,6 +256,12 @@ export function CPGLayout() {
               📊 CPU Tracker
             </Link>
             <Link
+              to="/cpg/labor-roles"
+              className={isActive('/cpg/labor-roles') ? styles.active : ''}
+            >
+              👷 Labor + Roles
+            </Link>
+            <Link
               to="/cpg/distribution-cost"
               className={isActive('/cpg/distribution-cost') ? styles.active : ''}
             >
