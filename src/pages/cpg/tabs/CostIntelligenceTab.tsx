@@ -633,7 +633,7 @@ export default function CostIntelligenceTab({
           boxShadow: '0 2px 8px rgba(184, 134, 11, 0.15)',
         }}>
           {/* Filter Row */}
-          <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.75rem', flexWrap: 'nowrap', alignItems: 'flex-start', overflowX: 'auto' }}>
+          <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
             {/* Product Dropdown Selector */}
             <div style={{ position: 'relative', flex: '1 1 auto', minWidth: '120px' }}>
               <button
