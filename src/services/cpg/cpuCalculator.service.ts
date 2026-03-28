@@ -208,6 +208,8 @@ export interface FinishedProductCPUBreakdown {
   sku: string | null;
   msrp: string | null;
   cpu: string | null;
+  materialCPU: string | null;
+  laborCost: string | null;
   breakdown: Array<{
     categoryName: string;
     categoryId: string;
@@ -217,6 +219,13 @@ export interface FinishedProductCPUBreakdown {
     unitCost: string | null;
     subtotal: string | null;
     hasCostData: boolean;
+  }>;
+  laborBreakdown?: Array<{
+    roleId: string;
+    roleName: string;
+    hoursPerUnit: string;
+    hourlyRate: string;
+    costPerUnit: string;
   }>;
   isComplete: boolean;
   missingComponents: string[];
@@ -1188,7 +1197,10 @@ export class CPUCalculatorService {
         sku: product.sku,
         msrp: product.msrp,
         cpu: cpuResult.cpu,
+        materialCPU: cpuResult.materialCPU,
+        laborCost: cpuResult.laborCost,
         breakdown: cpuResult.breakdown,
+        laborBreakdown: cpuResult.laborBreakdown,
         isComplete: cpuResult.isComplete,
         missingComponents,
         bundleStructure: cpuResult.bundleStructure,

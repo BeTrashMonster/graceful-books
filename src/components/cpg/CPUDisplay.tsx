@@ -675,7 +675,7 @@ export function CPUDisplay({
     : null;
 
   const avgComponents = productsWithMetrics.length > 0
-    ? productsWithMetrics.reduce((sum, p) => sum + p.breakdown.length, 0) / productsWithMetrics.length
+    ? productsWithMetrics.reduce((sum, p) => sum + p.breakdown.length + (p.laborBreakdown?.length || 0), 0) / productsWithMetrics.length
     : null;
 
   // Find highest and lowest cost products (handle ties)
@@ -1443,7 +1443,8 @@ export function CPUDisplay({
 
                   // Product card
                   const hasRecipe = product.breakdown.length > 0;
-                  const componentCount = product.breakdown.length;
+                  const materialCount = product.breakdown.length;
+                  const laborCount = product.laborBreakdown?.length || 0;
                   const productKey = product.sku || product.productName;
 
                   // Determine background color - use custom if set, otherwise default
@@ -1679,7 +1680,13 @@ export function CPUDisplay({
 
                         {/* Component Count */}
                         <div style={{ fontSize: '0.875rem', color: '#64748b', textAlign: 'center' }}>
-                          {componentCount} {componentCount === 1 ? 'component' : 'components'}
+                          {materialCount} {materialCount === 1 ? 'material' : 'materials'}
+                          {laborCount > 0 && (
+                            <>
+                              {' • '}
+                              {laborCount} {laborCount === 1 ? 'labor' : 'labor'}
+                            </>
+                          )}
                         </div>
                       </>
                     ) : (

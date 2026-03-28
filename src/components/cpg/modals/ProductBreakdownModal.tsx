@@ -114,6 +114,13 @@ export function ProductBreakdownModal({
   const [laborTotalCost, setLaborTotalCost] = useState<string>('0.00');
   const [materialCPU, setMaterialCPU] = useState<string | null>(null);
   const [laborService] = useState(() => new LaborRoleService(db));
+  const [selectedLaborRole, setSelectedLaborRole] = useState<{
+    roleId: string;
+    roleName: string;
+    hoursPerUnit: string;
+    hourlyRate: string;
+    costPerUnit: string;
+  } | null>(null);
 
   // Select first component by default when modal opens
   useEffect(() => {
@@ -862,22 +869,28 @@ export function ProductBreakdownModal({
 
                 return (
                   <>
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.5rem' }}>Materials</div>
-                    <div style={{ fontSize: '1.125rem', fontWeight: 600, color: '#10b981', marginBottom: '0.5rem' }}>
-                      ${materialCPU}
-                    </div>
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Labor</div>
-                    <div style={{ fontSize: '1.125rem', fontWeight: 600, color: '#D4AF37', marginBottom: '0.75rem' }}>
-                      +${laborTotalCost}
-                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.5rem' }}>Cost Breakdown</div>
                     <div style={{
-                      paddingTop: '0.75rem',
-                      borderTop: '1px solid rgba(0,0,0,0.1)',
-                      marginTop: '0.5rem'
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      fontSize: '1rem',
+                      fontWeight: 600,
+                      flexWrap: 'wrap'
                     }}>
-                      <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Total Cost</div>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>
-                        ${totalCPU}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>Materials</span>
+                        <span style={{ color: '#10b981' }}>${materialCPU}</span>
+                      </div>
+                      <span style={{ color: '#6b7280', fontSize: '1.25rem', fontWeight: 400 }}>+</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>Labor</span>
+                        <span style={{ color: '#D4AF37' }}>${laborTotalCost}</span>
+                      </div>
+                      <span style={{ color: '#6b7280', fontSize: '1.25rem', fontWeight: 400 }}>=</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>Total</span>
+                        <span style={{ color: '#10b981', fontSize: '1.25rem', fontWeight: 700 }}>${totalCPU}</span>
                       </div>
                     </div>
                   </>
@@ -945,7 +958,10 @@ export function ProductBreakdownModal({
                 return (
                   <button
                     key={index}
-                    onClick={() => setSelectedComponent(component)}
+                    onClick={() => {
+                      setSelectedComponent(component);
+                      setSelectedLaborRole(null);
+                    }}
                     style={{
                       padding: '0.75rem',
                       background: isSelected ? '#f0f4ff' : 'white',
@@ -1016,35 +1032,49 @@ export function ProductBreakdownModal({
                   }}>
                     Labor ({laborBreakdown.length})
                   </div>
-                  {laborBreakdown.map((role, index) => (
-                    <div
-                      key={role.roleId}
-                      style={{
-                        padding: '0.75rem',
-                        background: '#FFF9E6',
-                        border: '2px solid #D4AF37',
-                        borderRadius: '8px',
-                        textAlign: 'left',
-                      }}
-                    >
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        marginBottom: '0.25rem',
-                      }}>
-                        <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#1f2937' }}>
-                          {role.roleName}
+                  {laborBreakdown.map((role, index) => {
+                    const isSelected = selectedLaborRole?.roleId === role.roleId;
+
+                    return (
+                      <button
+                        key={role.roleId}
+                        onClick={() => {
+                          setSelectedLaborRole(role);
+                          setSelectedComponent(null);
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          background: isSelected ? '#FFF9E6' : 'white',
+                          border: `2px solid ${isSelected ? '#D4AF37' : '#e5e7eb'}`,
+                          borderRadius: '8px',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          transition: 'all 150ms',
+                          outline: 'none',
+                        }}
+                        onMouseEnter={(e) => !isSelected && (e.currentTarget.style.borderColor = '#d1d5db')}
+                        onMouseLeave={(e) => !isSelected && (e.currentTarget.style.borderColor = '#e5e7eb')}
+                      >
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          marginBottom: '0.25rem',
+                        }}>
+                          <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#1f2937' }}>
+                            {role.roleName}
+                          </div>
                         </div>
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                        {parseFloat(role.hoursPerUnit).toFixed(2)} hrs @ ${parseFloat(role.hourlyRate).toFixed(2)}/hr
-                      </div>
-                      <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#D4AF37', marginTop: '0.25rem' }}>
-                        ${parseFloat(role.costPerUnit).toFixed(2)}
-                      </div>
-                    </div>
-                  ))}
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                          {parseFloat(role.hoursPerUnit).toFixed(2)} hrs @ ${parseFloat(role.hourlyRate).toFixed(2)}/hr
+                        </div>
+                        <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#D4AF37', marginTop: '0.25rem' }}>
+                          ${parseFloat(role.costPerUnit).toFixed(2)}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </>
               )}
             </div>
@@ -1052,7 +1082,7 @@ export function ProductBreakdownModal({
 
           {/* RIGHT PANEL - Detail View */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            {!selectedComponent ? (
+            {!selectedComponent && !selectedLaborRole ? (
               <div style={{
                 flex: 1,
                 display: 'flex',
@@ -1060,7 +1090,87 @@ export function ProductBreakdownModal({
                 justifyContent: 'center',
                 color: '#9ca3af',
               }}>
-                Select a component to view details
+                Select a material or labor role to view details
+              </div>
+            ) : selectedLaborRole ? (
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem', overflowY: 'auto', padding: '1rem' }}>
+                {/* Labor Role Hero Section */}
+                <div style={{
+                  padding: '1.25rem 1.5rem',
+                  background: 'linear-gradient(135deg, #D4AF37 0%, #B8941F 100%)',
+                  borderRadius: '12px',
+                  color: 'white',
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'baseline',
+                    marginBottom: '1rem',
+                  }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 600, opacity: 0.95 }}>
+                      {selectedLaborRole.roleName}
+                    </div>
+                    <div style={{ fontSize: '2.5rem', fontWeight: 700, lineHeight: 1 }}>
+                      ${parseFloat(selectedLaborRole.costPerUnit).toFixed(2)}
+                    </div>
+                  </div>
+
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    fontSize: '0.875rem',
+                    opacity: 0.85,
+                    paddingTop: '0.75rem',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+                  }}>
+                    <div>
+                      {parseFloat(selectedLaborRole.hoursPerUnit).toFixed(2)} hours per unit @ ${parseFloat(selectedLaborRole.hourlyRate).toFixed(2)}/hr
+                    </div>
+                  </div>
+                </div>
+
+                {/* Labor Details Card */}
+                <div style={{
+                  background: '#FFF9E6',
+                  border: '2px solid #D4AF37',
+                  borderRadius: '12px',
+                  padding: '1.5rem',
+                }}>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#1f2937', marginTop: 0, marginBottom: '1rem' }}>
+                    Labor Assignment Details
+                  </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
+                      <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Role:</span>
+                      <span style={{ fontWeight: 600, color: '#1f2937', fontSize: '0.875rem' }}>{selectedLaborRole.roleName}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
+                      <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Hours Per Unit:</span>
+                      <span style={{ fontWeight: 600, color: '#1f2937', fontSize: '0.875rem' }}>{parseFloat(selectedLaborRole.hoursPerUnit).toFixed(4)} hrs</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
+                      <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Hourly Rate:</span>
+                      <span style={{ fontWeight: 600, color: '#1f2937', fontSize: '0.875rem' }}>${parseFloat(selectedLaborRole.hourlyRate).toFixed(2)}/hr</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.75rem' }}>
+                      <span style={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Labor Cost Per Unit:</span>
+                      <span style={{ fontWeight: 700, color: '#D4AF37', fontSize: '1.125rem' }}>${parseFloat(selectedLaborRole.costPerUnit).toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Calculation Explanation */}
+                <div style={{
+                  padding: '1rem 1.25rem',
+                  background: '#f9fafb',
+                  borderRadius: '8px',
+                  fontSize: '0.9375rem',
+                  color: '#64748b',
+                }}>
+                  <strong style={{ color: '#D4AF37' }}>Calculation:</strong>{' '}
+                  {parseFloat(selectedLaborRole.hoursPerUnit).toFixed(4)} hours × ${parseFloat(selectedLaborRole.hourlyRate).toFixed(2)} per hour = ${parseFloat(selectedLaborRole.costPerUnit).toFixed(2)} per unit
+                </div>
               </div>
             ) : (
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem', overflowY: 'auto' }}>
