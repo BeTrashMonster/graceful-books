@@ -280,19 +280,14 @@
   border-radius: 8px;
   border: 2px solid #D4AF37;
   box-shadow: 0 2px 8px rgba(212, 175, 55, 0.1);
-  overflow: hidden;
+  max-height: 600px;
+  overflow: auto;
   position: relative;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-}
-
-.table thead {
-  position: sticky;
-  top: 0;
-  z-index: 10;
 }
 
 .table thead tr:first-child {
@@ -311,7 +306,7 @@
   position: sticky;
   top: 0;
   background: #4b006e;
-  z-index: 11;
+  z-index: 12;
 }
 
 .table thead tr:first-child th:first-child {
@@ -362,8 +357,8 @@
   letter-spacing: 0.05em;
   border-bottom: 2px solid #D4AF37;
   position: sticky;
-  top: 57px;
-  z-index: 10;
+  top: 50px;
+  z-index: 11;
   background: #5b0a8e;
 }
 
