@@ -547,16 +547,18 @@
 .editInput {
   width: 80px;
   padding: 0.375rem 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid #10b981;
   border-radius: 4px;
   font-size: 0.9375rem;
   text-align: center;
+  background: #d1fae5;
 }
 
 .editInput:focus {
   outline: none;
-  border-color: #D4AF37;
-  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+  border-color: #059669;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  background: #d1fae5;
 }
 
 .calculatedValue {
@@ -620,74 +622,113 @@
 
 /* Impact Section */
 .impactSection {
-  padding: 1.5rem;
+  padding: 0;
   background: white;
   border-radius: 8px;
   border: 2px solid #D4AF37;
   box-shadow: 0 2px 8px rgba(212, 175, 55, 0.1);
+  overflow: hidden;
 }
 
 .impactHeading {
-  color: #4b006e;
+  background: #4b006e;
+  color: white;
   font-size: 1.125rem;
   font-weight: 700;
-  margin: 0 0 1rem 0;
+  margin: 0;
+  padding: 1rem 1.5rem;
 }
 
-.impactRow {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
+.impactTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.impactTable thead {
+  background: #5b0a8e;
+}
+
+.impactTable thead tr th {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 2px solid #D4AF37;
+}
+
+.impactTable thead tr th:nth-child(2),
+.impactTable thead tr th:nth-child(3),
+.impactTable thead tr th:nth-child(4),
+.impactTable thead tr th:nth-child(5),
+.impactTable thead tr th:nth-child(6),
+.impactTable thead tr th:nth-child(7) {
+  text-align: center;
+}
+
+.impactTable tbody tr {
   border-bottom: 1px solid #e5e7eb;
-  font-size: 0.9375rem;
+}
+
+.impactTable tbody tr:hover {
+  background: #faf5ff;
 }
 
 .impactProduct {
+  padding: 0.875rem 1rem;
   font-weight: 600;
-  color: #111827;
-  flex: 1;
+  color: #4b006e;
+  text-align: left;
 }
 
-.impactCurrent {
-  color: #6b7280;
-}
-
-.impactArrow {
-  color: #d1d5db;
-}
-
-.impactScenario {
-  font-weight: 600;
-  color: #111827;
+.impactCost {
+  padding: 0.875rem 1rem;
+  color: #1f2937;
+  text-align: center;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
 }
 
 .impactIncrease {
+  padding: 0.875rem 1rem;
   color: #dc2626;
-  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
 }
 
 .impactDecrease {
+  padding: 0.875rem 1rem;
   color: #16a34a;
-  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
 }
 
 .impactTotal {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 2px solid #e5e7eb;
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border-top: 2px solid #D4AF37;
   font-size: 1rem;
   font-weight: 600;
-  color: #111827;
+  color: #4b006e;
 }
 
 .totalValue {
-  color: #111827;
+  color: #4b006e;
   font-size: 1.25rem;
   font-weight: 700;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+}
+
+.impactFooter {
+  padding: 1rem 1.5rem;
+  background: white;
 }
 
 /* Empty State */

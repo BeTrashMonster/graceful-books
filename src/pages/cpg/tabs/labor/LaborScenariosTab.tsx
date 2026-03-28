@@ -613,34 +613,57 @@ export function LaborScenariosTab() {
           <div className={styles.impactSection}>
             <h3 className={styles.impactHeading}>Impact Summary</h3>
 
-            {calculateImpact().map(impact => (
-              <div key={impact.productId} className={styles.impactRow}>
-                <span className={styles.impactProduct}>{impact.productName}:</span>
-                <span className={styles.impactCurrent}>${impact.currentCost.toFixed(2)}</span>
-                <span className={styles.impactArrow}>→</span>
-                <span className={styles.impactScenario}>${impact.scenarioCost.toFixed(2)}</span>
-                {impact.change !== 0 && (
-                  <span className={impact.change > 0 ? styles.impactIncrease : styles.impactDecrease}>
-                    ({impact.change > 0 ? '+' : ''}${impact.change.toFixed(2)}, {impact.changePercent.toFixed(1)}%)
-                  </span>
-                )}
-              </div>
-            ))}
+            <table className={styles.impactTable}>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Current Labor Cost</th>
+                  <th>Scenario Labor Cost</th>
+                  <th>Change</th>
+                  <th>Total Current CPU</th>
+                  <th>Total Scenario CPU</th>
+                  <th>Change</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cpuSummaries.map(summary => {
+                  const laborChange = summary.scenarioLaborCPU - summary.currentLaborCPU;
+                  const cpuChange = summary.scenarioTotalCPU - summary.currentTotalCPU;
+
+                  return (
+                    <tr key={summary.productId}>
+                      <td className={styles.impactProduct}>{summary.productName}</td>
+                      <td className={styles.impactCost}>${summary.currentLaborCPU.toFixed(2)}</td>
+                      <td className={styles.impactCost}>${summary.scenarioLaborCPU.toFixed(2)}</td>
+                      <td className={laborChange > 0 ? styles.impactIncrease : styles.impactDecrease}>
+                        {laborChange > 0 ? '+' : ''}${laborChange.toFixed(2)}
+                      </td>
+                      <td className={styles.impactCost}>${summary.currentTotalCPU.toFixed(2)}</td>
+                      <td className={styles.impactCost}>${summary.scenarioTotalCPU.toFixed(2)}</td>
+                      <td className={cpuChange > 0 ? styles.impactIncrease : styles.impactDecrease}>
+                        {cpuChange > 0 ? '+' : ''}${cpuChange.toFixed(2)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
 
             <div className={styles.impactTotal}>
               <span>Total Cost Impact:</span>
               <span className={styles.totalValue}>
-                ${calculateImpact().reduce((sum, p) => sum + p.change, 0).toFixed(2)}
+                ${cpuSummaries.reduce((sum, s) => sum + (s.scenarioLaborCPU - s.currentLaborCPU), 0).toFixed(2)}
               </span>
             </div>
 
-            <Button
-              variant="gold"
-              onClick={exportCSV}
-              style={{ marginTop: '1rem' }}
-            >
-              Export CSV
-            </Button>
+            <div className={styles.impactFooter}>
+              <Button
+                variant="gold"
+                onClick={exportCSV}
+              >
+                Export CSV
+              </Button>
+            </div>
           </div>
         </>
       )}
