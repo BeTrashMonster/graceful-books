@@ -330,11 +330,11 @@
 
 .scenarioSection {
   background: rgba(212, 175, 55, 0.2);
-  color: #2d1b00 !important;
+  color: white !important;
   text-align: center !important;
   font-weight: 600;
-  border-left: 1px solid rgba(45, 27, 0, 0.2);
-  border-right: 1px solid rgba(45, 27, 0, 0.2);
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .deltaColumn {
@@ -346,9 +346,6 @@
 
 .subheader {
   background: #5b0a8e;
-  position: sticky;
-  top: 52px;
-  z-index: 9;
 }
 
 .subheader th {
@@ -360,10 +357,14 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border-bottom: 2px solid #D4AF37;
+  position: sticky;
+  top: 53px;
+  z-index: 9;
+  background: #5b0a8e;
 }
 
 .subheader th:first-child {
-  background: transparent;
+  background: #5b0a8e;
 }
 
 /* Product Header Row */
@@ -379,6 +380,7 @@
   font-size: 1rem;
   color: #4b006e;
   letter-spacing: 0.02em;
+  text-align: left;
 }
 
 /* CPU Summary Row */
@@ -449,6 +451,37 @@
   padding: 0.875rem 1rem;
   font-size: 0.9375rem;
   color: #1f2937;
+  text-align: center;
+}
+
+.table tbody td:first-child {
+  text-align: left;
+}
+
+/* Vertical lines separating sections */
+.table tbody td:nth-child(1) {
+  border-right: 2px solid #e5e7eb;
+}
+
+.table tbody td:nth-child(4) {
+  border-right: 2px solid #e5e7eb;
+}
+
+.table tbody td:nth-child(7) {
+  border-right: 2px solid #e5e7eb;
+}
+
+/* Header vertical lines */
+.table thead th:nth-child(1) {
+  border-right: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.table thead th:nth-child(2) {
+  border-right: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.table thead th:nth-child(3) {
+  border-right: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .hypotheticalRow {
@@ -476,7 +509,7 @@
   border: 1px solid #d1d5db;
   border-radius: 4px;
   font-size: 0.9375rem;
-  text-align: right;
+  text-align: center;
 }
 
 .editInput:focus {
