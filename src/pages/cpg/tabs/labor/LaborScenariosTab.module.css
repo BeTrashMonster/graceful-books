@@ -540,28 +540,50 @@
 .roleNameInput {
   width: 100%;
   padding: 0.375rem 0.5rem;
-  border: 1px solid #D4AF37;
-  border-radius: 4px;
+  border: 2px solid #D4AF37;
+  border-radius: 6px;
   font-size: 0.9375rem;
   font-weight: 500;
-  color: #4b006e;
+  color: #475569;
+  background: #E5F6DF;
+  transition: all 0.2s;
+}
+
+.roleNameInput:hover {
+  border-color: #c49b2e;
+  background: #d4ecc9;
+}
+
+.roleNameInput:focus {
+  outline: none;
+  border-color: #c49b2e;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  background: #E5F6DF;
 }
 
 .editInput {
   width: 80px;
   padding: 0.375rem 0.5rem;
-  border: 1px solid #10b981;
-  border-radius: 4px;
+  border: 2px solid #D4AF37;
+  border-radius: 6px;
   font-size: 0.9375rem;
   text-align: center;
-  background: #d1fae5;
+  background: #E5F6DF;
+  font-weight: 500;
+  color: #475569;
+  transition: all 0.2s;
+}
+
+.editInput:hover {
+  border-color: #c49b2e;
+  background: #d4ecc9;
 }
 
 .editInput:focus {
   outline: none;
-  border-color: #059669;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-  background: #d1fae5;
+  border-color: #c49b2e;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  background: #E5F6DF;
 }
 
 .calculatedValue {
