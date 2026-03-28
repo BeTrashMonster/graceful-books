@@ -209,22 +209,8 @@ export default function ScenarioBuilderTab({
       return laborBreakdown;
     }
 
-    // Debug logging
-    console.log('🔍 Labor Filter Active:', {
-      filterSize: laborFilter.size,
-      filterContents: Array.from(laborFilter),
-      laborBreakdownRoles: laborBreakdown.map(l => ({ roleId: l.roleId, roleName: l.roleName })),
-    });
-
     // Filter to only show labor roles that match the filter
-    const filtered = laborBreakdown.filter(labor => {
-      const isIncluded = laborFilter.has(labor.roleId);
-      console.log(`  Role ${labor.roleName} (${labor.roleId}): ${isIncluded ? '✅ INCLUDED' : '❌ EXCLUDED'}`);
-      return isIncluded;
-    });
-
-    console.log('  Final filtered count:', filtered.length);
-    return filtered;
+    return laborBreakdown.filter(labor => laborFilter.has(labor.roleId));
   }, [laborFilter]);
 
   // Calculate scenario CPU for a product based on component and labor adjustments
@@ -566,6 +552,15 @@ export default function ScenarioBuilderTab({
         const baseMSRP = product.msrp ? parseFloat(product.msrp) : 0;
         const baseMargin = cpuData.margin || 0;
 
+        // Check which filters are active
+        const hasMaterialFilters = categoryFilter.size > 0 || variantFilter.size > 0 || vendorFilter.size > 0;
+        const hasLaborFilters = laborFilter.size > 0;
+        const hasAnyFilters = hasMaterialFilters || hasLaborFilters;
+
+        // Determine section visibility based on filters
+        const showMaterialsSection = !hasAnyFilters || hasMaterialFilters;
+        const showLaborSection = !hasAnyFilters || hasLaborFilters;
+
         // Filter components based on active filters
         const filteredComponents = filterComponents(productId, cpuData.breakdown);
 
@@ -702,6 +697,7 @@ export default function ScenarioBuilderTab({
               </div>
 
               {/* Component Adjustments */}
+              {showMaterialsSection && (
               <div className={styles.sliderSection}>
                 <div className={styles.sliderSectionTitle}>
                   Category Costs
@@ -874,9 +870,10 @@ export default function ScenarioBuilderTab({
               </div>
               )}
             </div>
+              )}
 
               {/* Labor Costs Section */}
-              {filterLaborRoles(cpuData.laborBreakdown).length > 0 && (
+              {showLaborSection && filterLaborRoles(cpuData.laborBreakdown).length > 0 && (
                 <div className={styles.sliderSection} style={{ marginTop: '1.5rem' }}>
                   <div className={styles.sliderSectionTitle} style={{ color: '#D4AF37' }}>
                     Labor Costs
