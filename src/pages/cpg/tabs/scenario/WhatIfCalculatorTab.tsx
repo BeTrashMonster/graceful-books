@@ -1437,28 +1437,32 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                             }}
                           />
                         </div>
-                        <input
-                          type="range"
-                          className={styles.slider}
-                          min={materialCPURange.min}
-                          max={materialCPURange.max}
-                          step="0.01"
-                          value={adjustedResult.materialCPU}
-                          onChange={(e) => setAdjustedValue(result.productId, 'materialCPU', parseFloat(e.target.value))}
-                        />
-                        <div className={styles.sliderRange}>
-                          {materialCPUToggle === 'dollar' ? (
-                            <>
-                              <span>${materialCPURange.min}</span>
-                              <span>${materialCPURange.max}</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>-50%</span>
-                              <span>+50%</span>
-                            </>
-                          )}
-                        </div>
+                        {result.materialCPU > 0 && (
+                          <>
+                            <input
+                              type="range"
+                              className={styles.slider}
+                              min={materialCPURange.min}
+                              max={materialCPURange.max}
+                              step="0.01"
+                              value={adjustedResult.materialCPU}
+                              onChange={(e) => setAdjustedValue(result.productId, 'materialCPU', parseFloat(e.target.value))}
+                            />
+                            <div className={styles.sliderRange}>
+                              {materialCPUToggle === 'dollar' ? (
+                                <>
+                                  <span>${materialCPURange.min}</span>
+                                  <span>${materialCPURange.max}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>-50%</span>
+                                  <span>+50%</span>
+                                </>
+                              )}
+                            </div>
+                          </>
+                        )}
                         {adjustedResult.materialCPU !== result.materialCPU && (
                           <div className={styles.delta}>
                             {materialCPUToggle === 'dollar' ? (
@@ -1520,31 +1524,35 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                             style={{ color: '#D4AF37', fontWeight: 600 }}
                           />
                         </div>
-                        <input
-                          type="range"
-                          className={styles.slider}
-                          min={laborRange.min}
-                          max={laborRange.max}
-                          step="0.01"
-                          value={adjustedResult.laborCost}
-                          onChange={(e) => setAdjustedValue(result.productId, 'laborCost', parseFloat(e.target.value))}
-                          style={{
-                            accentColor: '#D4AF37'
-                          }}
-                        />
-                        <div className={styles.sliderRange}>
-                          {laborToggle === 'dollar' ? (
-                            <>
-                              <span style={{ color: '#D4AF37' }}>${laborRange.min}</span>
-                              <span style={{ color: '#D4AF37' }}>${laborRange.max}</span>
-                            </>
-                          ) : (
-                            <>
-                              <span style={{ color: '#D4AF37' }}>-50%</span>
-                              <span style={{ color: '#D4AF37' }}>+50%</span>
-                            </>
-                          )}
-                        </div>
+                        {result.laborCost > 0 && (
+                          <>
+                            <input
+                              type="range"
+                              className={styles.slider}
+                              min={laborRange.min}
+                              max={laborRange.max}
+                              step="0.01"
+                              value={adjustedResult.laborCost}
+                              onChange={(e) => setAdjustedValue(result.productId, 'laborCost', parseFloat(e.target.value))}
+                              style={{
+                                accentColor: '#D4AF37'
+                              }}
+                            />
+                            <div className={styles.sliderRange}>
+                              {laborToggle === 'dollar' ? (
+                                <>
+                                  <span style={{ color: '#D4AF37' }}>${laborRange.min}</span>
+                                  <span style={{ color: '#D4AF37' }}>${laborRange.max}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span style={{ color: '#D4AF37' }}>-50%</span>
+                                  <span style={{ color: '#D4AF37' }}>+50%</span>
+                                </>
+                              )}
+                            </div>
+                          </>
+                        )}
                         {adjustedResult.laborCost !== result.laborCost && (
                           <div className={styles.delta} style={{ color: '#D4AF37' }}>
                             {laborToggle === 'dollar' ? (
@@ -1618,28 +1626,36 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                             }}
                           />
                         </div>
-                        <input
-                          type="range"
-                          className={styles.slider}
-                          min={distCPURange.min}
-                          max={distCPURange.max}
-                          step="0.01"
-                          value={adjustedResult.distributionCPU}
-                          onChange={(e) => setAdjustedValue(result.productId, 'distributionCPU', parseFloat(e.target.value))}
-                        />
-                        <div className={styles.sliderRange}>
-                          {distCPUToggle === 'dollar' ? (
-                            <>
-                              <span>${distCPURange.min}</span>
-                              <span>${distCPURange.max}</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>-50%</span>
-                              <span>+50%</span>
-                            </>
-                          )}
-                        </div>
+                        {result.distributionCPU > 0 ? (
+                          <>
+                            <input
+                              type="range"
+                              className={styles.slider}
+                              min={distCPURange.min}
+                              max={distCPURange.max}
+                              step="0.01"
+                              value={adjustedResult.distributionCPU}
+                              onChange={(e) => setAdjustedValue(result.productId, 'distributionCPU', parseFloat(e.target.value))}
+                            />
+                            <div className={styles.sliderRange}>
+                              {distCPUToggle === 'dollar' ? (
+                                <>
+                                  <span>${distCPURange.min}</span>
+                                  <span>${distCPURange.max}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>-50%</span>
+                                  <span>+50%</span>
+                                </>
+                              )}
+                            </div>
+                          </>
+                        ) : (
+                          <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem' }}>
+                            No distributor selected. Type a value above to add distribution cost.
+                          </div>
+                        )}
                         {adjustedResult.distributionCPU !== result.distributionCPU && (
                           <div className={styles.delta}>
                             {distCPUToggle === 'dollar' ? (
@@ -1690,28 +1706,36 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                             }}
                           />
                         </div>
-                        <input
-                          type="range"
-                          className={styles.slider}
-                          min={promoCPURange.min}
-                          max={promoCPURange.max}
-                          step="0.01"
-                          value={adjustedResult.promoCPU}
-                          onChange={(e) => setAdjustedValue(result.productId, 'promoCPU', parseFloat(e.target.value))}
-                        />
-                        <div className={styles.sliderRange}>
-                          {promoCPUToggle === 'dollar' ? (
-                            <>
-                              <span>${promoCPURange.min}</span>
-                              <span>${promoCPURange.max}</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>-50%</span>
-                              <span>+50%</span>
-                            </>
-                          )}
-                        </div>
+                        {result.promoCPU > 0 ? (
+                          <>
+                            <input
+                              type="range"
+                              className={styles.slider}
+                              min={promoCPURange.min}
+                              max={promoCPURange.max}
+                              step="0.01"
+                              value={adjustedResult.promoCPU}
+                              onChange={(e) => setAdjustedValue(result.productId, 'promoCPU', parseFloat(e.target.value))}
+                            />
+                            <div className={styles.sliderRange}>
+                              {promoCPUToggle === 'dollar' ? (
+                                <>
+                                  <span>${promoCPURange.min}</span>
+                                  <span>${promoCPURange.max}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>-50%</span>
+                                  <span>+50%</span>
+                                </>
+                              )}
+                            </div>
+                          </>
+                        ) : (
+                          <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem' }}>
+                            No promo selected. Type a value above to add promo cost.
+                          </div>
+                        )}
                         {adjustedResult.promoCPU !== result.promoCPU && (
                           <div className={styles.delta}>
                             {promoCPUToggle === 'dollar' ? (
