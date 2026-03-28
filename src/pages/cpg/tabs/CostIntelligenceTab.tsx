@@ -49,12 +49,21 @@ type IntelligenceSubTab = 'scenario' | 'trends' | 'vendors' | 'alerts';
 
 interface ProductCPUData {
   cpu: string | null;
+  materialCPU: string | null;
+  laborCost: string | null;
   margin: number | null;
   trend: 'up' | 'down' | 'stable';
   trendValue: string | null;
   topDriver: string | null;
   isComplete: boolean;
   breakdown: any[];
+  laborBreakdown?: Array<{
+    roleId: string;
+    roleName: string;
+    hoursPerUnit: string;
+    hourlyRate: string;
+    costPerUnit: string;
+  }>;
 }
 
 export default function CostIntelligenceTab({
@@ -240,12 +249,15 @@ export default function CostIntelligenceTab({
 
         cpuDataMap.set(productId, {
           cpu: cpuResult.cpu,
+          materialCPU: cpuResult.materialCPU,
+          laborCost: cpuResult.laborCost,
           margin,
           trend: 'stable',
           trendValue: null,
           topDriver,
           isComplete: cpuResult.isComplete,
-          breakdown: cpuResult.breakdown
+          breakdown: cpuResult.breakdown,
+          laborBreakdown: cpuResult.laborBreakdown
         });
       }
 

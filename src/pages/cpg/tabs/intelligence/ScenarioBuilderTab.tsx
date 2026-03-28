@@ -31,12 +31,15 @@ import growthCoinsImage from '../../../../assets/images/growth-coins.png';
 // Product CPU data structure
 export interface ProductCPUData {
   cpu: string | null;
+  materialCPU: string | null;
+  laborCost: string | null;
   margin: number | null;
   trend: 'up' | 'down' | 'stable';
   trendValue: string | null;
   topDriver: string | null;
   isComplete: boolean;
   breakdown: ComponentBreakdown[];
+  laborBreakdown?: LaborBreakdown[];
 }
 
 interface ComponentBreakdown {
@@ -45,6 +48,14 @@ interface ComponentBreakdown {
   variant?: string | null;
   subtotal: string | null;
   itemCount: number;
+}
+
+interface LaborBreakdown {
+  roleId: string;
+  roleName: string;
+  hoursPerUnit: string;
+  hourlyRate: string;
+  costPerUnit: string;
 }
 
 export interface ScenarioBuilderTabProps {
@@ -82,6 +93,12 @@ export default function ScenarioBuilderTab({
     new Map()
   );
 
+  // State: Labor adjustments per product per role
+  // Map<productId, Map<roleId, adjustment %>>
+  const [laborAdjustments, setLaborAdjustments] = useState<Map<string, Map<string, number>>>(
+    new Map()
+  );
+
   // State: Scenario MSRP per product
   // Map<productId, new MSRP>
   const [scenarioMSRP, setScenarioMSRP] = useState<Map<string, number>>(new Map());
@@ -89,6 +106,10 @@ export default function ScenarioBuilderTab({
   // State: Adjustment mode per product ($ or %) - applies to ALL components in that product
   // Map<productId, 'percentage' | 'dollar'>
   const [productModes, setProductModes] = useState<Map<string, 'percentage' | 'dollar'>>(new Map());
+
+  // State: Labor adjustment mode per product ($ or %)
+  // Map<productId, 'percentage' | 'dollar'>
+  const [laborModes, setLaborModes] = useState<Map<string, 'percentage' | 'dollar'>>(new Map());
 
   // State: Track which value is being edited
   // Format: "productId:componentId" or "productId:msrp"
@@ -177,15 +198,15 @@ export default function ScenarioBuilderTab({
     });
   }, [categoryFilter, variantFilter, vendorFilter, recipes, invoices, finishedProducts]);
 
-  // Calculate scenario CPU for a product based on component adjustments
+  // Calculate scenario CPU for a product based on component and labor adjustments
   const calculateScenarioCPU = useCallback(
-    (productId: string): { cpu: number; components: ComponentBreakdown[] } | null => {
+    (productId: string): { cpu: number; materialCPU: number; laborCost: number; components: ComponentBreakdown[] } | null => {
       const data = productCPUData.get(productId);
       if (!data || !data.breakdown || data.breakdown.length === 0) return null;
 
       const adjustments = scenarioAdjustments.get(productId) || new Map();
       const mode = productModes.get(productId) || 'percentage';
-      let totalCPU = 0;
+      let materialCPU = 0;
       const components = data.breakdown.map((component) => {
         const baseSubtotal = component.subtotal ? parseFloat(component.subtotal) : 0;
         const adjustment = adjustments.get(component.categoryId) || 0;
@@ -198,7 +219,7 @@ export default function ScenarioBuilderTab({
           adjustedSubtotal = baseSubtotal + adjustment;
         }
 
-        totalCPU += adjustedSubtotal;
+        materialCPU += adjustedSubtotal;
 
         return {
           ...component,
@@ -206,9 +227,32 @@ export default function ScenarioBuilderTab({
         };
       });
 
-      return { cpu: totalCPU, components };
+      // Calculate adjusted labor cost
+      let laborCost = 0;
+      if (data.laborBreakdown && data.laborBreakdown.length > 0) {
+        const laborAdj = laborAdjustments.get(productId) || new Map();
+        const laborMode = laborModes.get(productId) || 'percentage';
+
+        data.laborBreakdown.forEach((role) => {
+          const baseCost = parseFloat(role.costPerUnit);
+          const adjustment = laborAdj.get(role.roleId) || 0;
+
+          let adjustedCost;
+          if (laborMode === 'percentage') {
+            adjustedCost = baseCost * (1 + adjustment / 100);
+          } else {
+            adjustedCost = baseCost + adjustment;
+          }
+
+          laborCost += adjustedCost;
+        });
+      }
+
+      const totalCPU = materialCPU + laborCost;
+
+      return { cpu: totalCPU, materialCPU, laborCost, components };
     },
-    [productCPUData, scenarioAdjustments, productModes]
+    [productCPUData, scenarioAdjustments, productModes, laborAdjustments, laborModes]
   );
 
   // Calculate scenario margin
@@ -302,9 +346,78 @@ export default function ScenarioBuilderTab({
     setProductModes((prev) => new Map(prev).set(productId, mode));
   }, [productModes, productCPUData, scenarioAdjustments]);
 
+  // Handle labor adjustment change
+  const handleLaborAdjustment = useCallback(
+    (productId: string, roleId: string, adjustment: number) => {
+      setLaborAdjustments((prev) => {
+        const newMap = new Map(prev);
+        const productAdj = newMap.get(productId) || new Map();
+
+        if (adjustment === 0) {
+          productAdj.delete(roleId);
+        } else {
+          productAdj.set(roleId, adjustment);
+        }
+
+        newMap.set(productId, productAdj);
+        return newMap;
+      });
+    },
+    []
+  );
+
+  // Handle labor mode toggle (% or $)
+  const handleLaborModeToggle = useCallback((productId: string, mode: 'percentage' | 'dollar') => {
+    const currentMode = laborModes.get(productId) || 'percentage';
+
+    if (currentMode !== mode) {
+      const data = productCPUData.get(productId);
+      if (!data || !data.laborBreakdown) return;
+
+      const adjustments = laborAdjustments.get(productId) || new Map();
+      const newAdjustments = new Map<string, number>();
+
+      data.laborBreakdown.forEach((role) => {
+        const baseValue = parseFloat(role.costPerUnit);
+        const currentAdj = adjustments.get(role.roleId) || 0;
+
+        if (currentAdj === 0) return;
+
+        let currentAdjustedValue;
+        if (currentMode === 'percentage') {
+          currentAdjustedValue = baseValue * (1 + currentAdj / 100);
+        } else {
+          currentAdjustedValue = baseValue + currentAdj;
+        }
+
+        let newAdj;
+        if (mode === 'percentage') {
+          newAdj = ((currentAdjustedValue - baseValue) / baseValue) * 100;
+        } else {
+          newAdj = currentAdjustedValue - baseValue;
+        }
+
+        newAdjustments.set(role.roleId, newAdj);
+      });
+
+      setLaborAdjustments((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(productId, newAdjustments);
+        return newMap;
+      });
+    }
+
+    setLaborModes((prev) => new Map(prev).set(productId, mode));
+  }, [laborModes, productCPUData, laborAdjustments]);
+
   // Reset scenario for a product
   const resetProductScenario = useCallback((productId: string) => {
     setScenarioAdjustments((prev) => {
+      const newMap = new Map(prev);
+      newMap.delete(productId);
+      return newMap;
+    });
+    setLaborAdjustments((prev) => {
       const newMap = new Map(prev);
       newMap.delete(productId);
       return newMap;
