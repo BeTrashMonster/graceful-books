@@ -33,10 +33,13 @@ export interface CPUTrendsTabProps {
   categoryFilter?: Set<string>;
   variantFilter?: Set<string>;
   vendorFilter?: Set<string>;
+  laborFilter?: Set<string>;
 }
 
 interface ProductCPUData {
   cpu: string | null;
+  materialCPU: string | null;
+  laborCost: string | null;
   margin: number | null;
   msrp: string | null;
   trend: 'up' | 'down' | 'stable';
@@ -44,6 +47,15 @@ interface ProductCPUData {
   topDriver: string | null;
   isComplete: boolean;
   breakdown: ComponentBreakdown[];
+  laborBreakdown?: LaborBreakdown[];
+}
+
+interface LaborBreakdown {
+  roleId: string;
+  roleName: string;
+  hoursPerUnit: string;
+  hourlyRate: string;
+  costPerUnit: string;
 }
 
 interface ComponentBreakdown {
@@ -61,6 +73,7 @@ interface ComponentTrendData {
   change: number;
   lastBuyDays: number;
   priceHistory: Array<{ date: number; price: number }>;
+  isLabor?: boolean; // Flag to indicate this is a labor cost, not material
 }
 
 interface ProductTrendData {
@@ -91,6 +104,7 @@ export default function CPUTrendsTab({
   categoryFilter = new Set(),
   variantFilter = new Set(),
   vendorFilter = new Set(),
+  laborFilter = new Set(),
 }: CPUTrendsTabProps) {
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [productTrends, setProductTrends] = useState<ProductTrendData[]>([]);
@@ -100,7 +114,7 @@ export default function CPUTrendsTab({
   // Load trend data when dependencies change
   useEffect(() => {
     loadProductTrends();
-  }, [dateRange, selectedProducts, productCPUData, invoices, categoryFilter, variantFilter, vendorFilter]);
+  }, [dateRange, selectedProducts, productCPUData, invoices, categoryFilter, variantFilter, vendorFilter, laborFilter]);
 
   /**
    * Load and calculate trend data - shows all components matching filters
@@ -284,6 +298,36 @@ export default function CPUTrendsTab({
             priceHistory: data.priceHistory,
           });
         });
+
+        // Add labor cost data if available and filters allow
+        if (productId !== 'all-components' && cpuData?.laborBreakdown) {
+          const hasMaterialFilters = categoryFilter.size > 0 || variantFilter.size > 0 || vendorFilter.size > 0;
+          const hasLaborFilters = laborFilter.size > 0;
+          const hasAnyFilters = hasMaterialFilters || hasLaborFilters;
+          const showLaborSection = !hasAnyFilters || hasLaborFilters;
+
+          if (showLaborSection) {
+            cpuData.laborBreakdown.forEach(labor => {
+              // Apply labor filter
+              if (laborFilter.size > 0 && !laborFilter.has(labor.roleId)) return;
+
+              const costPerUnit = parseFloat(labor.costPerUnit);
+              if (isNaN(costPerUnit) || costPerUnit <= 0) return;
+
+              // Labor doesn't have historical data, so we create a single point
+              // representing the current cost
+              componentTrends.push({
+                componentName: `${labor.roleName} (Labor)`,
+                current: costPerUnit,
+                avg: costPerUnit, // No history, so avg = current
+                change: 0, // No history, so no change
+                lastBuyDays: 0, // N/A for labor
+                priceHistory: [{ date: today, price: costPerUnit }],
+                isLabor: true,
+              });
+            });
+          }
+        }
 
         if (componentTrends.length > 0) {
           // Sort components alphabetically by default
@@ -784,12 +828,20 @@ export default function CPUTrendsTab({
                   </thead>
                   <tbody>
                     {product.components.map((comp, idx) => (
-                      <tr key={idx}>
-                        <td className={styles.componentName}>{comp.componentName}</td>
-                        <td className={styles.priceValue}>${comp.current.toFixed(2)}</td>
-                        <td className={styles.priceAverage}>${comp.avg.toFixed(2)}</td>
+                      <tr key={idx} style={comp.isLabor ? { backgroundColor: '#FFF9E6' } : undefined}>
+                        <td className={styles.componentName} style={comp.isLabor ? { color: '#D4AF37', fontWeight: 600 } : undefined}>
+                          {comp.componentName}
+                        </td>
+                        <td className={styles.priceValue} style={comp.isLabor ? { color: '#D4AF37', fontWeight: 600 } : undefined}>
+                          ${comp.current.toFixed(2)}
+                        </td>
+                        <td className={styles.priceAverage} style={comp.isLabor ? { color: '#9ca3af' } : undefined}>
+                          {comp.isLabor ? 'N/A' : `$${comp.avg.toFixed(2)}`}
+                        </td>
                         <td className={styles.priceValue}>
-                          {comp.change !== 0 ? (
+                          {comp.isLabor ? (
+                            <span style={{ color: '#9ca3af' }}>N/A</span>
+                          ) : comp.change !== 0 ? (
                             <span className={comp.change > 0 ? styles.increase : styles.decrease}>
                               {comp.change > 0 ? '↑ +' : '↓ '}{comp.change.toFixed(1)}%
                             </span>
@@ -797,7 +849,9 @@ export default function CPUTrendsTab({
                             <span className={styles.stable}>→ Stable</span>
                           )}
                         </td>
-                        <td className={styles.priceValue}>{comp.lastBuyDays}d</td>
+                        <td className={styles.priceValue} style={comp.isLabor ? { color: '#9ca3af' } : undefined}>
+                          {comp.isLabor ? 'N/A' : `${comp.lastBuyDays}d`}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
