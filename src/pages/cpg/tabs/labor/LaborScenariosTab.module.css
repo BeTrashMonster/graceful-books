@@ -121,76 +121,260 @@
   cursor: pointer;
 }
 
+/* CPU Summary Section */
+.cpuSummarySection {
+  margin-bottom: 2.5rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border-radius: 12px;
+  border: 3px solid #D4AF37;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+}
+
+.cpuSummaryHeading {
+  color: #4b006e;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  text-align: center;
+}
+
+.cpuSummarySubheading {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0 0 2rem 0;
+  text-align: center;
+}
+
+.cpuSummaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.cpuSummaryCard {
+  background: white;
+  border: 2px solid #E6D5F5;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(75, 0, 110, 0.08);
+  transition: all 0.2s ease;
+}
+
+.cpuSummaryCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(75, 0, 110, 0.12);
+  border-color: #D4AF37;
+}
+
+.cpuProductName {
+  color: #4b006e;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 1.25rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #E6D5F5;
+}
+
+.cpuBreakdown {
+  margin-bottom: 1.25rem;
+}
+
+.cpuBreakdownRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  font-size: 0.9375rem;
+}
+
+.cpuLabel {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.cpuValue {
+  color: #1f2937;
+  font-weight: 600;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+}
+
+.cpuValueLabor {
+  color: #7e22ce;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+}
+
+.cpuTotalRow {
+  padding: 1rem;
+  background: linear-gradient(135deg, #f3e8ff 0%, #faf5ff 100%);
+  border-radius: 8px;
+  border: 2px solid #D4AF37;
+  margin-bottom: 1rem;
+}
+
+.cpuTotalLabel {
+  color: #4b006e;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.cpuTotalValues {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+}
+
+.cpuCurrentTotal {
+  color: #6b7280;
+}
+
+.cpuArrow {
+  color: #D4AF37;
+  font-size: 1.25rem;
+}
+
+.cpuScenarioTotal {
+  color: #4b006e;
+}
+
+.cpuImpactPositive {
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%);
+  border: 2px solid #10b981;
+  border-radius: 8px;
+  color: #065f46;
+  font-weight: 700;
+  text-align: center;
+  font-size: 1.125rem;
+}
+
+.cpuImpactNegative {
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%);
+  border: 2px solid #ef4444;
+  border-radius: 8px;
+  color: #991b1b;
+  font-weight: 700;
+  text-align: center;
+  font-size: 1.125rem;
+}
+
+.cpuImpactText {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  opacity: 0.9;
+}
+
 /* Table Section */
 .tableSection {
   margin-bottom: 2rem;
   background: white;
-  border-radius: 8px;
-  border: 2px solid #D4AF37; /* Gold border */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  border: 3px solid #D4AF37; /* Gold border */
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.1);
   overflow: hidden;
 }
 
 .table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
-.table thead tr {
-  background: linear-gradient(135deg, #6a1b9a 0%, #4b006e 100%); /* Purple gradient */
-  color: white;
+.table thead tr:first-child {
+  background: #4b006e;
 }
 
-.table thead th {
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-  font-size: 0.875rem;
+.table thead tr:first-child th {
+  padding: 1.25rem 1.5rem;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.9375rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.subheader {
-  background: linear-gradient(135deg, #7e22ce 0%, #6a1b9a 100%) !important; /* Slightly lighter purple */
-}
-
-.subheader th {
-  padding: 0.75rem 1rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
+.table thead tr:first-child th:first-child {
+  text-align: left;
 }
 
 .roleColumn {
   width: 20%;
+  text-align: left !important;
+  color: white;
 }
 
 .currentSection {
   background: linear-gradient(135deg, #7e22ce 0%, #6a1b9a 100%);
+  color: white !important;
   text-align: center !important;
+  border-left: 2px solid rgba(255, 255, 255, 0.15);
+  border-right: 2px solid rgba(255, 255, 255, 0.15);
+  font-weight: 700;
+  letter-spacing: 0.1em;
 }
 
 .scenarioSection {
-  background: linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%); /* Gold gradient */
+  background: linear-gradient(135deg, #F4E4B8 0%, #D4AF37 50%, #C9A959 100%);
   color: #2d1b00 !important;
   text-align: center !important;
+  border-left: 2px solid rgba(45, 27, 0, 0.15);
+  border-right: 2px solid rgba(45, 27, 0, 0.15);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
 }
 
 .deltaColumn {
   width: 10%;
+  text-align: center !important;
+  color: white;
+  font-weight: 700;
+}
+
+.subheader {
+  background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%);
+}
+
+.subheader th {
+  padding: 0.875rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
   text-align: center;
+  color: rgba(255, 255, 255, 0.95);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #D4AF37;
+}
+
+.subheader th:first-child {
+  background: transparent;
 }
 
 /* Product Header Row */
 .productHeader {
-  background: #E6D5F5; /* Light purple */
+  background: linear-gradient(135deg, #f3e8ff 0%, #E6D5F5 100%);
+  border-top: 3px solid #D4AF37;
+  border-bottom: 3px solid #D4AF37;
 }
 
 .productHeader td {
-  padding: 1rem;
+  padding: 1.25rem 1.5rem;
   font-weight: 700;
-  font-size: 1.0625rem;
-  color: #4b006e; /* Dark purple */
-  border-bottom: 2px solid #D4AF37; /* Gold border */
+  font-size: 1.125rem;
+  color: #4b006e;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 /* Data Rows */

@@ -44,6 +44,24 @@ interface ScenarioRole {
   isHypothetical: boolean;
 }
 
+interface ProductCPUSummary {
+  productId: string;
+  productName: string;
+  // CPU Breakdown
+  materialCPU: number;
+  distributionCPU: number;
+  promoCPU: number;
+  // Labor CPU
+  currentLaborCPU: number;
+  scenarioLaborCPU: number;
+  // Total CPU
+  currentTotalCPU: number;
+  scenarioTotalCPU: number;
+  // Impact
+  cpuChange: number;
+  cpuChangePercent: number;
+}
+
 export function LaborScenariosTab() {
   const { companyId, deviceId } = useAuth();
   const [service] = useState(() => new LaborRoleService(db));
@@ -52,6 +70,7 @@ export function LaborScenariosTab() {
   const [roles, setRoles] = useState<CPGLaborRole[]>([]);
   const [products, setProducts] = useState<CPGFinishedProduct[]>([]);
   const [scenarioRoles, setScenarioRoles] = useState<ScenarioRole[]>([]);
+  const [cpuSummaries, setCpuSummaries] = useState<ProductCPUSummary[]>([]);
 
   // Filters
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
@@ -67,6 +86,15 @@ export function LaborScenariosTab() {
   useEffect(() => {
     loadData();
   }, [companyId]);
+
+  // Recalculate CPU summaries when scenario roles change
+  useEffect(() => {
+    if (scenarioRoles.length > 0) {
+      calculateProductCPUSummaries().then(setCpuSummaries);
+    } else {
+      setCpuSummaries([]);
+    }
+  }, [scenarioRoles, products]);
 
   const loadData = async () => {
     try {
@@ -206,7 +234,56 @@ export function LaborScenariosTab() {
     ));
   };
 
-  // Calculate impact summary
+  // Calculate product CPU summaries (big picture)
+  const calculateProductCPUSummaries = async (): Promise<ProductCPUSummary[]> => {
+    const summaries: ProductCPUSummary[] = [];
+
+    // Group scenario roles by product
+    const rolesByProduct = scenarioRoles.reduce((acc, role) => {
+      if (!acc[role.productId]) acc[role.productId] = [];
+      acc[role.productId].push(role);
+      return acc;
+    }, {} as Record<string, ScenarioRole[]>);
+
+    for (const productId of Object.keys(rolesByProduct)) {
+      const product = products.find(p => p.id === productId);
+      if (!product) continue;
+
+      // Get CPU data for this product
+      const cpuData = await cpuCalculatorService.calculateProductCPU(productId, companyId);
+
+      const productRoles = rolesByProduct[productId];
+      const currentLaborCPU = productRoles.reduce((sum, r) => sum + r.currentCost, 0);
+      const scenarioLaborCPU = productRoles.reduce((sum, r) => sum + r.scenarioCost, 0);
+
+      const materialCPU = cpuData?.materialCPU || 0;
+      const distributionCPU = cpuData?.distributionCPU || 0;
+      const promoCPU = cpuData?.promoCPU || 0;
+
+      const currentTotalCPU = materialCPU + currentLaborCPU + distributionCPU + promoCPU;
+      const scenarioTotalCPU = materialCPU + scenarioLaborCPU + distributionCPU + promoCPU;
+      const cpuChange = scenarioTotalCPU - currentTotalCPU;
+      const cpuChangePercent = currentTotalCPU > 0 ? (cpuChange / currentTotalCPU) * 100 : 0;
+
+      summaries.push({
+        productId,
+        productName: product.name,
+        materialCPU,
+        distributionCPU,
+        promoCPU,
+        currentLaborCPU,
+        scenarioLaborCPU,
+        currentTotalCPU,
+        scenarioTotalCPU,
+        cpuChange,
+        cpuChangePercent,
+      });
+    }
+
+    return summaries;
+  };
+
+  // Calculate impact summary (labor costs only)
   const calculateImpact = () => {
     const productImpacts = new Map<string, { current: number; scenario: number }>();
 
@@ -384,6 +461,64 @@ export function LaborScenariosTab() {
           {scenarioGenerated ? 'Regenerate Scenario' : 'Generate Scenario'}
         </Button>
       </div>
+
+      {/* CPU Impact Summary - Big Picture */}
+      {scenarioGenerated && cpuSummaries.length > 0 && (
+        <div className={styles.cpuSummarySection}>
+          <h2 className={styles.cpuSummaryHeading}>Product CPU Impact</h2>
+          <p className={styles.cpuSummarySubheading}>
+            See how labor changes affect your overall cost per unit
+          </p>
+
+          <div className={styles.cpuSummaryGrid}>
+            {cpuSummaries.map(summary => (
+              <div key={summary.productId} className={styles.cpuSummaryCard}>
+                <h3 className={styles.cpuProductName}>{summary.productName}</h3>
+
+                <div className={styles.cpuBreakdown}>
+                  <div className={styles.cpuBreakdownRow}>
+                    <span className={styles.cpuLabel}>Material CPU:</span>
+                    <span className={styles.cpuValue}>${summary.materialCPU.toFixed(2)}</span>
+                  </div>
+                  <div className={styles.cpuBreakdownRow}>
+                    <span className={styles.cpuLabel}>Labor CPU:</span>
+                    <span className={styles.cpuValueLabor}>
+                      ${summary.currentLaborCPU.toFixed(2)} → ${summary.scenarioLaborCPU.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className={styles.cpuBreakdownRow}>
+                    <span className={styles.cpuLabel}>Distribution CPU:</span>
+                    <span className={styles.cpuValue}>${summary.distributionCPU.toFixed(2)}</span>
+                  </div>
+                  <div className={styles.cpuBreakdownRow}>
+                    <span className={styles.cpuLabel}>Promo CPU:</span>
+                    <span className={styles.cpuValue}>${summary.promoCPU.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div className={styles.cpuTotalRow}>
+                  <div className={styles.cpuTotalLabel}>Total CPU</div>
+                  <div className={styles.cpuTotalValues}>
+                    <span className={styles.cpuCurrentTotal}>${summary.currentTotalCPU.toFixed(2)}</span>
+                    <span className={styles.cpuArrow}>→</span>
+                    <span className={styles.cpuScenarioTotal}>${summary.scenarioTotalCPU.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {summary.cpuChange !== 0 && (
+                  <div className={summary.cpuChange > 0 ? styles.cpuImpactNegative : styles.cpuImpactPositive}>
+                    {summary.cpuChange > 0 ? '↑' : '↓'} ${Math.abs(summary.cpuChange).toFixed(2)}
+                    ({summary.cpuChangePercent > 0 ? '+' : ''}{summary.cpuChangePercent.toFixed(1)}%)
+                    <div className={styles.cpuImpactText}>
+                      {summary.cpuChange > 0 ? 'Higher cost' : 'Cost savings'}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Scenario Table */}
       {scenarioGenerated && productGroups.length > 0 && (
