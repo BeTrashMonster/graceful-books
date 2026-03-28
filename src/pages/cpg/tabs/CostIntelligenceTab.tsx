@@ -862,37 +862,40 @@ export default function CostIntelligenceTab({
                   </div>
 
                   {/* Category List */}
-                  {categories.filter(cat => !cat.deleted_at).map(cat => (
-                    <label
-                      key={cat.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        padding: '0.4rem 0.625rem',
-                        cursor: 'pointer',
-                        borderBottom: '1px solid #f8fafc',
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={comparisonCategoryFilter.has(cat.id)}
-                        onChange={(e) => {
-                          const newSet = new Set(comparisonCategoryFilter);
-                          if (e.target.checked) {
-                            newSet.add(cat.id);
-                          } else {
-                            newSet.delete(cat.id);
-                          }
-                          setComparisonCategoryFilter(newSet);
+                  {categories
+                    .filter(cat => !cat.deleted_at)
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map(cat => (
+                      <label
+                        key={cat.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '0.4rem 0.625rem',
+                          cursor: 'pointer',
+                          borderBottom: '1px solid #f8fafc',
                         }}
-                        style={{ marginRight: '0.5rem' }}
-                        aria-label={`Select ${cat.name}`}
-                      />
-                      <span style={{ fontSize: '0.8125rem' }}>{cat.name}</span>
-                    </label>
-                  ))}
+                        onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={comparisonCategoryFilter.has(cat.id)}
+                          onChange={(e) => {
+                            const newSet = new Set(comparisonCategoryFilter);
+                            if (e.target.checked) {
+                              newSet.add(cat.id);
+                            } else {
+                              newSet.delete(cat.id);
+                            }
+                            setComparisonCategoryFilter(newSet);
+                          }}
+                          style={{ marginRight: '0.5rem' }}
+                          aria-label={`Select ${cat.name}`}
+                        />
+                        <span style={{ fontSize: '0.8125rem' }}>{cat.name}</span>
+                      </label>
+                    ))}
                 </div>
               )}
             </div>
@@ -1263,37 +1266,39 @@ export default function CostIntelligenceTab({
                       No labor roles found
                     </div>
                   ) : (
-                    laborRoles.map(role => (
-                      <label
-                        key={role.id}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          padding: '0.4rem 0.625rem',
-                          cursor: 'pointer',
-                          borderBottom: '1px solid #f8fafc',
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={comparisonLaborFilter.has(role.id)}
-                          onChange={(e) => {
-                            const newSet = new Set(comparisonLaborFilter);
-                            if (e.target.checked) {
-                              newSet.add(role.id);
-                            } else {
-                              newSet.delete(role.id);
-                            }
-                            setComparisonLaborFilter(newSet);
+                    laborRoles
+                      .sort((a, b) => a.role_name.localeCompare(b.role_name))
+                      .map(role => (
+                        <label
+                          key={role.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '0.4rem 0.625rem',
+                            cursor: 'pointer',
+                            borderBottom: '1px solid #f8fafc',
                           }}
-                          style={{ marginRight: '0.5rem' }}
-                          aria-label={`Select ${role.role_name}`}
-                        />
-                        <span style={{ fontSize: '0.8125rem' }}>{role.role_name}</span>
-                      </label>
-                    ))
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={comparisonLaborFilter.has(role.id)}
+                            onChange={(e) => {
+                              const newSet = new Set(comparisonLaborFilter);
+                              if (e.target.checked) {
+                                newSet.add(role.id);
+                              } else {
+                                newSet.delete(role.id);
+                              }
+                              setComparisonLaborFilter(newSet);
+                            }}
+                            style={{ marginRight: '0.5rem' }}
+                            aria-label={`Select ${role.role_name}`}
+                          />
+                          <span style={{ fontSize: '0.8125rem' }}>{role.role_name}</span>
+                        </label>
+                      ))
                   )}
                 </div>
               )}
