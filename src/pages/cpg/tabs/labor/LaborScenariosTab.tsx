@@ -49,12 +49,10 @@ interface ProductCPUSummary {
   productName: string;
   // CPU Breakdown
   materialCPU: number;
-  distributionCPU: number;
-  promoCPU: number;
   // Labor CPU
   currentLaborCPU: number;
   scenarioLaborCPU: number;
-  // Total CPU
+  // Total CPU (Material + Labor)
   currentTotalCPU: number;
   scenarioTotalCPU: number;
   // Impact
@@ -250,18 +248,16 @@ export function LaborScenariosTab() {
       if (!product) continue;
 
       // Get CPU data for this product
-      const cpuData = await cpuCalculatorService.calculateProductCPU(productId, companyId);
+      const cpuData = await cpuCalculatorService.calculateFinishedProductCPU(productId, companyId);
 
       const productRoles = rolesByProduct[productId];
       const currentLaborCPU = productRoles.reduce((sum, r) => sum + r.currentCost, 0);
       const scenarioLaborCPU = productRoles.reduce((sum, r) => sum + r.scenarioCost, 0);
 
-      const materialCPU = cpuData?.materialCPU || 0;
-      const distributionCPU = cpuData?.distributionCPU || 0;
-      const promoCPU = cpuData?.promoCPU || 0;
+      const materialCPU = cpuData?.materialCPU ? parseFloat(cpuData.materialCPU) : 0;
 
-      const currentTotalCPU = materialCPU + currentLaborCPU + distributionCPU + promoCPU;
-      const scenarioTotalCPU = materialCPU + scenarioLaborCPU + distributionCPU + promoCPU;
+      const currentTotalCPU = materialCPU + currentLaborCPU;
+      const scenarioTotalCPU = materialCPU + scenarioLaborCPU;
       const cpuChange = scenarioTotalCPU - currentTotalCPU;
       const cpuChangePercent = currentTotalCPU > 0 ? (cpuChange / currentTotalCPU) * 100 : 0;
 
@@ -269,8 +265,6 @@ export function LaborScenariosTab() {
         productId,
         productName: product.name,
         materialCPU,
-        distributionCPU,
-        promoCPU,
         currentLaborCPU,
         scenarioLaborCPU,
         currentTotalCPU,
@@ -485,14 +479,6 @@ export function LaborScenariosTab() {
                     <span className={styles.cpuValueLabor}>
                       ${summary.currentLaborCPU.toFixed(2)} → ${summary.scenarioLaborCPU.toFixed(2)}
                     </span>
-                  </div>
-                  <div className={styles.cpuBreakdownRow}>
-                    <span className={styles.cpuLabel}>Distribution CPU:</span>
-                    <span className={styles.cpuValue}>${summary.distributionCPU.toFixed(2)}</span>
-                  </div>
-                  <div className={styles.cpuBreakdownRow}>
-                    <span className={styles.cpuLabel}>Promo CPU:</span>
-                    <span className={styles.cpuValue}>${summary.promoCPU.toFixed(2)}</span>
                   </div>
                 </div>
 
