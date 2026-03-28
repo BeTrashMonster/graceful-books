@@ -68,7 +68,9 @@ interface PromoData {
 interface CalculationResult {
   productId: string;
   productName: string;
-  baseCPU: number;
+  baseCPU: number; // Total production cost (materials + labor)
+  materialCPU: number; // Materials cost only
+  laborCost: number; // Labor cost only
   distributionCPU: number;
   promoCPU: number;
   totalCPU: number;
@@ -125,12 +127,16 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
   // Overall mode adjustments
   const [overallAdjustments, setOverallAdjustments] = useState({
+    materialCPU: 0,
+    laborCost: 0,
     baseCPU: 0,
     distributionCPU: 0,
     promoCPU: 0,
     retailPrice: 0,
   });
   const [overallToggles, setOverallToggles] = useState({
+    materialCPU: 'percentage' as 'dollar' | 'percentage',
+    laborCost: 'percentage' as 'dollar' | 'percentage',
     baseCPU: 'percentage' as 'dollar' | 'percentage',
     distributionCPU: 'percentage' as 'dollar' | 'percentage',
     promoCPU: 'percentage' as 'dollar' | 'percentage',
@@ -452,13 +458,15 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
         const product = allProducts.find(p => p.id === productId);
         if (!product) continue;
 
-        // Calculate base CPU
+        // Calculate base CPU (with material and labor breakdown)
         const cpuResult = await cpuCalculatorService.calculateFinishedProductCPU(
           productId,
           companyId,
           null
         );
         const baseCPU = cpuResult.cpu ? parseFloat(cpuResult.cpu) : 0;
+        const materialCPU = cpuResult.materialCPU ? parseFloat(cpuResult.materialCPU) : 0;
+        const laborCost = cpuResult.laborCost ? parseFloat(cpuResult.laborCost) : 0;
 
         // Get promo CPU for this product
         let promoCPU = 0;
@@ -486,6 +494,8 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
           productId: product.id,
           productName: product.name,
           baseCPU,
+          materialCPU,
+          laborCost,
           distributionCPU,
           promoCPU,
           totalCPU,
@@ -560,13 +570,15 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
     const productAdjustments = adjustedValues.get(result.productId);
     if (!productAdjustments) return result;
 
-    // Apply adjustments
-    const baseCPU = productAdjustments.get('baseCPU') ?? result.baseCPU;
+    // Apply adjustments to material and labor separately
+    const materialCPU = productAdjustments.get('materialCPU') ?? result.materialCPU;
+    const laborCost = productAdjustments.get('laborCost') ?? result.laborCost;
+    const baseCPU = materialCPU + laborCost; // Base CPU is sum of material + labor
     const distributionCPU = productAdjustments.get('distributionCPU') ?? result.distributionCPU;
     const promoCPU = productAdjustments.get('promoCPU') ?? result.promoCPU;
     const retailPrice = productAdjustments.get('retailPrice') ?? result.retailPrice;
 
-    // Recalculate
+    // Recalculate total and margin
     const totalCPU = baseCPU + distributionCPU + promoCPU;
     const margin = retailPrice > 0 ? ((retailPrice - totalCPU) / retailPrice) * 100 : 0;
     const marginQuality = cpgSettings
@@ -575,6 +587,8 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
     return {
       ...result,
+      materialCPU,
+      laborCost,
       baseCPU,
       distributionCPU,
       promoCPU,
@@ -622,20 +636,34 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
   // Apply overall adjustments to a result
   const applyOverallAdjustment = (result: CalculationResult): CalculationResult => {
-    let baseCPU = result.baseCPU;
+    let materialCPU = result.materialCPU;
+    let laborCost = result.laborCost;
     let distributionCPU = result.distributionCPU;
     let promoCPU = result.promoCPU;
     let retailPrice = result.retailPrice;
 
-    // Apply Base CPU adjustment
-    if (overallAdjustments.baseCPU !== 0) {
-      if (overallToggles.baseCPU === 'dollar') {
-        baseCPU += overallAdjustments.baseCPU;
+    // Apply Material CPU adjustment
+    if (overallAdjustments.materialCPU !== 0) {
+      if (overallToggles.materialCPU === 'dollar') {
+        materialCPU += overallAdjustments.materialCPU;
       } else {
-        baseCPU *= 1 + overallAdjustments.baseCPU / 100;
+        materialCPU *= 1 + overallAdjustments.materialCPU / 100;
       }
-      baseCPU = Math.max(0, baseCPU);
+      materialCPU = Math.max(0, materialCPU);
     }
+
+    // Apply Labor Cost adjustment
+    if (overallAdjustments.laborCost !== 0) {
+      if (overallToggles.laborCost === 'dollar') {
+        laborCost += overallAdjustments.laborCost;
+      } else {
+        laborCost *= 1 + overallAdjustments.laborCost / 100;
+      }
+      laborCost = Math.max(0, laborCost);
+    }
+
+    // Calculate Base CPU from adjusted material and labor
+    const baseCPU = materialCPU + laborCost;
 
     // Apply Distribution CPU adjustment
     if (overallAdjustments.distributionCPU !== 0) {
@@ -675,6 +703,8 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
     return {
       ...result,
+      materialCPU,
+      laborCost,
       baseCPU,
       distributionCPU,
       promoCPU,
@@ -687,6 +717,8 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
   // Check if any overall adjustments have been made
   const hasOverallAdjustments =
+    overallAdjustments.materialCPU !== 0 ||
+    overallAdjustments.laborCost !== 0 ||
     overallAdjustments.baseCPU !== 0 ||
     overallAdjustments.distributionCPU !== 0 ||
     overallAdjustments.promoCPU !== 0 ||
@@ -1188,6 +1220,8 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
             <thead>
               <tr>
                 <th>Product</th>
+                <th>Material CPU</th>
+                <th style={{ color: '#D4AF37' }}>Labor Cost</th>
                 <th>Base CPU</th>
                 <th>Distribution CPU</th>
                 <th>Promo CPU</th>
@@ -1204,15 +1238,19 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                 return (
                   <tr key={result.productId} className={hasAdjustments ? styles.hasAdjustments : ''}>
                     <td>{result.productName}</td>
-                    <td>${result.baseCPU.toFixed(2)}</td>
-                    <td>${result.distributionCPU.toFixed(2)}</td>
-                    <td>${result.promoCPU.toFixed(2)}</td>
-                    <td><strong>${result.totalCPU.toFixed(2)}</strong></td>
-                    <td>${result.retailPrice.toFixed(2)}</td>
+                    <td>${adjustedResult.materialCPU.toFixed(2)}</td>
+                    <td style={{ color: '#D4AF37', fontWeight: adjustedResult.laborCost > 0 ? 600 : 'normal' }}>
+                      ${adjustedResult.laborCost.toFixed(2)}
+                    </td>
+                    <td>${adjustedResult.baseCPU.toFixed(2)}</td>
+                    <td>${adjustedResult.distributionCPU.toFixed(2)}</td>
+                    <td>${adjustedResult.promoCPU.toFixed(2)}</td>
+                    <td><strong>${adjustedResult.totalCPU.toFixed(2)}</strong></td>
+                    <td>${adjustedResult.retailPrice.toFixed(2)}</td>
                     <td>
                       <MarginQualityBadge
-                        quality={result.marginQuality}
-                        marginPercentage={result.margin.toFixed(2)}
+                        quality={adjustedResult.marginQuality}
+                        marginPercentage={adjustedResult.margin.toFixed(2)}
                       />
                     </td>
                   </tr>
@@ -1253,12 +1291,16 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                 const hasAdjustments = adjustedValues.has(result.productId);
 
                 // Calculate ranges for sliders
+                const materialCPURange = calculateRange(result.materialCPU, 50);
+                const laborRange = calculateRange(result.laborCost, 50);
                 const baseCPURange = calculateRange(result.baseCPU, 50);
                 const distCPURange = calculateRange(result.distributionCPU, 50);
                 const promoCPURange = calculateRange(result.promoCPU, 50);
                 const retailRange = calculateRange(result.retailPrice, 30);
 
                 // Get toggle states
+                const materialCPUToggle = getSliderToggle(result.productId, 'materialCPU');
+                const laborToggle = getSliderToggle(result.productId, 'laborCost');
                 const baseCPUToggle = getSliderToggle(result.productId, 'baseCPU');
                 const distCPUToggle = getSliderToggle(result.productId, 'distributionCPU');
                 const promoCPUToggle = getSliderToggle(result.productId, 'promoCPU');
@@ -1282,20 +1324,20 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
                     {/* Sliders Section */}
                     <div className={styles.slidersGrid}>
-                      {/* Base CPU Slider */}
+                      {/* Material CPU Slider */}
                       <div className={styles.sliderControl}>
                         <div className={styles.sliderLabelRow}>
-                          <label>Base CPU</label>
+                          <label>Material CPU</label>
                           <div className={styles.toggleSwitch}>
                             <button
-                              className={baseCPUToggle === 'dollar' ? styles.active : ''}
-                              onClick={() => setSliderToggle(result.productId, 'baseCPU', 'dollar')}
+                              className={materialCPUToggle === 'dollar' ? styles.active : ''}
+                              onClick={() => setSliderToggle(result.productId, 'materialCPU', 'dollar')}
                             >
                               $
                             </button>
                             <button
-                              className={baseCPUToggle === 'percentage' ? styles.active : ''}
-                              onClick={() => setSliderToggle(result.productId, 'baseCPU', 'percentage')}
+                              className={materialCPUToggle === 'percentage' ? styles.active : ''}
+                              onClick={() => setSliderToggle(result.productId, 'materialCPU', 'percentage')}
                             >
                               %
                             </button>
@@ -1306,11 +1348,11 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                             type="number"
                             step="0.01"
                             min="0"
-                            value={adjustedResult.baseCPU.toFixed(2)}
+                            value={adjustedResult.materialCPU.toFixed(2)}
                             onChange={(e) => {
                               const val = parseFloat(e.target.value);
                               if (!isNaN(val) && val >= 0) {
-                                setAdjustedValue(result.productId, 'baseCPU', val);
+                                setAdjustedValue(result.productId, 'materialCPU', val);
                               }
                             }}
                           />
@@ -1318,17 +1360,17 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                         <input
                           type="range"
                           className={styles.slider}
-                          min={baseCPURange.min}
-                          max={baseCPURange.max}
+                          min={materialCPURange.min}
+                          max={materialCPURange.max}
                           step="0.01"
-                          value={adjustedResult.baseCPU}
-                          onChange={(e) => setAdjustedValue(result.productId, 'baseCPU', parseFloat(e.target.value))}
+                          value={adjustedResult.materialCPU}
+                          onChange={(e) => setAdjustedValue(result.productId, 'materialCPU', parseFloat(e.target.value))}
                         />
                         <div className={styles.sliderRange}>
-                          {baseCPUToggle === 'dollar' ? (
+                          {materialCPUToggle === 'dollar' ? (
                             <>
-                              <span>${baseCPURange.min}</span>
-                              <span>${baseCPURange.max}</span>
+                              <span>${materialCPURange.min}</span>
+                              <span>${materialCPURange.max}</span>
                             </>
                           ) : (
                             <>
@@ -1337,19 +1379,128 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                             </>
                           )}
                         </div>
-                        {adjustedResult.baseCPU !== result.baseCPU && (
+                        {adjustedResult.materialCPU !== result.materialCPU && (
                           <div className={styles.delta}>
-                            {baseCPUToggle === 'dollar' ? (
+                            {materialCPUToggle === 'dollar' ? (
                               <>
-                                {adjustedResult.baseCPU > result.baseCPU ? '↑' : '↓'} $
-                                {Math.abs(adjustedResult.baseCPU - result.baseCPU).toFixed(2)}
+                                {adjustedResult.materialCPU > result.materialCPU ? '↑' : '↓'} $
+                                {Math.abs(adjustedResult.materialCPU - result.materialCPU).toFixed(2)}
                               </>
                             ) : (
                               <>
-                                {adjustedResult.baseCPU > result.baseCPU ? '↑' : '↓'}
-                                {(((adjustedResult.baseCPU - result.baseCPU) / result.baseCPU) * 100).toFixed(1)}%
+                                {adjustedResult.materialCPU > result.materialCPU ? '↑' : '↓'}
+                                {(((adjustedResult.materialCPU - result.materialCPU) / result.materialCPU) * 100).toFixed(1)}%
                               </>
                             )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Labor Cost Slider */}
+                      <div className={styles.sliderControl}>
+                        <div className={styles.sliderLabelRow}>
+                          <label style={{ color: '#D4AF37', fontWeight: 600 }}>Labor Cost</label>
+                          <div className={styles.toggleSwitch}>
+                            <button
+                              className={laborToggle === 'dollar' ? styles.active : ''}
+                              onClick={() => setSliderToggle(result.productId, 'laborCost', 'dollar')}
+                              style={{
+                                backgroundColor: laborToggle === 'dollar' ? '#D4AF37' : undefined,
+                                borderColor: '#D4AF37',
+                                color: laborToggle === 'dollar' ? '#2d1b00' : '#D4AF37'
+                              }}
+                            >
+                              $
+                            </button>
+                            <button
+                              className={laborToggle === 'percentage' ? styles.active : ''}
+                              onClick={() => setSliderToggle(result.productId, 'laborCost', 'percentage')}
+                              style={{
+                                backgroundColor: laborToggle === 'percentage' ? '#D4AF37' : undefined,
+                                borderColor: '#D4AF37',
+                                color: laborToggle === 'percentage' ? '#2d1b00' : '#D4AF37'
+                              }}
+                            >
+                              %
+                            </button>
+                          </div>
+                        </div>
+                        <div className={styles.adjustedValue}>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={adjustedResult.laborCost.toFixed(2)}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val) && val >= 0) {
+                                setAdjustedValue(result.productId, 'laborCost', val);
+                              }
+                            }}
+                            style={{ color: '#D4AF37', fontWeight: 600 }}
+                          />
+                        </div>
+                        <input
+                          type="range"
+                          className={styles.slider}
+                          min={laborRange.min}
+                          max={laborRange.max}
+                          step="0.01"
+                          value={adjustedResult.laborCost}
+                          onChange={(e) => setAdjustedValue(result.productId, 'laborCost', parseFloat(e.target.value))}
+                          style={{
+                            accentColor: '#D4AF37'
+                          }}
+                        />
+                        <div className={styles.sliderRange}>
+                          {laborToggle === 'dollar' ? (
+                            <>
+                              <span style={{ color: '#D4AF37' }}>${laborRange.min}</span>
+                              <span style={{ color: '#D4AF37' }}>${laborRange.max}</span>
+                            </>
+                          ) : (
+                            <>
+                              <span style={{ color: '#D4AF37' }}>-50%</span>
+                              <span style={{ color: '#D4AF37' }}>+50%</span>
+                            </>
+                          )}
+                        </div>
+                        {adjustedResult.laborCost !== result.laborCost && (
+                          <div className={styles.delta} style={{ color: '#D4AF37' }}>
+                            {laborToggle === 'dollar' ? (
+                              <>
+                                {adjustedResult.laborCost > result.laborCost ? '↑' : '↓'} $
+                                {Math.abs(adjustedResult.laborCost - result.laborCost).toFixed(2)}
+                              </>
+                            ) : (
+                              <>
+                                {adjustedResult.laborCost > result.laborCost ? '↑' : '↓'}
+                                {(((adjustedResult.laborCost - result.laborCost) / result.laborCost) * 100).toFixed(1)}%
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Base CPU Display (Read-only - calculated from Material + Labor) */}
+                      <div className={styles.sliderControl}>
+                        <div className={styles.sliderLabelRow}>
+                          <label>Base CPU (Material + Labor)</label>
+                        </div>
+                        <div className={styles.adjustedValue}>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={adjustedResult.baseCPU.toFixed(2)}
+                            disabled
+                            style={{ backgroundColor: '#f3f4f6', color: '#6b7280', cursor: 'not-allowed' }}
+                          />
+                        </div>
+                        {adjustedResult.baseCPU !== result.baseCPU && (
+                          <div className={styles.delta}>
+                            {adjustedResult.baseCPU > result.baseCPU ? '↑' : '↓'} $
+                            {Math.abs(adjustedResult.baseCPU - result.baseCPU).toFixed(2)}
                           </div>
                         )}
                       </div>
@@ -1697,6 +1848,8 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                     className={styles.resetButton}
                     onClick={() => {
                       setOverallAdjustments({
+                        materialCPU: 0,
+                        laborCost: 0,
                         baseCPU: 0,
                         distributionCPU: 0,
                         promoCPU: 0,
@@ -1712,23 +1865,23 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
               {/* Overall Sliders */}
               <div className={styles.overallSliders}>
-                {/* Base CPU Slider */}
+                {/* Material CPU Slider */}
                 <div className={styles.overallSliderControl}>
                   <div className={styles.sliderLabelRow}>
-                    <label>Base CPU</label>
+                    <label>Material CPU</label>
                     <div className={styles.toggleSwitch}>
                       <button
-                        className={overallToggles.baseCPU === 'dollar' ? styles.active : ''}
+                        className={overallToggles.materialCPU === 'dollar' ? styles.active : ''}
                         onClick={() =>
-                          setOverallToggles({ ...overallToggles, baseCPU: 'dollar' })
+                          setOverallToggles({ ...overallToggles, materialCPU: 'dollar' })
                         }
                       >
                         $
                       </button>
                       <button
-                        className={overallToggles.baseCPU === 'percentage' ? styles.active : ''}
+                        className={overallToggles.materialCPU === 'percentage' ? styles.active : ''}
                         onClick={() =>
-                          setOverallToggles({ ...overallToggles, baseCPU: 'percentage' })
+                          setOverallToggles({ ...overallToggles, materialCPU: 'percentage' })
                         }
                       >
                         %
@@ -1739,15 +1892,15 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                     <input
                       type="text"
                       value={
-                        overallToggles.baseCPU === 'dollar'
-                          ? `${overallAdjustments.baseCPU >= 0 ? '+' : ''}$${overallAdjustments.baseCPU.toFixed(2)}`
-                          : `${overallAdjustments.baseCPU >= 0 ? '+' : ''}${overallAdjustments.baseCPU.toFixed(0)}%`
+                        overallToggles.materialCPU === 'dollar'
+                          ? `${overallAdjustments.materialCPU >= 0 ? '+' : ''}$${overallAdjustments.materialCPU.toFixed(2)}`
+                          : `${overallAdjustments.materialCPU >= 0 ? '+' : ''}${overallAdjustments.materialCPU.toFixed(0)}%`
                       }
                       onChange={(e) => {
                         const cleanValue = e.target.value.replace(/[^0-9.-]/g, '');
                         const val = parseFloat(cleanValue);
                         if (!isNaN(val)) {
-                          setOverallAdjustments({ ...overallAdjustments, baseCPU: val });
+                          setOverallAdjustments({ ...overallAdjustments, materialCPU: val });
                         }
                       }}
                     />
@@ -1755,16 +1908,94 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                   <input
                     type="range"
                     className={styles.slider}
-                    min={overallToggles.baseCPU === 'dollar' ? '-10' : '-50'}
-                    max={overallToggles.baseCPU === 'dollar' ? '10' : '50'}
-                    step={overallToggles.baseCPU === 'dollar' ? '0.01' : '1'}
-                    value={overallAdjustments.baseCPU}
+                    min={overallToggles.materialCPU === 'dollar' ? '-10' : '-50'}
+                    max={overallToggles.materialCPU === 'dollar' ? '10' : '50'}
+                    step={overallToggles.materialCPU === 'dollar' ? '0.01' : '1'}
+                    value={overallAdjustments.materialCPU}
                     onChange={(e) =>
-                      setOverallAdjustments({ ...overallAdjustments, baseCPU: parseFloat(e.target.value) })
+                      setOverallAdjustments({ ...overallAdjustments, materialCPU: parseFloat(e.target.value) })
                     }
                   />
                   <div className={styles.sliderRange}>
-                    {overallToggles.baseCPU === 'dollar' ? (
+                    {overallToggles.materialCPU === 'dollar' ? (
+                      <>
+                        <span>-$10</span>
+                        <span>+$10</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>-50%</span>
+                        <span>+50%</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Labor Cost Slider */}
+                <div className={styles.overallSliderControl}>
+                  <div className={styles.sliderLabelRow}>
+                    <label style={{ color: '#D4AF37', fontWeight: 600 }}>Labor Cost</label>
+                    <div className={styles.toggleSwitch}>
+                      <button
+                        className={overallToggles.laborCost === 'dollar' ? styles.active : ''}
+                        onClick={() =>
+                          setOverallToggles({ ...overallToggles, laborCost: 'dollar' })
+                        }
+                        style={{
+                          backgroundColor: overallToggles.laborCost === 'dollar' ? '#D4AF37' : undefined,
+                          borderColor: '#D4AF37',
+                          color: overallToggles.laborCost === 'dollar' ? '#2d1b00' : '#D4AF37'
+                        }}
+                      >
+                        $
+                      </button>
+                      <button
+                        className={overallToggles.laborCost === 'percentage' ? styles.active : ''}
+                        onClick={() =>
+                          setOverallToggles({ ...overallToggles, laborCost: 'percentage' })
+                        }
+                        style={{
+                          backgroundColor: overallToggles.laborCost === 'percentage' ? '#D4AF37' : undefined,
+                          borderColor: '#D4AF37',
+                          color: overallToggles.laborCost === 'percentage' ? '#2d1b00' : '#D4AF37'
+                        }}
+                      >
+                        %
+                      </button>
+                    </div>
+                  </div>
+                  <div className={styles.adjustedValue}>
+                    <input
+                      type="text"
+                      value={
+                        overallToggles.laborCost === 'dollar'
+                          ? `${overallAdjustments.laborCost >= 0 ? '+' : ''}$${overallAdjustments.laborCost.toFixed(2)}`
+                          : `${overallAdjustments.laborCost >= 0 ? '+' : ''}${overallAdjustments.laborCost.toFixed(0)}%`
+                      }
+                      onChange={(e) => {
+                        const cleanValue = e.target.value.replace(/[^0-9.-]/g, '');
+                        const val = parseFloat(cleanValue);
+                        if (!isNaN(val)) {
+                          setOverallAdjustments({ ...overallAdjustments, laborCost: val });
+                        }
+                      }}
+                      style={{ color: '#D4AF37', fontWeight: 600 }}
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    className={styles.slider}
+                    min={overallToggles.laborCost === 'dollar' ? '-10' : '-50'}
+                    max={overallToggles.laborCost === 'dollar' ? '10' : '50'}
+                    step={overallToggles.laborCost === 'dollar' ? '0.01' : '1'}
+                    value={overallAdjustments.laborCost}
+                    onChange={(e) =>
+                      setOverallAdjustments({ ...overallAdjustments, laborCost: parseFloat(e.target.value) })
+                    }
+                    style={{ accentColor: '#D4AF37' }}
+                  />
+                  <div className={styles.sliderRange} style={{ color: '#D4AF37' }}>
+                    {overallToggles.laborCost === 'dollar' ? (
                       <>
                         <span>-$10</span>
                         <span>+$10</span>
