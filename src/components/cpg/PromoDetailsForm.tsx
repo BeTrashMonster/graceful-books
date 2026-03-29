@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { Input } from '../forms/Input';
 import { Button } from '../core/Button';
+import { db } from '../../db/database';
 import { LaborRoleService } from '../../services/cpg/laborRole.service';
 import type { CPGLaborRole } from '../../db/schema/cpg.schema';
 import styles from './PromoDetailsForm.module.css';
@@ -212,6 +213,7 @@ export function PromoDetailsForm({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [laborRoleService] = useState(() => new LaborRoleService(db));
   const [laborRoles, setLaborRoles] = useState<CPGLaborRole[]>([]);
   const [showProductSelector, setShowProductSelector] = useState(false);
   const productSelectorRef = useRef<HTMLDivElement>(null);
@@ -251,7 +253,7 @@ export function PromoDetailsForm({
   useEffect(() => {
     const loadLaborRoles = async () => {
       try {
-        const roles = await LaborRoleService.getAllRoles(companyId);
+        const roles = await laborRoleService.getRoles(companyId);
         setLaborRoles(roles);
       } catch (error) {
         console.error('Error loading labor roles:', error);

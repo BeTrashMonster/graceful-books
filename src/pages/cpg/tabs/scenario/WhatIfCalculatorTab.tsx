@@ -115,6 +115,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
   const [showProductSelector, setShowProductSelector] = useState(false);
 
   // Labor roles and additional labor state
+  const [laborRoleService] = useState(() => new LaborRoleService(db));
   const [laborRoles, setLaborRoles] = useState<CPGLaborRole[]>([]);
   const [additionalLaborRole, setAdditionalLaborRole] = useState<string>(''); // Role ID or 'custom'
   const [additionalLaborHours, setAdditionalLaborHours] = useState<string>('');
@@ -317,7 +318,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
       setAllProducts(products);
 
       // Load labor roles
-      const laborRolesData = await LaborRoleService.getAllRoles(companyId);
+      const laborRolesData = await laborRoleService.getRoles(companyId);
       setLaborRoles(laborRolesData);
 
       // Load categories for Cost a New Idea mode

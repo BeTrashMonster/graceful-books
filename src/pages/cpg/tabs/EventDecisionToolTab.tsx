@@ -78,6 +78,7 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
   const [error, setError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showProductDropdown, setShowProductDropdown] = useState(false);
+  const [laborRoleService] = useState(() => new LaborRoleService(db));
   const [laborRoles, setLaborRoles] = useState<CPGLaborRole[]>([]);
   const [cpgSettings, setCpgSettings] = useState<CPGSettings | null>(null);
 
@@ -153,7 +154,7 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
       setProducts(validProducts);
 
       // Load labor roles
-      const roles = await LaborRoleService.getAllRoles(companyId);
+      const roles = await laborRoleService.getRoles(companyId);
       setLaborRoles(roles);
     } catch (err) {
       console.error('Error loading data:', err);
