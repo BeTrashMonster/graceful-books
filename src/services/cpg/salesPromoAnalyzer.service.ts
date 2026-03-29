@@ -60,7 +60,8 @@ const serviceLogger = logger.child('SalesPromoAnalyzerService');
 
 export interface DemoHoursEntry {
   id: string;
-  description: string;
+  roleId: string; // Role ID or 'custom'
+  roleName: string; // Role name for display
   hours: string;
   hourlyRate: string;
   costType: 'actual' | 'opportunity';

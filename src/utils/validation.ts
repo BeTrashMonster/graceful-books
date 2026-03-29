@@ -789,7 +789,8 @@ export const CreatePromoParamsSchema = z.object({
     .array(
       z.object({
         id: uuidSchema,
-        description: mediumTextSchema,
+        roleId: z.string().max(100), // Role ID or 'custom'
+        roleName: z.string().max(100), // Role name for display
         hours: positiveDecimalSchema.refine((val) => parseFloat(val) <= 1000, {
           message: 'Hours cannot exceed 1,000',
         }),

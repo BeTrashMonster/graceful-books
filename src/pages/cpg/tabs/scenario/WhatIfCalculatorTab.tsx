@@ -481,6 +481,18 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
         promoData = promosList.find(p => p.id === selectedPromoId) || null;
       }
 
+      // Calculate additional labor cost per product (if specified)
+      let additionalLaborCostPerProduct = 0;
+      if (additionalLaborHours && additionalLaborRate) {
+        const hours = parseFloat(additionalLaborHours);
+        const rate = parseFloat(additionalLaborRate);
+        if (!isNaN(hours) && !isNaN(rate) && hours > 0 && rate > 0) {
+          const totalAdditionalLaborCost = hours * rate;
+          // Distribute evenly across all selected products
+          additionalLaborCostPerProduct = totalAdditionalLaborCost / selectedProducts.size;
+        }
+      }
+
       // Calculate for each selected product
       for (const productId of selectedProducts) {
         const product = allProducts.find(p => p.id === productId);
@@ -496,15 +508,10 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
         const materialCPU = cpuResult.materialCPU ? parseFloat(cpuResult.materialCPU) : 0;
         let laborCost = cpuResult.laborCost ? parseFloat(cpuResult.laborCost) : 0;
 
-        // Add additional labor if specified
-        if (additionalLaborHours && additionalLaborRate) {
-          const hours = parseFloat(additionalLaborHours);
-          const rate = parseFloat(additionalLaborRate);
-          if (!isNaN(hours) && !isNaN(rate) && hours > 0 && rate > 0) {
-            const additionalLaborCost = hours * rate;
-            laborCost += additionalLaborCost;
-            baseCPU += additionalLaborCost;
-          }
+        // Add distributed additional labor cost
+        if (additionalLaborCostPerProduct > 0) {
+          laborCost += additionalLaborCostPerProduct;
+          baseCPU += additionalLaborCostPerProduct;
         }
 
         // Get promo CPU for this product
@@ -2628,7 +2635,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                   setAdditionalLaborRate('');
                 }
               }}
-              className={styles.input}
+              className={styles.select}
               style={{ flex: '1' }}
             >
               <option value="">-- Select Role (Optional) --</option>
@@ -2646,7 +2653,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
               value={additionalLaborHours}
               onChange={(e) => setAdditionalLaborHours(e.target.value)}
               placeholder="Additional Hours"
-              className={styles.input}
+              className={styles.select}
               style={{ flex: '1' }}
             />
             <input
@@ -2656,7 +2663,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
               value={additionalLaborRate}
               onChange={(e) => setAdditionalLaborRate(e.target.value)}
               placeholder="Hourly Rate ($)"
-              className={styles.input}
+              className={styles.select}
               style={{ flex: '1' }}
             />
           </div>

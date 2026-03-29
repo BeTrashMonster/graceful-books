@@ -452,7 +452,9 @@ export interface CPGSalesPromo extends BaseEntity {
   producer_payback_percentage: string; // e.g., "10" for 10% cost-share
   demo_hours_entries: Array<{
     id: string;
-    description: string;
+    role_id: string; // Role ID or 'custom'
+    role_name: string; // Role name for display
+    description?: string; // DEPRECATED - kept for backward compatibility with old data
     hours: string;
     hourly_rate: string;
     cost_type: 'actual' | 'opportunity'; // actual = paying someone, opportunity = owner's time
