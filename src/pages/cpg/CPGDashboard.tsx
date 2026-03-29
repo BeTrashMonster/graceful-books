@@ -203,6 +203,9 @@ export default function CPGDashboard() {
         dateRangeMode: dateRange
       });
 
+      // Set user feature preferences on service
+      service.setUserFeaturePrefs(userFeaturePrefs);
+
       const data = await service.getFinancialWebData(
         companyId,
         startDate,
@@ -546,7 +549,7 @@ export default function CPGDashboard() {
           </label>
         </div>
 
-        {/* Show Inactive Nodes Checkbox */}
+        {/* Show Inactive Nodes Checkbox + Manage Features */}
         <div className={styles.filterGroup}>
           <label className={styles.checkboxLabel}>
             <input
@@ -557,10 +560,6 @@ export default function CPGDashboard() {
             />
             <span>Show inactive nodes</span>
           </label>
-        </div>
-
-        {/* Manage Features Link */}
-        <div className={styles.filterGroup}>
           <button
             onClick={() => navigate('/cpg/settings')}
             className={styles.manageFeaturesLink}

@@ -411,59 +411,62 @@ export function CPGSettings() {
               Control which features appear in your sidebar navigation and dashboard. Inactive features won't show in navigation but your data is always preserved.
             </p>
 
-            <div className={styles.formGrid}>
+            <div className={styles.featureToggles}>
               {/* Events Feature */}
-              <div className={styles.formField}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={userFeaturePrefs.events}
-                    onChange={() => handleToggleFeature('events')}
-                    className={styles.checkbox}
-                  />
-                  <span>
-                    <strong>Events Analysis</strong>
-                    <p className={styles.featureDescription}>
-                      Track event costs, traveling, labor, and sweat equity
-                    </p>
+              <div className={styles.featureToggleRow}>
+                <div className={styles.featureInfo}>
+                  <strong>Events Analysis</strong>
+                  <p className={styles.featureDescription}>
+                    Track event costs, traveling, labor, and sweat equity
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleToggleFeature('events')}
+                  className={`${styles.toggleButton} ${userFeaturePrefs.events ? styles.toggleActive : styles.toggleInactive}`}
+                >
+                  <span className={styles.toggleLabel}>
+                    {userFeaturePrefs.events ? 'Active' : 'Inactive'}
                   </span>
-                </label>
+                  <span className={styles.toggleSlider}></span>
+                </button>
               </div>
 
               {/* Distribution Feature */}
-              <div className={styles.formField}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={userFeaturePrefs.distribution}
-                    onChange={() => handleToggleFeature('distribution')}
-                    className={styles.checkbox}
-                  />
-                  <span>
-                    <strong>Distribution Center</strong>
-                    <p className={styles.featureDescription}>
-                      Analyze distribution costs and compare distributor fees
-                    </p>
+              <div className={styles.featureToggleRow}>
+                <div className={styles.featureInfo}>
+                  <strong>Distribution Center</strong>
+                  <p className={styles.featureDescription}>
+                    Analyze distribution costs and compare distributor fees
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleToggleFeature('distribution')}
+                  className={`${styles.toggleButton} ${userFeaturePrefs.distribution ? styles.toggleActive : styles.toggleInactive}`}
+                >
+                  <span className={styles.toggleLabel}>
+                    {userFeaturePrefs.distribution ? 'Active' : 'Inactive'}
                   </span>
-                </label>
+                  <span className={styles.toggleSlider}></span>
+                </button>
               </div>
 
               {/* Promos Feature */}
-              <div className={styles.formField}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={userFeaturePrefs.promos}
-                    onChange={() => handleToggleFeature('promos')}
-                    className={styles.checkbox}
-                  />
-                  <span>
-                    <strong>Promo Analysis</strong>
-                    <p className={styles.featureDescription}>
-                      Calculate promo costs and demo ROI
-                    </p>
+              <div className={styles.featureToggleRow}>
+                <div className={styles.featureInfo}>
+                  <strong>Promo Analysis</strong>
+                  <p className={styles.featureDescription}>
+                    Calculate promo costs and demo ROI
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleToggleFeature('promos')}
+                  className={`${styles.toggleButton} ${userFeaturePrefs.promos ? styles.toggleActive : styles.toggleInactive}`}
+                >
+                  <span className={styles.toggleLabel}>
+                    {userFeaturePrefs.promos ? 'Active' : 'Inactive'}
                   </span>
-                </label>
+                  <span className={styles.toggleSlider}></span>
+                </button>
               </div>
             </div>
           </div>

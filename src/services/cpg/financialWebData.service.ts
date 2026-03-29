@@ -57,7 +57,20 @@ export interface FinancialWebData {
 }
 
 export class FinancialWebDataService {
+  private userFeaturePrefs: Record<string, boolean> = {
+    events: false,
+    distribution: false,
+    promos: false,
+  };
+
   constructor(private db: TreasureChestDB) {}
+
+  /**
+   * Set user feature preferences for this service instance
+   */
+  setUserFeaturePrefs(prefs: Record<string, boolean>): void {
+    this.userFeaturePrefs = prefs;
+  }
 
   /**
    * Get financial web data for the force-directed graph
@@ -451,13 +464,12 @@ export class FinancialWebDataService {
   }
 
   /**
-   * Check if a feature is activated
-   * For now, features are always active. This will be enhanced later.
+   * Check if a feature is activated based on user preferences
    */
   private isFeatureActive(feature: 'distribution' | 'promo' | 'events'): boolean {
-    // TODO: Implement feature activation tracking
-    // For now, return true (all features available)
-    return true;
+    // Map 'promo' to 'promos' for preference lookup
+    const featureName = feature === 'promo' ? 'promos' : feature;
+    return this.userFeaturePrefs[featureName] ?? false;
   }
 }
 
