@@ -198,7 +198,7 @@ export default function CPGDashboard() {
         loadWebData();
       }
     }
-  }, [companyId, dateRange, selectedProductIds, customStartDate, customEndDate]);
+  }, [companyId, dateRange, selectedProductIds, customStartDate, customEndDate, userFeaturePrefs]);
 
   const loadProducts = async () => {
     if (!companyId) return;
@@ -251,6 +251,7 @@ export default function CPGDashboard() {
       });
 
       // Set user feature preferences on service
+      console.log('🎯 Setting user feature prefs on service:', userFeaturePrefs);
       service.setUserFeaturePrefs(userFeaturePrefs);
 
       const data = await service.getFinancialWebData(

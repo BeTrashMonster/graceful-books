@@ -69,6 +69,7 @@ export class FinancialWebDataService {
    * Set user feature preferences for this service instance
    */
   setUserFeaturePrefs(prefs: Record<string, boolean>): void {
+    console.log('🎯 Service receiving user feature prefs:', prefs);
     this.userFeaturePrefs = prefs;
   }
 
@@ -466,7 +467,9 @@ export class FinancialWebDataService {
   private isFeatureActive(feature: 'distribution' | 'promo' | 'events'): boolean {
     // Map 'promo' to 'promos' for preference lookup
     const featureName = feature === 'promo' ? 'promos' : feature;
-    return this.userFeaturePrefs[featureName] ?? false;
+    const isActive = this.userFeaturePrefs[featureName] ?? false;
+    console.log(`🔍 Checking if ${feature} is active: ${isActive} (prefs:`, this.userFeaturePrefs, ')');
+    return isActive;
   }
 }
 
