@@ -42,6 +42,8 @@ export function FinancialWebGraph({
   height = 700,
 }: FinancialWebGraphProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const hideButtonTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const [tooltip, setTooltip] = useState<{
     visible: boolean;
     x: number;
@@ -160,6 +162,12 @@ export function FinancialWebGraph({
         onNodeClick(d.id, d.type);
       })
       .on('mouseover', function(event, d) {
+        // Cancel any pending hide timer
+        if (hideButtonTimerRef.current) {
+          clearTimeout(hideButtonTimerRef.current);
+          hideButtonTimerRef.current = null;
+        }
+
         // Grow node slightly
         d3.select(this).transition().duration(200).attr('r', nodeScale(parseFloat(d.totalSpent)) * 1.1);
 
@@ -215,7 +223,11 @@ export function FinancialWebGraph({
       .on('mouseout', function(event, d) {
         d3.select(this).transition().duration(200).attr('r', nodeScale(parseFloat(d.totalSpent)));
         setTooltip(prev => ({ ...prev, visible: false }));
-        setActivateButton(null);
+
+        // Delay hiding the button so user can move mouse to it
+        hideButtonTimerRef.current = setTimeout(() => {
+          setActivateButton(null);
+        }, 200); // 200ms delay
       });
 
     // Node labels
@@ -288,6 +300,9 @@ export function FinancialWebGraph({
     // Cleanup
     return () => {
       simulation.stop();
+      if (hideButtonTimerRef.current) {
+        clearTimeout(hideButtonTimerRef.current);
+      }
     };
   }, [nodes, connections, onNodeClick, onConnectionClick, onActivateFeature, userFeaturePrefs, width, height]);
 
@@ -328,7 +343,17 @@ export function FinancialWebGraph({
             transform: 'translate(-50%, -50%)',
           }}
           onClick={handleActivateClick}
-          onMouseEnter={(e) => e.stopPropagation()}
+          onMouseEnter={() => {
+            // Cancel hide timer when hovering over button
+            if (hideButtonTimerRef.current) {
+              clearTimeout(hideButtonTimerRef.current);
+              hideButtonTimerRef.current = null;
+            }
+          }}
+          onMouseLeave={() => {
+            // Hide button when mouse leaves
+            setActivateButton(null);
+          }}
         >
           Activate
         </button>

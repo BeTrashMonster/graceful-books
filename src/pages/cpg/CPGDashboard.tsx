@@ -61,8 +61,8 @@ export default function CPGDashboard() {
       console.log('🔔 Dashboard heard feature-preferences-updated event');
       if (userId) {
         await loadUserPreferences();
-        await loadWebData(); // Reload dashboard data
-        console.log('✅ Dashboard fully reloaded from Settings update');
+        // Don't call loadWebData here - let the useEffect handle it when userFeaturePrefs changes
+        console.log('✅ Dashboard preferences reloaded, useEffect will reload data');
       }
     };
 
@@ -95,16 +95,20 @@ export default function CPGDashboard() {
       await prefsService.activateFeature(userId, featureName);
       console.log('✅ Feature activated in DB, reloading...');
 
-      // Update local state
+      // Update local state - this will trigger the useEffect to reload web data
       await loadUserPreferences();
-      await loadWebData();
 
       // Notify sidebar and other components
       window.dispatchEvent(new CustomEvent('feature-preferences-updated', {
         detail: { featureName, newState: true }
       }));
 
-      console.log('🎉 Dashboard reloaded, navigating to feature...');
+      console.log('🎉 Preferences updated, waiting for data reload before navigation...');
+
+      // Wait a bit for the useEffect to process the state change and reload data
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      console.log('📍 Navigating to feature page...');
 
       // Navigate to the appropriate page
       const routeMap: Record<FeatureName, string> = {
