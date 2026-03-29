@@ -195,29 +195,29 @@
 .activateButton {
   position: fixed;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #4b006e 0%, #6d28d9 100%);
-  color: #ffffff;
-  border: 2px solid #D4AF37;
+  background: linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%);
+  color: #2d1b00;
+  border: 2px solid #B8860B;
   border-radius: 0.5rem;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  z-index: 1001;
-  box-shadow: 0 4px 12px rgba(75, 0, 110, 0.5), 0 0 0 4px rgba(212, 175, 55, 0.2);
+  z-index: 10000;
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   transition: all 0.2s ease;
   pointer-events: auto;
   white-space: nowrap;
 }
 
 .activateButton:hover {
-  background: linear-gradient(135deg, #6d28d9 0%, #8b5cf6 100%);
-  box-shadow: 0 6px 16px rgba(75, 0, 110, 0.6), 0 0 0 6px rgba(212, 175, 55, 0.3);
+  background: linear-gradient(135deg, #F4E5C3 0%, #E8D4A0 50%, #C9A961 100%);
+  box-shadow: 0 6px 16px rgba(184, 134, 11, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   transform: translate(-50%, -50%) scale(1.05);
 }
 
 .activateButton:active {
-  background: linear-gradient(135deg, #3a0052 0%, #4b006e 100%);
-  box-shadow: 0 2px 8px rgba(75, 0, 110, 0.4), 0 0 0 4px rgba(212, 175, 55, 0.2);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 50%, #9A7209 100%);
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 2px rgba(0, 0, 0, 0.2);
   transform: translate(-50%, -50%) scale(0.98);
 }
 

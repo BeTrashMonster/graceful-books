@@ -27,7 +27,7 @@ type ModalType = 'add-invoice' | 'add-product' | 'add-distributor' | 'add-catego
 export function CPGLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { companyId, deviceId, userId } = useAuth();
+  const { companyId, deviceId, userIdentifier: userId } = useAuth();
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [returnToModal, setReturnToModal] = useState<ModalType>(null);
   const [categories, setCategories] = useState<CPGCategory[]>([]);

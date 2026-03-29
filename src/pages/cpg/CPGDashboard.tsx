@@ -20,7 +20,7 @@ import styles from './CPGDashboard.module.css';
 
 export default function CPGDashboard() {
   const navigate = useNavigate();
-  const { companyId, userId } = useAuth();
+  const { companyId, userIdentifier: userId } = useAuth();
   const [rawWebData, setRawWebData] = useState<FinancialWebData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -80,13 +80,24 @@ export default function CPGDashboard() {
   };
 
   const handleActivateFeature = async (featureName: FeatureName) => {
-    if (!userId) return;
+    console.log('🎯 Activate button clicked! Feature:', featureName, 'UserId:', userId);
+
+    if (!userId) {
+      console.error('❌ No userId available for activation');
+      alert('Session error. Please refresh the page and try again.');
+      return;
+    }
+
     try {
+      console.log('💾 Activating feature in database...');
       await prefsService.activateFeature(userId, featureName);
+      console.log('✅ Feature activated in DB, reloading...');
       await loadUserPreferences();
       await loadWebData(); // Reload graph data with new preferences
+      console.log('🎉 Dashboard reloaded with activated feature');
     } catch (err) {
-      console.error('Failed to activate feature:', err);
+      console.error('❌ Failed to activate feature:', err);
+      alert('Failed to activate feature. Please try again.');
     }
   };
 

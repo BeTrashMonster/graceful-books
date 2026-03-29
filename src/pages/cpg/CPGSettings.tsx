@@ -20,7 +20,7 @@ import styles from './CPGSettings.module.css';
  * - Auto-saves on change
  */
 export function CPGSettings() {
-  const { companyId, deviceId, userId } = useAuth();
+  const { companyId, deviceId, userIdentifier: userId } = useAuth();
 
   const [settings, setSettings] = useState<CPGSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -404,7 +404,7 @@ export function CPGSettings() {
           <div className={styles.sectionHeaderLeft}>
             <span className={styles.sectionIcon}>🎯</span>
             <div className={styles.sectionHeaderContent}>
-              <h2 className={styles.sectionTitle}>Feature Preferences</h2>
+              <h2 className={styles.sectionTitle}>Dashboard Feature Activations</h2>
               <p className={styles.sectionSubtitle}>
                 Activate or deactivate features to customize your workspace
               </p>
