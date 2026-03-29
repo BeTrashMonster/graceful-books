@@ -92,9 +92,17 @@ export function CPGSettings() {
     const loadUserPreferences = async () => {
       try {
         console.log('🔍 Settings: Loading preferences for userId:', userId);
+
+        // Debug: Check raw database records
+        const rawRecords = await db.userFeaturePreferences
+          .where('user_id')
+          .equals(userId)
+          .toArray();
+        console.log('🗄️ Settings: Raw DB records:', rawRecords);
+
         const prefsService = new UserFeaturePreferencesService(db);
         const prefs = await prefsService.getUserPreferences(userId);
-        console.log('📋 Settings: Loaded preferences from DB:', prefs);
+        console.log('📋 Settings: Loaded preferences from service:', prefs);
         setUserFeaturePrefs(prefs);
         console.log('✅ Settings: State updated with preferences');
       } catch (err) {
