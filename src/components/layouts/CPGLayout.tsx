@@ -61,7 +61,9 @@ export function CPGLayout() {
 
     // Listen for feature preference updates
     const handleFeatureUpdate = () => {
+      console.log('🔔 Sidebar heard feature-preferences-updated event');
       loadUserPreferences();
+      console.log('✅ Sidebar reloaded preferences');
     };
 
     window.addEventListener('feature-preferences-updated', handleFeatureUpdate);

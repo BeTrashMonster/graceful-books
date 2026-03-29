@@ -57,10 +57,12 @@ export default function CPGDashboard() {
     }
 
     // Listen for preference updates from Settings page
-    const handlePreferenceUpdate = () => {
+    const handlePreferenceUpdate = async () => {
+      console.log('🔔 Dashboard heard feature-preferences-updated event');
       if (userId) {
-        loadUserPreferences();
-        loadWebData(); // Reload dashboard data
+        await loadUserPreferences();
+        await loadWebData(); // Reload dashboard data
+        console.log('✅ Dashboard fully reloaded from Settings update');
       }
     };
 
@@ -92,9 +94,26 @@ export default function CPGDashboard() {
       console.log('💾 Activating feature in database...');
       await prefsService.activateFeature(userId, featureName);
       console.log('✅ Feature activated in DB, reloading...');
+
+      // Update local state
       await loadUserPreferences();
-      await loadWebData(); // Reload graph data with new preferences
-      console.log('🎉 Dashboard reloaded with activated feature');
+      await loadWebData();
+
+      // Notify sidebar and other components
+      window.dispatchEvent(new CustomEvent('feature-preferences-updated', {
+        detail: { featureName, newState: true }
+      }));
+
+      console.log('🎉 Dashboard reloaded, navigating to feature...');
+
+      // Navigate to the appropriate page
+      const routeMap: Record<FeatureName, string> = {
+        events: '/cpg/events-analysis',
+        distribution: '/cpg/distribution-cost',
+        promos: '/cpg/promo-decision',
+      };
+
+      navigate(routeMap[featureName]);
     } catch (err) {
       console.error('❌ Failed to activate feature:', err);
       alert('Failed to activate feature. Please try again.');

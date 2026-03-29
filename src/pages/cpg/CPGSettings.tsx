@@ -176,6 +176,7 @@ export function CPGSettings() {
       }));
 
       // Notify other components (dashboard, sidebar)
+      console.log('📢 Settings firing feature-preferences-updated event:', { featureName, newState });
       window.dispatchEvent(new CustomEvent('feature-preferences-updated', {
         detail: { featureName, newState }
       }));
