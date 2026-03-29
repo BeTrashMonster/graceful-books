@@ -311,7 +311,8 @@ export default function SalesPromoDecisionTool() {
         // Convert demo_hours_entries from snake_case (DB) to camelCase (form)
         const convertedDemoEntries = promo.demo_hours_entries?.map(entry => ({
           id: entry.id,
-          description: entry.description,
+          roleId: entry.role_id || 'custom', // Use role_id if available, otherwise custom
+          roleName: entry.role_name || entry.description || '', // Use role_name or fallback to description for old data
           hours: entry.hours,
           hourlyRate: entry.hourly_rate,
           costType: entry.cost_type,
@@ -413,7 +414,8 @@ export default function SalesPromoDecisionTool() {
       // Convert demo hours entries from camelCase (form) to snake_case (DB)
       const convertedDemoEntries = formData.demoHoursEntries?.map(entry => ({
         id: entry.id,
-        description: entry.description,
+        role_id: entry.roleId,
+        role_name: entry.roleName,
         hours: entry.hours,
         hourly_rate: entry.hourlyRate,
         cost_type: entry.costType,
@@ -959,6 +961,7 @@ export default function SalesPromoDecisionTool() {
                 {/* Promo Details Form */}
                 <section className={styles.section}>
                 <PromoDetailsForm
+                  companyId={companyId}
                   availableVariants={availableVariants}
                   latestCPUs={latestCPUs}
                   latestMSRPs={latestMSRPs}

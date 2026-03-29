@@ -2,6 +2,8 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { Input } from '../forms/Input';
 import { Button } from '../core/Button';
+import { LaborRoleService } from '../../services/cpg/laborRole.service';
+import type { CPGLaborRole } from '../../db/schema/cpg.schema';
 import styles from './PromoDetailsForm.module.css';
 
 /**
@@ -95,7 +97,8 @@ export interface PromoVariantData {
 
 export interface DemoHoursEntry {
   id: string;
-  description: string;
+  roleId: string; // Role ID or 'custom'
+  roleName: string; // Role name for display
   hours: string;
   hourlyRate: string;
   costType: 'actual' | 'opportunity'; // actual = paying someone, opportunity = owner's time
@@ -114,6 +117,10 @@ export interface PromoFormData {
 }
 
 export interface PromoDetailsFormProps {
+  /**
+   * Company ID for loading labor roles
+   */
+  companyId: string;
   /**
    * Initial form data
    */
@@ -172,6 +179,7 @@ export interface PromoDetailsFormProps {
  * ```
  */
 export function PromoDetailsForm({
+  companyId,
   initialData,
   availableVariants,
   latestCPUs = {},
@@ -204,6 +212,7 @@ export function PromoDetailsForm({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [laborRoles, setLaborRoles] = useState<CPGLaborRole[]>([]);
   const [showProductSelector, setShowProductSelector] = useState(false);
   const productSelectorRef = useRef<HTMLDivElement>(null);
   const productButtonRef = useRef<HTMLButtonElement>(null);
@@ -237,6 +246,19 @@ export function PromoDetailsForm({
       });
     }
   }, [showProductSelector]);
+
+  // Load labor roles
+  useEffect(() => {
+    const loadLaborRoles = async () => {
+      try {
+        const roles = await LaborRoleService.getAllRoles(companyId);
+        setLaborRoles(roles);
+      } catch (error) {
+        console.error('Error loading labor roles:', error);
+      }
+    };
+    loadLaborRoles();
+  }, [companyId]);
 
   // Sync form state with initialData when it changes (for edit mode)
   useEffect(() => {
@@ -349,10 +371,11 @@ export function PromoDetailsForm({
 
     // Validate demo hours entries (optional)
     formData.demoHoursEntries.forEach((entry, index) => {
-      if (!entry.description.trim()) {
-        newErrors[`demoEntry_${index}_description`] = 'Description is required';
-      }
+      // If hours are entered, role must be selected
       const hours = parseFloat(entry.hours);
+      if (!isNaN(hours) && hours > 0 && !entry.roleId.trim()) {
+        newErrors[`demoEntry_${index}_role`] = 'Role is required when hours are entered';
+      }
       if (isNaN(hours) || hours <= 0) {
         newErrors[`demoEntry_${index}_hours`] = 'Hours must be greater than 0';
       }
@@ -492,7 +515,8 @@ export function PromoDetailsForm({
   const handleAddDemoEntry = () => {
     const newEntry: DemoHoursEntry = {
       id: nanoid(),
-      description: '',
+      roleId: '',
+      roleName: '',
       hours: '',
       hourlyRate: '',
       costType: 'actual',
@@ -531,6 +555,39 @@ export function PromoDetailsForm({
     setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[errorKey];
+      return newErrors;
+    });
+  };
+
+  const handleRoleChange = (id: string, roleId: string, index: number) => {
+    if (roleId && roleId !== 'custom') {
+      // Find the selected role and auto-fill rate and name
+      const selectedRole = laborRoles.find(r => r.id === roleId);
+      if (selectedRole) {
+        setFormData((prev) => ({
+          ...prev,
+          demoHoursEntries: prev.demoHoursEntries.map((entry) =>
+            entry.id === id
+              ? { ...entry, roleId, roleName: selectedRole.role_name, hourlyRate: selectedRole.hourly_equivalent }
+              : entry
+          ),
+        }));
+      }
+    } else {
+      // Custom or empty - just set roleId and clear others
+      setFormData((prev) => ({
+        ...prev,
+        demoHoursEntries: prev.demoHoursEntries.map((entry) =>
+          entry.id === id
+            ? { ...entry, roleId, roleName: roleId === 'custom' ? 'Custom' : '', hourlyRate: '' }
+            : entry
+        ),
+      }));
+    }
+    // Clear error
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[`demoEntry_${index}_role`];
       return newErrors;
     });
   };
@@ -706,7 +763,7 @@ export function PromoDetailsForm({
                     type="button"
                     onClick={() => handleRemoveDemoEntry(entry.id)}
                     className={styles.removeButton}
-                    aria-label={`Remove demo entry ${index + 1}${entry.description ? ': ' + entry.description : ''}`}
+                    aria-label={`Remove demo entry ${index + 1}${entry.roleName ? ': ' + entry.roleName : ''}`}
                   >
                     ✕
                   </button>
@@ -731,15 +788,39 @@ export function PromoDetailsForm({
                         error={errors[`demoEntry_${index}_rate`]}
                         fullWidth
                       />
-                      <Input
-                        label="Description"
-                        type="text"
-                        value={entry.description}
-                        onChange={(e) => handleDemoEntryChange(entry.id, 'description', e.target.value, index)}
-                        error={errors[`demoEntry_${index}_description`]}
-                        fullWidth
-                        placeholder="ex: The 4 demos at New Seasons that Millie will do"
-                      />
+                      <div style={{ marginBottom: '1rem' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#4b006e' }}>
+                          Role
+                        </label>
+                        <select
+                          value={entry.roleId}
+                          onChange={(e) => handleRoleChange(entry.id, e.target.value, index)}
+                          style={{
+                            width: '100%',
+                            padding: '0.625rem 0.875rem',
+                            background: '#E5F6DF',
+                            border: errors[`demoEntry_${index}_role`] ? '2px solid #ef4444' : '2px solid #D4AF37',
+                            borderRadius: '6px',
+                            fontSize: '0.875rem',
+                            fontWeight: 500,
+                            color: '#475569',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <option value="">-- Select Role --</option>
+                          {laborRoles.map(role => (
+                            <option key={role.id} value={role.id}>
+                              {role.role_name}
+                            </option>
+                          ))}
+                          <option value="custom">Custom</option>
+                        </select>
+                        {errors[`demoEntry_${index}_role`] && (
+                          <p style={{ color: '#ef4444', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                            {errors[`demoEntry_${index}_role`]}
+                          </p>
+                        )}
+                      </div>
                     </div>
                     <div className={styles.costTypeSelector}>
                       <label className={styles.costTypeLabel}>Cost Type:</label>
