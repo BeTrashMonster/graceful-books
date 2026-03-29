@@ -17,6 +17,8 @@ import { Modal } from '../modals/Modal';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
 import type { CPGCategory } from '../../db/schema/cpg.schema';
+import { UserFeaturePreferencesService } from '../../services/userFeaturePreferences.service';
+import type { FeatureName } from '../../services/userFeaturePreferences.service';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './CPGLayout.module.css';
 
@@ -25,7 +27,7 @@ type ModalType = 'add-invoice' | 'add-product' | 'add-distributor' | 'add-catego
 export function CPGLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { companyId, deviceId } = useAuth();
+  const { companyId, deviceId, userId } = useAuth();
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [returnToModal, setReturnToModal] = useState<ModalType>(null);
   const [categories, setCategories] = useState<CPGCategory[]>([]);
@@ -33,8 +35,38 @@ export function CPGLayout() {
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [companyName, setCompanyName] = useState('My Company');
+  const [userFeaturePrefs, setUserFeaturePrefs] = useState<Record<FeatureName, boolean>>({
+    events: false,
+    distribution: false,
+    promos: false,
+  });
 
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path);
+
+  // Load user feature preferences
+  useEffect(() => {
+    if (!userId) return;
+
+    const loadUserPreferences = async () => {
+      try {
+        const prefsService = new UserFeaturePreferencesService(db);
+        const prefs = await prefsService.getUserPreferences(userId);
+        setUserFeaturePrefs(prefs);
+      } catch (err) {
+        console.error('Failed to load user feature preferences:', err);
+      }
+    };
+
+    loadUserPreferences();
+
+    // Listen for feature preference updates
+    const handleFeatureUpdate = () => {
+      loadUserPreferences();
+    };
+
+    window.addEventListener('feature-preferences-updated', handleFeatureUpdate);
+    return () => window.removeEventListener('feature-preferences-updated', handleFeatureUpdate);
+  }, [userId]);
 
   // Load company name from session
   useEffect(() => {
@@ -261,24 +293,30 @@ export function CPGLayout() {
             >
               👷 Labor + Roles
             </Link>
-            <Link
-              to="/cpg/distribution-cost"
-              className={isActive('/cpg/distribution-cost') ? styles.active : ''}
-            >
-              🚚 Distribution Center
-            </Link>
-            <Link
-              to="/cpg/promo-decision"
-              className={isActive('/cpg/promo-decision') ? styles.active : ''}
-            >
-              💰 Promo Analysis
-            </Link>
-            <Link
-              to="/cpg/events-analysis"
-              className={isActive('/cpg/events-analysis') ? styles.active : ''}
-            >
-              🎪 Events Analysis
-            </Link>
+            {userFeaturePrefs.distribution && (
+              <Link
+                to="/cpg/distribution-cost"
+                className={isActive('/cpg/distribution-cost') ? styles.active : ''}
+              >
+                🚚 Distribution Center
+              </Link>
+            )}
+            {userFeaturePrefs.promos && (
+              <Link
+                to="/cpg/promo-decision"
+                className={isActive('/cpg/promo-decision') ? styles.active : ''}
+              >
+                💰 Promo Analysis
+              </Link>
+            )}
+            {userFeaturePrefs.events && (
+              <Link
+                to="/cpg/events-analysis"
+                className={isActive('/cpg/events-analysis') ? styles.active : ''}
+              >
+                🎪 Events Analysis
+              </Link>
+            )}
             <Link
               to="/cpg/financial-entry"
               className={isActive('/cpg/financial-entry') ? styles.active : ''}

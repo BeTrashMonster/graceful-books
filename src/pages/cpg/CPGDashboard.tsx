@@ -14,11 +14,13 @@ import { DatePicker } from '../../components/common/DatePicker';
 import { createFinancialWebDataService } from '../../services/cpg/financialWebData.service';
 import type { FinancialWebData } from '../../services/cpg/financialWebData.service';
 import type { CPGFinishedProduct } from '../../db/schema/cpg.schema';
+import { UserFeaturePreferencesService } from '../../services/userFeaturePreferences.service';
+import type { FeatureName } from '../../services/userFeaturePreferences.service';
 import styles from './CPGDashboard.module.css';
 
 export default function CPGDashboard() {
   const navigate = useNavigate();
-  const { companyId } = useAuth();
+  const { companyId, userId } = useAuth();
   const [rawWebData, setRawWebData] = useState<FinancialWebData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,15 +33,71 @@ export default function CPGDashboard() {
   const [products, setProducts] = useState<CPGFinishedProduct[]>([]);
   const [showProductDropdown, setShowProductDropdown] = useState(false);
   const [showOnlyConnected, setShowOnlyConnected] = useState(false);
+  const [showInactiveNodes, setShowInactiveNodes] = useState(true); // Show inactive by default
+
+  // User feature preferences
+  const [userFeaturePrefs, setUserFeaturePrefs] = useState<Record<FeatureName, boolean>>({
+    events: false,
+    distribution: false,
+    promos: false,
+  });
 
   const service = createFinancialWebDataService(db);
+  const prefsService = new UserFeaturePreferencesService(db);
 
-  // Apply "show only connected" filter
+  // Load user feature preferences
+  useEffect(() => {
+    if (userId) {
+      loadUserPreferences();
+    }
+  }, [userId]);
+
+  const loadUserPreferences = async () => {
+    if (!userId) return;
+    try {
+      const prefs = await prefsService.getUserPreferences(userId);
+      setUserFeaturePrefs(prefs);
+    } catch (err) {
+      console.error('Failed to load user preferences:', err);
+    }
+  };
+
+  const handleActivateFeature = async (featureName: FeatureName) => {
+    if (!userId) return;
+    try {
+      await prefsService.activateFeature(userId, featureName);
+      await loadUserPreferences();
+      await loadWebData(); // Reload graph data with new preferences
+    } catch (err) {
+      console.error('Failed to activate feature:', err);
+    }
+  };
+
+  // Apply "show only connected" filter and inactive nodes filter
   const webData = useMemo(() => {
     if (!rawWebData) return null;
 
+    let filteredData = { ...rawWebData };
+
+    // Filter out inactive nodes if showInactiveNodes is false
+    if (!showInactiveNodes) {
+      filteredData = {
+        ...filteredData,
+        nodes: filteredData.nodes.filter(node => {
+          // Keep all category nodes
+          if (node.type === 'category') return true;
+          // For operational nodes, check if feature is active
+          if (node.type === 'distribution' || node.type === 'promo' || node.type === 'events') {
+            const featureName = node.type === 'promo' ? 'promos' : node.type;
+            return userFeaturePrefs[featureName as FeatureName];
+          }
+          return true;
+        }),
+      };
+    }
+
     if (!showOnlyConnected) {
-      return rawWebData;
+      return filteredData;
     }
 
     // Get IDs of all category nodes that appear in connections
@@ -74,11 +132,11 @@ export default function CPGDashboard() {
     );
 
     return {
-      ...rawWebData,
+      ...filteredData,
       nodes: filteredNodes,
       connections: filteredConnections,
     };
-  }, [rawWebData, showOnlyConnected]);
+  }, [rawWebData, showOnlyConnected, showInactiveNodes, userFeaturePrefs]);
 
   useEffect(() => {
     if (companyId) {
@@ -351,6 +409,8 @@ export default function CPGDashboard() {
               connections={webData.connections}
               onNodeClick={handleNodeClick}
               onConnectionClick={handleConnectionClick}
+              onActivateFeature={handleActivateFeature}
+              userFeaturePrefs={userFeaturePrefs}
               width={1000}
               height={700}
             />
@@ -484,6 +544,29 @@ export default function CPGDashboard() {
             />
             <span>Show only connected items</span>
           </label>
+        </div>
+
+        {/* Show Inactive Nodes Checkbox */}
+        <div className={styles.filterGroup}>
+          <label className={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={showInactiveNodes}
+              onChange={(e) => setShowInactiveNodes(e.target.checked)}
+              className={styles.checkbox}
+            />
+            <span>Show inactive nodes</span>
+          </label>
+        </div>
+
+        {/* Manage Features Link */}
+        <div className={styles.filterGroup}>
+          <button
+            onClick={() => navigate('/cpg/settings')}
+            className={styles.manageFeaturesLink}
+          >
+            Manage Features
+          </button>
         </div>
         </div>
       </div>

@@ -162,6 +162,24 @@
   cursor: pointer;
 }
 
+/* Manage Features Link */
+.manageFeaturesLink {
+  background: none;
+  border: none;
+  color: #4b006e;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0.625rem 0;
+  text-align: left;
+  transition: color 0.2s ease;
+}
+
+.manageFeaturesLink:hover {
+  color: #D4AF37;
+}
+
 /* Product Dropdown */
 .dropdownButton {
   width: 100%;

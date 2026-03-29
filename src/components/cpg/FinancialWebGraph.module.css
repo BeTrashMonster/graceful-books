@@ -191,6 +191,36 @@
   animation: pulse 3s ease-in-out infinite;
 }
 
+/* Activate Button - Overlay on hover */
+.activateButton {
+  position: fixed;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #4b006e 0%, #6d28d9 100%);
+  color: #ffffff;
+  border: 2px solid #D4AF37;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 1001;
+  box-shadow: 0 4px 12px rgba(75, 0, 110, 0.5), 0 0 0 4px rgba(212, 175, 55, 0.2);
+  transition: all 0.2s ease;
+  pointer-events: auto;
+  white-space: nowrap;
+}
+
+.activateButton:hover {
+  background: linear-gradient(135deg, #6d28d9 0%, #8b5cf6 100%);
+  box-shadow: 0 6px 16px rgba(75, 0, 110, 0.6), 0 0 0 6px rgba(212, 175, 55, 0.3);
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.activateButton:active {
+  background: linear-gradient(135deg, #3a0052 0%, #4b006e 100%);
+  box-shadow: 0 2px 8px rgba(75, 0, 110, 0.4), 0 0 0 4px rgba(212, 175, 55, 0.2);
+  transform: translate(-50%, -50%) scale(0.98);
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .nodeLabel {
@@ -208,5 +238,10 @@
   .tooltip,
   .tooltipLine {
     font-size: 12px;
+  }
+
+  .activateButton {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
   }
 }

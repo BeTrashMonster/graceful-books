@@ -297,6 +297,13 @@
   font-size: 0.8125rem;
   color: #6b7280;
   margin: 0;
+}
+
+.featureDescription {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin: 0.25rem 0 0 0;
+  font-weight: 400;
   font-style: italic;
 }
 

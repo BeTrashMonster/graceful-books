@@ -3,6 +3,8 @@ import { Button } from '../../components/core/Button';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db';
 import { CPGSettingsService } from '../../services/cpg/cpgSettings.service';
+import { UserFeaturePreferencesService } from '../../services/userFeaturePreferences.service';
+import type { FeatureName } from '../../services/userFeaturePreferences.service';
 import type { CPGSettings } from '../../db/schema/cpg.schema';
 import styles from './CPGSettings.module.css';
 
@@ -18,7 +20,7 @@ import styles from './CPGSettings.module.css';
  * - Auto-saves on change
  */
 export function CPGSettings() {
-  const { companyId, deviceId } = useAuth();
+  const { companyId, deviceId, userId } = useAuth();
 
   const [settings, setSettings] = useState<CPGSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,12 +60,39 @@ export function CPGSettings() {
   const [autoSaveInterval, setAutoSaveInterval] = useState(30);
   const [deletedRecordRetentionDays, setDeletedRecordRetentionDays] = useState(90);
 
+  // Feature Preferences state
+  const [userFeaturePrefs, setUserFeaturePrefs] = useState<Record<FeatureName, boolean>>({
+    events: false,
+    distribution: false,
+    promos: false,
+  });
+
   // Collapsible section state
+  const [featuresSectionExpanded, setFeaturesSectionExpanded] = useState(true);
   const [marginSectionExpanded, setMarginSectionExpanded] = useState(false);
   const [financialSectionExpanded, setFinancialSectionExpanded] = useState(false);
   const [displaySectionExpanded, setDisplaySectionExpanded] = useState(false);
   const [reportingSectionExpanded, setReportingSectionExpanded] = useState(false);
   const [dataSectionExpanded, setDataSectionExpanded] = useState(false);
+
+  /**
+   * Load user feature preferences
+   */
+  useEffect(() => {
+    if (!userId) return;
+
+    const loadUserPreferences = async () => {
+      try {
+        const prefsService = new UserFeaturePreferencesService(db);
+        const prefs = await prefsService.getUserPreferences(userId);
+        setUserFeaturePrefs(prefs);
+      } catch (err) {
+        console.error('Failed to load user feature preferences:', err);
+      }
+    };
+
+    loadUserPreferences();
+  }, [userId]);
 
   /**
    * Load settings on mount
@@ -121,6 +150,34 @@ export function CPGSettings() {
 
     loadSettings();
   }, [companyId, deviceId]);
+
+  /**
+   * Toggle feature activation
+   */
+  const handleToggleFeature = async (featureName: FeatureName) => {
+    if (!userId) return;
+
+    try {
+      const prefsService = new UserFeaturePreferencesService(db);
+      const newState = await prefsService.toggleFeature(userId, featureName);
+
+      // Update local state
+      setUserFeaturePrefs(prev => ({
+        ...prev,
+        [featureName]: newState,
+      }));
+
+      // Notify other components
+      window.dispatchEvent(new CustomEvent('feature-preferences-updated'));
+
+      setSuccessMessage(`Feature ${newState ? 'activated' : 'deactivated'} successfully!`);
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      console.error('Failed to toggle feature:', err);
+      setErrorMessage('Failed to update feature. Please try again.');
+      setTimeout(() => setErrorMessage(null), 3000);
+    }
+  };
 
   /**
    * Save settings
@@ -327,6 +384,91 @@ export function CPGSettings() {
       )}
 
       {/* Settings Sections */}
+
+      {/* Feature Preferences Section */}
+      <div className={styles.settingsSection}>
+        <div
+          className={styles.sectionHeader}
+          onClick={() => setFeaturesSectionExpanded(!featuresSectionExpanded)}
+        >
+          <div className={styles.sectionHeaderLeft}>
+            <span className={styles.sectionIcon}>🎯</span>
+            <div className={styles.sectionHeaderContent}>
+              <h2 className={styles.sectionTitle}>Feature Preferences</h2>
+              <p className={styles.sectionSubtitle}>
+                Activate or deactivate features to customize your workspace
+              </p>
+            </div>
+          </div>
+          <span className={`${styles.expandIcon} ${featuresSectionExpanded ? styles.expanded : ''}`}>
+            ▼
+          </span>
+        </div>
+
+        <div className={`${styles.sectionContent} ${featuresSectionExpanded ? styles.expanded : ''}`}>
+          <div className={styles.sectionInner}>
+            <p className={styles.sectionDescription}>
+              Control which features appear in your sidebar navigation and dashboard. Inactive features won't show in navigation but your data is always preserved.
+            </p>
+
+            <div className={styles.formGrid}>
+              {/* Events Feature */}
+              <div className={styles.formField}>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={userFeaturePrefs.events}
+                    onChange={() => handleToggleFeature('events')}
+                    className={styles.checkbox}
+                  />
+                  <span>
+                    <strong>Events Analysis</strong>
+                    <p className={styles.featureDescription}>
+                      Track event costs, traveling, labor, and sweat equity
+                    </p>
+                  </span>
+                </label>
+              </div>
+
+              {/* Distribution Feature */}
+              <div className={styles.formField}>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={userFeaturePrefs.distribution}
+                    onChange={() => handleToggleFeature('distribution')}
+                    className={styles.checkbox}
+                  />
+                  <span>
+                    <strong>Distribution Center</strong>
+                    <p className={styles.featureDescription}>
+                      Analyze distribution costs and compare distributor fees
+                    </p>
+                  </span>
+                </label>
+              </div>
+
+              {/* Promos Feature */}
+              <div className={styles.formField}>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={userFeaturePrefs.promos}
+                    onChange={() => handleToggleFeature('promos')}
+                    className={styles.checkbox}
+                  />
+                  <span>
+                    <strong>Promo Analysis</strong>
+                    <p className={styles.featureDescription}>
+                      Calculate promo costs and demo ROI
+                    </p>
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Data Management Section */}
       <div className={styles.settingsSection}>

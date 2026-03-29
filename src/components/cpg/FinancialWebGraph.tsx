@@ -8,6 +8,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import type { GraphNode, GraphConnection } from '../../services/cpg/financialWebData.service';
+import type { FeatureName } from '../../services/userFeaturePreferences.service';
 import styles from './FinancialWebGraph.module.css';
 
 interface FinancialWebGraphProps {
@@ -15,6 +16,8 @@ interface FinancialWebGraphProps {
   connections: GraphConnection[];
   onNodeClick: (nodeId: string, nodeType: string) => void;
   onConnectionClick?: (sourceId: string, targetId: string, productIds: string[]) => void;
+  onActivateFeature?: (featureName: FeatureName) => void;
+  userFeaturePrefs?: Record<FeatureName, boolean>;
   width?: number;
   height?: number;
 }
@@ -33,6 +36,8 @@ export function FinancialWebGraph({
   connections,
   onNodeClick,
   onConnectionClick,
+  onActivateFeature,
+  userFeaturePrefs,
   width = 1200,
   height = 700,
 }: FinancialWebGraphProps) {
@@ -44,6 +49,13 @@ export function FinancialWebGraph({
     content: string;
     isLine?: boolean;
   }>({ visible: false, x: 0, y: 0, content: '' });
+
+  const [activateButton, setActivateButton] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    featureName: FeatureName;
+  } | null>(null);
 
   useEffect(() => {
     if (!svgRef.current || nodes.length === 0) return;
@@ -151,6 +163,30 @@ export function FinancialWebGraph({
         // Grow node slightly
         d3.select(this).transition().duration(200).attr('r', nodeScale(parseFloat(d.totalSpent)) * 1.1);
 
+        // Check if this is an inactive operational node
+        const operationalTypes = ['events', 'distribution', 'promo'];
+        const isOperationalNode = operationalTypes.includes(d.type);
+
+        if (isOperationalNode && !d.isActive && onActivateFeature && userFeaturePrefs) {
+          // Map node type to feature name
+          const featureName: FeatureName = d.type === 'promo' ? 'promos' : d.type as FeatureName;
+
+          // Check if feature is actually inactive
+          if (!userFeaturePrefs[featureName]) {
+            // Show activate button
+            const rect = svgRef.current?.getBoundingClientRect();
+            if (rect) {
+              setActivateButton({
+                visible: true,
+                x: rect.left + (d.x || 0),
+                y: rect.top + (d.y || 0),
+                featureName,
+              });
+            }
+            return; // Don't show tooltip when showing activate button
+          }
+        }
+
         // Show tooltip with detailed breakdown for events
         let tooltipContent: string;
         if (d.type === 'category') {
@@ -179,6 +215,7 @@ export function FinancialWebGraph({
       .on('mouseout', function(event, d) {
         d3.select(this).transition().duration(200).attr('r', nodeScale(parseFloat(d.totalSpent)));
         setTooltip(prev => ({ ...prev, visible: false }));
+        setActivateButton(null);
       });
 
     // Node labels
@@ -252,7 +289,14 @@ export function FinancialWebGraph({
     return () => {
       simulation.stop();
     };
-  }, [nodes, connections, onNodeClick, width, height]);
+  }, [nodes, connections, onNodeClick, onConnectionClick, onActivateFeature, userFeaturePrefs, width, height]);
+
+  const handleActivateClick = () => {
+    if (activateButton && onActivateFeature) {
+      onActivateFeature(activateButton.featureName);
+      setActivateButton(null);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -274,6 +318,20 @@ export function FinancialWebGraph({
             <div key={i}>{line}</div>
           ))}
         </div>
+      )}
+      {activateButton && (
+        <button
+          className={styles.activateButton}
+          style={{
+            left: activateButton.x,
+            top: activateButton.y,
+            transform: 'translate(-50%, -50%)',
+          }}
+          onClick={handleActivateClick}
+          onMouseEnter={(e) => e.stopPropagation()}
+        >
+          Activate
+        </button>
       )}
     </div>
   );
