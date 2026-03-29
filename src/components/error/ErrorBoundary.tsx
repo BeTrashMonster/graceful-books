@@ -25,6 +25,19 @@ export class ErrorBoundary extends Component<Props, State> {
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Error caught by boundary:', error, errorInfo)
 
+    // Detect chunk loading errors (deployment cache issue)
+    const isChunkLoadError =
+      error.message.includes('Failed to fetch dynamically imported module') ||
+      error.message.includes('Importing a module script failed') ||
+      error.message.includes('error loading dynamically imported module');
+
+    if (isChunkLoadError) {
+      console.warn('⚠️ Chunk loading error detected - likely due to new deployment. Reloading page...');
+      // Force reload to get latest chunks
+      window.location.reload();
+      return;
+    }
+
     // Call custom error handler if provided
     this.props.onError?.(error, errorInfo)
 
