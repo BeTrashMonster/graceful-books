@@ -96,7 +96,7 @@ const securityHeadersMiddleware: Connect.NextHandleFunction = (_req, res, next) 
   // Production builds should use stricter CSP without these
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' ws: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' ws: wss: https://api.audacious.money; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
   )
   // X-Frame-Options - prevents clickjacking (legacy browser support)
   res.setHeader('X-Frame-Options', 'DENY')
