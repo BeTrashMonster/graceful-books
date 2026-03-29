@@ -49,16 +49,33 @@ export default function CPGDashboard() {
   useEffect(() => {
     if (userId) {
       loadUserPreferences();
+
+      // Initialize default preferences for new users
+      prefsService.initializeUserPreferences(userId).catch(err => {
+        console.error('Failed to initialize preferences:', err);
+      });
     }
+
+    // Listen for preference updates from Settings page
+    const handlePreferenceUpdate = () => {
+      if (userId) {
+        loadUserPreferences();
+        loadWebData(); // Reload dashboard data
+      }
+    };
+
+    window.addEventListener('feature-preferences-updated', handlePreferenceUpdate);
+    return () => window.removeEventListener('feature-preferences-updated', handlePreferenceUpdate);
   }, [userId]);
 
   const loadUserPreferences = async () => {
     if (!userId) return;
     try {
       const prefs = await prefsService.getUserPreferences(userId);
+      console.log('📋 Dashboard loaded user preferences:', prefs);
       setUserFeaturePrefs(prefs);
     } catch (err) {
-      console.error('Failed to load user preferences:', err);
+      console.error('❌ Failed to load user preferences:', err);
     }
   };
 
@@ -564,7 +581,7 @@ export default function CPGDashboard() {
             onClick={() => navigate('/cpg/settings')}
             className={styles.manageFeaturesLink}
           >
-            Manage Features
+            Manage Feature
           </button>
         </div>
         </div>

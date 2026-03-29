@@ -135,44 +135,41 @@ export class FinancialWebDataService {
     const promoTotal = await this.getPromoTotal(companyId, startDate, endDate);
     const eventsData = await this.getEventsTotal(companyId, startDate, endDate);
 
-    // Build operational nodes
+    // Build operational nodes - ALWAYS create all three for progressive disclosure
     const operationalNodes: OperationalNode[] = [];
 
-    if (distributionTotal.greaterThan(0) || this.isFeatureActive('distribution')) {
-      operationalNodes.push({
-        id: 'distribution',
-        name: 'Distribution',
-        totalSpent: distributionTotal.toFixed(2),
-        type: 'distribution',
-        isActive: this.isFeatureActive('distribution'),
-      });
-    }
+    // Distribution node - always present
+    operationalNodes.push({
+      id: 'distribution',
+      name: 'Distribution',
+      totalSpent: distributionTotal.toFixed(2),
+      type: 'distribution',
+      isActive: this.isFeatureActive('distribution'),
+    });
 
-    if (promoTotal.greaterThan(0) || this.isFeatureActive('promo')) {
-      operationalNodes.push({
-        id: 'promo',
-        name: 'Promos',
-        totalSpent: promoTotal.toFixed(2),
-        type: 'promo',
-        isActive: this.isFeatureActive('promo'),
-      });
-    }
+    // Promos node - always present
+    operationalNodes.push({
+      id: 'promo',
+      name: 'Promos',
+      totalSpent: promoTotal.toFixed(2),
+      type: 'promo',
+      isActive: this.isFeatureActive('promo'),
+    });
 
-    if (eventsData.total.greaterThan(0) || this.isFeatureActive('events')) {
-      operationalNodes.push({
-        id: 'events',
-        name: 'Events',
-        totalSpent: eventsData.total.toFixed(2),
-        type: 'events',
-        isActive: this.isFeatureActive('events'),
-        details: {
-          eventCosts: eventsData.eventCosts.toFixed(2),
-          travelingCosts: eventsData.travelingCosts.toFixed(2),
-          paidLabor: eventsData.paidLabor.toFixed(2),
-          sweatEquity: eventsData.sweatEquity.toFixed(2),
-        },
-      });
-    }
+    // Events node - always present
+    operationalNodes.push({
+      id: 'events',
+      name: 'Events',
+      totalSpent: eventsData.total.toFixed(2),
+      type: 'events',
+      isActive: this.isFeatureActive('events'),
+      details: {
+        eventCosts: eventsData.eventCosts.toFixed(2),
+        travelingCosts: eventsData.travelingCosts.toFixed(2),
+        paidLabor: eventsData.paidLabor.toFixed(2),
+        sweatEquity: eventsData.sweatEquity.toFixed(2),
+      },
+    });
 
     // Get recipe connections
     const connections = await this.getRecipeConnections(

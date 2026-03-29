@@ -171,8 +171,8 @@
   font-weight: 500;
   cursor: pointer;
   text-decoration: underline;
-  padding: 0.25rem 0 0 0;
-  margin-left: 1.625rem; /* Align with checkbox text */
+  padding: 0;
+  margin: 0.125rem 0 0 1.625rem; /* Minimal top margin, align with checkbox text */
   text-align: left;
   transition: color 0.2s ease;
   display: block;

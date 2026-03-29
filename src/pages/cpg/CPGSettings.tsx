@@ -155,27 +155,37 @@ export function CPGSettings() {
    * Toggle feature activation
    */
   const handleToggleFeature = async (featureName: FeatureName) => {
-    if (!userId) return;
+    if (!userId) {
+      console.error('No userId available for feature toggle');
+      setErrorMessage('User not authenticated. Please refresh the page.');
+      return;
+    }
+
+    console.log('🔄 Toggling feature:', featureName, 'Current state:', userFeaturePrefs[featureName]);
 
     try {
       const prefsService = new UserFeaturePreferencesService(db);
       const newState = await prefsService.toggleFeature(userId, featureName);
 
-      // Update local state
+      console.log('✅ Feature toggled:', featureName, 'New state:', newState);
+
+      // Update local state immediately
       setUserFeaturePrefs(prev => ({
         ...prev,
         [featureName]: newState,
       }));
 
-      // Notify other components
-      window.dispatchEvent(new CustomEvent('feature-preferences-updated'));
+      // Notify other components (dashboard, sidebar)
+      window.dispatchEvent(new CustomEvent('feature-preferences-updated', {
+        detail: { featureName, newState }
+      }));
 
       setSuccessMessage(`Feature ${newState ? 'activated' : 'deactivated'} successfully!`);
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
-      console.error('Failed to toggle feature:', err);
-      setErrorMessage('Failed to update feature. Please try again.');
-      setTimeout(() => setErrorMessage(null), 3000);
+      console.error('❌ Failed to toggle feature:', err);
+      setErrorMessage(`Failed to update feature: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setTimeout(() => setErrorMessage(null), 5000);
     }
   };
 
