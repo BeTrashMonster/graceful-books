@@ -359,16 +359,10 @@ export default function CPGDashboard() {
     } else if (nodeType === 'distribution') {
       navigate('/cpg/distribution-cost');
     } else if (nodeType === 'promo') {
-      navigate('/cpg/promo-decision?tab=promo-tracker');
+      navigate('/cpg/promo-decision');
     } else if (nodeType === 'events') {
-      // Navigate to Event Tracker with matching date filter
-      const { startDate, endDate } = getDateRange();
-      const params = new URLSearchParams({
-        tab: 'event-tracker',
-        startDate: startDate.toString(),
-        endDate: endDate.toString(),
-      });
-      navigate(`/cpg/events-analysis?${params.toString()}`);
+      // Navigate to Events Analysis (Decision Tool - same as sidebar)
+      navigate('/cpg/events-analysis');
     }
   };
 

@@ -136,6 +136,18 @@ export class FinancialWebDataService {
     const promoTotal = await this.getPromoTotal(companyId, startDate, endDate);
     const eventsData = await this.getEventsTotal(companyId, startDate, endDate);
 
+    console.log('💰 Operational totals calculated:', {
+      distribution: distributionTotal.toFixed(2),
+      promos: promoTotal.toFixed(2),
+      events: eventsData.total.toFixed(2),
+      eventDetails: {
+        eventCosts: eventsData.eventCosts.toFixed(2),
+        traveling: eventsData.travelingCosts.toFixed(2),
+        paidLabor: eventsData.paidLabor.toFixed(2),
+        sweatEquity: eventsData.sweatEquity.toFixed(2),
+      }
+    });
+
     // Build operational nodes - ALWAYS create all three for progressive disclosure
     const operationalNodes: OperationalNode[] = [];
 
@@ -347,6 +359,22 @@ export class FinancialWebDataService {
         event.event_end_date <= endDate
       )
       .toArray();
+
+    console.log('📅 Events found in date range:', {
+      count: events.length,
+      dateRange: {
+        start: new Date(startDate).toLocaleDateString(),
+        end: new Date(endDate).toLocaleDateString(),
+      },
+      events: events.map(e => ({
+        name: e.event_name,
+        start: new Date(e.event_start_date).toLocaleDateString(),
+        end: new Date(e.event_end_date).toLocaleDateString(),
+        eventCost: e.event_cost,
+        traveling: e.traveling_fees,
+        labor: e.total_actual_labor_cost,
+      }))
+    });
 
     let eventCosts = new Decimal(0);
     let travelingCosts = new Decimal(0);
