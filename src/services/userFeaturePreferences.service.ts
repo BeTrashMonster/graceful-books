@@ -122,13 +122,25 @@ export class UserFeaturePreferencesService {
    * Toggle a feature for a user
    */
   async toggleFeature(userId: string, featureName: FeatureName): Promise<boolean> {
+    console.log('🔍 Service: toggleFeature called for', featureName, 'userId:', userId);
+
     const isActive = await this.isFeatureActive(userId, featureName);
+    console.log('📊 Service: Current state from DB:', isActive);
 
     if (isActive) {
+      console.log('⬇️ Service: Deactivating feature');
       await this.deactivateFeature(userId, featureName);
+      console.log('✅ Service: Feature deactivated, returning false');
       return false;
     } else {
+      console.log('⬆️ Service: Activating feature');
       await this.activateFeature(userId, featureName);
+      console.log('✅ Service: Feature activated, returning true');
+
+      // Verify it was actually saved
+      const verified = await this.isFeatureActive(userId, featureName);
+      console.log('🔍 Service: Verified state after activation:', verified);
+
       return true;
     }
   }
