@@ -65,12 +65,19 @@ export function CPGLayout() {
     loadUserPreferences();
 
     // Listen for feature preference updates
-    const handleFeatureUpdate = async (event: Event) => {
+    const handleFeatureUpdate = (event: Event) => {
       const customEvent = event as CustomEvent;
       console.log('🔔 Sidebar: Heard feature-preferences-updated event with detail:', customEvent.detail);
-      console.log('🔄 Sidebar: Current userFeaturePrefs:', userFeaturePrefs);
-      await loadUserPreferences();
-      console.log('✅ Sidebar: Preferences reloaded');
+
+      // Use the preferences passed in the event to avoid database race condition
+      if (customEvent.detail?.allPreferences) {
+        console.log('✅ Sidebar: Using preferences from event:', customEvent.detail.allPreferences);
+        setUserFeaturePrefs(customEvent.detail.allPreferences);
+      } else {
+        // Fallback: reload from database (old behavior)
+        console.log('⚠️ Sidebar: No preferences in event, reloading from DB');
+        loadUserPreferences();
+      }
     };
 
     window.addEventListener('feature-preferences-updated', handleFeatureUpdate as EventListener);

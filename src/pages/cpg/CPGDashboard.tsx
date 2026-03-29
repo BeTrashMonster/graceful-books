@@ -57,15 +57,21 @@ export default function CPGDashboard() {
     }
 
     // Listen for preference updates from Settings page
-    const handlePreferenceUpdate = async (event: Event) => {
+    const handlePreferenceUpdate = (event: Event) => {
       const customEvent = event as CustomEvent;
       console.log('🔔 Dashboard: Heard feature-preferences-updated event with detail:', customEvent.detail);
-      if (userId) {
-        console.log('🔄 Dashboard: Loading user preferences for userId:', userId);
-        await loadUserPreferences();
-        console.log('✅ Dashboard: Preferences reloaded, waiting for useEffect to reload data');
+
+      // Use the preferences passed in the event to avoid database race condition
+      if (customEvent.detail?.allPreferences) {
+        console.log('✅ Dashboard: Using preferences from event:', customEvent.detail.allPreferences);
+        setUserFeaturePrefs(customEvent.detail.allPreferences);
+        console.log('✅ Dashboard: State updated, useEffect will reload data');
       } else {
-        console.warn('⚠️ Dashboard: No userId available, cannot reload preferences');
+        // Fallback: reload from database (old behavior)
+        console.log('⚠️ Dashboard: No preferences in event, reloading from DB');
+        if (userId) {
+          loadUserPreferences();
+        }
       }
     };
 

@@ -64,28 +64,36 @@ export class UserFeaturePreferencesService {
    * Activate a feature for a user
    */
   async activateFeature(userId: string, featureName: FeatureName): Promise<void> {
+    console.log('🔍 activateFeature: Looking for existing pref with userId:', userId, 'feature:', featureName);
+
     const existing = await this.db.userFeaturePreferences
       .where('[user_id+feature_name]')
       .equals([userId, featureName])
       .first();
 
+    console.log('📊 activateFeature: Existing record:', existing ? 'Found (id: ' + existing.id + ')' : 'Not found');
+
     const now = Date.now();
 
     if (existing) {
       // Update existing preference
-      await this.db.userFeaturePreferences.update(existing.id, {
+      console.log('🔄 activateFeature: Updating existing record id:', existing.id);
+      const updateCount = await this.db.userFeaturePreferences.update(existing.id, {
         is_active: true,
         activated_at: existing.activated_at ?? now,
         deactivated_at: null,
         updated_at: now,
       });
+      console.log('✅ activateFeature: Updated', updateCount, 'record(s)');
     } else {
       // Create new preference
       const newPref: UserFeaturePreference = {
         ...createDefaultUserFeaturePreference(userId, featureName, true),
         id: nanoid(),
       };
+      console.log('➕ activateFeature: Creating new record with id:', newPref.id);
       await this.db.userFeaturePreferences.add(newPref);
+      console.log('✅ activateFeature: New record created');
     }
   }
 

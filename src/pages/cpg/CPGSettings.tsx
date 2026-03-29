@@ -170,19 +170,23 @@ export function CPGSettings() {
       console.log('✅ Settings: Feature toggled in DB:', featureName, 'New state:', newState);
 
       // Update local state immediately
-      setUserFeaturePrefs(prev => {
-        const updated = {
-          ...prev,
-          [featureName]: newState,
-        };
-        console.log('🔄 Settings: Updated local state from', prev, 'to', updated);
-        return updated;
-      });
+      const updatedPrefs = {
+        ...userFeaturePrefs,
+        [featureName]: newState,
+      };
 
-      // Notify other components (dashboard, sidebar)
-      console.log('📢 Settings: Firing feature-preferences-updated event:', { featureName, newState });
+      console.log('🔄 Settings: Updated local state from', userFeaturePrefs, 'to', updatedPrefs);
+      setUserFeaturePrefs(updatedPrefs);
+
+      // Notify other components with the FULL updated preferences
+      // This avoids race conditions from re-querying the database
+      console.log('📢 Settings: Firing feature-preferences-updated event with full prefs:', updatedPrefs);
       window.dispatchEvent(new CustomEvent('feature-preferences-updated', {
-        detail: { featureName, newState }
+        detail: {
+          featureName,
+          newState,
+          allPreferences: updatedPrefs  // Pass the complete updated state
+        }
       }));
       console.log('✅ Settings: Event dispatched successfully');
 
