@@ -28,8 +28,12 @@ export interface OperationalNode {
   type: 'distribution' | 'promo' | 'events';
   isActive: boolean; // Based on whether feature is activated
   details?: {
+    // Events breakdown
     eventCosts?: string;
     travelingCosts?: string;
+    // Promos breakdown
+    actualPayback?: string;
+    // Shared fields
     paidLabor?: string;
     sweatEquity?: string;
   };
@@ -138,7 +142,12 @@ export class FinancialWebDataService {
 
     console.log('💰 Operational totals calculated:', {
       distribution: distributionTotal.toFixed(2),
-      promos: promoTotal.toFixed(2),
+      promos: promoTotal.total.toFixed(2),
+      promosDetails: {
+        actualPayback: promoTotal.actualPayback.toFixed(2),
+        paidLabor: promoTotal.paidLabor.toFixed(2),
+        sweatEquity: promoTotal.sweatEquity.toFixed(2),
+      },
       events: eventsData.total.toFixed(2),
       eventDetails: {
         eventCosts: eventsData.eventCosts.toFixed(2),
@@ -164,9 +173,14 @@ export class FinancialWebDataService {
     operationalNodes.push({
       id: 'promo',
       name: 'Promos',
-      totalSpent: promoTotal.toFixed(2),
+      totalSpent: promoTotal.total.toFixed(2),
       type: 'promo',
       isActive: this.isFeatureActive('promo'),
+      details: {
+        actualPayback: promoTotal.actualPayback.toFixed(2),
+        paidLabor: promoTotal.paidLabor.toFixed(2),
+        sweatEquity: promoTotal.sweatEquity.toFixed(2),
+      },
     });
 
     // Events node - always present
@@ -313,26 +327,53 @@ export class FinancialWebDataService {
 
   /**
    * Get total promo spend in date range
+   * Only counts COMPLETED promos AFTER their end date (when costs are actually paid)
+   * Returns breakdown of actual payback, paid labor, and sweat equity
    */
   private async getPromoTotal(
     companyId: string,
     startDate: number,
     endDate: number
-  ): Promise<Decimal> {
+  ): Promise<{
+    total: Decimal;
+    actualPayback: Decimal;
+    paidLabor: Decimal;
+    sweatEquity: Decimal;
+  }> {
+    const now = Date.now();
     const promos = await this.db.cpgSalesPromos
       .where('company_id')
       .equals(companyId)
       .and((promo) =>
         !promo.deleted_at &&
-        promo.promo_start_date >= startDate &&
-        (promo.promo_end_date ? promo.promo_end_date <= endDate : true)
+        promo.status === 'completed' &&  // Only completed promos
+        promo.promo_end_date &&  // Must have end date
+        promo.promo_end_date <= now &&  // End date must have passed
+        promo.promo_end_date >= startDate &&  // End date in range
+        promo.promo_end_date <= endDate
       )
       .toArray();
 
-    return promos.reduce(
-      (sum, promo) => sum.plus(promo.total_promo_cost || '0'),
-      new Decimal(0)
-    );
+    let actualPayback = new Decimal(0);
+    let paidLabor = new Decimal(0);
+    let sweatEquity = new Decimal(0);
+
+    promos.forEach((promo) => {
+      // Use actual costs (not projected)
+      actualPayback = actualPayback.plus(promo.actual_payback || '0');
+      paidLabor = paidLabor.plus(promo.total_actual_labor_cost || '0');
+      sweatEquity = sweatEquity.plus(promo.total_opportunity_cost || '0');
+    });
+
+    // Total = actual payback + paid labor (NOT sweat equity)
+    const total = actualPayback.plus(paidLabor);
+
+    return {
+      total,
+      actualPayback,
+      paidLabor,
+      sweatEquity,
+    };
   }
 
   /**
@@ -355,8 +396,9 @@ export class FinancialWebDataService {
       .equals(companyId)
       .and((event) =>
         !event.deleted_at &&
-        event.event_start_date >= startDate &&
-        event.event_end_date <= endDate
+        // Include events that OVERLAP with the date range (not just fully contained)
+        event.event_start_date <= endDate &&
+        event.event_end_date >= startDate
       )
       .toArray();
 

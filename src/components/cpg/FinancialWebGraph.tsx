@@ -195,7 +195,7 @@ export function FinancialWebGraph({
           }
         }
 
-        // Show tooltip with detailed breakdown for events
+        // Show tooltip with detailed breakdown for events and promos
         let tooltipContent: string;
         if (d.type === 'category') {
           tooltipContent = `${d.name}\n$${parseFloat(d.totalSpent).toLocaleString()} spent\n${d.invoiceCount} invoices`;
@@ -204,9 +204,19 @@ export function FinancialWebGraph({
           const travelingCosts = parseFloat(d.details.travelingCosts || '0');
           const paidLabor = parseFloat(d.details.paidLabor || '0');
           const sweatEquity = parseFloat(d.details.sweatEquity || '0');
-          tooltipContent = `${d.name} (Total: $${parseFloat(d.totalSpent).toLocaleString()})\n` +
+          tooltipContent = `💡 Counted from event start date\n\n` +
+            `${d.name} (Total: $${parseFloat(d.totalSpent).toLocaleString()})\n` +
             `Event Costs: $${eventCosts.toLocaleString()}\n` +
             `Traveling: $${travelingCosts.toLocaleString()}\n` +
+            `Paid Labor: $${paidLabor.toLocaleString()}\n` +
+            `Sweat Equity: $${sweatEquity.toLocaleString()} (not included)`;
+        } else if (d.type === 'promo' && d.details) {
+          const actualPayback = parseFloat(d.details.actualPayback || '0');
+          const paidLabor = parseFloat(d.details.paidLabor || '0');
+          const sweatEquity = parseFloat(d.details.sweatEquity || '0');
+          tooltipContent = `💡 Counted when marked 'Complete' and after promo end date\n\n` +
+            `${d.name} (Total: $${parseFloat(d.totalSpent).toLocaleString()})\n` +
+            `Actual Payback: $${actualPayback.toLocaleString()}\n` +
             `Paid Labor: $${paidLabor.toLocaleString()}\n` +
             `Sweat Equity: $${sweatEquity.toLocaleString()} (not included)`;
         } else {

@@ -328,7 +328,15 @@ export function PromoDetailsForm({
       newErrors.retailerName = 'Retailer name is required';
     }
 
-    // Validate promo dates
+    // Validate promo dates - REQUIRED
+    if (!formData.promoStartDate.trim()) {
+      newErrors.promoStartDate = 'Promo start date is required';
+    }
+    if (!formData.promoEndDate.trim()) {
+      newErrors.promoEndDate = 'Promo end date is required';
+    }
+
+    // Validate date format and logic if both are provided
     if (formData.promoStartDate && formData.promoEndDate) {
       const startDate = new Date(formData.promoStartDate);
       const endDate = new Date(formData.promoEndDate);
@@ -706,6 +714,8 @@ export function PromoDetailsForm({
             value={formData.promoStartDate}
             onChange={(e) => handleChange('promoStartDate', e.target.value)}
             onBlur={(e) => handleDateBlur('promoStartDate', e.target.value)}
+            error={errors.promoStartDate}
+            required
             fullWidth
           />
           <Input
@@ -714,6 +724,8 @@ export function PromoDetailsForm({
             value={formData.promoEndDate}
             onChange={(e) => handleChange('promoEndDate', e.target.value)}
             onBlur={(e) => handleDateBlur('promoEndDate', e.target.value)}
+            error={errors.promoEndDate}
+            required
             fullWidth
           />
         </div>
