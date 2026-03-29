@@ -161,30 +161,35 @@ export function CPGSettings() {
       return;
     }
 
-    console.log('🔄 Toggling feature:', featureName, 'Current state:', userFeaturePrefs[featureName]);
+    console.log('🔄 Settings: Toggling feature:', featureName, 'Current state:', userFeaturePrefs[featureName], 'UserId:', userId);
 
     try {
       const prefsService = new UserFeaturePreferencesService(db);
       const newState = await prefsService.toggleFeature(userId, featureName);
 
-      console.log('✅ Feature toggled:', featureName, 'New state:', newState);
+      console.log('✅ Settings: Feature toggled in DB:', featureName, 'New state:', newState);
 
       // Update local state immediately
-      setUserFeaturePrefs(prev => ({
-        ...prev,
-        [featureName]: newState,
-      }));
+      setUserFeaturePrefs(prev => {
+        const updated = {
+          ...prev,
+          [featureName]: newState,
+        };
+        console.log('🔄 Settings: Updated local state from', prev, 'to', updated);
+        return updated;
+      });
 
       // Notify other components (dashboard, sidebar)
-      console.log('📢 Settings firing feature-preferences-updated event:', { featureName, newState });
+      console.log('📢 Settings: Firing feature-preferences-updated event:', { featureName, newState });
       window.dispatchEvent(new CustomEvent('feature-preferences-updated', {
         detail: { featureName, newState }
       }));
+      console.log('✅ Settings: Event dispatched successfully');
 
       setSuccessMessage(`Feature ${newState ? 'activated' : 'deactivated'} successfully!`);
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
-      console.error('❌ Failed to toggle feature:', err);
+      console.error('❌ Settings: Failed to toggle feature:', err);
       setErrorMessage(`Failed to update feature: ${err instanceof Error ? err.message : 'Unknown error'}`);
       setTimeout(() => setErrorMessage(null), 5000);
     }

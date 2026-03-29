@@ -49,25 +49,32 @@ export function CPGLayout() {
 
     const loadUserPreferences = async () => {
       try {
+        console.log('🔍 Sidebar: Loading preferences for userId:', userId);
         const prefsService = new UserFeaturePreferencesService(db);
         const prefs = await prefsService.getUserPreferences(userId);
-        setUserFeaturePrefs(prefs);
+        console.log('📋 Sidebar: Loaded user preferences from DB:', prefs);
+        setUserFeaturePrefs(prev => {
+          console.log('🔄 Sidebar: Updating userFeaturePrefs from', prev, 'to', prefs);
+          return prefs;
+        });
       } catch (err) {
-        console.error('Failed to load user feature preferences:', err);
+        console.error('❌ Sidebar: Failed to load user feature preferences:', err);
       }
     };
 
     loadUserPreferences();
 
     // Listen for feature preference updates
-    const handleFeatureUpdate = () => {
-      console.log('🔔 Sidebar heard feature-preferences-updated event');
-      loadUserPreferences();
-      console.log('✅ Sidebar reloaded preferences');
+    const handleFeatureUpdate = async (event: Event) => {
+      const customEvent = event as CustomEvent;
+      console.log('🔔 Sidebar: Heard feature-preferences-updated event with detail:', customEvent.detail);
+      console.log('🔄 Sidebar: Current userFeaturePrefs:', userFeaturePrefs);
+      await loadUserPreferences();
+      console.log('✅ Sidebar: Preferences reloaded');
     };
 
-    window.addEventListener('feature-preferences-updated', handleFeatureUpdate);
-    return () => window.removeEventListener('feature-preferences-updated', handleFeatureUpdate);
+    window.addEventListener('feature-preferences-updated', handleFeatureUpdate as EventListener);
+    return () => window.removeEventListener('feature-preferences-updated', handleFeatureUpdate as EventListener);
   }, [userId]);
 
   // Load company name from session

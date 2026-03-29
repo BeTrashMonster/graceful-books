@@ -57,12 +57,15 @@ export default function CPGDashboard() {
     }
 
     // Listen for preference updates from Settings page
-    const handlePreferenceUpdate = async () => {
-      console.log('🔔 Dashboard heard feature-preferences-updated event');
+    const handlePreferenceUpdate = async (event: Event) => {
+      const customEvent = event as CustomEvent;
+      console.log('🔔 Dashboard: Heard feature-preferences-updated event with detail:', customEvent.detail);
       if (userId) {
+        console.log('🔄 Dashboard: Loading user preferences for userId:', userId);
         await loadUserPreferences();
-        // Don't call loadWebData here - let the useEffect handle it when userFeaturePrefs changes
-        console.log('✅ Dashboard preferences reloaded, useEffect will reload data');
+        console.log('✅ Dashboard: Preferences reloaded, waiting for useEffect to reload data');
+      } else {
+        console.warn('⚠️ Dashboard: No userId available, cannot reload preferences');
       }
     };
 
@@ -71,13 +74,20 @@ export default function CPGDashboard() {
   }, [userId]);
 
   const loadUserPreferences = async () => {
-    if (!userId) return;
+    if (!userId) {
+      console.warn('⚠️ Dashboard: Cannot load preferences, no userId');
+      return;
+    }
     try {
+      console.log('🔍 Dashboard: Loading preferences for userId:', userId);
       const prefs = await prefsService.getUserPreferences(userId);
-      console.log('📋 Dashboard loaded user preferences:', prefs);
-      setUserFeaturePrefs(prefs);
+      console.log('📋 Dashboard: Loaded user preferences from DB:', prefs);
+      setUserFeaturePrefs(prev => {
+        console.log('🔄 Dashboard: Updating userFeaturePrefs from', prev, 'to', prefs);
+        return prefs;
+      });
     } catch (err) {
-      console.error('❌ Failed to load user preferences:', err);
+      console.error('❌ Dashboard: Failed to load user preferences:', err);
     }
   };
 
@@ -190,15 +200,18 @@ export default function CPGDashboard() {
   }, [rawWebData, showOnlyConnected, showInactiveNodes, userFeaturePrefs]);
 
   useEffect(() => {
+    console.log('🔄 Dashboard: useEffect triggered with userFeaturePrefs:', userFeaturePrefs);
     if (companyId) {
       loadProducts();
 
       // Only reload if we have valid date range for custom mode
       if (dateRange === 'custom') {
         if (customStartDate && customEndDate) {
+          console.log('📊 Dashboard: Loading web data (custom date range)');
           loadWebData();
         }
       } else {
+        console.log('📊 Dashboard: Loading web data (standard date range)');
         loadWebData();
       }
     }
