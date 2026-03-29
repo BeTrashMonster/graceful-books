@@ -13,13 +13,15 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { db } from '../../../db';
 import { EventAnalyzerService } from '../../../services/cpg/eventAnalyzer.service';
 import { cpuCalculatorService } from '../../../services/cpg/cpuCalculator.service';
+import { LaborRoleService } from '../../../services/cpg/laborRole.service';
 import { getProfitMarginQualityWithSettings, createDefaultCPGSettings } from '../../../db/schema/cpg.schema';
-import type { CPGSettings } from '../../../db/schema/cpg.schema';
+import type { CPGSettings, CPGLaborRole } from '../../../db/schema/cpg.schema';
 import styles from './EventDecisionToolTab.module.css';
 
 interface LaborEntry {
   id: string;
-  description: string;
+  roleId: string; // Role ID or 'custom'
+  roleName: string; // Role name for display
   hours: string;
   hourlyRate: string;
   costType: 'actual' | 'opportunity';
@@ -76,6 +78,7 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
   const [error, setError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showProductDropdown, setShowProductDropdown] = useState(false);
+  const [laborRoles, setLaborRoles] = useState<CPGLaborRole[]>([]);
   const [cpgSettings, setCpgSettings] = useState<CPGSettings | null>(null);
 
   const productDropdownRef = useRef<HTMLDivElement>(null);
@@ -148,6 +151,10 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
       validProducts.sort((a, b) => a.displayName.localeCompare(b.displayName));
 
       setProducts(validProducts);
+
+      // Load labor roles
+      const roles = await LaborRoleService.getAllRoles(companyId);
+      setLaborRoles(roles);
     } catch (err) {
       console.error('Error loading data:', err);
       setError('Unable to load product data. Please visit "My Products" to ensure your products have recipes and ingredient costs set up, then try again. If you just uploaded data, give it a moment to finish processing.');
@@ -175,7 +182,8 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
       const laborEntries: LaborEntry[] = event.labor_entries
         ? event.labor_entries.map(e => ({
             id: e.id,
-            description: e.description || '',
+            roleId: e.role_id || 'custom', // Use role_id if available, otherwise custom
+            roleName: e.role_name || e.description || '', // Use role_name or fallback to description for old data
             hours: e.hours,
             hourlyRate: e.hourly_rate,
             costType: e.cost_type,
@@ -388,7 +396,8 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
   const addLaborEntry = () => {
     const newEntry: LaborEntry = {
       id: nanoid(),
-      description: '',
+      roleId: '',
+      roleName: '',
       hours: '',
       hourlyRate: '',
       costType: 'actual',
@@ -413,6 +422,33 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
         entry.id === id ? { ...entry, [field]: value } : entry
       ),
     }));
+  };
+
+  const handleRoleChange = (id: string, roleId: string) => {
+    if (roleId && roleId !== 'custom') {
+      // Find the selected role and auto-fill rate and name
+      const selectedRole = laborRoles.find(r => r.id === roleId);
+      if (selectedRole) {
+        setFormData((prev) => ({
+          ...prev,
+          laborEntries: prev.laborEntries.map((entry) =>
+            entry.id === id
+              ? { ...entry, roleId, roleName: selectedRole.role_name, hourlyRate: selectedRole.hourly_equivalent }
+              : entry
+          ),
+        }));
+      }
+    } else {
+      // Custom or empty - just set roleId and clear others
+      setFormData((prev) => ({
+        ...prev,
+        laborEntries: prev.laborEntries.map((entry) =>
+          entry.id === id
+            ? { ...entry, roleId, roleName: roleId === 'custom' ? 'Custom' : '', hourlyRate: '' }
+            : entry
+        ),
+      }));
+    }
   };
 
   const validateForm = (): boolean => {
@@ -492,7 +528,8 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
         travelingFees: formData.travelingCosts || undefined,
         laborEntries: completeLaborEntries.length > 0 ? completeLaborEntries.map(e => ({
           id: e.id,
-          description: e.description,
+          role_id: e.roleId,
+          role_name: e.roleName,
           hours: e.hours,
           hourly_rate: e.hourlyRate,
           cost_type: e.costType,
@@ -707,14 +744,34 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
                     onChange={(e) => handleLaborEntryChange(entry.id, 'hourlyRate', e.target.value)}
                     fullWidth
                   />
-                  <Input
-                    label="Description"
-                    type="text"
-                    value={entry.description}
-                    onChange={(e) => handleLaborEntryChange(entry.id, 'description', e.target.value)}
-                    fullWidth
-                    placeholder="ex: Millie working the booth"
-                  />
+                  <div style={{ flex: '1' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#4b006e' }}>
+                      Role
+                    </label>
+                    <select
+                      value={entry.roleId}
+                      onChange={(e) => handleRoleChange(entry.id, e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '0.625rem 0.875rem',
+                        background: '#E5F6DF',
+                        border: '2px solid #D4AF37',
+                        borderRadius: '6px',
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        color: '#475569',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <option value="">-- Select Role --</option>
+                      {laborRoles.map(role => (
+                        <option key={role.id} value={role.id}>
+                          {role.role_name}
+                        </option>
+                      ))}
+                      <option value="custom">Custom</option>
+                    </select>
+                  </div>
                 </div>
                 <div className={styles.costTypeSelector}>
                   <label className={styles.costTypeLabel}>Cost Type:</label>
