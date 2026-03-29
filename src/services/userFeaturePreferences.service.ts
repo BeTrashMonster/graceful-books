@@ -27,6 +27,8 @@ export class UserFeaturePreferencesService {
   /**
    * Get all feature preferences for a user
    * Returns default inactive state for any missing features
+   *
+   * Note: Handles duplicate records by taking the most recently updated one
    */
   async getUserPreferences(userId: string): Promise<Record<FeatureName, boolean>> {
     const preferences = await this.db.userFeaturePreferences
@@ -34,15 +36,34 @@ export class UserFeaturePreferencesService {
       .equals(userId)
       .toArray();
 
+    console.log('📊 getUserPreferences: Found', preferences.length, 'records for userId:', userId);
+
     // Start with defaults (all inactive)
     const result: Record<string, boolean> = getDefaultFeatureStates();
 
-    // Override with user's saved preferences
+    // Group by feature_name and take the most recently updated record
+    const latestByFeature = new Map<string, typeof preferences[0]>();
     preferences.forEach(pref => {
+      const existing = latestByFeature.get(pref.feature_name);
+      if (!existing || pref.updated_at > existing.updated_at) {
+        latestByFeature.set(pref.feature_name, pref);
+      }
+    });
+
+    console.log('✅ getUserPreferences: After deduplication, using:', Array.from(latestByFeature.entries()).map(([name, pref]) => ({
+      feature: name,
+      is_active: pref.is_active,
+      updated_at: new Date(pref.updated_at).toLocaleString()
+    })));
+
+    // Override with user's saved preferences (using deduplicated records)
+    latestByFeature.forEach(pref => {
       if (pref.feature_name in result) {
         result[pref.feature_name] = pref.is_active;
       }
     });
+
+    console.log('🎯 getUserPreferences: Final result:', result);
 
     return result as Record<FeatureName, boolean>;
   }
