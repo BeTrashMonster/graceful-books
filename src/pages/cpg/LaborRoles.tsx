@@ -6,17 +6,19 @@
  * Features:
  * - Labor Scenarios: Plan and model different labor configurations
  * - Labor Roles: Manage labor roles with compensation details
+ * - Reports: Analyze labor costs across products and roles
  *
  * Requirements:
- * - Labor + Roles Roadmap Phase 2
+ * - Labor + Roles Roadmap Phase 2 & Phase 4
  */
 
 import { useState } from 'react';
 import { LaborScenariosTab } from './tabs/labor/LaborScenariosTab';
 import { LaborRolesTab } from './tabs/labor/LaborRolesTab';
+import { LaborReportsTab } from './tabs/labor/LaborReportsTab';
 import styles from './LaborRoles.module.css';
 
-type TabType = 'scenarios' | 'roles';
+type TabType = 'scenarios' | 'roles' | 'reports';
 
 export default function LaborRoles() {
   const [activeTab, setActiveTab] = useState<TabType>('scenarios');
@@ -41,11 +43,18 @@ export default function LaborRoles() {
         >
           Labor Roles
         </button>
+        <button
+          className={activeTab === 'reports' ? styles.active : ''}
+          onClick={() => setActiveTab('reports')}
+        >
+          Reports
+        </button>
       </div>
 
       {/* Tab Content */}
       {activeTab === 'scenarios' && <LaborScenariosTab />}
       {activeTab === 'roles' && <LaborRolesTab />}
+      {activeTab === 'reports' && <LaborReportsTab />}
     </div>
   );
 }
