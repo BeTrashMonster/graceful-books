@@ -33,9 +33,11 @@ import type {
   CPGSalesPromo,
   CPGFinishedProduct,
   CPGSettings,
+  CPGLaborRole,
 } from '../../../../db/schema/cpg.schema';
 import { getProfitMarginQualityWithSettings } from '../../../../db/schema/cpg.schema';
 import { cpuCalculatorService } from '../../../../services/cpg/cpuCalculator.service';
+import { LaborRoleService } from '../../../../services/cpg/laborRole.service';
 import { db } from '../../../../db/database';
 import styles from './WhatIfCalculatorTab.module.css';
 
@@ -111,6 +113,12 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
   const [showProductSelector, setShowProductSelector] = useState(false);
+
+  // Labor roles and additional labor state
+  const [laborRoles, setLaborRoles] = useState<CPGLaborRole[]>([]);
+  const [additionalLaborRole, setAdditionalLaborRole] = useState<string>(''); // Role ID or 'custom'
+  const [additionalLaborHours, setAdditionalLaborHours] = useState<string>('');
+  const [additionalLaborRate, setAdditionalLaborRate] = useState<string>('');
 
   // ========================================
   // State - Results
@@ -308,6 +316,10 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
         .toArray();
       setAllProducts(products);
 
+      // Load labor roles
+      const laborRolesData = await LaborRoleService.getAllRoles(companyId);
+      setLaborRoles(laborRolesData);
+
       // Load categories for Cost a New Idea mode
       const categories = await db.cpgCategories
         .where('company_id')
@@ -479,9 +491,20 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
           companyId,
           null
         );
-        const baseCPU = cpuResult.cpu ? parseFloat(cpuResult.cpu) : 0;
+        let baseCPU = cpuResult.cpu ? parseFloat(cpuResult.cpu) : 0;
         const materialCPU = cpuResult.materialCPU ? parseFloat(cpuResult.materialCPU) : 0;
-        const laborCost = cpuResult.laborCost ? parseFloat(cpuResult.laborCost) : 0;
+        let laborCost = cpuResult.laborCost ? parseFloat(cpuResult.laborCost) : 0;
+
+        // Add additional labor if specified
+        if (additionalLaborHours && additionalLaborRate) {
+          const hours = parseFloat(additionalLaborHours);
+          const rate = parseFloat(additionalLaborRate);
+          if (!isNaN(hours) && !isNaN(rate) && hours > 0 && rate > 0) {
+            const additionalLaborCost = hours * rate;
+            laborCost += additionalLaborCost;
+            baseCPU += additionalLaborCost;
+          }
+        }
 
         // Get promo CPU for this product
         let promoCPU = 0;
@@ -2583,6 +2606,62 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
           <label>Products</label>
           {renderProductPills()}
           {renderProductSelector()}
+        </div>
+
+        {/* Additional Labor */}
+        <div className={styles.formGroup}>
+          <label>
+            Additional Labor <span className={styles.optional}>(not already accounted for)</span>
+          </label>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <select
+              value={additionalLaborRole}
+              onChange={(e) => {
+                const roleId = e.target.value;
+                setAdditionalLaborRole(roleId);
+                // Auto-fill rate if role selected
+                if (roleId && roleId !== 'custom') {
+                  const role = laborRoles.find(r => r.id === roleId);
+                  if (role) {
+                    setAdditionalLaborRate(role.hourly_equivalent);
+                  }
+                } else {
+                  // Clear rate if custom or none
+                  setAdditionalLaborRate('');
+                }
+              }}
+              className={styles.select}
+              style={{ flex: '1', minWidth: '150px' }}
+            >
+              <option value="">-- Select Role (Optional) --</option>
+              {laborRoles.map(role => (
+                <option key={role.id} value={role.id}>
+                  {role.role_name}
+                </option>
+              ))}
+              <option value="custom">Custom</option>
+            </select>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={additionalLaborHours}
+              onChange={(e) => setAdditionalLaborHours(e.target.value)}
+              placeholder="Additional Hours"
+              className={styles.input}
+              style={{ width: '140px' }}
+            />
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={additionalLaborRate}
+              onChange={(e) => setAdditionalLaborRate(e.target.value)}
+              placeholder="Hourly Rate ($)"
+              className={styles.input}
+              style={{ width: '120px' }}
+            />
+          </div>
         </div>
 
         {/* Calculate Button */}
