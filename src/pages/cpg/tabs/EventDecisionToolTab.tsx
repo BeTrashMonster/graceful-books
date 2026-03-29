@@ -434,7 +434,7 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
           ...prev,
           laborEntries: prev.laborEntries.map((entry) =>
             entry.id === id
-              ? { ...entry, roleId, roleName: selectedRole.role_name, hourlyRate: selectedRole.hourly_equivalent }
+              ? { ...entry, roleId, roleName: selectedRole.role_name, hourlyRate: selectedRole.compensation_type === 'hourly' ? selectedRole.hourly_rate || '' : selectedRole.calculated_hourly_rate || '' }
               : entry
           ),
         }));
@@ -727,24 +727,6 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
               </button>
               <div className={styles.laborEntryFields}>
                 <div className={styles.laborEntryRow}>
-                  <Input
-                    label="Hours"
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    value={entry.hours}
-                    onChange={(e) => handleLaborEntryChange(entry.id, 'hours', e.target.value)}
-                    fullWidth
-                  />
-                  <Input
-                    label="Hourly Rate"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={entry.hourlyRate}
-                    onChange={(e) => handleLaborEntryChange(entry.id, 'hourlyRate', e.target.value)}
-                    fullWidth
-                  />
                   <div style={{ flex: '1' }}>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#4b006e' }}>
                       Role
@@ -773,6 +755,24 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
                       <option value="custom">Custom</option>
                     </select>
                   </div>
+                  <Input
+                    label="Hours"
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    value={entry.hours}
+                    onChange={(e) => handleLaborEntryChange(entry.id, 'hours', e.target.value)}
+                    fullWidth
+                  />
+                  <Input
+                    label="Hourly Rate"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={entry.hourlyRate}
+                    onChange={(e) => handleLaborEntryChange(entry.id, 'hourlyRate', e.target.value)}
+                    fullWidth
+                  />
                 </div>
                 <div className={styles.costTypeSelector}>
                   <label className={styles.costTypeLabel}>Cost Type:</label>

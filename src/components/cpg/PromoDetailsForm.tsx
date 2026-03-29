@@ -570,7 +570,7 @@ export function PromoDetailsForm({
           ...prev,
           demoHoursEntries: prev.demoHoursEntries.map((entry) =>
             entry.id === id
-              ? { ...entry, roleId, roleName: selectedRole.role_name, hourlyRate: selectedRole.hourly_equivalent }
+              ? { ...entry, roleId, roleName: selectedRole.role_name, hourlyRate: selectedRole.compensation_type === 'hourly' ? selectedRole.hourly_rate || '' : selectedRole.calculated_hourly_rate || '' }
               : entry
           ),
         }));
@@ -771,25 +771,6 @@ export function PromoDetailsForm({
                   </button>
                   <div className={styles.demoEntryFields}>
                     <div className={styles.demoEntryRow}>
-                      <Input
-                        label="Hours"
-                        type="text"
-                        value={entry.hours}
-                        onChange={(e) => handleDemoEntryChange(entry.id, 'hours', e.target.value, index)}
-                        onBlur={(e) => handleDemoHoursBlur(entry.id, e.target.value)}
-                        error={errors[`demoEntry_${index}_hours`]}
-                        fullWidth
-                      />
-                      <Input
-                        label="Hourly Rate"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={entry.hourlyRate}
-                        onChange={(e) => handleDemoEntryChange(entry.id, 'hourlyRate', e.target.value, index)}
-                        error={errors[`demoEntry_${index}_rate`]}
-                        fullWidth
-                      />
                       <div style={{ marginBottom: '1rem' }}>
                         <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#4b006e' }}>
                           Role
@@ -823,6 +804,25 @@ export function PromoDetailsForm({
                           </p>
                         )}
                       </div>
+                      <Input
+                        label="Hours"
+                        type="text"
+                        value={entry.hours}
+                        onChange={(e) => handleDemoEntryChange(entry.id, 'hours', e.target.value, index)}
+                        onBlur={(e) => handleDemoHoursBlur(entry.id, e.target.value)}
+                        error={errors[`demoEntry_${index}_hours`]}
+                        fullWidth
+                      />
+                      <Input
+                        label="Hourly Rate"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={entry.hourlyRate}
+                        onChange={(e) => handleDemoEntryChange(entry.id, 'hourlyRate', e.target.value, index)}
+                        error={errors[`demoEntry_${index}_rate`]}
+                        fullWidth
+                      />
                     </div>
                     <div className={styles.costTypeSelector}>
                       <label className={styles.costTypeLabel}>Cost Type:</label>

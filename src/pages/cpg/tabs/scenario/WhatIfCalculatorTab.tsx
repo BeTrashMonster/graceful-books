@@ -2602,13 +2602,6 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
         {renderPromoFields()}
 
-        {/* Product Selection */}
-        <div className={styles.formGroup}>
-          <label>Products</label>
-          {renderProductPills()}
-          {renderProductSelector()}
-        </div>
-
         {/* Additional Labor */}
         <div className={styles.formGroup}>
           <label>
@@ -2624,15 +2617,19 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                 if (roleId && roleId !== 'custom') {
                   const role = laborRoles.find(r => r.id === roleId);
                   if (role) {
-                    setAdditionalLaborRate(role.hourly_equivalent);
+                    // Use the correct field based on compensation type
+                    const rate = role.compensation_type === 'hourly'
+                      ? role.hourly_rate
+                      : role.calculated_hourly_rate;
+                    setAdditionalLaborRate(rate || '');
                   }
                 } else {
                   // Clear rate if custom or none
                   setAdditionalLaborRate('');
                 }
               }}
-              className={styles.select}
-              style={{ flex: '1', minWidth: '150px' }}
+              className={styles.input}
+              style={{ flex: '1' }}
             >
               <option value="">-- Select Role (Optional) --</option>
               {laborRoles.map(role => (
@@ -2650,7 +2647,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
               onChange={(e) => setAdditionalLaborHours(e.target.value)}
               placeholder="Additional Hours"
               className={styles.input}
-              style={{ width: '140px' }}
+              style={{ flex: '1' }}
             />
             <input
               type="number"
@@ -2660,9 +2657,16 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
               onChange={(e) => setAdditionalLaborRate(e.target.value)}
               placeholder="Hourly Rate ($)"
               className={styles.input}
-              style={{ width: '120px' }}
+              style={{ flex: '1' }}
             />
           </div>
+        </div>
+
+        {/* Product Selection */}
+        <div className={styles.formGroup}>
+          <label>Products</label>
+          {renderProductPills()}
+          {renderProductSelector()}
         </div>
 
         {/* Calculate Button */}
