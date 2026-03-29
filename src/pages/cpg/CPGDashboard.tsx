@@ -290,6 +290,16 @@ export default function CPGDashboard() {
         nodes: data.nodes.map(n => ({ name: n.name, spent: n.totalSpent, type: n.type }))
       });
 
+      // Debug: Check operational nodes specifically
+      const operationalNodes = data.nodes.filter(n => ['events', 'distribution', 'promo'].includes(n.type));
+      console.log('🔍 Operational nodes detail:', operationalNodes.map(n => ({
+        type: n.type,
+        name: n.name,
+        isActive: n.isActive,
+        totalSpent: n.totalSpent,
+        willShowDollar: n.isActive && parseFloat(n.totalSpent) > 0
+      })));
+
       setRawWebData(data);
     } catch (err: any) {
       console.error('Failed to load web data:', err);
@@ -384,8 +394,8 @@ export default function CPGDashboard() {
     } else if (nodeType === 'promo') {
       navigate('/cpg/promo-decision');
     } else if (nodeType === 'events') {
-      // Navigate to Events Analysis (Decision Tool - same as sidebar)
-      navigate('/cpg/events-analysis');
+      // Navigate to Event Tracker tab WITHOUT date filters (to show all events)
+      navigate('/cpg/events-analysis?tab=event-tracker');
     }
   };
 
