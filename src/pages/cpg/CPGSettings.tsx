@@ -67,6 +67,11 @@ export function CPGSettings() {
     promos: false,
   });
 
+  // Debug: Log whenever userFeaturePrefs changes
+  useEffect(() => {
+    console.log('🔄 Settings: userFeaturePrefs state changed to:', userFeaturePrefs);
+  }, [userFeaturePrefs]);
+
   // Collapsible section state
   const [featuresSectionExpanded, setFeaturesSectionExpanded] = useState(true);
   const [marginSectionExpanded, setMarginSectionExpanded] = useState(false);
@@ -79,15 +84,21 @@ export function CPGSettings() {
    * Load user feature preferences
    */
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      console.warn('⚠️ Settings: No userId, cannot load preferences');
+      return;
+    }
 
     const loadUserPreferences = async () => {
       try {
+        console.log('🔍 Settings: Loading preferences for userId:', userId);
         const prefsService = new UserFeaturePreferencesService(db);
         const prefs = await prefsService.getUserPreferences(userId);
+        console.log('📋 Settings: Loaded preferences from DB:', prefs);
         setUserFeaturePrefs(prefs);
+        console.log('✅ Settings: State updated with preferences');
       } catch (err) {
-        console.error('Failed to load user feature preferences:', err);
+        console.error('❌ Settings: Failed to load user feature preferences:', err);
       }
     };
 
