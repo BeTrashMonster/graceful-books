@@ -42,7 +42,7 @@ const fromSchemaTab = (tab: SchemaTabType | string): AnalysisType => {
  * Strategy Planning Component
  */
 export default function ScenarioPlanning() {
-  const { companyId, deviceId } = useAuth();
+  const { companyId, deviceId, userIdentifier } = useAuth();
 
   // Tab pinning
   const { defaultTab, pinTab, unpinTab, isTabPinned, isLoading: isPinningLoading } = useTabPinning({
