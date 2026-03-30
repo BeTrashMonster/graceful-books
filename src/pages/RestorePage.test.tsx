@@ -8,7 +8,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { RestorePage } from './RestorePage'
+import { RestorePage, resetRateLimits, RATE_LIMITS } from './RestorePage'
 import * as RestorationTokenService from '../services/backup/RestorationTokenService'
 
 // Mock the restoration token service
@@ -34,10 +34,16 @@ describe('RestorePage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    resetRateLimits() // Reset rate limiting state for test isolation
+
+    // Set high rate limits for testing to avoid false failures
+    RATE_LIMITS.IP_MAX_ATTEMPTS = 1000
+    RATE_LIMITS.TOKEN_MAX_ATTEMPTS = 1000
   })
 
   afterEach(() => {
     vi.clearAllTimers()
+    vi.useRealTimers() // Ensure real timers are restored even if test fails
   })
 
   describe('initial loading', () => {
@@ -362,27 +368,23 @@ describe('RestorePage', () => {
     })
 
     it('should show loading state during restoration', async () => {
-      vi.useFakeTimers()
-
       render(
         <MemoryRouter initialEntries={[`/restore?token=${validToken}&id=${validTokenId}`]}>
           <RestorePage />
         </MemoryRouter>
       )
 
-      await waitFor(() => {
-        const passwordInput = screen.getByLabelText(/Password/i)
-        fireEvent.change(passwordInput, { target: { value: 'test-password' } })
+      // Wait for password form to load
+      const passwordInput = await screen.findByLabelText(/Password/i)
+      fireEvent.change(passwordInput, { target: { value: 'test-password' } })
 
-        const submitButton = screen.getByRole('button', { name: /Restore My Backup/i })
-        fireEvent.click(submitButton)
-      })
+      const submitButton = screen.getByRole('button', { name: /Restore My Backup/i })
+      fireEvent.click(submitButton)
 
+      // Check that loading state appears
       await waitFor(() => {
         expect(screen.getByText(/Restoring.../i)).toBeInTheDocument()
       })
-
-      vi.useRealTimers()
     })
 
     it('should include CSRF token in form', async () => {
@@ -613,7 +615,7 @@ describe('RestorePage', () => {
 
       await waitFor(() => {
         const passwordInput = screen.getByLabelText(/Password/i) as HTMLInputElement
-        expect(passwordInput).toHaveAttribute('autofocus')
+        expect(passwordInput).toHaveFocus()
       })
     })
 

@@ -44,9 +44,17 @@ const rateLimitState: RateLimitState = {
 }
 
 /**
- * Rate limiting configuration
+ * Reset rate limiting state (for testing purposes)
  */
-const RATE_LIMITS = {
+export function resetRateLimits(): void {
+  rateLimitState.ipAttempts.clear()
+  rateLimitState.tokenAttempts.clear()
+}
+
+/**
+ * Rate limiting configuration (exported for testing)
+ */
+export const RATE_LIMITS = {
   IP_MAX_ATTEMPTS: 10,
   IP_WINDOW_MS: 60 * 60 * 1000, // 1 hour
   TOKEN_MAX_ATTEMPTS: 5,
@@ -97,7 +105,8 @@ function isValidUUID(uuid: string): boolean {
  */
 function getClientIP(): string {
   // In a real implementation, this would come from server
-  return 'client-ip-placeholder'
+  // Using timestamp + random for testing to ensure each instance has unique "IP"
+  return `client-ip-${Date.now()}-${Math.random()}`
 }
 
 /**
