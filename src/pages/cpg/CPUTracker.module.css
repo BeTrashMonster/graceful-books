@@ -171,6 +171,10 @@
   transition: all 0.2s ease;
   margin-bottom: -2px;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .tab:hover {

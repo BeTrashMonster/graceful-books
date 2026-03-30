@@ -1,0 +1,82 @@
+/**
+ * PinIcon Styles
+ *
+ * Subtle pin icon with two states:
+ * - Unpinned: Light gray (#cbd5e1)
+ * - Pinned: Gold (#D4AF37)
+ */
+
+.pinButton {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  border-radius: 4px;
+}
+
+.pinButton:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.pinButton:focus-visible {
+  outline: 2px solid #D4AF37;
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+.pin {
+  transition: color 0.2s ease;
+}
+
+/* Unpinned state - subtle gray */
+.unpinned {
+  color: #cbd5e1; /* slate-300 */
+}
+
+.unpinned .pinHead,
+.unpinned .pinBody,
+.unpinned .pinBase {
+  stroke: #cbd5e1;
+  fill: none;
+}
+
+.unpinned .pinPoint {
+  stroke: #cbd5e1;
+}
+
+/* Pinned state - gold */
+.pinned {
+  color: #D4AF37; /* gold */
+}
+
+.pinned .pinHead,
+.pinned .pinBody,
+.pinned .pinBase {
+  stroke: #B8860B; /* darker gold for outline */
+  fill: #D4AF37; /* gold fill */
+}
+
+.pinned .pinPoint {
+  stroke: #B8860B;
+}
+
+/* Hover effects */
+.pinButton:hover .unpinned {
+  color: #94a3b8; /* slate-400 - slightly darker */
+}
+
+.pinButton:hover .pinned {
+  color: #E8D4A0; /* lighter gold */
+}
+
+.pinButton:hover .pinned .pinHead,
+.pinButton:hover .pinned .pinBody,
+.pinButton:hover .pinned .pinBase {
+  fill: #E8D4A0;
+}

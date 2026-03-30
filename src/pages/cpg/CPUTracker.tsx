@@ -29,6 +29,7 @@ import { InvoiceDetailsModal } from '../../components/cpg/modals/InvoiceDetailsM
 import ProductsTab from './tabs/ProductsTab';
 import RawMaterialsTab from './tabs/RawMaterialsTab';
 import CostIntelligenceTab from './tabs/CostIntelligenceTab';
+import { PinIcon } from '../../components/common/PinIcon';
 import { useAuth } from '../../contexts/AuthContext';
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import { db } from '../../db/database';
@@ -37,6 +38,8 @@ import {
   importWorksheetData,
   parseWorksheetFile,
 } from '../../services/cpg/worksheetImporter.service';
+import { useTabPinning } from '../../hooks/useTabPinning';
+import { PAGE_IDS } from '../../db/schema/tabPreferences.schema';
 import styles from './CPUTracker.module.css';
 
 type CPUTrackerTab = 'products' | 'raw-materials' | 'comparison';
@@ -45,8 +48,14 @@ export default function CPUTracker() {
   const { companyId } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // Tab pinning
+  const { defaultTab, pinTab, unpinTab, isTabPinned } = useTabPinning({
+    pageId: PAGE_IDS.CPU_TRACKER,
+  });
+
   // Tab State
-  const [activeTab, setActiveTab] = useState<CPUTrackerTab>('products');
+  const [activeTab, setActiveTab] = useState<CPUTrackerTab>(defaultTab as CPUTrackerTab || 'products');
+  const [pinnedTabs, setPinnedTabs] = useState<Record<string, boolean>>({});
 
   // State
   const [categories, setCategories] = useState<CPGCategory[]>([]);
@@ -83,6 +92,22 @@ export default function CPUTracker() {
     startDate?: number;
     endDate?: number;
   } | null>(null);
+
+  // Load pinned tabs state
+  useEffect(() => {
+    const loadPinnedState = async () => {
+      const states: Record<string, boolean> = {};
+      const tabs: CPUTrackerTab[] = ['products', 'raw-materials', 'comparison'];
+
+      for (const tab of tabs) {
+        states[tab] = await isTabPinned(tab);
+      }
+
+      setPinnedTabs(states);
+    };
+
+    loadPinnedState();
+  }, [isTabPinned]);
 
   // Load data
   useEffect(() => {
@@ -214,6 +239,28 @@ export default function CPUTracker() {
 
   const handleCategoriesUpdated = async () => {
     await loadData();
+  };
+
+  // Handle tab pin toggle
+  const handlePinToggle = async (tabId: CPUTrackerTab) => {
+    const currentlyPinned = pinnedTabs[tabId];
+
+    try {
+      if (currentlyPinned) {
+        await unpinTab();
+        setPinnedTabs((prev) => ({ ...prev, [tabId]: false }));
+      } else {
+        await pinTab(tabId);
+        // Unpin all other tabs
+        setPinnedTabs({
+          products: tabId === 'products',
+          'raw-materials': tabId === 'raw-materials',
+          comparison: tabId === 'comparison',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to toggle pin:', error);
+    }
   };
 
   // TODO: Reserved for future CPU Timeline feature
@@ -462,6 +509,11 @@ export default function CPUTracker() {
                 className={activeTab === 'products' ? styles.tabActive : styles.tab}
               >
                 Product Costs
+                <PinIcon
+                  isPinned={pinnedTabs['products'] || false}
+                  onClick={() => handlePinToggle('products')}
+                  size={14}
+                />
               </button>
               <button
                 role="tab"
@@ -471,6 +523,11 @@ export default function CPUTracker() {
                 className={activeTab === 'raw-materials' ? styles.tabActive : styles.tab}
               >
                 Invoices
+                <PinIcon
+                  isPinned={pinnedTabs['raw-materials'] || false}
+                  onClick={() => handlePinToggle('raw-materials')}
+                  size={14}
+                />
               </button>
               <button
                 role="tab"
@@ -480,6 +537,11 @@ export default function CPUTracker() {
                 className={activeTab === 'comparison' ? styles.tabActive : styles.tab}
               >
                 Cost Intelligence
+                <PinIcon
+                  isPinned={pinnedTabs['comparison'] || false}
+                  onClick={() => handlePinToggle('comparison')}
+                  size={14}
+                />
               </button>
             </div>
 

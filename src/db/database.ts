@@ -239,6 +239,8 @@ import { cpgProductLinksSchema } from './schema/cpgProductLinks.schema';
 import type { CPGProductLink } from './schema/cpgProductLinks.schema';
 import { userFeaturePreferencesSchema } from './schema/userFeaturePreferences.schema';
 import type { UserFeaturePreference } from './schema/userFeaturePreferences.schema';
+import { tabPreferencesSchema } from './schema/tabPreferences.schema';
+import type { TabPreference } from './schema/tabPreferences.schema';
 import { backupAuditLogsSchema } from './schema/backupAudit.schema';
 import type { BackupAuditEvent } from './schema/backupAudit.schema';
 
@@ -331,6 +333,7 @@ export class TreasureChestDB extends Dexie {
   standaloneFinancials!: Table<StandaloneFinancials, string>;
   skuCountTrackers!: Table<SKUCountTracker, string>;
   userFeaturePreferences!: Table<UserFeaturePreference, string>;
+  tabPreferences!: Table<TabPreference, string>;
   backupAuditLogs!: Table<BackupAuditEvent, string>;
 
   constructor() {
@@ -1755,6 +1758,11 @@ export class TreasureChestDB extends Dexie {
       emailLogs: emailLogsSchema,
       emailNotificationPreferences: emailNotificationPreferencesSchema,
       charities: charitiesSchema,
+    });
+
+    // Version 15: Add tab preferences for pinning default tabs
+    this.version(15).stores({
+      tabPreferences: tabPreferencesSchema,
     });
 
     // Add hooks for automatic audit logging
