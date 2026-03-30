@@ -49,13 +49,20 @@ export default function CPUTracker() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Tab pinning
-  const { defaultTab, pinTab, unpinTab, isTabPinned } = useTabPinning({
+  const { defaultTab, pinTab, unpinTab, isTabPinned, isLoading: isPinningLoading } = useTabPinning({
     pageId: PAGE_IDS.CPU_TRACKER,
   });
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<CPUTrackerTab>(defaultTab as CPUTrackerTab || 'products');
+  const [activeTab, setActiveTab] = useState<CPUTrackerTab>('products');
   const [pinnedTabs, setPinnedTabs] = useState<Record<string, boolean>>({});
+
+  // Update active tab when pinned default loads
+  useEffect(() => {
+    if (!isPinningLoading && defaultTab) {
+      setActiveTab(defaultTab as CPUTrackerTab);
+    }
+  }, [defaultTab, isPinningLoading]);
 
   // State
   const [categories, setCategories] = useState<CPGCategory[]>([]);

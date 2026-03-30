@@ -40,6 +40,10 @@
   font-weight: 500;
   color: #666;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .tabSelector button:hover {

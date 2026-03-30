@@ -55,9 +55,9 @@ export const TAB_IDS = {
   COST_SMART_ALERTS: 'smart-alerts',
 
   // Labor + Roles tabs
-  LABOR_SCENARIOS: 'labor-scenarios',
-  LABOR_ROLES: 'labor-roles',
-  LABOR_REPORTS: 'labor-reports',
+  LABOR_SCENARIOS: 'scenarios',
+  LABOR_ROLES: 'roles',
+  LABOR_REPORTS: 'reports',
 
   // Distribution Center tabs
   DIST_MANAGE: 'manage',
@@ -66,8 +66,8 @@ export const TAB_IDS = {
   DIST_SCENARIOS: 'scenarios',
 
   // Promo Analysis tabs
-  PROMO_DECISION: 'decision',
-  PROMO_TRACKER: 'tracker',
+  PROMO_DECISION: 'decision-tool',
+  PROMO_TRACKER: 'promo-tracker',
 
   // Events Analysis tabs
   EVENT_DECISION: 'decision',

@@ -24,8 +24,11 @@ import { db } from '../../../db/database';
 import CPUTrendsTab from './intelligence/CPUTrendsTab';
 import VendorIntelTab from './intelligence/VendorIntelTab';
 import SmartAlertsTab from './intelligence/SmartAlertsTab';
-import styles from '../CPUTracker.module.css';
 import ScenarioBuilderTab from './intelligence/ScenarioBuilderTab';
+import { PinIcon } from '../../../components/common/PinIcon';
+import { useTabPinning } from '../../../hooks/useTabPinning';
+import { PAGE_IDS } from '../../../db/schema/tabPreferences.schema';
+import styles from '../CPUTracker.module.css';
 
 export interface CostIntelligenceTabProps {
   companyId: string;
@@ -133,8 +136,40 @@ export default function CostIntelligenceTab({
   // Labor roles data
   const [laborRoles, setLaborRoles] = useState<CPGLaborRole[]>([]);
 
+  // Tab pinning for Cost Intelligence subtabs
+  const { defaultTab, pinTab, unpinTab, isTabPinned, isLoading: isPinningLoading } = useTabPinning({
+    pageId: PAGE_IDS.COST_INTELLIGENCE,
+  });
+
   // Sub-tab navigation
-  const [intelligenceTab, setIntelligenceTab] = useState<IntelligenceSubTab>(initialIntelligenceTab || 'scenario');
+  const [intelligenceTab, setIntelligenceTab] = useState<IntelligenceSubTab>('scenario');
+  const [pinnedTabs, setPinnedTabs] = useState<Record<string, boolean>>({});
+
+  // Update active tab when pinned default loads
+  useEffect(() => {
+    if (!isPinningLoading && defaultTab) {
+      setIntelligenceTab(defaultTab as IntelligenceSubTab);
+    } else if (!isPinningLoading && initialIntelligenceTab) {
+      // Use initial tab from props if no pinned tab
+      setIntelligenceTab(initialIntelligenceTab);
+    }
+  }, [defaultTab, isPinningLoading, initialIntelligenceTab]);
+
+  // Load pinned tabs state
+  useEffect(() => {
+    const loadPinnedState = async () => {
+      const states: Record<string, boolean> = {};
+      const tabs: IntelligenceSubTab[] = ['scenario', 'trends', 'vendors', 'alerts'];
+
+      for (const tab of tabs) {
+        states[tab] = await isTabPinned(tab);
+      }
+
+      setPinnedTabs(states);
+    };
+
+    loadPinnedState();
+  }, [isTabPinned]);
 
   // Ref for focus management - scroll to content after selection
   const analysisContentRef = useRef<HTMLDivElement>(null);
@@ -275,6 +310,29 @@ export default function CostIntelligenceTab({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finishedProducts, companyId, stableDateRangeKey]);
+
+  // Handle tab pin toggle
+  const handlePinToggle = async (tabId: IntelligenceSubTab) => {
+    const currentlyPinned = pinnedTabs[tabId];
+
+    try {
+      if (currentlyPinned) {
+        await unpinTab();
+        setPinnedTabs((prev) => ({ ...prev, [tabId]: false }));
+      } else {
+        await pinTab(tabId);
+        // Unpin all other tabs
+        setPinnedTabs({
+          scenario: tabId === 'scenario',
+          trends: tabId === 'trends',
+          vendors: tabId === 'vendors',
+          alerts: tabId === 'alerts',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to toggle pin:', error);
+    }
+  };
 
   // Handle date blur to convert 2-digit years to 20xx
   const handleDateBlur = useCallback((value: string, setter: (value: string) => void) => {
@@ -599,6 +657,9 @@ export default function CostIntelligenceTab({
                   transition: 'all 0.2s ease',
                   marginBottom: '-2px',
                   whiteSpace: 'nowrap',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
@@ -614,6 +675,11 @@ export default function CostIntelligenceTab({
                 }}
               >
                 {analysis.title}
+                <PinIcon
+                  isPinned={pinnedTabs[type] || false}
+                  onClick={() => handlePinToggle(type)}
+                  size={14}
+                />
               </button>
             );
           })}

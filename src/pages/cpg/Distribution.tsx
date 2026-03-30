@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { PinIcon } from '../../components/common/PinIcon';
+import { useTabPinning } from '../../hooks/useTabPinning';
+import { PAGE_IDS } from '../../db/schema/tabPreferences.schema';
 import { DistributorSelector } from '../../components/cpg/DistributorSelector';
 import { DistributorProfileForm } from '../../components/cpg/DistributorProfileForm';
 import { DistributionCalculatorForm } from '../../components/cpg/DistributionCalculatorForm';
@@ -53,7 +56,38 @@ export default function Distribution() {
   const distributorParam = searchParams.get('distributor');
   const calculationParam = searchParams.get('calculation');
 
-  const [viewMode, setViewMode] = useState<ViewMode>(initialTab);
+  // Tab pinning
+  const { defaultTab, pinTab, unpinTab, isTabPinned, isLoading: isPinningLoading } = useTabPinning({
+    pageId: PAGE_IDS.DISTRIBUTION_CENTER,
+  });
+
+  const [viewMode, setViewMode] = useState<ViewMode>('manage');
+  const [pinnedTabs, setPinnedTabs] = useState<Record<string, boolean>>({});
+
+  // Update active tab when pinned default loads
+  useEffect(() => {
+    if (!isPinningLoading && defaultTab) {
+      setViewMode(defaultTab as ViewMode);
+    } else if (!isPinningLoading && initialTab) {
+      setViewMode(initialTab);
+    }
+  }, [defaultTab, isPinningLoading, initialTab]);
+
+  // Load pinned tabs state
+  useEffect(() => {
+    const loadPinnedState = async () => {
+      const states: Record<string, boolean> = {};
+      const tabs: ViewMode[] = ['manage', 'costs', 'calculations', 'scenarios'];
+
+      for (const tab of tabs) {
+        states[tab] = await isTabPinned(tab);
+      }
+
+      setPinnedTabs(states);
+    };
+
+    loadPinnedState();
+  }, [isTabPinned]);
 
   // State
   const [distributors, setDistributors] = useState<CPGDistributor[]>([]);
@@ -529,6 +563,28 @@ export default function Distribution() {
     setHasUnsavedResults(false);
     setShowUnsavedWarningModal(false);
     setViewMode(newTab);
+  };
+
+  // Handle tab pin toggle
+  const handlePinToggle = async (tabId: ViewMode) => {
+    const currentlyPinned = pinnedTabs[tabId];
+
+    try {
+      if (currentlyPinned) {
+        await unpinTab();
+        setPinnedTabs((prev) => ({ ...prev, [tabId]: false }));
+      } else {
+        await pinTab(tabId);
+        setPinnedTabs({
+          manage: tabId === 'manage',
+          costs: tabId === 'costs',
+          calculations: tabId === 'calculations',
+          scenarios: tabId === 'scenarios',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to toggle pin:', error);
+    }
   };
 
   const handleClearData = () => {
@@ -1060,6 +1116,11 @@ export default function Distribution() {
           className={viewMode === 'manage' ? styles.tabActive : styles.tab}
         >
           Manage Distributors
+          <PinIcon
+            isPinned={pinnedTabs['manage'] || false}
+            onClick={() => handlePinToggle('manage')}
+            size={14}
+          />
         </button>
         <button
           role="tab"
@@ -1068,6 +1129,11 @@ export default function Distribution() {
           className={viewMode === 'costs' ? styles.tabActive : styles.tab}
         >
           Distributor Costs
+          <PinIcon
+            isPinned={pinnedTabs['costs'] || false}
+            onClick={() => handlePinToggle('costs')}
+            size={14}
+          />
         </button>
         <button
           role="tab"
@@ -1076,6 +1142,11 @@ export default function Distribution() {
           className={viewMode === 'calculations' ? styles.tabActive : styles.tab}
         >
           Cost Calculations
+          <PinIcon
+            isPinned={pinnedTabs['calculations'] || false}
+            onClick={() => handlePinToggle('calculations')}
+            size={14}
+          />
         </button>
         <button
           role="tab"
@@ -1084,6 +1155,11 @@ export default function Distribution() {
           className={viewMode === 'scenarios' ? styles.tabActive : styles.tab}
         >
           Saved Scenarios
+          <PinIcon
+            isPinned={pinnedTabs['scenarios'] || false}
+            onClick={() => handlePinToggle('scenarios')}
+            size={14}
+          />
         </button>
       </div>
 
