@@ -29,7 +29,8 @@
   border-bottom: 2px solid #e0e0e0;
 }
 
-.tabSelector button {
+.tab,
+.tabActive {
   flex: 1;
   padding: 1rem 1.5rem;
   background: none;
@@ -44,13 +45,23 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  margin-bottom: -2px;
+  white-space: nowrap;
 }
 
-.tabSelector button:hover {
+.tab:hover {
   color: #D4AF37;
   background: rgba(212, 175, 55, 0.05);
 }
 
+.tabActive {
+  color: #D4AF37;
+  border-bottom-color: #D4AF37;
+  background: linear-gradient(135deg, rgba(232, 212, 160, 0.1) 0%, rgba(212, 175, 55, 0.15) 100%);
+  font-weight: 600;
+}
+
+/* Legacy support for .active class */
 .tabSelector button.active {
   color: #D4AF37;
   border-bottom-color: #D4AF37;

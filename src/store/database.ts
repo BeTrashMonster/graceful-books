@@ -509,7 +509,7 @@ export class GracefulBooksDB extends Dexie {
 
     // Get database size estimate (if available)
     let totalSize: number | undefined
-    if ('estimate' in navigator.storage) {
+    if (navigator.storage && 'estimate' in navigator.storage) {
       const estimate = await navigator.storage.estimate()
       totalSize = estimate.usage
     }

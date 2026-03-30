@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup CPG Demo - Audacious Money</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: linear-gradient(135deg, #4b006e 0%, #6d28d9 100%);
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 8px 24px rgba(75, 0, 110, 0.3);
+      border: 2px solid #D4AF37;
+    }
+    h1 {
+      color: #4b006e;
+      margin-bottom: 1rem;
+    }
+    .step {
+      background: #f9fafb;
+      border-left: 4px solid #D4AF37;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 0.5rem;
+    }
+    .step h3 {
+      margin: 0 0 0.5rem 0;
+      color: #4b006e;
+    }
+    button {
+      background: linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%);
+      color: #2d1b00;
+      border: 1px solid #B8860B;
+      padding: 1rem 2rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      margin: 0.5rem;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #F4E5C3 0%, #E8D4A0 50%, #C9A961 100%);
+      transform: translateY(-1px);
+    }
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      border-color: #6b7280;
+    }
+    .code {
+      background: #1f2937;
+      color: #10b981;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      font-family: 'Courier New', monospace;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+    .success {
+      background: #d1fae5;
+      border-left: 4px solid #10b981;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+      color: #065f46;
+    }
+    .warning {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+      color: #92400e;
+    }
+    .info {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+      color: #1e40af;
+    }
+    #log {
+      background: #1f2937;
+      color: #10b981;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      font-family: 'Courier New', monospace;
+      min-height: 200px;
+      max-height: 400px;
+      overflow-y: auto;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 CPG Demo Setup</h1>
+    <p>This page will set up a complete CPG demo session with sample data.</p>
+
+    <div class="info">
+      <strong>ℹ️ Info:</strong> This creates a demo session with:<br>
+      • Company ID: <code>demo-company-cpg</code><br>
+      • User: CPG Demo User<br>
+      • Sample Products: 1oz & 5oz Body Oil<br>
+      • Sample Invoices: Oil, Bottles, Boxes, Labels
+    </div>
+
+    <div class="step">
+      <h3>Step 1: Create Demo Session</h3>
+      <p>Click to create a local browser session for the CPG demo.</p>
+      <button id="createSession" onclick="setupSession()">Create Session</button>
+    </div>
+
+    <div class="step">
+      <h3>Step 2: Go to CPG Dashboard</h3>
+      <p>After creating the session, click below to navigate to the CPG dashboard.</p>
+      <button id="gotoCPG" onclick="goToCPG()" disabled>Go to CPG Dashboard</button>
+    </div>
+
+    <div id="log"></div>
+  </div>
+
+  <script>
+    function log(message, type = 'info') {
+      const logEl = document.getElementById('log');
+      const timestamp = new Date().toLocaleTimeString();
+      const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '📋';
+      logEl.innerHTML += `[${timestamp}] ${icon} ${message}\n`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function setupSession() {
+      log('Creating CPG demo session...');
+
+      const demoSession = {
+        token: 'demo-token-cpg-' + Date.now(),
+        user: {
+          id: 'demo-user-cpg',
+          email: 'demo@cpgdemo.com',
+          name: 'CPG Demo User',
+          companyId: 'demo-company-cpg',
+          companyName: 'Demo CPG Company',
+          deviceId: 'demo-device-cpg',
+          role: 'OWNER'
+        },
+        products: [
+          {
+            id: 'cpg-product',
+            name: 'CPU & CPG Calculator',
+            slug: 'cpu-cpg-calculator',
+            active: true
+          }
+        ],
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+      };
+
+      try {
+        // Set session
+        sessionStorage.setItem('graceful_books_session', JSON.stringify(demoSession));
+
+        // Trigger auth reload
+        window.dispatchEvent(new Event('graceful_books_login'));
+
+        log('Session created successfully!', 'success');
+        log('Company ID: ' + demoSession.user.companyId);
+        log('User ID: ' + demoSession.user.id);
+        log('Device ID: ' + demoSession.user.deviceId);
+
+        // Enable the next button
+        document.getElementById('createSession').disabled = true;
+        document.getElementById('gotoCPG').disabled = false;
+
+        log('Now you can navigate to the CPG dashboard →', 'success');
+      } catch (error) {
+        log('Error creating session: ' + error.message, 'error');
+      }
+    }
+
+    function goToCPG() {
+      log('Navigating to CPG dashboard...');
+      window.location.href = 'http://localhost:3006/cpg';
+    }
+
+    // Check if session already exists
+    window.addEventListener('DOMContentLoaded', () => {
+      const existing = sessionStorage.getItem('graceful_books_session');
+      if (existing) {
+        try {
+          const session = JSON.parse(existing);
+          log('Found existing session for: ' + (session.user?.email || 'unknown'));
+          log('Company: ' + (session.user?.companyName || 'unknown'));
+
+          if (session.user?.companyId === 'demo-company-cpg') {
+            log('This is already the CPG demo session!', 'success');
+            document.getElementById('createSession').disabled = true;
+            document.getElementById('gotoCPG').disabled = false;
+          }
+        } catch (e) {
+          log('Could not parse existing session');
+        }
+      } else {
+        log('No existing session found. Click "Create Session" to begin.');
+      }
+    });
+  </script>
+</body>
+</html>
