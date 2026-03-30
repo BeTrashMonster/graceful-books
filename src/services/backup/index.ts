@@ -132,3 +132,13 @@ export type {
   ValidateTokenResult,
   UseTokenResult,
 } from './RestorationTokenService';
+
+export {
+  S3BackupUploadService,
+  createS3BackupUploadService,
+} from './S3BackupUpload';
+export type {
+  UploadBackupOptions,
+  UploadBackupResult,
+  UploadProgress,
+} from './S3BackupUpload';
