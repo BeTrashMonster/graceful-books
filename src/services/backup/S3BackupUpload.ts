@@ -58,6 +58,33 @@ export interface UploadBackupResult {
 }
 
 /**
+ * Download options
+ */
+export interface DownloadBackupOptions {
+  key: string // S3 object key
+  onProgress?: (progress: UploadProgress) => void
+}
+
+/**
+ * Download result
+ */
+export interface DownloadBackupResult {
+  success: boolean
+  data?: Uint8Array
+  size?: number
+  etag?: string
+  error?: string
+}
+
+/**
+ * Delete result
+ */
+export interface DeleteBackupResult {
+  success: boolean
+  error?: string
+}
+
+/**
  * S3 multipart upload state
  */
 interface MultipartUploadState {
@@ -160,6 +187,91 @@ export class S3BackupUploadService {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Upload failed',
+      }
+    }
+  }
+
+  /**
+   * Download backup from S3
+   *
+   * @param options - Download options
+   * @returns Download result
+   */
+  async downloadBackup(options: DownloadBackupOptions): Promise<DownloadBackupResult> {
+    try {
+      // Validate inputs
+      if (!options.key) {
+        return {
+          success: false,
+          error: 'S3 object key is required',
+        }
+      }
+
+      // Notify progress: initializing
+      this.notifyProgress(options.onProgress, {
+        bytesUploaded: 0,
+        totalBytes: 0,
+        percentage: 0,
+        stage: 'initializing',
+      })
+
+      // Perform download with retry
+      const result = await this.retryOperation(async () => {
+        return await this.performS3Download(options.key)
+      })
+
+      // Notify progress: completed
+      this.notifyProgress(options.onProgress, {
+        bytesUploaded: result.size,
+        totalBytes: result.size,
+        percentage: 100,
+        stage: 'completed',
+      })
+
+      return {
+        success: true,
+        data: result.data,
+        size: result.size,
+        etag: result.etag,
+      }
+    } catch (error) {
+      console.error('[S3BackupUpload] Download failed:', error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Download failed',
+      }
+    }
+  }
+
+  /**
+   * Delete backup from S3
+   *
+   * @param key - S3 object key
+   * @returns Delete result
+   */
+  async deleteBackup(key: string): Promise<DeleteBackupResult> {
+    try {
+      // Validate inputs
+      if (!key) {
+        return {
+          success: false,
+          error: 'S3 object key is required',
+        }
+      }
+
+      // Perform delete with retry
+      await this.retryOperation(async () => {
+        await this.performS3Delete(key)
+      })
+
+      return {
+        success: true,
+      }
+    } catch (error) {
+      console.error('[S3BackupUpload] Delete failed:', error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Delete failed',
       }
     }
   }
@@ -428,6 +540,38 @@ export class S3BackupUploadService {
       etag: `"etag-${Date.now()}"`,
       versionId: this.config.bucket.includes('versioning') ? `v-${Date.now()}` : undefined,
     }
+  }
+
+  /**
+   * Perform S3 download
+   *
+   * @param key - S3 object key
+   * @returns Download data
+   */
+  private async performS3Download(
+    key: string
+  ): Promise<{ data: Uint8Array; size: number; etag: string }> {
+    // In real implementation, this would use AWS SDK getObject
+    // For now, this is a placeholder that simulates download
+    const mockData = new Uint8Array(1024) // 1KB of mock encrypted data
+    crypto.getRandomValues(mockData)
+
+    return {
+      data: mockData,
+      size: mockData.byteLength,
+      etag: `"etag-download-${Date.now()}"`,
+    }
+  }
+
+  /**
+   * Perform S3 delete
+   *
+   * @param key - S3 object key
+   */
+  private async performS3Delete(key: string): Promise<void> {
+    // In real implementation, this would use AWS SDK deleteObject
+    // For now, this is a placeholder
+    console.log(`[S3BackupUpload] Would delete S3 object: ${key}`)
   }
 
   /**
