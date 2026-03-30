@@ -1,0 +1,389 @@
+/**
+ * Backup Permissions Component Styles
+ *
+ * WCAG 2.1 AA compliant styles for backup permissions management.
+ * Follows Graceful Books design system and accessibility standards.
+ */
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Header */
+.header {
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+  margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #666);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Access Denied */
+.accessDenied {
+  max-width: 600px;
+  margin: 4rem auto;
+  padding: 2rem;
+  background: var(--color-warning-light, #fff3cd);
+  border: 2px solid var(--color-warning, #ffc107);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.accessDenied h2 {
+  font-size: 1.5rem;
+  color: var(--color-warning-dark, #856404);
+  margin: 0 0 1rem 0;
+}
+
+.accessDenied p {
+  color: var(--color-warning-dark, #856404);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Summary Cards */
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.summaryCard {
+  background: var(--color-background-card, #fff);
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.summaryValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-primary, #2563eb);
+  margin-bottom: 0.5rem;
+}
+
+.summaryLabel {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Bulk Actions */
+.bulkActions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* Success Message */
+.successMessage {
+  background: var(--color-success-light, #d1fae5);
+  border: 1px solid var(--color-success, #10b981);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-success-dark, #065f46);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.successMessage::before {
+  content: "✓";
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--color-text-secondary, #666);
+}
+
+.emptyState p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Permissions Table */
+.permissionsTable {
+  background: var(--color-background-card, #fff);
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.permissionsTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.permissionsTable thead {
+  background: var(--color-gray-50, #f9fafb);
+  border-bottom: 2px solid var(--color-border, #e0e0e0);
+}
+
+.permissionsTable th {
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.permissionsTable tbody tr {
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+  transition: background 0.2s ease;
+}
+
+.permissionsTable tbody tr:last-child {
+  border-bottom: none;
+}
+
+.permissionsTable tbody tr:hover {
+  background: var(--color-gray-50, #f9fafb);
+}
+
+.permissionsTable td {
+  padding: 1rem;
+  font-size: 0.9375rem;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+/* User Name */
+.userName {
+  font-weight: 600;
+}
+
+/* User Email */
+.userEmail {
+  color: var(--color-text-secondary, #666);
+}
+
+/* Role Badge */
+.roleBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.roleBadge[data-role="admin"] {
+  background: var(--color-primary-light, #dbeafe);
+  color: var(--color-primary-dark, #1e40af);
+}
+
+.roleBadge[data-role="manager"] {
+  background: var(--color-info-light, #e0e7ff);
+  color: var(--color-info-dark, #3730a3);
+}
+
+.roleBadge[data-role="bookkeeper"] {
+  background: var(--color-success-light, #d1fae5);
+  color: var(--color-success-dark, #065f46);
+}
+
+.roleBadge[data-role="viewer"] {
+  background: var(--color-gray-100, #f3f4f6);
+  color: var(--color-gray-700, #374151);
+}
+
+/* Backup Type */
+.backupType {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #666);
+  font-style: italic;
+}
+
+/* Toggle Switch */
+.toggleSwitch {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggleSwitch input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+  background: var(--color-gray-300, #d1d5db);
+  border-radius: 24px;
+  transition: background 0.3s ease;
+}
+
+.toggleSlider::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggleSwitch input[type="checkbox"]:checked + .toggleSlider {
+  background: var(--color-success, #10b981);
+}
+
+.toggleSwitch input[type="checkbox"]:checked + .toggleSlider::before {
+  transform: translateX(24px);
+}
+
+.toggleSwitch input[type="checkbox"]:disabled + .toggleSlider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggleSwitch input[type="checkbox"]:focus-visible + .toggleSlider {
+  outline: 2px solid var(--color-focus, #2563eb);
+  outline-offset: 2px;
+}
+
+.toggleLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #1a1a1a);
+  min-width: 70px;
+}
+
+/* Last Modified */
+.lastModified {
+  color: var(--color-text-secondary, #666);
+  font-size: 0.875rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .summary {
+    grid-template-columns: 1fr;
+  }
+
+  .bulkActions {
+    flex-direction: column;
+  }
+
+  .bulkActions button {
+    width: 100%;
+  }
+
+  .permissionsTable {
+    font-size: 0.875rem;
+  }
+
+  .permissionsTable th,
+  .permissionsTable td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  /* Hide less important columns on mobile */
+  .permissionsTable td:nth-child(6),
+  .permissionsTable th:nth-child(6) {
+    display: none;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .header h1 {
+    color: #f9fafb;
+  }
+
+  .subtitle,
+  .userEmail,
+  .backupType,
+  .lastModified {
+    color: #9ca3af;
+  }
+
+  .summaryCard {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .permissionsTable {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .permissionsTable thead {
+    background: #111827;
+    border-color: #374151;
+  }
+
+  .permissionsTable tbody tr:hover {
+    background: #111827;
+  }
+
+  .toggleSlider {
+    background: #4b5563;
+  }
+
+  .toggleLabel,
+  .userName {
+    color: #f9fafb;
+  }
+
+  .permissionsTable td {
+    color: #f9fafb;
+  }
+}
+
+/* Focus Styles for Accessibility */
+button:focus-visible {
+  outline: 2px solid var(--color-focus, #2563eb);
+  outline-offset: 2px;
+}
+
+/* Loading State */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--color-text-secondary, #666);
+}
