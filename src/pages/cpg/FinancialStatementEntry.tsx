@@ -20,6 +20,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { nanoid } from 'nanoid';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTabPinning } from '../../hooks/useTabPinning';
+import { PAGE_IDS } from '../../db/schema/tabPreferences.schema';
+import { PinIcon } from '../../components/common/PinIcon';
 import { db } from '../../db';
 import { getDeviceId } from '../../db/crdt';
 import { PLEntryForm } from '../../components/cpg/PLEntryForm';
@@ -35,12 +38,31 @@ import {
 } from '../../db/schema/standaloneFinancials.schema';
 import styles from './FinancialStatementEntry.module.css';
 
+type InternalTabType = 'pl' | 'balance_sheet';
+type SchemaTabType = 'pl' | 'bs';
+
+// Helper to map internal tab values to schema tab values
+const toSchemaTab = (tab: InternalTabType): SchemaTabType => {
+  return tab === 'balance_sheet' ? 'bs' : 'pl';
+};
+
+// Helper to map schema tab values to internal tab values
+const fromSchemaTab = (tab: SchemaTabType | string): InternalTabType => {
+  return tab === 'bs' ? 'balance_sheet' : 'pl';
+};
+
 export default function FinancialStatementEntry() {
   const { companyId } = useAuth();
   const navigate = useNavigate();
 
+  // Tab pinning
+  const { defaultTab, pinTab, unpinTab, isTabPinned, isLoading: isPinningLoading } = useTabPinning({
+    pageId: PAGE_IDS.FINANCIAL_ENTRY,
+  });
+
   // Tab state
-  const [activeTab, setActiveTab] = useState<'pl' | 'balance_sheet'>('pl');
+  const [activeTab, setActiveTab] = useState<InternalTabType>('pl');
+  const [pinnedTabs, setPinnedTabs] = useState<Record<string, boolean>>({});
 
   // Data state
   const [plStatements, setPlStatements] = useState<StandaloneFinancials[]>([]);
@@ -58,6 +80,50 @@ export default function FinancialStatementEntry() {
 
   // Track unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Update active tab when pinned default loads
+  useEffect(() => {
+    if (!isPinningLoading && defaultTab) {
+      setActiveTab(fromSchemaTab(defaultTab));
+    }
+  }, [defaultTab, isPinningLoading]);
+
+  // Load pinned tabs state
+  useEffect(() => {
+    const loadPinnedState = async () => {
+      const states: Record<string, boolean> = {};
+      const schemaTabs: SchemaTabType[] = ['pl', 'bs'];
+
+      for (const tab of schemaTabs) {
+        states[tab] = await isTabPinned(tab);
+      }
+
+      setPinnedTabs(states);
+    };
+
+    loadPinnedState();
+  }, [isTabPinned]);
+
+  // Handle tab pin toggle
+  const handlePinToggle = async (tabId: InternalTabType) => {
+    const schemaTabId = toSchemaTab(tabId);
+    const currentlyPinned = pinnedTabs[schemaTabId];
+
+    try {
+      if (currentlyPinned) {
+        await unpinTab();
+        setPinnedTabs((prev) => ({ ...prev, [schemaTabId]: false }));
+      } else {
+        await pinTab(schemaTabId);
+        setPinnedTabs({
+          pl: schemaTabId === 'pl',
+          bs: schemaTabId === 'bs',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to toggle pin:', error);
+    }
+  };
 
   // Load data
   useEffect(() => {
@@ -451,6 +517,11 @@ export default function FinancialStatementEntry() {
               role="tab"
             >
               Profit & Loss
+              <PinIcon
+                isPinned={pinnedTabs['pl'] || false}
+                onClick={() => handlePinToggle('pl')}
+                size={14}
+              />
             </button>
             <button
               type="button"
@@ -460,6 +531,11 @@ export default function FinancialStatementEntry() {
               role="tab"
             >
               Balance Sheet
+              <PinIcon
+                isPinned={pinnedTabs['bs'] || false}
+                onClick={() => handlePinToggle('balance_sheet')}
+                size={14}
+              />
             </button>
           </div>
 

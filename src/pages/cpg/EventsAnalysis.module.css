@@ -19,8 +19,12 @@
   cursor: pointer;
   border-bottom: 3px solid transparent;
   transition: all 0.2s ease;
-  margin-bottom: 0;
+  margin-bottom: -2px;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .tab:hover {
@@ -38,8 +42,12 @@
   font-weight: 600;
   cursor: pointer;
   border-bottom: 3px solid #D4AF37;
-  margin-bottom: 0;
+  margin-bottom: -2px;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .tabContent {

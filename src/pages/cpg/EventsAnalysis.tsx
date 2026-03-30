@@ -9,6 +9,9 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { EventDecisionToolTab } from './tabs/EventDecisionToolTab';
 import { EventTrackerTab } from './tabs/EventTrackerTab';
+import { PinIcon } from '../../components/common/PinIcon';
+import { useTabPinning } from '../../hooks/useTabPinning';
+import { PAGE_IDS } from '../../db/schema/tabPreferences.schema';
 import styles from './EventsAnalysis.module.css';
 
 type ViewTab = 'decision-tool' | 'event-tracker';
@@ -23,21 +26,68 @@ export default function EventsAnalysis() {
   const urlStartDate = searchParams.get('startDate');
   const urlEndDate = searchParams.get('endDate');
 
-  // Tab State - default to decision-tool, or check URL param
-  const [activeTab, setActiveTab] = useState<ViewTab>(() => {
-    const tabParam = searchParams.get('tab');
-    if (tabParam === 'event-tracker') {
-      return 'event-tracker';
-    }
-    return 'decision-tool';
+  // Tab pinning
+  const { defaultTab, pinTab, unpinTab, isTabPinned, isLoading: isPinningLoading } = useTabPinning({
+    pageId: PAGE_IDS.EVENTS_ANALYSIS,
   });
 
-  // Switch to decision-tool tab when editing an event
+  // Tab State
+  const [activeTab, setActiveTab] = useState<ViewTab>('decision-tool');
+  const [pinnedTabs, setPinnedTabs] = useState<Record<string, boolean>>({});
+
+  // Update active tab when pinned default loads (unless there's a URL parameter or edit mode)
   useEffect(() => {
-    if (editEventId) {
+    const tabParam = searchParams.get('tab');
+
+    // Priority: URL param > edit mode > pinned default
+    if (tabParam) {
+      if (tabParam === 'event-tracker') {
+        setActiveTab('event-tracker');
+      } else if (tabParam === 'decision-tool') {
+        setActiveTab('decision-tool');
+      }
+    } else if (editEventId) {
       setActiveTab('decision-tool');
+    } else if (!isPinningLoading && defaultTab) {
+      setActiveTab(defaultTab as ViewTab);
     }
-  }, [editEventId]);
+  }, [defaultTab, isPinningLoading, searchParams, editEventId]);
+
+  // Load pinned tabs state
+  useEffect(() => {
+    const loadPinnedState = async () => {
+      const states: Record<string, boolean> = {};
+      const tabs: ViewTab[] = ['decision-tool', 'event-tracker'];
+
+      for (const tab of tabs) {
+        states[tab] = await isTabPinned(tab);
+      }
+
+      setPinnedTabs(states);
+    };
+
+    loadPinnedState();
+  }, [isTabPinned]);
+
+  // Handle tab pin toggle
+  const handlePinToggle = async (tabId: ViewTab) => {
+    const currentlyPinned = pinnedTabs[tabId];
+
+    try {
+      if (currentlyPinned) {
+        await unpinTab();
+        setPinnedTabs((prev) => ({ ...prev, [tabId]: false }));
+      } else {
+        await pinTab(tabId);
+        setPinnedTabs({
+          'decision-tool': tabId === 'decision-tool',
+          'event-tracker': tabId === 'event-tracker',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to toggle pin:', error);
+    }
+  };
 
   return (
     <div className="page">
@@ -54,6 +104,11 @@ export default function EventsAnalysis() {
           aria-selected={activeTab === 'decision-tool'}
         >
           Decision Tool
+          <PinIcon
+            isPinned={pinnedTabs['decision-tool'] || false}
+            onClick={() => handlePinToggle('decision-tool')}
+            size={14}
+          />
         </button>
         <button
           onClick={() => setActiveTab('event-tracker')}
@@ -62,6 +117,11 @@ export default function EventsAnalysis() {
           aria-selected={activeTab === 'event-tracker'}
         >
           Event Tracker
+          <PinIcon
+            isPinned={pinnedTabs['event-tracker'] || false}
+            onClick={() => handlePinToggle('event-tracker')}
+            size={14}
+          />
         </button>
       </div>
 

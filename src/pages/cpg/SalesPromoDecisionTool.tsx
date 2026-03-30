@@ -5,7 +5,10 @@ import { PromoDetailsForm, type PromoFormData } from '../../components/cpg/Promo
 import { PromoComparison, type VariantComparisonData } from '../../components/cpg/PromoComparison';
 import { PromoImpactSummary } from '../../components/cpg/PromoImpactSummary';
 import { PromoTrackerTab } from './tabs/PromoTrackerTab';
+import { PinIcon } from '../../components/common/PinIcon';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTabPinning } from '../../hooks/useTabPinning';
+import { PAGE_IDS } from '../../db/schema/tabPreferences.schema';
 import { db } from '../../db';
 import type { CPGSettings } from '../../db/schema/cpg.schema';
 import { createDefaultCPGSettings, getProfitMarginQualityWithSettings } from '../../db/schema/cpg.schema';
@@ -55,31 +58,48 @@ export default function SalesPromoDecisionTool() {
   // Check if we're editing an existing promo
   const editPromoId = searchParams.get('edit');
 
-  // Tab State
-  const [activeTab, setActiveTab] = useState<ViewTab>(() => {
-    const tabParam = searchParams.get('tab');
-    if (tabParam === 'promo-tracker') {
-      return 'promo-tracker';
-    }
-    return 'decision-tool';
+  // Tab pinning
+  const { defaultTab, pinTab, unpinTab, isTabPinned, isLoading: isPinningLoading } = useTabPinning({
+    pageId: PAGE_IDS.PROMO_ANALYSIS,
   });
 
-  // Switch to decision-tool tab when editing a promo
-  useEffect(() => {
-    if (editPromoId) {
-      setActiveTab('decision-tool');
-    }
-  }, [editPromoId]);
+  // Tab State
+  const [activeTab, setActiveTab] = useState<ViewTab>('decision-tool');
+  const [pinnedTabs, setPinnedTabs] = useState<Record<string, boolean>>({});
 
-  // Handle tab parameter changes
+  // Update active tab when pinned default loads (unless there's a URL parameter or edit mode)
   useEffect(() => {
     const tabParam = searchParams.get('tab');
-    if (tabParam === 'promo-tracker') {
-      setActiveTab('promo-tracker');
-    } else if (tabParam === 'decision-tool') {
+
+    // Priority: URL param > edit mode > pinned default
+    if (tabParam) {
+      if (tabParam === 'promo-tracker') {
+        setActiveTab('promo-tracker');
+      } else if (tabParam === 'decision-tool') {
+        setActiveTab('decision-tool');
+      }
+    } else if (editPromoId) {
       setActiveTab('decision-tool');
+    } else if (!isPinningLoading && defaultTab) {
+      setActiveTab(defaultTab as ViewTab);
     }
-  }, [searchParams]);
+  }, [defaultTab, isPinningLoading, searchParams, editPromoId]);
+
+  // Load pinned tabs state
+  useEffect(() => {
+    const loadPinnedState = async () => {
+      const states: Record<string, boolean> = {};
+      const tabs: ViewTab[] = ['decision-tool', 'promo-tracker'];
+
+      for (const tab of tabs) {
+        states[tab] = await isTabPinned(tab);
+      }
+
+      setPinnedTabs(states);
+    };
+
+    loadPinnedState();
+  }, [isTabPinned]);
 
   // State
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -165,6 +185,28 @@ export default function SalesPromoDecisionTool() {
       tabContentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  /**
+   * Handle tab pin toggle
+   */
+  const handlePinToggle = async (tabId: ViewTab) => {
+    const currentlyPinned = pinnedTabs[tabId];
+
+    try {
+      if (currentlyPinned) {
+        await unpinTab();
+        setPinnedTabs((prev) => ({ ...prev, [tabId]: false }));
+      } else {
+        await pinTab(tabId);
+        setPinnedTabs({
+          'decision-tool': tabId === 'decision-tool',
+          'promo-tracker': tabId === 'promo-tracker',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to toggle pin:', error);
     }
   };
 
@@ -855,6 +897,11 @@ export default function SalesPromoDecisionTool() {
           className={activeTab === 'decision-tool' ? styles.tabActive : styles.tab}
         >
           Decision Tool
+          <PinIcon
+            isPinned={pinnedTabs['decision-tool'] || false}
+            onClick={() => handlePinToggle('decision-tool')}
+            size={14}
+          />
         </button>
         <button
           onClick={() => {
@@ -867,6 +914,11 @@ export default function SalesPromoDecisionTool() {
           className={activeTab === 'promo-tracker' ? styles.tabActive : styles.tab}
         >
           Promo Tracker
+          <PinIcon
+            isPinned={pinnedTabs['promo-tracker'] || false}
+            onClick={() => handlePinToggle('promo-tracker')}
+            size={14}
+          />
         </button>
       </div>
 

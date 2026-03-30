@@ -25,21 +25,9 @@ import styles from './LaborRoles.module.css';
 type TabType = 'scenarios' | 'roles' | 'reports';
 
 export default function LaborRoles() {
-  // Auth context (for debugging)
-  const { userIdentifier, companyId } = useAuth();
-  console.log('[LaborRoles] Auth context:', { userIdentifier, companyId });
-
   // Tab pinning
   const { defaultTab, pinTab, unpinTab, isTabPinned, isLoading: isPinningLoading } = useTabPinning({
     pageId: PAGE_IDS.LABOR_ROLES,
-  });
-
-  console.log('[LaborRoles] useTabPinning hook:', {
-    defaultTab,
-    isPinningLoading,
-    hasPinTab: !!pinTab,
-    hasUnpinTab: !!unpinTab,
-    hasIsTabPinned: !!isTabPinned
   });
 
   const [activeTab, setActiveTab] = useState<TabType>('scenarios');
@@ -47,9 +35,7 @@ export default function LaborRoles() {
 
   // Update active tab when pinned default loads
   useEffect(() => {
-    console.log('[LaborRoles] Default tab effect:', { isPinningLoading, defaultTab });
     if (!isPinningLoading && defaultTab) {
-      console.log('[LaborRoles] Setting active tab to:', defaultTab);
       setActiveTab(defaultTab as TabType);
     }
   }, [defaultTab, isPinningLoading]);
@@ -57,7 +43,6 @@ export default function LaborRoles() {
   // Load pinned tabs state
   useEffect(() => {
     const loadPinnedState = async () => {
-      console.log('[LaborRoles] Loading pinned state...');
       const states: Record<string, boolean> = {};
       const tabs: TabType[] = ['scenarios', 'roles', 'reports'];
 
@@ -65,7 +50,6 @@ export default function LaborRoles() {
         states[tab] = await isTabPinned(tab);
       }
 
-      console.log('[LaborRoles] Pinned states loaded:', states);
       setPinnedTabs(states);
     };
 
@@ -75,15 +59,12 @@ export default function LaborRoles() {
   // Handle tab pin toggle
   const handlePinToggle = async (tabId: TabType) => {
     const currentlyPinned = pinnedTabs[tabId];
-    console.log('[LaborRoles] Pin toggle clicked:', { tabId, currentlyPinned, pinnedTabs });
 
     try {
       if (currentlyPinned) {
-        console.log('[LaborRoles] Unpinning tab:', tabId);
         await unpinTab();
         setPinnedTabs((prev) => ({ ...prev, [tabId]: false }));
       } else {
-        console.log('[LaborRoles] Pinning tab:', tabId);
         await pinTab(tabId);
         setPinnedTabs({
           scenarios: tabId === 'scenarios',
@@ -91,9 +72,8 @@ export default function LaborRoles() {
           reports: tabId === 'reports',
         });
       }
-      console.log('[LaborRoles] Pin toggle successful');
     } catch (error) {
-      console.error('[LaborRoles] Failed to toggle pin:', error);
+      console.error('Failed to toggle pin:', error);
     }
   };
 
