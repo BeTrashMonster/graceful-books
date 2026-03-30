@@ -506,3 +506,59 @@ select:focus-visible {
   font-size: 1.25rem;
   font-weight: 700;
 }
+
+/* Verification Result */
+.verificationSuccess {
+  background: var(--color-success-light, #d1fae5);
+  border: 2px solid var(--color-success, #10b981);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-success-dark, #065f46);
+}
+
+.verificationWarning {
+  background: var(--color-warning-light, #fef3c7);
+  border: 2px solid var(--color-warning, #f59e0b);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-warning-dark, #92400e);
+}
+
+.verificationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.dismissButton {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  line-height: 1;
+  transition: background 0.2s ease;
+}
+
+.dismissButton:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.dismissButton:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.verificationContent {
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+  margin: 0;
+  line-height: 1.6;
+}

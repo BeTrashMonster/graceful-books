@@ -12,9 +12,13 @@ import {
   formatAuditLogSummary,
   getActionDisplayName,
   getActionBadgeColor,
+  verifyAuditChainIntegrity,
+  formatVerificationResult,
+  getVerificationBadgeColor,
   BackupAuditEventType,
   type AuditLogFilters,
   type FilteredAuditLogsResult,
+  type ChainVerificationResult,
 } from './AuditChainService'
 import { db } from '../../store/database'
 import type { AuditLogEntity } from '../../store/types'
@@ -525,6 +529,448 @@ describe('AuditChainService', () => {
         'info'
       )
       expect(getActionBadgeColor('UNKNOWN_ACTION')).toBe('info')
+    })
+  })
+
+  describe('verifyAuditChainIntegrity', () => {
+    it('should verify intact chain with valid HMAC and hashes', async () => {
+      const chainLogs: AuditLogEntity[] = [
+        {
+          id: 'audit-1',
+          companyId: 'company-1',
+          userId: 'user-1',
+          deviceId: 'device-1',
+          action: BackupAuditEventType.BACKUP_CREATED,
+          entityType: 'backup',
+          entityId: 'backup-1',
+          timestamp: new Date('2024-01-15T10:00:00Z'),
+          changedFields: [],
+          metadata: {
+            hmac: 'hash-1',
+            previousHash: null,
+          },
+        },
+        {
+          id: 'audit-2',
+          companyId: 'company-1',
+          userId: 'user-1',
+          deviceId: 'device-1',
+          action: BackupAuditEventType.KEY_ROTATED,
+          entityType: 'key',
+          entityId: 'key-1',
+          timestamp: new Date('2024-01-16T10:00:00Z'),
+          changedFields: [],
+          metadata: {
+            hmac: 'hash-2',
+            previousHash: 'hash-1',
+          },
+        },
+        {
+          id: 'audit-3',
+          companyId: 'company-1',
+          userId: 'user-1',
+          deviceId: 'device-1',
+          action: BackupAuditEventType.USER_REVOKED,
+          entityType: 'user',
+          entityId: 'user-3',
+          timestamp: new Date('2024-01-17T10:00:00Z'),
+          changedFields: [],
+          metadata: {
+            hmac: 'hash-3',
+            previousHash: 'hash-2',
+          },
+        },
+      ]
+
+      vi.mocked(db.auditLogs.toArray).mockResolvedValue(chainLogs)
+
+      const result = await verifyAuditChainIntegrity('company-1')
+
+      expect(result.success).toBe(true)
+      expect(result.valid).toBe(true)
+      expect(result.totalLogs).toBe(3)
+      expect(result.brokenLinks).toBe(0)
+      expect(result.brokenLinkDetails).toHaveLength(0)
+    })
+
+    it('should detect missing HMAC', async () => {
+      const chainLogs: AuditLogEntity[] = [
+        {
+          id: 'audit-1',
+          companyId: 'company-1',
+          userId: 'user-1',
+          deviceId: 'device-1',
+          action: BackupAuditEventType.BACKUP_CREATED,
+          entityType: 'backup',
+          entityId: 'backup-1',
+          timestamp: new Date('2024-01-15T10:00:00Z'),
+          changedFields: [],
+          metadata: {}, // Missing HMAC
+        },
+      ]
+
+      vi.mocked(db.auditLogs.toArray).mockResolvedValue(chainLogs)
+
+      const result = await verifyAuditChainIntegrity('company-1')
+
+      expect(result.success).toBe(true)
+      expect(result.valid).toBe(false)
+      expect(result.brokenLinks).toBe(1)
+      expect(result.brokenLinkDetails[0].issue).toBe('missing_hmac')
+      expect(result.brokenLinkDetails[0].description).toContain('missing HMAC')
+    })
+
+    it('should detect missing previous hash', async () => {
+      const chainLogs: AuditLogEntity[] = [
+        {
+          id: 'audit-1',
+          companyId: 'company-1',
+          userId: 'user-1',
+          deviceId: 'device-1',
+          action: BackupAuditEventType.BACKUP_CREATED,
+          entityType: 'backup',
+          entityId: 'backup-1',
+          timestamp: new Date('2024-01-15T10:00:00Z'),
+          changedFields: [],
+          metadata: {
+            hmac: 'hash-1',
+            previousHash: null,
+          },
+        },
+        {
+          id: 'audit-2',
+          companyId: 'company-1',
+          userId: 'user-1',
+          deviceId: 'device-1',
+          action: BackupAuditEventType.KEY_ROTATED,
+          entityType: 'key',
+          entityId: 'key-1',
+          timestamp: new Date('2024-01-16T10:00:00Z'),
+          changedFields: [],
+          metadata: {
+            hmac: 'hash-2',
+            // Missing previousHash
+          },
+        },
+      ]
+
+      vi.mocked(db.auditLogs.toArray).mockResolvedValue(chainLogs)
+
+      const result = await verifyAuditChainIntegrity('company-1')
+
+      expect(result.success).toBe(true)
+      expect(result.valid).toBe(false)
+      expect(result.brokenLinks).toBe(1)
+      expect(result.brokenLinkDetails[0].issue).toBe('missing_previous_hash')
+      expect(result.brokenLinkDetails[0].description).toContain('missing previousHash')
+    })
+
+    it('should detect hash mismatch', async () => {
+      const chainLogs: AuditLogEntity[] = [
+        {
+          id: 'audit-1',
+          companyId: 'company-1',
+          userId: 'user-1',
+          deviceId: 'device-1',
+          action: BackupAuditEventType.BACKUP_CREATED,
+          entityType: 'backup',
+          entityId: 'backup-1',
+          timestamp: new Date('2024-01-15T10:00:00Z'),
+          changedFields: [],
+          metadata: {
+            hmac: 'hash-1',
+            previousHash: null,
+          },
+        },
+        {
+          id: 'audit-2',
+          companyId: 'company-1',
+          userId: 'user-1',
+          deviceId: 'device-1',
+          action: BackupAuditEventType.KEY_ROTATED,
+          entityType: 'key',
+          entityId: 'key-1',
+          timestamp: new Date('2024-01-16T10:00:00Z'),
+          changedFields: [],
+          metadata: {
+            hmac: 'hash-2',
+            previousHash: 'WRONG-HASH', // Hash mismatch
+          },
+        },
+      ]
+
+      vi.mocked(db.auditLogs.toArray).mockResolvedValue(chainLogs)
+
+      const result = await verifyAuditChainIntegrity('company-1')
+
+      expect(result.success).toBe(true)
+      expect(result.valid).toBe(false)
+      expect(result.brokenLinks).toBe(1)
+      expect(result.brokenLinkDetails[0].issue).toBe('hash_mismatch')
+      expect(result.brokenLinkDetails[0].expected).toBe('hash-1')
+      expect(result.brokenLinkDetails[0].actual).toBe('WRONG-HASH')
+    })
+
+    it('should detect invalid first log with non-null previous hash', async () => {
+      const chainLogs: AuditLogEntity[] = [
+        {
+          id: 'audit-1',
+          companyId: 'company-1',
+          userId: 'user-1',
+          deviceId: 'device-1',
+          action: BackupAuditEventType.BACKUP_CREATED,
+          entityType: 'backup',
+          entityId: 'backup-1',
+          timestamp: new Date('2024-01-15T10:00:00Z'),
+          changedFields: [],
+          metadata: {
+            hmac: 'hash-1',
+            previousHash: 'should-be-null', // First log should have null
+          },
+        },
+      ]
+
+      vi.mocked(db.auditLogs.toArray).mockResolvedValue(chainLogs)
+
+      const result = await verifyAuditChainIntegrity('company-1')
+
+      expect(result.success).toBe(true)
+      expect(result.valid).toBe(false)
+      expect(result.brokenLinks).toBe(1)
+      expect(result.brokenLinkDetails[0].issue).toBe('hash_mismatch')
+      expect(result.brokenLinkDetails[0].description).toContain('should have null')
+    })
+
+    it('should handle empty audit log', async () => {
+      vi.mocked(db.auditLogs.toArray).mockResolvedValue([])
+
+      const result = await verifyAuditChainIntegrity('company-1')
+
+      expect(result.success).toBe(true)
+      expect(result.valid).toBe(true)
+      expect(result.totalLogs).toBe(0)
+      expect(result.brokenLinks).toBe(0)
+    })
+
+    it('should filter by company ID', async () => {
+      const chainLogs: AuditLogEntity[] = [
+        {
+          id: 'audit-1',
+          companyId: 'company-1',
+          userId: 'user-1',
+          deviceId: 'device-1',
+          action: BackupAuditEventType.BACKUP_CREATED,
+          entityType: 'backup',
+          entityId: 'backup-1',
+          timestamp: new Date('2024-01-15T10:00:00Z'),
+          changedFields: [],
+          metadata: {
+            hmac: 'hash-1',
+            previousHash: null,
+          },
+        },
+        {
+          id: 'audit-2',
+          companyId: 'company-2', // Different company
+          userId: 'user-2',
+          deviceId: 'device-2',
+          action: BackupAuditEventType.KEY_ROTATED,
+          entityType: 'key',
+          entityId: 'key-1',
+          timestamp: new Date('2024-01-16T10:00:00Z'),
+          changedFields: [],
+          metadata: {
+            hmac: 'hash-2',
+            previousHash: null,
+          },
+        },
+      ]
+
+      vi.mocked(db.auditLogs.toArray).mockResolvedValue(chainLogs)
+
+      const result = await verifyAuditChainIntegrity('company-1')
+
+      expect(result.success).toBe(true)
+      expect(result.totalLogs).toBe(1) // Only company-1 logs
+    })
+
+    it('should handle verification errors', async () => {
+      vi.mocked(db.auditLogs.toArray).mockRejectedValue(new Error('Database error'))
+
+      const result = await verifyAuditChainIntegrity('company-1')
+
+      expect(result.success).toBe(false)
+      expect(result.valid).toBe(false)
+      expect(result.error).toBe('Database error')
+    })
+
+    it('should detect multiple issues in chain', async () => {
+      const chainLogs: AuditLogEntity[] = [
+        {
+          id: 'audit-1',
+          companyId: 'company-1',
+          userId: 'user-1',
+          deviceId: 'device-1',
+          action: BackupAuditEventType.BACKUP_CREATED,
+          entityType: 'backup',
+          entityId: 'backup-1',
+          timestamp: new Date('2024-01-15T10:00:00Z'),
+          changedFields: [],
+          metadata: {}, // Missing HMAC
+        },
+        {
+          id: 'audit-2',
+          companyId: 'company-1',
+          userId: 'user-1',
+          deviceId: 'device-1',
+          action: BackupAuditEventType.KEY_ROTATED,
+          entityType: 'key',
+          entityId: 'key-1',
+          timestamp: new Date('2024-01-16T10:00:00Z'),
+          changedFields: [],
+          metadata: {
+            hmac: 'hash-2',
+            // Missing previousHash
+          },
+        },
+      ]
+
+      vi.mocked(db.auditLogs.toArray).mockResolvedValue(chainLogs)
+
+      const result = await verifyAuditChainIntegrity('company-1')
+
+      expect(result.success).toBe(true)
+      expect(result.valid).toBe(false)
+      expect(result.brokenLinks).toBe(2)
+      expect(result.brokenLinkDetails).toHaveLength(2)
+    })
+  })
+
+  describe('formatVerificationResult', () => {
+    it('should format valid chain result', () => {
+      const result: ChainVerificationResult = {
+        success: true,
+        valid: true,
+        totalLogs: 10,
+        brokenLinks: 0,
+        brokenLinkDetails: [],
+        verifiedAt: new Date(),
+      }
+
+      const formatted = formatVerificationResult(result)
+
+      expect(formatted).toContain('✓')
+      expect(formatted).toContain('10 logs')
+      expect(formatted).toContain('intact')
+    })
+
+    it('should format invalid chain result', () => {
+      const result: ChainVerificationResult = {
+        success: true,
+        valid: false,
+        totalLogs: 10,
+        brokenLinks: 2,
+        brokenLinkDetails: [
+          {
+            logId: 'audit-1',
+            timestamp: new Date('2024-01-15T10:00:00Z'),
+            action: 'BACKUP_CREATED',
+            issue: 'missing_hmac',
+            description: 'Log is missing HMAC',
+          },
+          {
+            logId: 'audit-2',
+            timestamp: new Date('2024-01-16T10:00:00Z'),
+            action: 'KEY_ROTATED',
+            issue: 'hash_mismatch',
+            description: 'Hash does not match',
+            expected: 'hash-1',
+            actual: 'hash-2',
+          },
+        ],
+        verifiedAt: new Date(),
+      }
+
+      const formatted = formatVerificationResult(result)
+
+      expect(formatted).toContain('⚠')
+      expect(formatted).toContain('2 broken links')
+      expect(formatted).toContain('MISSING HMAC')
+      expect(formatted).toContain('HASH MISMATCH')
+    })
+
+    it('should format empty log result', () => {
+      const result: ChainVerificationResult = {
+        success: true,
+        valid: true,
+        totalLogs: 0,
+        brokenLinks: 0,
+        brokenLinkDetails: [],
+        verifiedAt: new Date(),
+      }
+
+      const formatted = formatVerificationResult(result)
+
+      expect(formatted).toContain('No audit logs')
+    })
+
+    it('should format verification error', () => {
+      const result: ChainVerificationResult = {
+        success: false,
+        valid: false,
+        totalLogs: 0,
+        brokenLinks: 0,
+        brokenLinkDetails: [],
+        verifiedAt: new Date(),
+        error: 'Database connection failed',
+      }
+
+      const formatted = formatVerificationResult(result)
+
+      expect(formatted).toContain('Verification failed')
+      expect(formatted).toContain('Database connection failed')
+    })
+  })
+
+  describe('getVerificationBadgeColor', () => {
+    it('should return success for valid chain', () => {
+      const result: ChainVerificationResult = {
+        success: true,
+        valid: true,
+        totalLogs: 10,
+        brokenLinks: 0,
+        brokenLinkDetails: [],
+        verifiedAt: new Date(),
+      }
+
+      expect(getVerificationBadgeColor(result)).toBe('success')
+    })
+
+    it('should return warning for invalid chain', () => {
+      const result: ChainVerificationResult = {
+        success: true,
+        valid: false,
+        totalLogs: 10,
+        brokenLinks: 1,
+        brokenLinkDetails: [],
+        verifiedAt: new Date(),
+      }
+
+      expect(getVerificationBadgeColor(result)).toBe('warning')
+    })
+
+    it('should return danger for verification error', () => {
+      const result: ChainVerificationResult = {
+        success: false,
+        valid: false,
+        totalLogs: 0,
+        brokenLinks: 0,
+        brokenLinkDetails: [],
+        verifiedAt: new Date(),
+        error: 'Error',
+      }
+
+      expect(getVerificationBadgeColor(result)).toBe('danger')
     })
   })
 })

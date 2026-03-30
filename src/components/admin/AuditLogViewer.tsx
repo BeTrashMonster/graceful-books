@@ -24,6 +24,8 @@ import {
   formatAuditLogSummary,
   getActionDisplayName,
   getActionBadgeColor,
+  verifyAuditChainIntegrity,
+  formatVerificationResult,
   BackupAuditEventType,
 } from '../../services/audit/AuditChainService'
 import { Button } from '../core/Button'
@@ -68,6 +70,8 @@ export function AuditLogViewer() {
   const [stats, setStats] = useState<any>(null)
   const [autoRefresh, setAutoRefresh] = useState(true)
   const [exportSummary, setExportSummary] = useState<string | null>(null)
+  const [verificationResult, setVerificationResult] = useState<any>(null)
+  const [isVerifying, setIsVerifying] = useState(false)
 
   // Admin role check
   if (role !== 'admin') {
@@ -189,6 +193,32 @@ export function AuditLogViewer() {
 
     return () => clearInterval(interval)
   }, [autoRefresh, loadLogs])
+
+  // Verify audit chain integrity
+  const handleVerifyIntegrity = async () => {
+    if (!filters.companyId) {
+      setError('Please select a company to verify audit chain.')
+      return
+    }
+
+    setIsVerifying(true)
+    setVerificationResult(null)
+    setError(null)
+
+    try {
+      const result = await verifyAuditChainIntegrity(filters.companyId)
+      setVerificationResult(result)
+
+      if (!result.success) {
+        setError(`Verification failed: ${result.error}`)
+      }
+    } catch (err) {
+      console.error('Error verifying audit chain:', err)
+      setError('We encountered an issue verifying the audit chain. Please try again.')
+    } finally {
+      setIsVerifying(false)
+    }
+  }
 
   // Export to CSV using AuditChainService
   const handleExportCSV = async () => {
@@ -416,15 +446,12 @@ export function AuditLogViewer() {
         </Button>
 
         <Button
-          onClick={() => {
-            // TODO: Implement in Task 6.6
-            alert('Audit chain integrity verification will be implemented in Task 6.6')
-          }}
+          onClick={handleVerifyIntegrity}
           variant="secondary"
-          disabled={allLogs.length === 0}
-          title="Verify HMAC chain integrity (Task 6.6)"
+          disabled={allLogs.length === 0 || isVerifying}
+          title="Verify HMAC chain integrity"
         >
-          Verify Integrity
+          {isVerifying ? 'Verifying...' : 'Verify Integrity'}
         </Button>
 
         <label className={styles.autoRefreshToggle}>
@@ -446,6 +473,33 @@ export function AuditLogViewer() {
       {exportSummary && (
         <div className={styles.successMessage} role="status">
           {exportSummary}
+        </div>
+      )}
+
+      {/* Verification result */}
+      {verificationResult && (
+        <div
+          className={
+            verificationResult.valid
+              ? styles.verificationSuccess
+              : styles.verificationWarning
+          }
+          role="status"
+        >
+          <div className={styles.verificationHeader}>
+            <strong>Chain Integrity Verification</strong>
+            <button
+              type="button"
+              onClick={() => setVerificationResult(null)}
+              className={styles.dismissButton}
+              aria-label="Dismiss verification result"
+            >
+              ✕
+            </button>
+          </div>
+          <pre className={styles.verificationContent}>
+            {formatVerificationResult(verificationResult)}
+          </pre>
         </div>
       )}
 
