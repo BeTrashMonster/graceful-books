@@ -42,3 +42,80 @@ export type {
   HMACGenerationResult,
   IntegrityVerificationResult,
 } from './IntegrityVerification';
+
+export {
+  generateBackupFilename,
+  parseBackupFilename,
+  isValidBackupFilename,
+  isMidnightBackup,
+  getDateKey,
+  createBackupMetadata,
+  analyzeBackupRetention,
+  getBackupStatistics,
+  formatBytes,
+  validateRetentionPolicy,
+  classifyBackupType,
+  DEFAULT_RETENTION_POLICY,
+  BACKUP_FILENAME_PREFIX,
+  BACKUP_FILENAME_EXTENSION,
+  BACKUP_FILENAME_REGEX,
+  BackupFileType,
+} from './BackupVersioning';
+export type {
+  BackupFileMetadata,
+  RetentionPolicy,
+  CleanupResult,
+} from './BackupVersioning';
+
+export {
+  restoreFromLocalBackup,
+  readBackupFile,
+  validateBundleStructure,
+  isDatabaseEmpty,
+  autoDetectBackups,
+  getRestorationErrorMessage,
+  formatBackupInfo,
+  formatFileSize,
+  isRestorationSupported,
+  RestorationStage,
+} from './BackupRestoration';
+export type {
+  RestorationProgress,
+  RestoreFromBackupOptions,
+  RestorationResult,
+  BackupDetectionResult,
+  BackupInfo,
+  DatabaseEmptyCheckResult,
+} from './BackupRestoration';
+
+export {
+  BackupFallback,
+  detectBackupCapabilities,
+  createManualBackupDownload,
+  restoreFromManualUpload,
+  getUnsupportedBrowserNotification,
+  getBrowserRecommendationMessage,
+  isAutomaticBackupSupported,
+  validateBackupFile,
+  getFriendlyBackupErrorMessage,
+} from './BackupFallback';
+export type {
+  BrowserCapabilities,
+  BackupMethod,
+  BackupCapabilityResult,
+  ManualDownloadOptions,
+  ManualUploadOptions,
+  UnsupportedBrowserNotification,
+} from './BackupFallback';
+
+export {
+  BackupScheduler,
+  BackupTriggerType,
+  createBackupScheduler,
+  getTimeUntilNextDailyBackup,
+  formatTimeDuration,
+} from './BackupScheduler';
+export type {
+  BackupSchedulerConfig,
+  BackupResult as SchedulerBackupResult,
+} from './BackupScheduler';

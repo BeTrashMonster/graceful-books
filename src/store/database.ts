@@ -33,6 +33,8 @@ import { reconciliationPatternsSchema } from '../db/schema/reconciliationPattern
 import { reconciliationStreaksSchema } from '../db/schema/reconciliationStreaks.schema'
 import type { RetentionPolicy, DeletionLog } from '../types/retention.types'
 import { retentionPoliciesSchema, deletionLogsSchema } from '../db/schema/retention.schema'
+import type { BackupPreference } from '../db/schema/backupPreferences.schema'
+import { backupPreferencesSchema } from '../db/schema/backupPreferences.schema'
 
 /**
  * GracefulBooksDB - Main database class extending Dexie
@@ -74,6 +76,8 @@ export class GracefulBooksDB extends Dexie {
   sessions!: Table<any, string>
   retention_policies!: Table<RetentionPolicy, string>
   deletion_logs!: Table<DeletionLog, string>
+  backupPreferences!: Table<BackupPreference, string>
+  userFeaturePreferences!: Table<any, string>
 
   constructor() {
     super('GracefulBooksDB')
@@ -422,6 +426,17 @@ export class GracefulBooksDB extends Dexie {
       // Deletion Logs table (audit trail for secure deletions)
       // Indexes for querying by company, entity type, entity, and deletion time
       deletion_logs: deletionLogsSchema,
+    })
+
+    // Version 6: Add backup preferences and user feature preferences tables
+    this.version(6).stores({
+      // Backup Preferences table (Phase 2: Local Filesystem Backup)
+      // Indexes for querying by user, company, and last backup time
+      backupPreferences: backupPreferencesSchema,
+
+      // User Feature Preferences table (progressive disclosure)
+      // Indexes for querying by user and feature activation
+      userFeaturePreferences: 'id, user_id, [user_id+feature_name], is_active, updated_at',
     })
   }
 
