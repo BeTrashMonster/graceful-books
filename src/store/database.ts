@@ -35,6 +35,8 @@ import type { RetentionPolicy, DeletionLog } from '../types/retention.types'
 import { retentionPoliciesSchema, deletionLogsSchema } from '../db/schema/retention.schema'
 import type { BackupPreference } from '../db/schema/backupPreferences.schema'
 import { backupPreferencesSchema } from '../db/schema/backupPreferences.schema'
+import type { RestorationToken } from '../db/schema/restorationTokens.schema'
+import { restorationTokensSchema } from '../db/schema/restorationTokens.schema'
 
 /**
  * GracefulBooksDB - Main database class extending Dexie
@@ -77,6 +79,7 @@ export class GracefulBooksDB extends Dexie {
   retention_policies!: Table<RetentionPolicy, string>
   deletion_logs!: Table<DeletionLog, string>
   backupPreferences!: Table<BackupPreference, string>
+  restorationTokens!: Table<RestorationToken, string>
   userFeaturePreferences!: Table<any, string>
 
   constructor() {
@@ -437,6 +440,13 @@ export class GracefulBooksDB extends Dexie {
       // User Feature Preferences table (progressive disclosure)
       // Indexes for querying by user and feature activation
       userFeaturePreferences: 'id, user_id, [user_id+feature_name], is_active, updated_at',
+    })
+
+    // Version 7: Add restoration tokens table (Phase 3: Email Backup)
+    this.version(7).stores({
+      // Restoration Tokens table (Phase 3: Email Backup - Emergency Recovery)
+      // Indexes for querying by user, company, backup, expiration, and usage status
+      restorationTokens: restorationTokensSchema,
     })
   }
 
