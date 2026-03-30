@@ -13,6 +13,7 @@
  * - ARCH-004: CRDT-Compatible Schema Design
  */
 
+import { nanoid } from 'nanoid';
 import type { BaseEntity } from '../../types/database.types';
 
 // ============================================================================
@@ -1098,6 +1099,7 @@ export const createDefaultCPGSettings = (
 ): Partial<CPGSettings> => {
   const now = Date.now();
   return {
+    id: nanoid(),
     company_id: companyId,
 
     // Default thresholds

@@ -11,7 +11,6 @@
  * - Settings-aware margin quality calculation
  */
 
-import { nanoid } from 'nanoid';
 import type { TreasureChestDB } from '../../db/database';
 import type { CPGSettings } from '../../db/schema/cpg.schema';
 import {
@@ -42,10 +41,8 @@ export class CPGSettingsService {
 
     // Create default settings
     const defaultSettings = createDefaultCPGSettings(companyId, deviceId);
-    const id = nanoid();
 
     const settings: CPGSettings = {
-      id,
       ...defaultSettings,
     } as CPGSettings;
 

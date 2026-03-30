@@ -276,11 +276,11 @@ export function CPGLayout() {
   return (
     <div className={styles.layout}>
       <nav className={styles.sidebar}>
-        <div className={styles.logo}>
+        <Link to="/cpg" className={styles.logo}>
           <img src="/assets/audacious-logo.png" alt="Audacious" className={styles.logoImage} />
           <h1>Money</h1>
           <p>Cost & Distribution Analysis</p>
-        </div>
+        </Link>
 
         <div className={styles.nav}>
           <div className={styles.section}>

@@ -16,9 +16,18 @@
 }
 
 .logo {
+  display: block;
   padding: 1rem 1.5rem 0.75rem 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.logo:hover {
+  background: rgba(212, 175, 55, 0.08);
+  opacity: 0.95;
 }
 
 .logoImage {
