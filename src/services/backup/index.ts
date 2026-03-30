@@ -119,3 +119,16 @@ export type {
   BackupSchedulerConfig,
   BackupResult as SchedulerBackupResult,
 } from './BackupScheduler';
+
+export {
+  RestorationTokenService,
+  restorationTokenService,
+  generateRestorationUrl,
+  parseRestorationUrl,
+  isValidRestorationUrl,
+} from './RestorationTokenService';
+export type {
+  GenerateTokenResult,
+  ValidateTokenResult,
+  UseTokenResult,
+} from './RestorationTokenService';
