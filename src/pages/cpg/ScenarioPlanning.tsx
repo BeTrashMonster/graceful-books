@@ -138,7 +138,7 @@ export default function ScenarioPlanning() {
       {/* Analysis Type Selector */}
       <div className={styles.analysisTypeSelector}>
         <button
-          className={analysisType === 'whatif' ? styles.active : ''}
+          className={analysisType === 'whatif' ? styles.tabActive : styles.tab}
           onClick={() => setAnalysisType('whatif')}
         >
           What-If Calculator
@@ -149,7 +149,7 @@ export default function ScenarioPlanning() {
           />
         </button>
         <button
-          className={analysisType === 'compare' ? styles.active : ''}
+          className={analysisType === 'compare' ? styles.tabActive : styles.tab}
           onClick={() => setAnalysisType('compare')}
         >
           Compare Distributors
