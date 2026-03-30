@@ -16,6 +16,16 @@ import type { AuditLog, AuditAction, AuditEntityType } from '../../types/databas
 import { db } from '../../db'
 import { useAuth } from '../../contexts/AuthContext'
 import { querySecurityEvents, getSecurityEventStats, SecurityEventType } from '../../utils/securityLogger'
+import {
+  getFilteredAuditLogs,
+  getBackupSyncAuditLogs,
+  exportAuditLogsToCSV,
+  downloadCSV,
+  formatAuditLogSummary,
+  getActionDisplayName,
+  getActionBadgeColor,
+  BackupAuditEventType,
+} from '../../services/audit/AuditChainService'
 import { Button } from '../core/Button'
 import { Input } from '../forms/Input'
 import { Select } from '../forms/Select'
@@ -24,7 +34,7 @@ import { ErrorMessage } from '../feedback/ErrorMessage'
 import styles from './AuditLogViewer.module.css'
 
 interface AuditLogFilters {
-  eventType?: SecurityEventType | 'ALL'
+  eventType?: SecurityEventType | BackupAuditEventType | 'ALL' | 'BACKUP_SYNC_ONLY'
   userId?: string
   dateFrom?: string
   dateTo?: string
@@ -57,6 +67,7 @@ export function AuditLogViewer() {
   const [error, setError] = useState<string | null>(null)
   const [stats, setStats] = useState<any>(null)
   const [autoRefresh, setAutoRefresh] = useState(true)
+  const [exportSummary, setExportSummary] = useState<string | null>(null)
 
   // Admin role check
   if (role !== 'admin') {
@@ -179,75 +190,39 @@ export function AuditLogViewer() {
     return () => clearInterval(interval)
   }, [autoRefresh, loadLogs])
 
-  // Export to CSV
-  const handleExportCSV = () => {
+  // Export to CSV using AuditChainService
+  const handleExportCSV = async () => {
     if (allLogs.length === 0) {
       setError('No logs to export. Try adjusting your filters.')
       return
     }
 
     try {
-      // CSV headers
-      const headers = [
-        'Timestamp',
-        'Date/Time',
-        'Company ID',
-        'User ID',
-        'Entity Type',
-        'Entity ID',
-        'Action',
-        'IP Address',
-        'Device ID',
-        'User Agent',
-        'Changed Fields',
-      ]
+      // Convert logs to match AuditLogEntity format
+      const logsToExport = allLogs.map(log => ({
+        id: log.id,
+        companyId: log.company_id,
+        userId: log.user_id,
+        deviceId: log.device_id || '',
+        action: log.action,
+        entityType: log.entity_type,
+        entityId: log.entity_id,
+        timestamp: new Date(log.timestamp),
+        changedFields: log.changed_fields || [],
+        metadata: {},
+      }))
 
-      // CSV rows
-      const rows = allLogs.map(log => {
-        const date = new Date(log.timestamp)
-        return [
-          log.timestamp.toString(),
-          date.toISOString(),
-          log.company_id,
-          log.user_id,
-          log.entity_type,
-          log.entity_id,
-          log.action,
-          log.ip_address || '',
-          log.device_id || '',
-          log.user_agent || '',
-          log.changed_fields.join('; '),
-        ]
-      })
+      // Generate CSV
+      const csv = exportAuditLogsToCSV(logsToExport as any)
 
-      // Combine headers and rows
-      const csvContent = [
-        headers.join(','),
-        ...rows.map(row =>
-          row.map(cell => {
-            // Escape quotes and wrap in quotes if contains comma, quote, or newline
-            const cellStr = String(cell)
-            if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
-              return `"${cellStr.replace(/"/g, '""')}"`
-            }
-            return cellStr
-          }).join(',')
-        ),
-      ].join('\n')
-
-      // Create blob and download
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-      const link = document.createElement('a')
-      const url = URL.createObjectURL(blob)
-
+      // Download CSV
       const filename = `audit-logs-${filters.companyId}-${new Date().toISOString().split('T')[0]}.csv`
-      link.setAttribute('href', url)
-      link.setAttribute('download', filename)
-      link.style.visibility = 'hidden'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      downloadCSV(csv, filename)
+
+      // Show export summary
+      const summary = `Successfully exported ${logsToExport.length} audit log${logsToExport.length === 1 ? '' : 's'} to ${filename}`
+      setExportSummary(summary)
+      setTimeout(() => setExportSummary(null), 5000)
 
       setError(null)
     } catch (err) {
@@ -356,11 +331,26 @@ export function AuditLogViewer() {
               onChange={(e) => handleFilterChange('eventType', e.target.value)}
             >
               <option value="ALL">All Events</option>
-              <option value={SecurityEventType.FAILED_LOGIN}>Failed Login</option>
-              <option value={SecurityEventType.AUTHORIZATION_FAILURE}>Authorization Failure</option>
-              <option value={SecurityEventType.RATE_LIMIT_EXCEEDED}>Rate Limit Exceeded</option>
-              <option value={SecurityEventType.SUSPICIOUS_ACTIVITY}>Suspicious Activity</option>
-              <option value={SecurityEventType.ACCOUNT_LOCKOUT}>Account Lockout</option>
+              <option value="BACKUP_SYNC_ONLY">Backup & Sync Only</option>
+              <optgroup label="Security Events">
+                <option value={SecurityEventType.FAILED_LOGIN}>Failed Login</option>
+                <option value={SecurityEventType.AUTHORIZATION_FAILURE}>Authorization Failure</option>
+                <option value={SecurityEventType.RATE_LIMIT_EXCEEDED}>Rate Limit Exceeded</option>
+                <option value={SecurityEventType.SUSPICIOUS_ACTIVITY}>Suspicious Activity</option>
+                <option value={SecurityEventType.ACCOUNT_LOCKOUT}>Account Lockout</option>
+              </optgroup>
+              <optgroup label="Backup & Sync Events">
+                <option value={BackupAuditEventType.BACKUP_CREATED}>Backup Created</option>
+                <option value={BackupAuditEventType.BACKUP_RESTORED}>Backup Restored</option>
+                <option value={BackupAuditEventType.BACKUP_DELETED}>Backup Deleted</option>
+                <option value={BackupAuditEventType.BACKUP_SCHEDULED}>Backup Scheduled</option>
+                <option value={BackupAuditEventType.BACKUP_FAILED}>Backup Failed</option>
+                <option value={BackupAuditEventType.KEY_ROTATED}>Key Rotated</option>
+                <option value={BackupAuditEventType.USER_REVOKED}>User Revoked</option>
+                <option value={BackupAuditEventType.SYNC_STARTED}>Sync Started</option>
+                <option value={BackupAuditEventType.SYNC_COMPLETED}>Sync Completed</option>
+                <option value={BackupAuditEventType.SYNC_FAILED}>Sync Failed</option>
+              </optgroup>
             </Select>
           </div>
 
@@ -425,6 +415,18 @@ export function AuditLogViewer() {
           Export to CSV
         </Button>
 
+        <Button
+          onClick={() => {
+            // TODO: Implement in Task 6.6
+            alert('Audit chain integrity verification will be implemented in Task 6.6')
+          }}
+          variant="secondary"
+          disabled={allLogs.length === 0}
+          title="Verify HMAC chain integrity (Task 6.6)"
+        >
+          Verify Integrity
+        </Button>
+
         <label className={styles.autoRefreshToggle}>
           <input
             type="checkbox"
@@ -439,6 +441,13 @@ export function AuditLogViewer() {
           Showing {logs.length} of {pagination.totalRecords} logs
         </div>
       </div>
+
+      {/* Export summary */}
+      {exportSummary && (
+        <div className={styles.successMessage} role="status">
+          {exportSummary}
+        </div>
+      )}
 
       {/* Error message */}
       {error && (
