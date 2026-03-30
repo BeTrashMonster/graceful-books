@@ -1,0 +1,107 @@
+/**
+ * Sync Relay Restore Styles
+ *
+ * Extends EmailLinkRestore styles with relay selection specific styling.
+ */
+
+/* Reuse common styles from EmailLinkRestore */
+@import './EmailLinkRestore.module.css';
+
+/* Relay Selection */
+.relaySelection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.radioLabel:hover {
+  border-color: var(--color-primary, #4c51bf);
+  background: var(--color-background-hover, #f7fafc);
+}
+
+.radioLabel:has(input:checked) {
+  border-color: var(--color-primary, #4c51bf);
+  background: var(--color-primary-light, #edf2f7);
+}
+
+.radioLabel:has(input:focus) {
+  outline: 3px solid var(--color-primary, #4c51bf);
+  outline-offset: 2px;
+}
+
+.radio {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--color-primary, #4c51bf);
+}
+
+.radioLabel span {
+  font-size: 1rem;
+  color: var(--color-text-primary, #1a202c);
+  font-weight: 500;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .radioLabel {
+    transition: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .radioLabel {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+
+  .radioLabel:hover {
+    background: #374151;
+    border-color: #90cdf4;
+  }
+
+  .radioLabel:has(input:checked) {
+    background: #2c5282;
+    border-color: #90cdf4;
+  }
+
+  .radioLabel span {
+    color: #f7fafc;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .radioLabel {
+    padding: 0.75rem;
+  }
+
+  .radioLabel span {
+    font-size: 0.875rem;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .radioLabel {
+    border-width: 3px;
+  }
+
+  .radioLabel:has(input:checked) {
+    border-width: 4px;
+  }
+}
