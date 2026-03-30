@@ -151,6 +151,7 @@ export const createDefaultCompany = (
     fiscal_year_end: '12-31', // Default to calendar year
     currency,
     settings: defaultSettings,
+    key_rotation_epoch: 0, // Initial epoch
     created_at: now,
     updated_at: now,
     deleted_at: null,

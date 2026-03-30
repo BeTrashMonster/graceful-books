@@ -292,6 +292,7 @@ export interface Company extends BaseEntity {
   fiscal_year_end: string | null; // Fiscal year end (MM-DD format)
   currency: string; // ISO 4217 currency code (e.g., "USD")
   settings: CompanySettings; // ENCRYPTED - Company settings
+  key_rotation_epoch: number; // Epoch number for key rotation tracking (starts at 0, increments on revocation)
   version_vector: VersionVector; // For CRDT conflict resolution
 }
 

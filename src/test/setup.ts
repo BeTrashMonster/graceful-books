@@ -39,8 +39,59 @@ vi.mock('../utils/rateLimiter', async (importOriginal) => {
   }
 })
 
-// Mock argon2-browser for crypto tests
-// Provides a working argon2 implementation in the test environment
+// Mock argon2-browser module to prevent WASM issues in Node.js test environment
+vi.mock('argon2-browser', () => {
+  return {
+    default: {
+      ArgonType: {
+        Argon2d: 0,
+        Argon2i: 1,
+        Argon2id: 2,
+      },
+      async hash(options: {
+        pass: string
+        salt: Uint8Array
+        time: number
+        mem: number
+        parallelism: number
+        hashLen: number
+        type: number
+      }) {
+        // Use Web Crypto API to simulate argon2
+        const encoder = new TextEncoder()
+        const passBuffer = encoder.encode(options.pass)
+
+        const keyMaterial = await crypto.subtle.importKey(
+          'raw',
+          passBuffer,
+          'PBKDF2',
+          false,
+          ['deriveBits']
+        )
+
+        const derivedBits = await crypto.subtle.deriveBits(
+          {
+            name: 'PBKDF2',
+            salt: options.salt as BufferSource,
+            iterations: options.time * 100000,
+            hash: 'SHA-256',
+          },
+          keyMaterial,
+          options.hashLen * 8
+        )
+
+        return {
+          hash: new Uint8Array(derivedBits),
+          hashHex: Array.from(new Uint8Array(derivedBits))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join(''),
+        }
+      },
+    },
+  }
+})
+
+// Also add argon2 to window for legacy browser-style access
 if (typeof window !== 'undefined') {
   (window as any).argon2 = {
     ArgonType: {
