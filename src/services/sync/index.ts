@@ -25,3 +25,18 @@ export type {
   ConflictResolution,
   MergeStrategy,
 } from './SyncCRDT'
+
+// Sync/Backup Coordination
+export {
+  SyncBackupCoordinator,
+  createSyncBackupCoordinator,
+  OperationType,
+  OperationPriority,
+  OperationStatus,
+  DEFAULT_COORDINATOR_CONFIG,
+} from './SyncBackupCoordinator'
+export type {
+  Operation,
+  CoordinatorConfig,
+  CoordinatorStats,
+} from './SyncBackupCoordinator'
