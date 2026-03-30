@@ -40,3 +40,16 @@ export type {
   CoordinatorConfig,
   CoordinatorStats,
 } from './SyncBackupCoordinator'
+
+// Rate Limiting & DoS Protection
+export {
+  SyncRateLimiter,
+  createSyncRateLimiter,
+  DEFAULT_RATE_LIMITER_CONFIG,
+} from './SyncRateLimiter'
+export type {
+  RateLimitConfig,
+  RateLimiterConfig,
+  RateLimitResult,
+  RateLimitType,
+} from './SyncRateLimiter'
