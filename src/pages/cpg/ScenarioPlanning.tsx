@@ -14,7 +14,10 @@
 import { useState, useEffect } from 'react';
 import { Button } from '../../components/core/Button';
 import { Loading } from '../../components/feedback/Loading';
+import { PinIcon } from '../../components/common/PinIcon';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTabPinning } from '../../hooks/useTabPinning';
+import { PAGE_IDS } from '../../db/schema/tabPreferences.schema';
 import { db } from '../../db/database';
 import type { CPGDistributor } from '../../db/schema/cpg.schema';
 import { ScenarioPlanningService } from '../../services/cpg/scenarioPlanning.service';
@@ -23,17 +26,79 @@ import { WhatIfCalculatorTab } from './tabs/scenario/WhatIfCalculatorTab';
 import styles from './ScenarioPlanning.module.css';
 
 type AnalysisType = 'whatif' | 'compare';
+type SchemaTabType = 'what-if' | 'compare';
+
+// Helper to map internal tab values to schema tab values
+const toSchemaTab = (tab: AnalysisType): SchemaTabType => {
+  return tab === 'whatif' ? 'what-if' : 'compare';
+};
+
+// Helper to map schema tab values to internal tab values
+const fromSchemaTab = (tab: SchemaTabType | string): AnalysisType => {
+  return tab === 'what-if' ? 'whatif' : 'compare';
+};
 
 /**
  * Strategy Planning Component
  */
 export default function ScenarioPlanning() {
   const { companyId, deviceId } = useAuth();
+
+  // Tab pinning
+  const { defaultTab, pinTab, unpinTab, isTabPinned, isLoading: isPinningLoading } = useTabPinning({
+    pageId: PAGE_IDS.STRATEGY_PLANNING,
+  });
+
   const [analysisType, setAnalysisType] = useState<AnalysisType>('whatif');
+  const [pinnedTabs, setPinnedTabs] = useState<Record<string, boolean>>({});
   const [distributors, setDistributors] = useState<CPGDistributor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [service] = useState(() => new ScenarioPlanningService(db));
+
+  // Update active tab when pinned default loads
+  useEffect(() => {
+    if (!isPinningLoading && defaultTab) {
+      setAnalysisType(fromSchemaTab(defaultTab));
+    }
+  }, [defaultTab, isPinningLoading]);
+
+  // Load pinned tabs state
+  useEffect(() => {
+    const loadPinnedState = async () => {
+      const states: Record<string, boolean> = {};
+      const schemaTabs: SchemaTabType[] = ['what-if', 'compare'];
+
+      for (const tab of schemaTabs) {
+        states[tab] = await isTabPinned(tab);
+      }
+
+      setPinnedTabs(states);
+    };
+
+    loadPinnedState();
+  }, [isTabPinned]);
+
+  // Handle tab pin toggle
+  const handlePinToggle = async (tabId: AnalysisType) => {
+    const schemaTabId = toSchemaTab(tabId);
+    const currentlyPinned = pinnedTabs[schemaTabId];
+
+    try {
+      if (currentlyPinned) {
+        await unpinTab();
+        setPinnedTabs((prev) => ({ ...prev, [schemaTabId]: false }));
+      } else {
+        await pinTab(schemaTabId);
+        setPinnedTabs({
+          'what-if': schemaTabId === 'what-if',
+          'compare': schemaTabId === 'compare',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to toggle pin:', error);
+    }
+  };
 
   // Load distributors
   useEffect(() => {
@@ -77,12 +142,22 @@ export default function ScenarioPlanning() {
           onClick={() => setAnalysisType('whatif')}
         >
           What-If Calculator
+          <PinIcon
+            isPinned={pinnedTabs['what-if'] || false}
+            onClick={() => handlePinToggle('whatif')}
+            size={14}
+          />
         </button>
         <button
           className={analysisType === 'compare' ? styles.active : ''}
           onClick={() => setAnalysisType('compare')}
         >
           Compare Distributors
+          <PinIcon
+            isPinned={pinnedTabs['compare'] || false}
+            onClick={() => handlePinToggle('compare')}
+            size={14}
+          />
         </button>
       </div>
 

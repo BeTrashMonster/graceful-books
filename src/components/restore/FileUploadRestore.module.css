@@ -1,0 +1,159 @@
+/**
+ * File Upload Restore Styles
+ *
+ * Extends EmailLinkRestore styles with drag-and-drop specific styling.
+ */
+
+/* Reuse common styles from EmailLinkRestore */
+@import './EmailLinkRestore.module.css';
+
+/* Drag and Drop Zone */
+.dropZone {
+  border: 3px dashed var(--color-border, #cbd5e0);
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: var(--color-background-secondary, #f7fafc);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+}
+
+.dropZone:hover {
+  border-color: var(--color-primary, #4c51bf);
+  background: var(--color-background-hover, #edf2f7);
+}
+
+.dropZone:focus {
+  outline: 3px solid var(--color-primary, #4c51bf);
+  outline-offset: 2px;
+}
+
+.dropZone.dragging {
+  border-color: var(--color-primary, #4c51bf);
+  background: var(--color-primary-light, #e0e7ff);
+  transform: scale(1.02);
+}
+
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.dropZoneLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+.dropZoneIcon {
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.dropZoneText {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a202c);
+  margin: 0;
+}
+
+.dropZoneHint {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #718096);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fileName {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #4a5568);
+  margin: 0.5rem 0 0;
+  padding: 0.75rem;
+  background: var(--color-background-secondary, #f7fafc);
+  border-radius: 6px;
+  word-break: break-word;
+}
+
+.fileName strong {
+  color: var(--color-text-primary, #1a202c);
+  font-weight: 600;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .dropZone {
+    transition: none;
+  }
+
+  .dropZone.dragging {
+    transform: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .dropZone {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+
+  .dropZone:hover {
+    background: #374151;
+    border-color: #90cdf4;
+  }
+
+  .dropZone.dragging {
+    background: #2c5282;
+    border-color: #90cdf4;
+  }
+
+  .dropZoneText {
+    color: #f7fafc;
+  }
+
+  .fileName {
+    background: #374151;
+    color: #cbd5e0;
+  }
+
+  .fileName strong {
+    color: #f7fafc;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .dropZone {
+    padding: 2rem 1rem;
+  }
+
+  .dropZoneIcon {
+    font-size: 3rem;
+  }
+
+  .dropZoneText {
+    font-size: 1rem;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .dropZone {
+    border-width: 4px;
+  }
+
+  .dropZone.dragging {
+    border-width: 5px;
+  }
+}
