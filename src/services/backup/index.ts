@@ -142,3 +142,13 @@ export type {
   UploadBackupResult,
   UploadProgress,
 } from './S3BackupUpload';
+
+export {
+  generateRestorationEmail,
+  validateEmailTemplateOptions,
+  previewEmailInBrowser,
+} from './EmailTemplate';
+export type {
+  EmailTemplateOptions,
+  EmailTemplateResult,
+} from './EmailTemplate';
