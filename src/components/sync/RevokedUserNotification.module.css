@@ -1,0 +1,506 @@
+/**
+ * Revoked User Notification Styles
+ *
+ * Clear, professional, supportive styling for revocation notifications.
+ */
+
+/* Banner Mode */
+.banner {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-bottom: 2px solid #f59e0b;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bannerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bannerIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.bannerText {
+  flex-grow: 1;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #78350f;
+  line-height: 1.5;
+}
+
+.bannerActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.bannerButton {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: #d97706;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.bannerButton:hover {
+  background: #b45309;
+}
+
+.bannerButton:focus {
+  outline: 3px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+.bannerButtonSecondary {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #78350f;
+  background: transparent;
+  border: 2px solid #d97706;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bannerButtonSecondary:hover {
+  background: #fbbf24;
+  border-color: #b45309;
+}
+
+.bannerButtonSecondary:focus {
+  outline: 3px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal */
+.modal {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2),
+    0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modal Header */
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1a202c);
+  margin: 0;
+}
+
+.modalClose {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--color-text-secondary, #718096);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modalClose:hover {
+  background: var(--color-gray-50, #f7fafc);
+  color: var(--color-text-primary, #1a202c);
+}
+
+.modalClose:focus {
+  outline: 3px solid var(--color-primary, #4c51bf);
+  outline-offset: 2px;
+}
+
+/* Modal Body */
+.modalBody {
+  padding: 1.5rem;
+}
+
+.modalMessage {
+  white-space: pre-line;
+  color: var(--color-text-primary, #1a202c);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Message Section */
+.messageSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #fef3c7;
+  border: 2px solid #fbbf24;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.messageIcon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.messagePrimary {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: #78350f;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Info Sections */
+.infoSection {
+  margin-bottom: 1.5rem;
+}
+
+.infoSection:last-child {
+  margin-bottom: 0;
+}
+
+.infoTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1a202c);
+  margin: 0 0 0.75rem;
+}
+
+.infoList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.infoItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  font-size: 0.9375rem;
+  color: var(--color-text-primary, #1a202c);
+  line-height: 1.5;
+}
+
+.infoIcon,
+.infoIconPositive,
+.infoIconNeutral {
+  font-size: 1rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.infoIcon {
+  color: #dc2626;
+}
+
+.infoIconPositive {
+  color: #16a34a;
+}
+
+.infoIconNeutral {
+  color: #3b82f6;
+}
+
+/* Technical Details */
+.technicalDetails {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--color-gray-50, #f7fafc);
+  border-radius: 8px;
+}
+
+.technicalSummary {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #718096);
+  cursor: pointer;
+  user-select: none;
+}
+
+.technicalSummary:hover {
+  color: var(--color-text-primary, #1a202c);
+}
+
+.technicalContent {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border, #e2e8f0);
+}
+
+.technicalContent p {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #718096);
+  margin: 0.5rem 0;
+  font-family: 'Courier New', monospace;
+}
+
+.technicalContent p:first-child {
+  margin-top: 0;
+}
+
+.technicalContent p:last-child {
+  margin-bottom: 0;
+}
+
+.technicalContent strong {
+  color: var(--color-text-primary, #1a202c);
+  font-weight: 600;
+}
+
+/* Modal Footer */
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-top: 1px solid var(--color-border, #e2e8f0);
+}
+
+.modalButton {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--color-primary, #4c51bf);
+  border: 2px solid var(--color-primary, #4c51bf);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modalButton:hover {
+  background: #434190;
+  border-color: #434190;
+}
+
+.modalButton:focus {
+  outline: 3px solid rgba(76, 81, 191, 0.3);
+  outline-offset: 2px;
+}
+
+.modalButtonSecondary {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #718096);
+  background: transparent;
+  border: 2px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modalButtonSecondary:hover {
+  border-color: var(--color-text-secondary, #718096);
+  background: var(--color-gray-50, #f7fafc);
+}
+
+.modalButtonSecondary:focus {
+  outline: 3px solid var(--color-primary, #4c51bf);
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .modalOverlay,
+  .modal {
+    animation: none;
+  }
+
+  .bannerButton,
+  .bannerButtonSecondary,
+  .modalButton,
+  .modalButtonSecondary,
+  .modalClose {
+    transition: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .modal {
+    background: #2d3748;
+  }
+
+  .modalHeader {
+    border-bottom-color: #4a5568;
+  }
+
+  .modalTitle {
+    color: #f7fafc;
+  }
+
+  .modalClose {
+    color: #cbd5e0;
+  }
+
+  .modalClose:hover {
+    background: #1a202c;
+    color: #f7fafc;
+  }
+
+  .modalMessage {
+    color: #f7fafc;
+  }
+
+  .messageSection {
+    background: #78350f;
+    border-color: #d97706;
+  }
+
+  .messagePrimary {
+    color: #fef3c7;
+  }
+
+  .infoTitle {
+    color: #f7fafc;
+  }
+
+  .infoItem {
+    color: #f7fafc;
+  }
+
+  .technicalDetails {
+    background: #1a202c;
+  }
+
+  .technicalSummary {
+    color: #cbd5e0;
+  }
+
+  .technicalSummary:hover {
+    color: #f7fafc;
+  }
+
+  .technicalContent {
+    border-top-color: #4a5568;
+  }
+
+  .technicalContent p {
+    color: #cbd5e0;
+  }
+
+  .technicalContent strong {
+    color: #f7fafc;
+  }
+
+  .modalFooter {
+    border-top-color: #4a5568;
+  }
+
+  .modalButtonSecondary {
+    color: #cbd5e0;
+    border-color: #4a5568;
+  }
+
+  .modalButtonSecondary:hover {
+    border-color: #718096;
+    background: #1a202c;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .banner {
+    padding: 1rem;
+  }
+
+  .bannerContent {
+    flex-wrap: wrap;
+  }
+
+  .bannerActions {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .modal {
+    margin: 0.5rem;
+    max-height: calc(100vh - 1rem);
+  }
+
+  .modalHeader,
+  .modalBody,
+  .modalFooter {
+    padding: 1rem;
+  }
+
+  .modalTitle {
+    font-size: 1.25rem;
+  }
+
+  .modalFooter {
+    flex-direction: column;
+  }
+
+  .modalButton,
+  .modalButtonSecondary {
+    width: 100%;
+  }
+}
