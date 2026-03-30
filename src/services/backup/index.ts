@@ -152,3 +152,16 @@ export type {
   EmailTemplateOptions,
   EmailTemplateResult,
 } from './EmailTemplate';
+
+export {
+  EmailSchedulingService,
+  createEmailSchedulingService,
+  formatScheduleDescription,
+  DEFAULT_EMAIL_SCHEDULE,
+} from './EmailSchedulingService';
+export type {
+  EmailScheduleConfig,
+  SendBackupEmailOptions,
+  EmailSendResult,
+  EmailDeliveryStatus,
+} from './EmailSchedulingService';
