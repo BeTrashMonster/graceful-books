@@ -18,6 +18,7 @@
  */
 
 import { useState, useEffect } from 'react'
+import { openDB } from 'idb'
 import { Card, CardHeader, CardBody } from '../ui/Card'
 import { Button } from '../core/Button'
 import { Alert } from '../feedback/ErrorMessage'
@@ -138,8 +139,9 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
 
       console.log('✅ Backup status loaded:', status)
 
-      // TODO: Load backup history from BackupVersioning service
-      const history: BackupHistoryEntry[] = []
+      // Load backup history from IndexedDB
+      const history = await loadBackupHistory()
+      console.log('📜 Backup history loaded:', history)
 
       setBackupStatus(status)
       setBackupHistory(history)
@@ -151,6 +153,54 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
       )
     } finally {
       setLoading(false)
+    }
+  }
+
+  /**
+   * Load backup history from IndexedDB
+   */
+  const loadBackupHistory = async (): Promise<BackupHistoryEntry[]> => {
+    try {
+      const db = await openDB('GracefulBooksBackupHistory', 1, {
+        upgrade(db) {
+          if (!db.objectStoreNames.contains('backups')) {
+            const store = db.createObjectStore('backups', { keyPath: 'id' })
+            store.createIndex('timestamp', 'timestamp', { unique: false })
+          }
+        },
+      })
+
+      // Get all backups, sorted by timestamp (newest first)
+      const allBackups = await db.getAll('backups')
+      const sorted = allBackups
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, 10) // Only keep 10 most recent
+
+      return sorted
+    } catch (error) {
+      console.error('Failed to load backup history:', error)
+      return []
+    }
+  }
+
+  /**
+   * Save backup to history
+   */
+  const saveToBackupHistory = async (entry: BackupHistoryEntry): Promise<void> => {
+    try {
+      const db = await openDB('GracefulBooksBackupHistory', 1, {
+        upgrade(db) {
+          if (!db.objectStoreNames.contains('backups')) {
+            const store = db.createObjectStore('backups', { keyPath: 'id' })
+            store.createIndex('timestamp', 'timestamp', { unique: false })
+          }
+        },
+      })
+
+      await db.add('backups', entry)
+      console.log('📝 Backup added to history:', entry)
+    } catch (error) {
+      console.error('Failed to save backup to history:', error)
     }
   }
 
@@ -294,15 +344,30 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
           setBackupSavedToFolder(true)
 
           // Update backup status with location and timestamp
+          const backupTimestamp = new Date()
           const newStatus = {
             enabled: true,
             location: writeResult.filePath || 'Configured',
-            lastBackup: new Date(),
+            lastBackup: backupTimestamp,
             nextBackup: null,
             error: null,
           }
           console.log('📝 Updating backup status to:', newStatus)
           setBackupStatus(newStatus)
+
+          // Add to backup history
+          const historyEntry: BackupHistoryEntry = {
+            id: `backup-${Date.now()}`,
+            filename: writeResult.fileName || fileName,
+            timestamp: backupTimestamp,
+            size: writeResult.fileSize || 0,
+            status: 'success',
+          }
+          await saveToBackupHistory(historyEntry)
+
+          // Reload history to show the new backup
+          const updatedHistory = await loadBackupHistory()
+          setBackupHistory(updatedHistory)
 
           // Auto-hide success message after 5 seconds
           setTimeout(() => {
@@ -332,13 +397,28 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
           setBackupSavedToFolder(false)
 
           // Update backup status with timestamp (no location since this is Downloads)
+          const backupTimestamp = new Date()
           setBackupStatus((prev) => ({
             enabled: false,
             location: null,
-            lastBackup: new Date(),
+            lastBackup: backupTimestamp,
             nextBackup: prev?.nextBackup || null,
             error: null,
           }))
+
+          // Add to backup history
+          const historyEntry: BackupHistoryEntry = {
+            id: `backup-${Date.now()}`,
+            filename: result.filename,
+            timestamp: backupTimestamp,
+            size: result.blob.size,
+            status: 'success',
+          }
+          await saveToBackupHistory(historyEntry)
+
+          // Reload history to show the new backup
+          const updatedHistory = await loadBackupHistory()
+          setBackupHistory(updatedHistory)
 
           // Auto-hide success message after 5 seconds
           setTimeout(() => {
