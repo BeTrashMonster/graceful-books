@@ -161,24 +161,30 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
    */
   const loadBackupHistory = async (): Promise<BackupHistoryEntry[]> => {
     try {
+      console.log('📖 Loading backup history from IndexedDB...')
       const db = await openDB('GracefulBooksBackupHistory', 1, {
         upgrade(db) {
+          console.log('🔧 Creating backup history database (load)...')
           if (!db.objectStoreNames.contains('backups')) {
             const store = db.createObjectStore('backups', { keyPath: 'id' })
             store.createIndex('timestamp', 'timestamp', { unique: false })
+            console.log('✨ Backup history object store created (load)')
           }
         },
       })
 
       // Get all backups, sorted by timestamp (newest first)
       const allBackups = await db.getAll('backups')
+      console.log('📦 Raw backups from DB:', allBackups)
+
       const sorted = allBackups
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
         .slice(0, 10) // Only keep 10 most recent
 
+      console.log('✅ Sorted backups (newest first):', sorted)
       return sorted
     } catch (error) {
-      console.error('Failed to load backup history:', error)
+      console.error('❌ Failed to load backup history:', error)
       return []
     }
   }
@@ -188,19 +194,27 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
    */
   const saveToBackupHistory = async (entry: BackupHistoryEntry): Promise<void> => {
     try {
+      console.log('💾 Attempting to save backup to history:', entry)
       const db = await openDB('GracefulBooksBackupHistory', 1, {
         upgrade(db) {
+          console.log('🔧 Creating backup history database...')
           if (!db.objectStoreNames.contains('backups')) {
             const store = db.createObjectStore('backups', { keyPath: 'id' })
             store.createIndex('timestamp', 'timestamp', { unique: false })
+            console.log('✨ Backup history object store created')
           }
         },
       })
 
+      console.log('📂 Database opened successfully')
       await db.add('backups', entry)
-      console.log('📝 Backup added to history:', entry)
+      console.log('✅ Backup added to history successfully:', entry)
+
+      // Verify it was saved
+      const verify = await db.get('backups', entry.id)
+      console.log('🔍 Verification - backup in DB:', verify)
     } catch (error) {
-      console.error('Failed to save backup to history:', error)
+      console.error('❌ Failed to save backup to history:', error)
     }
   }
 
@@ -326,7 +340,14 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
         // USE FILE SYSTEM ACCESS API - Save to configured folder
         const bundle = await generateBackupBundle(passphrase, companyId || '')
         console.log('📦 Generated backup bundle:', bundle)
-        const fileName = `audacious-backup-${new Date().toISOString().slice(0, 10)}.json`
+
+        // Generate unique filename with timestamp (YYYY-MM-DD-HHMMSS)
+        // This ensures each backup has a unique name and won't overwrite previous backups
+        const now = new Date()
+        const dateStr = now.toISOString().slice(0, 10) // YYYY-MM-DD
+        const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, '') // HHMMSS
+        const fileName = `audacious-backup-${dateStr}-${timeStr}.json`
+        console.log('📝 Backup filename:', fileName)
 
         const writeResult = await writeBackupToFile({
           bundle,
