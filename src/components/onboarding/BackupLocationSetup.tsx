@@ -370,21 +370,12 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
             happens behind the scenes - you won't have to think about it again.
           </p>
 
-          <div className={styles.infoBox}>
-            <h3 className={styles.infoBoxTitle}>Why do I need this?</h3>
-            <p className={styles.infoBoxText}>
-              Browsers sometimes clear their storage unexpectedly. Automatic backups mean your
-              financial data is always safe, even if that happens. Plus, you can see the
-              backup files right on your computer - your data, your control.
-            </p>
-          </div>
-
           <div className={styles.features}>
             <div className={styles.feature}>
               <span className={styles.featureIcon} aria-hidden="true">
                 🔒
               </span>
-              <span className={styles.featureText}>Bank-level encryption</span>
+              <span className={styles.featureText}>Military-grade encryption (AES-256)</span>
             </div>
             <div className={styles.feature}>
               <span className={styles.featureIcon} aria-hidden="true">
@@ -444,6 +435,7 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
             onClick={handleChooseFolder}
             loading={state.isLoading}
             disabled={state.isLoading}
+            style={{ backgroundColor: '#7c3aed', borderColor: '#7c3aed' }}
           >
             Choose Backup Location
           </Button>

@@ -101,6 +101,7 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
   const [error, setError] = useState<string | null>(null)
   const [creatingBackup, setCreatingBackup] = useState(false)
   const [backupSuccess, setBackupSuccess] = useState(false)
+  const [backupSavedToFolder, setBackupSavedToFolder] = useState(false)
 
   // Load backup status and history on mount
   useEffect(() => {
@@ -258,10 +259,13 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
 
       // Check if user has a backup folder configured
       const dirHandle = await retrieveDirectoryHandle()
+      console.log('🔍 Backup Now: Retrieved directory handle:', dirHandle)
 
       if (dirHandle) {
+        console.log('✅ Using File System Access API - saving to configured folder')
         // USE FILE SYSTEM ACCESS API - Save to configured folder
         const bundle = await generateBackupBundle(passphrase, companyId || '')
+        console.log('📦 Generated backup bundle:', bundle)
         const fileName = `audacious-backup-${new Date().toISOString().slice(0, 10)}.json`
 
         const writeResult = await writeBackupToFile({
@@ -272,8 +276,12 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
           },
         })
 
+        console.log('💾 Write result:', writeResult)
+
         if (writeResult.success) {
+          console.log('✅ Backup saved to folder successfully!')
           setBackupSuccess(true)
+          setBackupSavedToFolder(true)
           setBackupStatus((prev) =>
             prev
               ? {
@@ -284,26 +292,33 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
           )
 
           // Auto-hide success message after 5 seconds
-          setTimeout(() => setBackupSuccess(false), 5000)
+          setTimeout(() => {
+            setBackupSuccess(false)
+            setBackupSavedToFolder(false)
+          }, 5000)
 
           // Reload backup history
           await loadBackupData()
           onSettingsChange?.()
         } else {
+          console.error('❌ Failed to save backup to folder:', writeResult.error)
           setError(
             writeResult.error ||
               'Failed to save backup to your folder. Please check folder permissions.'
           )
         }
       } else {
+        console.log('⚠️ No directory handle found - falling back to Downloads folder')
         // FALLBACK - Download to browser downloads folder
         const result = await BackupService.createBackup(passphrase)
 
         if (result.success && result.blob && result.filename) {
           // Download the backup
           BackupService.downloadBackup(result.blob, result.filename)
+          console.log('⬇️ Backup downloaded to Downloads folder')
 
           setBackupSuccess(true)
+          setBackupSavedToFolder(false)
           setBackupStatus((prev) =>
             prev
               ? {
@@ -314,12 +329,16 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
           )
 
           // Auto-hide success message after 5 seconds
-          setTimeout(() => setBackupSuccess(false), 5000)
+          setTimeout(() => {
+            setBackupSuccess(false)
+            setBackupSavedToFolder(false)
+          }, 5000)
 
           // Reload backup history
           await loadBackupData()
           onSettingsChange?.()
         } else {
+          console.error('❌ Failed to create backup:', result.error)
           setError(result.error || 'Failed to create backup. Please try again.')
         }
       }
@@ -420,8 +439,9 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
       {/* Success Message */}
       {backupSuccess && (
         <Alert variant="success" showIcon>
-          Backup complete! Your data is safe and sound. The backup file has been downloaded to
-          your computer.
+          {backupSavedToFolder
+            ? `✅ Backup complete! Your data is safe and sound. The backup was saved to your backup folder: ${backupStatus?.location || 'your selected folder'}`
+            : '⬇️ Backup complete! Your data is safe and sound. The backup file has been downloaded to your Downloads folder.'}
         </Alert>
       )}
 
