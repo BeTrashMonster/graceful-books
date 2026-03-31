@@ -129,23 +129,6 @@ export function LaborRolesTab() {
         </Button>
       </div>
 
-      <div className={styles.disclaimer}>
-        <svg
-          className={styles.disclaimerIcon}
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fillRule="evenodd"
-            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-            clipRule="evenodd"
-          />
-        </svg>
-        <p>Labor roles define the compensation rates for team members working on your products.</p>
-      </div>
-
       {error && (
         <div className={styles.error}>
           <p>{error}</p>
@@ -237,12 +220,13 @@ export function LaborRolesTab() {
       {/* Add/Edit Role Modal */}
       {showAddModal && (
         <AddLaborRoleModal
-          role={editingRole}
+          isOpen={showAddModal}
+          editingRole={editingRole}
           onClose={() => {
             setShowAddModal(false);
             setEditingRole(null);
           }}
-          onSave={loadRoles}
+          onSuccess={loadRoles}
         />
       )}
 
