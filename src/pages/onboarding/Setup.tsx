@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import BackupLocationSetup from '../../components/onboarding/BackupLocationSetup'
+import { BackupLocationSetup } from '../../components/onboarding/BackupLocationSetup'
 
 export default function Setup() {
   const navigate = useNavigate()
