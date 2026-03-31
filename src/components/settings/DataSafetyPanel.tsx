@@ -105,6 +105,7 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
 
   // Load backup status and history on mount
   useEffect(() => {
+    console.log('🔄 DataSafetyPanel mounted, loading backup data...')
     loadBackupData()
   }, [companyId])
 
@@ -120,13 +121,22 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
       const dirHandle = await retrieveDirectoryHandle()
       const directoryStatus = await getBackupDirectoryStatus()
 
+      console.log('📊 Directory status:', directoryStatus)
+
+      // Preserve existing lastBackup if we have one, otherwise load from service
+      const existingLastBackup = backupStatus?.lastBackup || null
+
       const status: BackupStatus = {
-        enabled: directoryStatus.hasHandle && directoryStatus.hasPermission,
-        location: directoryStatus.hasHandle ? directoryStatus.name || 'Configured' : null,
-        lastBackup: null, // TODO: Integrate with BackupVersioning service
+        enabled: directoryStatus.configured && (directoryStatus.permissionGranted ?? false),
+        location: directoryStatus.configured ? directoryStatus.folderName || 'Configured' : null,
+        lastBackup: existingLastBackup, // Preserve existing lastBackup (TODO: load from BackupVersioning)
         nextBackup: null, // TODO: Integrate with BackupScheduler service
-        error: directoryStatus.error || null,
+        error: directoryStatus.needsReauthorization
+          ? 'Permission needs to be renewed. Please re-select your backup folder.'
+          : null,
       }
+
+      console.log('✅ Backup status loaded:', status)
 
       // TODO: Load backup history from BackupVersioning service
       const history: BackupHistoryEntry[] = []
@@ -282,14 +292,17 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
           console.log('✅ Backup saved to folder successfully!')
           setBackupSuccess(true)
           setBackupSavedToFolder(true)
-          setBackupStatus((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  lastBackup: new Date(),
-                }
-              : null
-          )
+
+          // Update backup status with location and timestamp
+          const newStatus = {
+            enabled: true,
+            location: writeResult.filePath || 'Configured',
+            lastBackup: new Date(),
+            nextBackup: null,
+            error: null,
+          }
+          console.log('📝 Updating backup status to:', newStatus)
+          setBackupStatus(newStatus)
 
           // Auto-hide success message after 5 seconds
           setTimeout(() => {
@@ -297,8 +310,6 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
             setBackupSavedToFolder(false)
           }, 5000)
 
-          // Reload backup history
-          await loadBackupData()
           onSettingsChange?.()
         } else {
           console.error('❌ Failed to save backup to folder:', writeResult.error)
@@ -319,14 +330,15 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
 
           setBackupSuccess(true)
           setBackupSavedToFolder(false)
-          setBackupStatus((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  lastBackup: new Date(),
-                }
-              : null
-          )
+
+          // Update backup status with timestamp (no location since this is Downloads)
+          setBackupStatus((prev) => ({
+            enabled: false,
+            location: null,
+            lastBackup: new Date(),
+            nextBackup: prev?.nextBackup || null,
+            error: null,
+          }))
 
           // Auto-hide success message after 5 seconds
           setTimeout(() => {
@@ -334,8 +346,6 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
             setBackupSavedToFolder(false)
           }, 5000)
 
-          // Reload backup history
-          await loadBackupData()
           onSettingsChange?.()
         } else {
           console.error('❌ Failed to create backup:', result.error)

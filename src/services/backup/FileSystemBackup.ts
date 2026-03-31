@@ -662,12 +662,19 @@ export async function getBackupDirectoryStatus(): Promise<{
  */
 async function openFileHandleDB(): Promise<IDBPDatabase> {
   try {
-    return await openDB('GracefulBooksFileHandles', 1, {
-      upgrade(db) {
-        // Create object store if it doesn't exist
-        if (!db.objectStoreNames.contains(FILE_HANDLE_STORE)) {
-          db.createObjectStore(FILE_HANDLE_STORE);
+    return await openDB('GracefulBooksFileHandles', 2, {
+      upgrade(db, oldVersion) {
+        console.log('🔧 Upgrading file handle DB from version', oldVersion, 'to 2');
+
+        // Delete old object store if it exists (clean slate)
+        if (db.objectStoreNames.contains(FILE_HANDLE_STORE)) {
+          console.log('🗑️ Deleting old object store for fresh start');
+          db.deleteObjectStore(FILE_HANDLE_STORE);
         }
+
+        // Create fresh object store without keyPath (for out-of-line keys)
+        console.log('✨ Creating fresh object store for FileSystemHandles');
+        db.createObjectStore(FILE_HANDLE_STORE);
       },
     });
   } catch (error) {
