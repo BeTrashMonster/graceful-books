@@ -305,12 +305,12 @@ export async function storeDirectoryHandle(
 
     // Open IndexedDB database for file handles
     const db = await openFileHandleDB();
-
-    // Store the handle directly (browsers support this)
     const transaction = db.transaction([FILE_HANDLE_STORE], 'readwrite');
     const store = transaction.objectStore(FILE_HANDLE_STORE);
 
-    const storedData: StoredFileHandle = {
+    // CRITICAL FIX: Store handle as direct value, not nested in object
+    // FileSystemDirectoryHandle needs to be stored directly for proper serialization
+    const metadata: StoredFileHandle = {
       id: BACKUP_DIR_HANDLE_KEY,
       type: 'directory',
       name: handle.name,
@@ -318,15 +318,22 @@ export async function storeDirectoryHandle(
       createdAt: Date.now(),
     };
 
-    // Store both the metadata and the actual handle
+    // Store metadata
+    await store.put(metadata);
+
+    // Store the actual handle with a different key
+    const handleKey = `${BACKUP_DIR_HANDLE_KEY}_handle`;
     await store.put({
-      ...storedData,
-      handle, // Store the actual FileSystemDirectoryHandle
+      id: handleKey,
+      handle: handle, // Store handle directly
     });
 
     await new Promise<void>((resolve, reject) => {
       transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(transaction.error);
+      transaction.onerror = (event) => {
+        console.error('IndexedDB transaction error:', event);
+        reject(transaction.error);
+      };
     });
 
     fileSystemLogger.info('Directory handle stored successfully');
@@ -334,6 +341,7 @@ export async function storeDirectoryHandle(
     return { success: true };
   } catch (error) {
     fileSystemLogger.error('Failed to store directory handle', { error });
+    console.error('Full error details:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to store directory handle',
@@ -362,21 +370,29 @@ export async function retrieveDirectoryHandle(): Promise<FileSystemDirectoryHand
     const transaction = db.transaction([FILE_HANDLE_STORE], 'readonly');
     const store = transaction.objectStore(FILE_HANDLE_STORE);
 
-    const result = await store.get(BACKUP_DIR_HANDLE_KEY);
+    // CRITICAL FIX: Retrieve handle from separate key
+    const handleKey = `${BACKUP_DIR_HANDLE_KEY}_handle`;
+    const handleRecord = await store.get(handleKey);
 
-    if (!result || !result.handle) {
+    if (!handleRecord || !handleRecord.handle) {
       fileSystemLogger.debug('No stored directory handle found');
+      console.log('🔍 Debug: handleRecord:', handleRecord);
       return null;
     }
 
-    fileSystemLogger.debug('Retrieved directory handle', {
-      name: result.name,
-      lastVerified: new Date(result.lastVerified).toISOString(),
-    });
+    // Get metadata for logging
+    const metadata = await store.get(BACKUP_DIR_HANDLE_KEY);
+    if (metadata) {
+      fileSystemLogger.debug('Retrieved directory handle', {
+        name: metadata.name,
+        lastVerified: new Date(metadata.lastVerified).toISOString(),
+      });
+    }
 
-    return result.handle;
+    return handleRecord.handle;
   } catch (error) {
     fileSystemLogger.error('Failed to retrieve directory handle', { error });
+    console.error('🔍 Debug: Retrieval error:', error);
     return null;
   }
 }
@@ -565,7 +581,10 @@ export async function clearDirectoryHandle(): Promise<{ success: boolean; error?
     const transaction = db.transaction([FILE_HANDLE_STORE], 'readwrite');
     const store = transaction.objectStore(FILE_HANDLE_STORE);
 
+    // Delete both metadata and handle
     await store.delete(BACKUP_DIR_HANDLE_KEY);
+    const handleKey = `${BACKUP_DIR_HANDLE_KEY}_handle`;
+    await store.delete(handleKey);
 
     await new Promise<void>((resolve, reject) => {
       transaction.oncomplete = () => resolve();
