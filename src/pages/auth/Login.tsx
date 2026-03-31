@@ -93,7 +93,7 @@ export default function Login() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #4b006e 0%, #6d28d9 100%)',
+        background: '#4b006e',
         padding: '1rem',
       }}
     >
