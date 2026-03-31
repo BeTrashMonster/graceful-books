@@ -378,6 +378,8 @@ export default function CPGDashboard() {
   };
 
   const handleNodeClick = (nodeId: string, nodeType: string) => {
+    console.log('🖱️ Dashboard node clicked:', { nodeId, nodeType });
+
     if (nodeType === 'category') {
       // Build URL params for CPU Tracker > Cost Intelligence > Vendor Intel
       const { startDate, endDate } = getDateRange();
@@ -388,13 +390,19 @@ export default function CPGDashboard() {
         startDate: startDate.toString(),
         endDate: endDate.toString(),
       });
-      navigate(`/cpg/cpu-tracker?${params.toString()}`);
+      const url = `/cpg/cpu-tracker?${params.toString()}`;
+      console.log('🚀 Navigating to:', url);
+      console.log('📋 URL params:', Object.fromEntries(params.entries()));
+      navigate(url);
     } else if (nodeType === 'distribution') {
+      console.log('🚀 Navigating to: /cpg/distribution-cost');
       navigate('/cpg/distribution-cost');
     } else if (nodeType === 'promo') {
+      console.log('🚀 Navigating to: /cpg/promo-decision');
       navigate('/cpg/promo-decision');
     } else if (nodeType === 'events') {
       // Navigate to Event Tracker tab WITHOUT date filters (to show all events)
+      console.log('🚀 Navigating to: /cpg/events-analysis?tab=event-tracker');
       navigate('/cpg/events-analysis?tab=event-tracker');
     }
   };

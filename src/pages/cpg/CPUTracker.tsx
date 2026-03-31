@@ -62,7 +62,17 @@ export default function CPUTracker() {
   useEffect(() => {
     const hasUrlNavigation = searchParams.get('tab') === 'comparison' && searchParams.get('intelligenceTab');
 
+    console.log('🔧 Pinned tab effect running:', {
+      isPinningLoading,
+      defaultTab,
+      hasUrlNavigation,
+      urlTab: searchParams.get('tab'),
+      urlIntelTab: searchParams.get('intelligenceTab'),
+      willApplyPinnedTab: !isPinningLoading && defaultTab && !hasUrlNavigation
+    });
+
     if (!isPinningLoading && defaultTab && !hasUrlNavigation) {
+      console.log('📌 Applying pinned default tab:', defaultTab);
       setActiveTab(defaultTab as CPUTrackerTab);
     }
   }, [defaultTab, isPinningLoading, searchParams]);
@@ -160,21 +170,42 @@ export default function CPUTracker() {
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
 
+    console.log('🔍 URL Navigation effect running:', {
+      tab,
+      intelligenceTab,
+      categoryId,
+      categoryIds,
+      productIds,
+      allParams: Object.fromEntries(searchParams.entries())
+    });
+
     // If tab param is present, apply navigation
     if (tab === 'comparison' && intelligenceTab) {
+      console.log('✅ URL navigation conditions met - setting activeTab to "comparison"');
       setActiveTab('comparison');
 
-      setUrlNavigationParams({
+      const navParams = {
         intelligenceTab,
         categoryId: categoryId || undefined,
         categoryIds: categoryIds ? categoryIds.split(',') : undefined,
         productIds: productIds ? productIds.split(',') : undefined,
         startDate: startDate ? parseInt(startDate) : undefined,
         endDate: endDate ? parseInt(endDate) : undefined,
-      });
+      };
+
+      console.log('📝 Setting URL navigation params:', navParams);
+      setUrlNavigationParams(navParams);
 
       // Clear URL params after applying them (keep URL clean)
+      console.log('🧹 Clearing URL params');
       setSearchParams({});
+    } else {
+      console.log('⚠️ URL navigation conditions NOT met:', {
+        hasTab: !!tab,
+        tabValue: tab,
+        hasIntelligenceTab: !!intelligenceTab,
+        intelligenceTabValue: intelligenceTab
+      });
     }
   }, [searchParams, setSearchParams]);
 
