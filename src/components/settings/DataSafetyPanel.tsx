@@ -526,7 +526,8 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
               <p className={styles.infoText}>
                 Your data is automatically backed up to{' '}
                 <strong>{backupStatus.location}</strong> every day and whenever you make important
-                changes. All backups are encrypted with bank-level security.
+                changes. Zero-knowledge encryption means we can never see your data - only you have
+                the key.
               </p>
             </div>
           )}
@@ -590,12 +591,8 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
             <h4 className={styles.securityTitle}>How your backups are protected</h4>
             <ul className={styles.securityList}>
               <li>
-                <strong>Bank-level encryption:</strong> Your backups are encrypted with
-                AES-256-GCM, the same encryption banks use to protect financial data.
-              </li>
-              <li>
-                <strong>Zero-knowledge security:</strong> Your backup files are encrypted before
-                leaving your device. We can't see your data - only you have the key.
+                <strong>Zero-knowledge encryption:</strong> Your backup files are encrypted before
+                leaving your device. We can never see your data - only you have the key.
               </li>
               <li>
                 <strong>Multiple safety nets:</strong> Keep backups on your computer, in your

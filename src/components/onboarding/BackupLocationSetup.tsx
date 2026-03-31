@@ -118,6 +118,15 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
     setState(prev => ({ ...prev, isLoading: true, error: null }))
 
     try {
+      // Check IndexedDB availability
+      if (!('indexedDB' in window)) {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: 'Your browser doesn\'t support offline storage. Please use a modern browser like Chrome or Edge.',
+        }))
+        return
+      }
       // Show directory picker
       // @ts-expect-error - File System Access API not in TypeScript DOM types yet
       const directoryHandle = await window.showDirectoryPicker({
@@ -148,12 +157,16 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
 
       // Get the directory name for display
       const directoryPath = directoryHandle.name
+      console.log('📁 Selected folder:', directoryPath)
 
       // Store the handle in IndexedDB using FileSystemBackup service
+      console.log('💾 Attempting to store directory handle in IndexedDB...')
       const { storeDirectoryHandle } = await import('../../services/backup/FileSystemBackup')
       const storeResult = await storeDirectoryHandle(directoryHandle)
+      console.log('💾 Store result:', storeResult)
 
       if (!storeResult.success) {
+        console.error('❌ Failed to store directory handle:', storeResult.error)
         setState(prev => ({
           ...prev,
           isLoading: false,
@@ -161,6 +174,13 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
         }))
         return
       }
+
+      console.log('✅ Directory handle stored successfully!')
+
+      // Verify it was stored by trying to retrieve it
+      const { retrieveDirectoryHandle } = await import('../../services/backup/FileSystemBackup')
+      const retrieved = await retrieveDirectoryHandle()
+      console.log('🔍 Verification - Retrieved handle:', retrieved)
 
       setState(prev => ({
         ...prev,
@@ -375,7 +395,9 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
               <span className={styles.featureIcon} aria-hidden="true">
                 🔒
               </span>
-              <span className={styles.featureText}>Military-grade encryption (AES-256)</span>
+              <span className={styles.featureText}>
+                Zero-knowledge encryption (we can never see your data)
+              </span>
             </div>
             <div className={styles.feature}>
               <span className={styles.featureIcon} aria-hidden="true">
