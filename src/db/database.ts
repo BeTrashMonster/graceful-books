@@ -1765,6 +1765,11 @@ export class TreasureChestDB extends Dexie {
       tabPreferences: tabPreferencesSchema,
     });
 
+    // Version 27: Add S+H distribution support to CPG categories (is_distribution_category index)
+    this.version(27).stores({
+      cpgCategories: cpgCategoriesSchema,
+    });
+
     // Add hooks for automatic audit logging
     this.setupAuditHooks();
 

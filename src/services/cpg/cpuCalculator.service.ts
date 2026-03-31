@@ -28,6 +28,7 @@ import Database from '../../db/database';
 import type {
   CPGInvoice,
 } from '../../db/schema/cpg.schema';
+import { ShippingDistributionService } from './shippingDistribution.service';
 import {
   validateCPGInvoice,
   normalizeVariant,
@@ -811,17 +812,41 @@ export class CPUCalculatorService {
       for (const invoice of relevantInvoices) {
         const costAttribution = invoice.cost_attribution;
 
+        // Check if this invoice has any S+H distribution lines
+        const hasShippingDistribution = Object.values(costAttribution).some(
+          attr => attr.distribution_method !== undefined
+        );
+
         // Find line items for this category/variant
-        for (const [_key, attr] of Object.entries(costAttribution)) {
+        for (const [lineKey, attr] of Object.entries(costAttribution)) {
+          // Skip S+H distribution lines - they're not raw materials themselves
+          if (attr.distribution_method) {
+            continue;
+          }
+
           const matchesCategory = attr.category_id === categoryId;
           const normalizedAttrVariant = normalizeVariant(attr.variant);
           const matchesVariant = normalizedAttrVariant === normalizedTargetVariant;
 
           if (matchesCategory && matchesVariant) {
-            // Calculate cost for this line item (use manual override if present)
-            const lineCost = attr.manual_line_total
-              ? new Decimal(attr.manual_line_total)
-              : new Decimal(attr.units_purchased).times(new Decimal(attr.unit_price));
+            // Calculate cost for this line item
+            // If the invoice has S+H distribution, use landed cost (material + distributed S+H)
+            // Otherwise, use the raw material cost
+            let lineCost: Decimal;
+
+            if (hasShippingDistribution) {
+              // Use landed cost which includes distributed S+H
+              const landedCostData = ShippingDistributionService.calculateLandedCost(
+                invoice,
+                lineKey
+              );
+              lineCost = new Decimal(landedCostData.landedCost);
+            } else {
+              // No S+H distribution - use raw material cost
+              lineCost = attr.manual_line_total
+                ? new Decimal(attr.manual_line_total)
+                : new Decimal(attr.units_purchased).times(new Decimal(attr.unit_price));
+            }
 
             const lineUnits = new Decimal(attr.units_received || attr.units_purchased);
 

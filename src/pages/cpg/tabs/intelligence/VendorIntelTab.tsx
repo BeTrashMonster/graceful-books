@@ -164,6 +164,9 @@ export default function VendorIntelTab({
     localInvoices.forEach(inv => {
       const attrs = inv.cost_attribution || {};
       Object.values(attrs).forEach(attr => {
+        // Skip S+H distribution lines (they're distributed to materials)
+        if (attr.distribution_method) return;
+
         const unitPrice = parseFloat(attr.unit_price);
         const units = parseFloat(attr.units_purchased);
         if (!isNaN(unitPrice) && !isNaN(units)) {
@@ -314,6 +317,9 @@ export default function VendorIntelTab({
 
     filteredInvoices.forEach(inv => {
       Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
+        // Skip S+H distribution lines (they're distributed to materials)
+        if (attr.distribution_method) return;
+
         const variants = componentCategories.get(attr.category_id);
         if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
           const unitPrice = parseFloat(attr.unit_price);
@@ -362,6 +368,9 @@ export default function VendorIntelTab({
     // Collect data for this vendor (filtered by date range)
     filteredInvoices.forEach(inv => {
       Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
+        // Skip S+H distribution lines (they're distributed to materials)
+        if (attr.distribution_method) return;
+
         const variants = componentCategories.get(attr.category_id);
         if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
           const compKey = `${attr.category_id}:${attr.variant || ''}`;
@@ -396,6 +405,9 @@ export default function VendorIntelTab({
       if (endDate > 0 && inv.invoice_date > endDate) return;
 
       Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
+        // Skip S+H distribution lines (they're distributed to materials)
+        if (attr.distribution_method) return;
+
         const variants = componentCategories.get(attr.category_id);
         if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
           const compKey = `${attr.category_id}:${attr.variant || ''}`;
@@ -551,19 +563,23 @@ export default function VendorIntelTab({
           break;
         case 'total':
           aVal = Object.values(a.cost_attribution || {}).reduce((sum, attr) => {
+            // Skip S+H distribution lines
+            if (attr.distribution_method) return sum;
             const unitPrice = parseFloat(attr.unit_price);
             const units = parseFloat(attr.units_purchased);
             return sum + (isNaN(unitPrice) || isNaN(units) ? 0 : unitPrice * units);
           }, 0);
           bVal = Object.values(b.cost_attribution || {}).reduce((sum, attr) => {
+            // Skip S+H distribution lines
+            if (attr.distribution_method) return sum;
             const unitPrice = parseFloat(attr.unit_price);
             const units = parseFloat(attr.units_purchased);
             return sum + (isNaN(unitPrice) || isNaN(units) ? 0 : unitPrice * units);
           }, 0);
           break;
         case 'components':
-          aVal = Object.keys(a.cost_attribution || {}).length;
-          bVal = Object.keys(b.cost_attribution || {}).length;
+          aVal = Object.values(a.cost_attribution || {}).filter(attr => !attr.distribution_method).length;
+          bVal = Object.values(b.cost_attribution || {}).filter(attr => !attr.distribution_method).length;
           break;
         default:
           return 0;
@@ -674,6 +690,9 @@ export default function VendorIntelTab({
         stats.invoices.add(inv.id);
 
         Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
+          // Skip S+H distribution lines (they're distributed to materials)
+          if (attr.distribution_method) return;
+
           // If showing all vendor components, don't filter by componentCategories
           // Otherwise, only show components used in selected products
           const shouldInclude = showAllVendorComponents || (() => {
@@ -756,6 +775,9 @@ export default function VendorIntelTab({
       if (!inv.vendor_name) return;
 
       Object.values(inv.cost_attribution || {}).forEach(attr => {
+        // Skip S+H distribution lines (they're distributed to materials)
+        if (attr.distribution_method) return;
+
         if (attr.category_id !== categoryId) return;
 
         const variant = attr.variant || null;
@@ -894,6 +916,8 @@ export default function VendorIntelTab({
         }
 
         const hasRelevantComponent = Object.values(inv.cost_attribution || {}).some(attr => {
+          // Skip S+H distribution lines
+          if (attr.distribution_method) return false;
           const variants = componentCategories.get(attr.category_id);
           return variants && (variants.size === 0 || variants.has(attr.variant || ''));
         });
@@ -910,6 +934,9 @@ export default function VendorIntelTab({
 
       filteredInvoices.forEach(inv => {
         Object.values(inv.cost_attribution || {}).forEach(attr => {
+          // Skip S+H distribution lines (they're distributed to materials)
+          if (attr.distribution_method) return;
+
           // If showing all vendor components, include everything
           // Otherwise, only include components in componentCategories
           if (!showAllVendorComponents) {
@@ -1287,6 +1314,9 @@ export default function VendorIntelTab({
 
       const attrs = inv.cost_attribution || {};
       Object.entries(attrs).forEach(([key, attr], idx) => {
+        // Skip S+H distribution lines (they're distributed to materials)
+        if (attr.distribution_method) return;
+
         if (!componentsToExport.includes(attr.category_id)) return;
 
         const categoryName = categories.find(c => c.id === attr.category_id)?.name || 'Unknown';
@@ -1885,6 +1915,8 @@ export default function VendorIntelTab({
                             const attrs = inv.cost_attribution || {};
                             return Object.keys(attrs).some(key => {
                               const attr = attrs[key];
+                              // Skip S+H distribution lines
+                              if (attr.distribution_method) return false;
                               return attr.category_id === comp.categoryId &&
                                      (attr.variant || '') === (comp.variant || '');
                             });
@@ -2211,8 +2243,10 @@ export default function VendorIntelTab({
                       </thead>
                       <tbody>
                         {sortedVendorInvoices.map((inv) => {
-                          const componentCount = Object.keys(inv.cost_attribution || {}).length;
+                          const componentCount = Object.values(inv.cost_attribution || {}).filter(attr => !attr.distribution_method).length;
                           const total = Object.values(inv.cost_attribution || {}).reduce((sum, attr) => {
+                            // Skip S+H distribution lines (they're distributed to materials)
+                            if (attr.distribution_method) return sum;
                             const unitPrice = parseFloat(attr.unit_price);
                             const units = parseFloat(attr.units_purchased);
                             return sum + (isNaN(unitPrice) || isNaN(units) ? 0 : unitPrice * units);

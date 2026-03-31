@@ -23,11 +23,12 @@ import type { BaseEntity } from '../../types/database.types';
 export interface CPGCategory extends BaseEntity {
   id: string;
   company_id: string;
-  name: string; // e.g., "Oil", "Bottle", "Box", "Impact"
+  name: string; // e.g., "Oil", "Bottle", "Box", "Impact", "Shipping + Handling"
   description: string | null;
   variants: string[] | null; // User-defined variants (e.g., ["Small", "Large"] or ["8oz", "16oz", "32oz"] or null for no variants)
   unit_of_measure: string; // e.g., "oz", "ml", "each", "lb", "g"
   sort_order: number; // Display order
+  is_distribution_category: boolean; // true for S+H categories that distribute costs to other line items
   active: boolean;
   created_at: number;
   updated_at: number;
@@ -36,14 +37,15 @@ export interface CPGCategory extends BaseEntity {
 }
 
 export const cpgCategoriesSchema =
-  'id, company_id, active, [company_id+active], sort_order, updated_at, deleted_at';
+  'id, company_id, active, [company_id+active], sort_order, updated_at, deleted_at, is_distribution_category, [company_id+is_distribution_category]';
 
 export const createDefaultCPGCategory = (
   companyId: string,
   name: string,
   deviceId: string,
   variants?: string[],
-  unitOfMeasure: string = 'each'
+  unitOfMeasure: string = 'each',
+  isDistributionCategory: boolean = false
 ): Partial<CPGCategory> => {
   const now = Date.now();
   return {
@@ -53,6 +55,7 @@ export const createDefaultCPGCategory = (
     variants: variants || null, // User provides variants, or null for no variants
     unit_of_measure: unitOfMeasure,
     sort_order: 999,
+    is_distribution_category: isDistributionCategory,
     active: true,
     created_at: now,
     updated_at: now,
@@ -66,6 +69,24 @@ export const validateCPGCategory = (category: Partial<CPGCategory>): string[] =>
   if (!category.company_id) errors.push('company_id is required');
   if (!category.name || category.name.trim() === '') errors.push('name is required');
   return errors;
+};
+
+/**
+ * Creates the default "Shipping + Handling" distribution category
+ * This category is special - it distributes its costs to other line items on the invoice
+ */
+export const createShippingHandlingCategory = (
+  companyId: string,
+  deviceId: string
+): Partial<CPGCategory> => {
+  return createDefaultCPGCategory(
+    companyId,
+    'Shipping + Handling',
+    deviceId,
+    null, // No variants
+    'total', // Unit of measure
+    true // This is a distribution category
+  );
 };
 
 // ============================================================================
@@ -94,6 +115,7 @@ export interface CPGInvoice extends BaseEntity {
       unit_price: string;
       units_received: string | null; // For reconciliation
       manual_line_total?: string; // Optional override for rounding discrepancies
+      distribution_method?: 'equal' | 'weighted'; // For S+H categories: how to distribute costs
     }
   >;
 

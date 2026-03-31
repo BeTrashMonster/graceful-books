@@ -15,6 +15,7 @@ import { db } from '../../../db/database';
 import { createDefaultCPGInvoice, validateCPGInvoice, createDefaultCPGVendor } from '../../../db/schema/cpg.schema';
 import type { CPGCategory, CPGVendor } from '../../../db/schema/cpg.schema';
 import { cpuCalculatorService } from '../../../services/cpg/cpuCalculator.service';
+import { CPGCategoryService } from '../../../services/cpg/cpgCategory.service';
 import { v4 as uuidv4 } from 'uuid';
 import { processMathInput } from '../../../utils/mathParser';
 import { processDateInput } from '../../../utils/dateUtils';
@@ -38,6 +39,7 @@ interface CostAttributionItem {
   unit_price: string;
   units_received: string;
   manual_line_total?: string; // Optional override for rounding issues
+  distribution_method?: 'equal' | 'weighted'; // For S+H categories only
   showAdvanced?: boolean; // Toggle for advanced fields
 }
 
@@ -125,6 +127,9 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
 
     const loadData = async () => {
       try {
+        // Ensure S+H category exists for this company
+        await CPGCategoryService.ensureShippingHandlingCategory(companyId, deviceId);
+
         // Load categories (alphabetically)
         const cats = await db.cpgCategories
           .where('company_id')
@@ -206,6 +211,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
           unit_price: item.unit_price,
           units_received: item.units_received || item.units_purchased,
           manual_line_total: undefined, // Don't preserve manual overrides in edit mode
+          distribution_method: item.distribution_method,
         }));
 
         setCostItems(items);
@@ -231,6 +237,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         units_purchased: '',
         unit_price: '',
         units_received: '',
+        distribution_method: undefined,
       },
     ]);
   };
@@ -240,6 +247,9 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
   };
 
   const updateCostItem = (id: string, field: keyof CostAttributionItem, value: any) => {
+    if (field === 'distribution_method') {
+      console.log('[AddInvoiceModal] updateCostItem - distribution_method:', { id, value });
+    }
     setCostItems(prev =>
       prev.map(item => {
         if (item.id === id) {
@@ -250,6 +260,9 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
             if (!item.units_received || item.units_received === item.units_purchased) {
               updated.units_received = value;
             }
+          }
+          if (field === 'distribution_method') {
+            console.log('[AddInvoiceModal] Updated item:', updated);
           }
           return updated;
         }
@@ -350,15 +363,32 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         return;
       }
 
-      if (!item.units_purchased || parseFloat(item.units_purchased) <= 0) {
-        setErrors(prev => ({ ...prev, [`item_${index}_units`]: 'Units purchased required' }));
+      // If category is a distribution category (S+H), distribution method must be selected
+      if (category.is_distribution_category && !item.distribution_method) {
+        setErrors(prev => ({ ...prev, [`item_${index}_distribution`]: 'Distribution method required' }));
         hasErrors = true;
         return;
       }
-      if (!item.unit_price || parseFloat(item.unit_price) <= 0) {
-        setErrors(prev => ({ ...prev, [`item_${index}_price`]: 'Unit price required' }));
-        hasErrors = true;
-        return;
+
+      // For S+H categories, units is auto-set to 1, so only validate price (total cost)
+      if (category.is_distribution_category) {
+        if (!item.unit_price || parseFloat(item.unit_price) <= 0) {
+          setErrors(prev => ({ ...prev, [`item_${index}_price`]: 'Total cost required' }));
+          hasErrors = true;
+          return;
+        }
+      } else {
+        // For material categories, validate both units and price
+        if (!item.units_purchased || parseFloat(item.units_purchased) <= 0) {
+          setErrors(prev => ({ ...prev, [`item_${index}_units`]: 'Units purchased required' }));
+          hasErrors = true;
+          return;
+        }
+        if (!item.unit_price || parseFloat(item.unit_price) <= 0) {
+          setErrors(prev => ({ ...prev, [`item_${index}_price`]: 'Unit price required' }));
+          hasErrors = true;
+          return;
+        }
       }
 
       const key = item.variant
@@ -373,10 +403,21 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         unit_price: item.unit_price,
         units_received: item.units_received || item.units_purchased,
         manual_line_total: item.manual_line_total || undefined,
+        distribution_method: item.distribution_method || undefined,
       };
+
+      console.log('[AddInvoiceModal] Building cost attribution:', {
+        key,
+        category,
+        isDistribution: category.is_distribution_category,
+        item_distribution_method: item.distribution_method,
+        saved_distribution_method: costAttribution[key].distribution_method,
+      });
     });
 
     if (hasErrors) return;
+
+    console.log('[AddInvoiceModal] Final costAttribution:', costAttribution);
 
     // Save to database using cpuCalculatorService (which calculates CPUs)
     setIsSubmitting(true);
@@ -666,6 +707,17 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
           {costItems.map((item, index) => {
             const category = getCategory(item.category_id);
             const hasVariants = category && category.variants && category.variants.length > 0;
+            const isDistributionCategory = category?.is_distribution_category === true;
+
+            // Determine grid layout based on category type
+            let gridColumns = '1.5fr 0.8fr 0.8fr 1.5fr'; // Default: Category, Units, Price, Description
+            if (isDistributionCategory && hasVariants) {
+              gridColumns = '1.5fr 1fr 1fr 1fr 1.2fr'; // Category, Variant, Distribution, Total Cost, Description
+            } else if (isDistributionCategory) {
+              gridColumns = '1.5fr 1fr 1fr 1.2fr'; // Category, Distribution, Total Cost, Description
+            } else if (hasVariants) {
+              gridColumns = '1.5fr 1fr 0.8fr 0.8fr 1.2fr'; // Category, Variant, Units, Price, Description
+            }
 
             return (
               <div key={item.id} className={styles.categoryRow}>
@@ -696,7 +748,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                 )}
 
                 {/* All main fields on one compact row */}
-                <div style={{ display: 'grid', gridTemplateColumns: hasVariants ? '1.5fr 1fr 0.8fr 0.8fr 1.2fr' : '1.5fr 0.8fr 0.8fr 1.5fr', gap: '0.5rem', alignItems: 'start' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: gridColumns, gap: '0.5rem', alignItems: 'start' }}>
                   {/* Category */}
                   <div>
                     <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
@@ -705,8 +757,23 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                     <select
                       value={item.category_id}
                       onChange={(e) => {
+                        const selectedCategory = getCategory(e.target.value);
+                        console.log('[AddInvoiceModal] Category selected:', {
+                          categoryId: e.target.value,
+                          selectedCategory,
+                          isDistribution: selectedCategory?.is_distribution_category,
+                          itemId: item.id
+                        });
                         updateCostItem(item.id, 'category_id', e.target.value);
                         updateCostItem(item.id, 'variant', null); // Reset variant when category changes
+                        // Set default distribution method and units if S+H category
+                        if (selectedCategory?.is_distribution_category) {
+                          console.log('[AddInvoiceModal] Setting distribution method to weighted');
+                          updateCostItem(item.id, 'distribution_method', 'weighted');
+                          updateCostItem(item.id, 'units_purchased', '1'); // S+H always has 1 unit
+                        } else {
+                          updateCostItem(item.id, 'distribution_method', undefined);
+                        }
                       }}
                       style={{
                         width: '100%',
@@ -767,60 +834,23 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                     </div>
                   )}
 
-                  {/* Units Purchased */}
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
-                      Units *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="0"
-                      value={item.units_purchased}
-                      onChange={(e) => updateCostItem(item.id, 'units_purchased', e.target.value)}
-                      onBlur={(e) => {
-                        const { value } = processMathInput(e.target.value, false);
-                        if (value !== e.target.value) {
-                          updateCostItem(item.id, 'units_purchased', value);
-                        }
-                      }}
-                      style={{
-                        width: '100%',
-                        minHeight: '38px',
-                        padding: '0.5rem 0.75rem',
-                        border: errors[`item_${index}_units`] ? '2px solid #dc2626' : '2px solid #d1d5db',
-                        borderRadius: '0.375rem',
-                        fontSize: '0.9375rem',
-                        backgroundColor: '#ffffff',
-                        outline: 'none',
-                        transition: 'border-color 150ms ease-out',
-                      }}
-                      required
-                    />
-                  </div>
-
-                  {/* Unit Price */}
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
-                      Unit Price *
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', fontSize: '0.9375rem', fontWeight: 500 }}>$</span>
-                      <input
-                        type="text"
-                        placeholder="0.00"
-                        value={item.unit_price}
-                        onChange={(e) => updateCostItem(item.id, 'unit_price', e.target.value)}
-                        onBlur={(e) => {
-                          const { value } = processMathInput(e.target.value, true);
-                          if (value !== e.target.value) {
-                            updateCostItem(item.id, 'unit_price', value);
-                          }
+                  {/* Distribution Method (S+H categories only) */}
+                  {category?.is_distribution_category && (
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
+                        Distribution *
+                      </label>
+                      <select
+                        value={item.distribution_method || 'weighted'}
+                        onChange={(e) => {
+                          console.log('[AddInvoiceModal] Distribution method changed:', e.target.value);
+                          updateCostItem(item.id, 'distribution_method', e.target.value as 'equal' | 'weighted');
                         }}
                         style={{
                           width: '100%',
                           minHeight: '38px',
-                          padding: '0.5rem 0.75rem 0.5rem 1.75rem',
-                          border: errors[`item_${index}_price`] ? '2px solid #dc2626' : '2px solid #d1d5db',
+                          padding: '0.5rem 0.75rem',
+                          border: errors[`item_${index}_distribution`] ? '2px solid #dc2626' : '2px solid #d1d5db',
                           borderRadius: '0.375rem',
                           fontSize: '0.9375rem',
                           backgroundColor: '#ffffff',
@@ -828,9 +858,129 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                           transition: 'border-color 150ms ease-out',
                         }}
                         required
-                      />
+                      >
+                        <option value="weighted">Weighted (by value)</option>
+                        <option value="equal">Equal Split</option>
+                      </select>
+                      {errors[`item_${index}_distribution`] && (
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#dc2626' }}>
+                          {errors[`item_${index}_distribution`]}
+                        </p>
+                      )}
                     </div>
-                  </div>
+                  )}
+
+                  {/* For S+H categories: just show Total Cost */}
+                  {isDistributionCategory ? (
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
+                        Total Cost *
+                      </label>
+                      <div style={{ position: 'relative' }}>
+                        <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', fontSize: '0.9375rem', fontWeight: 500 }}>$</span>
+                        <input
+                          type="text"
+                          placeholder="0.00"
+                          value={item.unit_price}
+                          onChange={(e) => {
+                            updateCostItem(item.id, 'unit_price', e.target.value);
+                            updateCostItem(item.id, 'units_purchased', '1'); // Always 1 for S+H
+                          }}
+                          onBlur={(e) => {
+                            const { value } = processMathInput(e.target.value, true);
+                            if (value !== e.target.value) {
+                              updateCostItem(item.id, 'unit_price', value);
+                            }
+                            updateCostItem(item.id, 'units_purchased', '1'); // Ensure it's set
+                          }}
+                          style={{
+                            width: '100%',
+                            minHeight: '38px',
+                            padding: '0.5rem 0.75rem 0.5rem 1.75rem',
+                            border: errors[`item_${index}_price`] ? '2px solid #dc2626' : '2px solid #d1d5db',
+                            borderRadius: '0.375rem',
+                            fontSize: '0.9375rem',
+                            backgroundColor: '#ffffff',
+                            outline: 'none',
+                            transition: 'border-color 150ms ease-out',
+                          }}
+                          required
+                        />
+                      </div>
+                      {errors[`item_${index}_price`] && (
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#dc2626' }}>
+                          {errors[`item_${index}_price`]}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      {/* Units Purchased */}
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
+                          Units *
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="0"
+                          value={item.units_purchased}
+                          onChange={(e) => updateCostItem(item.id, 'units_purchased', e.target.value)}
+                          onBlur={(e) => {
+                            const { value } = processMathInput(e.target.value, false);
+                            if (value !== e.target.value) {
+                              updateCostItem(item.id, 'units_purchased', value);
+                            }
+                          }}
+                          style={{
+                            width: '100%',
+                            minHeight: '38px',
+                            padding: '0.5rem 0.75rem',
+                            border: errors[`item_${index}_units`] ? '2px solid #dc2626' : '2px solid #d1d5db',
+                            borderRadius: '0.375rem',
+                            fontSize: '0.9375rem',
+                            backgroundColor: '#ffffff',
+                            outline: 'none',
+                            transition: 'border-color 150ms ease-out',
+                          }}
+                          required
+                        />
+                      </div>
+
+                      {/* Unit Price */}
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
+                          Unit Price *
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', fontSize: '0.9375rem', fontWeight: 500 }}>$</span>
+                          <input
+                            type="text"
+                            placeholder="0.00"
+                            value={item.unit_price}
+                            onChange={(e) => updateCostItem(item.id, 'unit_price', e.target.value)}
+                            onBlur={(e) => {
+                              const { value } = processMathInput(e.target.value, true);
+                              if (value !== e.target.value) {
+                                updateCostItem(item.id, 'unit_price', value);
+                              }
+                            }}
+                            style={{
+                              width: '100%',
+                              minHeight: '38px',
+                              padding: '0.5rem 0.75rem 0.5rem 1.75rem',
+                              border: errors[`item_${index}_price`] ? '2px solid #dc2626' : '2px solid #d1d5db',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.9375rem',
+                              backgroundColor: '#ffffff',
+                              outline: 'none',
+                              transition: 'border-color 150ms ease-out',
+                            }}
+                            required
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
 
                   {/* Description (Optional) */}
                   <div>

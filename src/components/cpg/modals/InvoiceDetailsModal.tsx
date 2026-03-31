@@ -16,6 +16,7 @@ import { Modal } from '../../modals/Modal';
 import { Button } from '../../core/Button';
 import { db } from '../../../db/database';
 import type { CPGInvoice, CPGCategory } from '../../../db/schema/cpg.schema';
+import { ShippingDistributionService } from '../../../services/cpg/shippingDistribution.service';
 import styles from './CPGModals.module.css';
 
 export interface InvoiceDetailsModalProps {
@@ -250,6 +251,17 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
                           {item.variant && (
                             <span style={{ fontWeight: 400, color: '#64748b' }}> - {item.variant}</span>
                           )}
+                          {item.distribution_method && (
+                            <span style={{
+                              marginLeft: '0.5rem',
+                              fontSize: '0.75rem',
+                              fontWeight: 400,
+                              color: '#64748b',
+                              fontStyle: 'italic'
+                            }}>
+                              ({item.distribution_method === 'equal' ? 'Equal Split' : 'Weighted'})
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
@@ -259,50 +271,138 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
                       </div>
                     </div>
 
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr 1fr',
-                      gap: '1rem',
-                      marginTop: '0.75rem',
-                      paddingTop: '0.75rem',
-                      borderTop: '1px solid #e2e8f0',
-                      fontSize: '0.875rem',
-                    }}>
-                      <div>
-                        <div style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Units Purchased</div>
-                        <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{unitsPurchased.toFixed(2)}</div>
-                      </div>
-                      <div>
-                        <div style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Unit Price</div>
-                        <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{formatCurrency(item.unit_price)}</div>
-                      </div>
-                      <div>
-                        <div style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Units Received</div>
-                        <div style={{
-                          fontWeight: 600,
-                          fontSize: '0.9375rem',
-                          color: hasReconciliation ? '#f59e0b' : 'inherit'
-                        }}>
-                          {unitsReceived.toFixed(2)}
-                          {hasReconciliation && (
-                            <span style={{
-                              marginLeft: '0.375rem',
-                              fontSize: '0.75rem',
-                              color: '#f59e0b',
-                              fontWeight: 500
-                            }}>
-                              ({(unitsPurchased - unitsReceived).toFixed(0)} short)
-                            </span>
-                          )}
+                    {/* For S+H lines, don't show unit breakdown - just a note */}
+                    {!item.distribution_method ? (
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr 1fr',
+                        gap: '1rem',
+                        marginTop: '0.75rem',
+                        paddingTop: '0.75rem',
+                        borderTop: '1px solid #e2e8f0',
+                        fontSize: '0.875rem',
+                      }}>
+                        <div>
+                          <div style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Units Purchased</div>
+                          <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{unitsPurchased.toFixed(2)}</div>
+                        </div>
+                        <div>
+                          <div style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Unit Price</div>
+                          <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{formatCurrency(item.unit_price)}</div>
+                        </div>
+                        <div>
+                          <div style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Units Received</div>
+                          <div style={{
+                            fontWeight: 600,
+                            fontSize: '0.9375rem',
+                            color: hasReconciliation ? '#f59e0b' : 'inherit'
+                          }}>
+                            {unitsReceived.toFixed(2)}
+                            {hasReconciliation && (
+                              <span style={{
+                                marginLeft: '0.375rem',
+                                fontSize: '0.75rem',
+                                color: '#f59e0b',
+                                fontWeight: 500
+                              }}>
+                                ({(unitsPurchased - unitsReceived).toFixed(0)} short)
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div style={{
+                        marginTop: '0.75rem',
+                        paddingTop: '0.75rem',
+                        borderTop: '1px solid #e2e8f0',
+                        fontSize: '0.875rem',
+                        color: '#64748b',
+                        fontStyle: 'italic'
+                      }}>
+                        This cost is distributed across material line items (see breakdown below)
+                      </div>
+                    )}
                   </div>
                 );
               })}
             </div>
           </div>
         )}
+
+        {/* S+H Distribution Breakdown */}
+        {(() => {
+          const shippingBreakdown = ShippingDistributionService.getInvoiceShippingBreakdown(invoice, categories);
+          console.log('[InvoiceDetailsModal] S+H Breakdown:', {
+            invoice,
+            shippingBreakdown,
+            costAttribution: invoice.cost_attribution,
+            hasDistributionMethod: Object.values(invoice.cost_attribution || {}).some(line => line.distribution_method)
+          });
+          if (shippingBreakdown.length === 0) return null;
+
+          return (
+            <div>
+              <div className={styles.sectionHeader}>
+                Shipping + Handling Distribution
+                <span style={{
+                  marginLeft: '0.5rem',
+                  fontSize: '0.75rem',
+                  fontWeight: 400,
+                  color: '#64748b',
+                  fontStyle: 'italic'
+                }}>
+                  (allocated to material costs)
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {shippingBreakdown.map((shItem) => (
+                  <div key={shItem.lineKey} className={styles.categoryRow}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                      <div>
+                        <div className={styles.categoryHeader}>{shItem.lineName}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>
+                          Method: {shItem.distributionMethod === 'equal' ? 'Equal Split' : 'Weighted by Value'}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontWeight: 600, color: '#4b006e', fontSize: '1.125rem' }}>
+                          {formatCurrency(shItem.shTotal)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{
+                      paddingTop: '0.75rem',
+                      borderTop: '1px solid #e2e8f0',
+                    }}>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem', fontWeight: 500 }}>
+                        Distributed to:
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', fontSize: '0.875rem' }}>
+                        {Object.entries(shItem.breakdown.distribution).map(([lineKey, amount]) => {
+                          const lineItem = invoice.cost_attribution[lineKey];
+                          if (!lineItem) return null;
+
+                          const lineCategoryName = getCategoryName(lineItem.category_id);
+                          return (
+                            <div key={lineKey} style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '1rem' }}>
+                              <span style={{ color: '#64748b' }}>
+                                {lineCategoryName}
+                                {lineItem.variant && <span> - {lineItem.variant}</span>}
+                              </span>
+                              <span style={{ fontWeight: 600 }}>{formatCurrency(amount)}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Additional Costs */}
         {invoice.additional_costs && Object.keys(invoice.additional_costs).length > 0 && (
