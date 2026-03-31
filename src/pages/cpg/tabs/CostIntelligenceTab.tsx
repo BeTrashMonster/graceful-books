@@ -147,11 +147,15 @@ export default function CostIntelligenceTab({
 
   // Update active tab when pinned default loads
   useEffect(() => {
-    if (!isPinningLoading && defaultTab) {
-      setIntelligenceTab(defaultTab as IntelligenceSubTab);
-    } else if (!isPinningLoading && initialIntelligenceTab) {
-      // Use initial tab from props if no pinned tab
-      setIntelligenceTab(initialIntelligenceTab);
+    if (!isPinningLoading) {
+      // PRIORITY 1: URL navigation params (from dashboard clicks)
+      if (initialIntelligenceTab) {
+        setIntelligenceTab(initialIntelligenceTab);
+      }
+      // PRIORITY 2: User's pinned default tab
+      else if (defaultTab) {
+        setIntelligenceTab(defaultTab as IntelligenceSubTab);
+      }
     }
   }, [defaultTab, isPinningLoading, initialIntelligenceTab]);
 
