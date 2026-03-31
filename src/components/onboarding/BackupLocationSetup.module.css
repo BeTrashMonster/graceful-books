@@ -201,6 +201,47 @@
   color: var(--color-text-primary, #111827);
 }
 
+/* Tip box - helpful guidance */
+.tipBox {
+  background: #dbeafe;
+  border: 1px solid #3b82f6;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  text-align: left;
+}
+
+.tipHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.tipIcon {
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.tipText {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #1e3a8a;
+  margin: 0 0 0.5rem 0;
+}
+
+.tipWarning {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #92400e;
+  background: #fef3c7;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  margin: 0;
+}
+
 /* Actions footer */
 .actions {
   display: flex;

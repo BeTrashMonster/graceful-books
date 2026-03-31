@@ -23,6 +23,13 @@ import { Button } from '../core/Button'
 import { Alert } from '../feedback/ErrorMessage'
 import { Loading } from '../feedback/Loading'
 import { BackupService } from '../../services/backup'
+import {
+  retrieveDirectoryHandle,
+  storeDirectoryHandle,
+  getBackupDirectoryStatus,
+  writeBackupToFile,
+} from '../../services/backup/FileSystemBackup'
+import { generateBackupBundle } from '../../services/backup/BackupEncryption'
 import styles from './DataSafetyPanel.module.css'
 
 /**
@@ -102,30 +109,29 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
 
   /**
    * Load backup status and history
-   * TODO: Replace with actual FileSystemBackup and BackupVersioning services
    */
   const loadBackupData = async () => {
     setLoading(true)
     setError(null)
 
     try {
-      // TODO: Replace with actual service calls when Phase 2 services are implemented
-      // const status = await FileSystemBackup.getStatus()
-      // const history = await BackupVersioning.getHistory(10)
+      // Get stored directory handle and check status
+      const dirHandle = await retrieveDirectoryHandle()
+      const directoryStatus = await getBackupDirectoryStatus()
 
-      // Placeholder data for demonstration
-      const mockStatus: BackupStatus = {
-        enabled: false, // Will be true once File System Access API is set up
-        location: null, // Will show path once folder is selected
-        lastBackup: null, // Will show timestamp after first backup
-        nextBackup: null, // Will show next scheduled backup time
-        error: null,
+      const status: BackupStatus = {
+        enabled: directoryStatus.hasHandle && directoryStatus.hasPermission,
+        location: directoryStatus.hasHandle ? directoryStatus.name || 'Configured' : null,
+        lastBackup: null, // TODO: Integrate with BackupVersioning service
+        nextBackup: null, // TODO: Integrate with BackupScheduler service
+        error: directoryStatus.error || null,
       }
 
-      const mockHistory: BackupHistoryEntry[] = []
+      // TODO: Load backup history from BackupVersioning service
+      const history: BackupHistoryEntry[] = []
 
-      setBackupStatus(mockStatus)
-      setBackupHistory(mockHistory)
+      setBackupStatus(status)
+      setBackupHistory(history)
     } catch (err) {
       setError(
         err instanceof Error
@@ -160,8 +166,35 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
         startIn: 'documents',
       })
 
-      // Get the directory path (best effort - may not be full path for security)
-      const directoryPath = directoryHandle.name || 'Selected folder'
+      // Verify we can write to this directory (test for system folders)
+      try {
+        const testFileName = `.test-${Date.now()}.tmp`
+        const testFileHandle = await directoryHandle.getFileHandle(testFileName, { create: true })
+        await testFileHandle.remove() // Clean up test file
+      } catch (testError) {
+        // System folder or insufficient permissions
+        setError(
+          "⚠️ Can't use this folder - it contains system files.\n\n" +
+            'Please create a NEW FOLDER specifically for backups:\n' +
+            '1. Click "Change Location" again\n' +
+            '2. Right-click → "New Folder"\n' +
+            '3. Name it something like "Audacious Backups"\n' +
+            '4. Select that new folder\n\n' +
+            'Avoid: Desktop, Downloads, or system folders.'
+        )
+        return
+      }
+
+      // Get the directory name for display
+      const directoryPath = directoryHandle.name
+
+      // Store the handle in IndexedDB
+      const storeResult = await storeDirectoryHandle(directoryHandle)
+
+      if (!storeResult.success) {
+        setError(`We couldn't save your backup location: ${storeResult.error || 'Unknown error'}`)
+        return
+      }
 
       // Update backup status with new location
       setBackupStatus(prev => ({
@@ -171,9 +204,6 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
         nextBackup: prev?.nextBackup || null,
         error: null,
       }))
-
-      // TODO: Store the handle in IndexedDB via FileSystemBackup service
-      // await FileSystemBackup.setBackupLocation(directoryHandle)
 
       // Notify parent of settings change
       onSettingsChange?.()
@@ -187,18 +217,27 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
         // User cancelled - not an error, just silently return
         return
       } else {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Oops! We couldn't open the folder picker. Please try again."
-        )
+        const errorMessage = (err as Error).message || ''
+
+        // Check for system folder error
+        if (errorMessage.includes('system') || errorMessage.includes('permission')) {
+          setError(
+            "⚠️ Can't use this folder.\n\nPlease create a NEW FOLDER specifically for backups (avoid Desktop, Downloads, or system folders)."
+          )
+        } else {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Oops! We couldn't open the folder picker. Please try again."
+          )
+        }
       }
     }
   }
 
   /**
    * Handle manual backup creation
-   * Creates encrypted backup and triggers download
+   * Creates encrypted backup and saves to selected folder or downloads
    */
   const handleBackupNow = async () => {
     setCreatingBackup(true)
@@ -217,31 +256,72 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
         return
       }
 
-      // Create encrypted backup
-      const result = await BackupService.createBackup(passphrase)
+      // Check if user has a backup folder configured
+      const dirHandle = await retrieveDirectoryHandle()
 
-      if (result.success && result.blob && result.filename) {
-        // Download the backup
-        BackupService.downloadBackup(result.blob, result.filename)
+      if (dirHandle) {
+        // USE FILE SYSTEM ACCESS API - Save to configured folder
+        const bundle = await generateBackupBundle(passphrase, companyId || '')
+        const fileName = `audacious-backup-${new Date().toISOString().slice(0, 10)}.json`
 
-        setBackupSuccess(true)
-        setBackupStatus((prev) =>
-          prev
-            ? {
-                ...prev,
-                lastBackup: new Date(),
-              }
-            : null
-        )
+        const writeResult = await writeBackupToFile({
+          bundle,
+          fileName,
+          onProgress: (progress) => {
+            console.log(`Backup progress: ${progress.percent}% - ${progress.message}`)
+          },
+        })
 
-        // Auto-hide success message after 5 seconds
-        setTimeout(() => setBackupSuccess(false), 5000)
+        if (writeResult.success) {
+          setBackupSuccess(true)
+          setBackupStatus((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  lastBackup: new Date(),
+                }
+              : null
+          )
 
-        // Reload backup history
-        await loadBackupData()
-        onSettingsChange?.()
+          // Auto-hide success message after 5 seconds
+          setTimeout(() => setBackupSuccess(false), 5000)
+
+          // Reload backup history
+          await loadBackupData()
+          onSettingsChange?.()
+        } else {
+          setError(
+            writeResult.error ||
+              'Failed to save backup to your folder. Please check folder permissions.'
+          )
+        }
       } else {
-        setError(result.error || 'Failed to create backup. Please try again.')
+        // FALLBACK - Download to browser downloads folder
+        const result = await BackupService.createBackup(passphrase)
+
+        if (result.success && result.blob && result.filename) {
+          // Download the backup
+          BackupService.downloadBackup(result.blob, result.filename)
+
+          setBackupSuccess(true)
+          setBackupStatus((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  lastBackup: new Date(),
+                }
+              : null
+          )
+
+          // Auto-hide success message after 5 seconds
+          setTimeout(() => setBackupSuccess(false), 5000)
+
+          // Reload backup history
+          await loadBackupData()
+          onSettingsChange?.()
+        } else {
+          setError(result.error || 'Failed to create backup. Please try again.')
+        }
       }
     } catch (err) {
       setError(

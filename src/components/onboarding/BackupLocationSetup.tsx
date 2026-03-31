@@ -125,12 +125,42 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
         startIn: 'documents',
       })
 
-      // Get the directory path (best effort - may not be full path for security)
-      const directoryPath = directoryHandle.name || 'Selected folder'
+      // Verify we can write to this directory (test for system folders)
+      try {
+        const testFileName = `.test-${Date.now()}.tmp`
+        const testFileHandle = await directoryHandle.getFileHandle(testFileName, { create: true })
+        await testFileHandle.remove() // Clean up test file
+      } catch (testError) {
+        // System folder or insufficient permissions
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error:
+            "⚠️ Can't use this folder - it contains system files.\n\n" +
+            "Please create a NEW FOLDER specifically for backups:\n" +
+            "1. Click 'Choose Location' again\n" +
+            "2. Right-click → 'New Folder'\n" +
+            "3. Name it something like 'Audacious Backups'\n" +
+            "4. Select that new folder",
+        }))
+        return
+      }
 
-      // Store the handle in IndexedDB for later use
-      // Note: This is handled by the FileSystemBackup service in Phase 2, Task 2.1
-      // We'll just track the path for display purposes here
+      // Get the directory name for display
+      const directoryPath = directoryHandle.name
+
+      // Store the handle in IndexedDB using FileSystemBackup service
+      const { storeDirectoryHandle } = await import('../../services/backup/FileSystemBackup')
+      const storeResult = await storeDirectoryHandle(directoryHandle)
+
+      if (!storeResult.success) {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: `We couldn't save your backup location: ${storeResult.error || 'Unknown error'}`,
+        }))
+        return
+      }
 
       setState(prev => ({
         ...prev,
@@ -149,11 +179,24 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
         setState(prev => ({ ...prev, isLoading: false }))
       } else {
         // Actual error
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: "We couldn't access that folder. Please try again or choose a different location.",
-        }))
+        const errorMessage = (err as Error).message || ''
+
+        // Check for system folder error
+        if (errorMessage.includes('system') || errorMessage.includes('permission')) {
+          setState(prev => ({
+            ...prev,
+            isLoading: false,
+            error:
+              "⚠️ Can't use this folder.\n\n" +
+              "Please create a NEW FOLDER specifically for backups (see instructions below).",
+          }))
+        } else {
+          setState(prev => ({
+            ...prev,
+            isLoading: false,
+            error: "We couldn't access that folder. Please try again or choose a different location.",
+          }))
+        }
       }
     }
   }
@@ -357,9 +400,29 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
             </div>
           </div>
 
+          <div className={styles.tipBox}>
+            <div className={styles.tipHeader}>
+              <span className={styles.tipIcon} aria-hidden="true">
+                💡
+              </span>
+              <strong>Pro Tip:</strong>
+            </div>
+            <p className={styles.tipText}>
+              Create a NEW FOLDER specifically for backups. The folder picker will ask you to
+              create one. Name it something like "Audacious Backups" and save it somewhere easy to
+              find (like your Documents folder).
+            </p>
+            <p className={styles.tipWarning}>
+              ⚠️ <strong>Avoid:</strong> Desktop, Downloads, or system folders - these can cause
+              permission errors.
+            </p>
+          </div>
+
           {state.error && (
             <div className={styles.errorBox} role="alert" aria-live="polite">
-              <p className={styles.errorText}>{state.error}</p>
+              <p className={styles.errorText} style={{ whiteSpace: 'pre-line' }}>
+                {state.error}
+              </p>
             </div>
           )}
         </div>
