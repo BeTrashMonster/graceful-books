@@ -27,6 +27,7 @@
  * @module services/backup/FileSystemBackup
  */
 
+import { openDB, type IDBPDatabase } from 'idb';
 import type { SecureBackupBundle } from './BackupEncryption';
 import { logger } from '../../utils/logger';
 import { AppError, ErrorCode } from '../../utils/errors';
@@ -303,45 +304,30 @@ export async function storeDirectoryHandle(
       name: handle.name,
     });
 
-    // Open IndexedDB database for file handles
+    // Open IndexedDB database using idb
     const db = await openFileHandleDB();
-    const transaction = db.transaction([FILE_HANDLE_STORE], 'readwrite');
-    const store = transaction.objectStore(FILE_HANDLE_STORE);
 
-    // CRITICAL FIX: Store handle as direct value, not nested in object
-    // FileSystemDirectoryHandle needs to be stored directly for proper serialization
+    // Store the FileSystemDirectoryHandle directly
+    // The idb library properly handles FileSystemHandle serialization
+    await db.put(FILE_HANDLE_STORE, handle, BACKUP_DIR_HANDLE_KEY);
+
+    // Store metadata separately for quick access
     const metadata: StoredFileHandle = {
-      id: BACKUP_DIR_HANDLE_KEY,
+      id: `${BACKUP_DIR_HANDLE_KEY}_metadata`,
       type: 'directory',
       name: handle.name,
       lastVerified: Date.now(),
       createdAt: Date.now(),
     };
-
-    // Store metadata
-    await store.put(metadata);
-
-    // Store the actual handle with a different key
-    const handleKey = `${BACKUP_DIR_HANDLE_KEY}_handle`;
-    await store.put({
-      id: handleKey,
-      handle: handle, // Store handle directly
-    });
-
-    await new Promise<void>((resolve, reject) => {
-      transaction.oncomplete = () => resolve();
-      transaction.onerror = (event) => {
-        console.error('IndexedDB transaction error:', event);
-        reject(transaction.error);
-      };
-    });
+    await db.put(FILE_HANDLE_STORE, metadata, `${BACKUP_DIR_HANDLE_KEY}_metadata`);
 
     fileSystemLogger.info('Directory handle stored successfully');
+    console.log('✅ Handle stored via idb library');
 
     return { success: true };
   } catch (error) {
     fileSystemLogger.error('Failed to store directory handle', { error });
-    console.error('Full error details:', error);
+    console.error('❌ Storage error:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to store directory handle',
@@ -366,33 +352,58 @@ export async function retrieveDirectoryHandle(): Promise<FileSystemDirectoryHand
   try {
     fileSystemLogger.debug('Retrieving directory handle');
 
+    // Open database using idb
     const db = await openFileHandleDB();
-    const transaction = db.transaction([FILE_HANDLE_STORE], 'readonly');
-    const store = transaction.objectStore(FILE_HANDLE_STORE);
 
-    // CRITICAL FIX: Retrieve handle from separate key
-    const handleKey = `${BACKUP_DIR_HANDLE_KEY}_handle`;
-    const handleRecord = await store.get(handleKey);
+    // Retrieve the FileSystemDirectoryHandle directly
+    const handle = await db.get(FILE_HANDLE_STORE, BACKUP_DIR_HANDLE_KEY);
 
-    if (!handleRecord || !handleRecord.handle) {
+    if (!handle) {
       fileSystemLogger.debug('No stored directory handle found');
-      console.log('🔍 Debug: handleRecord:', handleRecord);
+      console.log('🔍 No handle found in IndexedDB');
       return null;
     }
 
-    // Get metadata for logging
-    const metadata = await store.get(BACKUP_DIR_HANDLE_KEY);
-    if (metadata) {
-      fileSystemLogger.debug('Retrieved directory handle', {
-        name: metadata.name,
-        lastVerified: new Date(metadata.lastVerified).toISOString(),
-      });
-    }
+    console.log('✅ Handle retrieved from IndexedDB:', handle);
 
-    return handleRecord.handle;
+    // CRITICAL: Verify we still have permission to access this handle
+    // This is required for FileSystemHandle persistence
+    try {
+      const permission = await handle.queryPermission({ mode: 'readwrite' });
+      console.log('🔐 Permission status:', permission);
+
+      if (permission === 'granted') {
+        fileSystemLogger.debug('Retrieved directory handle with valid permission', {
+          name: handle.name,
+        });
+        return handle;
+      }
+
+      // Permission not granted - try to request it
+      if (permission === 'prompt') {
+        console.log('🔔 Requesting permission...');
+        const requestResult = await handle.requestPermission({ mode: 'readwrite' });
+        console.log('🔐 Permission request result:', requestResult);
+
+        if (requestResult === 'granted') {
+          fileSystemLogger.info('Permission re-granted for directory handle');
+          return handle;
+        }
+      }
+
+      // Permission denied or request failed
+      fileSystemLogger.warn('Permission denied for stored directory handle');
+      console.log('❌ Permission denied');
+      return null;
+    } catch (permError) {
+      // Permission API might not be available or handle is invalid
+      fileSystemLogger.error('Failed to verify directory handle permission', { permError });
+      console.error('❌ Permission verification failed:', permError);
+      return null;
+    }
   } catch (error) {
     fileSystemLogger.error('Failed to retrieve directory handle', { error });
-    console.error('🔍 Debug: Retrieval error:', error);
+    console.error('❌ Retrieval error:', error);
     return null;
   }
 }
@@ -577,19 +588,12 @@ export async function clearDirectoryHandle(): Promise<{ success: boolean; error?
   try {
     fileSystemLogger.info('Clearing stored directory handle');
 
+    // Open database using idb
     const db = await openFileHandleDB();
-    const transaction = db.transaction([FILE_HANDLE_STORE], 'readwrite');
-    const store = transaction.objectStore(FILE_HANDLE_STORE);
 
-    // Delete both metadata and handle
-    await store.delete(BACKUP_DIR_HANDLE_KEY);
-    const handleKey = `${BACKUP_DIR_HANDLE_KEY}_handle`;
-    await store.delete(handleKey);
-
-    await new Promise<void>((resolve, reject) => {
-      transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(transaction.error);
-    });
+    // Delete both handle and metadata
+    await db.delete(FILE_HANDLE_STORE, BACKUP_DIR_HANDLE_KEY);
+    await db.delete(FILE_HANDLE_STORE, `${BACKUP_DIR_HANDLE_KEY}_metadata`);
 
     fileSystemLogger.info('Directory handle cleared successfully');
     return { success: true };
@@ -631,10 +635,9 @@ export async function getBackupDirectoryStatus(): Promise<{
 
     const verification = await verifyDirectoryPermission(handle);
 
+    // Get metadata using idb
     const db = await openFileHandleDB();
-    const transaction = db.transaction([FILE_HANDLE_STORE], 'readonly');
-    const store = transaction.objectStore(FILE_HANDLE_STORE);
-    const metadata = await store.get(BACKUP_DIR_HANDLE_KEY);
+    const metadata = await db.get(FILE_HANDLE_STORE, `${BACKUP_DIR_HANDLE_KEY}_metadata`);
 
     return {
       configured: true,
@@ -650,36 +653,30 @@ export async function getBackupDirectoryStatus(): Promise<{
 }
 
 /**
- * Open IndexedDB database for file handles
+ * Open IndexedDB database for file handles using idb library
  *
  * Creates or opens the database for storing file handle metadata.
+ * Uses the idb library for proper Promise handling and FileSystemHandle serialization.
  *
- * @returns Promise resolving to IDBDatabase
+ * @returns Promise resolving to IDBPDatabase
  */
-async function openFileHandleDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open('GracefulBooksFileHandles', 1);
-
-    request.onerror = () => {
-      reject(new AppError(
-        ErrorCode.DATABASE_ERROR,
-        'Failed to open file handle database'
-      ));
-    };
-
-    request.onsuccess = () => {
-      resolve(request.result);
-    };
-
-    request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
-
-      // Create object store if it doesn't exist
-      if (!db.objectStoreNames.contains(FILE_HANDLE_STORE)) {
-        db.createObjectStore(FILE_HANDLE_STORE, { keyPath: 'id' });
-      }
-    };
-  });
+async function openFileHandleDB(): Promise<IDBPDatabase> {
+  try {
+    return await openDB('GracefulBooksFileHandles', 1, {
+      upgrade(db) {
+        // Create object store if it doesn't exist
+        if (!db.objectStoreNames.contains(FILE_HANDLE_STORE)) {
+          db.createObjectStore(FILE_HANDLE_STORE);
+        }
+      },
+    });
+  } catch (error) {
+    fileSystemLogger.error('Failed to open file handle database', { error });
+    throw new AppError(
+      ErrorCode.DATABASE_ERROR,
+      'Failed to open file handle database'
+    );
+  }
 }
 
 /**
