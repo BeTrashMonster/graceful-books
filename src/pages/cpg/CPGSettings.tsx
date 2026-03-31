@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db';
 import { CPGSettingsService } from '../../services/cpg/cpgSettings.service';
 import { UserFeaturePreferencesService } from '../../services/userFeaturePreferences.service';
+import { DataSafetyPanel } from '../../components/settings/DataSafetyPanel';
 import type { FeatureName } from '../../services/userFeaturePreferences.service';
 import type { CPGSettings } from '../../db/schema/cpg.schema';
 import styles from './CPGSettings.module.css';
@@ -421,6 +422,9 @@ export function CPGSettings() {
           {errorMessage}
         </div>
       )}
+
+      {/* Data Safety Panel - Backup Configuration */}
+      <DataSafetyPanel companyId={companyId || undefined} />
 
       {/* Settings Sections */}
 

@@ -1,4 +1,21 @@
+import { useNavigate } from 'react-router-dom'
+import BackupLocationSetup from '../../components/onboarding/BackupLocationSetup'
+
 export default function Setup() {
+  const navigate = useNavigate()
+
+  const handleBackupComplete = (directoryPath: string) => {
+    console.log('Backup location selected:', directoryPath)
+    // Navigate to CPU Tracker after setup completes
+    navigate('/cpg/cpu-tracker')
+  }
+
+  const handleBackupSkip = () => {
+    console.log('Backup location setup skipped')
+    // Allow skip, navigate to CPU Tracker anyway
+    navigate('/cpg/cpu-tracker')
+  }
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -16,18 +33,10 @@ export default function Setup() {
         borderRadius: '0.5rem',
         boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
       }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1rem' }}>
-          Account Setup
-        </h1>
-        <p style={{ color: 'var(--color-text-secondary, #6b7280)', marginBottom: '2rem' }}>
-          Let's configure your account settings and preferences.
-        </p>
-
-        <div className="card">
-          <p style={{ color: 'var(--color-text-secondary, #6b7280)' }}>
-            Setup wizard will be implemented here.
-          </p>
-        </div>
+        <BackupLocationSetup
+          onComplete={handleBackupComplete}
+          onSkip={handleBackupSkip}
+        />
       </div>
     </div>
   )

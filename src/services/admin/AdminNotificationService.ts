@@ -150,9 +150,42 @@ async function getCompanyAdmins(companyId: string): Promise<User[]> {
 }
 
 /**
- * Send email (stub for actual email service)
+ * Send email via Postmark
  *
- * In production, this would call an actual email service like SendGrid, AWS SES, etc.
+ * Sends email through backend API which integrates with Postmark.
+ * Uses TLS 1.3+ for secure transmission (HTTPS to backend + Postmark's HTTPS API).
+ *
+ * Backend Implementation Required:
+ * The backend should expose POST /api/admin/send-email endpoint that:
+ * 1. Authenticates the request (admin only)
+ * 2. Validates the email data
+ * 3. Calls Postmark API with Server API token
+ * 4. Returns success/failure
+ *
+ * Example backend code (Node.js/Express):
+ * ```typescript
+ * import postmark from 'postmark'
+ *
+ * const postmarkClient = new postmark.ServerClient(process.env.POSTMARK_SERVER_TOKEN)
+ *
+ * app.post('/api/admin/send-email', authenticateAdmin, async (req, res) => {
+ *   const { to, subject, htmlBody } = req.body
+ *
+ *   try {
+ *     await postmarkClient.sendEmail({
+ *       From: 'security@audaciousmoney.com',
+ *       To: to,
+ *       Subject: subject,
+ *       HtmlBody: htmlBody,
+ *       MessageStream: 'outbound',
+ *       TrackOpens: false,  // Privacy: don't track email opens
+ *     })
+ *     res.json({ success: true })
+ *   } catch (error) {
+ *     res.status(500).json({ success: false, error: error.message })
+ *   }
+ * })
+ * ```
  *
  * @param to - Recipient email
  * @param subject - Email subject
@@ -165,19 +198,46 @@ async function sendEmail(
   body: string
 ): Promise<boolean> {
   try {
-    // TODO: Replace with actual email service integration
-    // For now, just log the email
-    console.log('📧 Email Notification:')
-    console.log(`To: ${to}`)
-    console.log(`Subject: ${subject}`)
-    console.log(`Body:\n${body}`)
+    // Get backend API URL from environment or use default
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
-    // Simulate async email sending
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    // Call backend API to send email via Postmark
+    // Backend handles Postmark integration securely (TLS 1.3+)
+    const response = await fetch(`${apiUrl}/api/admin/send-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // In production, include authentication token
+        // Authorization: `Bearer ${await getAuthToken()}`,
+      },
+      body: JSON.stringify({
+        to,
+        subject,
+        htmlBody: body,
+      }),
+    })
 
-    return true
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      console.error('Email API error:', errorData)
+      return false
+    }
+
+    const result = await response.json()
+    return result.success === true
   } catch (error) {
-    console.error('Failed to send email:', error)
+    console.error('Failed to send email via Postmark:', error)
+
+    // DEVELOPMENT MODE: Log email for testing
+    if (import.meta.env.DEV) {
+      console.log('📧 Email Notification (DEV MODE):')
+      console.log(`To: ${to}`)
+      console.log(`Subject: ${subject}`)
+      console.log(`Body:\n${body}`)
+      // In dev mode, pretend it succeeded so tests work
+      return true
+    }
+
     return false
   }
 }

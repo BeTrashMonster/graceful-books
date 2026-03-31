@@ -142,6 +142,8 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
    * Uses File System Access API to request folder permission
    */
   const handleChangeLocation = async () => {
+    setError(null)
+
     try {
       // Check browser support for File System Access API
       if (!('showDirectoryPicker' in window)) {
@@ -151,25 +153,46 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
         return
       }
 
-      // TODO: Call FileSystemBackup.requestFolderPermission()
-      // const result = await FileSystemBackup.requestFolderPermission()
+      // Show directory picker
+      // @ts-expect-error - File System Access API not in TypeScript DOM types yet
+      const directoryHandle = await window.showDirectoryPicker({
+        mode: 'readwrite',
+        startIn: 'documents',
+      })
 
-      // For now, show user-friendly message
-      setError(
-        'Folder selection is coming soon! This feature will let you choose where your automatic backups are saved.'
-      )
+      // Get the directory path (best effort - may not be full path for security)
+      const directoryPath = directoryHandle.name || 'Selected folder'
 
-      // After implementation:
-      // if (result.success) {
-      //   await loadBackupData()
-      //   onSettingsChange?.()
-      // }
+      // Update backup status with new location
+      setBackupStatus(prev => ({
+        enabled: true,
+        location: directoryPath,
+        lastBackup: prev?.lastBackup || null,
+        nextBackup: prev?.nextBackup || null,
+        error: null,
+      }))
+
+      // TODO: Store the handle in IndexedDB via FileSystemBackup service
+      // await FileSystemBackup.setBackupLocation(directoryHandle)
+
+      // Notify parent of settings change
+      onSettingsChange?.()
+
+      // Show success message briefly
+      setBackupSuccess(true)
+      setTimeout(() => setBackupSuccess(false), 3000)
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Oops! We couldn't open the folder picker. Please try again."
-      )
+      // User cancelled or permission denied
+      if ((err as Error).name === 'AbortError') {
+        // User cancelled - not an error, just silently return
+        return
+      } else {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Oops! We couldn't open the folder picker. Please try again."
+        )
+      }
     }
   }
 

@@ -371,6 +371,7 @@ export class GracefulBooksDB extends Dexie {
     // Version 3: Fix auditLogs and categories indexes to use snake_case field names
     this.version(3).stores({
       // Update auditLogs to use snake_case field names (matching actual data structure)
+      // Phase 6: Added [company_id+action] index for audit log filtering
       auditLogs: `
         id,
         company_id,
@@ -383,6 +384,7 @@ export class GracefulBooksDB extends Dexie {
         [company_id+entity_type],
         [company_id+entity_id],
         [company_id+user_id],
+        [company_id+action],
         [company_id+entity_type+entity_id],
         [entity_type+entity_id]
       `,

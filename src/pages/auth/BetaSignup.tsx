@@ -81,8 +81,8 @@ export default function BetaSignup() {
       // Trigger auth context to reload (same as Login)
       window.dispatchEvent(new Event('graceful_books_login'));
 
-      // Redirect to CPU Tracker
-      navigate('/cpg/cpu-tracker');
+      // Redirect to onboarding setup (includes backup location)
+      navigate('/onboarding/setup');
     } catch (err: any) {
       console.error('Beta signup error:', err);
       setError(

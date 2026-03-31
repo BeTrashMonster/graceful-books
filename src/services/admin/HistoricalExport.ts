@@ -196,6 +196,26 @@ export async function generateHistoricalExport(
   const warnings: string[] = []
 
   try {
+    // SECURITY: Rate limiting (1 export per hour)
+    const rateLimitKey = `last_export_${userId}_${companyId}`
+    const lastExport = localStorage.getItem(rateLimitKey)
+    const now = Date.now()
+    const oneHour = 60 * 60 * 1000
+
+    if (lastExport) {
+      const lastExportTime = parseInt(lastExport, 10)
+      const timeSinceLastExport = now - lastExportTime
+
+      if (timeSinceLastExport < oneHour) {
+        const remainingMinutes = Math.ceil((oneHour - timeSinceLastExport) / (60 * 1000))
+        errors.push(
+          `Rate limit exceeded. You can export data once per hour. ` +
+          `Please try again in ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}.`
+        )
+        return { success: false, errors }
+      }
+    }
+
     // Step 1: Validate inputs
     if (!userId || !companyId) {
       errors.push('Missing required parameters: userId or companyId')
@@ -346,6 +366,9 @@ export async function generateHistoricalExport(
     if (transactions.length === 0) {
       warnings.push('No transactions found for this user')
     }
+
+    // Step 11: Update rate limit timestamp
+    localStorage.setItem(rateLimitKey, now.toString())
 
     return {
       success: true,
