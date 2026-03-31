@@ -58,11 +58,14 @@ export default function CPUTracker() {
   const [pinnedTabs, setPinnedTabs] = useState<Record<string, boolean>>({});
 
   // Update active tab when pinned default loads
+  // BUT: Don't override if user is navigating from dashboard via URL params
   useEffect(() => {
-    if (!isPinningLoading && defaultTab) {
+    const hasUrlNavigation = searchParams.get('tab') === 'comparison' && searchParams.get('intelligenceTab');
+
+    if (!isPinningLoading && defaultTab && !hasUrlNavigation) {
       setActiveTab(defaultTab as CPUTrackerTab);
     }
-  }, [defaultTab, isPinningLoading]);
+  }, [defaultTab, isPinningLoading, searchParams]);
 
   // State
   const [categories, setCategories] = useState<CPGCategory[]>([]);
