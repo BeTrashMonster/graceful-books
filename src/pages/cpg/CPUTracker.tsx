@@ -57,17 +57,28 @@ export default function CPUTracker() {
   const [activeTab, setActiveTab] = useState<CPUTrackerTab>('products');
   const [pinnedTabs, setPinnedTabs] = useState<Record<string, boolean>>({});
 
+  // URL parameter-based navigation state
+  const [urlNavigationParams, setUrlNavigationParams] = useState<{
+    intelligenceTab?: 'trends' | 'vendors';
+    categoryId?: string;
+    categoryIds?: string[];
+    productIds?: string[];
+    startDate?: number;
+    endDate?: number;
+  } | null>(null);
+
   // Update active tab when pinned default loads
   // BUT: Don't override if user is navigating from dashboard via URL params
   useEffect(() => {
-    const hasUrlNavigation = searchParams.get('tab') === 'comparison' && searchParams.get('intelligenceTab');
+    // Check urlNavigationParams state instead of searchParams
+    // (searchParams gets cleared after navigation, but state persists)
+    const hasUrlNavigation = urlNavigationParams !== null;
 
     console.log('🔧 Pinned tab effect running:', {
       isPinningLoading,
       defaultTab,
       hasUrlNavigation,
-      urlTab: searchParams.get('tab'),
-      urlIntelTab: searchParams.get('intelligenceTab'),
+      urlNavigationParams,
       willApplyPinnedTab: !isPinningLoading && defaultTab && !hasUrlNavigation
     });
 
@@ -75,7 +86,7 @@ export default function CPUTracker() {
       console.log('📌 Applying pinned default tab:', defaultTab);
       setActiveTab(defaultTab as CPUTrackerTab);
     }
-  }, [defaultTab, isPinningLoading, searchParams]);
+  }, [defaultTab, isPinningLoading, urlNavigationParams]);
 
   // State
   const [categories, setCategories] = useState<CPGCategory[]>([]);
@@ -102,16 +113,6 @@ export default function CPUTracker() {
 
   // Vendor Intel Navigation
   const [vendorIntelRequest, setVendorIntelRequest] = useState<{ vendorName: string } | null>(null);
-
-  // URL parameter-based navigation state
-  const [urlNavigationParams, setUrlNavigationParams] = useState<{
-    intelligenceTab?: 'trends' | 'vendors';
-    categoryId?: string;
-    categoryIds?: string[];
-    productIds?: string[];
-    startDate?: number;
-    endDate?: number;
-  } | null>(null);
 
   // Load pinned tabs state
   useEffect(() => {
@@ -280,6 +281,14 @@ export default function CPUTracker() {
 
   const handleCategoriesUpdated = async () => {
     await loadData();
+  };
+
+  // Handle manual tab change (clears URL navigation state)
+  const handleTabChange = (tab: CPUTrackerTab) => {
+    console.log('👆 Manual tab click:', tab);
+    setActiveTab(tab);
+    // Clear URL navigation state so pinned defaults can work again
+    setUrlNavigationParams(null);
   };
 
   // Handle tab pin toggle
@@ -546,7 +555,7 @@ export default function CPUTracker() {
                 role="tab"
                 aria-selected={activeTab === 'products'}
                 aria-controls="products-panel"
-                onClick={() => setActiveTab('products')}
+                onClick={() => handleTabChange('products')}
                 className={activeTab === 'products' ? styles.tabActive : styles.tab}
               >
                 Product Costs
@@ -560,7 +569,7 @@ export default function CPUTracker() {
                 role="tab"
                 aria-selected={activeTab === 'raw-materials'}
                 aria-controls="raw-materials-panel"
-                onClick={() => setActiveTab('raw-materials')}
+                onClick={() => handleTabChange('raw-materials')}
                 className={activeTab === 'raw-materials' ? styles.tabActive : styles.tab}
               >
                 Invoices
@@ -574,7 +583,7 @@ export default function CPUTracker() {
                 role="tab"
                 aria-selected={activeTab === 'comparison'}
                 aria-controls="comparison-panel"
-                onClick={() => setActiveTab('comparison')}
+                onClick={() => handleTabChange('comparison')}
                 className={activeTab === 'comparison' ? styles.tabActive : styles.tab}
               >
                 Cost Intelligence
