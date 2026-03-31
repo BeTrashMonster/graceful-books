@@ -469,12 +469,43 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
    */
   const handleDownloadBackup = async (entry: BackupHistoryEntry) => {
     try {
-      // TODO: Implement download from BackupVersioning service
-      // const blob = await BackupVersioning.getBackupBlob(entry.id)
-      // BackupService.downloadBackup(blob, entry.filename)
+      console.log('📥 Attempting to download backup:', entry.filename)
 
-      setError('Downloading previous backups is coming soon!')
+      // Get the backup folder handle
+      const dirHandle = await retrieveDirectoryHandle()
+
+      if (!dirHandle) {
+        setError('Cannot download backup: backup folder no longer accessible. Please check folder permissions in Settings.')
+        return
+      }
+
+      console.log('📂 Got directory handle:', dirHandle.name)
+
+      // Try to get the file from the backup folder
+      try {
+        const fileHandle = await dirHandle.getFileHandle(entry.filename)
+        const file = await fileHandle.getFile()
+
+        console.log('✅ Found backup file:', file.name, 'Size:', file.size)
+
+        // Create download link
+        const blob = new Blob([await file.text()], { type: 'application/json' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = entry.filename
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+
+        console.log('⬇️ Download triggered for:', entry.filename)
+      } catch (fileError) {
+        console.error('❌ File not found in backup folder:', fileError)
+        setError(`Cannot find backup file "${entry.filename}" in your backup folder. It may have been moved or deleted.`)
+      }
     } catch (err) {
+      console.error('❌ Download error:', err)
       setError(
         err instanceof Error
           ? err.message
