@@ -1164,6 +1164,90 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
           fullWidth
         />
 
+        {/* S+H Allocation Preview */}
+        {(() => {
+          // Find S+H items and material items
+          const shippingItems = costItems.filter(item => {
+            const category = getCategory(item.category_id);
+            return category?.is_distribution_category && item.unit_price && parseFloat(item.unit_price) > 0;
+          });
+
+          const materialItems = costItems.filter(item => {
+            const category = getCategory(item.category_id);
+            return !category?.is_distribution_category && item.units_purchased && item.unit_price &&
+                   parseFloat(item.units_purchased) > 0 && parseFloat(item.unit_price) > 0;
+          });
+
+          if (shippingItems.length === 0 || materialItems.length === 0) return null;
+
+          // Calculate material totals for weighted distribution
+          const materialTotals = materialItems.map(item => ({
+            item,
+            total: parseFloat(item.units_purchased) * parseFloat(item.unit_price),
+            category: getCategory(item.category_id)
+          }));
+
+          const totalMaterialValue = materialTotals.reduce((sum, m) => sum + m.total, 0);
+
+          return (
+            <div style={{
+              padding: '1rem',
+              backgroundColor: '#fef3c7',
+              border: '1px solid #fbbf24',
+              borderRadius: '0.5rem',
+              marginBottom: '1rem'
+            }}>
+              <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#92400e', marginBottom: '0.75rem' }}>
+                📦 Shipping + Handling Distribution
+              </div>
+              {shippingItems.map((shItem, idx) => {
+                const shCategory = getCategory(shItem.category_id);
+                const shTotal = parseFloat(shItem.unit_price);
+                const method = shItem.distribution_method || 'weighted';
+
+                return (
+                  <div key={idx} style={{ marginBottom: idx < shippingItems.length - 1 ? '1rem' : 0 }}>
+                    <div style={{ fontSize: '0.8125rem', color: '#78350f', marginBottom: '0.5rem' }}>
+                      <strong>{shCategory?.name}</strong>
+                      {shItem.variant && <span> ({shItem.variant})</span>}
+                      : ${shTotal.toFixed(2)} - {method === 'equal' ? 'Split Equally' : 'Split by Value'}
+                    </div>
+                    <div style={{
+                      display: 'grid',
+                      gap: '0.25rem',
+                      fontSize: '0.75rem',
+                      color: '#92400e',
+                      paddingLeft: '1rem'
+                    }}>
+                      {materialTotals.map((mat, matIdx) => {
+                        let allocation = 0;
+                        if (method === 'equal') {
+                          allocation = shTotal / materialItems.length;
+                        } else {
+                          // Weighted by value
+                          allocation = totalMaterialValue > 0 ? (mat.total / totalMaterialValue) * shTotal : 0;
+                        }
+
+                        return (
+                          <div key={matIdx} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span>
+                              → {mat.category?.name}
+                              {mat.item.variant && <span> ({mat.item.variant})</span>}
+                            </span>
+                            <span style={{ fontFamily: 'monospace' }}>
+                              +${allocation.toFixed(2)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+
         {costItems.length > 0 && totalInvoiceAmount && (
           <div className={styles.exampleBox}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

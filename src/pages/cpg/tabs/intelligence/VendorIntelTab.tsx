@@ -323,6 +323,25 @@ export default function VendorIntelTab({
       }
     });
 
+    // CRITICAL FIX: If viewing S+H categories, add them to componentCategories
+    // S+H categories are NOT part of product BOMs but need to be included
+    if (isViewingShippingCategory && categoryFilter.size > 0) {
+      categoryFilter.forEach(catId => {
+        const category = categories.find(c => c.id === catId);
+        if (category?.is_distribution_category) {
+          if (!componentCategories.has(catId)) {
+            componentCategories.set(catId, new Set());
+          }
+          // Add all variants for this S+H category (or empty set for no variants)
+          if (category.variants && category.variants.length > 0) {
+            category.variants.forEach(v => componentCategories.get(catId)!.add(v));
+          } else {
+            componentCategories.get(catId)!.add(''); // No variants
+          }
+        }
+      });
+    }
+
     // Filter invoices
     const filteredInvoices = localInvoices.filter(inv => {
       if (inv.deleted_at) return false;
@@ -696,6 +715,25 @@ export default function VendorIntelTab({
         }
       });
 
+      // CRITICAL FIX: If viewing S+H categories, add them to componentCategories
+      // S+H categories are NOT part of product BOMs but need to be included
+      if (isViewingShippingCategory && categoryFilter.size > 0) {
+        categoryFilter.forEach(catId => {
+          const category = categories.find(c => c.id === catId);
+          if (category?.is_distribution_category) {
+            if (!componentCategories.has(catId)) {
+              componentCategories.set(catId, new Set());
+            }
+            // Add all variants for this S+H category (or empty set for no variants)
+            if (category.variants && category.variants.length > 0) {
+              category.variants.forEach(v => componentCategories.get(catId)!.add(v));
+            } else {
+              componentCategories.get(catId)!.add(''); // No variants
+            }
+          }
+        });
+      }
+
       const vendorStats = new Map<string, { spend: number; invoices: Set<string>; components: Set<string> }>();
 
       // Check if we should filter by product components or show all vendor data
@@ -911,6 +949,25 @@ export default function VendorIntelTab({
           }
         });
       });
+
+      // CRITICAL FIX: If viewing S+H categories, add them to componentCategories
+      // S+H categories are NOT part of product BOMs but need to be included
+      if (isViewingShippingCategory && categoryFilter.size > 0) {
+        categoryFilter.forEach(catId => {
+          const category = categories.find(c => c.id === catId);
+          if (category?.is_distribution_category) {
+            if (!componentCategories.has(catId)) {
+              componentCategories.set(catId, new Set());
+            }
+            // Add all variants for this S+H category (or empty set for no variants)
+            if (category.variants && category.variants.length > 0) {
+              category.variants.forEach(v => componentCategories.get(catId)!.add(v));
+            } else {
+              componentCategories.get(catId)!.add(''); // No variants
+            }
+          }
+        });
+      }
 
       // Apply vendor filter
       const normalizedVendorFilter = vendorFilter.size > 0

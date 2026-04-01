@@ -19,8 +19,11 @@ export function evaluateMathExpression(input: string): number | null {
   const cleaned = input.trim().replace(/\s+/g, '');
 
   // If it's just a number, return it
-  const directNumber = parseFloat(cleaned);
-  if (!isNaN(directNumber) && /^-?\d+\.?\d*$/.test(cleaned)) {
+  // Normalize decimals starting with period (.75 -> 0.75)
+  const normalizedCleaned = cleaned.startsWith('.') ? `0${cleaned}` : cleaned;
+  const directNumber = parseFloat(normalizedCleaned);
+  // Updated regex to handle numbers starting with decimal point
+  if (!isNaN(directNumber) && /^-?(\d+\.?\d*|\.\d+)$/.test(cleaned)) {
     return directNumber;
   }
 
