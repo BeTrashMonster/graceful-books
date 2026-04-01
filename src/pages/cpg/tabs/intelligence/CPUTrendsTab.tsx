@@ -232,10 +232,14 @@ export default function CPUTrendsTab({
         // Collect price data for all components that match our filters
         filteredInvoices.forEach(inv => {
           Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
-            // Skip S+H categories - they're distribution costs, not material costs
-            // The distributed S+H is already baked into material prices
             const category = categories.find(c => c.id === attr.category_id);
-            if (category?.is_distribution_category === true) return;
+            const isSHCategory = category?.is_distribution_category === true;
+
+            // Skip S+H categories UNLESS they're explicitly being filtered for
+            // (When not filtered, S+H is baked into material prices and shouldn't show separately)
+            if (isSHCategory && (categoryFilter.size === 0 || !categoryFilter.has(attr.category_id))) {
+              return;
+            }
 
             // For individual products, only include components in the product's recipe
             if (productId !== 'all-components' && cpuData) {
