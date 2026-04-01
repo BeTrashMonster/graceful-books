@@ -32,6 +32,7 @@ interface Expense {
 interface Owner {
   id: string;
   name: string;
+  active: boolean; // Controls visibility, not deletion
   expenses: Expense[];
   // Scenarios
   breakEvenMonthly: number;
@@ -65,7 +66,15 @@ export function OwnerPayCalculatorTab() {
     // Load saved owners from localStorage
     try {
       const saved = localStorage.getItem(`ownerPayCalculator_owners_${companyId}`);
-      return saved ? JSON.parse(saved) : [];
+      if (saved) {
+        const parsedOwners = JSON.parse(saved);
+        // Migration: ensure all existing owners have the 'active' field
+        return parsedOwners.map((owner: Owner) => ({
+          ...owner,
+          active: owner.active !== undefined ? owner.active : true,
+        }));
+      }
+      return [];
     } catch (err) {
       console.error('Error loading saved owners:', err);
       return [];
@@ -163,34 +172,46 @@ export function OwnerPayCalculatorTab() {
   };
 
   const addOwner = () => {
-    const newOwner: Owner = {
-      id: `owner-${Date.now()}`,
-      name: "Owner's Pay",
-      expenses: DEFAULT_EXPENSES.map((exp, idx) => ({
-        ...exp,
-        id: `expense-${Date.now()}-${idx}`,
-      })),
-      breakEvenMonthly: 0,
-      goodPlayMoney: '500',
-      goodSavings: '300',
-      goodPercentIncrease: '',
-      betterPlayMoney: '1000',
-      betterSavings: '800',
-      betterPercentIncrease: '',
-      bestPlayMoney: '2000',
-      bestSavings: '1500',
-      bestPercentIncrease: '',
-    };
-    setOwners([...owners, newOwner]);
+    // First check if there are any inactive owners to reactivate
+    const inactiveOwner = owners.find((o) => !o.active);
+
+    if (inactiveOwner) {
+      // Reactivate the first inactive owner
+      setOwners(owners.map((o) => (o.id === inactiveOwner.id ? { ...o, active: true } : o)));
+    } else {
+      // No inactive owners, create a new one
+      const newOwner: Owner = {
+        id: `owner-${Date.now()}`,
+        name: "Owner's Pay",
+        active: true,
+        expenses: DEFAULT_EXPENSES.map((exp, idx) => ({
+          ...exp,
+          id: `expense-${Date.now()}-${idx}`,
+        })),
+        breakEvenMonthly: 0,
+        goodPlayMoney: '500',
+        goodSavings: '300',
+        goodPercentIncrease: '',
+        betterPlayMoney: '1000',
+        betterSavings: '800',
+        betterPercentIncrease: '',
+        bestPlayMoney: '2000',
+        bestSavings: '1500',
+        bestPercentIncrease: '',
+      };
+      setOwners([...owners, newOwner]);
+    }
   };
 
   const removeOwner = (ownerId: string) => {
-    // Prevent removing the last owner
-    if (owners.length === 1) {
-      alert('You must have at least one owner.');
+    // Prevent removing the last active owner
+    const activeOwners = owners.filter((o) => o.active);
+    if (activeOwners.length === 1) {
+      alert('You must have at least one active owner.');
       return;
     }
-    setOwners(owners.filter((o) => o.id !== ownerId));
+    // Mark as inactive instead of deleting - preserves all data
+    setOwners(owners.map((o) => (o.id === ownerId ? { ...o, active: false } : o)));
   };
 
   const updateOwnerName = (ownerId: string, name: string) => {
@@ -370,7 +391,7 @@ export function OwnerPayCalculatorTab() {
   return (
     <div className={styles.container}>
       {/* Owner Cards */}
-      {owners.map((owner) => {
+      {owners.filter((o) => o.active).map((owner) => {
         const breakEven = calculateBreakEven(owner.expenses);
         const goodTotal = calculateScenario(owner, 'good');
         const betterTotal = calculateScenario(owner, 'better');
@@ -386,7 +407,7 @@ export function OwnerPayCalculatorTab() {
                 onChange={(e) => updateOwnerName(owner.id, e.target.value)}
                 className={styles.ownerNameInput}
               />
-              {owners.length > 1 && (
+              {owners.filter((o) => o.active).length > 1 && (
                 <button
                   onClick={() => removeOwner(owner.id)}
                   className={styles.removeOwnerButton}
@@ -683,7 +704,7 @@ export function OwnerPayCalculatorTab() {
       </div>
 
       {/* All Owners Summary */}
-      {owners.length > 1 && (
+      {owners.filter((o) => o.active).length > 1 && (
         <div className={styles.section}>
           <h2>All Owners Summary</h2>
           <p>Combined compensation needs for all owners.</p>
@@ -694,6 +715,7 @@ export function OwnerPayCalculatorTab() {
               <span className={styles.grandTotalValue}>
                 $
                 {owners
+                  .filter((o) => o.active)
                   .reduce((sum, o) => sum + calculateBreakEven(o.expenses).monthly, 0)
                   .toFixed(2)}
                 /mo
@@ -702,19 +724,19 @@ export function OwnerPayCalculatorTab() {
             <div className={styles.grandTotalItem}>
               <span className={styles.grandTotalLabel}>Good</span>
               <span className={styles.grandTotalValue}>
-                ${owners.reduce((sum, o) => sum + calculateScenario(o, 'good'), 0).toFixed(2)}/mo
+                ${owners.filter((o) => o.active).reduce((sum, o) => sum + calculateScenario(o, 'good'), 0).toFixed(2)}/mo
               </span>
             </div>
             <div className={styles.grandTotalItem}>
               <span className={styles.grandTotalLabel}>Better</span>
               <span className={styles.grandTotalValue}>
-                ${owners.reduce((sum, o) => sum + calculateScenario(o, 'better'), 0).toFixed(2)}/mo
+                ${owners.filter((o) => o.active).reduce((sum, o) => sum + calculateScenario(o, 'better'), 0).toFixed(2)}/mo
               </span>
             </div>
             <div className={styles.grandTotalItem}>
               <span className={styles.grandTotalLabel}>Best</span>
               <span className={styles.grandTotalValue}>
-                ${owners.reduce((sum, o) => sum + calculateScenario(o, 'best'), 0).toFixed(2)}/mo
+                ${owners.filter((o) => o.active).reduce((sum, o) => sum + calculateScenario(o, 'best'), 0).toFixed(2)}/mo
               </span>
             </div>
           </div>
@@ -722,7 +744,7 @@ export function OwnerPayCalculatorTab() {
       )}
 
       {/* Product Impact Analysis */}
-      {owners.length > 0 && (
+      {owners.filter((o) => o.active).length > 0 && (
         <div className={styles.section}>
           <h2>Product Impact Analysis</h2>
           <p>Test your sales projections to see if they'll cover raw costs, labor, and owner's pay.</p>
@@ -762,7 +784,7 @@ export function OwnerPayCalculatorTab() {
               </div>
 
               <ProductImpactContent
-                owners={owners}
+                owners={owners.filter((o) => o.active)}
                 products={products}
                 scenario={selectedScenario}
                 testUnits={testUnits}
