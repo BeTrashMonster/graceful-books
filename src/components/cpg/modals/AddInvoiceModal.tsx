@@ -372,19 +372,22 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
 
       // For S+H categories, units is auto-set to 1, so only validate price (total cost)
       if (category.is_distribution_category) {
-        if (!item.unit_price || parseFloat(item.unit_price) <= 0) {
+        const price = parseFloat(item.unit_price);
+        if (!item.unit_price || item.unit_price.trim() === '' || isNaN(price) || price <= 0) {
           setErrors(prev => ({ ...prev, [`item_${index}_price`]: 'Total cost required' }));
           hasErrors = true;
           return;
         }
       } else {
         // For material categories, validate both units and price
-        if (!item.units_purchased || parseFloat(item.units_purchased) <= 0) {
+        const units = parseFloat(item.units_purchased);
+        if (!item.units_purchased || item.units_purchased.trim() === '' || isNaN(units) || units <= 0) {
           setErrors(prev => ({ ...prev, [`item_${index}_units`]: 'Units purchased required' }));
           hasErrors = true;
           return;
         }
-        if (!item.unit_price || parseFloat(item.unit_price) <= 0) {
+        const price = parseFloat(item.unit_price);
+        if (!item.unit_price || item.unit_price.trim() === '' || isNaN(price) || price <= 0) {
           setErrors(prev => ({ ...prev, [`item_${index}_price`]: 'Unit price required' }));
           hasErrors = true;
           return;
@@ -399,9 +402,9 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         category_id: item.category_id,
         variant: item.variant,
         description: item.description || undefined,
-        units_purchased: item.units_purchased,
-        unit_price: item.unit_price,
-        units_received: item.units_received || item.units_purchased,
+        units_purchased: item.units_purchased.trim(),
+        unit_price: item.unit_price.trim(),
+        units_received: item.units_received.trim() || item.units_purchased.trim(),
         manual_line_total: item.manual_line_total || undefined,
         distribution_method: item.distribution_method || undefined,
       };
