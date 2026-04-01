@@ -127,7 +127,9 @@ export default function VendorIntelTab({
 
   // Helper: Should we include this line item based on current filter?
   const shouldIncludeLineItem = (attr: any): boolean => {
-    const isShippingLine = !!attr.distribution_method;
+    // Check if this line item's category is a distribution category (S+H)
+    const category = categories.find(c => c.id === attr.category_id);
+    const isShippingLine = category?.is_distribution_category === true;
 
     // If viewing S+H category, ONLY show S+H lines
     if (isViewingShippingCategory) {
