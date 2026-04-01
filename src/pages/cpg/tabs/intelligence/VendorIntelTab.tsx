@@ -363,8 +363,12 @@ export default function VendorIntelTab({
         // Filter based on whether viewing S+H or materials
         if (!shouldIncludeLineItem(attr)) return;
 
+        // If viewing S+H, include ALL S+H items (ignore product filters)
+        // Otherwise, only include items that match componentCategories
         const variants = componentCategories.get(attr.category_id);
-        if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
+        const shouldInclude = isViewingShippingCategory || (variants && (variants.size === 0 || variants.has(attr.variant || '')));
+
+        if (shouldInclude) {
           const unitPrice = parseFloat(attr.unit_price);
           const unitsPurchased = parseFloat(attr.units_purchased);
           if (!isNaN(unitPrice) && !isNaN(unitsPurchased)) {
@@ -414,8 +418,11 @@ export default function VendorIntelTab({
         // Filter based on whether viewing S+H or materials
         if (!shouldIncludeLineItem(attr)) return;
 
+        // If viewing S+H, include ALL S+H items (ignore product filters)
         const variants = componentCategories.get(attr.category_id);
-        if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
+        const shouldInclude = isViewingShippingCategory || (variants && (variants.size === 0 || variants.has(attr.variant || '')));
+
+        if (shouldInclude) {
           const compKey = `${attr.category_id}:${attr.variant || ''}`;
           const unitPrice = parseFloat(attr.unit_price);
 
@@ -451,8 +458,11 @@ export default function VendorIntelTab({
         // Filter based on whether viewing S+H or materials
         if (!shouldIncludeLineItem(attr)) return;
 
+        // If viewing S+H, include ALL S+H items (ignore product filters)
         const variants = componentCategories.get(attr.category_id);
-        if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
+        const shouldInclude = isViewingShippingCategory || (variants && (variants.size === 0 || variants.has(attr.variant || '')));
+
+        if (shouldInclude) {
           const compKey = `${attr.category_id}:${attr.variant || ''}`;
           const unitPrice = parseFloat(attr.unit_price);
 
@@ -737,9 +747,10 @@ export default function VendorIntelTab({
       const vendorStats = new Map<string, { spend: number; invoices: Set<string>; components: Set<string> }>();
 
       // Check if we should filter by product components or show all vendor data
-      // If ONLY vendorFilter is active (no product/category/variant filters), show everything
-      const hasProductFilters = selectedProducts.size > 0 || categoryFilter.size > 0 || variantFilter.size > 0;
-      const showAllVendorComponents = !hasProductFilters;
+      // SPECIAL CASE: If viewing S+H categories, IGNORE product filters entirely
+      // S+H is a distribution cost that applies across all products, not a product component
+      const hasProductFilters = selectedProducts.size > 0 || (categoryFilter.size > 0 && !isViewingShippingCategory) || variantFilter.size > 0;
+      const showAllVendorComponents = !hasProductFilters || isViewingShippingCategory;
 
       vendorFilteredInvoices.forEach(inv => {
         const vendor = inv.vendor_name || 'Unknown';
@@ -755,7 +766,7 @@ export default function VendorIntelTab({
           // Filter based on whether viewing S+H or materials
           if (!shouldIncludeLineItem(attr)) return;
 
-          // If showing all vendor components, don't filter by componentCategories
+          // If showing all vendor components OR viewing S+H, don't filter by componentCategories
           // Otherwise, only show components used in selected products
           const shouldInclude = showAllVendorComponents || (() => {
             const variants = componentCategories.get(attr.category_id);
@@ -975,8 +986,9 @@ export default function VendorIntelTab({
         : new Set();
 
       // Check if we should filter by product components or show all vendor data
-      const hasProductFilters = selectedProducts.size > 0 || categoryFilter.size > 0 || variantFilter.size > 0;
-      const showAllVendorComponents = !hasProductFilters;
+      // SPECIAL CASE: If viewing S+H categories, IGNORE product filters entirely
+      const hasProductFilters = selectedProducts.size > 0 || (categoryFilter.size > 0 && !isViewingShippingCategory) || variantFilter.size > 0;
+      const showAllVendorComponents = !hasProductFilters || isViewingShippingCategory;
 
       // Filter invoices
       const filteredInvoices = localInvoices.filter(inv => {
