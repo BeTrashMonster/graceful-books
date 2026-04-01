@@ -404,13 +404,20 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         ? `${category.name.replace(/[^a-zA-Z0-9]/g, '')}_${item.variant.replace(/[^a-zA-Z0-9]/g, '')}`
         : category.name.replace(/[^a-zA-Z0-9]/g, '');
 
+      // Normalize decimal values (convert .55 to 0.55)
+      const normalizeDecimal = (value: string): string => {
+        const trimmed = value.trim();
+        // Add leading zero if starts with decimal point
+        return trimmed.startsWith('.') ? `0${trimmed}` : trimmed;
+      };
+
       costAttribution[key] = {
         category_id: item.category_id,
         variant: item.variant,
         description: item.description || undefined,
-        units_purchased: item.units_purchased.trim(),
-        unit_price: item.unit_price.trim(),
-        units_received: item.units_received.trim() || item.units_purchased.trim(),
+        units_purchased: normalizeDecimal(item.units_purchased),
+        unit_price: normalizeDecimal(item.unit_price),
+        units_received: normalizeDecimal(item.units_received || item.units_purchased),
         manual_line_total: item.manual_line_total || undefined,
         distribution_method: item.distribution_method || undefined,
       };
