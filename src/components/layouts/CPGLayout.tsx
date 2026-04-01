@@ -14,6 +14,7 @@ import type { DistributorFormData } from '../cpg/DistributorProfileForm';
 import { CategoryManager } from '../cpg/CategoryManager';
 import { DistributorManager } from '../cpg/DistributorManager';
 import { Modal } from '../modals/Modal';
+import { LeafIcon } from '../common/LeafIcon';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
 import type { CPGCategory } from '../../db/schema/cpg.schema';
@@ -289,32 +290,37 @@ export function CPGLayout() {
               to="/cpg"
               className={isActive('/cpg') && location.pathname === '/cpg' ? styles.active : ''}
             >
-              🏠 Dashboard
+              <LeafIcon isActive={isActive('/cpg') && location.pathname === '/cpg'} />
+              Dashboard
             </Link>
             <Link
               to="/cpg/products"
               className={isActive('/cpg/products') ? styles.active : ''}
             >
-              📦 My Products
+              <LeafIcon isActive={isActive('/cpg/products')} />
+              My Products
             </Link>
             <Link
               to="/cpg/cpu-tracker"
               className={isActive('/cpg/cpu-tracker') ? styles.active : ''}
             >
-              📊 CPU Tracker
+              <LeafIcon isActive={isActive('/cpg/cpu-tracker')} />
+              CPU Tracker
             </Link>
             <Link
               to="/cpg/labor-roles"
               className={isActive('/cpg/labor-roles') ? styles.active : ''}
             >
-              👷 Labor + Roles
+              <LeafIcon isActive={isActive('/cpg/labor-roles')} />
+              Labor + Roles
             </Link>
             {userFeaturePrefs.distribution && (
               <Link
                 to="/cpg/distribution-cost"
                 className={isActive('/cpg/distribution-cost') ? styles.active : ''}
               >
-                🚚 Distribution Center
+                <LeafIcon isActive={isActive('/cpg/distribution-cost')} />
+                Distribution Center
               </Link>
             )}
             {userFeaturePrefs.promos && (
@@ -322,7 +328,8 @@ export function CPGLayout() {
                 to="/cpg/promo-decision"
                 className={isActive('/cpg/promo-decision') ? styles.active : ''}
               >
-                💰 Promo Analysis
+                <LeafIcon isActive={isActive('/cpg/promo-decision')} />
+                Promo Analysis
               </Link>
             )}
             {userFeaturePrefs.events && (
@@ -330,20 +337,23 @@ export function CPGLayout() {
                 to="/cpg/events-analysis"
                 className={isActive('/cpg/events-analysis') ? styles.active : ''}
               >
-                🎪 Events Analysis
+                <LeafIcon isActive={isActive('/cpg/events-analysis')} />
+                Events Analysis
               </Link>
             )}
             <Link
               to="/cpg/financial-entry"
               className={isActive('/cpg/financial-entry') ? styles.active : ''}
             >
-              📝 Financial Entry
+              <LeafIcon isActive={isActive('/cpg/financial-entry')} />
+              Financial Entry
             </Link>
             <Link
               to="/cpg/strategy-planning"
               className={isActive('/cpg/strategy-planning') ? styles.active : ''}
             >
-              🎯 Strategy Planning
+              <LeafIcon isActive={isActive('/cpg/strategy-planning')} />
+              Strategy Planning
             </Link>
           </div>
 
@@ -359,16 +369,20 @@ export function CPGLayout() {
             {showQuickAdd && (
               <div className={styles.quickAddDropdown}>
                 <button onClick={() => { handleAction('add-invoice'); setShowQuickAdd(false); }}>
-                  📄 Add Invoice
+                  <LeafIcon isActive={false} size={16} />
+                  Add Invoice
                 </button>
                 <button onClick={() => { handleAction('add-product'); setShowQuickAdd(false); }}>
-                  📦 Add Product
+                  <LeafIcon isActive={false} size={16} />
+                  Add Product
                 </button>
                 <button onClick={() => { handleAction('add-category'); setShowQuickAdd(false); }}>
-                  🏷️ Add Category
+                  <LeafIcon isActive={false} size={16} />
+                  Add Category
                 </button>
                 <button onClick={() => { handleAction('add-distributor'); setShowQuickAdd(false); }}>
-                  🚚 Add Distributor
+                  <LeafIcon isActive={false} size={16} />
+                  Add Distributor
                 </button>
               </div>
             )}
