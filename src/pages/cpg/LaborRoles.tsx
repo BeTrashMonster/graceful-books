@@ -15,6 +15,7 @@
 import { useState, useEffect } from 'react';
 import { LaborScenariosTab } from './tabs/labor/LaborScenariosTab';
 import { LaborRolesTab } from './tabs/labor/LaborRolesTab';
+import { OwnerPayCalculatorTab } from './tabs/labor/OwnerPayCalculatorTab';
 import { LaborReportsTab } from './tabs/labor/LaborReportsTab';
 import { PinIcon } from '../../components/common/PinIcon';
 import { useTabPinning } from '../../hooks/useTabPinning';
@@ -22,7 +23,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { PAGE_IDS } from '../../db/schema/tabPreferences.schema';
 import styles from './LaborRoles.module.css';
 
-type TabType = 'scenarios' | 'roles' | 'reports';
+type TabType = 'scenarios' | 'roles' | 'ownerpay' | 'reports';
 
 export default function LaborRoles() {
   // Tab pinning
@@ -44,7 +45,7 @@ export default function LaborRoles() {
   useEffect(() => {
     const loadPinnedState = async () => {
       const states: Record<string, boolean> = {};
-      const tabs: TabType[] = ['scenarios', 'roles', 'reports'];
+      const tabs: TabType[] = ['scenarios', 'roles', 'ownerpay', 'reports'];
 
       for (const tab of tabs) {
         states[tab] = await isTabPinned(tab);
@@ -69,6 +70,7 @@ export default function LaborRoles() {
         setPinnedTabs({
           scenarios: tabId === 'scenarios',
           roles: tabId === 'roles',
+          ownerpay: tabId === 'ownerpay',
           reports: tabId === 'reports',
         });
       }
@@ -108,6 +110,17 @@ export default function LaborRoles() {
           />
         </button>
         <button
+          className={activeTab === 'ownerpay' ? styles.tabActive : styles.tab}
+          onClick={() => setActiveTab('ownerpay')}
+        >
+          Owner's Pay Calculator
+          <PinIcon
+            isPinned={pinnedTabs['ownerpay'] || false}
+            onClick={() => handlePinToggle('ownerpay')}
+            size={14}
+          />
+        </button>
+        <button
           className={activeTab === 'reports' ? styles.tabActive : styles.tab}
           onClick={() => setActiveTab('reports')}
         >
@@ -123,6 +136,7 @@ export default function LaborRoles() {
       {/* Tab Content */}
       {activeTab === 'scenarios' && <LaborScenariosTab />}
       {activeTab === 'roles' && <LaborRolesTab />}
+      {activeTab === 'ownerpay' && <OwnerPayCalculatorTab />}
       {activeTab === 'reports' && <LaborReportsTab />}
     </div>
   );
