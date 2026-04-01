@@ -30,9 +30,18 @@ export function PromoTrackerTab() {
   const [selectedPromoForComplete, setSelectedPromoForComplete] = useState<CPGSalesPromo | null>(null);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
 
-  // Load promos on mount
+  // Load promos on mount and when companyId changes
   useEffect(() => {
     loadPromos();
+
+    // Listen for data updates (e.g., when promos are added/edited or features toggled)
+    const handleDataUpdate = () => {
+      console.log('🔔 PromoTrackerTab: Heard cpg-data-updated event, reloading promos');
+      loadPromos();
+    };
+
+    window.addEventListener('cpg-data-updated', handleDataUpdate);
+    return () => window.removeEventListener('cpg-data-updated', handleDataUpdate);
   }, [companyId]);
 
   // Close export menu when clicking outside
@@ -50,10 +59,17 @@ export function PromoTrackerTab() {
   }, [exportMenuOpen]);
 
   const loadPromos = async () => {
-    if (!companyId) return;
+    console.log('📊 PromoTrackerTab: loadPromos called, companyId:', companyId);
+
+    if (!companyId) {
+      console.warn('⚠️ PromoTrackerTab: No companyId, skipping load');
+      return;
+    }
 
     try {
       setIsLoading(true);
+      console.log('🔍 PromoTrackerTab: Querying cpgSalesPromos table...');
+
       // Load all promos for this company
       const allPromos = await db.cpgSalesPromos
         .where('company_id')
@@ -62,6 +78,7 @@ export function PromoTrackerTab() {
         .reverse()
         .sortBy('created_at');
 
+      console.log(`✅ PromoTrackerTab: Loaded ${allPromos.length} promos`);
       setPromos(allPromos);
 
       // Extract unique retailers for filter
@@ -70,7 +87,7 @@ export function PromoTrackerTab() {
       ).sort();
       setRetailers(uniqueRetailers as string[]);
     } catch (error) {
-      console.error('Failed to load promos:', error);
+      console.error('❌ PromoTrackerTab: Failed to load promos:', error);
     } finally {
       setIsLoading(false);
     }

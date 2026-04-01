@@ -42,9 +42,18 @@ export function EventTrackerTab({ urlStartDate, urlEndDate }: EventTrackerTabPro
   const [selectedEventForComplete, setSelectedEventForComplete] = useState<CPGEvent | null>(null);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
 
-  // Load events on mount
+  // Load events on mount and when companyId changes
   useEffect(() => {
     loadEvents();
+
+    // Listen for data updates (e.g., when events are added/edited or features toggled)
+    const handleDataUpdate = () => {
+      console.log('🔔 EventTrackerTab: Heard cpg-data-updated event, reloading events');
+      loadEvents();
+    };
+
+    window.addEventListener('cpg-data-updated', handleDataUpdate);
+    return () => window.removeEventListener('cpg-data-updated', handleDataUpdate);
   }, [companyId]);
 
   // Close export menu when clicking outside
@@ -62,10 +71,17 @@ export function EventTrackerTab({ urlStartDate, urlEndDate }: EventTrackerTabPro
   }, [exportMenuOpen]);
 
   const loadEvents = async () => {
-    if (!companyId) return;
+    console.log('📊 EventTrackerTab: loadEvents called, companyId:', companyId);
+
+    if (!companyId) {
+      console.warn('⚠️ EventTrackerTab: No companyId, skipping load');
+      return;
+    }
 
     try {
       setIsLoading(true);
+      console.log('🔍 EventTrackerTab: Querying cpgEvents table...');
+
       const allEvents = await db.cpgEvents
         .where('company_id')
         .equals(companyId)
@@ -73,6 +89,7 @@ export function EventTrackerTab({ urlStartDate, urlEndDate }: EventTrackerTabPro
         .reverse()
         .sortBy('created_at');
 
+      console.log(`✅ EventTrackerTab: Loaded ${allEvents.length} events`);
       setEvents(allEvents);
 
       // Extract unique locations for filter
@@ -81,7 +98,7 @@ export function EventTrackerTab({ urlStartDate, urlEndDate }: EventTrackerTabPro
       ).sort();
       setLocations(uniqueLocations as string[]);
     } catch (error) {
-      console.error('Failed to load events:', error);
+      console.error('❌ EventTrackerTab: Failed to load events:', error);
     } finally {
       setIsLoading(false);
     }
