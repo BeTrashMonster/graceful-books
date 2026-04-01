@@ -114,6 +114,30 @@ export default function VendorIntelTab({
   const [selectedVendor, setSelectedVendor] = useState<VendorOverview | null>(null);
   const [currentVendorRecord, setCurrentVendorRecord] = useState<CPGVendor | null>(null);
 
+  // Helper: Determine if we're viewing S+H (distribution) categories
+  const isViewingShippingCategory = useMemo(() => {
+    if (categoryFilter.size === 0) return false;
+
+    // Check if ANY filtered category is a distribution category
+    return Array.from(categoryFilter).some(catId => {
+      const category = categories.find(c => c.id === catId);
+      return category?.is_distribution_category === true;
+    });
+  }, [categoryFilter, categories]);
+
+  // Helper: Should we include this line item based on current filter?
+  const shouldIncludeLineItem = (attr: any): boolean => {
+    const isShippingLine = !!attr.distribution_method;
+
+    // If viewing S+H category, ONLY show S+H lines
+    if (isViewingShippingCategory) {
+      return isShippingLine;
+    }
+
+    // Otherwise, ONLY show material lines (skip S+H)
+    return !isShippingLine;
+  };
+
   // Component view state
   const [selectedComponent, setSelectedComponent] = useState<{ categoryId: string; categoryName: string } | null>(null);
   const [componentOverviews, setComponentOverviews] = useState<Array<{
@@ -164,8 +188,8 @@ export default function VendorIntelTab({
     localInvoices.forEach(inv => {
       const attrs = inv.cost_attribution || {};
       Object.values(attrs).forEach(attr => {
-        // Skip S+H distribution lines (they're distributed to materials)
-        if (attr.distribution_method) return;
+        // Filter based on whether viewing S+H or materials
+        if (!shouldIncludeLineItem(attr)) return;
 
         const unitPrice = parseFloat(attr.unit_price);
         const units = parseFloat(attr.units_purchased);
@@ -317,8 +341,8 @@ export default function VendorIntelTab({
 
     filteredInvoices.forEach(inv => {
       Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
-        // Skip S+H distribution lines (they're distributed to materials)
-        if (attr.distribution_method) return;
+        // Filter based on whether viewing S+H or materials
+        if (!shouldIncludeLineItem(attr)) return;
 
         const variants = componentCategories.get(attr.category_id);
         if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
@@ -368,8 +392,8 @@ export default function VendorIntelTab({
     // Collect data for this vendor (filtered by date range)
     filteredInvoices.forEach(inv => {
       Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
-        // Skip S+H distribution lines (they're distributed to materials)
-        if (attr.distribution_method) return;
+        // Filter based on whether viewing S+H or materials
+        if (!shouldIncludeLineItem(attr)) return;
 
         const variants = componentCategories.get(attr.category_id);
         if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
@@ -405,8 +429,8 @@ export default function VendorIntelTab({
       if (endDate > 0 && inv.invoice_date > endDate) return;
 
       Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
-        // Skip S+H distribution lines (they're distributed to materials)
-        if (attr.distribution_method) return;
+        // Filter based on whether viewing S+H or materials
+        if (!shouldIncludeLineItem(attr)) return;
 
         const variants = componentCategories.get(attr.category_id);
         if (variants && (variants.size === 0 || variants.has(attr.variant || ''))) {
@@ -563,23 +587,23 @@ export default function VendorIntelTab({
           break;
         case 'total':
           aVal = Object.values(a.cost_attribution || {}).reduce((sum, attr) => {
-            // Skip S+H distribution lines
-            if (attr.distribution_method) return sum;
+            // Filter based on whether viewing S+H or materials
+            if (!shouldIncludeLineItem(attr)) return sum;
             const unitPrice = parseFloat(attr.unit_price);
             const units = parseFloat(attr.units_purchased);
             return sum + (isNaN(unitPrice) || isNaN(units) ? 0 : unitPrice * units);
           }, 0);
           bVal = Object.values(b.cost_attribution || {}).reduce((sum, attr) => {
-            // Skip S+H distribution lines
-            if (attr.distribution_method) return sum;
+            // Filter based on whether viewing S+H or materials
+            if (!shouldIncludeLineItem(attr)) return sum;
             const unitPrice = parseFloat(attr.unit_price);
             const units = parseFloat(attr.units_purchased);
             return sum + (isNaN(unitPrice) || isNaN(units) ? 0 : unitPrice * units);
           }, 0);
           break;
         case 'components':
-          aVal = Object.values(a.cost_attribution || {}).filter(attr => !attr.distribution_method).length;
-          bVal = Object.values(b.cost_attribution || {}).filter(attr => !attr.distribution_method).length;
+          aVal = Object.values(a.cost_attribution || {}).filter(attr => shouldIncludeLineItem(attr)).length;
+          bVal = Object.values(b.cost_attribution || {}).filter(attr => shouldIncludeLineItem(attr)).length;
           break;
         default:
           return 0;
@@ -690,8 +714,8 @@ export default function VendorIntelTab({
         stats.invoices.add(inv.id);
 
         Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
-          // Skip S+H distribution lines (they're distributed to materials)
-          if (attr.distribution_method) return;
+          // Filter based on whether viewing S+H or materials
+          if (!shouldIncludeLineItem(attr)) return;
 
           // If showing all vendor components, don't filter by componentCategories
           // Otherwise, only show components used in selected products
@@ -775,8 +799,8 @@ export default function VendorIntelTab({
       if (!inv.vendor_name) return;
 
       Object.values(inv.cost_attribution || {}).forEach(attr => {
-        // Skip S+H distribution lines (they're distributed to materials)
-        if (attr.distribution_method) return;
+        // Filter based on whether viewing S+H or materials
+        if (!shouldIncludeLineItem(attr)) return;
 
         if (attr.category_id !== categoryId) return;
 
@@ -916,8 +940,8 @@ export default function VendorIntelTab({
         }
 
         const hasRelevantComponent = Object.values(inv.cost_attribution || {}).some(attr => {
-          // Skip S+H distribution lines
-          if (attr.distribution_method) return false;
+          // Filter based on whether viewing S+H or materials
+          if (!shouldIncludeLineItem(attr)) return false;
           const variants = componentCategories.get(attr.category_id);
           return variants && (variants.size === 0 || variants.has(attr.variant || ''));
         });
@@ -934,8 +958,8 @@ export default function VendorIntelTab({
 
       filteredInvoices.forEach(inv => {
         Object.values(inv.cost_attribution || {}).forEach(attr => {
-          // Skip S+H distribution lines (they're distributed to materials)
-          if (attr.distribution_method) return;
+          // Filter based on whether viewing S+H or materials
+          if (!shouldIncludeLineItem(attr)) return;
 
           // If showing all vendor components, include everything
           // Otherwise, only include components in componentCategories
@@ -1314,8 +1338,8 @@ export default function VendorIntelTab({
 
       const attrs = inv.cost_attribution || {};
       Object.entries(attrs).forEach(([key, attr], idx) => {
-        // Skip S+H distribution lines (they're distributed to materials)
-        if (attr.distribution_method) return;
+        // Filter based on whether viewing S+H or materials
+        if (!shouldIncludeLineItem(attr)) return;
 
         if (!componentsToExport.includes(attr.category_id)) return;
 
@@ -1915,8 +1939,8 @@ export default function VendorIntelTab({
                             const attrs = inv.cost_attribution || {};
                             return Object.keys(attrs).some(key => {
                               const attr = attrs[key];
-                              // Skip S+H distribution lines
-                              if (attr.distribution_method) return false;
+                              // Filter based on whether viewing S+H or materials
+                              if (!shouldIncludeLineItem(attr)) return false;
                               return attr.category_id === comp.categoryId &&
                                      (attr.variant || '') === (comp.variant || '');
                             });
@@ -2243,10 +2267,10 @@ export default function VendorIntelTab({
                       </thead>
                       <tbody>
                         {sortedVendorInvoices.map((inv) => {
-                          const componentCount = Object.values(inv.cost_attribution || {}).filter(attr => !attr.distribution_method).length;
+                          const componentCount = Object.values(inv.cost_attribution || {}).filter(attr => shouldIncludeLineItem(attr)).length;
                           const total = Object.values(inv.cost_attribution || {}).reduce((sum, attr) => {
-                            // Skip S+H distribution lines (they're distributed to materials)
-                            if (attr.distribution_method) return sum;
+                            // Filter based on whether viewing S+H or materials
+                            if (!shouldIncludeLineItem(attr)) return sum;
                             const unitPrice = parseFloat(attr.unit_price);
                             const units = parseFloat(attr.units_purchased);
                             return sum + (isNaN(unitPrice) || isNaN(units) ? 0 : unitPrice * units);
