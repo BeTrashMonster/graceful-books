@@ -76,6 +76,14 @@ interface ComponentTrendData {
   isLabor?: boolean; // Flag to indicate this is a labor cost, not material
 }
 
+interface SHDistributionData {
+  categoryName: string;
+  shPerUnit: number;
+  avgSHPerUnit: number;
+  change: number;
+  priceHistory: Array<{ date: number; price: number }>;
+}
+
 interface ProductTrendData {
   productId: string;
   productName: string;
@@ -83,6 +91,7 @@ interface ProductTrendData {
   margin: string;
   msrp: string;
   components: ComponentTrendData[];
+  shDistribution?: SHDistributionData[]; // S+H distribution breakdown (only when viewing S+H category)
 }
 
 interface ChartDataPoint {
@@ -279,6 +288,85 @@ export default function CPUTrendsTab({
           });
         });
 
+        // Check if we're viewing an S+H category to calculate distribution breakdown
+        const isViewingSHCategory = Array.from(categoryFilter).some(catId => {
+          const cat = categories.find(c => c.id === catId);
+          return cat?.is_distribution_category === true;
+        });
+
+        // Calculate S+H distribution breakdown if viewing S+H category
+        const shDistributionMap = new Map<string, {
+          categoryName: string;
+          priceHistory: Array<{ date: number; price: number }>;
+        }>();
+
+        if (isViewingSHCategory) {
+          // Loop through invoices to calculate how S+H was distributed to each material category
+          filteredInvoices.forEach(inv => {
+            // Find S+H items on this invoice
+            const shItems = Object.entries(inv.cost_attribution || {})
+              .filter(([key, attr]) => {
+                const category = categories.find(c => c.id === attr.category_id);
+                return category?.is_distribution_category === true;
+              });
+
+            if (shItems.length === 0) return;
+
+            // Find material items on this invoice
+            const materialItems = Object.entries(inv.cost_attribution || {})
+              .filter(([key, attr]) => {
+                const category = categories.find(c => c.id === attr.category_id);
+                return category?.is_distribution_category !== true;
+              })
+              .map(([key, attr]) => ({
+                categoryId: attr.category_id,
+                categoryName: categories.find(c => c.id === attr.category_id)?.name || 'Unknown',
+                variant: attr.variant,
+                unitsPurchased: parseFloat(attr.units_purchased),
+                unitPrice: parseFloat(attr.unit_price),
+                total: parseFloat(attr.units_purchased) * parseFloat(attr.unit_price),
+              }))
+              .filter(item => !isNaN(item.unitsPurchased) && !isNaN(item.unitPrice) && item.total > 0);
+
+            if (materialItems.length === 0) return;
+
+            // Calculate total material value for weighted distribution
+            const totalMaterialValue = materialItems.reduce((sum, item) => sum + item.total, 0);
+
+            // For each S+H item, distribute to materials
+            shItems.forEach(([key, shAttr]) => {
+              const shTotal = parseFloat(shAttr.unit_price); // S+H is stored as total in unit_price
+              if (isNaN(shTotal) || shTotal <= 0) return;
+
+              // Distribute S+H to each material category
+              materialItems.forEach(matItem => {
+                // Calculate S+H allocation (weighted by material value)
+                const allocation = totalMaterialValue > 0 ? (matItem.total / totalMaterialValue) * shTotal : 0;
+
+                // Calculate S+H per unit
+                const shPerUnit = matItem.unitsPurchased > 0 ? allocation / matItem.unitsPurchased : 0;
+
+                if (shPerUnit <= 0) return;
+
+                // Create unique key for material category (without variant for aggregation)
+                const matKey = matItem.categoryName;
+
+                if (!shDistributionMap.has(matKey)) {
+                  shDistributionMap.set(matKey, {
+                    categoryName: matItem.categoryName,
+                    priceHistory: [],
+                  });
+                }
+
+                shDistributionMap.get(matKey)!.priceHistory.push({
+                  date: inv.invoice_date,
+                  price: shPerUnit,
+                });
+              });
+            });
+          });
+        }
+
         // Determine filter visibility
         const hasMaterialFilters = categoryFilter.size > 0 || variantFilter.size > 0 || vendorFilter.size > 0;
         const hasLaborFilters = laborFilter.size > 0;
@@ -376,6 +464,34 @@ export default function CPUTrendsTab({
             displayMSRP = cpuData?.msrp || product?.msrp || 'N/A';
           }
 
+          // Build S+H distribution breakdown if viewing S+H category
+          let shDistribution: SHDistributionData[] | undefined;
+          if (isViewingSHCategory && shDistributionMap.size > 0) {
+            shDistribution = [];
+            shDistributionMap.forEach((data) => {
+              if (data.priceHistory.length === 0) return;
+
+              // Sort by date
+              data.priceHistory.sort((a, b) => a.date - b.date);
+
+              // Calculate current, average, and change
+              const currentSH = data.priceHistory[data.priceHistory.length - 1].price;
+              const avgSH = data.priceHistory.reduce((sum, p) => sum + p.price, 0) / data.priceHistory.length;
+              const change = ((currentSH - avgSH) / avgSH) * 100;
+
+              shDistribution!.push({
+                categoryName: data.categoryName,
+                shPerUnit: currentSH,
+                avgSHPerUnit: avgSH,
+                change,
+                priceHistory: data.priceHistory,
+              });
+            });
+
+            // Sort alphabetically
+            shDistribution.sort((a, b) => a.categoryName.localeCompare(b.categoryName));
+          }
+
           trends.push({
             productId: productId,
             productName: productName,
@@ -383,6 +499,7 @@ export default function CPUTrendsTab({
             margin: displayMargin,
             msrp: displayMSRP,
             components: componentTrends,
+            shDistribution,
           });
         }
       }
@@ -743,8 +860,14 @@ export default function CPUTrendsTab({
               {/* Price Trend Chart */}
               <div className={styles.chartSection}>
                 <div className={styles.chartHeader}>
-                  <h5 className={styles.chartTitle}>Component Price Trends</h5>
-                  <p className={styles.chartSubtitle}>Historical price movements over selected date range</p>
+                  <h5 className={styles.chartTitle}>
+                    {product.shDistribution ? 'Raw S+H Cost Trends' : 'Component Price Trends'}
+                  </h5>
+                  <p className={styles.chartSubtitle}>
+                    {product.shDistribution
+                      ? 'Total Shipping + Handling costs paid per invoice'
+                      : 'Historical price movements over selected date range'}
+                  </p>
                 </div>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart
@@ -799,6 +922,25 @@ export default function CPUTrendsTab({
               </div>
 
               {/* Component table */}
+              {product.shDistribution && (
+                <div style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
+                  <h5 style={{
+                    fontSize: '1.125rem',
+                    fontWeight: 600,
+                    color: '#4b006e',
+                    marginBottom: '0.5rem'
+                  }}>
+                    📊 Raw S+H Costs
+                  </h5>
+                  <p style={{
+                    fontSize: '0.875rem',
+                    color: '#6b7280',
+                    marginBottom: '0'
+                  }}>
+                    Total Shipping + Handling paid per invoice (before distribution)
+                  </p>
+                </div>
+              )}
               <div className={styles.tableContainer}>
                 <table className={styles.trendsTable}>
                   <thead>
@@ -875,6 +1017,73 @@ export default function CPUTrendsTab({
                   </tbody>
                 </table>
               </div>
+
+              {/* S+H Distribution Breakdown (only when viewing S+H category) */}
+              {product.shDistribution && product.shDistribution.length > 0 && (
+                <div style={{ marginTop: '2rem' }}>
+                  <div style={{
+                    borderTop: '2px solid #fbbf24',
+                    paddingTop: '1.5rem',
+                    marginBottom: '1rem'
+                  }}>
+                    <h5 style={{
+                      fontSize: '1.125rem',
+                      fontWeight: 600,
+                      color: '#92400e',
+                      marginBottom: '0.5rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}>
+                      📦 S+H Distribution by Category
+                    </h5>
+                    <p style={{
+                      fontSize: '0.875rem',
+                      color: '#78350f',
+                      marginBottom: '1rem'
+                    }}>
+                      How Shipping + Handling costs are allocated per unit across material categories
+                    </p>
+                  </div>
+
+                  <div className={styles.tableContainer}>
+                    <table className={styles.trendsTable}>
+                      <thead>
+                        <tr>
+                          <th style={{ background: '#fef3c7', color: '#92400e' }}>CATEGORY</th>
+                          <th className={styles.alignRight} style={{ background: '#fef3c7', color: '#92400e' }}>S+H/UNIT CURRENT</th>
+                          <th className={styles.alignRight} style={{ background: '#fef3c7', color: '#92400e' }}>S+H/UNIT AVG</th>
+                          <th className={styles.alignRight} style={{ background: '#fef3c7', color: '#92400e' }}>TREND</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {product.shDistribution.map((dist, idx) => (
+                          <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? '#fffbeb' : 'white' }}>
+                            <td className={styles.componentName} style={{ color: '#78350f', fontWeight: 500 }}>
+                              {dist.categoryName}
+                            </td>
+                            <td className={styles.priceValue} style={{ color: '#92400e', fontWeight: 600 }}>
+                              ${dist.shPerUnit.toFixed(4)}
+                            </td>
+                            <td className={styles.priceAverage} style={{ color: '#92400e' }}>
+                              ${dist.avgSHPerUnit.toFixed(4)}
+                            </td>
+                            <td className={styles.priceValue}>
+                              {dist.change !== 0 ? (
+                                <span className={dist.change > 0 ? styles.increase : styles.decrease}>
+                                  {dist.change > 0 ? '↑ +' : '↓ '}{dist.change.toFixed(1)}%
+                                </span>
+                              ) : (
+                                <span className={styles.stable}>→ Stable</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
