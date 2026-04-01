@@ -1766,9 +1766,123 @@ export class TreasureChestDB extends Dexie {
     });
 
     // Version 27: Add S+H distribution support to CPG categories (is_distribution_category index)
-    this.version(27).stores({
-      cpgCategories: cpgCategoriesSchema,
-    });
+    this.version(27)
+      .stores({
+        cpgCategories: cpgCategoriesSchema,
+      })
+      .upgrade(async (tx) => {
+        dbLogger.info('Migrating CPG categories to version 27 (S+H distribution support)');
+
+        // Ensure all categories have is_distribution_category field
+        await tx.table('cpgCategories').toCollection().modify((category: any) => {
+          if (category.is_distribution_category === undefined) {
+            category.is_distribution_category = false;
+          }
+        });
+
+        dbLogger.info('CPG category migration complete - all categories have is_distribution_category field');
+      });
+
+    // Version 28: Fix database schema versioning issue and ensure all CPG tables exist properly
+    this.version(28)
+      .stores({
+        accounts: accountsSchema,
+        transactions: transactionsSchema,
+        transactionLineItems: transactionLineItemsSchema,
+        contacts: contactsSchema,
+        products: productsSchema,
+        users: usersSchema,
+        companies: companiesSchema,
+        companyUsers: companyUsersSchema,
+        auditLogs: auditLogsSchema,
+        sessions: sessionsSchema,
+        devices: devicesSchema,
+        receipts: receiptsSchema,
+        categories: categoriesSchema,
+        emailPreferences: emailPreferencesSchema,
+        emailDelivery: emailDeliverySchema,
+        invoices: invoicesSchema,
+        invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+        recurringTransactions: recurringTransactionsSchema,
+        generatedTransactions: generatedTransactionsSchema,
+        categorizationModels: categorizationModelsSchema,
+        trainingData: trainingDataSchema,
+        suggestionHistory: suggestionHistorySchema,
+        categorizationRules: categorizationRulesSchema,
+        inventoryItems: inventoryItemsSchema,
+        inventoryLayers: inventoryLayersSchema,
+        inventoryTransactions: inventoryTransactionsSchema,
+        stockTakes: stockTakesSchema,
+        stockTakeItems: stockTakeItemsSchema,
+        valuationMethodChanges: valuationMethodChangesSchema,
+        portalTokens: portalTokensSchema,
+        payments: paymentsSchema,
+        approvalRules: approvalRulesSchema,
+        approvalRequests: approvalRequestsSchema,
+        approvalActions: approvalActionsSchema,
+        approvalDelegations: approvalDelegationsSchema,
+        approvalHistory: approvalHistorySchema,
+        reportSchedules: reportScheduleSchema,
+        scheduledReportDeliveries: scheduledReportDeliverySchema,
+        recentActivity: recentActivitySchema,
+        conflict_history: conflictHistorySchema,
+        conflict_notifications: conflictNotificationsSchema,
+        comments: commentsSchema,
+        mentions: mentionsSchema,
+        emailQueue: emailQueueSchema,
+        emailLogs: emailLogsSchema,
+        emailNotificationPreferences: emailNotificationPreferencesSchema,
+        subscriptions: subscriptionsSchema,
+        advisorClients: advisorClientsSchema,
+        advisorTeamMembers: advisorTeamMembersSchema,
+        paymentMethods: paymentMethodsSchema,
+        billingInvoices: billingInvoicesSchema,
+        stripeWebhookEvents: stripeWebhookEventsSchema,
+        charityDistributions: charityDistributionsSchema,
+        charities: charitiesSchema,
+        financialGoals: financialGoalsSchema,
+        goalProgressSnapshots: goalProgressSnapshotsSchema,
+        taxDocuments: taxDocumentsSchema,
+        taxCategoryStatus: taxCategoryStatusSchema,
+        taxPrepSessions: taxPrepSessionsSchema,
+        taxAdvisorAccess: taxAdvisorAccessSchema,
+        taxPackages: taxPackagesSchema,
+        currencies: currenciesSchema,
+        exchangeRates: exchangeRatesSchema,
+        cpgCategories: cpgCategoriesSchema,
+        cpgInvoices: cpgInvoicesSchema,
+        cpgVendors: cpgVendorsSchema,
+        cpgDistributors: cpgDistributorsSchema,
+        cpgDistributionCalculations: cpgDistributionCalculationsSchema,
+        cpgSalesPromos: cpgSalesPromosSchema,
+        cpgEvents: cpgEventsSchema,
+        cpgFinishedProducts: cpgFinishedProductsSchema,
+        cpgRecipes: cpgRecipesSchema,
+        cpgProductLinks: cpgProductLinksSchema,
+        cpgSettings: cpgSettingsSchema,
+        cpgLaborRoles: cpgLaborRolesSchema,
+        cpgProductLabors: cpgProductLaborsSchema,
+        standaloneFinancials: standaloneFinancialsSchema,
+        skuCountTrackers: skuCountTrackersSchema,
+        userFeaturePreferences: userFeaturePreferencesSchema,
+        tabPreferences: tabPreferencesSchema,
+        backupAuditLogs: backupAuditLogsSchema,
+      })
+      .upgrade(async (tx) => {
+        dbLogger.info('Migrating database to version 28 (fix schema versioning)');
+
+        // Ensure all CPG categories have required fields
+        await tx.table('cpgCategories').toCollection().modify((category: any) => {
+          if (category.is_distribution_category === undefined) {
+            category.is_distribution_category = false;
+          }
+          if (category.unit_of_measure === undefined) {
+            category.unit_of_measure = 'each';
+          }
+        });
+
+        dbLogger.info('Version 28 migration complete - all tables properly initialized');
+      });
 
     // Add hooks for automatic audit logging
     this.setupAuditHooks();
