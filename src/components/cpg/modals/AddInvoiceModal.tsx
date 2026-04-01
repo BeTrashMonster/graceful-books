@@ -324,9 +324,15 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
     }
 
     // Filter out empty cost items (items with no data entered)
-    const filledCostItems = costItems.filter(item =>
-      item.category_id || item.units_purchased || item.unit_price
-    );
+    // An item is considered "filled" if it has a category AND at least one numeric field
+    const filledCostItems = costItems.filter(item => {
+      const hasCategory = !!item.category_id;
+      const hasUnits = item.units_purchased && item.units_purchased.trim() !== '';
+      const hasPrice = item.unit_price && item.unit_price.trim() !== '';
+
+      // Must have category AND (units OR price)
+      return hasCategory && (hasUnits || hasPrice);
+    });
 
     if (filledCostItems.length === 0) {
       setErrors({ form: 'Please add at least one cost item' });
@@ -421,6 +427,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
     if (hasErrors) return;
 
     console.log('[AddInvoiceModal] Final costAttribution:', costAttribution);
+    console.log('[AddInvoiceModal] Cost items before submission:', JSON.stringify(costItems, null, 2));
 
     // Save to database using cpuCalculatorService (which calculates CPUs)
     setIsSubmitting(true);
