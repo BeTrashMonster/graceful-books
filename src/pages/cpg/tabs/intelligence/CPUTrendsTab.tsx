@@ -1063,10 +1063,10 @@ export default function CPUTrendsTab({
                               {dist.categoryName}
                             </td>
                             <td className={styles.priceValue} style={{ color: '#92400e', fontWeight: 600 }}>
-                              ${dist.shPerUnit.toFixed(4)}
+                              ${dist.shPerUnit.toFixed(2)}
                             </td>
                             <td className={styles.priceAverage} style={{ color: '#92400e' }}>
-                              ${dist.avgSHPerUnit.toFixed(4)}
+                              ${dist.avgSHPerUnit.toFixed(2)}
                             </td>
                             <td className={styles.priceValue}>
                               {dist.change !== 0 ? (
