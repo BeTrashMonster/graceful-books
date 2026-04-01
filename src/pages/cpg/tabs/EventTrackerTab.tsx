@@ -46,14 +46,25 @@ export function EventTrackerTab({ urlStartDate, urlEndDate }: EventTrackerTabPro
   useEffect(() => {
     loadEvents();
 
-    // Listen for data updates (e.g., when events are added/edited or features toggled)
+    // Listen for data updates (e.g., when events are added/edited)
     const handleDataUpdate = () => {
       console.log('🔔 EventTrackerTab: Heard cpg-data-updated event, reloading events');
       loadEvents();
     };
 
+    // Listen for feature toggles (e.g., when Events feature is reactivated)
+    const handleFeatureUpdate = () => {
+      console.log('🔔 EventTrackerTab: Heard feature-preferences-updated event, reloading events');
+      loadEvents();
+    };
+
     window.addEventListener('cpg-data-updated', handleDataUpdate);
-    return () => window.removeEventListener('cpg-data-updated', handleDataUpdate);
+    window.addEventListener('feature-preferences-updated', handleFeatureUpdate);
+
+    return () => {
+      window.removeEventListener('cpg-data-updated', handleDataUpdate);
+      window.removeEventListener('feature-preferences-updated', handleFeatureUpdate);
+    };
   }, [companyId]);
 
   // Close export menu when clicking outside

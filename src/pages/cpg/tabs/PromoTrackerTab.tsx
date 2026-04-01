@@ -34,14 +34,25 @@ export function PromoTrackerTab() {
   useEffect(() => {
     loadPromos();
 
-    // Listen for data updates (e.g., when promos are added/edited or features toggled)
+    // Listen for data updates (e.g., when promos are added/edited)
     const handleDataUpdate = () => {
       console.log('🔔 PromoTrackerTab: Heard cpg-data-updated event, reloading promos');
       loadPromos();
     };
 
+    // Listen for feature toggles (e.g., when Promos feature is reactivated)
+    const handleFeatureUpdate = () => {
+      console.log('🔔 PromoTrackerTab: Heard feature-preferences-updated event, reloading promos');
+      loadPromos();
+    };
+
     window.addEventListener('cpg-data-updated', handleDataUpdate);
-    return () => window.removeEventListener('cpg-data-updated', handleDataUpdate);
+    window.addEventListener('feature-preferences-updated', handleFeatureUpdate);
+
+    return () => {
+      window.removeEventListener('cpg-data-updated', handleDataUpdate);
+      window.removeEventListener('feature-preferences-updated', handleFeatureUpdate);
+    };
   }, [companyId]);
 
   // Close export menu when clicking outside
