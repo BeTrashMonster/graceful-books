@@ -223,7 +223,20 @@ export function CPGSettings() {
    * Save settings
    */
   const handleSave = async () => {
-    if (!settings || !deviceId) return;
+    if (!settings || !deviceId) {
+      console.error('Cannot save: missing settings or deviceId', { settings, deviceId });
+      setErrorMessage('Cannot save settings: missing required data');
+      return;
+    }
+
+    console.log('💾 Saving settings...', {
+      currencyFormat,
+      dateFormat,
+      numberFormat,
+      decimalPlacesCurrency,
+      decimalPlacesNumbers,
+      decimalPlacesPercentage,
+    });
 
     setIsSaving(true);
     setErrorMessage(null);
@@ -268,16 +281,18 @@ export function CPGSettings() {
         deviceId
       );
 
+      console.log('✅ Settings saved successfully!', updated);
+
       setSettings(updated);
       setSuccessMessage('Settings saved successfully!');
 
       // Dispatch event to notify other components of settings update
       window.dispatchEvent(new CustomEvent('cpg-settings-updated'));
 
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccessMessage(null), 3000);
+      // Clear success message after 5 seconds (increased from 3)
+      setTimeout(() => setSuccessMessage(null), 5000);
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      console.error('❌ Failed to save settings:', error);
       setErrorMessage(
         error instanceof Error ? error.message : 'Failed to save settings'
       );
