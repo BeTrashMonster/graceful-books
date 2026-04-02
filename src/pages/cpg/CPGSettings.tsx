@@ -1048,6 +1048,41 @@ export function CPGSettings() {
           </div>
         </div>
       </div>
+
+      {/* Global Save Button - Always visible at bottom */}
+      <div
+        style={{
+          position: 'sticky',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: '1rem 2rem',
+          background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 20%, rgba(255,255,255,1) 100%)',
+          borderTop: '1px solid #e5e7eb',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: '1rem',
+          zIndex: 10,
+        }}
+      >
+        <Button
+          variant="secondary"
+          size="md"
+          onClick={handleReset}
+          disabled={isSaving}
+        >
+          Reset to Defaults
+        </Button>
+        <Button
+          variant="primary"
+          size="lg"
+          onClick={handleSave}
+          loading={isSaving}
+          disabled={isSaving}
+        >
+          Save Changes
+        </Button>
+      </div>
     </div>
   );
 }
