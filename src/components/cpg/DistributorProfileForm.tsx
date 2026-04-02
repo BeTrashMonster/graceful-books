@@ -581,7 +581,7 @@ export function DistributorProfileForm({
                             {fee.unit !== 'percentage' && <span className={styles.currencySymbol}>$</span>}
                             <input
                               type="number"
-                              step={fee.unit === 'percentage' ? '1' : '0.01'}
+                              step="0.0001"
                               min="0"
                               max={fee.unit === 'percentage' ? '100' : undefined}
                               value={fee.amount}
