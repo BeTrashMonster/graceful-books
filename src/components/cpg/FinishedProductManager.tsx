@@ -117,13 +117,13 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
 
             cpuMap.set(product.id, hasAllCpus ? totalCpu.toFixed(2) : null);
           } else {
-            // Regular product - calculate CPU normally (last 365 days)
-            const cpuResult = await cpuCalculatorService.calculateFinishedProductCPU(
+            // Regular product - get material CPU only (without labor)
+            const cpuBreakdown = await cpuCalculatorService.getFinishedProductCPUBreakdown(
               product.id,
-              companyId,
-              dateRange
+              companyId
             );
-            cpuMap.set(product.id, cpuResult.cpu);
+            // Store only material CPU to avoid double-counting labor
+            cpuMap.set(product.id, cpuBreakdown.materialCPU);
           }
         } catch (err) {
           console.error(`Failed to calculate CPU for product ${product.id}:`, err);
