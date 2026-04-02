@@ -55,6 +55,7 @@ export default function RawMaterialsTab({
   const [rawMaterialsVendorFilter, setRawMaterialsVendorFilter] = useState<string>('');
   const [rawMaterialsSortBy, setRawMaterialsSortBy] = useState<'date-asc' | 'date-desc' | 'vendor' | 'total-asc' | 'total-desc'>('date-desc');
   const [showRawMaterialsExportMenu, setShowRawMaterialsExportMenu] = useState(false);
+  const [deletingInvoiceId, setDeletingInvoiceId] = useState<string | null>(null);
 
   // Handle date preset changes
   const handleRawMaterialsDatePresetChange = (preset: DateRangePreset) => {
@@ -1160,6 +1161,16 @@ export default function RawMaterialsTab({
                         >
                           Duplicate
                         </button>
+                        <button
+                          className={styles.actionButton}
+                          onClick={() => setDeletingInvoiceId(invoice.id)}
+                          style={{ background: '#dc2626', color: 'white' }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#b91c1c'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = '#dc2626'}
+                          aria-label={`Delete invoice ${invoice.invoice_number || ''}`}
+                        >
+                          Delete
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -1169,6 +1180,76 @@ export default function RawMaterialsTab({
           </table>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {deletingInvoiceId && (() => {
+        const invoice = invoices.find(inv => inv.id === deletingInvoiceId);
+        return (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+            }}
+            onClick={() => setDeletingInvoiceId(null)}
+          >
+            <div
+              style={{
+                background: 'white',
+                padding: '2rem',
+                borderRadius: '0.5rem',
+                maxWidth: '500px',
+                width: '90%',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Delete Invoice?</h3>
+              <p style={{ marginBottom: '1.5rem' }}>
+                Are you sure you want to delete invoice <strong>{invoice?.invoice_number || 'this invoice'}</strong>
+                {invoice?.vendor_name && ` from ${invoice.vendor_name}`}?
+                This action cannot be undone.
+              </p>
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setDeletingInvoiceId(null)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    borderRadius: '0.375rem',
+                    border: '1px solid #d1d5db',
+                    background: 'white',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    await onArchiveInvoice(deletingInvoiceId);
+                    setDeletingInvoiceId(null);
+                  }}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    borderRadius: '0.375rem',
+                    border: 'none',
+                    background: '#dc2626',
+                    color: 'white',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Delete Invoice
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
