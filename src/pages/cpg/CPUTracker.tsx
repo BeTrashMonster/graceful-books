@@ -626,7 +626,7 @@ export default function CPUTracker() {
                 onArchiveInvoice={async (id) => {
                   const invoice = invoices.find(inv => inv.id === id);
                   if (!invoice) return;
-                  await db.cpg_invoices.update(invoice.id, {
+                  await db.cpgInvoices.update(invoice.id, {
                     deleted_at: Date.now(),
                     deleted_by: companyId,
                   });
