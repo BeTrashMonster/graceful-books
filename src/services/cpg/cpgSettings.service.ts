@@ -169,4 +169,74 @@ export class CPGSettingsService {
         return settings.color_gut_check;
     }
   }
+
+  /**
+   * Format currency based on settings
+   */
+  formatCurrency(value: number, settings: CPGSettings): string {
+    const decimalPlaces = settings.decimal_places_currency;
+
+    // Get currency symbol
+    const currencySymbols: Record<string, string> = {
+      USD: '$',
+      CAD: '$',
+      EUR: '€',
+      GBP: '£',
+      AUD: '$',
+      MXN: '$',
+    };
+    const symbol = currencySymbols[settings.currency_format] || '$';
+
+    // Format number based on locale
+    const formatted = value.toLocaleString(settings.number_format, {
+      minimumFractionDigits: decimalPlaces,
+      maximumFractionDigits: decimalPlaces,
+    });
+
+    return `${symbol}${formatted}`;
+  }
+
+  /**
+   * Format number based on settings
+   */
+  formatNumber(value: number, settings: CPGSettings): string {
+    return value.toLocaleString(settings.number_format, {
+      minimumFractionDigits: settings.decimal_places_numbers,
+      maximumFractionDigits: settings.decimal_places_numbers,
+    });
+  }
+
+  /**
+   * Format percentage based on settings
+   */
+  formatPercentage(value: number, settings: CPGSettings): string {
+    const formatted = value.toLocaleString(settings.number_format, {
+      minimumFractionDigits: settings.decimal_places_percentage,
+      maximumFractionDigits: settings.decimal_places_percentage,
+    });
+
+    return `${formatted}%`;
+  }
+
+  /**
+   * Format date based on settings
+   */
+  formatDate(date: Date | string | number, settings: CPGSettings): string {
+    const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
+
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+
+    switch (settings.date_format) {
+      case 'MM/DD/YYYY':
+        return `${month}/${day}/${year}`;
+      case 'DD/MM/YYYY':
+        return `${day}/${month}/${year}`;
+      case 'YYYY-MM-DD':
+        return `${year}-${month}-${day}`;
+      default:
+        return `${month}/${day}/${year}`;
+    }
+  }
 }

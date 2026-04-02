@@ -271,6 +271,9 @@ export function CPGSettings() {
       setSettings(updated);
       setSuccessMessage('Settings saved successfully!');
 
+      // Dispatch event to notify other components of settings update
+      window.dispatchEvent(new CustomEvent('cpg-settings-updated'));
+
       // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (error) {
