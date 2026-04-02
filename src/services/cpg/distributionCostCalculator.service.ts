@@ -64,18 +64,20 @@ export interface DistributionCalcParams {
       product_name: string;
       quantity: number;
       price_per_unit: string;
-      base_cpu: string;
+      base_cpu: string; // Material cost per unit
+      production_cpu?: string; // Production labor cost per unit
     }>;
   }>;
 
   // Variant-specific pricing and costs
-  // Example: { "8oz": { price_per_unit: "3.38", base_cpu: "2.15", quantity: 100 }, "16oz": { ... } }
+  // Example: { "8oz": { price_per_unit: "3.38", base_cpu: "2.15", production_cpu: "0.50", quantity: 100 }, "16oz": { ... } }
   // NOTE: This is aggregated data - use pallet_data for accurate per-pallet breakdown
   variantData: Record<
     string,
     {
       price_per_unit: string;
-      base_cpu: string; // From CPG Invoice calculations
+      base_cpu: string; // Material cost from CPG Invoice calculations
+      production_cpu?: string; // Production labor cost per unit
       quantity: number; // Total quantity of this product across all pallets
     }
   >;
@@ -315,11 +317,12 @@ export class DistributionCostCalculatorService {
     const variantResults: DistributionCostResult['variantResults'] = {};
 
     for (const [variantName, variantData] of Object.entries(params.variantData)) {
-      const baseCPU = new Decimal(variantData.base_cpu);
+      const baseCPU = new Decimal(variantData.base_cpu); // Material cost
+      const productionCPU = variantData.production_cpu ? new Decimal(variantData.production_cpu) : new Decimal(0); // Production labor cost
       const pricePerUnit = new Decimal(variantData.price_per_unit);
 
-      // Total CPU = Base CPU + Distribution cost per unit
-      const totalCPU = baseCPU.plus(distributionCostPerUnit);
+      // Total CPU = Base CPU (materials) + Production CPU (labor) + Distribution cost per unit
+      const totalCPU = baseCPU.plus(productionCPU).plus(distributionCostPerUnit);
 
       // Net Profit Margin = ((Price - Total CPU) / Price) × 100
       let netProfitMargin = new Decimal(0);

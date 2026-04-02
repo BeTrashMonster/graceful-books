@@ -108,6 +108,7 @@ export default function SalesPromoDecisionTool() {
   const [notes, setNotes] = useState('');
   const [availableVariants, setAvailableVariants] = useState<string[]>([]);
   const [latestCPUs, setLatestCPUs] = useState<Record<string, string>>({});
+  const [latestLaborCosts, setLatestLaborCosts] = useState<Record<string, string>>({});
   const [latestMSRPs, setLatestMSRPs] = useState<Record<string, string>>({});
   const [cpuErrors, setCpuErrors] = useState<string[]>([]); // Track products with CPU errors
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -253,6 +254,7 @@ export default function SalesPromoDecisionTool() {
         // Use SKU or name as the variant identifier
         const productNames: string[] = [];
         const cpuMap: Record<string, string> = {};
+        const laborCostMap: Record<string, string> = {};
         const msrpMap: Record<string, string> = {};
         const failedCPUs: string[] = [];
 
@@ -269,8 +271,13 @@ export default function SalesPromoDecisionTool() {
               product.id,
               companyId
             );
-            if (cpuBreakdown.cpu) {
-              cpuMap[variantName] = cpuBreakdown.cpu;
+            if (cpuBreakdown.materialCPU) {
+              // Store material CPU separately (base cost without labor)
+              cpuMap[variantName] = cpuBreakdown.materialCPU;
+              // Store labor cost separately if available
+              if (cpuBreakdown.laborCost) {
+                laborCostMap[variantName] = cpuBreakdown.laborCost;
+              }
             } else {
               failedCPUs.push(variantName);
             }
@@ -287,6 +294,7 @@ export default function SalesPromoDecisionTool() {
 
         setAvailableVariants(productNames.sort());
         setLatestCPUs(cpuMap);
+        setLatestLaborCosts(laborCostMap);
         setLatestMSRPs(msrpMap);
         setCpuErrors(failedCPUs);
       } catch (error) {
@@ -339,13 +347,14 @@ export default function SalesPromoDecisionTool() {
         }
 
         // Convert variant_promo_data from snake_case (DB) to camelCase (form)
-        const convertedVariants: Record<string, { retailPrice: string; unitsAvailable: string; baseCPU: string }> = {};
+        const convertedVariants: Record<string, { retailPrice: string; unitsAvailable: string; baseCPU: string; productionCPU: string }> = {};
         if (promo.variant_promo_data) {
           Object.entries(promo.variant_promo_data).forEach(([key, value]) => {
             convertedVariants[key] = {
               retailPrice: value.retail_price,
               unitsAvailable: value.units_available,
               baseCPU: value.base_cpu,
+              productionCPU: value.production_cpu || '',
             };
           });
         }
@@ -746,12 +755,14 @@ export default function SalesPromoDecisionTool() {
     if (!analysisResult || !submittedFormData) return [];
 
     return Object.entries(analysisResult.variantResults).map(([variant, results]) => {
-      // Get retail price from submitted form data
+      // Get data from submitted form
       const retailPrice = submittedFormData.variants[variant]?.retailPrice || '0';
       const retailPriceNum = parseFloat(retailPrice);
+      const materialCPU = parseFloat(submittedFormData.variants[variant]?.baseCPU || '0');
+      const productionCPU = parseFloat(submittedFormData.variants[variant]?.productionCPU || '0');
 
-      // Calculate base CPU (without promo cost)
-      const baseCPU = (parseFloat(results.cpuWithPromo) - parseFloat(results.salesPromoCostPerUnit)).toFixed(2);
+      // Calculate total base CPU (materials + production labor)
+      const baseCPU = (materialCPU + productionCPU).toFixed(2);
       const baseCPUNum = parseFloat(baseCPU);
 
       // Calculate gross profit for WITHOUT promo
@@ -865,8 +876,10 @@ export default function SalesPromoDecisionTool() {
 
       if (!variant || !variantResult) return null;
 
-      // Calculate base CPU (without promo cost)
-      const baseCPU = parseFloat(variantResult.cpuWithPromo) - parseFloat(variantResult.salesPromoCostPerUnit);
+      // Calculate base CPU (materials + production labor, without promo cost)
+      const materialCPU = parseFloat(variant.baseCPU || '0');
+      const productionCPU = parseFloat(variant.productionCPU || '0');
+      const baseCPU = materialCPU + productionCPU;
 
       return {
         name: variantName,
@@ -1016,6 +1029,7 @@ export default function SalesPromoDecisionTool() {
                   companyId={companyId}
                   availableVariants={availableVariants}
                   latestCPUs={latestCPUs}
+                  latestLaborCosts={latestLaborCosts}
                   latestMSRPs={latestMSRPs}
                   onSubmit={handleAnalyzePromo}
                   onClear={() => {

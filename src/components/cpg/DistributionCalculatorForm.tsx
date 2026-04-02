@@ -18,6 +18,7 @@ import { db } from '../../db/database';
 import { useAuth } from '../../contexts/AuthContext';
 import type { CPGDistributor } from '../../db/schema/cpg.schema';
 import type { DistributionCalcParams } from '../../services/cpg/distributionCostCalculator.service';
+import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import Decimal from 'decimal.js';
 import styles from './DistributionCalculatorForm.module.css';
 
@@ -35,7 +36,8 @@ interface PalletProduct {
   productName: string;
   quantity: string; // number of units of this product
   pricePerUnit: string;
-  baseCPU: string;
+  baseCPU: string; // Material cost per unit
+  productionCPU: string; // Production labor cost per unit
 }
 
 // A single pallet configuration
@@ -50,7 +52,8 @@ interface Pallet {
 interface ProductOption {
   productName: string;
   latestPrice: string | null;
-  latestCPU: string | null;
+  latestCPU: string | null; // Material cost only
+  latestLaborCost: string | null; // Production labor cost
 }
 
 // Fee selection with quantities
@@ -112,6 +115,7 @@ export function DistributionCalculatorForm({
       quantity: '',
       pricePerUnit: '',
       baseCPU: '',
+      productionCPU: '',
     };
   }
 
@@ -142,6 +146,7 @@ export function DistributionCalculatorForm({
               quantity: product.quantity.toString(),
               pricePerUnit: product.price_per_unit,
               baseCPU: product.base_cpu,
+              productionCPU: product.production_cpu || '',
             }));
 
             console.log(`Loaded pallet ${index + 1} with products:`, palletProducts);
@@ -176,6 +181,7 @@ export function DistributionCalculatorForm({
                     quantity: unitsPerPallet.toString(),
                     pricePerUnit: data.price_per_unit,
                     baseCPU: data.base_cpu,
+                    productionCPU: data.production_cpu || '',
                   });
                 }
               });
@@ -196,6 +202,7 @@ export function DistributionCalculatorForm({
                 quantity: (unitsPerPallet / variantEntries.length).toString(),
                 pricePerUnit: data.price_per_unit,
                 baseCPU: data.base_cpu,
+                productionCPU: data.production_cpu || '',
               }));
 
               loadedPallets.push({
@@ -414,54 +421,32 @@ export function DistributionCalculatorForm({
       const productOptions: ProductOption[] = [];
 
       for (const product of products) {
-        // Get latest CPU from recipes/invoices
-        const recipes = await db.cpgRecipes
-          .where('[company_id+finished_product_id]')
-          .equals([companyId, product.id])
-          .and(r => r.active && !r.deleted_at)
-          .toArray();
+        let materialCPU: string | null = null;
+        let laborCost: string | null = null;
 
-        let calculatedCPU: string | null = null;
+        try {
+          // Use CPU calculator service to get accurate breakdown
+          const cpuBreakdown = await cpuCalculatorService.getFinishedProductCPUBreakdown(
+            product.id,
+            companyId
+          );
 
-        if (recipes.length > 0) {
-          let totalCPU = new Decimal(0);
-
-          for (const recipe of recipes) {
-            const category = await db.cpgCategories.get(recipe.category_id);
-            if (!category) continue;
-
-            const invoices = await db.cpgInvoices
-              .where('company_id')
-              .equals(companyId)
-              .and(inv => !inv.deleted_at)
-              .reverse()
-              .sortBy('invoice_date');
-
-            for (const invoice of invoices) {
-              if (invoice.calculated_cpus) {
-                const cpuKey = recipe.variant
-                  ? `${category.id}_${recipe.variant}`
-                  : category.id;
-
-                if (invoice.calculated_cpus[cpuKey]) {
-                  const componentCPU = new Decimal(invoice.calculated_cpus[cpuKey])
-                    .times(recipe.quantity);
-                  totalCPU = totalCPU.plus(componentCPU);
-                  break;
-                }
-              }
-            }
+          if (cpuBreakdown.materialCPU) {
+            materialCPU = cpuBreakdown.materialCPU;
           }
 
-          if (totalCPU.greaterThan(0)) {
-            calculatedCPU = totalCPU.toFixed(2);
+          if (cpuBreakdown.laborCost) {
+            laborCost = cpuBreakdown.laborCost;
           }
+        } catch (error) {
+          console.error(`Failed to get CPU for ${product.name}:`, error);
         }
 
         productOptions.push({
           productName: product.name,
           latestPrice: product.msrp || null,
-          latestCPU: calculatedCPU,
+          latestCPU: materialCPU,
+          latestLaborCost: laborCost,
         });
       }
 
@@ -529,6 +514,7 @@ export function DistributionCalculatorForm({
           productName: product.productName,
           pricePerUnit: product.latestPrice || p.pricePerUnit,
           baseCPU: product.latestCPU || p.baseCPU,
+          productionCPU: product.latestLaborCost || p.productionCPU,
           // Auto-fill quantity with default units per pallet if it's the first product
           quantity: pallet.products.length === 1 && !p.quantity ? defaultUnitsPerPallet : p.quantity,
         };
@@ -701,6 +687,7 @@ export function DistributionCalculatorForm({
         quantity: parseInt(product.quantity) || 0,
         price_per_unit: product.pricePerUnit,
         base_cpu: product.baseCPU,
+        production_cpu: product.productionCPU || undefined,
       }));
 
       // Calculate total units for this pallet
@@ -716,7 +703,7 @@ export function DistributionCalculatorForm({
     console.log('Built pallet data:', palletData);
 
     // Build variant data from all pallets (aggregated)
-    const variantData: Record<string, { price_per_unit: string; base_cpu: string; quantity: number }> = {};
+    const variantData: Record<string, { price_per_unit: string; base_cpu: string; production_cpu?: string; quantity: number }> = {};
 
     pallets.forEach(pallet => {
       pallet.products.forEach(product => {
@@ -730,6 +717,7 @@ export function DistributionCalculatorForm({
           variantData[key] = {
             price_per_unit: product.pricePerUnit,
             base_cpu: product.baseCPU,
+            production_cpu: product.productionCPU || undefined,
             quantity: qty,
           };
         }
@@ -786,7 +774,7 @@ export function DistributionCalculatorForm({
       variantData: Object.fromEntries(
         Object.entries(variantData).map(([key, val]) => [
           key,
-          { price_per_unit: val.price_per_unit, base_cpu: val.base_cpu, quantity: val.quantity },
+          { price_per_unit: val.price_per_unit, base_cpu: val.base_cpu, production_cpu: val.production_cpu, quantity: val.quantity },
         ])
       ),
       selectedFees,
@@ -987,6 +975,22 @@ export function DistributionCalculatorForm({
                             min="0"
                             value={product.baseCPU}
                             onChange={(e) => updateProduct(pallet.id, product.id, 'baseCPU', e.target.value)}
+                            placeholder="0.00"
+                            className={styles.variantInputAmount}
+                          />
+                        </div>
+                      </div>
+
+                      <div className={styles.variantField}>
+                        <label className={styles.variantLabel}>Production CPU</label>
+                        <div className={styles.amountWrapper}>
+                          <span className={styles.currencySymbol}>$</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={product.productionCPU}
+                            onChange={(e) => updateProduct(pallet.id, product.id, 'productionCPU', e.target.value)}
                             placeholder="0.00"
                             className={styles.variantInputAmount}
                           />

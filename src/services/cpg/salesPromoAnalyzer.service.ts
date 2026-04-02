@@ -87,6 +87,7 @@ export interface PromoAnalysisParams {
       retailPrice: string;
       unitsAvailable: string;
       baseCPU: string;
+      productionCPU?: string; // Production labor cost per unit
     }
   >;
 }
@@ -392,15 +393,19 @@ export class SalesPromoAnalyzerService {
       // Parse inputs
       const retailPrice = new Decimal(variantData.retailPrice);
       const unitsAvailable = new Decimal(variantData.unitsAvailable);
-      const baseCPU = new Decimal(variantData.baseCPU);
+      const baseCPU = new Decimal(variantData.baseCPU); // Material cost only
+      const productionCPU = variantData.productionCPU ? new Decimal(variantData.productionCPU) : new Decimal(0); // Production labor cost
+
+      // Calculate total base CPU (materials + production labor)
+      const totalBaseCPU = baseCPU.plus(productionCPU);
 
       // Calculate sales promo cost per unit
       // Formula: Retail Price × (Producer Payback % / 100)
       const salesPromoCostPerUnit = retailPrice.mul(producerPaybackPct);
 
       // Calculate CPU with promo
-      // Formula: Base CPU + Sales Promo Cost Per Unit
-      const cpuWithPromo = baseCPU.plus(salesPromoCostPerUnit);
+      // Formula: Total Base CPU + Sales Promo Cost Per Unit
+      const cpuWithPromo = totalBaseCPU.plus(salesPromoCostPerUnit);
 
       // Calculate profit margin with promo
       // Formula: ((Retail Price - CPU w/ Promo) / Retail Price) × 100
@@ -409,10 +414,10 @@ export class SalesPromoAnalyzerService {
         : retailPrice.minus(cpuWithPromo).div(retailPrice).mul(100);
 
       // Calculate profit margin without promo
-      // Formula: ((Retail Price - Base CPU) / Retail Price) × 100
+      // Formula: ((Retail Price - Total Base CPU) / Retail Price) × 100
       const netProfitMarginWithoutPromo = retailPrice.isZero()
         ? new Decimal(0)
-        : retailPrice.minus(baseCPU).div(retailPrice).mul(100);
+        : retailPrice.minus(totalBaseCPU).div(retailPrice).mul(100);
 
       // Calculate margin difference
       const marginDifference = netProfitMarginWithPromo.minus(netProfitMarginWithoutPromo);
@@ -718,17 +723,18 @@ export class SalesPromoAnalyzerService {
    * Convert promo data to schema format
    */
   private convertToSchemaFormat(
-    data: Record<string, { retailPrice: string; unitsAvailable: string; baseCPU: string }>
-  ): Record<string, { retail_price: string; units_available: string; base_cpu: string }> {
+    data: Record<string, { retailPrice: string; unitsAvailable: string; baseCPU: string; productionCPU?: string }>
+  ): Record<string, { retail_price: string; units_available: string; base_cpu: string; production_cpu?: string }> {
     const result: Record<
       string,
-      { retail_price: string; units_available: string; base_cpu: string }
+      { retail_price: string; units_available: string; base_cpu: string; production_cpu?: string }
     > = {};
     for (const [key, value] of Object.entries(data)) {
       result[key] = {
         retail_price: value.retailPrice,
         units_available: value.unitsAvailable,
         base_cpu: value.baseCPU,
+        production_cpu: value.productionCPU,
       };
     }
     return result;

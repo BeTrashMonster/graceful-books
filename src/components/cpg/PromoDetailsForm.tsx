@@ -94,6 +94,7 @@ export interface PromoVariantData {
   retailPrice: string;
   unitsAvailable: string;
   baseCPU: string;
+  productionCPU: string; // Production labor cost per unit
 }
 
 export interface DemoHoursEntry {
@@ -134,6 +135,10 @@ export interface PromoDetailsFormProps {
    * Latest CPUs per variant (auto-populate)
    */
   latestCPUs?: Record<string, string>;
+  /**
+   * Latest labor costs per variant (auto-populate production CPU)
+   */
+  latestLaborCosts?: Record<string, string>;
   /**
    * Latest MSRPs per variant (auto-populate retail price)
    */
@@ -184,6 +189,7 @@ export function PromoDetailsForm({
   initialData,
   availableVariants,
   latestCPUs = {},
+  latestLaborCosts = {},
   latestMSRPs = {},
   onSubmit,
   onClear,
@@ -196,6 +202,7 @@ export function PromoDetailsForm({
         retailPrice: latestMSRPs[variant] || '',
         unitsAvailable: '',
         baseCPU: latestCPUs[variant] || '',
+        productionCPU: latestLaborCosts[variant] || '',
       };
     });
 
@@ -266,13 +273,14 @@ export function PromoDetailsForm({
   useEffect(() => {
     if (!initialData) return;
 
-    // Rebuild default variants with latest CPUs/MSRPs
+    // Rebuild default variants with latest CPUs/MSRPs/LaborCosts
     const defaultVariants: Record<string, PromoVariantData> = {};
     availableVariants.forEach((variant) => {
       defaultVariants[variant] = {
         retailPrice: latestMSRPs[variant] || '',
         unitsAvailable: '',
         baseCPU: latestCPUs[variant] || '',
+        productionCPU: latestLaborCosts[variant] || '',
       };
     });
 
@@ -291,7 +299,7 @@ export function PromoDetailsForm({
 
     // Clear any validation errors when loading new data
     setErrors({});
-  }, [initialData, availableVariants, latestCPUs, latestMSRPs]);
+  }, [initialData, availableVariants, latestCPUs, latestLaborCosts, latestMSRPs]);
 
   // Close product selector when clicking outside
   useEffect(() => {
@@ -414,6 +422,10 @@ export function PromoDetailsForm({
       if (!data.baseCPU || parseFloat(data.baseCPU) < 0) {
         newErrors[`variant_${variant}_baseCPU`] = `${variant}: Base CPU is required`;
       }
+      // Production CPU is optional, but if provided must be >= 0
+      if (data.productionCPU && parseFloat(data.productionCPU) < 0) {
+        newErrors[`variant_${variant}_productionCPU`] = `${variant}: Production CPU cannot be negative`;
+      }
     });
 
     setErrors(newErrors);
@@ -496,6 +508,7 @@ export function PromoDetailsForm({
           retailPrice: '',
           unitsAvailable: '',
           baseCPU: '',
+          productionCPU: '',
           ...prev.variants[variant],
           [field]: value,
         },
@@ -649,6 +662,7 @@ export function PromoDetailsForm({
         retailPrice: latestMSRPs[variant] || '',
         unitsAvailable: '',
         baseCPU: latestCPUs[variant] || '',
+        productionCPU: latestLaborCosts[variant] || '',
       };
     });
 
@@ -979,7 +993,7 @@ export function PromoDetailsForm({
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>Product Details</h3>
         <p className={styles.sectionDescription}>
-          Enter pricing and availability for selected products. Base CPUs are pre-filled from your latest invoice.
+          Enter pricing and availability for selected products. Base CPUs (materials) and Production CPUs (labor) are pre-filled from your latest data.
         </p>
 
         {formData.selectedVariants.map((variant) => (
@@ -1024,7 +1038,22 @@ export function PromoDetailsForm({
                 error={errors[`variant_${variant}_baseCPU`]}
                 required
                 fullWidth
-                helperText="Your cost per unit (from latest invoice)"
+                helperText="Material cost per unit (from latest invoice)"
+              />
+              <Input
+                label="Production CPU"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.variants[variant]?.productionCPU || ''}
+                onChange={(e) => handleVariantChange(variant, 'productionCPU', e.target.value)}
+                error={errors[`variant_${variant}_productionCPU`]}
+                fullWidth
+                helperText={
+                  latestLaborCosts[variant] && formData.variants[variant]?.productionCPU === latestLaborCosts[variant]
+                    ? "Auto-filled from product labor costs (editable)"
+                    : "Production labor cost per unit"
+                }
               />
             </div>
           </div>

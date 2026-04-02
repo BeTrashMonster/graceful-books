@@ -212,6 +212,15 @@ export function DistributionResultsDisplay({
                             </span>
                           </div>
 
+                          {params.variantData[variantName]!.production_cpu && parseFloat(params.variantData[variantName]!.production_cpu) > 0 && (
+                            <div className={styles.metric}>
+                              <span className={styles.metricLabel}>+ Production Labor Cost</span>
+                              <span className={styles.metricValue}>
+                                ${parseFloat(params.variantData[variantName]!.production_cpu).toFixed(2)}
+                              </span>
+                            </div>
+                          )}
+
                           <div className={styles.metric}>
                             <span className={styles.metricLabel}>+ Cost to Ship It</span>
                             <span className={styles.metricValue}>

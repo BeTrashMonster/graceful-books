@@ -334,18 +334,20 @@ export interface CPGDistributionCalculation extends BaseEntity {
       product_name: string;
       quantity: number;
       price_per_unit: string;
-      base_cpu: string;
+      base_cpu: string; // Material cost per unit
+      production_cpu?: string; // Production labor cost per unit
     }>;
   }>;
 
   // Pricing and costs per variant (flexible to support any number of variants)
-  // Example: { "8oz": { price: "3.38", baseCPU: "2.15" }, "16oz": { price: "5.50", baseCPU: "3.20" } }
+  // Example: { "8oz": { price: "3.38", baseCPU: "2.15", productionCPU: "0.50" }, "16oz": { price: "5.50", baseCPU: "3.20", productionCPU: "0.75" } }
   // NOTE: This is aggregated data - use pallet_data for accurate per-pallet breakdown
   variant_data: Record<
     string,
     {
       price_per_unit: string;
-      base_cpu: string; // From CPG Invoice calculations
+      base_cpu: string; // Material cost from CPG Invoice calculations
+      production_cpu?: string; // Production labor cost per unit
     }
   >;
 
@@ -484,13 +486,14 @@ export interface CPGSalesPromo extends BaseEntity {
   }> | null;
 
   // Variant-specific promo data
-  // Example: { "8oz": { retailPrice: "10.00", unitsAvailable: "100", baseCPU: "2.15" }, ... }
+  // Example: { "8oz": { retailPrice: "10.00", unitsAvailable: "100", baseCPU: "2.15", productionCPU: "0.50" }, ... }
   variant_promo_data: Record<
     string,
     {
       retail_price: string;
       units_available: string;
-      base_cpu: string; // From CPU calculations
+      base_cpu: string; // Material cost from CPU calculations
+      production_cpu?: string; // Production labor cost per unit
     }
   >;
 
