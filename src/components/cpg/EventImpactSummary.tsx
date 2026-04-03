@@ -2,6 +2,7 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import styles from './EventImpactSummary.module.css';
 import { Tooltip } from '../core/Tooltip';
+import { useCPGSettings } from '../../hooks/useCPGSettings';
 
 export interface EventImpactSummaryProps {
   /**
@@ -96,6 +97,8 @@ export function EventImpactSummary({
   variantData,
   className,
 }: EventImpactSummaryProps) {
+  const { formatCurrency, formatNumber, formatPercentage } = useCPGSettings();
+
   // Tab state for what-if scenarios
   type WhatIfMode = 'per-variant' | 'overall';
   const [whatIfMode, setWhatIfMode] = useState<WhatIfMode>('per-variant');
@@ -208,10 +211,7 @@ export function EventImpactSummary({
           <div className={clsx(styles.metricValue, styles.totalCost)}>
             <span className={styles.currency}>$</span>
             <span className={styles.amount}>
-              {totalBaseCost.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {formatCurrency(totalBaseCost).replace('$', '')}
             </span>
           </div>
           <div className={styles.metricDescription}>
@@ -232,10 +232,7 @@ export function EventImpactSummary({
               <div className={clsx(styles.metricValue, styles.actualCost)}>
                 <span className={styles.currency}>$</span>
                 <span className={styles.amount}>
-                  {parseFloat(totalActualLaborCost).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  {formatCurrency(parseFloat(totalActualLaborCost)).replace('$', '')}
                 </span>
               </div>
               <div className={styles.metricDescription}>
@@ -252,10 +249,7 @@ export function EventImpactSummary({
             <div className={clsx(styles.metricValue, styles.totalCost)}>
               <span className={styles.currency}>$</span>
               <span className={styles.amount}>
-                {(totalBaseCost + parseFloat(totalActualLaborCost)).toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+                {formatCurrency(totalBaseCost + parseFloat(totalActualLaborCost)).replace('$', '')}
               </span>
             </div>
             <div className={styles.metricDescription}>
@@ -271,10 +265,7 @@ export function EventImpactSummary({
             <div className={clsx(styles.metricValue, styles.opportunityCost)}>
               <span className={styles.currency}>$</span>
               <span className={styles.amount}>
-                {parseFloat(totalOpportunityCost).toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+                {formatCurrency(parseFloat(totalOpportunityCost)).replace('$', '')}
               </span>
             </div>
             <div className={styles.metricDescription}>
@@ -288,9 +279,7 @@ export function EventImpactSummary({
           <div className={styles.metricLabel}>Total Units</div>
           <div className={clsx(styles.metricValue, styles.totalUnits)}>
             <span className={styles.value}>
-              {parseFloat(totalUnits).toLocaleString('en-US', {
-                maximumFractionDigits: 0,
-              })}
+              {formatNumber(parseFloat(totalUnits), { maximumFractionDigits: 0 })}
             </span>
           </div>
           <div className={styles.metricDescription}>
@@ -354,7 +343,7 @@ export function EventImpactSummary({
                         <div className={styles.variantSliderHeader}>
                           <span className={styles.variantName}>{variant.name}</span>
                           <span className={styles.variantUnitsValue}>
-                            {variantUnits.toLocaleString('en-US', { maximumFractionDigits: 0 })} units
+                            {formatNumber(variantUnits, { maximumFractionDigits: 0 })} units
                           </span>
                         </div>
                         <input
@@ -378,20 +367,17 @@ export function EventImpactSummary({
                         />
                         <div className={styles.sliderValues}>
                           <span className={styles.sliderMinMax}>1</span>
-                          <span className={styles.sliderMinMax}>{variant.unitsAvailable.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
+                          <span className={styles.sliderMinMax}>{formatNumber(variant.unitsAvailable, { maximumFractionDigits: 0 })}</span>
                         </div>
 
                         {/* Per-variant metrics under slider */}
                         <div className={styles.variantMetrics}>
                           <span className={styles.variantMetric}>
-                            Gross Profit: <strong>${grossProfit.toLocaleString('en-US', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}</strong>
+                            Gross Profit: <strong>{formatCurrency(grossProfit)}</strong>
                           </span>
                           <span className={styles.variantMetricDivider}>|</span>
                           <span className={styles.variantMetric}>
-                            Margin: <strong>{margin.toFixed(2)}%</strong>
+                            Margin: <strong>{formatPercentage(margin)}</strong>
                           </span>
                         </div>
                       </div>
@@ -405,19 +391,16 @@ export function EventImpactSummary({
                     <div className={styles.totalItem}>
                       <span className={styles.totalLabel}>Total Units Sold</span>
                       <span className={styles.totalValue}>
-                        {Object.values(variantAdjustedUnits).reduce((sum, units) => sum + units, 0).toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                        {formatNumber(Object.values(variantAdjustedUnits).reduce((sum, units) => sum + units, 0), { maximumFractionDigits: 0 })}
                       </span>
                     </div>
                     {hasLaborCosts && (
                       <div className={styles.totalItem}>
                         <span className={styles.totalLabel}>Labor Cost/Unit</span>
                         <span className={styles.totalValue}>
-                          ${(() => {
+                          {(() => {
                             const totalSold = Object.values(variantAdjustedUnits).reduce((sum, units) => sum + units, 0);
-                            return totalSold > 0 ? (totalLaborCost / totalSold).toLocaleString('en-US', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }) : '0.00';
+                            return formatCurrency(totalSold > 0 ? totalLaborCost / totalSold : 0);
                           })()}
                         </span>
                       </div>
@@ -425,7 +408,7 @@ export function EventImpactSummary({
                     <div className={styles.totalItem}>
                       <span className={styles.totalLabel}>Average Gross Profit</span>
                       <span className={styles.totalValue}>
-                        ${(() => {
+                        {(() => {
                           const totalSold = Object.values(variantAdjustedUnits).reduce((sum, units) => sum + units, 0);
                           const laborCostPerUnit = totalSold > 0 ? totalLaborCost / totalSold : 0;
 
@@ -436,10 +419,7 @@ export function EventImpactSummary({
                           }, 0);
 
                           const avgGrossProfit = variantData.length > 0 ? totalGrossProfit / variantData.length : 0;
-                          return avgGrossProfit.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          });
+                          return formatCurrency(avgGrossProfit);
                         })()}
                       </span>
                     </div>
@@ -458,7 +438,7 @@ export function EventImpactSummary({
                           }, 0);
 
                           const avgMargin = variantData.length > 0 ? totalMargin / variantData.length : 0;
-                          return avgMargin.toFixed(2) + '%';
+                          return formatPercentage(avgMargin);
                         })()}
                       </span>
                     </div>
@@ -493,14 +473,14 @@ export function EventImpactSummary({
                     <div className={styles.sliderValues}>
                       <span className={styles.sliderMinMax}>1</span>
                       <span className={styles.sliderCurrent}>
-                        {adjustedUnits.toLocaleString('en-US', { maximumFractionDigits: 0 })} units
+                        {formatNumber(adjustedUnits, { maximumFractionDigits: 0 })} units
                         {adjustedUnits < totalUnitsNum && (
                           <span className={styles.percentageBadge}>
-                            ({percentageSold.toFixed(0)}% sold)
+                            ({formatPercentage(percentageSold, { maximumFractionDigits: 0 })} sold)
                           </span>
                         )}
                       </span>
-                      <span className={styles.sliderMinMax}>{totalUnitsNum.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
+                      <span className={styles.sliderMinMax}>{formatNumber(totalUnitsNum, { maximumFractionDigits: 0 })}</span>
                     </div>
                   </div>
                 </div>
@@ -516,17 +496,14 @@ export function EventImpactSummary({
                       <div className={styles.scenarioMetric}>
                         <span className={styles.scenarioLabel}>Units Sold:</span>
                         <span className={styles.scenarioValue}>
-                          {totalUnitsNum.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                          {formatNumber(totalUnitsNum, { maximumFractionDigits: 0 })}
                         </span>
                       </div>
                       {hasLaborCosts && (
                         <div className={styles.scenarioMetric}>
                           <span className={styles.scenarioLabel}>Labor Cost/Unit:</span>
                           <span className={styles.scenarioValue}>
-                            ${expectedLaborCostPerUnit.toLocaleString('en-US', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
+                            {formatCurrency(expectedLaborCostPerUnit)}
                           </span>
                         </div>
                       )}
@@ -535,16 +512,13 @@ export function EventImpactSummary({
                           <div className={styles.scenarioMetric}>
                             <span className={styles.scenarioLabel}>Gross Profit/Unit:</span>
                             <span className={styles.scenarioValue}>
-                              ${parseFloat(averageGrossProfitWithEvent || '0').toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
+                              {formatCurrency(parseFloat(averageGrossProfitWithEvent || '0'))}
                             </span>
                           </div>
                           <div className={styles.scenarioMetric}>
                             <span className={styles.scenarioLabel}>Margin %:</span>
                             <span className={styles.scenarioValue}>
-                              {parseFloat(averageMarginWithEvent || '0').toFixed(2)}%
+                              {formatPercentage(parseFloat(averageMarginWithEvent || '0'))}
                             </span>
                           </div>
                         </>
@@ -562,7 +536,7 @@ export function EventImpactSummary({
                       <div className={styles.scenarioMetric}>
                         <span className={styles.scenarioLabel}>Units Sold:</span>
                         <span className={styles.scenarioValue}>
-                          {adjustedUnits.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                          {formatNumber(adjustedUnits, { maximumFractionDigits: 0 })}
                         </span>
                       </div>
                       {hasLaborCosts && (
@@ -572,16 +546,10 @@ export function EventImpactSummary({
                             styles.scenarioValue,
                             adjustedLaborCostPerUnit > expectedLaborCostPerUnit && styles.higherCost
                           )}>
-                            ${adjustedLaborCostPerUnit.toLocaleString('en-US', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
+                            {formatCurrency(adjustedLaborCostPerUnit)}
                             {adjustedLaborCostPerUnit > expectedLaborCostPerUnit && (
                               <span className={styles.costIncrease}>
-                                (+${(adjustedLaborCostPerUnit - expectedLaborCostPerUnit).toLocaleString('en-US', {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                })})
+                                (+{formatCurrency(adjustedLaborCostPerUnit - expectedLaborCostPerUnit)})
                               </span>
                             )}
                           </span>
@@ -595,16 +563,10 @@ export function EventImpactSummary({
                               styles.scenarioValue,
                               adjustedUnits < totalUnitsNum && adjustedGrossProfitPerUnit < parseFloat(averageGrossProfitWithEvent || '0') && styles.lowerProfit
                             )}>
-                              ${adjustedGrossProfitPerUnit.toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
+                              {formatCurrency(adjustedGrossProfitPerUnit)}
                               {adjustedUnits < totalUnitsNum && grossProfitDifference > 0 && (
                                 <span className={styles.profitDecrease}>
-                                  (-${grossProfitDifference.toLocaleString('en-US', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                  })})
+                                  (-{formatCurrency(grossProfitDifference)})
                                 </span>
                               )}
                             </span>
@@ -615,10 +577,10 @@ export function EventImpactSummary({
                               styles.scenarioValue,
                               adjustedUnits < totalUnitsNum && adjustedMarginPercentage < parseFloat(averageMarginWithEvent || '0') && styles.lowerProfit
                             )}>
-                              {adjustedMarginPercentage.toFixed(2)}%
+                              {formatPercentage(adjustedMarginPercentage)}
                               {adjustedUnits < totalUnitsNum && marginPointsDifference > 0 && (
                                 <span className={styles.profitDecrease}>
-                                  (-{marginPointsDifference.toFixed(2)} pts)
+                                  (-{formatPercentage(marginPointsDifference)} pts)
                                 </span>
                               )}
                             </span>

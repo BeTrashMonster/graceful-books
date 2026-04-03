@@ -150,7 +150,7 @@ export function ProductBreakdownModal({
       } catch (error) {
         console.error('Failed to load labor costs:', error);
         setLaborBreakdown([]);
-        setLaborTotalCost('0.00');
+        setLaborTotalCost('0.000000');
         setMaterialCPU(totalCPU);
       }
     };

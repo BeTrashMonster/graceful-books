@@ -147,11 +147,11 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
             laborMap.set(product.id, laborCost.totalLaborCostPerUnit);
           } catch (err) {
             console.error(`Failed to calculate labor cost for product ${product.id}:`, err);
-            laborMap.set(product.id, '0.00');
+            laborMap.set(product.id, '0.000000');
           }
         } else {
           // For bundles, labor is calculated from components
-          laborMap.set(product.id, '0.00');
+          laborMap.set(product.id, '0.000000');
         }
       }
       setProductLaborCosts(laborMap);
@@ -900,7 +900,7 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                     {/* CPU Breakdown with Labor */}
                     {(() => {
                       const materialCPU = productCPUs.get(product.id);
-                      const laborCost = productLaborCosts.get(product.id) || '0.00';
+                      const laborCost = productLaborCosts.get(product.id) || '0.000000';
                       const hasLaborCost = parseFloat(laborCost) > 0;
                       const hasMaterialCPU = materialCPU !== null && materialCPU !== undefined;
 
