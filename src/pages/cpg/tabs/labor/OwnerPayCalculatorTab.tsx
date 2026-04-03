@@ -1008,7 +1008,7 @@ function ProductImpactContent({
         {/* Results */}
         <div className={styles.playResults}>
           <div className={styles.resultRow}>
-            <span className={styles.resultLabel}>Revenue (Units × Sold Price to You):</span>
+            <span className={styles.resultLabel}>Revenue (Units × Selling Price):</span>
             <span className={styles.resultValue}>${formatCurrency(testResults.grossRevenue)}</span>
           </div>
           <div className={styles.resultRow}>

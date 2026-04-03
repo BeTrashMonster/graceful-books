@@ -180,7 +180,7 @@ export default function CostIntelligenceTab({
 
   // TODO: Phase 3A - Uncomment when Scenario Builder component is created
   // const [scenarioAdjustments, setScenarioAdjustments] = useState<Map<string, Map<string, number>>>(new Map());
-  // const [scenarioSold Price to You, setScenarioSold Price to You] = useState<Map<string, number>>(new Map());
+  // const [scenarioSelling Price, setScenarioSelling Price] = useState<Map<string, number>>(new Map());
   // const [adjustmentMode, setAdjustmentMode] = useState<Map<string, Map<string, 'percentage' | 'dollar'>>>(new Map());
   // const [msrpAdjustmentMode, setMsrpAdjustmentMode] = useState<Map<string, 'percentage' | 'dollar'>>(new Map());
 
@@ -273,7 +273,7 @@ export default function CostIntelligenceTab({
         // Calculate current CPU with date range
         const cpuResult = await cpuCalculatorService.calculateFinishedProductCPU(productId, companyId, dateRange);
 
-        // Calculate margin if Sold Price to You exists
+        // Calculate margin if Selling Price exists
         let margin: number | null = null;
         if (product.msrp && cpuResult.cpu) {
           const msrpNum = parseFloat(product.msrp);
@@ -583,11 +583,11 @@ export default function CostIntelligenceTab({
   //   const product = finishedProducts.find(p => p.id === productId);
   //   if (!product) return null;
   //
-  //   const msrp = scenarioSold Price to You.get(productId) || (product.msrp ? parseFloat(product.msrp) : null);
+  //   const msrp = scenarioSelling Price.get(productId) || (product.msrp ? parseFloat(product.msrp) : null);
   //   if (!msrp) return null;
   //
   //   return ((msrp - scenarioCPU) / msrp) * 100;
-  // }, [finishedProducts, scenarioSold Price to You]);
+  // }, [finishedProducts, scenarioSelling Price]);
 
   if (finishedProducts.length === 0) {
     return (

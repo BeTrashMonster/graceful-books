@@ -5,7 +5,7 @@
  *
  * Features:
  * - Component cost adjustment sliders (-50% to +100%)
- * - Sold Price to You adjustment sliders (70% to 150% of base)
+ * - Selling Price adjustment sliders (70% to 150% of base)
  * - Real-time CPU and margin recalculation
  * - Visual comparison: Current vs Scenario
  * - Reset functionality per product
@@ -101,9 +101,9 @@ export default function ScenarioBuilderTab({
     new Map()
   );
 
-  // State: Scenario Sold Price to You per product
-  // Map<productId, new Sold Price to You>
-  const [scenarioSoldPriceToYou, setScenarioSoldPriceToYou] = useState<Map<string, number>>(new Map());
+  // State: Scenario Selling Price per product
+  // Map<productId, new Selling Price>
+  const [scenarioSellingPrice, setScenarioSellingPrice] = useState<Map<string, number>>(new Map());
 
   // State: Adjustment mode per product ($ or %) - applies to ALL components in that product
   // Map<productId, 'percentage' | 'dollar'>
@@ -279,12 +279,12 @@ export default function ScenarioBuilderTab({
       const product = finishedProducts.find((p) => p.id === productId);
       if (!product) return null;
 
-      const msrp = scenarioSoldPriceToYou.get(productId) || (product.msrp ? parseFloat(product.msrp) : null);
+      const msrp = scenarioSellingPrice.get(productId) || (product.msrp ? parseFloat(product.msrp) : null);
       if (!msrp) return null;
 
       return ((msrp - scenarioCPU) / msrp) * 100;
     },
-    [finishedProducts, scenarioSoldPriceToYou]
+    [finishedProducts, scenarioSellingPrice]
   );
 
   // Handle component adjustment change
@@ -307,9 +307,9 @@ export default function ScenarioBuilderTab({
     []
   );
 
-  // Handle Sold Price to You adjustment change
-  const handleSoldPriceToYouAdjustment = useCallback((productId: string, newSoldPriceToYou: number) => {
-    setScenarioSoldPriceToYou((prev) => new Map(prev).set(productId, newSoldPriceToYou));
+  // Handle Selling Price adjustment change
+  const handleSellingPriceAdjustment = useCallback((productId: string, newSellingPrice: number) => {
+    setScenarioSellingPrice((prev) => new Map(prev).set(productId, newSellingPrice));
   }, []);
 
   // Handle product mode toggle (% or $) - applies to ALL components
@@ -440,7 +440,7 @@ export default function ScenarioBuilderTab({
       newMap.delete(productId);
       return newMap;
     });
-    setScenarioSoldPriceToYou((prev) => {
+    setScenarioSellingPrice((prev) => {
       const newMap = new Map(prev);
       newMap.delete(productId);
       return newMap;
@@ -474,8 +474,8 @@ export default function ScenarioBuilderTab({
     }
 
     if (componentId === null) {
-      // Editing Sold Price to You
-      handleSoldPriceToYouAdjustment(productId, newValue);
+      // Editing Selling Price
+      handleSellingPriceAdjustment(productId, newValue);
     } else {
       // Editing component cost
       const mode = productModes.get(productId) || 'percentage';
@@ -494,7 +494,7 @@ export default function ScenarioBuilderTab({
 
     setEditingValue(null);
     setEditingText('');
-  }, [editingValue, editingText, productModes, handleSoldPriceToYouAdjustment, handleComponentAdjustment, evaluateMathExpression]);
+  }, [editingValue, editingText, productModes, handleSellingPriceAdjustment, handleComponentAdjustment, evaluateMathExpression]);
 
   // Cancel editing
   const cancelEditing = useCallback(() => {
@@ -549,7 +549,7 @@ export default function ScenarioBuilderTab({
         if (!product || !cpuData) return null;
 
         const baseCPU = cpuData.cpu ? parseFloat(cpuData.cpu) : 0;
-        const baseSoldPriceToYou = product.msrp ? parseFloat(product.msrp) : 0;
+        const baseSellingPrice = product.msrp ? parseFloat(product.msrp) : 0;
         const baseMargin = cpuData.margin || 0;
 
         // Check which filters are active
@@ -570,12 +570,12 @@ export default function ScenarioBuilderTab({
 
         const scenario = calculateScenarioCPU(productId);
         const scenarioCPUValue = scenario?.cpu || baseCPU;
-        const scenarioSoldPriceToYouValue = scenarioSoldPriceToYou.get(productId) || baseSoldPriceToYou;
+        const scenarioSellingPriceValue = scenarioSellingPrice.get(productId) || baseSellingPrice;
         const scenarioMarginValue = calculateScenarioMargin(productId, scenarioCPUValue) || baseMargin;
 
         const hasAdjustments = (scenarioAdjustments.get(productId)?.size || 0) > 0 ||
                                (laborAdjustments.get(productId)?.size || 0) > 0 ||
-                               scenarioSoldPriceToYou.has(productId);
+                               scenarioSellingPrice.has(productId);
 
         const cpuDelta = scenarioCPUValue - baseCPU;
         const marginDelta = scenarioMarginValue - baseMargin;
@@ -615,36 +615,36 @@ export default function ScenarioBuilderTab({
 
             <div className={styles.cardContent}>
 
-              {/* Sold Price to You Adjustment */}
+              {/* Selling Price Adjustment */}
               <div className={styles.msrpSlider}>
                 <div className={styles.componentItem}>
-                  {/* Sold Price to You Label */}
+                  {/* Selling Price Label */}
                   <div className={styles.componentName}>
-                    Sold Price to You
+                    Selling Price
                   </div>
 
                   {/* Slider with labels above */}
                   <div className={styles.componentSliderWrapper}>
                     <div className={styles.sliderLabels}>
-                      <span>${(baseSoldPriceToYou * 0.7).toFixed(2)}</span>
-                      <span>${(baseSoldPriceToYou * 1.5).toFixed(2)}</span>
+                      <span>${(baseSellingPrice * 0.7).toFixed(2)}</span>
+                      <span>${(baseSellingPrice * 1.5).toFixed(2)}</span>
                     </div>
                     <input
                       id={`msrp-slider-${productId}`}
                       type="range"
-                      min={baseSoldPriceToYou * 0.7}
-                      max={baseSoldPriceToYou * 1.5}
+                      min={baseSellingPrice * 0.7}
+                      max={baseSellingPrice * 1.5}
                       step={0.25}
-                      value={scenarioSoldPriceToYouValue}
+                      value={scenarioSellingPriceValue}
                       onChange={(e) => {
-                        const newSoldPriceToYou = parseFloat(e.target.value);
-                        handleSoldPriceToYouAdjustment(productId, newSoldPriceToYou);
+                        const newSellingPrice = parseFloat(e.target.value);
+                        handleSellingPriceAdjustment(productId, newSellingPrice);
                       }}
-                      aria-label={`Adjust Sold Price to You for ${product.name}`}
-                      aria-valuemin={baseSoldPriceToYou * 0.7}
-                      aria-valuemax={baseSoldPriceToYou * 1.5}
-                      aria-valuenow={scenarioSoldPriceToYouValue}
-                      aria-valuetext={`$${scenarioSoldPriceToYouValue.toFixed(2)}`}
+                      aria-label={`Adjust Selling Price for ${product.name}`}
+                      aria-valuemin={baseSellingPrice * 0.7}
+                      aria-valuemax={baseSellingPrice * 1.5}
+                      aria-valuenow={scenarioSellingPriceValue}
+                      aria-valuetext={`$${scenarioSellingPriceValue.toFixed(2)}`}
                       className={styles.slider}
                     />
                   </div>
@@ -656,10 +656,10 @@ export default function ScenarioBuilderTab({
                         type="text"
                         value={editingText}
                         onChange={(e) => setEditingText(e.target.value)}
-                        onBlur={() => saveEditedValue(productId, null, baseSoldPriceToYou, scenarioSoldPriceToYouValue)}
+                        onBlur={() => saveEditedValue(productId, null, baseSellingPrice, scenarioSellingPriceValue)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
-                            saveEditedValue(productId, null, baseSoldPriceToYou, scenarioSoldPriceToYouValue);
+                            saveEditedValue(productId, null, baseSellingPrice, scenarioSellingPriceValue);
                           } else if (e.key === 'Escape') {
                             cancelEditing();
                           }
@@ -679,11 +679,11 @@ export default function ScenarioBuilderTab({
                       />
                     ) : (
                       <span
-                        onClick={() => startEditing(`${productId}:msrp`, scenarioSoldPriceToYouValue.toFixed(2))}
+                        onClick={() => startEditing(`${productId}:msrp`, scenarioSellingPriceValue.toFixed(2))}
                         style={{ cursor: 'pointer' }}
                         title="Click to edit (supports math: +0.50, -1.25, *2, etc.)"
                       >
-                        ${scenarioSoldPriceToYouValue.toFixed(2)}
+                        ${scenarioSellingPriceValue.toFixed(2)}
                       </span>
                     )}
                   </div>

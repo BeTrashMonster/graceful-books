@@ -339,7 +339,7 @@ export function ProductBreakdownModal({
       [''],
       ['Product', productName],
       ['Total Cost', isComplete && totalCPU ? `$${totalCPU}` : 'Incomplete'],
-      ...(msrpNumber ? [['Sold Price to You', `$${msrpNumber.toFixed(2)}`]] : []),
+      ...(msrpNumber ? [['Selling Price', `$${msrpNumber.toFixed(2)}`]] : []),
       ...(isComplete && totalCPU && msrpNumber ? [['Gross Margin', `${((((msrpNumber - parseFloat(totalCPU)) / msrpNumber) * 100)).toFixed(1)}%`]] : []),
       [''],
       ['Categories', 'Variants', 'Quantity', 'Units', 'Unit Cost', 'Total Cost'],
@@ -402,7 +402,7 @@ export function ProductBreakdownModal({
             </div>
             ${msrpNumber ? `
               <div class="summary-row">
-                <span class="label">Sold Price to You</span>
+                <span class="label">Selling Price</span>
                 <span class="value">$${msrpNumber.toFixed(2)}</span>
               </div>
             ` : ''}
@@ -467,7 +467,7 @@ export function ProductBreakdownModal({
       ['Product Name', productName],
       ['Data Period', formatDateRange()],
       ['Total Product Cost', isComplete && totalCPU ? `${totalCPU}` : 'Incomplete'],
-      ...(msrpNumber ? [['Sold Price to You', `${msrpNumber.toFixed(2)}`]] : []),
+      ...(msrpNumber ? [['Selling Price', `${msrpNumber.toFixed(2)}`]] : []),
       [''],
     ];
 
@@ -603,11 +603,11 @@ export function ProductBreakdownModal({
                 </div>
               </div>
 
-              {/* Right: Sold Price to You & Margin */}
+              {/* Right: Selling Price & Margin */}
               {msrpNumber && (
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '0.875rem', opacity: 0.9, marginBottom: '0.5rem' }}>
-                    Sold Price to You
+                    Selling Price
                   </div>
                   <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
                     ${msrpNumber.toFixed(2)}
@@ -869,10 +869,10 @@ export function ProductBreakdownModal({
 
                 return (
                   <>
-                    {/* Sold Price to You - right aligned */}
+                    {/* Selling Price - right aligned */}
                     {msrpNumber && (
                       <div style={{ fontSize: '0.8125rem', color: '#6b7280', marginBottom: '0.5rem', textAlign: 'right' }}>
-                        Sold Price to You: ${msrpNumber.toFixed(2)}
+                        Selling Price: ${msrpNumber.toFixed(2)}
                       </div>
                     )}
 

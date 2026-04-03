@@ -517,7 +517,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
       'Selling Price',
       'Profit Per Unit',
       'Margin %',
-      'Sold Price to You',
+      'Selling Price',
       'Fee Description',
       'Fee Amount',
       'Total Distribution Cost',

@@ -884,7 +884,7 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                   <div className={styles.productDetails}>
                     {product.msrp && (
                       <div className={styles.detailRow}>
-                        <span className={styles.detailLabel}>Sold Price to You:</span>
+                        <span className={styles.detailLabel}>Selling Price</span>
                         <span className={styles.detailValue}>{formatCurrency(parseFloat(product.msrp))}</span>
                       </div>
                     )}

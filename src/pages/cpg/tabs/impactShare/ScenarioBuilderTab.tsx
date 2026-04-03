@@ -555,7 +555,7 @@ export function ScenarioBuilderTab({ editScenarioId }: ScenarioBuilderTabProps) 
                     />
                     <span className={styles.productName}>{product.name}</span>
                     <span className={styles.productPrice}>
-                      {product.msrp ? `$${parseFloat(product.msrp).toFixed(2)}` : 'No Sold Price to You'}
+                      {product.msrp ? `$${parseFloat(product.msrp).toFixed(2)}` : 'No Selling Price'}
                     </span>
                   </label>
                 ))

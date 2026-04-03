@@ -4,7 +4,7 @@
  * Displays component price trends grouped by product with visual charts.
  *
  * Features:
- * - Product-centric view showing CPU, Margin, Sold Price to You
+ * - Product-centric view showing CPU, Margin, Selling Price
  * - Visual line charts showing price trends over time
  * - Component metrics: Current, Average, % Change, Last Buy
  * - CSV/PDF export for trends
@@ -179,7 +179,7 @@ export default function CPUTrendsTab({
         let productName = 'All Components';
         let aggregateCPU: string | null = null;
         let aggregateMargin: number | null = null;
-        let aggregateSoldPriceToYou: string | null = null;
+        let aggregateSellingPrice: string | null = null;
 
         if (productId !== 'all-components') {
           product = products.find(p => p.id === productId);
@@ -222,11 +222,11 @@ export default function CPUTrendsTab({
               aggregateMargin = marginValues.reduce((sum, m) => sum + m, 0) / marginValues.length;
             }
 
-            // Average Sold Price to You
+            // Average Selling Price
             const msrpValues = allProductData.map(data => data.msrp).filter(msrp => msrp !== null) as string[];
             if (msrpValues.length > 0) {
-              const avgSoldPriceToYou = msrpValues.reduce((sum, msrp) => sum + parseFloat(msrp), 0) / msrpValues.length;
-              aggregateSoldPriceToYou = avgSoldPriceToYou.toFixed(2);
+              const avgSellingPrice = msrpValues.reduce((sum, msrp) => sum + parseFloat(msrp), 0) / msrpValues.length;
+              aggregateSellingPrice = avgSellingPrice.toFixed(2);
             }
           }
         }
@@ -451,18 +451,18 @@ export default function CPUTrendsTab({
           // Determine which values to use
           let displayCPU: string;
           let displayMargin: string;
-          let displaySoldPriceToYou: string;
+          let displaySellingPrice: string;
 
           if (productId === 'all-components') {
             // For "All Components" view, don't show product-level metrics
             displayCPU = 'N/A';
             displayMargin = 'N/A';
-            displaySoldPriceToYou = 'N/A';
+            displaySellingPrice = 'N/A';
           } else {
             // For individual products, use cpuData values directly (already calculated with quantities)
             displayCPU = cpuData?.cpu || 'N/A';
             displayMargin = cpuData?.margin !== null && cpuData?.margin !== undefined ? `${cpuData.margin.toFixed(1)}%` : 'N/A';
-            displaySoldPriceToYou = cpuData?.msrp || product?.msrp || 'N/A';
+            displaySellingPrice = cpuData?.msrp || product?.msrp || 'N/A';
           }
 
           // Build S+H distribution breakdown if viewing S+H category
@@ -498,7 +498,7 @@ export default function CPUTrendsTab({
             productName: productName,
             cpu: displayCPU,
             margin: displayMargin,
-            msrp: displaySoldPriceToYou,
+            msrp: displaySellingPrice,
             components: componentTrends,
             shDistribution,
           });
@@ -708,7 +708,7 @@ export default function CPUTrendsTab({
 
       doc.setFontSize(9);
       doc.setTextColor(100, 100, 100);
-      doc.text(`CPU: ${product.cpu} | Margin: ${product.margin} | Sold Price to You: ${product.msrp}`, 14, yPos);
+      doc.text(`CPU: ${product.cpu} | Margin: ${product.margin} | Selling Price: ${product.msrp}`, 14, yPos);
       yPos += 2;
 
       // Component table
@@ -853,7 +853,7 @@ export default function CPUTrendsTab({
                   <div className={styles.productMetrics}>
                     <span>CPU: {product.cpu}</span>
                     <span>Margin: {product.margin}</span>
-                    <span>Sold Price to You: {product.msrp}</span>
+                    <span>Selling Price: {product.msrp}</span>
                   </div>
                 )}
               </div>

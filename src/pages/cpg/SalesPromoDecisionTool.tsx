@@ -286,7 +286,7 @@ export default function SalesPromoDecisionTool() {
             failedCPUs.push(variantName);
           }
 
-          // Get Sold Price to You for this product (if available)
+          // Get Selling Price for this product (if available)
           if (product.msrp) {
             msrpMap[variantName] = product.msrp;
           }

@@ -380,7 +380,7 @@ export interface CPGDistributionCalculation extends BaseEntity {
       total_cpu: string; // Base CPU + Distribution cost per unit
       net_profit_margin: string; // (Price - Total CPU) / Price * 100
       margin_quality: 'gutCheck' | 'good' | 'better' | 'best'; // Color coding
-      msrp: string | null; // If Sold Price markup applied
+      msrp: string | null; // If Selling Price markup applied
     }
   >;
   msrp_markup_percentage: string | null; // e.g., "50" for 50%
@@ -860,13 +860,13 @@ export const validateCPGFinishedProduct = (
 
   // sku is optional - duplicate SKUs are allowed (same product, different channels/pricing)
 
-  // Sold Price optional, but if provided must be valid currency format
+  // Selling Price optional, but if provided must be valid currency format
   if (product.msrp !== null && product.msrp !== undefined && product.msrp !== '') {
     const msrpNum = parseFloat(product.msrp);
     if (isNaN(msrpNum)) {
-      errors.push('Sold Price must be a valid number');
+      errors.push('Selling Price must be a valid number');
     } else if (msrpNum < 0) {
-      errors.push('Sold Price cannot be negative');
+      errors.push('Selling Price cannot be negative');
     }
   }
 

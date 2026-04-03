@@ -222,7 +222,7 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
       'Selling Price',
       'Profit Per Unit',
       'Margin %',
-      'Sold Price to You',
+      'Selling Price',
       'Fee Description',
       'Fee Amount',
       'Total Distribution Cost'

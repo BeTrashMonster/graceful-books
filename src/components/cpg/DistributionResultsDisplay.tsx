@@ -49,7 +49,7 @@ export interface DistributionResultsDisplayProps {
  *   - Yellow (50-60%): Good
  *   - Light Green (60-70%): Better
  *   - Dark Green (70%+): Best
- * - Sold Price per variant (if markup entered)
+ * - Selling Price per variant (if markup entered)
  * - Fee breakdown table (itemized)
  *
  * @example
@@ -259,7 +259,7 @@ export function DistributionResultsDisplay({
                       {variantResult.msrp && (
                         <div className={styles.metric}>
                           <span className={styles.metricLabel}>
-                            Sold Price to You
+                            Selling Price
                           </span>
                           <span className={styles.metricValue}>
                             {formatCurrency(parseFloat(variantResult.msrp))}

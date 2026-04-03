@@ -121,7 +121,7 @@ export function BundleProductsModal({ isOpen, onClose, onSuccess, editingBundle 
     setTotalCpu(cpuTotal.toFixed(2));
     setSuggestedMsrp(msrpTotal.toFixed(2));
 
-    // Auto-fill Sold Price if empty
+    // Auto-fill Selling Price if empty
     if (!bundleMsrp && msrpTotal > 0) {
       setBundleMsrp(msrpTotal.toFixed(2));
     }
@@ -262,7 +262,7 @@ export function BundleProductsModal({ isOpen, onClose, onSuccess, editingBundle 
           <div className={styles.loading}>Loading products...</div>
         ) : (
           <>
-            {/* Bundle Name, SKU, Sold Price, Description */}
+            {/* Bundle Name, SKU, Selling Price, Description */}
             <div className={styles.formGroup}>
               <label htmlFor="bundle-name" className={styles.label}>
                 Bundle Name <span className={styles.required}>*</span>
@@ -295,7 +295,7 @@ export function BundleProductsModal({ isOpen, onClose, onSuccess, editingBundle 
 
               <div className={styles.formGroup}>
                 <label htmlFor="bundle-msrp" className={styles.label}>
-                  Bundle Sold Price to You:
+                  Bundle Selling Price
                 </label>
                 <input
                   id="bundle-msrp"
@@ -390,7 +390,7 @@ export function BundleProductsModal({ isOpen, onClose, onSuccess, editingBundle 
                   <span className={styles.totalValue}>${totalCpu}</span>
                 </div>
                 <div className={styles.totalRow}>
-                  <span className={styles.totalLabel}>Bundle Sold Price to You:</span>
+                  <span className={styles.totalLabel}>Bundle Selling Price</span>
                   <span className={styles.totalValue}>
                     ${bundleMsrp || '0.00'}
                   </span>
