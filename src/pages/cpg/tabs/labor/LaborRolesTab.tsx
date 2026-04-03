@@ -19,10 +19,12 @@ import { db } from '../../../../db/database';
 import { LaborRoleService } from '../../../../services/cpg/laborRole.service';
 import { AddLaborRoleModal } from '../../../../components/cpg/modals/AddLaborRoleModal';
 import type { CPGLaborRole } from '../../../../db/schema/cpg.schema';
+import { useCPGSettings } from '../../../../hooks/useCPGSettings';
 import styles from './LaborRolesTab.module.css';
 
 export function LaborRolesTab() {
   const { companyId, deviceId } = useAuth();
+  const { formatCurrency } = useCPGSettings();
   const [roles, setRoles] = useState<CPGLaborRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -95,7 +97,7 @@ export function LaborRolesTab() {
 
   const formatCompensation = (role: CPGLaborRole): string => {
     if (role.compensation_type === 'hourly') {
-      return `$${parseFloat(role.hourly_rate || '0').toFixed(2)}/hr`;
+      return `${formatCurrency(parseFloat(role.hourly_rate || '0'))}/hr`;
     } else {
       const amount = parseFloat(role.salary_amount || '0').toLocaleString('en-US', {
         style: 'currency',
@@ -110,10 +112,10 @@ export function LaborRolesTab() {
         role.salary_period === 'weekly' ? '/week' : '';
 
       const calculatedRate = role.calculated_hourly_rate
-        ? parseFloat(role.calculated_hourly_rate).toFixed(2)
-        : '0.00';
+        ? formatCurrency(parseFloat(role.calculated_hourly_rate))
+        : formatCurrency(0);
 
-      return `${amount}${period} (~$${calculatedRate}/hr)`;
+      return `${amount}${period} (~${calculatedRate}/hr)`;
     }
   };
 

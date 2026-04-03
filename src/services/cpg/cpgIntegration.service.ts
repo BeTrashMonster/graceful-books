@@ -293,7 +293,7 @@ class CPGIntegrationService {
         ) as TransactionLineItem;
 
         inventoryLineItem.id = nanoid();
-        inventoryLineItem.debit = lineCost.toFixed(2);
+        inventoryLineItem.debit = lineCost.toFixed(6);
         inventoryLineItem.credit = '0.00';
         inventoryLineItem.description = `${product?.name || 'Product'} - ${
           attr.variant || 'No variant'
@@ -318,7 +318,7 @@ class CPGIntegrationService {
           ) as TransactionLineItem;
 
           additionalLineItem.id = nanoid();
-          additionalLineItem.debit = new Decimal(amount).toFixed(2);
+          additionalLineItem.debit = new Decimal(amount).toFixed(6);
           additionalLineItem.credit = '0.00';
           additionalLineItem.description = costName;
           additionalLineItem.contact_id = vendorContact?.id || null;
@@ -461,7 +461,7 @@ class CPGIntegrationService {
         journalEntries.push({
           debitAccount: link.account_id_cogs,
           creditAccount: link.account_id_inventory,
-          amount: cogsAmount.toFixed(2),
+          amount: cogsAmount.toFixed(6),
           description: `COGS for ${variant} - ${qty} units sold`,
         });
       }
@@ -475,8 +475,8 @@ class CPGIntegrationService {
         success: true,
         data: {
           invoiceId,
-          totalCOGS: totalCOGS.toFixed(2),
-          inventoryAdjustment: totalInventoryReduction.toFixed(2),
+          totalCOGS: totalCOGS.toFixed(6),
+          inventoryAdjustment: totalInventoryReduction.toFixed(6),
           journalEntriesCreated: journalEntries.length,
         },
       };
@@ -603,11 +603,11 @@ class CPGIntegrationService {
       return {
         success: true,
         data: {
-          revenue: totalRevenue.toFixed(2),
-          cogs: totalCOGS.toFixed(2),
-          grossProfit: grossProfit.toFixed(2),
-          grossMargin: grossMargin.toFixed(2),
-          inventory: totalInventory.toFixed(2),
+          revenue: totalRevenue.toFixed(6),
+          cogs: totalCOGS.toFixed(6),
+          grossProfit: grossProfit.toFixed(6),
+          grossMargin: grossMargin.toFixed(6),
+          inventory: totalInventory.toFixed(6),
         },
       };
     } catch (error) {
@@ -741,11 +741,11 @@ class CPGIntegrationService {
       const cpu = directCost.plus(allocatedAdditional).dividedBy(unitsReceived);
 
       const variant = attr.variant || 'none';
-      cpus[variant] = cpu.toFixed(2);
+      cpus[variant] = cpu.toFixed(6);
     }
 
     return {
-      totalPaid: totalPaid.toFixed(2),
+      totalPaid: totalPaid.toFixed(6),
       calculatedCPUs: cpus,
     };
   }

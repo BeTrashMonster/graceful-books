@@ -695,6 +695,8 @@ export function CPGSettings() {
                 >
                   <option value="0">Round to dollar ($123)</option>
                   <option value="2">Show cents ($123.45)</option>
+                  <option value="3">3 decimal places ($123.456)</option>
+                  <option value="4">4 decimal places ($123.4567)</option>
                 </select>
               </div>
 

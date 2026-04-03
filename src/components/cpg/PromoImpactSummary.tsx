@@ -2,6 +2,7 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import styles from './PromoImpactSummary.module.css';
 import { Tooltip } from '../core/Tooltip';
+import { useCPGSettings } from '../../hooks/useCPGSettings';
 
 export interface PromoImpactSummaryProps {
   /**
@@ -100,6 +101,7 @@ export function PromoImpactSummary({
   variantData,
   className,
 }: PromoImpactSummaryProps) {
+  const { formatCurrency, formatNumber, formatPercentage } = useCPGSettings();
   const marginDiff = parseFloat(marginDifference);
   const isPositiveImpact = marginDiff >= 0;
   const isNegativeImpact = marginDiff < 0;
@@ -203,12 +205,8 @@ export function PromoImpactSummary({
         <div className={clsx(styles.metricCard, styles.prominentCard)}>
           <div className={styles.metricLabel}>Potential Payback</div>
           <div className={clsx(styles.metricValue, styles.totalCost)}>
-            <span className={styles.currency}>$</span>
             <span className={styles.amount}>
-              {parseFloat(totalPromoCost).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {formatCurrency(parseFloat(totalPromoCost))}
             </span>
           </div>
           <div className={styles.metricDescription}>
@@ -227,12 +225,8 @@ export function PromoImpactSummary({
                 Actual Labor Cost<span className={styles.asterisk}>*</span>
               </div>
               <div className={clsx(styles.metricValue, styles.actualCost)}>
-                <span className={styles.currency}>$</span>
                 <span className={styles.amount}>
-                  {parseFloat(totalActualLaborCost).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  {formatCurrency(parseFloat(totalActualLaborCost))}
                 </span>
               </div>
               <div className={styles.metricDescription}>
@@ -247,12 +241,8 @@ export function PromoImpactSummary({
           <div className={clsx(styles.metricCard, styles.prominentCard, styles.totalOutOfPocket)}>
             <div className={styles.metricLabel}>Total Out of Pocket</div>
             <div className={clsx(styles.metricValue, styles.totalCost)}>
-              <span className={styles.currency}>$</span>
               <span className={styles.amount}>
-                {(parseFloat(totalPromoCost) + parseFloat(totalActualLaborCost)).toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+                {formatCurrency(parseFloat(totalPromoCost) + parseFloat(totalActualLaborCost))}
               </span>
             </div>
             <div className={styles.metricDescription}>
@@ -266,12 +256,8 @@ export function PromoImpactSummary({
           <div className={styles.metricCard}>
             <div className={styles.metricLabel}>Sweat Equity</div>
             <div className={clsx(styles.metricValue, styles.opportunityCost)}>
-              <span className={styles.currency}>$</span>
               <span className={styles.amount}>
-                {parseFloat(totalOpportunityCost).toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+                {formatCurrency(parseFloat(totalOpportunityCost))}
               </span>
             </div>
             <div className={styles.metricDescription}>
@@ -285,9 +271,7 @@ export function PromoImpactSummary({
           <div className={styles.metricLabel}>Total Units</div>
           <div className={clsx(styles.metricValue, styles.totalUnits)}>
             <span className={styles.value}>
-              {parseFloat(totalUnits).toLocaleString('en-US', {
-                maximumFractionDigits: 0,
-              })}
+              {Math.round(parseFloat(totalUnits)).toLocaleString()}
             </span>
           </div>
           <div className={styles.metricDescription}>
@@ -381,14 +365,11 @@ export function PromoImpactSummary({
                         {/* Per-variant metrics under slider */}
                         <div className={styles.variantMetrics}>
                           <span className={styles.variantMetric}>
-                            Gross Profit: <strong>${grossProfit.toLocaleString('en-US', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}</strong>
+                            Gross Profit: <strong>{formatCurrency(grossProfit)}</strong>
                           </span>
                           <span className={styles.variantMetricDivider}>|</span>
                           <span className={styles.variantMetric}>
-                            Margin: <strong>{margin.toFixed(2)}%</strong>
+                            Margin: <strong>{formatPercentage(margin)}</strong>
                           </span>
                         </div>
                       </div>
@@ -408,25 +389,19 @@ export function PromoImpactSummary({
                     <div className={styles.totalItem}>
                       <span className={styles.totalLabel}>Total Payback</span>
                       <span className={clsx(styles.totalValue, styles.totalValueHighlight)}>
-                        ${variantData.reduce((sum, variant) => {
+                        {formatCurrency(variantData.reduce((sum, variant) => {
                           const variantUnits = variantAdjustedUnits[variant.name] || variant.unitsAvailable;
                           return sum + (variantUnits * variant.promoCostPerUnit);
-                        }, 0).toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
+                        }, 0))}
                       </span>
                     </div>
                     {hasLaborCosts && (
                       <div className={styles.totalItem}>
                         <span className={styles.totalLabel}>Labor Cost/Unit</span>
                         <span className={styles.totalValue}>
-                          ${(() => {
+                          {(() => {
                             const totalSold = Object.values(variantAdjustedUnits).reduce((sum, units) => sum + units, 0);
-                            return totalSold > 0 ? (totalLaborCost / totalSold).toLocaleString('en-US', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }) : '0.00';
+                            return totalSold > 0 ? formatCurrency(totalLaborCost / totalSold) : formatCurrency(0);
                           })()}
                         </span>
                       </div>
@@ -434,7 +409,7 @@ export function PromoImpactSummary({
                     <div className={styles.totalItem}>
                       <span className={styles.totalLabel}>Average Gross Profit</span>
                       <span className={styles.totalValue}>
-                        ${(() => {
+                        {(() => {
                           const totalSold = Object.values(variantAdjustedUnits).reduce((sum, units) => sum + units, 0);
                           const laborCostPerUnit = totalSold > 0 ? totalLaborCost / totalSold : 0;
 
@@ -445,10 +420,7 @@ export function PromoImpactSummary({
                           }, 0);
 
                           const avgGrossProfit = variantData.length > 0 ? totalGrossProfit / variantData.length : 0;
-                          return avgGrossProfit.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          });
+                          return formatCurrency(avgGrossProfit);
                         })()}
                       </span>
                     </div>
@@ -467,7 +439,7 @@ export function PromoImpactSummary({
                           }, 0);
 
                           const avgMargin = variantData.length > 0 ? totalMargin / variantData.length : 0;
-                          return avgMargin.toFixed(2) + '%';
+                          return formatPercentage(avgMargin);
                         })()}
                       </span>
                     </div>
@@ -531,19 +503,13 @@ export function PromoImpactSummary({
                       <div className={styles.scenarioMetric}>
                         <span className={styles.scenarioLabel}>Total Payback:</span>
                         <span className={styles.scenarioValue}>
-                          ${expectedTotalPayback.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
+                          {formatCurrency(expectedTotalPayback)}
                         </span>
                       </div>
                       <div className={styles.scenarioMetric}>
                         <span className={styles.scenarioLabel}>Labor Cost/Unit:</span>
                         <span className={styles.scenarioValue}>
-                          ${expectedLaborCostPerUnit.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
+                          {formatCurrency(expectedLaborCostPerUnit)}
                         </span>
                       </div>
                       {hasFinancialData && (
@@ -551,16 +517,13 @@ export function PromoImpactSummary({
                           <div className={styles.scenarioMetric}>
                             <span className={styles.scenarioLabel}>Gross Profit/Unit:</span>
                             <span className={styles.scenarioValue}>
-                              ${parseFloat(averageGrossProfitWithPromo || '0').toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
+                              {formatCurrency(parseFloat(averageGrossProfitWithPromo || '0'))}
                             </span>
                           </div>
                           <div className={styles.scenarioMetric}>
                             <span className={styles.scenarioLabel}>Margin %:</span>
                             <span className={styles.scenarioValue}>
-                              {parseFloat(averageMarginWithPromo || '0').toFixed(2)}%
+                              {formatPercentage(parseFloat(averageMarginWithPromo || '0'))}
                             </span>
                           </div>
                         </>
@@ -584,10 +547,7 @@ export function PromoImpactSummary({
                       <div className={styles.scenarioMetric}>
                         <span className={styles.scenarioLabel}>Total Payback:</span>
                         <span className={styles.scenarioValue}>
-                          ${adjustedTotalPayback.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
+                          {formatCurrency(adjustedTotalPayback)}
                         </span>
                       </div>
                       <div className={styles.scenarioMetric}>
@@ -596,16 +556,10 @@ export function PromoImpactSummary({
                           styles.scenarioValue,
                           adjustedLaborCostPerUnit > expectedLaborCostPerUnit && styles.higherCost
                         )}>
-                          ${adjustedLaborCostPerUnit.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
+                          {formatCurrency(adjustedLaborCostPerUnit)}
                           {adjustedLaborCostPerUnit > expectedLaborCostPerUnit && (
                             <span className={styles.costIncrease}>
-                              (+${(adjustedLaborCostPerUnit - expectedLaborCostPerUnit).toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })})
+                              (+{formatCurrency(adjustedLaborCostPerUnit - expectedLaborCostPerUnit)})
                             </span>
                           )}
                         </span>
@@ -618,16 +572,10 @@ export function PromoImpactSummary({
                               styles.scenarioValue,
                               adjustedUnits < totalUnitsNum && adjustedGrossProfitPerUnit < parseFloat(averageGrossProfitWithPromo || '0') && styles.lowerProfit
                             )}>
-                              ${adjustedGrossProfitPerUnit.toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
+                              {formatCurrency(adjustedGrossProfitPerUnit)}
                               {adjustedUnits < totalUnitsNum && grossProfitDifference > 0 && (
                                 <span className={styles.profitDecrease}>
-                                  (-${grossProfitDifference.toLocaleString('en-US', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                  })})
+                                  (-{formatCurrency(grossProfitDifference)})
                                 </span>
                               )}
                             </span>
@@ -638,7 +586,7 @@ export function PromoImpactSummary({
                               styles.scenarioValue,
                               adjustedUnits < totalUnitsNum && adjustedMarginPercentage < parseFloat(averageMarginWithPromo || '0') && styles.lowerProfit
                             )}>
-                              {adjustedMarginPercentage.toFixed(2)}%
+                              {formatPercentage(adjustedMarginPercentage)}
                               {adjustedUnits < totalUnitsNum && marginPointsDifference > 0 && (
                                 <span className={styles.profitDecrease}>
                                   (-{marginPointsDifference.toFixed(2)} pts)
@@ -656,22 +604,16 @@ export function PromoImpactSummary({
                   <div className={styles.impactNote}>
                     <span className={styles.impactIcon}>⚠️</span>
                     <p className={styles.impactText}>
-                      If only {adjustedUnits.toLocaleString('en-US', { maximumFractionDigits: 0 })} units sell,
+                      If only {Math.round(adjustedUnits).toLocaleString()} units sell,
                       your total payback will be{' '}
                       <strong>
-                        ${adjustedTotalPayback.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
+                        {formatCurrency(adjustedTotalPayback)}
                       </strong>
                       {hasLaborCosts && (
                         <>
                           {' '}and your labor cost per unit increases to{' '}
                           <strong>
-                            ${adjustedLaborCostPerUnit.toLocaleString('en-US', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
+                            {formatCurrency(adjustedLaborCostPerUnit)}
                           </strong>{' '}
                           because the same total labor cost is spread across fewer units
                         </>

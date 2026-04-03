@@ -870,13 +870,13 @@ export class CPUCalculatorService {
       serviceLogger.info('Raw material CPU calculated (weighted average)', {
         categoryId,
         variant,
-        cpu: cpu.toFixed(2),
-        totalCost: totalCost.toFixed(2),
-        totalUnitsReceived: totalUnitsReceived.toFixed(2),
+        cpu: cpu.toFixed(6),
+        totalCost: totalCost.toFixed(6),
+        totalUnitsReceived: totalUnitsReceived.toFixed(4),
         invoiceCount: relevantInvoices.length
       });
 
-      return cpu.toFixed(2);
+      return cpu.toFixed(6);
     } catch (error) {
       serviceLogger.error('Failed to calculate raw material CPU', {
         error,
@@ -959,7 +959,7 @@ export class CPUCalculatorService {
 
             let subtotal: string | null = null;
             if (component.hasCostData && component.unitCost) {
-              subtotal = quantity.times(component.unitCost).toFixed(2);
+              subtotal = quantity.times(component.unitCost).toFixed(6);
               totalCPU = totalCPU.plus(subtotal);
             } else {
               isComplete = false;
@@ -999,7 +999,7 @@ export class CPUCalculatorService {
             if (existing.subtotal && item.subtotal) {
               const existingSubtotal = new Decimal(existing.subtotal);
               const newSubtotal = new Decimal(item.subtotal);
-              existing.subtotal = existingSubtotal.plus(newSubtotal).toFixed(2);
+              existing.subtotal = existingSubtotal.plus(newSubtotal).toFixed(6);
             }
           }
         }
@@ -1009,8 +1009,8 @@ export class CPUCalculatorService {
         // Bundles don't have direct labor assignments (labor comes from components)
         // So we just return material CPU as total CPU for bundles
         return {
-          cpu: isComplete ? totalCPU.toFixed(2) : null,
-          materialCPU: isComplete ? totalCPU.toFixed(2) : null,
+          cpu: isComplete ? totalCPU.toFixed(6) : null,
+          materialCPU: isComplete ? totalCPU.toFixed(6) : null,
           laborCost: null, // Bundles get labor from component products
           breakdown: aggregatedBreakdown,
           laborBreakdown: undefined,
@@ -1085,7 +1085,7 @@ export class CPUCalculatorService {
           const quantity = new Decimal(recipeLine.quantity);
           const cost = new Decimal(unitCost!);
           const subtotalDecimal = quantity.times(cost);
-          subtotal = subtotalDecimal.toFixed(2);
+          subtotal = subtotalDecimal.toFixed(6);
           totalCPU = totalCPU.plus(subtotalDecimal);
         } else {
           isComplete = false;
@@ -1123,13 +1123,13 @@ export class CPUCalculatorService {
       let finalCPU: string | null = null;
 
       if (materialCPU !== null) {
-        finalCPU = totalCPU.plus(laborCost).toFixed(2);
+        finalCPU = totalCPU.plus(laborCost).toFixed(6);
       }
 
       const result: FinishedProductCPUResult = {
         cpu: finalCPU,
-        materialCPU: materialCPU ? totalCPU.toFixed(2) : null,
-        laborCost: hasLaborCost ? laborCost.toFixed(2) : null,
+        materialCPU: materialCPU ? totalCPU.toFixed(6) : null,
+        laborCost: hasLaborCost ? laborCost.toFixed(6) : null,
         breakdown,
         laborBreakdown: hasLaborCost ? laborResult.breakdown : undefined,
         isComplete,
@@ -1297,16 +1297,16 @@ export class CPUCalculatorService {
       const avgCPU = cpuValues.length > 0
         ? cpuValues.reduce((sum, val) => sum.plus(val), new Decimal(0))
             .dividedBy(cpuValues.length)
-            .toFixed(2)
-        : '0.00';
+            .toFixed(6)
+        : '0.000000';
 
       const minCPU = cpuValues.length > 0
-        ? Decimal.min(...cpuValues).toFixed(2)
-        : '0.00';
+        ? Decimal.min(...cpuValues).toFixed(6)
+        : '0.000000';
 
       const maxCPU = cpuValues.length > 0
-        ? Decimal.max(...cpuValues).toFixed(2)
-        : '0.00';
+        ? Decimal.max(...cpuValues).toFixed(6)
+        : '0.000000';
 
       // Determine trend direction (compare first half to second half)
       let trendDirection: 'increasing' | 'decreasing' | 'stable' = 'stable';
@@ -1435,7 +1435,7 @@ export class CPUCalculatorService {
     }
 
     // Total paid = direct costs + additional costs
-    const totalPaid = totalDirectCosts.plus(totalAdditionalCosts).toFixed(2);
+    const totalPaid = totalDirectCosts.plus(totalAdditionalCosts).toFixed(6);
 
     // Allocate additional costs proportionally to each category+variant
     const calculatedCPUs: Record<string, string> = {};
@@ -1458,7 +1458,7 @@ export class CPUCalculatorService {
       // CPU = total cost / units received
       const cpu = totalCost.dividedBy(unitsReceived);
 
-      calculatedCPUs[categoryVariantKey] = cpu.toFixed(2);
+      calculatedCPUs[categoryVariantKey] = cpu.toFixed(6);
     }
 
     return { totalPaid, calculatedCPUs };
@@ -1516,10 +1516,10 @@ export class CPUCalculatorService {
         units_purchased: attr.units_purchased,
         units_received: attr.units_received || attr.units_purchased,
         unit_price: attr.unit_price,
-        direct_cost: directCost.toFixed(2),
-        allocated_additional_costs: allocatedAdditionalCost.toFixed(2),
-        total_cost: totalCost.toFixed(2),
-        cpu: cpu.toFixed(2),
+        direct_cost: directCost.toFixed(6),
+        allocated_additional_costs: allocatedAdditionalCost.toFixed(6),
+        total_cost: totalCost.toFixed(6),
+        cpu: cpu.toFixed(6),
       });
     }
 

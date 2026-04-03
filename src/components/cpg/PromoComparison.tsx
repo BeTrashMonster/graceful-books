@@ -2,6 +2,7 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import styles from './PromoComparison.module.css';
 import { Tooltip } from '../core/Tooltip';
+import { useCPGSettings } from '../../hooks/useCPGSettings';
 
 export interface VariantComparisonData {
   variant: string;
@@ -68,6 +69,7 @@ export interface PromoComparisonProps {
  * ```
  */
 export function PromoComparison({ variants, className }: PromoComparisonProps) {
+  const { formatCurrency, formatPercentage } = useCPGSettings();
   const [isExpanded, setIsExpanded] = useState(true);
 
   const getMarginColorClass = (quality: 'gutCheck' | 'good' | 'better' | 'best'): string => {
@@ -129,16 +131,16 @@ export function PromoComparison({ variants, className }: PromoComparisonProps) {
               <div className={styles.plStatement}>
                 <div className={styles.plRow}>
                   <span className={styles.plLabel}>Retail Price</span>
-                  <span className={styles.plValue}>${variantData.retailPrice}</span>
+                  <span className={styles.plValue}>{formatCurrency(parseFloat(variantData.retailPrice))}</span>
                 </div>
                 <div className={clsx(styles.plRow, styles.plCostRow)}>
                   <span className={styles.plLabel}>Less: CPU</span>
-                  <span className={styles.plValue}>({variantData.withoutPromo.cpu})</span>
+                  <span className={styles.plValue}>({formatCurrency(parseFloat(variantData.withoutPromo.cpu))})</span>
                 </div>
                 {variantData.wholesaleCost && (
                   <div className={clsx(styles.plRow, styles.plCostRow)}>
                     <span className={styles.plLabel}>Less: Wholesale Cost</span>
-                    <span className={styles.plValue}>({variantData.wholesaleCost})</span>
+                    <span className={styles.plValue}>({formatCurrency(parseFloat(variantData.wholesaleCost))})</span>
                   </div>
                 )}
                 <div className={clsx(styles.plRow, styles.plDivider, styles.plDividerWithTopLine)}>
@@ -148,7 +150,7 @@ export function PromoComparison({ variants, className }: PromoComparisonProps) {
                   >
                     <span className={styles.plLabel}>Gross Profit</span>
                   </Tooltip>
-                  <span className={styles.plValue}>${variantData.withoutPromo.grossProfit}</span>
+                  <span className={styles.plValue}>{formatCurrency(parseFloat(variantData.withoutPromo.grossProfit))}</span>
                 </div>
                 <div className={clsx(styles.plRow, styles.plMarginRow)}>
                   <Tooltip
@@ -167,7 +169,7 @@ export function PromoComparison({ variants, className }: PromoComparisonProps) {
                     <span className={styles.marginIcon} aria-hidden="true">
                       {getMarginIcon(variantData.withoutPromo.marginQuality)}
                     </span>
-                    {variantData.withoutPromo.margin}%
+                    {formatPercentage(parseFloat(variantData.withoutPromo.margin))}
                     <span className={styles.marginQualityLabel}>
                       ({getMarginLabel(variantData.withoutPromo.marginQuality)})
                     </span>
@@ -185,15 +187,15 @@ export function PromoComparison({ variants, className }: PromoComparisonProps) {
               <div className={styles.plStatement}>
                 <div className={styles.plRow}>
                   <span className={styles.plLabel}>Retail Price</span>
-                  <span className={styles.plValue}>${variantData.retailPrice}</span>
+                  <span className={styles.plValue}>{formatCurrency(parseFloat(variantData.retailPrice))}</span>
                 </div>
                 <div className={clsx(styles.plRow, styles.plCostRow)}>
                   <span className={styles.plLabel}>Less: CPU</span>
-                  <span className={styles.plValue}>({variantData.withPromo.cpu})</span>
+                  <span className={styles.plValue}>({formatCurrency(parseFloat(variantData.withPromo.cpu))})</span>
                 </div>
                 <div className={clsx(styles.plRow, styles.plCostRow)}>
                   <span className={styles.plLabel}>Less: Sales Promo Cost</span>
-                  <span className={styles.plValue}>({variantData.withPromo.salesPromoCost})</span>
+                  <span className={styles.plValue}>({formatCurrency(parseFloat(variantData.withPromo.salesPromoCost))})</span>
                 </div>
                 {variantData.withPromo.demoHoursCost && (
                   <div className={clsx(styles.plRow, styles.plCostRow)}>
@@ -205,18 +207,18 @@ export function PromoComparison({ variants, className }: PromoComparisonProps) {
                         Less: Demo Labor Cost<span className={styles.asterisk}>*</span>
                       </span>
                     </Tooltip>
-                    <span className={styles.plValue}>({variantData.withPromo.demoHoursCost})</span>
+                    <span className={styles.plValue}>({formatCurrency(parseFloat(variantData.withPromo.demoHoursCost))})</span>
                   </div>
                 )}
                 {variantData.wholesaleCost && (
                   <div className={clsx(styles.plRow, styles.plCostRow)}>
                     <span className={styles.plLabel}>Less: Wholesale Cost</span>
-                    <span className={styles.plValue}>({variantData.wholesaleCost})</span>
+                    <span className={styles.plValue}>({formatCurrency(parseFloat(variantData.wholesaleCost))})</span>
                   </div>
                 )}
                 <div className={clsx(styles.plRow, styles.plTotalCostRow)}>
                   <span className={styles.plLabel}>Total Costs</span>
-                  <span className={styles.plValue}>${variantData.withPromo.totalCost}</span>
+                  <span className={styles.plValue}>{formatCurrency(parseFloat(variantData.withPromo.totalCost))}</span>
                 </div>
                 <div className={clsx(styles.plRow, styles.plDivider)}>
                   <Tooltip
@@ -225,7 +227,7 @@ export function PromoComparison({ variants, className }: PromoComparisonProps) {
                   >
                     <span className={styles.plLabel}>Gross Profit</span>
                   </Tooltip>
-                  <span className={styles.plValue}>${variantData.withPromo.grossProfit}</span>
+                  <span className={styles.plValue}>{formatCurrency(parseFloat(variantData.withPromo.grossProfit))}</span>
                 </div>
                 <div className={clsx(styles.plRow, styles.plMarginRow)}>
                   <Tooltip
@@ -244,7 +246,7 @@ export function PromoComparison({ variants, className }: PromoComparisonProps) {
                     <span className={styles.marginIcon} aria-hidden="true">
                       {getMarginIcon(variantData.withPromo.marginQuality)}
                     </span>
-                    {variantData.withPromo.margin}%
+                    {formatPercentage(parseFloat(variantData.withPromo.margin))}
                     <span className={styles.marginQualityLabel}>
                       ({getMarginLabel(variantData.withPromo.marginQuality)})
                     </span>

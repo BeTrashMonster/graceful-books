@@ -350,7 +350,7 @@ export class ScenarioPlanningService {
         margins.length > 0
           ? margins.reduce((sum, m) => sum.plus(m), new Decimal(0))
               .dividedBy(margins.length)
-              .toFixed(2)
+              .toFixed(6)
           : '0.00';
 
       // Calculate recommendation score (0-100)
@@ -483,12 +483,12 @@ export class ScenarioPlanningService {
       }
 
       variantComparisons[variant] = {
-        currentPrice: currentPrice.toFixed(2),
-        newPrice: newPrice.toFixed(2),
-        priceChange: priceChange.toFixed(2),
+        currentPrice: currentPrice.toFixed(6),
+        newPrice: newPrice.toFixed(6),
+        priceChange: priceChange.toFixed(6),
         currentMargin: currentVariantResult.net_profit_margin,
         newMargin: newVariantResult.net_profit_margin,
-        marginImpact: marginImpact.toFixed(2),
+        marginImpact: marginImpact.toFixed(6),
         marginQualityBefore: currentVariantResult.margin_quality,
         marginQualityAfter: newVariantResult.margin_quality,
         recommendation,
@@ -508,7 +508,7 @@ export class ScenarioPlanningService {
         ? currentMargins
             .reduce((sum, m) => sum.plus(m), new Decimal(0))
             .dividedBy(currentMargins.length)
-            .toFixed(2)
+            .toFixed(6)
         : '0.00';
 
     const avgMarginAfter =
@@ -516,12 +516,12 @@ export class ScenarioPlanningService {
         ? newMargins
             .reduce((sum, m) => sum.plus(m), new Decimal(0))
             .dividedBy(newMargins.length)
-            .toFixed(2)
+            .toFixed(6)
         : '0.00';
 
     const totalMarginImpact = new Decimal(avgMarginAfter)
       .minus(new Decimal(avgMarginBefore))
-      .toFixed(2);
+      .toFixed(6);
 
     return {
       distributorId: params.distributorId,
@@ -613,14 +613,14 @@ export class ScenarioPlanningService {
 
     return {
       variantName: params.variantName,
-      fixedCosts: fixedCosts.toFixed(2),
-      pricePerUnit: pricePerUnit.toFixed(2),
-      variableCostPerUnit: variableCostPerUnit.toFixed(2),
-      contributionMargin: contributionMargin.toFixed(2),
-      contributionMarginPercentage: contributionMarginPercentage.toFixed(2),
+      fixedCosts: fixedCosts.toFixed(6),
+      pricePerUnit: pricePerUnit.toFixed(6),
+      variableCostPerUnit: variableCostPerUnit.toFixed(6),
+      contributionMargin: contributionMargin.toFixed(6),
+      contributionMarginPercentage: contributionMarginPercentage.toFixed(6),
       breakEvenUnits: breakEvenUnits.toFixed(0),
-      breakEvenRevenue: breakEvenRevenue.toFixed(2),
-      breakEvenPallets: breakEvenPallets.toFixed(2),
+      breakEvenRevenue: breakEvenRevenue.toFixed(6),
+      breakEvenPallets: breakEvenPallets.toFixed(6),
       marginAtBreakEven: variantResult.net_profit_margin,
       recommendation,
     };
@@ -727,7 +727,7 @@ export class ScenarioPlanningService {
     const potentialSavings = discontinueSKUs
       .reduce((sum, sku) => sum.plus(new Decimal(sku.totalCPU)), new Decimal(0))
       .times(0.1) // 10% estimated savings
-      .toFixed(2);
+      .toFixed(6);
 
     return {
       companyId: params.companyId,

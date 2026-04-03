@@ -14,6 +14,7 @@ import { LaborRoleService } from '../../../services/cpg/laborRole.service';
 import { db } from '../../../db/database';
 import type { CPGLaborRole, CPGProductLabor } from '../../../db/schema/cpg.schema';
 import { processMathInput } from '../../../utils/mathParser';
+import { useCPGSettings } from '../../../hooks/useCPGSettings';
 import styles from './CPGModals.module.css';
 import laborStyles from './LaborAssignmentModal.module.css';
 
@@ -34,6 +35,7 @@ export function LaborAssignmentModal({
 }: LaborAssignmentModalProps) {
   const { companyId, deviceId } = useAuth();
   const [service] = useState(() => new LaborRoleService(db));
+  const { formatCurrency, formatNumber } = useCPGSettings();
 
   // Data state
   const [roles, setRoles] = useState<CPGLaborRole[]>([]);
@@ -233,7 +235,7 @@ export function LaborAssignmentModal({
   };
 
   const formatRate = (role: CPGLaborRole): string => {
-    return `$${service.getEffectiveHourlyRate(role)}/hr`;
+    return `${formatCurrency(parseFloat(service.getEffectiveHourlyRate(role)))}/hr`;
   };
 
   const calculateLaborCost = (assignment: CPGProductLabor): string => {
@@ -244,7 +246,7 @@ export function LaborAssignmentModal({
     const hourlyRate = parseFloat(service.getEffectiveHourlyRate(role));
     const cost = hoursPerUnit * hourlyRate;
 
-    return `$${cost.toFixed(2)}`;
+    return formatCurrency(cost);
   };
 
   return (
@@ -321,10 +323,10 @@ export function LaborAssignmentModal({
                               </td>
                               <td className={laborStyles.rate}>{formatRate(role)}</td>
                               <td className={laborStyles.hours}>
-                                {parseFloat(assignment.hours_per_unit || '0').toFixed(4)} hrs
+                                {formatNumber(parseFloat(assignment.hours_per_unit || '0'))} hrs
                                 {assignment.entry_mode === 'per_batch' && (
                                   <div style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: '0.25rem' }}>
-                                    ({assignment.hours_per_batch}h / {assignment.batch_size} units)
+                                    ({formatNumber(parseFloat(assignment.hours_per_batch || '0'))}h / {formatNumber(parseFloat(assignment.batch_size || '0'))} units)
                                   </div>
                                 )}
                               </td>

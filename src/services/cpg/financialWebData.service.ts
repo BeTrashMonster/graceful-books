@@ -129,7 +129,7 @@ export class FinancialWebDataService {
     const categoryNodes: CategoryNode[] = topCategories.map(({ category, total, count }) => ({
       id: category.id,
       name: category.name,
-      totalSpent: total.toFixed(2),
+      totalSpent: total.toFixed(6),
       invoiceCount: count,
       type: 'category',
       isActive: true,
@@ -141,19 +141,19 @@ export class FinancialWebDataService {
     const eventsData = await this.getEventsTotal(companyId, startDate, endDate);
 
     console.log('💰 Operational totals calculated:', {
-      distribution: distributionTotal.toFixed(2),
-      promos: promoTotal.total.toFixed(2),
+      distribution: distributionTotal.toFixed(6),
+      promos: promoTotal.total.toFixed(6),
       promosDetails: {
-        actualPayback: promoTotal.actualPayback.toFixed(2),
-        paidLabor: promoTotal.paidLabor.toFixed(2),
-        sweatEquity: promoTotal.sweatEquity.toFixed(2),
+        actualPayback: promoTotal.actualPayback.toFixed(6),
+        paidLabor: promoTotal.paidLabor.toFixed(6),
+        sweatEquity: promoTotal.sweatEquity.toFixed(6),
       },
-      events: eventsData.total.toFixed(2),
+      events: eventsData.total.toFixed(6),
       eventDetails: {
-        eventCosts: eventsData.eventCosts.toFixed(2),
-        traveling: eventsData.travelingCosts.toFixed(2),
-        paidLabor: eventsData.paidLabor.toFixed(2),
-        sweatEquity: eventsData.sweatEquity.toFixed(2),
+        eventCosts: eventsData.eventCosts.toFixed(6),
+        traveling: eventsData.travelingCosts.toFixed(6),
+        paidLabor: eventsData.paidLabor.toFixed(6),
+        sweatEquity: eventsData.sweatEquity.toFixed(6),
       }
     });
 
@@ -164,7 +164,7 @@ export class FinancialWebDataService {
     operationalNodes.push({
       id: 'distribution',
       name: 'Distribution',
-      totalSpent: distributionTotal.toFixed(2),
+      totalSpent: distributionTotal.toFixed(6),
       type: 'distribution',
       isActive: this.isFeatureActive('distribution'),
     });
@@ -173,13 +173,13 @@ export class FinancialWebDataService {
     operationalNodes.push({
       id: 'promo',
       name: 'Promos',
-      totalSpent: promoTotal.total.toFixed(2),
+      totalSpent: promoTotal.total.toFixed(6),
       type: 'promo',
       isActive: this.isFeatureActive('promo'),
       details: {
-        actualPayback: promoTotal.actualPayback.toFixed(2),
-        paidLabor: promoTotal.paidLabor.toFixed(2),
-        sweatEquity: promoTotal.sweatEquity.toFixed(2),
+        actualPayback: promoTotal.actualPayback.toFixed(6),
+        paidLabor: promoTotal.paidLabor.toFixed(6),
+        sweatEquity: promoTotal.sweatEquity.toFixed(6),
       },
     });
 
@@ -187,14 +187,14 @@ export class FinancialWebDataService {
     operationalNodes.push({
       id: 'events',
       name: 'Events',
-      totalSpent: eventsData.total.toFixed(2),
+      totalSpent: eventsData.total.toFixed(6),
       type: 'events',
       isActive: this.isFeatureActive('events'),
       details: {
-        eventCosts: eventsData.eventCosts.toFixed(2),
-        travelingCosts: eventsData.travelingCosts.toFixed(2),
-        paidLabor: eventsData.paidLabor.toFixed(2),
-        sweatEquity: eventsData.sweatEquity.toFixed(2),
+        eventCosts: eventsData.eventCosts.toFixed(6),
+        travelingCosts: eventsData.travelingCosts.toFixed(6),
+        paidLabor: eventsData.paidLabor.toFixed(6),
+        sweatEquity: eventsData.sweatEquity.toFixed(6),
       },
     });
 

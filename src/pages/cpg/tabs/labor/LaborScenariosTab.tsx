@@ -24,6 +24,7 @@ import { db } from '../../../../db/database';
 import { LaborRoleService } from '../../../../services/cpg/laborRole.service';
 import { cpuCalculatorService } from '../../../../services/cpg/cpuCalculator.service';
 import type { CPGLaborRole, CPGFinishedProduct } from '../../../../db/schema/cpg.schema';
+import { useCPGSettings } from '../../../../hooks/useCPGSettings';
 import styles from './LaborScenariosTab.module.css';
 
 interface ScenarioRole {
@@ -63,6 +64,7 @@ interface ProductCPUSummary {
 export function LaborScenariosTab() {
   const { companyId, deviceId } = useAuth();
   const [service] = useState(() => new LaborRoleService(db));
+  const { formatCurrency, formatNumber, formatPercentage } = useCPGSettings();
 
   // Data
   const [roles, setRoles] = useState<CPGLaborRole[]>([]);
@@ -315,10 +317,10 @@ export function LaborScenariosTab() {
 
     scenarioRoles.forEach(role => {
       const change = role.scenarioCost - role.currentCost;
-      csv += `${role.productName},${role.roleName},${role.currentHours},`;
-      csv += `$${role.currentRate.toFixed(2)},$${role.currentCost.toFixed(2)},`;
-      csv += `${role.scenarioHours},$${role.scenarioRate.toFixed(2)},`;
-      csv += `$${role.scenarioCost.toFixed(2)},$${change.toFixed(2)}\n`;
+      csv += `${role.productName},${role.roleName},${formatNumber(role.currentHours)},`;
+      csv += `${formatCurrency(role.currentRate)},${formatCurrency(role.currentCost)},`;
+      csv += `${formatNumber(role.scenarioHours)},${formatCurrency(role.scenarioRate)},`;
+      csv += `${formatCurrency(role.scenarioCost)},${formatCurrency(change)}\n`;
     });
 
     csv += '\n';
@@ -326,13 +328,13 @@ export function LaborScenariosTab() {
     csv += 'Product,Current Total,Scenario Total,Change ($),Change (%)\n';
 
     impacts.forEach(impact => {
-      csv += `${impact.productName},$${impact.currentCost.toFixed(2)},`;
-      csv += `$${impact.scenarioCost.toFixed(2)},$${impact.change.toFixed(2)},`;
-      csv += `${impact.changePercent.toFixed(1)}%\n`;
+      csv += `${impact.productName},${formatCurrency(impact.currentCost)},`;
+      csv += `${formatCurrency(impact.scenarioCost)},${formatCurrency(impact.change)},`;
+      csv += `${formatPercentage(impact.changePercent)}\n`;
     });
 
     csv += '\n';
-    csv += `TOTAL IMPACT,$${totalCurrent.toFixed(2)},$${totalScenario.toFixed(2)},$${totalChange.toFixed(2)},${totalCurrent > 0 ? ((totalChange / totalCurrent) * 100).toFixed(1) : '0'}%\n`;
+    csv += `TOTAL IMPACT,${formatCurrency(totalCurrent)},${formatCurrency(totalScenario)},${formatCurrency(totalChange)},${totalCurrent > 0 ? formatPercentage((totalChange / totalCurrent) * 100) : formatPercentage(0)}\n`;
 
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -500,11 +502,11 @@ export function LaborScenariosTab() {
                               <div className={styles.cpuItem}>
                                 <span className={styles.cpuLabel}>Labor CPU:</span>
                                 <span className={styles.cpuValues}>
-                                  ${summary.currentLaborCPU.toFixed(2)} → ${summary.scenarioLaborCPU.toFixed(2)}
+                                  {formatCurrency(summary.currentLaborCPU)} → {formatCurrency(summary.scenarioLaborCPU)}
                                 </span>
                                 {laborChange !== 0 && (
                                   <span className={laborChange > 0 ? styles.cpuChangeNegative : styles.cpuChangePositive}>
-                                    {laborChange > 0 ? '+' : ''}${laborChange.toFixed(2)}
+                                    {laborChange > 0 ? '+' : ''}{formatCurrency(laborChange)}
                                   </span>
                                 )}
                               </div>
@@ -512,11 +514,11 @@ export function LaborScenariosTab() {
                               <div className={styles.cpuItem}>
                                 <span className={styles.cpuLabel}>Total CPU:</span>
                                 <span className={styles.cpuValues}>
-                                  ${summary.currentTotalCPU.toFixed(2)} → ${summary.scenarioTotalCPU.toFixed(2)}
+                                  {formatCurrency(summary.currentTotalCPU)} → {formatCurrency(summary.scenarioTotalCPU)}
                                 </span>
                                 {cpuChange !== 0 && (
                                   <span className={cpuChange > 0 ? styles.cpuChangeNegative : styles.cpuChangePositive}>
-                                    {cpuChange > 0 ? '+' : ''}${cpuChange.toFixed(2)}
+                                    {cpuChange > 0 ? '+' : ''}{formatCurrency(cpuChange)}
                                   </span>
                                 )}
                               </div>
@@ -548,9 +550,9 @@ export function LaborScenariosTab() {
                               role.roleName
                             )}
                           </td>
-                          <td>{role.currentHours.toFixed(2)}</td>
-                          <td>${role.currentRate.toFixed(2)}</td>
-                          <td>${role.currentCost.toFixed(2)}</td>
+                          <td>{formatNumber(role.currentHours)}</td>
+                          <td>{formatCurrency(role.currentRate)}</td>
+                          <td>{formatCurrency(role.currentCost)}</td>
                           <td>
                             <input
                               type="number"
@@ -571,11 +573,11 @@ export function LaborScenariosTab() {
                               className={styles.editInput}
                             />
                           </td>
-                          <td className={styles.calculatedValue}>${role.scenarioCost.toFixed(2)}</td>
+                          <td className={styles.calculatedValue}>{formatCurrency(role.scenarioCost)}</td>
                           <td className={styles.deltaColumn}>
                             {delta !== 0 && (
                               <span className={delta > 0 ? styles.deltaPositive : styles.deltaNegative}>
-                                {delta > 0 ? '↑' : '↓'} ${Math.abs(delta).toFixed(2)}
+                                {delta > 0 ? '↑' : '↓'} {formatCurrency(Math.abs(delta))}
                               </span>
                             )}
                             {role.isHypothetical && (
@@ -636,15 +638,15 @@ export function LaborScenariosTab() {
                   return (
                     <tr key={summary.productId}>
                       <td className={styles.impactProduct}>{summary.productName}</td>
-                      <td className={styles.impactCost}>${summary.currentLaborCPU.toFixed(2)}</td>
-                      <td className={styles.impactCost}>${summary.scenarioLaborCPU.toFixed(2)}</td>
+                      <td className={styles.impactCost}>{formatCurrency(summary.currentLaborCPU)}</td>
+                      <td className={styles.impactCost}>{formatCurrency(summary.scenarioLaborCPU)}</td>
                       <td className={laborChange > 0 ? styles.impactIncrease : styles.impactDecrease}>
-                        {laborChange > 0 ? '+' : ''}{laborChangePercent.toFixed(1)}%
+                        {laborChange > 0 ? '+' : ''}{formatPercentage(laborChangePercent)}
                       </td>
-                      <td className={styles.impactCost}>${summary.currentTotalCPU.toFixed(2)}</td>
-                      <td className={styles.impactCost}>${summary.scenarioTotalCPU.toFixed(2)}</td>
+                      <td className={styles.impactCost}>{formatCurrency(summary.currentTotalCPU)}</td>
+                      <td className={styles.impactCost}>{formatCurrency(summary.scenarioTotalCPU)}</td>
                       <td className={cpuChange > 0 ? styles.impactIncrease : styles.impactDecrease}>
-                        {cpuChange > 0 ? '+' : ''}${cpuChange.toFixed(2)}
+                        {cpuChange > 0 ? '+' : ''}{formatCurrency(cpuChange)}
                       </td>
                     </tr>
                   );
@@ -653,10 +655,10 @@ export function LaborScenariosTab() {
                 <tr className={styles.totalsRow}>
                   <td className={styles.totalsLabel}>TOTAL</td>
                   <td className={styles.impactCost}>
-                    ${cpuSummaries.reduce((sum, s) => sum + s.currentLaborCPU, 0).toFixed(2)}
+                    {formatCurrency(cpuSummaries.reduce((sum, s) => sum + s.currentLaborCPU, 0))}
                   </td>
                   <td className={styles.impactCost}>
-                    ${cpuSummaries.reduce((sum, s) => sum + s.scenarioLaborCPU, 0).toFixed(2)}
+                    {formatCurrency(cpuSummaries.reduce((sum, s) => sum + s.scenarioLaborCPU, 0))}
                   </td>
                   <td className={(() => {
                     const totalCurrent = cpuSummaries.reduce((sum, s) => sum + s.currentLaborCPU, 0);
@@ -670,14 +672,14 @@ export function LaborScenariosTab() {
                       const totalScenario = cpuSummaries.reduce((sum, s) => sum + s.scenarioLaborCPU, 0);
                       const totalChange = totalScenario - totalCurrent;
                       const totalChangePercent = totalCurrent > 0 ? (totalChange / totalCurrent) * 100 : 0;
-                      return `${totalChange > 0 ? '+' : ''}${totalChangePercent.toFixed(1)}%`;
+                      return `${totalChange > 0 ? '+' : ''}${formatPercentage(totalChangePercent)}`;
                     })()}
                   </td>
                   <td className={styles.impactCost}>
-                    ${cpuSummaries.reduce((sum, s) => sum + s.currentTotalCPU, 0).toFixed(2)}
+                    {formatCurrency(cpuSummaries.reduce((sum, s) => sum + s.currentTotalCPU, 0))}
                   </td>
                   <td className={styles.impactCost}>
-                    ${cpuSummaries.reduce((sum, s) => sum + s.scenarioTotalCPU, 0).toFixed(2)}
+                    {formatCurrency(cpuSummaries.reduce((sum, s) => sum + s.scenarioTotalCPU, 0))}
                   </td>
                   <td className={(() => {
                     const totalChange = cpuSummaries.reduce((sum, s) => sum + (s.scenarioTotalCPU - s.currentTotalCPU), 0);
@@ -685,7 +687,7 @@ export function LaborScenariosTab() {
                   })()}>
                     {(() => {
                       const totalChange = cpuSummaries.reduce((sum, s) => sum + (s.scenarioTotalCPU - s.currentTotalCPU), 0);
-                      return `${totalChange > 0 ? '+' : ''}$${totalChange.toFixed(2)}`;
+                      return `${totalChange > 0 ? '+' : ''}${formatCurrency(totalChange)}`;
                     })()}
                   </td>
                 </tr>

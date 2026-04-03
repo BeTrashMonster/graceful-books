@@ -14,6 +14,7 @@ import { LaborRoleService } from '../../../services/cpg/laborRole.service';
 import { db } from '../../../db/database';
 import type { CPGLaborRole } from '../../../db/schema/cpg.schema';
 import { processMathInput } from '../../../utils/mathParser';
+import { useCPGSettings } from '../../../hooks/useCPGSettings';
 import styles from './CPGModals.module.css';
 
 export interface AddLaborRoleModalProps {
@@ -38,6 +39,7 @@ export function AddLaborRoleModal({
 }: AddLaborRoleModalProps) {
   const { companyId, deviceId } = useAuth();
   const [service] = useState(() => new LaborRoleService(db));
+  const { formatCurrency } = useCPGSettings();
 
   // Form state
   const [roleName, setRoleName] = useState('');

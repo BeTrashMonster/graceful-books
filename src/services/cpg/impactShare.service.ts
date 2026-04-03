@@ -291,20 +291,20 @@ export class ImpactShareService {
 
       case 'percent_retail':
         impactAmount = retailPrice.times(new Decimal(scenario.percentage).div(100));
-        baseValue = `${scenario.percentage}% of $${retailPrice.toFixed(2)}`;
+        baseValue = `${scenario.percentage}% of $${retailPrice.toFixed(6)}`;
         method = `${scenario.percentage}% of retail price`;
         break;
 
       case 'percent_cpu':
         impactAmount = baseCPU.times(new Decimal(scenario.percentage).div(100));
-        baseValue = `${scenario.percentage}% of $${baseCPU.toFixed(2)}`;
+        baseValue = `${scenario.percentage}% of $${baseCPU.toFixed(6)}`;
         method = `${scenario.percentage}% of base CPU`;
         break;
 
       case 'percent_profit':
         const grossProfit = retailPrice.minus(baseCPU);
         impactAmount = grossProfit.times(new Decimal(scenario.percentage).div(100));
-        baseValue = `${scenario.percentage}% of $${grossProfit.toFixed(2)}`;
+        baseValue = `${scenario.percentage}% of $${grossProfit.toFixed(6)}`;
         method = `${scenario.percentage}% of gross profit`;
         break;
 
@@ -320,15 +320,15 @@ export class ImpactShareService {
       : marginWithImpact.div(retailPrice).times(100);
 
     return {
-      impactAmount: impactAmount.toFixed(2),
+      impactAmount: impactAmount.toFixed(6),
       method,
       baseValue,
       productName: product.name,
-      retailPrice: retailPrice.toFixed(2),
-      baseCPU: baseCPU.toFixed(2),
-      totalCPUWithImpact: totalCPUWithImpact.toFixed(2),
-      marginWithImpact: marginWithImpact.toFixed(2),
-      marginPercentWithImpact: marginPercentWithImpact.toFixed(2),
+      retailPrice: retailPrice.toFixed(6),
+      baseCPU: baseCPU.toFixed(6),
+      totalCPUWithImpact: totalCPUWithImpact.toFixed(6),
+      marginWithImpact: marginWithImpact.toFixed(6),
+      marginPercentWithImpact: marginPercentWithImpact.toFixed(6),
     };
   }
 
@@ -440,8 +440,8 @@ export class ImpactShareService {
       products.push({
         productId,
         productName: product.name,
-        retailPrice: retailPrice.toFixed(2),
-        baseCPU: baseCPU.toFixed(2),
+        retailPrice: retailPrice.toFixed(6),
+        baseCPU: baseCPU.toFixed(6),
         scenarios: scenarioResults,
       });
     }
@@ -500,10 +500,10 @@ export class ImpactShareService {
     const max = Math.max(...amounts);
 
     if (min === max) {
-      return `$${min.toFixed(2)}/unit`;
+      return `$${min.toFixed(6)}/unit`;
     }
 
-    return `$${min.toFixed(2)}-$${max.toFixed(2)}/unit`;
+    return `$${min.toFixed(6)}-$${max.toFixed(6)}/unit`;
   }
 }
 

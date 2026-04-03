@@ -26,6 +26,7 @@ import { Input } from '../forms/Input';
 import { Select } from '../forms/Select';
 import { Checkbox } from '../forms/Checkbox';
 import { HelpTooltip } from '../help/HelpTooltip';
+import { processMathInput } from '../../utils/mathParser';
 import { cpuCalculatorService, type CreateInvoiceParams } from '../../services/cpg/cpuCalculator.service';
 import {
   cpgIntegrationService,
@@ -313,12 +314,19 @@ export function InvoiceEntryFormIntegrated({
   };
 
   const handleLineChange = (id: string, field: keyof InvoiceLine, value: any) => {
+    // Process unit_price through math parser to preserve precision
+    let processedValue = value;
+    if (field === 'unit_price') {
+      const { value: mathValue } = processMathInput(value, true);
+      processedValue = mathValue;
+    }
+
     setLines(
       lines.map((line) =>
         line.id === id
           ? {
               ...line,
-              [field]: value,
+              [field]: processedValue,
               // Auto-set units_received = units_purchased if not manually edited
               ...(field === 'units_purchased' && !line.units_received
                 ? { units_received: value }
@@ -691,8 +699,7 @@ export function InvoiceEntryFormIntegrated({
 
                       <Input
                         label="Unit Price"
-                        type="number"
-                        step="0.01"
+                        type="text"
                         min="0"
                         value={line.unit_price}
                         onChange={(e) => handleLineChange(line.id, 'unit_price', e.target.value)}

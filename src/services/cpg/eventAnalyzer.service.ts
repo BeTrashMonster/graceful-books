@@ -309,7 +309,7 @@ export class EventAnalyzerService {
       // Determine margin quality
       const marginToUse = netProfitMarginWithLabor || netProfitMarginWithEvent;
       const marginQuality = getProfitMarginQualityWithSettings(
-        marginToUse.toFixed(2),
+        marginToUse.toFixed(6),
         settings
       );
 
@@ -319,15 +319,15 @@ export class EventAnalyzerService {
       variantCount++;
 
       variantResults[variantName] = {
-        eventCostPerUnit: eventCostPerUnit.toFixed(2),
-        cpuWithEvent: cpuWithEvent.toFixed(2),
-        laborCostPerUnit: laborCostPerUnit ? laborCostPerUnit.toFixed(2) : null,
-        totalCostWithLabor: totalCostWithLabor ? totalCostWithLabor.toFixed(2) : null,
-        netProfitMarginWithEvent: netProfitMarginWithEvent.toFixed(2),
-        netProfitMarginWithoutEvent: netProfitMarginWithoutEvent.toFixed(2),
-        netProfitMarginWithLabor: netProfitMarginWithLabor ? netProfitMarginWithLabor.toFixed(2) : null,
+        eventCostPerUnit: eventCostPerUnit.toFixed(6),
+        cpuWithEvent: cpuWithEvent.toFixed(6),
+        laborCostPerUnit: laborCostPerUnit ? laborCostPerUnit.toFixed(6) : null,
+        totalCostWithLabor: totalCostWithLabor ? totalCostWithLabor.toFixed(6) : null,
+        netProfitMarginWithEvent: netProfitMarginWithEvent.toFixed(6),
+        netProfitMarginWithoutEvent: netProfitMarginWithoutEvent.toFixed(6),
+        netProfitMarginWithLabor: netProfitMarginWithLabor ? netProfitMarginWithLabor.toFixed(6) : null,
         marginQualityWithEvent: marginQuality,
-        marginDifference: marginDifference.toFixed(2),
+        marginDifference: marginDifference.toFixed(6),
       };
     }
 
@@ -419,9 +419,9 @@ export class EventAnalyzerService {
       {
         variant_event_data: variantEventData,
         variant_event_results: variantEventResults,
-        total_event_cost: totalEventCost.toFixed(2),
-        total_actual_labor_cost: totalActualLaborCost ? totalActualLaborCost.toFixed(2) : null,
-        total_opportunity_cost: totalOpportunityCost ? totalOpportunityCost.toFixed(2) : null,
+        total_event_cost: totalEventCost.toFixed(6),
+        total_actual_labor_cost: totalActualLaborCost ? totalActualLaborCost.toFixed(6) : null,
+        total_opportunity_cost: totalOpportunityCost ? totalOpportunityCost.toFixed(6) : null,
         recommendation,
       },
       deviceId
@@ -430,7 +430,7 @@ export class EventAnalyzerService {
     serviceLogger.info('Event analysis complete', {
       eventId: params.eventId,
       recommendation,
-      avgMargin: avgMarginWithEvent.toFixed(2),
+      avgMargin: avgMarginWithEvent.toFixed(6),
     });
 
     return {
@@ -443,9 +443,9 @@ export class EventAnalyzerService {
       travelingFees: event.traveling_fees,
       laborEntries,
       variantResults,
-      totalEventCost: totalEventCost.toFixed(2),
-      totalActualLaborCost: totalActualLaborCost ? totalActualLaborCost.toFixed(2) : null,
-      totalOpportunityCost: totalOpportunityCost ? totalOpportunityCost.toFixed(2) : null,
+      totalEventCost: totalEventCost.toFixed(6),
+      totalActualLaborCost: totalActualLaborCost ? totalActualLaborCost.toFixed(6) : null,
+      totalOpportunityCost: totalOpportunityCost ? totalOpportunityCost.toFixed(6) : null,
       totalUnits: totalUnits.toFixed(0),
       breakEvenUnits: breakEvenUnits.toFixed(0),
       recommendation,
@@ -504,9 +504,9 @@ export class EventAnalyzerService {
         variant_actual_units_sold: actuals.variantActualUnitsSold,
         variant_units_damaged: actuals.variantUnitsDamaged || null,
         variant_units_demo: actuals.variantUnitsDemo || null,
-        actual_total_revenue: actualRevenue.toFixed(2),
-        actual_total_profit: actualProfit.toFixed(2),
-        actual_roi: actualROI.toFixed(2),
+        actual_total_revenue: actualRevenue.toFixed(6),
+        actual_total_profit: actualProfit.toFixed(6),
+        actual_roi: actualROI.toFixed(6),
         notes: actuals.notes || event.notes,
         status: 'completed',
       },
@@ -515,9 +515,9 @@ export class EventAnalyzerService {
 
     serviceLogger.info('Event actuals tracked successfully', {
       eventId,
-      actualRevenue: actualRevenue.toFixed(2),
-      actualProfit: actualProfit.toFixed(2),
-      actualROI: actualROI.toFixed(2),
+      actualRevenue: actualRevenue.toFixed(6),
+      actualProfit: actualProfit.toFixed(6),
+      actualROI: actualROI.toFixed(6),
     });
   }
 }

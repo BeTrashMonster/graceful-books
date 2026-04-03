@@ -370,8 +370,8 @@ export class HistoricalAnalyticsService {
         patterns.push({
           month,
           month_name: monthNames[month - 1]!,
-          average_cpu: monthAverage.toFixed(2),
-          seasonal_index: seasonalIndex.toFixed(2),
+          average_cpu: monthAverage.toFixed(6),
+          seasonal_index: seasonalIndex.toFixed(6),
           observation,
           sample_size: cpuValues.length,
         });
@@ -396,7 +396,7 @@ export class HistoricalAnalyticsService {
         variant,
         category_id: categoryId,
         patterns,
-        overall_average: overallAverage.toFixed(2),
+        overall_average: overallAverage.toFixed(6),
         highest_cost_month: highestMonth,
         lowest_cost_month: lowestMonth,
         insight,
@@ -537,12 +537,12 @@ export class HistoricalAnalyticsService {
         end_date: actualEndDate,
         data_points: dataPoints,
         statistics: {
-          average_total_cost: avgTotalCost.toFixed(2),
-          average_cost_per_unit: avgCostPerUnit.toFixed(2),
-          min_cost: minCost.toFixed(2),
-          max_cost: maxCost.toFixed(2),
+          average_total_cost: avgTotalCost.toFixed(6),
+          average_cost_per_unit: avgCostPerUnit.toFixed(6),
+          min_cost: minCost.toFixed(6),
+          max_cost: maxCost.toFixed(6),
           trend_direction: trendDirection,
-          change_percentage: changePercentage.toFixed(2),
+          change_percentage: changePercentage.toFixed(6),
         },
       };
     } catch (error) {
@@ -643,7 +643,7 @@ export class HistoricalAnalyticsService {
 
           if (promoCost.greaterThan(0)) {
             const roi = netGain.dividedBy(promoCost).times(100);
-            roiPercentage = roi.toFixed(2);
+            roiPercentage = roi.toFixed(6);
           }
         }
 
@@ -658,9 +658,9 @@ export class HistoricalAnalyticsService {
           revenue_after: revenueAfter,
           roi_percentage: roiPercentage,
           participation_status: status,
-          average_margin_with_promo: avgMarginWith.toFixed(2),
-          average_margin_without_promo: avgMarginWithout.toFixed(2),
-          margin_impact: marginImpact.toFixed(2),
+          average_margin_with_promo: avgMarginWith.toFixed(6),
+          average_margin_without_promo: avgMarginWithout.toFixed(6),
+          margin_impact: marginImpact.toFixed(6),
         });
       }
 
@@ -674,11 +674,11 @@ export class HistoricalAnalyticsService {
 
       return {
         total_promos_analyzed: promos.length,
-        total_promo_cost: totalPromoCost.toFixed(2),
+        total_promo_cost: totalPromoCost.toFixed(6),
         total_roi: null, // Would need aggregate revenue data
         participated_count: participatedCount,
         declined_count: declinedCount,
-        average_margin_impact: avgMarginImpact.toFixed(2),
+        average_margin_impact: avgMarginImpact.toFixed(6),
         promos: promoData,
       };
     } catch (error) {
@@ -796,11 +796,11 @@ export class HistoricalAnalyticsService {
     }
 
     return {
-      average_cpu: avgCPU.toFixed(2),
-      min_cpu: minCPU.toFixed(2),
-      max_cpu: maxCPU.toFixed(2),
+      average_cpu: avgCPU.toFixed(6),
+      min_cpu: minCPU.toFixed(6),
+      max_cpu: maxCPU.toFixed(6),
       trend_direction: trendDirection,
-      change_percentage: changePercentage.toFixed(2),
+      change_percentage: changePercentage.toFixed(6),
     };
   }
 
@@ -833,7 +833,7 @@ export class HistoricalAnalyticsService {
       .reduce((sum, val) => sum.plus(val), new Decimal(0))
       .dividedBy(cpuValues.length);
 
-    return avg.toFixed(2);
+    return avg.toFixed(6);
   }
 }
 

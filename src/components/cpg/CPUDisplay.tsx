@@ -25,6 +25,7 @@ import { CPUBreakdownModal } from './modals/CPUBreakdownModal';
 import { ProductBreakdownModal } from './modals/ProductBreakdownModal';
 import { InvoiceDetailsModal } from './modals/InvoiceDetailsModal';
 import { AddInvoiceModal } from './modals/AddInvoiceModal';
+import { useCPGSettings } from '../../hooks/useCPGSettings';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import styles from './CPUDisplay.module.css';
@@ -56,6 +57,7 @@ export function CPUDisplay({
   onSortByChange
 }: CPUDisplayProps) {
   const { companyId } = useAuth();
+  const { formatCurrency, formatNumber, formatPercentage } = useCPGSettings();
 
   const [products, setProducts] = useState<FinishedProductCPUBreakdown[]>([]);
   const [loading, setLoading] = useState(true);
@@ -428,10 +430,10 @@ export function CPUDisplay({
     const rows = productsWithMetrics.map(p => [
       p.productName,
       p.sku || '',
-      p.cost !== null ? `$${p.cost.toFixed(2)}` : '',
-      p.msrp !== null ? `$${p.msrp.toFixed(2)}` : '',
-      p.profit !== null ? `$${p.profit.toFixed(2)}` : '',
-      p.marginPercent !== null ? `${p.marginPercent.toFixed(1)}%` : '',
+      p.cost !== null ? formatCurrency(p.cost) : '',
+      p.msrp !== null ? formatCurrency(p.msrp) : '',
+      p.profit !== null ? formatCurrency(p.profit) : '',
+      p.marginPercent !== null ? formatPercentage(p.marginPercent) : '',
       p.breakdown.length === 0 ? 'No Recipe' : (p.cost !== null ? 'Complete' : 'Incomplete'),
     ]);
 
@@ -474,7 +476,7 @@ export function CPUDisplay({
     doc.text(`Total Products: ${totalProducts}`, 14, 62);
 
     if (avgCPU !== null) {
-      doc.text(`Average Cost Per Unit: $${avgCPU.toFixed(2)}`, 14, 68);
+      doc.text(`Average Cost Per Unit: ${formatCurrency(avgCPU)}`, 14, 68);
     }
 
     // Product Details Table using autoTable
@@ -483,10 +485,10 @@ export function CPUDisplay({
       head: [['Product', 'Cost', 'Selling Price', 'Profit', 'Margin', 'Status']],
       body: productsWithMetrics.map(p => [
         p.productName + (p.sku ? ` (${p.sku})` : ''),
-        p.cost !== null ? `$${p.cost.toFixed(2)}` : '-',
-        p.msrp !== null ? `$${p.msrp.toFixed(2)}` : '-',
-        p.profit !== null ? `$${p.profit.toFixed(2)}` : '-',
-        p.marginPercent !== null ? `${p.marginPercent.toFixed(1)}%` : '-',
+        p.cost !== null ? formatCurrency(p.cost) : '-',
+        p.msrp !== null ? formatCurrency(p.msrp) : '-',
+        p.profit !== null ? formatCurrency(p.profit) : '-',
+        p.marginPercent !== null ? formatPercentage(p.marginPercent) : '-',
         p.breakdown.length === 0 ? 'No Recipe' : (p.cost !== null ? 'Complete' : 'Incomplete'),
       ]),
       theme: 'striped',
@@ -531,14 +533,14 @@ export function CPUDisplay({
       const baseData = [
         p.productName,
         p.sku || '',
-        p.cost !== null ? p.cost.toFixed(2) : '',
+        p.cost !== null ? formatCurrency(p.cost) : '',
         p.breakdown.length.toString(),
         p.breakdown.map(c =>
           `${c.quantity} ${c.unitOfMeasure} ${c.categoryName}${c.variant ? ` (${c.variant})` : ''}`
         ).join('; '),
-        p.msrp !== null ? p.msrp.toFixed(2) : '',
-        p.profit !== null ? p.profit.toFixed(2) : '',
-        p.marginPercent !== null ? p.marginPercent.toFixed(2) : '',
+        p.msrp !== null ? formatCurrency(p.msrp) : '',
+        p.profit !== null ? formatCurrency(p.profit) : '',
+        p.marginPercent !== null ? formatPercentage(p.marginPercent) : '',
         p.breakdown.length === 0 ? 'No Recipe' : (p.cost !== null ? 'Complete' : 'Incomplete'),
         p.missingComponents.join('; '),
       ];
@@ -708,25 +710,25 @@ export function CPUDisplay({
       case 'total':
         return { label: 'Total Products', value: totalProducts.toString() };
       case 'avg-cpu':
-        return { label: 'Average CPU', value: avgCPU !== null ? `$${avgCPU.toFixed(2)}` : '—' };
+        return { label: 'Average CPU', value: avgCPU !== null ? formatCurrency(avgCPU) : '—' };
       case 'avg-profit-dollars':
-        return { label: 'Average Profit ($)', value: avgProfitDollars !== null ? `$${avgProfitDollars.toFixed(2)}` : '—' };
+        return { label: 'Average Profit ($)', value: avgProfitDollars !== null ? formatCurrency(avgProfitDollars) : '—' };
       case 'avg-profit-percent':
-        return { label: 'Average Profit (%)', value: avgProfitPercent !== null ? `${avgProfitPercent.toFixed(1)}%` : '—' };
+        return { label: 'Average Profit (%)', value: avgProfitPercent !== null ? formatPercentage(avgProfitPercent) : '—' };
       case 'highest-cost':
         return {
           label: 'Most Expensive',
-          value: highestCostProducts.length > 0 ? `$${highestCostProducts[0].cost?.toFixed(2)}` : '—',
+          value: highestCostProducts.length > 0 && highestCostProducts[0].cost !== null ? formatCurrency(highestCostProducts[0].cost) : '—',
           subtext: highestCostProducts.map(p => p.productName).join(', ')
         };
       case 'lowest-cost':
         return {
           label: 'Least Expensive',
-          value: lowestCostProducts.length > 0 ? `$${lowestCostProducts[0].cost?.toFixed(2)}` : '—',
+          value: lowestCostProducts.length > 0 && lowestCostProducts[0].cost !== null ? formatCurrency(lowestCostProducts[0].cost) : '—',
           subtext: lowestCostProducts.map(p => p.productName).join(', ')
         };
       case 'avg-components':
-        return { label: 'Avg Components', value: avgComponents !== null ? avgComponents.toFixed(1) : '—' };
+        return { label: 'Avg Components', value: avgComponents !== null ? formatNumber(avgComponents) : '—' };
       default:
         return { label: 'Total Products', value: totalProducts.toString() };
     }
@@ -1284,7 +1286,7 @@ export function CPUDisplay({
                     {topPerformers.map(p => p.productName).join(', ')}
                   </div>
                   <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1, color: '#4b006e' }}>
-                    {topPerformers[0].marginPercent?.toFixed(1)}%
+                    {topPerformers[0].marginPercent !== null && topPerformers[0].marginPercent !== undefined ? formatPercentage(topPerformers[0].marginPercent) : '—'}
                   </div>
                   <div style={{ fontSize: '0.75rem', color: '#6b21a8' }}>
                     margin
@@ -1312,7 +1314,7 @@ export function CPUDisplay({
                     {opportunities.map(p => p.productName).join(', ')}
                   </div>
                   <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1, color: '#2d5a13' }}>
-                    {opportunities[0].marginPercent?.toFixed(1)}%
+                    {opportunities[0].marginPercent !== null && opportunities[0].marginPercent !== undefined ? formatPercentage(opportunities[0].marginPercent) : '—'}
                   </div>
                   <div style={{ fontSize: '0.75rem', color: '#3d7a1a' }}>
                     margin
@@ -1635,7 +1637,7 @@ export function CPUDisplay({
                             Cost Per Unit
                           </div>
                           <div style={{ fontSize: '2.25rem', fontWeight: 700, color: '#4b006e', lineHeight: 1 }}>
-                            ${product.cost.toFixed(2)}
+                            {formatCurrency(product.cost)}
                           </div>
                         </div>
 
@@ -1655,7 +1657,7 @@ export function CPUDisplay({
                                   fontSize: '1rem',
                                   color: product.profit >= 0 ? '#4b006e' : '#ea580c'
                                 }}>
-                                  ${product.profit.toFixed(2)}
+                                  {formatCurrency(product.profit)}
                                 </div>
                               </div>
                               <div>
@@ -1665,7 +1667,7 @@ export function CPUDisplay({
                                   fontSize: '1rem',
                                   color: (product.marginPercent ?? 0) >= 0 ? '#4b006e' : '#ea580c'
                                 }}>
-                                  {product.marginPercent?.toFixed(1)}%
+                                  {product.marginPercent !== null && product.marginPercent !== undefined ? formatPercentage(product.marginPercent) : '—'}
                                 </div>
                               </div>
                             </>
@@ -1673,7 +1675,7 @@ export function CPUDisplay({
                           <div>
                             <div style={{ color: '#64748b', marginBottom: '0.25rem' }}>Selling Price</div>
                             <div style={{ fontWeight: 600, fontSize: '1rem' }}>
-                              {product.msrp ? `$${product.msrp.toFixed(2)}` : '—'}
+                              {product.msrp !== null && product.msrp !== undefined ? formatCurrency(product.msrp) : '—'}
                             </div>
                           </div>
                         </div>
@@ -1709,7 +1711,7 @@ export function CPUDisplay({
                         {product.msrp && (
                           <div style={{ fontSize: '0.875rem', textAlign: 'center' }}>
                             <div style={{ color: '#64748b', marginBottom: '0.25rem' }}>Selling Price</div>
-                            <div style={{ fontWeight: 600, fontSize: '1rem' }}>${product.msrp.toFixed(2)}</div>
+                            <div style={{ fontWeight: 600, fontSize: '1rem' }}>{formatCurrency(product.msrp)}</div>
                           </div>
                         )}
                       </>
@@ -1902,16 +1904,16 @@ export function CPUDisplay({
                           )}
                         </td>
                         <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 600 }}>
-                          {product.cost !== null ? `$${product.cost.toFixed(2)}` : '—'}
+                          {product.cost !== null ? formatCurrency(product.cost) : '—'}
                         </td>
                         <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 600 }}>
-                          {product.msrp !== null ? `$${product.msrp.toFixed(2)}` : '—'}
+                          {product.msrp !== null ? formatCurrency(product.msrp) : '—'}
                         </td>
                         <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 600, color: '#4b006e' }}>
-                          {product.profit !== null ? `$${product.profit.toFixed(2)}` : '—'}
+                          {product.profit !== null ? formatCurrency(product.profit) : '—'}
                         </td>
                         <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 600, color: '#4b006e' }}>
-                          {product.marginPercent !== null ? `${product.marginPercent.toFixed(1)}%` : '—'}
+                          {product.marginPercent !== null ? formatPercentage(product.marginPercent) : '—'}
                         </td>
                         <td style={{ padding: '1rem', textAlign: 'center' }}>
                           {!hasRecipe ? (

@@ -310,7 +310,7 @@ export class DistributionCostCalculatorService {
     let distributionCostPerUnit = new Decimal(0);
     if (totalUnits.greaterThan(0)) {
       distributionCostPerUnit = totalFees.dividedBy(totalUnits);
-      console.log(`Distribution cost per unit: $${totalFees.toFixed(2)} ÷ ${totalUnits.toFixed(0)} units = $${distributionCostPerUnit.toFixed(2)}/unit`);
+      console.log(`Distribution cost per unit: $${totalFees.toFixed(6)} ÷ ${totalUnits.toFixed(0)} units = $${distributionCostPerUnit.toFixed(6)}/unit`);
     }
 
     // Calculate results per variant
@@ -345,12 +345,12 @@ export class DistributionCostCalculatorService {
         const markupPercentage = new Decimal(params.msrpMarkupPercentage);
         msrp = pricePerUnit
           .times(new Decimal(1).plus(markupPercentage.dividedBy(100)))
-          .toFixed(2);
+          .toFixed(6);
       }
 
       variantResults[variantName] = {
-        total_cpu: totalCPU.toFixed(2),
-        net_profit_margin: netProfitMargin.toFixed(2),
+        total_cpu: totalCPU.toFixed(6),
+        net_profit_margin: netProfitMargin.toFixed(6),
         margin_quality: marginQuality,
         msrp,
       };
@@ -378,7 +378,7 @@ export class DistributionCostCalculatorService {
           reasons: suspicious.reasons,
           params: {
             numPallets: params.numPallets,
-            totalFees: totalFees.toFixed(2),
+            totalFees: totalFees.toFixed(6),
             pricePerUnit: variantData.price_per_unit,
             baseCPU: variantData.base_cpu,
             totalCPU: result.total_cpu,
@@ -389,8 +389,8 @@ export class DistributionCostCalculatorService {
 
     return {
       distributorId: params.distributorId,
-      totalDistributionCost: totalFees.toFixed(2),
-      distributionCostPerUnit: distributionCostPerUnit.toFixed(2),
+      totalDistributionCost: totalFees.toFixed(6),
+      distributionCostPerUnit: distributionCostPerUnit.toFixed(6),
       variantResults,
       feeBreakdown,
     };
@@ -717,7 +717,7 @@ export class DistributionCostCalculatorService {
       feeBreakdown.push({
         feeId: fee.feeId,
         feeName,
-        feeAmount: totalFeeAmount.toFixed(2),
+        feeAmount: totalFeeAmount.toFixed(6),
       });
     }
 
@@ -756,7 +756,7 @@ export class DistributionCostCalculatorService {
       feeBreakdown.push({
         feeId: fee.feeId,
         feeName,
-        feeAmount: totalFeeAmount.toFixed(2),
+        feeAmount: totalFeeAmount.toFixed(6),
       });
     }
 

@@ -61,7 +61,7 @@ export class ShippingDistributionService {
       const amountPerLine = shTotal.dividedBy(materialLines.length);
 
       materialLines.forEach(([key]) => {
-        distribution[key] = amountPerLine.toFixed(2);
+        distribution[key] = amountPerLine.toFixed(6);
       });
     } else {
       // Weighted split: distribute based on line item value
@@ -79,7 +79,7 @@ export class ShippingDistributionService {
         // All lines are $0, fall back to equal split
         const amountPerLine = shTotal.dividedBy(materialLines.length);
         materialLines.forEach(([key]) => {
-          distribution[key] = amountPerLine.toFixed(2);
+          distribution[key] = amountPerLine.toFixed(6);
         });
       } else {
         // Distribute proportionally
@@ -89,7 +89,7 @@ export class ShippingDistributionService {
             : new Decimal(line.units_purchased).times(line.unit_price);
           const proportion = lineTotal.dividedBy(totalValue);
           const distributedAmount = shTotal.times(proportion);
-          distribution[key] = distributedAmount.toFixed(2);
+          distribution[key] = distributedAmount.toFixed(6);
         });
       }
     }
@@ -102,7 +102,7 @@ export class ShippingDistributionService {
 
     return {
       distribution,
-      totalDistributed: totalDistributed.toFixed(2),
+      totalDistributed: totalDistributed.toFixed(6),
     };
   }
 
@@ -157,9 +157,9 @@ export class ShippingDistributionService {
     const landedCostPerUnit = landedCost.dividedBy(line.units_purchased);
 
     return {
-      originalCost: originalCost.toFixed(2),
-      distributedShipping: totalDistributedSH.toFixed(2),
-      landedCost: landedCost.toFixed(2),
+      originalCost: originalCost.toFixed(6),
+      distributedShipping: totalDistributedSH.toFixed(6),
+      landedCost: landedCost.toFixed(6),
       landedCostPerUnit: landedCostPerUnit.toFixed(4),
     };
   }
@@ -214,7 +214,7 @@ export class ShippingDistributionService {
         breakdown.push({
           lineKey,
           lineName,
-          shTotal: shTotal.toFixed(2),
+          shTotal: shTotal.toFixed(6),
           distributionMethod: line.distribution_method,
           breakdown: distribution,
         });

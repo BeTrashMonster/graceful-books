@@ -58,10 +58,14 @@ export function evaluateMathExpression(input: string): number | null {
 }
 
 /**
- * Format a number to have exactly 2 decimal places (for money)
+ * Format a number preserving precision (for money)
+ * Keeps up to 6 decimal places, removing trailing zeros
  */
 export function formatMoney(value: number): string {
-  return value.toFixed(2);
+  // Keep full precision (up to 6 decimals), but remove trailing zeros
+  const fixed = value.toFixed(6);
+  // Remove trailing zeros after decimal point
+  return fixed.replace(/\.?0+$/, '');
 }
 
 /**

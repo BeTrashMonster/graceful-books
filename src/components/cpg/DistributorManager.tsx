@@ -15,6 +15,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Modal } from '../modals/Modal';
 import { Button } from '../core/Button';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCPGSettings } from '../../hooks/useCPGSettings';
 import { db } from '../../db/database';
 import type { CPGDistributor, CPGDistributionCalculation } from '../../db/schema/cpg.schema';
 import { DistributionCostCalculatorService } from '../../services/cpg/distributionCostCalculator.service';
@@ -29,6 +30,7 @@ export interface DistributorManagerProps {
 
 export function DistributorManager({ isOpen, onClose, embedded = false }: DistributorManagerProps) {
   const { companyId, deviceId } = useAuth();
+  const { formatCurrency, formatNumber, formatPercentage } = useCPGSettings();
   const calculatorService = new DistributionCostCalculatorService(db);
 
   const [distributors, setDistributors] = useState<CPGDistributor[]>([]);
@@ -351,9 +353,9 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
     if (data) {
       // Blended format: Lead with cost, concise calc count
       if (data.calcCount === 1) {
-        return `$${data.avgCostPerUnit}/unit`;
+        return `${formatCurrency(data.avgCostPerUnit)}/unit`;
       } else {
-        return `$${data.avgCostPerUnit}/unit (${data.calcCount} calcs)`;
+        return `${formatCurrency(data.avgCostPerUnit)}/unit (${data.calcCount} calcs)`;
       }
     } else {
       // No calculations yet
@@ -414,13 +416,6 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
     });
   };
 
-  /**
-   * Format currency for display
-   */
-  const formatCurrency = (value: string): string => {
-    const num = parseFloat(value);
-    return `$${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
 
   /**
    * Open invoice drawer for a distributor
@@ -573,15 +568,15 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
               palletNum,
               productUnits,
               `"${variant}"`,
-              baseCPU.toFixed(2),
-              distCostPerUnit.toFixed(2),
-              totalCPU.toFixed(2),
-              price.toFixed(2),
-              profitPerUnit.toFixed(2),
+              formatNumber(baseCPU),
+              formatNumber(distCostPerUnit),
+              formatNumber(totalCPU),
+              formatNumber(price),
+              formatNumber(profitPerUnit),
               result.net_profit_margin,
               result.msrp || '',
               `"${fee.feeName}"`,
-              parseFloat(fee.feeAmount).toFixed(2),
+              formatNumber(parseFloat(fee.feeAmount)),
               invoice.total_distribution_cost,
               getPaymentStatus(invoice),
               getAmountDue(invoice)
@@ -597,11 +592,11 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
             palletNum,
             productUnits,
             `"${variant}"`,
-            baseCPU.toFixed(2),
-            distCostPerUnit.toFixed(2),
-            totalCPU.toFixed(2),
-            price.toFixed(2),
-            profitPerUnit.toFixed(2),
+            formatNumber(baseCPU),
+            formatNumber(distCostPerUnit),
+            formatNumber(totalCPU),
+            formatNumber(price),
+            formatNumber(profitPerUnit),
             result.net_profit_margin,
             result.msrp || '',
             '',
@@ -660,7 +655,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
           {
             text: [
               { text: 'Average Cost Per Unit: ', bold: true },
-              data ? `$${data.avgCostPerUnit}` : 'N/A',
+              data ? formatCurrency(data.avgCostPerUnit) : 'N/A',
               { text: '  |  Total Invoices: ', bold: true },
               invoices.length.toString()
             ],
@@ -1685,15 +1680,15 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                   <span style={{ color: '#6b7280' }}>Total Amount:</span>
-                  <span style={{ fontWeight: 600, color: '#111827' }}>{formatCurrency(totalAmount.toFixed(2))}</span>
+                  <span style={{ fontWeight: 600, color: '#111827' }}>{formatCurrency(totalAmount)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                   <span style={{ color: '#6b7280' }}>Already Paid:</span>
-                  <span style={{ fontWeight: 500, color: '#6b7280' }}>{formatCurrency(currentPaid.toFixed(2))}</span>
+                  <span style={{ fontWeight: 500, color: '#6b7280' }}>{formatCurrency(currentPaid)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.5rem', borderTop: '1px solid #e5e7eb' }}>
                   <span style={{ color: '#111827', fontWeight: 600 }}>Amount Due:</span>
-                  <span style={{ fontWeight: 700, color: '#dc2626', fontSize: '1.125rem' }}>{formatCurrency(amountDue.toFixed(2))}</span>
+                  <span style={{ fontWeight: 700, color: '#dc2626', fontSize: '1.125rem' }}>{formatCurrency(amountDue)}</span>
                 </div>
               </div>
 
@@ -1869,7 +1864,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
                     </h2>
                     <div className={styles.drawerSubtitle}>
                       <span>
-                        {data ? `$${data.avgCostPerUnit}/unit average` : 'No calculations yet'}
+                        {data ? `${formatCurrency(data.avgCostPerUnit)}/unit average` : 'No calculations yet'}
                       </span>
                       <span>•</span>
                       <span>

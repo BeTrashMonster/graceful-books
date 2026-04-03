@@ -20,6 +20,7 @@ import { db } from '../../../../db/database';
 import { LaborRoleService } from '../../../../services/cpg/laborRole.service';
 import { cpuCalculatorService } from '../../../../services/cpg/cpuCalculator.service';
 import type { CPGFinishedProduct, CPGLaborRole, CPGProductLabor } from '../../../../db/schema/cpg.schema';
+import { useCPGSettings } from '../../../../hooks/useCPGSettings';
 import styles from './OwnerPayCalculatorTab.module.css';
 
 interface Expense {
@@ -61,6 +62,7 @@ const DEFAULT_EXPENSES: Omit<Expense, 'id'>[] = [
 export function OwnerPayCalculatorTab() {
   const { companyId, deviceId } = useAuth();
   const [service] = useState(() => new LaborRoleService(db));
+  const { formatCurrency, formatNumber } = useCPGSettings();
 
   const [owners, setOwners] = useState<Owner[]>(() => {
     // Load saved owners from localStorage
@@ -494,11 +496,11 @@ export function OwnerPayCalculatorTab() {
               <div className={styles.breakEvenSummary}>
                 <div className={styles.summaryItem}>
                   <span className={styles.summaryLabel}>Monthly Break-even:</span>
-                  <span className={styles.summaryValue}>${breakEven.monthly.toFixed(2)}</span>
+                  <span className={styles.summaryValue}>{formatCurrency(breakEven.monthly)}</span>
                 </div>
                 <div className={styles.summaryItem}>
                   <span className={styles.summaryLabel}>Yearly Break-even:</span>
-                  <span className={styles.summaryValue}>${breakEven.yearly.toFixed(2)}</span>
+                  <span className={styles.summaryValue}>{formatCurrency(breakEven.yearly)}</span>
                 </div>
               </div>
             </div>
@@ -543,10 +545,10 @@ export function OwnerPayCalculatorTab() {
                     <div className={styles.scenarioTotal}>
                       <span className={styles.scenarioLabel}>TOTAL:</span>
                       <span className={styles.scenarioValue}>
-                        ${breakEven.monthly.toFixed(2)}/mo
+                        {formatCurrency(breakEven.monthly)}/mo
                       </span>
                       <span className={styles.scenarioYearly}>
-                        (${breakEven.yearly.toFixed(2)}/year)
+                        ({formatCurrency(breakEven.yearly)}/year)
                       </span>
                     </div>
                     <Button
@@ -586,10 +588,10 @@ export function OwnerPayCalculatorTab() {
                     <div className={styles.scenarioTotal}>
                       <span className={styles.scenarioLabel}>TOTAL:</span>
                       <span className={styles.scenarioValue}>
-                        ${goodTotal.toFixed(2)}/mo
+                        {formatCurrency(goodTotal)}/mo
                       </span>
                       <span className={styles.scenarioYearly}>
-                        (${(goodTotal * 12).toFixed(2)}/year)
+                        ({formatCurrency(goodTotal * 12)}/year)
                       </span>
                     </div>
                     <Button
@@ -629,10 +631,10 @@ export function OwnerPayCalculatorTab() {
                     <div className={styles.scenarioTotal}>
                       <span className={styles.scenarioLabel}>TOTAL:</span>
                       <span className={styles.scenarioValue}>
-                        ${betterTotal.toFixed(2)}/mo
+                        {formatCurrency(betterTotal)}/mo
                       </span>
                       <span className={styles.scenarioYearly}>
-                        (${(betterTotal * 12).toFixed(2)}/year)
+                        ({formatCurrency(betterTotal * 12)}/year)
                       </span>
                     </div>
                     <Button
@@ -672,10 +674,10 @@ export function OwnerPayCalculatorTab() {
                     <div className={styles.scenarioTotal}>
                       <span className={styles.scenarioLabel}>TOTAL:</span>
                       <span className={styles.scenarioValue}>
-                        ${bestTotal.toFixed(2)}/mo
+                        {formatCurrency(bestTotal)}/mo
                       </span>
                       <span className={styles.scenarioYearly}>
-                        (${(bestTotal * 12).toFixed(2)}/year)
+                        ({formatCurrency(bestTotal * 12)}/year)
                       </span>
                     </div>
                     <Button
@@ -713,30 +715,28 @@ export function OwnerPayCalculatorTab() {
             <div className={styles.grandTotalItem}>
               <span className={styles.grandTotalLabel}>Break-even</span>
               <span className={styles.grandTotalValue}>
-                $
-                {owners
+                {formatCurrency(owners
                   .filter((o) => o.active)
-                  .reduce((sum, o) => sum + calculateBreakEven(o.expenses).monthly, 0)
-                  .toFixed(2)}
+                  .reduce((sum, o) => sum + calculateBreakEven(o.expenses).monthly, 0))}
                 /mo
               </span>
             </div>
             <div className={styles.grandTotalItem}>
               <span className={styles.grandTotalLabel}>Good</span>
               <span className={styles.grandTotalValue}>
-                ${owners.filter((o) => o.active).reduce((sum, o) => sum + calculateScenario(o, 'good'), 0).toFixed(2)}/mo
+                {formatCurrency(owners.filter((o) => o.active).reduce((sum, o) => sum + calculateScenario(o, 'good'), 0))}/mo
               </span>
             </div>
             <div className={styles.grandTotalItem}>
               <span className={styles.grandTotalLabel}>Better</span>
               <span className={styles.grandTotalValue}>
-                ${owners.filter((o) => o.active).reduce((sum, o) => sum + calculateScenario(o, 'better'), 0).toFixed(2)}/mo
+                {formatCurrency(owners.filter((o) => o.active).reduce((sum, o) => sum + calculateScenario(o, 'better'), 0))}/mo
               </span>
             </div>
             <div className={styles.grandTotalItem}>
               <span className={styles.grandTotalLabel}>Best</span>
               <span className={styles.grandTotalValue}>
-                ${owners.filter((o) => o.active).reduce((sum, o) => sum + calculateScenario(o, 'best'), 0).toFixed(2)}/mo
+                {formatCurrency(owners.filter((o) => o.active).reduce((sum, o) => sum + calculateScenario(o, 'best'), 0))}/mo
               </span>
             </div>
           </div>
@@ -919,13 +919,8 @@ function ProductImpactContent({
     }
   };
 
-  // Format number with commas
-  const formatCurrency = (amount: number): string => {
-    return amount.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-  };
+  // Get formatting functions from parent component
+  const { formatCurrency: formatCurrencyFn } = useCPGSettings();
 
   // Calculate total owner's pay needed for selected scenario
   const getTotalOwnerPay = () => {
@@ -1009,24 +1004,24 @@ function ProductImpactContent({
         <div className={styles.playResults}>
           <div className={styles.resultRow}>
             <span className={styles.resultLabel}>Revenue (Units × Selling Price):</span>
-            <span className={styles.resultValue}>${formatCurrency(testResults.grossRevenue)}</span>
+            <span className={styles.resultValue}>{formatCurrencyFn(testResults.grossRevenue)}</span>
           </div>
           <div className={styles.resultRow}>
             <span className={styles.resultLabel}>Raw COGS (Units × CPU):</span>
             <span className={`${styles.resultValue} ${styles.resultNegative}`}>
-              -${formatCurrency(testResults.rawCOGS)}
+              -{formatCurrencyFn(testResults.rawCOGS)}
             </span>
           </div>
           <div className={styles.resultRow}>
             <span className={styles.resultLabel}>Labor Cost:</span>
             <span className={`${styles.resultValue} ${testResults.laborCost > 0 ? styles.resultNegative : ''}`}>
-              {testResults.laborCost > 0 ? '-' : ''}${formatCurrency(testResults.laborCost)}
+              {testResults.laborCost > 0 ? '-' : ''}{formatCurrencyFn(testResults.laborCost)}
             </span>
           </div>
           <div className={styles.resultRow}>
             <span className={styles.resultLabel}>Owner's Pay Needed:</span>
             <span className={`${styles.resultValue} ${styles.resultNegative}`}>
-              -${formatCurrency(totalOwnerPay)}
+              -{formatCurrencyFn(totalOwnerPay)}
             </span>
           </div>
           <div className={`${styles.resultRow} ${styles.resultFinal}`}>
@@ -1038,7 +1033,7 @@ function ProductImpactContent({
                 testResults.isCovered ? styles.resultPositive : styles.resultNegative
               }`}
             >
-              {testResults.isCovered ? '+' : ''}${formatCurrency(Math.abs(testResults.finalGap))}
+              {testResults.isCovered ? '+' : ''}{formatCurrencyFn(Math.abs(testResults.finalGap))}
             </span>
           </div>
           <div className={styles.resultNote}>

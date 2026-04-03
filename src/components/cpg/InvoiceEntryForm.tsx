@@ -34,6 +34,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { cpuCalculatorService, type CreateInvoiceParams } from '../../services/cpg/cpuCalculator.service';
 import type { CPGCategory } from '../../db/schema/cpg.schema';
 import { generateCategoryKey } from '../../db/schema/cpg.schema';
+import { processMathInput } from '../../utils/mathParser';
 import styles from './InvoiceEntryForm.module.css';
 
 export interface InvoiceEntryFormProps {
@@ -121,10 +122,17 @@ export function InvoiceEntryForm({
   };
 
   const handleLineChange = (id: string, field: keyof InvoiceLine, value: any) => {
+    // Process unit_price through math parser to preserve precision
+    let processedValue = value;
+    if (field === 'unit_price') {
+      const { value: mathValue } = processMathInput(value, true);
+      processedValue = mathValue;
+    }
+
     setLines(
       lines.map((line) => {
         if (line.id === id) {
-          const updated = { ...line, [field]: value };
+          const updated = { ...line, [field]: processedValue };
           // Auto-fill units_received when units_purchased changes
           if (field === 'units_purchased' && !line.units_received) {
             updated.units_received = value as string;
@@ -441,8 +449,7 @@ export function InvoiceEntryForm({
 
                       <Input
                         label="Unit Price"
-                        type="number"
-                        step="0.01"
+                        type="text"
                         min="0"
                         value={line.unit_price}
                         onChange={(e) =>

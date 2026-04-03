@@ -443,7 +443,7 @@ export class SalesPromoAnalyzerService {
         ? netProfitMarginWithLabor
         : netProfitMarginWithPromo;
       const marginQualityWithPromo = getProfitMarginQualityWithSettings(
-        finalMargin.toFixed(2),
+        finalMargin.toFixed(6),
         settings
       );
 
@@ -453,16 +453,16 @@ export class SalesPromoAnalyzerService {
 
       // Store results
       variantResults[variantName] = {
-        salesPromoCostPerUnit: salesPromoCostPerUnit.toFixed(2),
-        cpuWithPromo: cpuWithPromo.toFixed(2),
-        actualLaborCostPerUnit: actualLaborCostPerUnit.greaterThan(0) ? actualLaborCostPerUnit.toFixed(2) : null,
-        opportunityCostPerUnit: opportunityCostPerUnit.greaterThan(0) ? opportunityCostPerUnit.toFixed(2) : null,
-        totalCostWithLabor: totalCostWithLabor ? totalCostWithLabor.toFixed(2) : null,
-        netProfitMarginWithPromo: netProfitMarginWithPromo.toFixed(2),
-        netProfitMarginWithoutPromo: netProfitMarginWithoutPromo.toFixed(2),
-        netProfitMarginWithLabor: netProfitMarginWithLabor ? netProfitMarginWithLabor.toFixed(2) : null,
+        salesPromoCostPerUnit: salesPromoCostPerUnit.toFixed(6),
+        cpuWithPromo: cpuWithPromo.toFixed(6),
+        actualLaborCostPerUnit: actualLaborCostPerUnit.greaterThan(0) ? actualLaborCostPerUnit.toFixed(6) : null,
+        opportunityCostPerUnit: opportunityCostPerUnit.greaterThan(0) ? opportunityCostPerUnit.toFixed(6) : null,
+        totalCostWithLabor: totalCostWithLabor ? totalCostWithLabor.toFixed(6) : null,
+        netProfitMarginWithPromo: netProfitMarginWithPromo.toFixed(6),
+        netProfitMarginWithoutPromo: netProfitMarginWithoutPromo.toFixed(6),
+        netProfitMarginWithLabor: netProfitMarginWithLabor ? netProfitMarginWithLabor.toFixed(6) : null,
         marginQualityWithPromo,
-        marginDifference: marginDifference.toFixed(2),
+        marginDifference: marginDifference.toFixed(6),
       };
 
       // Track margins for recommendation logic (use margins with labor if available)
@@ -503,7 +503,7 @@ export class SalesPromoAnalyzerService {
             retailPrice: variantData.retailPrice,
             baseCPU: variantData.baseCPU,
             cpuWithPromo: result.cpuWithPromo,
-            margin: margin.toFixed(2),
+            margin: margin.toFixed(6),
           },
         });
       }
@@ -515,9 +515,9 @@ export class SalesPromoAnalyzerService {
       {
         variant_promo_data: this.convertToSchemaFormat(params.variantPromoData),
         variant_promo_results: this.convertResultsToSchemaFormat(variantResults),
-        total_promo_cost: totalPromoCost.toFixed(2),
-        total_actual_labor_cost: totalActualLaborCost.greaterThan(0) ? totalActualLaborCost.toFixed(2) : null,
-        total_opportunity_cost: totalOpportunityCost.greaterThan(0) ? totalOpportunityCost.toFixed(2) : null,
+        total_promo_cost: totalPromoCost.toFixed(6),
+        total_actual_labor_cost: totalActualLaborCost.greaterThan(0) ? totalActualLaborCost.toFixed(6) : null,
+        total_opportunity_cost: totalOpportunityCost.greaterThan(0) ? totalOpportunityCost.toFixed(6) : null,
         recommendation,
       },
       deviceId
@@ -531,9 +531,9 @@ export class SalesPromoAnalyzerService {
       producerPaybackPercentage: promo.producer_payback_percentage,
       demoHoursEntries: promo.demo_hours_entries || [],
       variantResults,
-      totalPromoCost: totalPromoCost.toFixed(2),
-      totalActualLaborCost: totalActualLaborCost.greaterThan(0) ? totalActualLaborCost.toFixed(2) : null,
-      totalOpportunityCost: totalOpportunityCost.greaterThan(0) ? totalOpportunityCost.toFixed(2) : null,
+      totalPromoCost: totalPromoCost.toFixed(6),
+      totalActualLaborCost: totalActualLaborCost.greaterThan(0) ? totalActualLaborCost.toFixed(6) : null,
+      totalOpportunityCost: totalOpportunityCost.greaterThan(0) ? totalOpportunityCost.toFixed(6) : null,
       recommendation,
       recommendationReason: reason,
     };
@@ -597,18 +597,18 @@ export class SalesPromoAnalyzerService {
       promoId: promo.id,
       promoName: promo.promo_name,
       withPromo: {
-        averageMargin: withPromoAvg.toFixed(2),
-        totalCost: withPromoTotalCost.toFixed(2),
-        lowestMargin: withPromoMin.toFixed(2),
-        highestMargin: withPromoMax.toFixed(2),
+        averageMargin: withPromoAvg.toFixed(6),
+        totalCost: withPromoTotalCost.toFixed(6),
+        lowestMargin: withPromoMin.toFixed(6),
+        highestMargin: withPromoMax.toFixed(6),
       },
       withoutPromo: {
-        averageMargin: withoutPromoAvg.toFixed(2),
-        totalCost: withoutPromoTotalCost.toFixed(2),
-        lowestMargin: withoutPromoMin.toFixed(2),
-        highestMargin: withoutPromoMax.toFixed(2),
+        averageMargin: withoutPromoAvg.toFixed(6),
+        totalCost: withoutPromoTotalCost.toFixed(6),
+        lowestMargin: withoutPromoMin.toFixed(6),
+        highestMargin: withoutPromoMax.toFixed(6),
       },
-      marginDifference: marginDifference.toFixed(2),
+      marginDifference: marginDifference.toFixed(6),
       recommendation: promo.recommendation || 'neutral',
     };
   }
@@ -691,7 +691,7 @@ export class SalesPromoAnalyzerService {
     if (lowestMargin.lessThan(40)) {
       return {
         recommendation: 'decline',
-        reason: `Lowest margin is ${lowestMargin.toFixed(2)}%, which is below the 40% threshold. This promo would hurt your profitability.`,
+        reason: `Lowest margin is ${lowestMargin.toFixed(6)}%, which is below the 40% threshold. This promo would hurt your profitability.`,
       };
     }
 
@@ -699,14 +699,14 @@ export class SalesPromoAnalyzerService {
     if (lowestMargin.greaterThanOrEqualTo(50)) {
       return {
         recommendation: 'participate',
-        reason: `All margins are above 50% (lowest: ${lowestMargin.toFixed(2)}%, average: ${averageMargin.toFixed(2)}%). This promo maintains healthy profitability.`,
+        reason: `All margins are above 50% (lowest: ${lowestMargin.toFixed(6)}%, average: ${averageMargin.toFixed(6)}%). This promo maintains healthy profitability.`,
       };
     }
 
     // Neutral for margins between 40-50%
     return {
       recommendation: 'neutral',
-      reason: `Margins are borderline (${lowestMargin.toFixed(2)}% to ${highestMargin.toFixed(2)}%, average: ${averageMargin.toFixed(2)}%). Review carefully to decide if this promo aligns with your business goals.`,
+      reason: `Margins are borderline (${lowestMargin.toFixed(6)}% to ${highestMargin.toFixed(6)}%, average: ${averageMargin.toFixed(6)}%). Review carefully to decide if this promo aligns with your business goals.`,
     };
   }
 
@@ -788,7 +788,7 @@ export class SalesPromoAnalyzerService {
     for (const [key, value] of Object.entries(results)) {
       // Combine both cost types for backward compatibility
       const totalLaborCost = (value.actualLaborCostPerUnit && value.opportunityCostPerUnit)
-        ? (parseFloat(value.actualLaborCostPerUnit) + parseFloat(value.opportunityCostPerUnit)).toFixed(2)
+        ? (parseFloat(value.actualLaborCostPerUnit) + parseFloat(value.opportunityCostPerUnit)).toFixed(6)
         : (value.actualLaborCostPerUnit || value.opportunityCostPerUnit);
 
       result[key] = {

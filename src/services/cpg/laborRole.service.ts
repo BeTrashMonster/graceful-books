@@ -495,7 +495,7 @@ export class LaborRoleService {
     }
 
     return {
-      totalLaborCostPerUnit: totalCost.toFixed(2),
+      totalLaborCostPerUnit: totalCost.toFixed(6),
       breakdown,
     };
   }

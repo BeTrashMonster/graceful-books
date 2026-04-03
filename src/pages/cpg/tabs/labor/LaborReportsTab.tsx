@@ -23,6 +23,7 @@ import { db } from '../../../../db/database';
 import { LaborRoleService } from '../../../../services/cpg/laborRole.service';
 import { cpuCalculatorService } from '../../../../services/cpg/cpuCalculator.service';
 import type { CPGLaborRole, CPGFinishedProduct } from '../../../../db/schema/cpg.schema';
+import { useCPGSettings } from '../../../../hooks/useCPGSettings';
 import styles from './LaborReportsTab.module.css';
 
 interface ProductLaborData {
@@ -52,6 +53,7 @@ export function LaborReportsTab() {
   const { companyId } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { formatCurrency, formatNumber, formatPercentage } = useCPGSettings();
 
   // Services
   const [laborRoleService] = useState(() => new LaborRoleService(db));
@@ -219,9 +221,9 @@ export function LaborReportsTab() {
     const headers = ['Product Name', 'Total Labor CPU', '# of Roles', '% of Total CPU'];
     const rows = sortedProductData.map(p => [
       p.productName,
-      `$${p.totalLaborCPU.toFixed(2)}`,
+      formatCurrency(p.totalLaborCPU),
       p.roleCount.toString(),
-      `${p.laborPercentage.toFixed(1)}%`,
+      formatPercentage(p.laborPercentage),
     ]);
 
     const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
@@ -238,10 +240,10 @@ export function LaborReportsTab() {
     const headers = ['Role Name', 'Hourly Rate', '# Products', 'Total Hours/Month', 'Total Cost/Month'];
     const rows = sortedRoleData.map(r => [
       r.roleName,
-      `$${r.hourlyRate.toFixed(2)}`,
+      formatCurrency(r.hourlyRate),
       r.productCount.toString(),
-      r.totalHoursPerMonth.toFixed(1),
-      `$${r.totalCostPerMonth.toFixed(2)}`,
+      formatNumber(r.totalHoursPerMonth),
+      formatCurrency(r.totalCostPerMonth),
     ]);
 
     const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
@@ -326,9 +328,9 @@ export function LaborReportsTab() {
                 {sortedProductData.map(product => (
                   <tr key={product.productId}>
                     <td>{product.productName}</td>
-                    <td>${product.totalLaborCPU.toFixed(2)}</td>
+                    <td>{formatCurrency(product.totalLaborCPU)}</td>
                     <td>{product.roleCount}</td>
-                    <td>{product.laborPercentage.toFixed(1)}%</td>
+                    <td>{formatPercentage(product.laborPercentage)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -379,10 +381,10 @@ export function LaborReportsTab() {
                 {sortedRoleData.map(role => (
                   <tr key={role.roleId}>
                     <td>{role.roleName}</td>
-                    <td>${role.hourlyRate.toFixed(2)}/hr</td>
+                    <td>{formatCurrency(role.hourlyRate)}/hr</td>
                     <td>{role.productCount}</td>
-                    <td>{role.totalHoursPerMonth.toFixed(1)} hrs</td>
-                    <td>${role.totalCostPerMonth.toFixed(2)}</td>
+                    <td>{formatNumber(role.totalHoursPerMonth)} hrs</td>
+                    <td>{formatCurrency(role.totalCostPerMonth)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -425,7 +427,7 @@ export function LaborReportsTab() {
                       >
                         {product.laborPercentage > 15 && (
                           <span className={styles.ratioLabel}>
-                            Labor {product.laborPercentage.toFixed(0)}%
+                            Labor {formatPercentage(product.laborPercentage, 0)}
                           </span>
                         )}
                       </div>
@@ -435,7 +437,7 @@ export function LaborReportsTab() {
                       >
                         {ingredientPercentage > 15 && (
                           <span className={styles.ratioLabel}>
-                            Ingredients {ingredientPercentage.toFixed(0)}%
+                            Ingredients {formatPercentage(ingredientPercentage, 0)}
                           </span>
                         )}
                       </div>
@@ -444,19 +446,19 @@ export function LaborReportsTab() {
                       <div className={styles.ratioDetail}>
                         <span className={styles.ratioDetailLabel}>Labor:</span>
                         <span className={styles.ratioDetailValue}>
-                          ${product.totalLaborCPU.toFixed(2)} ({product.laborPercentage.toFixed(1)}%)
+                          {formatCurrency(product.totalLaborCPU)} ({formatPercentage(product.laborPercentage)})
                         </span>
                       </div>
                       <div className={styles.ratioDetail}>
                         <span className={styles.ratioDetailLabel}>Ingredients:</span>
                         <span className={styles.ratioDetailValue}>
-                          ${product.materialCPU.toFixed(2)} ({ingredientPercentage.toFixed(1)}%)
+                          {formatCurrency(product.materialCPU)} ({formatPercentage(ingredientPercentage)})
                         </span>
                       </div>
                       <div className={styles.ratioDetail}>
                         <span className={styles.ratioDetailLabel}>Total CPU:</span>
                         <span className={styles.ratioDetailValue}>
-                          ${product.totalCPU.toFixed(2)}
+                          {formatCurrency(product.totalCPU)}
                         </span>
                       </div>
                     </div>
