@@ -219,7 +219,7 @@ export const validateInvoiceLineItem = (lineItem: Partial<InvoiceLineItem>): str
 export const calculateLineItemTotal = (quantity: number, unitPrice: string): string => {
   const price = parseFloat(unitPrice);
   const total = quantity * price;
-  return total.toFixed(2);
+  return total.toFixed(6);
 };
 
 /**
@@ -239,9 +239,9 @@ export const calculateInvoiceTotals = (
   const total = subtotal + tax;
 
   return {
-    subtotal: subtotal.toFixed(2),
-    tax: tax.toFixed(2),
-    total: total.toFixed(2),
+    subtotal: subtotal.toFixed(6),
+    tax: tax.toFixed(6),
+    total: total.toFixed(6),
   };
 };
 

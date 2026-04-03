@@ -152,8 +152,8 @@ export const calculateGrossMargin = (
   const grossMarginPercentage = price > 0 ? (grossProfit / price) * 100 : 0;
 
   return {
-    grossProfit: grossProfit.toFixed(2),
-    grossMarginPercentage: parseFloat(grossMarginPercentage.toFixed(2)),
+    grossProfit: grossProfit.toFixed(6),
+    grossMarginPercentage: parseFloat(grossMarginPercentage.toFixed(6)),
   };
 };
 
@@ -167,7 +167,7 @@ export const calculateDiscountedPrice = (
   const price = parseFloat(unitPrice || '0');
   const discount = (price * discountPercentage) / 100;
   const discountedPrice = price - discount;
-  return discountedPrice.toFixed(2);
+  return discountedPrice.toFixed(6);
 };
 
 /**
@@ -186,9 +186,9 @@ export const calculatePriceWithTax = (
   const priceWithTax = price + taxAmount;
 
   return {
-    priceBeforeTax: price.toFixed(2),
-    taxAmount: taxAmount.toFixed(2),
-    priceWithTax: priceWithTax.toFixed(2),
+    priceBeforeTax: price.toFixed(6),
+    taxAmount: taxAmount.toFixed(6),
+    priceWithTax: priceWithTax.toFixed(6),
   };
 };
 

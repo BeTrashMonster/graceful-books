@@ -183,7 +183,7 @@ export const validateSKUCountTracker = (
 export const calculateMonthlyCost = (skuCount: number): string => {
   const baseCost = skuCount * 5;
   const cappedCost = Math.min(baseCost, 50);
-  return cappedCost.toFixed(2);
+  return cappedCost.toFixed(6);
 };
 
 /**
@@ -224,11 +224,11 @@ export const calculatePLTotals = (lineItems: StandaloneLineItem[]): StandaloneTo
   const netIncome = grossProfit - expenses;
 
   return {
-    revenue: revenue.toFixed(2),
-    cogs: cogs.toFixed(2),
-    gross_profit: grossProfit.toFixed(2),
-    expenses: expenses.toFixed(2),
-    net_income: netIncome.toFixed(2),
+    revenue: revenue.toFixed(6),
+    cogs: cogs.toFixed(6),
+    gross_profit: grossProfit.toFixed(6),
+    expenses: expenses.toFixed(6),
+    net_income: netIncome.toFixed(6),
   };
 };
 
@@ -280,13 +280,13 @@ export const calculateBalanceSheetTotals = (
   const isBalanced = difference < 0.01; // Allow for rounding errors
 
   return {
-    current_assets: currentAssets.toFixed(2),
-    fixed_assets: fixedAssets.toFixed(2),
-    total_assets: totalAssets.toFixed(2),
-    current_liabilities: currentLiabilities.toFixed(2),
-    long_term_liabilities: longTermLiabilities.toFixed(2),
-    total_liabilities: totalLiabilities.toFixed(2),
-    equity: equity.toFixed(2),
+    current_assets: currentAssets.toFixed(6),
+    fixed_assets: fixedAssets.toFixed(6),
+    total_assets: totalAssets.toFixed(6),
+    current_liabilities: currentLiabilities.toFixed(6),
+    long_term_liabilities: longTermLiabilities.toFixed(6),
+    total_liabilities: totalLiabilities.toFixed(6),
+    equity: equity.toFixed(6),
     is_balanced: isBalanced,
   };
 };

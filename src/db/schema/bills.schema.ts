@@ -211,7 +211,7 @@ export const validateBillLineItem = (lineItem: Partial<BillLineItem>): string[] 
 export const calculateLineItemTotal = (quantity: number, unitPrice: string): string => {
   const price = parseFloat(unitPrice);
   const total = quantity * price;
-  return total.toFixed(2);
+  return total.toFixed(6);
 };
 
 /**
@@ -231,9 +231,9 @@ export const calculateBillTotals = (
   const total = subtotal + tax;
 
   return {
-    subtotal: subtotal.toFixed(2),
-    tax: tax.toFixed(2),
-    total: total.toFixed(2),
+    subtotal: subtotal.toFixed(6),
+    tax: tax.toFixed(6),
+    total: total.toFixed(6),
   };
 };
 
@@ -292,7 +292,7 @@ export const getUpcomingBillsSummary = (bills: Bill[], daysAhead: number = 7): {
 
   return {
     count: upcomingBills.length,
-    totalAmount: totalAmount.toFixed(2),
+    totalAmount: totalAmount.toFixed(6),
     bills: upcomingBills,
   };
 };

@@ -133,9 +133,9 @@ export const validateTransactionBalance = (lineItems: TransactionLineItem[]): {
 
   return {
     isBalanced,
-    totalDebits: totalDebits.toFixed(2),
-    totalCredits: totalCredits.toFixed(2),
-    difference: difference.toFixed(2),
+    totalDebits: totalDebits.toFixed(6),
+    totalCredits: totalCredits.toFixed(6),
+    difference: difference.toFixed(6),
   };
 };
 

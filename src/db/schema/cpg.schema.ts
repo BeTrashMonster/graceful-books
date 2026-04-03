@@ -707,9 +707,9 @@ export const validateCPGEvent = (event: Partial<CPGEvent>): string[] => {
 export const calculateProfitMargin = (price: string, cost: string): string => {
   const priceNum = parseFloat(price);
   const costNum = parseFloat(cost);
-  if (priceNum === 0) return '0.00';
+  if (priceNum === 0) return '0.000000';
   const margin = ((priceNum - costNum) / priceNum) * 100;
-  return margin.toFixed(2);
+  return margin.toFixed(6);
 };
 
 /**
@@ -1349,7 +1349,7 @@ export const calculateHourlyRateFromSalary = (
   salaryPeriod: 'yearly' | 'monthly' | 'biweekly' | 'weekly'
 ): string => {
   const amount = parseFloat(salaryAmount);
-  if (isNaN(amount) || amount <= 0) return '0.00';
+  if (isNaN(amount) || amount <= 0) return '0.000000';
 
   let hoursPerPeriod: number;
   switch (salaryPeriod) {
@@ -1366,11 +1366,11 @@ export const calculateHourlyRateFromSalary = (
       hoursPerPeriod = 40;
       break;
     default:
-      return '0.00';
+      return '0.000000';
   }
 
   const hourlyRate = amount / hoursPerPeriod;
-  return hourlyRate.toFixed(2);
+  return hourlyRate.toFixed(6);
 };
 
 // ============================================================================
@@ -1522,10 +1522,10 @@ export const calculateHoursPerUnit = (
   const hours = parseFloat(hoursPerBatch);
   const size = parseFloat(batchSize);
 
-  if (isNaN(hours) || isNaN(size) || size === 0) return '0.00';
+  if (isNaN(hours) || isNaN(size) || size === 0) return '0.000000';
 
   const hoursPerUnit = hours / size;
-  return hoursPerUnit.toFixed(4); // Use 4 decimals for precision
+  return hoursPerUnit.toFixed(6); // Use 6 decimals for precision
 };
 
 /**
@@ -1538,10 +1538,10 @@ export const calculateLaborCostPerUnit = (
   const hours = parseFloat(hoursPerUnit);
   const rate = parseFloat(hourlyRate);
 
-  if (isNaN(hours) || isNaN(rate)) return '0.00';
+  if (isNaN(hours) || isNaN(rate)) return '0.000000';
 
   const cost = hours * rate;
-  return cost.toFixed(2);
+  return cost.toFixed(6);
 };
 
 // ============================================================================
