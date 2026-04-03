@@ -140,7 +140,7 @@ export interface PromoDetailsFormProps {
    */
   latestLaborCosts?: Record<string, string>;
   /**
-   * Latest MSRPs per variant (auto-populate retail price)
+   * Latest Sold Prices per variant (auto-populate retail price)
    */
   latestMSRPs?: Record<string, string>;
   /**
@@ -273,7 +273,7 @@ export function PromoDetailsForm({
   useEffect(() => {
     if (!initialData) return;
 
-    // Rebuild default variants with latest CPUs/MSRPs/LaborCosts
+    // Rebuild default variants with latest CPUs/Sold Prices/LaborCosts
     const defaultVariants: Record<string, PromoVariantData> = {};
     availableVariants.forEach((variant) => {
       defaultVariants[variant] = {
@@ -1012,7 +1012,7 @@ export function PromoDetailsForm({
                 fullWidth
                 helperText={
                   latestMSRPs[variant] && formData.variants[variant]?.retailPrice === latestMSRPs[variant]
-                    ? "Auto-filled from product MSRP (editable)"
+                    ? "Auto-filled from product Sold Price (editable)"
                     : "Price customers pay (before promo discount)"
                 }
               />

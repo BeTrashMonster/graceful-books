@@ -2,7 +2,7 @@
  * Add/Edit Product Modal
  *
  * Modal for creating new finished products or editing existing ones.
- * Includes validation for name uniqueness, SKU uniqueness, and MSRP format.
+ * Includes validation for name uniqueness, SKU uniqueness, and Sold Price format.
  */
 
 import { useState, useEffect, useRef } from 'react';
@@ -161,7 +161,7 @@ export function AddProductModal({
       validationErrors.forEach((err) => {
         if (err.includes('name')) errorMap.name = err;
         else if (err.includes('SKU')) errorMap.sku = err;
-        else if (err.includes('MSRP')) errorMap.msrp = err;
+        else if (err.includes('MSRP') || err.includes('Sold Price')) errorMap.msrp = err;
         else if (err.includes('pieces_per_unit')) errorMap.piecesPerUnit = err;
         else errorMap.form = err;
       });
@@ -259,7 +259,7 @@ export function AddProductModal({
           />
 
           <Input
-            label="MSRP (Optional)"
+            label="Sold Price to You: (Optional)"
             placeholder="ex: 10.00"
             value={msrp}
             onChange={(e) => setMsrp(e.target.value)}

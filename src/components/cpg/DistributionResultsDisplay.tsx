@@ -2,6 +2,7 @@ import { Button } from '../core/Button';
 import { Card, CardHeader, CardBody, CardFooter } from '../ui/Card';
 import { MarginQualityBadge } from './MarginQualityBadge';
 import Decimal from 'decimal.js';
+import { useCPGSettings } from '../../hooks/useCPGSettings';
 import type { DistributionCostResult, DistributionCalcParams } from '../../services/cpg/distributionCostCalculator.service';
 import styles from './DistributionResultsDisplay.module.css';
 
@@ -48,7 +49,7 @@ export interface DistributionResultsDisplayProps {
  *   - Yellow (50-60%): Good
  *   - Light Green (60-70%): Better
  *   - Dark Green (70%+): Best
- * - MSRP per variant (if markup entered)
+ * - Sold Price per variant (if markup entered)
  * - Fee breakdown table (itemized)
  *
  * @example
@@ -68,6 +69,7 @@ export function DistributionResultsDisplay({
   saving = false,
   showSaveButton = true,
 }: DistributionResultsDisplayProps) {
+  const { formatCurrency, formatPercentage } = useCPGSettings();
   const variantNames = Object.keys(results.variantResults);
   const distributionCostPerUnit = new Decimal(results.distributionCostPerUnit);
 
@@ -162,10 +164,7 @@ export function DistributionResultsDisplay({
                 Total Distribution Cost
               </div>
               <div className={styles.summaryValue}>
-                ${parseFloat(results.totalDistributionCost).toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+                {formatCurrency(parseFloat(results.totalDistributionCost))}
               </div>
             </div>
 
@@ -174,7 +173,7 @@ export function DistributionResultsDisplay({
                 Distribution Cost Per Unit
               </div>
               <div className={styles.summaryValue}>
-                ${parseFloat(results.distributionCostPerUnit).toFixed(2)}
+                {formatCurrency(parseFloat(results.distributionCostPerUnit))}
               </div>
             </div>
           </div>
@@ -208,7 +207,7 @@ export function DistributionResultsDisplay({
                               Cost to Make It
                             </span>
                             <span className={styles.metricValue}>
-                              ${parseFloat(params.variantData[variantName]!.base_cpu).toFixed(2)}
+                              {formatCurrency(parseFloat(params.variantData[variantName]!.base_cpu))}
                             </span>
                           </div>
 
@@ -216,7 +215,7 @@ export function DistributionResultsDisplay({
                             <div className={styles.metric}>
                               <span className={styles.metricLabel}>+ Production Labor Cost</span>
                               <span className={styles.metricValue}>
-                                ${parseFloat(params.variantData[variantName]!.production_cpu).toFixed(2)}
+                                {formatCurrency(parseFloat(params.variantData[variantName]!.production_cpu))}
                               </span>
                             </div>
                           )}
@@ -224,7 +223,7 @@ export function DistributionResultsDisplay({
                           <div className={styles.metric}>
                             <span className={styles.metricLabel}>+ Cost to Ship It</span>
                             <span className={styles.metricValue}>
-                              ${distributionCostPerUnit.toFixed(2)}
+                              {formatCurrency(distributionCostPerUnit.toNumber())}
                             </span>
                           </div>
 
@@ -233,7 +232,7 @@ export function DistributionResultsDisplay({
                               <strong>Total Cost Per Unit</strong>
                             </span>
                             <span className={styles.metricValue}>
-                              <strong>${parseFloat(variantResult.total_cpu).toFixed(2)}</strong>
+                              <strong>{formatCurrency(parseFloat(variantResult.total_cpu))}</strong>
                             </span>
                           </div>
                         </>
@@ -243,7 +242,7 @@ export function DistributionResultsDisplay({
                         <div className={styles.metric}>
                           <span className={styles.metricLabel}>Total Cost Per Unit</span>
                           <span className={styles.metricValue}>
-                            ${parseFloat(variantResult.total_cpu).toFixed(2)}
+                            {formatCurrency(parseFloat(variantResult.total_cpu))}
                           </span>
                         </div>
                       )}
@@ -253,17 +252,17 @@ export function DistributionResultsDisplay({
                           Net Profit Margin
                         </span>
                         <span className={styles.metricValue}>
-                          {parseFloat(variantResult.net_profit_margin).toFixed(2)}%
+                          {formatPercentage(parseFloat(variantResult.net_profit_margin))}
                         </span>
                       </div>
 
                       {variantResult.msrp && (
                         <div className={styles.metric}>
                           <span className={styles.metricLabel}>
-                            MSRP
+                            Sold Price to You
                           </span>
                           <span className={styles.metricValue}>
-                            ${parseFloat(variantResult.msrp).toFixed(2)}
+                            {formatCurrency(parseFloat(variantResult.msrp))}
                           </span>
                         </div>
                       )}
@@ -318,7 +317,7 @@ export function DistributionResultsDisplay({
                           </td>
                         )}
                         <td className={styles.rightAlign}>
-                          ${parseFloat(fee.feeAmount).toFixed(2)}
+                          {formatCurrency(parseFloat(fee.feeAmount))}
                         </td>
                       </tr>
                     ))}
@@ -328,7 +327,7 @@ export function DistributionResultsDisplay({
                       </td>
                       <td className={styles.rightAlign}>
                         <strong>
-                          ${parseFloat(results.totalDistributionCost).toFixed(2)}
+                          {formatCurrency(parseFloat(results.totalDistributionCost))}
                         </strong>
                       </td>
                     </tr>

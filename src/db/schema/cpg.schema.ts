@@ -380,7 +380,7 @@ export interface CPGDistributionCalculation extends BaseEntity {
       total_cpu: string; // Base CPU + Distribution cost per unit
       net_profit_margin: string; // (Price - Total CPU) / Price * 100
       margin_quality: 'gutCheck' | 'good' | 'better' | 'best'; // Color coding
-      msrp: string | null; // If MSRP markup applied
+      msrp: string | null; // If Sold Price markup applied
     }
   >;
   msrp_markup_percentage: string | null; // e.g., "50" for 50%
@@ -858,27 +858,15 @@ export const validateCPGFinishedProduct = (
     }
   }
 
-  // sku optional, but if provided must be unique within company
-  if (product.sku && product.company_id && existingProducts) {
-    const duplicate = existingProducts.find(
-      (p) =>
-        p.id !== product.id &&
-        p.company_id === product.company_id &&
-        p.sku === product.sku &&
-        p.deleted_at === null
-    );
-    if (duplicate) {
-      errors.push(`SKU "${product.sku}" is already in use`);
-    }
-  }
+  // sku is optional - duplicate SKUs are allowed (same product, different channels/pricing)
 
-  // msrp optional, but if provided must be valid currency format
+  // Sold Price optional, but if provided must be valid currency format
   if (product.msrp !== null && product.msrp !== undefined && product.msrp !== '') {
     const msrpNum = parseFloat(product.msrp);
     if (isNaN(msrpNum)) {
-      errors.push('MSRP must be a valid number');
+      errors.push('Sold Price must be a valid number');
     } else if (msrpNum < 0) {
-      errors.push('MSRP cannot be negative');
+      errors.push('Sold Price cannot be negative');
     }
   }
 
@@ -1087,7 +1075,7 @@ export interface CPGSettings extends BaseEntity {
   currency_format: string; // e.g., "USD", "CAD", "EUR", "GBP"
   date_format: string; // e.g., "MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"
   number_format: string; // e.g., "en-US" (1,234.56), "de-DE" (1.234,56)
-  decimal_places_currency: number; // e.g., 2 for $1.23 (0 or 2 only)
+  decimal_places_currency: number; // e.g., 2 for $1.23 (0-4 allowed for precision)
   decimal_places_numbers: number; // e.g., 2 for quantities/weights/units (123.45)
   decimal_places_percentage: number; // e.g., 1 for 12.3%
 

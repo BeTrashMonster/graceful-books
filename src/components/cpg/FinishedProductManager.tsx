@@ -23,6 +23,7 @@ import { BundleProductsModal } from './modals/BundleProductsModal';
 import { LaborAssignmentModal } from './modals/LaborAssignmentModal';
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import { LaborRoleService } from '../../services/cpg/laborRole.service';
+import { useCPGSettings } from '../../hooks/useCPGSettings';
 import styles from './FinishedProductManager.module.css';
 
 export interface FinishedProductManagerProps {
@@ -30,7 +31,8 @@ export interface FinishedProductManagerProps {
 }
 
 export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductManagerProps) {
-  const { companyId } = useAuth();
+  const { companyId, deviceId } = useAuth();
+  const { formatCurrency } = useCPGSettings();
   const [products, setProducts] = useState<CPGFinishedProduct[]>([]);
   const [productCPUs, setProductCPUs] = useState<Map<string, string | null>>(new Map());
   const [productLaborCosts, setProductLaborCosts] = useState<Map<string, string>>(new Map());
@@ -57,6 +59,10 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
   const [productPositions, setProductPositions] = useState<Record<string, number>>({});
   const [draggedProductId, setDraggedProductId] = useState<string | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  // Actions dropdown
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Load products
   const loadProducts = async () => {
@@ -257,6 +263,104 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
     setShowAddModal(true);
   };
 
+  const handleDuplicateProduct = async (product: CPGFinishedProduct) => {
+    try {
+      setError(null);
+
+      // Generate unique name with "(Copy)" suffix
+      let duplicateName = `${product.name} (Copy)`;
+      let suffix = 2;
+
+      // Check for name conflicts and increment if needed
+      while (true) {
+        const existingProduct = await db.cpgFinishedProducts
+          .where('company_id')
+          .equals(companyId!)
+          .and(p => p.name === duplicateName && p.deleted_at === null)
+          .first();
+
+        if (!existingProduct) break;
+
+        duplicateName = `${product.name} (Copy ${suffix})`;
+        suffix++;
+      }
+
+      // 1. Duplicate product with new ID
+      const newProductId = crypto.randomUUID();
+      const newProduct: CPGFinishedProduct = {
+        ...product,
+        id: newProductId,
+        name: duplicateName,
+        // Keep the same SKU (allows same product with different pricing for different channels)
+        sku: product.sku,
+        active: true, // Always create as active
+        deleted_at: null,
+        created_at: Date.now(),
+        updated_at: Date.now(),
+        version_vector: { [deviceId!]: 1 },
+        // Preserve bundle items if it's a bundle
+        bundle_items: product.is_bundle && product.bundle_items
+          ? [...product.bundle_items]
+          : undefined,
+      };
+
+      await db.cpgFinishedProducts.add(newProduct);
+
+      // 2. Duplicate recipes if they exist
+      const recipes = await db.cpgRecipes
+        .where('finished_product_id')
+        .equals(product.id)
+        .and(r => r.deleted_at === null)
+        .toArray();
+
+      for (const recipe of recipes) {
+        const newRecipe = {
+          ...recipe,
+          id: crypto.randomUUID(),
+          finished_product_id: newProductId,
+          created_at: Date.now(),
+          updated_at: Date.now(),
+          version_vector: { [deviceId!]: 1 },
+        };
+        await db.cpgRecipes.add(newRecipe);
+      }
+
+      // 3. Duplicate labor assignments if they exist
+      const laborAssignments = await db.cpgProductLabors
+        .where('finished_product_id')
+        .equals(product.id)
+        .and(l => l.deleted_at === null)
+        .toArray();
+
+      for (const labor of laborAssignments) {
+        const newLabor = {
+          ...labor,
+          id: crypto.randomUUID(),
+          finished_product_id: newProductId,
+          created_at: Date.now(),
+          updated_at: Date.now(),
+          version_vector: { [deviceId!]: 1 },
+        };
+        await db.cpgProductLabors.add(newLabor);
+      }
+
+      // 4. Dispatch update event
+      window.dispatchEvent(
+        new CustomEvent('cpg-data-updated', { detail: { type: 'product' } })
+      );
+
+      // 5. Reload products
+      await loadProducts();
+
+      // 6. Close dropdown
+      setOpenDropdownId(null);
+
+    } catch (err) {
+      console.error('Failed to duplicate product:', err);
+      setError('Oops! We had trouble duplicating that product. Please try again.');
+    }
+  };
+
   const handleArchiveProduct = async (productId: string) => {
     try {
       // Soft delete (archive)
@@ -307,19 +411,7 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
     if (!deletingProductId) return;
 
     try {
-      // Check if product has recipes
-      const recipeCount = await checkFinishedProductHasRecipes(deletingProductId);
-
-      if (recipeCount > 0) {
-        setError(
-          `Cannot permanently delete this product. It has ${recipeCount} recipe(s) defined. Please archive instead.`
-        );
-        setDeletingProductId(null);
-        setShowPermanentDeleteConfirm(false);
-        return;
-      }
-
-      // Permanent delete
+      // Permanent delete (including any associated recipes/labor)
       await db.cpgFinishedProducts.delete(deletingProductId);
 
       // Dispatch update event
@@ -396,6 +488,20 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [showColorPicker]);
+
+  // Close actions dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpenDropdownId(null);
+      }
+    };
+
+    if (openDropdownId) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [openDropdownId]);
 
   // Drag and drop handlers
   const handleDragStart = (productId: string) => {
@@ -778,8 +884,8 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                   <div className={styles.productDetails}>
                     {product.msrp && (
                       <div className={styles.detailRow}>
-                        <span className={styles.detailLabel}>MSRP:</span>
-                        <span className={styles.detailValue}>${product.msrp}</span>
+                        <span className={styles.detailLabel}>Sold Price to You:</span>
+                        <span className={styles.detailValue}>{formatCurrency(parseFloat(product.msrp))}</span>
                       </div>
                     )}
                     {!product.is_bundle && (
@@ -814,11 +920,11 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                           <>
                             <div className={styles.detailRow}>
                               <span className={styles.detailLabel}>Materials:</span>
-                              <span className={styles.detailValue}>${materialCPU}</span>
+                              <span className={styles.detailValue}>{formatCurrency(parseFloat(materialCPU))}</span>
                             </div>
                             <div className={styles.detailRow}>
                               <span className={styles.detailLabel}>Labor:</span>
-                              <span className={styles.detailValue} style={{ color: '#D4AF37' }}>+${laborCost}</span>
+                              <span className={styles.detailValue} style={{ color: '#D4AF37' }}>+{formatCurrency(parseFloat(laborCost))}</span>
                             </div>
                             <div className={styles.detailRow} style={{
                               paddingTop: '0.5rem',
@@ -827,7 +933,7 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                             }}>
                               <span className={styles.detailLabel} style={{ fontWeight: 700 }}>Total CPU:</span>
                               <span className={styles.detailValue} style={{ fontWeight: 700, color: '#D4AF37' }}>
-                                ${totalCPU.toFixed(2)}
+                                {formatCurrency(totalCPU)}
                               </span>
                             </div>
                           </>
@@ -836,7 +942,7 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                         return (
                           <div className={styles.detailRow}>
                             <span className={styles.detailLabel}>CPU:</span>
-                            <span className={styles.detailValue}>${materialCPU}</span>
+                            <span className={styles.detailValue}>{formatCurrency(parseFloat(materialCPU))}</span>
                           </div>
                         );
                       }
@@ -847,22 +953,116 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                     {!isArchived ? (
                       <>
                         {product.is_bundle ? (
-                          <Button
-                            variant="purple"
-                            size="sm"
-                            onClick={() => handleEditBundle(product)}
-                          >
-                            Edit Bundle
-                          </Button>
-                        ) : (
                           <>
                             <Button
-                              variant="outline"
+                              variant="purple"
                               size="sm"
-                              onClick={() => handleEditProduct(product)}
+                              onClick={() => handleEditBundle(product)}
                             >
-                              Edit
+                              Edit Bundle
                             </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleShowDeleteConfirmation(product.id)}
+                            >
+                              Archive
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            {/* Actions Dropdown */}
+                            <div style={{ position: 'relative' }}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setOpenDropdownId(openDropdownId === product.id ? null : product.id)}
+                                style={{ minWidth: '100px' }}
+                              >
+                                Actions ▼
+                              </Button>
+
+                              {openDropdownId === product.id && (
+                                <div
+                                  ref={dropdownRef}
+                                  style={{
+                                    position: 'absolute',
+                                    top: 'calc(100% + 0.25rem)',
+                                    left: 0,
+                                    background: 'white',
+                                    border: '1px solid #e5e7eb',
+                                    borderRadius: '6px',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                    zIndex: 100,
+                                    minWidth: '150px',
+                                  }}
+                                >
+                                  <button
+                                    onClick={() => {
+                                      handleEditProduct(product);
+                                      setOpenDropdownId(null);
+                                    }}
+                                    style={{
+                                      width: '100%',
+                                      padding: '0.625rem 0.875rem',
+                                      border: 'none',
+                                      background: 'none',
+                                      textAlign: 'left',
+                                      cursor: 'pointer',
+                                      fontSize: '0.875rem',
+                                      color: '#374151',
+                                      borderBottom: '1px solid #f3f4f6',
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = '#f9fafb'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                                  >
+                                    Edit / Modify
+                                  </button>
+
+                                  <button
+                                    onClick={() => handleDuplicateProduct(product)}
+                                    style={{
+                                      width: '100%',
+                                      padding: '0.625rem 0.875rem',
+                                      border: 'none',
+                                      background: 'none',
+                                      textAlign: 'left',
+                                      cursor: 'pointer',
+                                      fontSize: '0.875rem',
+                                      color: '#374151',
+                                      borderBottom: '1px solid #f3f4f6',
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = '#f9fafb'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                                  >
+                                    Duplicate
+                                  </button>
+
+                                  <button
+                                    onClick={() => {
+                                      handleShowDeleteConfirmation(product.id);
+                                      setOpenDropdownId(null);
+                                    }}
+                                    style={{
+                                      width: '100%',
+                                      padding: '0.625rem 0.875rem',
+                                      border: 'none',
+                                      background: 'none',
+                                      textAlign: 'left',
+                                      cursor: 'pointer',
+                                      fontSize: '0.875rem',
+                                      color: '#dc2626',
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = '#fee2e2'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                                  >
+                                    Archive
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Recipe Button - Separate */}
                             <Button
                               variant="purple"
                               size="sm"
@@ -870,6 +1070,8 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                             >
                               Recipe
                             </Button>
+
+                            {/* Labor Button - Separate */}
                             <Button
                               variant="gold"
                               size="sm"
@@ -879,13 +1081,6 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                             </Button>
                           </>
                         )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleShowDeleteConfirmation(product.id)}
-                        >
-                          Archive
-                        </Button>
                       </>
                     ) : (
                       <Button

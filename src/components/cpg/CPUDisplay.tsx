@@ -424,7 +424,7 @@ export function CPUDisplay({
 
   // Export functions
   const exportCSVSummary = () => {
-    const headers = ['Product', 'SKU', 'Cost', 'MSRP', 'Profit', 'Margin %', 'Status'];
+    const headers = ['Product', 'SKU', 'Cost', 'Sold Price to You', 'Profit', 'Margin %', 'Status'];
     const rows = productsWithMetrics.map(p => [
       p.productName,
       p.sku || '',
@@ -480,7 +480,7 @@ export function CPUDisplay({
     // Product Details Table using autoTable
     autoTable(doc, {
       startY: 80,
-      head: [['Product', 'Cost', 'MSRP', 'Profit', 'Margin', 'Status']],
+      head: [['Product', 'Cost', 'Sold Price to You', 'Profit', 'Margin', 'Status']],
       body: productsWithMetrics.map(p => [
         p.productName + (p.sku ? ` (${p.sku})` : ''),
         p.cost !== null ? `$${p.cost.toFixed(2)}` : '-',
@@ -517,7 +517,7 @@ export function CPUDisplay({
       'Total Cost Per Unit',
       'Component Count',
       'Recipe Components',
-      'MSRP',
+      'Sold Price to You',
       'Profit Per Unit',
       'Profit Margin %',
       'Status',
@@ -1639,7 +1639,7 @@ export function CPUDisplay({
                           </div>
                         </div>
 
-                        {/* Profit, Margin & MSRP - Context Below */}
+                        {/* Profit, Margin & Sold Price to You - Context Below */}
                         <div style={{
                           display: 'grid',
                           gridTemplateColumns: product.profit !== null ? '1fr 1fr 1fr' : '1fr',
@@ -1671,7 +1671,7 @@ export function CPUDisplay({
                             </>
                           )}
                           <div>
-                            <div style={{ color: '#64748b', marginBottom: '0.25rem' }}>MSRP</div>
+                            <div style={{ color: '#64748b', marginBottom: '0.25rem' }}>Sold Price to You</div>
                             <div style={{ fontWeight: 600, fontSize: '1rem' }}>
                               {product.msrp ? `$${product.msrp.toFixed(2)}` : '—'}
                             </div>
@@ -1705,10 +1705,10 @@ export function CPUDisplay({
                           </div>
                         </div>
 
-                        {/* Show MSRP if available */}
+                        {/* Show Sold Price to You if available */}
                         {product.msrp && (
                           <div style={{ fontSize: '0.875rem', textAlign: 'center' }}>
-                            <div style={{ color: '#64748b', marginBottom: '0.25rem' }}>MSRP</div>
+                            <div style={{ color: '#64748b', marginBottom: '0.25rem' }}>Sold Price to You</div>
                             <div style={{ fontWeight: 600, fontSize: '1rem' }}>${product.msrp.toFixed(2)}</div>
                           </div>
                         )}
@@ -1850,7 +1850,7 @@ export function CPUDisplay({
                     }}>
                       <SortableHeader column="name" label="Product" align="left" />
                       <SortableHeader column="cost" label="Cost" align="right" />
-                      <SortableHeader column="msrp" label="MSRP" align="right" />
+                      <SortableHeader column="msrp" label="Sold Price to You" align="right" />
                       <SortableHeader column="profit" label="Profit" align="right" />
                       <SortableHeader column="margin" label="Margin" align="right" />
                       <SortableHeader column="status" label="Status" align="center" />

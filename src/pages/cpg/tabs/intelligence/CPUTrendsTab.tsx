@@ -4,7 +4,7 @@
  * Displays component price trends grouped by product with visual charts.
  *
  * Features:
- * - Product-centric view showing CPU, Margin, MSRP
+ * - Product-centric view showing CPU, Margin, Sold Price to You
  * - Visual line charts showing price trends over time
  * - Component metrics: Current, Average, % Change, Last Buy
  * - CSV/PDF export for trends
@@ -19,6 +19,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { CPGCategory, CPGInvoice, FinishedProduct } from '../../../../db/schema/cpg.schema';
+import { formatCurrency as $ } from '../../../../utils/cpgFormatting';
 import styles from './CPUTrendsTab.module.css';
 import lockAndKeyImage from '../../../../assets/images/lock-and-key.png';
 
@@ -178,7 +179,7 @@ export default function CPUTrendsTab({
         let productName = 'All Components';
         let aggregateCPU: string | null = null;
         let aggregateMargin: number | null = null;
-        let aggregateMSRP: string | null = null;
+        let aggregateSoldPriceToYou: string | null = null;
 
         if (productId !== 'all-components') {
           product = products.find(p => p.id === productId);
@@ -221,11 +222,11 @@ export default function CPUTrendsTab({
               aggregateMargin = marginValues.reduce((sum, m) => sum + m, 0) / marginValues.length;
             }
 
-            // Average MSRP
+            // Average Sold Price to You
             const msrpValues = allProductData.map(data => data.msrp).filter(msrp => msrp !== null) as string[];
             if (msrpValues.length > 0) {
-              const avgMSRP = msrpValues.reduce((sum, msrp) => sum + parseFloat(msrp), 0) / msrpValues.length;
-              aggregateMSRP = avgMSRP.toFixed(2);
+              const avgSoldPriceToYou = msrpValues.reduce((sum, msrp) => sum + parseFloat(msrp), 0) / msrpValues.length;
+              aggregateSoldPriceToYou = avgSoldPriceToYou.toFixed(2);
             }
           }
         }
@@ -450,18 +451,18 @@ export default function CPUTrendsTab({
           // Determine which values to use
           let displayCPU: string;
           let displayMargin: string;
-          let displayMSRP: string;
+          let displaySoldPriceToYou: string;
 
           if (productId === 'all-components') {
             // For "All Components" view, don't show product-level metrics
             displayCPU = 'N/A';
             displayMargin = 'N/A';
-            displayMSRP = 'N/A';
+            displaySoldPriceToYou = 'N/A';
           } else {
             // For individual products, use cpuData values directly (already calculated with quantities)
             displayCPU = cpuData?.cpu || 'N/A';
             displayMargin = cpuData?.margin !== null && cpuData?.margin !== undefined ? `${cpuData.margin.toFixed(1)}%` : 'N/A';
-            displayMSRP = cpuData?.msrp || product?.msrp || 'N/A';
+            displaySoldPriceToYou = cpuData?.msrp || product?.msrp || 'N/A';
           }
 
           // Build S+H distribution breakdown if viewing S+H category
@@ -497,7 +498,7 @@ export default function CPUTrendsTab({
             productName: productName,
             cpu: displayCPU,
             margin: displayMargin,
-            msrp: displayMSRP,
+            msrp: displaySoldPriceToYou,
             components: componentTrends,
             shDistribution,
           });
@@ -633,12 +634,12 @@ export default function CPUTrendsTab({
         const type = comp.isLabor ? 'Labor' : 'Material';
         const volatility = comp.isLabor ? 'N/A' : (Math.abs(comp.change) < 5 ? 'low' : Math.abs(comp.change) < 15 ? 'medium' : 'high');
         const trend = comp.isLabor ? 'N/A' : (comp.change > 5 ? 'increasing' : comp.change < -5 ? 'decreasing' : 'stable');
-        const avgPrice = comp.isLabor ? 'N/A' : comp.avg.toFixed(2);
+        const avgPrice = comp.isLabor ? 'N/A' : $(comp.avg).replace(/[$,]/g, ''); // Remove $ and commas for CSV
         const priceChange = comp.isLabor ? 'N/A' : comp.change.toFixed(1);
         const lastBuy = comp.isLabor ? 'N/A' : comp.lastBuyDays.toString();
 
         rows.push(
-          `"${product.productName}","${comp.componentName}","${type}","${comp.current.toFixed(2)}","${avgPrice}","${priceChange}","${lastBuy}","${volatility}","${trend}"`
+          `"${product.productName}","${comp.componentName}","${type}","${$(comp.current).replace(/[$,]/g, '')}","${avgPrice}","${priceChange}","${lastBuy}","${volatility}","${trend}"`
         );
       });
     });
@@ -707,14 +708,14 @@ export default function CPUTrendsTab({
 
       doc.setFontSize(9);
       doc.setTextColor(100, 100, 100);
-      doc.text(`CPU: ${product.cpu} | Margin: ${product.margin} | MSRP: ${product.msrp}`, 14, yPos);
+      doc.text(`CPU: ${product.cpu} | Margin: ${product.margin} | Sold Price to You: ${product.msrp}`, 14, yPos);
       yPos += 2;
 
       // Component table
       const tableData = product.components.map(comp => [
         comp.componentName,
-        `$${comp.current.toFixed(2)}`,
-        comp.isLabor ? 'N/A' : `$${comp.avg.toFixed(2)}`,
+        $(comp.current),
+        comp.isLabor ? 'N/A' : $(comp.avg),
         comp.isLabor ? 'N/A' : (comp.change !== 0 ? `${comp.change > 0 ? '+' : ''}${comp.change.toFixed(1)}%` : '—'),
         comp.isLabor ? 'N/A' : `${comp.lastBuyDays}d`,
       ]);
@@ -852,7 +853,7 @@ export default function CPUTrendsTab({
                   <div className={styles.productMetrics}>
                     <span>CPU: {product.cpu}</span>
                     <span>Margin: {product.margin}</span>
-                    <span>MSRP: {product.msrp}</span>
+                    <span>Sold Price to You: {product.msrp}</span>
                   </div>
                 )}
               </div>
@@ -993,10 +994,10 @@ export default function CPUTrendsTab({
                           {comp.componentName}
                         </td>
                         <td className={styles.priceValue} style={comp.isLabor ? { color: '#D4AF37', fontWeight: 600 } : undefined}>
-                          ${comp.current.toFixed(2)}
+                          {$(comp.current)}
                         </td>
                         <td className={styles.priceAverage} style={comp.isLabor ? { color: '#9ca3af' } : undefined}>
-                          {comp.isLabor ? 'N/A' : `$${comp.avg.toFixed(2)}`}
+                          {comp.isLabor ? 'N/A' : $(comp.avg)}
                         </td>
                         <td className={styles.priceValue}>
                           {comp.isLabor ? (

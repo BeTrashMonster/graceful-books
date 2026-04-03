@@ -400,7 +400,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
           });
         }
 
-        rows.push('Product,Pallet #,Units,Base CPU,Dist Cost/Unit,Total CPU,Price,Margin %,MSRP');
+        rows.push('Product,Pallet #,Units,Base CPU,Dist Cost/Unit,Total CPU,Price,Margin %,Sold Price to You');
 
         products.forEach((variant) => {
           const varData = calc.variant_data[variant];
@@ -782,7 +782,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
           doc.text(`Profit: $${profitPerUnit.toFixed(2)} (${result.net_profit_margin}%)`, 25, y);
           y += 4;
           if (result.msrp) {
-            doc.text(`MSRP: ${formatCurrency(result.msrp)}`, 25, y);
+            doc.text(`Sold Price to You: ${formatCurrency(result.msrp)}`, 25, y);
             y += 4;
           }
           y += 4;
@@ -851,7 +851,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
       'Selling Price',
       'Profit Per Unit',
       'Margin %',
-      'MSRP',
+      'Sold Price to You',
       'Fee Description',
       'Fee Amount',
       'Total Distribution Cost'

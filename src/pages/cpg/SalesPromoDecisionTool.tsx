@@ -109,7 +109,7 @@ export default function SalesPromoDecisionTool() {
   const [availableVariants, setAvailableVariants] = useState<string[]>([]);
   const [latestCPUs, setLatestCPUs] = useState<Record<string, string>>({});
   const [latestLaborCosts, setLatestLaborCosts] = useState<Record<string, string>>({});
-  const [latestMSRPs, setLatestMSRPs] = useState<Record<string, string>>({});
+  const [latestSoldPriceToYous, setLatestSoldPriceToYous] = useState<Record<string, string>>({});
   const [cpuErrors, setCpuErrors] = useState<string[]>([]); // Track products with CPU errors
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [cpgSettings, setCpgSettings] = useState<CPGSettings | null>(null); // CPG settings for margin thresholds
@@ -286,7 +286,7 @@ export default function SalesPromoDecisionTool() {
             failedCPUs.push(variantName);
           }
 
-          // Get MSRP for this product (if available)
+          // Get Sold Price to You for this product (if available)
           if (product.msrp) {
             msrpMap[variantName] = product.msrp;
           }
@@ -295,7 +295,7 @@ export default function SalesPromoDecisionTool() {
         setAvailableVariants(productNames.sort());
         setLatestCPUs(cpuMap);
         setLatestLaborCosts(laborCostMap);
-        setLatestMSRPs(msrpMap);
+        setLatestSoldPriceToYous(msrpMap);
         setCpuErrors(failedCPUs);
       } catch (error) {
         console.error('Error loading products and CPUs:', error);
@@ -1030,7 +1030,7 @@ export default function SalesPromoDecisionTool() {
                   availableVariants={availableVariants}
                   latestCPUs={latestCPUs}
                   latestLaborCosts={latestLaborCosts}
-                  latestMSRPs={latestMSRPs}
+                  latestSoldPriceToYous={latestSoldPriceToYous}
                   onSubmit={handleAnalyzePromo}
                   onClear={() => {
                     setAnalysisResult(null);
