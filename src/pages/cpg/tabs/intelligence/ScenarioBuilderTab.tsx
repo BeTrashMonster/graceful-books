@@ -25,7 +25,7 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
-import { useCPGSettings } from '../../../../contexts/CPGSettingsContext';
+import { useCPGSettings } from '../../../../hooks/useCPGSettings';
 import styles from './ScenarioBuilderTab.module.css';
 import growthCoinsImage from '../../../../assets/images/growth-coins.png';
 
@@ -979,7 +979,7 @@ export default function ScenarioBuilderTab({
 
                           {/* Value */}
                           <div className={styles.componentValue} style={{ color: '#D4AF37' }}>
-                            <span>${formatNumberWithCommas(adjustedCost)}</span>
+                            <span>{formatCurrency(adjustedCost)}</span>
                           </div>
                         </div>
                       );
