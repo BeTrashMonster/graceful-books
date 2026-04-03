@@ -25,6 +25,7 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
+import { useCPGSettings } from '../../../../contexts/CPGSettingsContext';
 import styles from './ScenarioBuilderTab.module.css';
 import growthCoinsImage from '../../../../assets/images/growth-coins.png';
 
@@ -89,6 +90,9 @@ export default function ScenarioBuilderTab({
     throw new Error('Invalid companyId provided to ScenarioBuilderTab');
   }
 
+  // Get CPG settings for formatting
+  const { formatCurrency, formatNumber, formatPercentage } = useCPGSettings();
+
   // State: Scenario adjustments per product per component
   // Map<productId, Map<componentId, adjustment %>>
   const [scenarioAdjustments, setScenarioAdjustments] = useState<Map<string, Map<string, number>>>(
@@ -117,11 +121,6 @@ export default function ScenarioBuilderTab({
   // Format: "productId:componentId" or "productId:msrp"
   const [editingValue, setEditingValue] = useState<string | null>(null);
   const [editingText, setEditingText] = useState<string>('');
-
-  // Format number with commas
-  const formatNumberWithCommas = useCallback((num: number): string => {
-    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }, []);
 
   // Evaluate math expressions in input (e.g., "0.81 + 0.04" or just "+ 0.04")
   const evaluateMathExpression = useCallback((expression: string, currentValue: number): number | null => {
@@ -591,22 +590,22 @@ export default function ScenarioBuilderTab({
                 <div className={styles.productMetric}>
                   <div className={styles.metricLabel}>CPU</div>
                   <div className={`${styles.metricValue} ${hasAdjustments ? styles.changed : ''}`}>
-                    ${formatNumberWithCommas(scenarioCPUValue)}
+                    {formatCurrency(scenarioCPUValue)}
                   </div>
                   {hasAdjustments && (
                     <div className={styles.metricChange}>
-                      {cpuDelta >= 0 ? '+' : ''}${cpuDelta.toFixed(2)}
+                      {cpuDelta >= 0 ? '+' : ''}{formatCurrency(cpuDelta)}
                     </div>
                   )}
                 </div>
                 <div className={styles.productMetric}>
                   <div className={styles.metricLabel}>Margin</div>
                   <div className={`${styles.metricValue} ${hasAdjustments ? styles.changed : ''}`}>
-                    {scenarioMarginValue.toFixed(1)}%
+                    {formatPercentage(scenarioMarginValue)}
                   </div>
                   {hasAdjustments && (
                     <div className={styles.metricChange}>
-                      {marginDelta >= 0 ? '+' : ''}{marginDelta.toFixed(1)}%
+                      {marginDelta >= 0 ? '+' : ''}{formatPercentage(marginDelta)}
                     </div>
                   )}
                 </div>
@@ -626,8 +625,8 @@ export default function ScenarioBuilderTab({
                   {/* Slider with labels above */}
                   <div className={styles.componentSliderWrapper}>
                     <div className={styles.sliderLabels}>
-                      <span>${(baseSellingPrice * 0.7).toFixed(2)}</span>
-                      <span>${(baseSellingPrice * 1.5).toFixed(2)}</span>
+                      <span>{formatCurrency(baseSellingPrice * 0.7)}</span>
+                      <span>{formatCurrency(baseSellingPrice * 1.5)}</span>
                     </div>
                     <input
                       id={`msrp-slider-${productId}`}
@@ -644,7 +643,7 @@ export default function ScenarioBuilderTab({
                       aria-valuemin={baseSellingPrice * 0.7}
                       aria-valuemax={baseSellingPrice * 1.5}
                       aria-valuenow={scenarioSellingPriceValue}
-                      aria-valuetext={`$${scenarioSellingPriceValue.toFixed(2)}`}
+                      aria-valuetext={formatCurrency(scenarioSellingPriceValue)}
                       className={styles.slider}
                     />
                   </div>
@@ -679,11 +678,11 @@ export default function ScenarioBuilderTab({
                       />
                     ) : (
                       <span
-                        onClick={() => startEditing(`${productId}:msrp`, scenarioSellingPriceValue.toFixed(2))}
+                        onClick={() => startEditing(`${productId}:msrp`, formatNumber(scenarioSellingPriceValue))}
                         style={{ cursor: 'pointer' }}
                         title="Click to edit (supports math: +0.50, -1.25, *2, etc.)"
                       >
-                        ${scenarioSellingPriceValue.toFixed(2)}
+                        {formatCurrency(scenarioSellingPriceValue)}
                       </span>
                     )}
                   </div>
@@ -755,10 +754,10 @@ export default function ScenarioBuilderTab({
                   let displayAdjustment;
                   if (currentMode === 'percentage') {
                     adjustedSubtotal = baseSubtotal * (1 + currentAdj / 100);
-                    displayAdjustment = currentAdj !== 0 ? `${currentAdj > 0 ? '+' : ''}${currentAdj.toFixed(2)}%` : null;
+                    displayAdjustment = currentAdj !== 0 ? `${currentAdj > 0 ? '+' : ''}${formatNumber(currentAdj)}%` : null;
                   } else {
                     adjustedSubtotal = baseSubtotal + currentAdj;
-                    displayAdjustment = currentAdj !== 0 ? `${currentAdj > 0 ? '+' : ''}$${Math.abs(currentAdj).toFixed(2)}` : null;
+                    displayAdjustment = currentAdj !== 0 ? `${currentAdj > 0 ? '+' : ''}${formatCurrency(Math.abs(currentAdj))}` : null;
                   }
 
                   // Slider range based on mode
@@ -773,8 +772,8 @@ export default function ScenarioBuilderTab({
                     sliderMin = -baseSubtotal * 0.5;
                     sliderMax = baseSubtotal * 1.0;
                     sliderStep = 0.01;
-                    minLabel = `-$${(baseSubtotal * 0.5).toFixed(2)}`;
-                    maxLabel = `+$${(baseSubtotal * 1.0).toFixed(2)}`;
+                    minLabel = `-${formatCurrency(baseSubtotal * 0.5)}`;
+                    maxLabel = `+${formatCurrency(baseSubtotal * 1.0)}`;
                   }
 
                   return (
@@ -856,11 +855,11 @@ export default function ScenarioBuilderTab({
                           />
                         ) : (
                           <span
-                            onClick={() => startEditing(`${productId}:${component.categoryId}`, adjustedSubtotal.toFixed(2))}
+                            onClick={() => startEditing(`${productId}:${component.categoryId}`, formatNumber(adjustedSubtotal))}
                             style={{ cursor: 'pointer' }}
                             title="Click to edit (supports math: +0.04, -0.5, *2, etc.)"
                           >
-                            ${formatNumberWithCommas(adjustedSubtotal)}
+                            {formatCurrency(adjustedSubtotal)}
                           </span>
                         )}
                       </div>
@@ -905,10 +904,10 @@ export default function ScenarioBuilderTab({
                       let displayAdjustment;
                       if (currentMode === 'percentage') {
                         adjustedCost = baseCost * (1 + currentAdj / 100);
-                        displayAdjustment = currentAdj !== 0 ? `${currentAdj > 0 ? '+' : ''}${currentAdj.toFixed(2)}%` : null;
+                        displayAdjustment = currentAdj !== 0 ? `${currentAdj > 0 ? '+' : ''}${formatNumber(currentAdj)}%` : null;
                       } else {
                         adjustedCost = baseCost + currentAdj;
-                        displayAdjustment = currentAdj !== 0 ? `${currentAdj > 0 ? '+' : ''}$${Math.abs(currentAdj).toFixed(2)}` : null;
+                        displayAdjustment = currentAdj !== 0 ? `${currentAdj > 0 ? '+' : ''}${formatCurrency(Math.abs(currentAdj))}` : null;
                       }
 
                       // Slider range based on mode
@@ -933,7 +932,7 @@ export default function ScenarioBuilderTab({
                           <div className={styles.componentName} style={{ color: '#D4AF37' }}>
                             <div>{role.roleName}</div>
                             <div style={{ fontSize: '0.75rem', color: '#B8941F', marginTop: '0.125rem' }}>
-                              {parseFloat(role.hoursPerUnit).toFixed(2)} hrs @ ${parseFloat(role.hourlyRate).toFixed(2)}/hr
+                              {formatNumber(parseFloat(role.hoursPerUnit))} hrs @ {formatCurrency(parseFloat(role.hourlyRate))}/hr
                             </div>
                           </div>
 
