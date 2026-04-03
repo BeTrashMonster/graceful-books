@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import styles from './Signup.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -16,12 +16,43 @@ export default function BetaSignup() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
+
+  // Real-time password validation
+  const passwordRequirements = useMemo(() => {
+    return {
+      minLength: password.length >= 8,
+      hasUppercase: /[A-Z]/.test(password),
+      hasLowercase: /[a-z]/.test(password),
+      hasNumber: /[0-9]/.test(password),
+      hasSpecial: /[^A-Za-z0-9]/.test(password),
+    };
+  }, [password]);
+
+  const passwordsMatch = useMemo(() => {
+    if (!confirmPassword) return true; // Don't show error if confirm is empty
+    return password === confirmPassword;
+  }, [password, confirmPassword]);
+
+  const allRequirementsMet = Object.values(passwordRequirements).every(Boolean);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Mark fields as touched for validation display
+    setPasswordTouched(true);
+    setConfirmPasswordTouched(true);
+
+    // Validate passwords match
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      setError('Passwords do not match. Please make sure both passwords are identical.');
+      return;
+    }
+
+    // Validate password requirements
+    if (!allRequirementsMet) {
+      setError('Password does not meet all requirements. Please check the requirements below.');
       return;
     }
 
@@ -185,8 +216,13 @@ export default function BetaSignup() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onBlur={() => setPasswordTouched(true)}
                 required
                 className={styles.passwordInput}
+                style={{
+                  borderColor: passwordTouched && !allRequirementsMet ? '#dc2626' : undefined,
+                  borderWidth: passwordTouched && !allRequirementsMet ? '2px' : undefined,
+                }}
               />
               <button
                 type="button"
@@ -197,9 +233,63 @@ export default function BetaSignup() {
                 {showPassword ? '👁️' : '👁️‍🗨️'}
               </button>
             </div>
-            <p className={styles.passwordHint}>
-              Must be 8+ characters with uppercase, lowercase, number, and special character (!@#$%^&*)
-            </p>
+
+            {/* Password Requirements Checklist */}
+            {password && (
+              <div style={{
+                marginTop: '0.75rem',
+                padding: '0.75rem',
+                backgroundColor: passwordTouched && !allRequirementsMet ? '#fef2f2' : '#f9fafb',
+                borderRadius: '6px',
+                border: passwordTouched && !allRequirementsMet ? '1px solid #fecaca' : '1px solid #e5e7eb',
+              }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.5rem', color: '#374151' }}>
+                  Password must have:
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem' }}>
+                    <span style={{ color: passwordRequirements.minLength ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
+                      {passwordRequirements.minLength ? '✓' : '✗'}
+                    </span>
+                    <span style={{ color: passwordRequirements.minLength ? '#16a34a' : '#6b7280' }}>
+                      At least 8 characters
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem' }}>
+                    <span style={{ color: passwordRequirements.hasUppercase ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
+                      {passwordRequirements.hasUppercase ? '✓' : '✗'}
+                    </span>
+                    <span style={{ color: passwordRequirements.hasUppercase ? '#16a34a' : '#6b7280' }}>
+                      One uppercase letter (A-Z)
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem' }}>
+                    <span style={{ color: passwordRequirements.hasLowercase ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
+                      {passwordRequirements.hasLowercase ? '✓' : '✗'}
+                    </span>
+                    <span style={{ color: passwordRequirements.hasLowercase ? '#16a34a' : '#6b7280' }}>
+                      One lowercase letter (a-z)
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem' }}>
+                    <span style={{ color: passwordRequirements.hasNumber ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
+                      {passwordRequirements.hasNumber ? '✓' : '✗'}
+                    </span>
+                    <span style={{ color: passwordRequirements.hasNumber ? '#16a34a' : '#6b7280' }}>
+                      One number (0-9)
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem' }}>
+                    <span style={{ color: passwordRequirements.hasSpecial ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
+                      {passwordRequirements.hasSpecial ? '✓' : '✗'}
+                    </span>
+                    <span style={{ color: passwordRequirements.hasSpecial ? '#16a34a' : '#6b7280' }}>
+                      One special character (!@#$%^&*)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className={styles.formGroup}>
@@ -212,8 +302,13 @@ export default function BetaSignup() {
                 id="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                onBlur={() => setConfirmPasswordTouched(true)}
                 required
                 className={styles.passwordInput}
+                style={{
+                  borderColor: confirmPasswordTouched && !passwordsMatch ? '#dc2626' : undefined,
+                  borderWidth: confirmPasswordTouched && !passwordsMatch ? '2px' : undefined,
+                }}
               />
               <button
                 type="button"
@@ -224,6 +319,44 @@ export default function BetaSignup() {
                 {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
               </button>
             </div>
+
+            {/* Password Mismatch Error */}
+            {confirmPasswordTouched && confirmPassword && !passwordsMatch && (
+              <div style={{
+                marginTop: '0.5rem',
+                padding: '0.625rem 0.75rem',
+                backgroundColor: '#fef2f2',
+                borderRadius: '6px',
+                border: '1px solid #fecaca',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}>
+                <span style={{ color: '#dc2626', fontWeight: 'bold', fontSize: '1rem' }}>✗</span>
+                <span style={{ color: '#dc2626', fontSize: '0.8125rem', fontWeight: 500 }}>
+                  Passwords do not match
+                </span>
+              </div>
+            )}
+
+            {/* Password Match Success */}
+            {confirmPasswordTouched && confirmPassword && passwordsMatch && (
+              <div style={{
+                marginTop: '0.5rem',
+                padding: '0.625rem 0.75rem',
+                backgroundColor: '#f0fdf4',
+                borderRadius: '6px',
+                border: '1px solid #bbf7d0',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}>
+                <span style={{ color: '#16a34a', fontWeight: 'bold', fontSize: '1rem' }}>✓</span>
+                <span style={{ color: '#16a34a', fontSize: '0.8125rem', fontWeight: 500 }}>
+                  Passwords match
+                </span>
+              </div>
+            )}
           </div>
 
           <button
