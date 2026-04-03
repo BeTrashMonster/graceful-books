@@ -502,7 +502,7 @@ export const CPGRecipeInputSchema = z.object({
   variant: z.string().max(50).or(z.null()),
   quantity: z
     .string()
-    .regex(/^\d+(\.\d{1,4})?$/, 'Invalid quantity format')
+    .regex(/^\d+(\.\d{1,6})?$/, 'Invalid quantity format')
     .refine((val) => parseFloat(val) > 0, {
       message: 'Quantity must be greater than 0',
     }),
@@ -602,7 +602,7 @@ export function validateNoXSS(data: unknown): {
  */
 const positiveDecimalSchema = z
   .string()
-  .regex(/^\d+(\.\d{1,4})?$/, 'Must be a positive number with up to 4 decimal places')
+  .regex(/^\d+(\.\d{1,6})?$/, 'Must be a positive number with up to 6 decimal places')
   .refine((val) => parseFloat(val) > 0, {
     message: 'Must be greater than 0',
   })
@@ -616,7 +616,7 @@ const positiveDecimalSchema = z
  */
 const nonNegativeDecimalSchema = z
   .string()
-  .regex(/^\d+(\.\d{1,4})?$/, 'Must be a non-negative number with up to 4 decimal places')
+  .regex(/^\d+(\.\d{1,6})?$/, 'Must be a non-negative number with up to 6 decimal places')
   .refine((val) => parseFloat(val) >= 0, {
     message: 'Cannot be negative',
   })
