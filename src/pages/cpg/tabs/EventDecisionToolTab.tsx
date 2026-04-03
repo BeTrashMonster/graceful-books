@@ -40,6 +40,7 @@ interface FormData {
     retailPrice: string;
     unitsBringing: string;
     baseCPU: string;
+    productionCPU: string;
   }>;
 }
 
@@ -50,6 +51,7 @@ interface Product {
   sku: string | null;
   msrp: string;
   cpu: string;
+  laborCost: string;
 }
 
 interface EventDecisionToolTabProps {
@@ -139,7 +141,8 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
               displayName,
               sku: p.sku,
               msrp: p.msrp || '0',
-              cpu: cpuBreakdown.cpu || '0',
+              cpu: cpuBreakdown.materialCPU || '0',
+              laborCost: cpuBreakdown.laborCost || '0',
             };
           } catch {
             return null;
@@ -193,7 +196,7 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
 
       // Prepare product data if it exists
       const selectedProducts: string[] = [];
-      const productData: Record<string, { retailPrice: string; unitsBringing: string; baseCPU: string }> = {};
+      const productData: Record<string, { retailPrice: string; unitsBringing: string; baseCPU: string; productionCPU: string }> = {};
 
       if (event.variant_event_data) {
         Object.entries(event.variant_event_data).forEach(([name, data]: [string, any]) => {
@@ -202,6 +205,7 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
             retailPrice: data.retail_price?.toString() || '0',
             unitsBringing: data.units_bringing?.toString() || '0',
             baseCPU: data.base_cpu?.toString() || '0',
+            productionCPU: data.production_cpu?.toString() || '0',
           };
         });
       }
@@ -352,6 +356,7 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
             retailPrice: product.msrp,
             unitsBringing: '',
             baseCPU: product.cpu,
+            productionCPU: product.laborCost,
           },
         },
       }));
@@ -377,6 +382,7 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
         retailPrice: p.msrp,
         unitsBringing: '',
         baseCPU: p.cpu,
+        productionCPU: p.laborCost,
       };
     });
     setFormData(prev => ({
@@ -558,11 +564,15 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
           const baseCPU = data.baseCPU && !isNaN(parseFloat(data.baseCPU))
             ? data.baseCPU
             : '0';
+          const productionCPU = data.productionCPU && !isNaN(parseFloat(data.productionCPU))
+            ? data.productionCPU
+            : '0';
 
           variantEventData[productName] = {
             retailPrice,
             unitsBringing,
             baseCPU,
+            productionCPU,
           };
         }
       });
@@ -980,7 +990,26 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
                       },
                     }))}
                     fullWidth
-                    helperText="Your cost per unit"
+                    helperText="Material cost per unit"
+                  />
+                  <Input
+                    label="Production CPU"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.productData[productName]?.productionCPU || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      productData: {
+                        ...prev.productData,
+                        [productName]: {
+                          ...prev.productData[productName],
+                          productionCPU: e.target.value,
+                        },
+                      },
+                    }))}
+                    fullWidth
+                    helperText="Production labor cost per unit"
                   />
                 </div>
               </div>
@@ -1040,8 +1069,9 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
               const products = Object.keys(analysisResult.variantResults);
               if (products.length === 0) return undefined;
               const totalCPU = products.reduce((sum, name) => {
-                const results = analysisResult.variantResults[name];
-                const baseCPU = parseFloat(results.cpuWithEvent) - parseFloat(results.eventCostPerUnit);
+                const materialCPU = parseFloat(formData.productData[name]?.baseCPU || '0');
+                const productionCPU = parseFloat(formData.productData[name]?.productionCPU || '0');
+                const baseCPU = materialCPU + productionCPU;
                 return sum + baseCPU;
               }, 0);
               return (totalCPU / products.length).toString();
@@ -1084,7 +1114,9 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
             })()}
             variantData={Object.keys(analysisResult.variantResults).map(name => {
               const results = analysisResult.variantResults[name];
-              const baseCPU = parseFloat(results.cpuWithEvent) - parseFloat(results.eventCostPerUnit);
+              const materialCPU = parseFloat(formData.productData[name]?.baseCPU || '0');
+              const productionCPU = parseFloat(formData.productData[name]?.productionCPU || '0');
+              const baseCPU = materialCPU + productionCPU;
               return {
                 name,
                 unitsAvailable: parseFloat(formData.productData[name]?.unitsBringing || '0'),
@@ -1099,7 +1131,9 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
           <h3 className={styles.comparisonTitle}>Product Analysis</h3>
           {Object.entries(analysisResult.variantResults).map(([productName, results]: [string, any]) => {
             const retailPrice = parseFloat(formData.productData[productName]?.retailPrice || '0');
-            const baseCPU = parseFloat(results.cpuWithEvent) - parseFloat(results.eventCostPerUnit);
+            const materialCPU = parseFloat(formData.productData[productName]?.baseCPU || '0');
+            const productionCPU = parseFloat(formData.productData[productName]?.productionCPU || '0');
+            const baseCPU = materialCPU + productionCPU;
             const eventCost = parseFloat(results.eventCostPerUnit);
             const laborCost = results.laborCostPerUnit ? parseFloat(results.laborCostPerUnit) : 0;
 
