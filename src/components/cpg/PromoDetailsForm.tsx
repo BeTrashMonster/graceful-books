@@ -142,7 +142,7 @@ export interface PromoDetailsFormProps {
   /**
    * Latest Selling Prices per variant (auto-populate retail price)
    */
-  latestMSRPs?: Record<string, string>;
+  latestSoldPriceToYous?: Record<string, string>;
   /**
    * Callback when form is submitted
    */
@@ -190,7 +190,7 @@ export function PromoDetailsForm({
   availableVariants,
   latestCPUs = {},
   latestLaborCosts = {},
-  latestMSRPs = {},
+  latestSoldPriceToYous = {},
   onSubmit,
   onClear,
   isLoading = false,
@@ -199,10 +199,10 @@ export function PromoDetailsForm({
     const defaultVariants: Record<string, PromoVariantData> = {};
     availableVariants.forEach((variant) => {
       defaultVariants[variant] = {
-        retailPrice: latestMSRPs[variant] || '',
+        retailPrice: latestSoldPriceToYous[variant] || '',
         unitsAvailable: '',
-        baseCPU: latestCPUs[variant] || '',
-        productionCPU: latestLaborCosts[variant] || '',
+        baseCPU: latestCPUs[variant] || '0', // Default to "0" instead of empty to pass validation
+        productionCPU: latestLaborCosts[variant] || '0', // Default to "0" instead of empty
       };
     });
 
@@ -277,10 +277,10 @@ export function PromoDetailsForm({
     const defaultVariants: Record<string, PromoVariantData> = {};
     availableVariants.forEach((variant) => {
       defaultVariants[variant] = {
-        retailPrice: latestMSRPs[variant] || '',
+        retailPrice: latestSoldPriceToYous[variant] || '',
         unitsAvailable: '',
-        baseCPU: latestCPUs[variant] || '',
-        productionCPU: latestLaborCosts[variant] || '',
+        baseCPU: latestCPUs[variant] || '0', // Default to "0" instead of empty
+        productionCPU: latestLaborCosts[variant] || '0', // Default to "0" instead of empty
       };
     });
 
@@ -299,7 +299,7 @@ export function PromoDetailsForm({
 
     // Clear any validation errors when loading new data
     setErrors({});
-  }, [initialData, availableVariants, latestCPUs, latestLaborCosts, latestMSRPs]);
+  }, [initialData, availableVariants, latestCPUs, latestLaborCosts, latestSoldPriceToYous]);
 
   // Close product selector when clicking outside
   useEffect(() => {
@@ -356,10 +356,10 @@ export function PromoDetailsForm({
         newErrors.promoEndDate = 'Invalid end date';
       }
 
-      // Check that end date is after start date
+      // Check that end date is not before start date (same day is okay)
       if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
-        if (endDate <= startDate) {
-          newErrors.promoEndDate = 'End date must be after start date';
+        if (endDate < startDate) {
+          newErrors.promoEndDate = 'End date cannot be before start date';
         }
       }
     }
@@ -413,18 +413,31 @@ export function PromoDetailsForm({
       const data = formData.variants[variant];
       if (!data) return;
 
-      if (!data.retailPrice || parseFloat(data.retailPrice) <= 0) {
+      const retailPriceValue = parseFloat(data.retailPrice);
+      if (!data.retailPrice || data.retailPrice.trim() === '') {
+        newErrors[`variant_${variant}_retailPrice`] = `${variant}: Retail price is required`;
+      } else if (isNaN(retailPriceValue) || retailPriceValue <= 0) {
         newErrors[`variant_${variant}_retailPrice`] = `${variant}: Retail price must be greater than 0`;
       }
-      if (!data.unitsAvailable || parseFloat(data.unitsAvailable) <= 0) {
+
+      const unitsValue = parseFloat(data.unitsAvailable);
+      if (!data.unitsAvailable || data.unitsAvailable.trim() === '') {
+        newErrors[`variant_${variant}_unitsAvailable`] = `${variant}: Units available is required`;
+      } else if (isNaN(unitsValue) || unitsValue <= 0) {
         newErrors[`variant_${variant}_unitsAvailable`] = `${variant}: Units available must be greater than 0`;
       }
-      if (!data.baseCPU || parseFloat(data.baseCPU) < 0) {
-        newErrors[`variant_${variant}_baseCPU`] = `${variant}: Base CPU is required`;
+      const baseCPUValue = parseFloat(data.baseCPU);
+      if (!data.baseCPU || data.baseCPU.trim() === '') {
+        newErrors[`variant_${variant}_baseCPU`] = `${variant}: Base CPU is required (enter 0 if unknown)`;
+      } else if (isNaN(baseCPUValue) || baseCPUValue < 0) {
+        newErrors[`variant_${variant}_baseCPU`] = `${variant}: Base CPU must be a valid non-negative number`;
       }
       // Production CPU is optional, but if provided must be >= 0
-      if (data.productionCPU && parseFloat(data.productionCPU) < 0) {
-        newErrors[`variant_${variant}_productionCPU`] = `${variant}: Production CPU cannot be negative`;
+      if (data.productionCPU && data.productionCPU.trim() !== '') {
+        const prodCPUValue = parseFloat(data.productionCPU);
+        if (isNaN(prodCPUValue) || prodCPUValue < 0) {
+          newErrors[`variant_${variant}_productionCPU`] = `${variant}: Production CPU must be a valid non-negative number`;
+        }
       }
     });
 
@@ -659,10 +672,10 @@ export function PromoDetailsForm({
     const defaultVariants: Record<string, PromoVariantData> = {};
     availableVariants.forEach((variant) => {
       defaultVariants[variant] = {
-        retailPrice: latestMSRPs[variant] || '',
+        retailPrice: latestSoldPriceToYous[variant] || '',
         unitsAvailable: '',
-        baseCPU: latestCPUs[variant] || '',
-        productionCPU: latestLaborCosts[variant] || '',
+        baseCPU: latestCPUs[variant] || '0', // Default to "0" instead of empty
+        productionCPU: latestLaborCosts[variant] || '0', // Default to "0" instead of empty
       };
     });
 
@@ -1011,7 +1024,7 @@ export function PromoDetailsForm({
                 required
                 fullWidth
                 helperText={
-                  latestMSRPs[variant] && formData.variants[variant]?.retailPrice === latestMSRPs[variant]
+                  latestSoldPriceToYous[variant] && formData.variants[variant]?.retailPrice === latestSoldPriceToYous[variant]
                     ? "Auto-filled from product Selling Price (editable)"
                     : "Price customers pay (before promo discount)"
                 }

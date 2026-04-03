@@ -8,6 +8,7 @@ import { PromoTrackerTab } from './tabs/PromoTrackerTab';
 import { PinIcon } from '../../components/common/PinIcon';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTabPinning } from '../../hooks/useTabPinning';
+import { useCPGSettings } from '../../hooks/useCPGSettings';
 import { PAGE_IDS } from '../../db/schema/tabPreferences.schema';
 import { db } from '../../db';
 import type { CPGSettings } from '../../db/schema/cpg.schema';
@@ -62,6 +63,9 @@ export default function SalesPromoDecisionTool() {
   const { defaultTab, pinTab, unpinTab, isTabPinned, isLoading: isPinningLoading } = useTabPinning({
     pageId: PAGE_IDS.PROMO_ANALYSIS,
   });
+
+  // CPG Settings for formatting
+  const { settings: cpgSettingsFromContext } = useCPGSettings();
 
   // Tab State
   const [activeTab, setActiveTab] = useState<ViewTab>('decision-tool');
@@ -390,6 +394,8 @@ export default function SalesPromoDecisionTool() {
         if (promo.variant_promo_results && Object.keys(promo.variant_promo_results).length > 0) {
           // Convert variant_promo_results from snake_case (DB) to camelCase (code)
           const convertedResults: Record<string, any> = {};
+          const percentageDecimals = cpgSettings?.decimal_places_percentage ?? 2;
+
           Object.entries(promo.variant_promo_results).forEach(([key, value]) => {
             // Recalculate margin quality using current settings instead of using stored value
             // This ensures old promos get updated thresholds
@@ -408,7 +414,7 @@ export default function SalesPromoDecisionTool() {
               netProfitMarginWithoutPromo: value.net_profit_margin_without_promo,
               netProfitMarginWithLabor: value.net_profit_margin_with_demo,
               marginQualityWithPromo: recalculatedMarginQuality,
-              marginDifference: (parseFloat(value.net_profit_margin_with_promo) - parseFloat(value.net_profit_margin_without_promo)).toFixed(2),
+              marginDifference: (parseFloat(value.net_profit_margin_with_promo) - parseFloat(value.net_profit_margin_without_promo)).toFixed(percentageDecimals),
             };
           });
 
@@ -522,11 +528,17 @@ export default function SalesPromoDecisionTool() {
         promoId = promo.id;
       }
 
-      // Filter to only include selected variants
+      // Filter to only include selected variants and ensure all values are valid
       const selectedVariantData: Record<string, any> = {};
       formData.selectedVariants.forEach((variantName) => {
         if (formData.variants[variantName]) {
-          selectedVariantData[variantName] = formData.variants[variantName];
+          const variant = formData.variants[variantName];
+          selectedVariantData[variantName] = {
+            retailPrice: variant.retailPrice || '0',
+            unitsAvailable: variant.unitsAvailable || '0',
+            baseCPU: variant.baseCPU || '0', // Default to "0" if empty
+            productionCPU: variant.productionCPU || '0', // Default to "0" if empty
+          };
         }
       });
 
@@ -754,6 +766,9 @@ export default function SalesPromoDecisionTool() {
   const getComparisonData = (): VariantComparisonData[] => {
     if (!analysisResult || !submittedFormData) return [];
 
+    // Get decimal precision from settings (default to 2 if not available)
+    const decimalPlaces = cpgSettingsFromContext?.decimal_places_currency ?? cpgSettings?.decimal_places_currency ?? 2;
+
     return Object.entries(analysisResult.variantResults).map(([variant, results]) => {
       // Get data from submitted form
       const retailPrice = submittedFormData.variants[variant]?.retailPrice || '0';
@@ -762,19 +777,19 @@ export default function SalesPromoDecisionTool() {
       const productionCPU = parseFloat(submittedFormData.variants[variant]?.productionCPU || '0');
 
       // Calculate total base CPU (materials + production labor)
-      const baseCPU = (materialCPU + productionCPU).toFixed(2);
+      const baseCPU = (materialCPU + productionCPU).toFixed(decimalPlaces);
       const baseCPUNum = parseFloat(baseCPU);
 
       // Calculate gross profit for WITHOUT promo
-      const grossProfitWithout = (retailPriceNum - baseCPUNum).toFixed(2);
+      const grossProfitWithout = (retailPriceNum - baseCPUNum).toFixed(decimalPlaces);
 
       // Calculate total cost and gross profit for WITH promo
       const salesPromoCost = parseFloat(results.salesPromoCostPerUnit);
       const actualLaborCost = results.actualLaborCostPerUnit ? parseFloat(results.actualLaborCostPerUnit) : 0;
       const opportunityCost = results.opportunityCostPerUnit ? parseFloat(results.opportunityCostPerUnit) : 0;
       const totalLaborCost = actualLaborCost + opportunityCost;
-      const totalCostWith = (baseCPUNum + salesPromoCost + totalLaborCost).toFixed(2);
-      const grossProfitWith = (retailPriceNum - parseFloat(totalCostWith)).toFixed(2);
+      const totalCostWith = (baseCPUNum + salesPromoCost + totalLaborCost).toFixed(decimalPlaces);
+      const grossProfitWith = (retailPriceNum - parseFloat(totalCostWith)).toFixed(decimalPlaces);
 
       return {
         variant,
@@ -788,7 +803,7 @@ export default function SalesPromoDecisionTool() {
         withPromo: {
           cpu: baseCPU, // Base CPU is the same, promo cost is shown separately
           salesPromoCost: results.salesPromoCostPerUnit,
-          demoHoursCost: totalLaborCost > 0 ? totalLaborCost.toFixed(2) : undefined,
+          demoHoursCost: totalLaborCost > 0 ? totalLaborCost.toFixed(decimalPlaces) : undefined,
           totalCost: totalCostWith,
           grossProfit: grossProfitWith,
           margin: results.netProfitMarginWithLabor || results.netProfitMarginWithPromo,
@@ -829,6 +844,10 @@ export default function SalesPromoDecisionTool() {
       };
     }
 
+    // Get decimal precision from settings
+    const currencyDecimals = cpgSettingsFromContext?.decimal_places_currency ?? cpgSettings?.decimal_places_currency ?? 2;
+    const percentageDecimals = cpgSettingsFromContext?.decimal_places_percentage ?? cpgSettings?.decimal_places_percentage ?? 2;
+
     const totalRetailPrice = comparisonData.reduce((sum, v) => sum + parseFloat(v.retailPrice), 0);
     const totalCPU = comparisonData.reduce((sum, v) => sum + parseFloat(v.withPromo.cpu), 0);
     const totalSalesPromo = comparisonData.reduce((sum, v) => sum + parseFloat(v.withPromo.salesPromoCost), 0);
@@ -838,11 +857,11 @@ export default function SalesPromoDecisionTool() {
     const count = comparisonData.length;
 
     return {
-      averageRetailPrice: (totalRetailPrice / count).toFixed(2),
-      averageCPU: (totalCPU / count).toFixed(2),
-      averageSalesPromoCost: (totalSalesPromo / count).toFixed(2),
-      averageGrossProfitWithPromo: (totalGrossProfit / count).toFixed(2),
-      averageMarginWithPromo: (totalMargin / count).toFixed(2),
+      averageRetailPrice: (totalRetailPrice / count).toFixed(currencyDecimals),
+      averageCPU: (totalCPU / count).toFixed(currencyDecimals),
+      averageSalesPromoCost: (totalSalesPromo / count).toFixed(currencyDecimals),
+      averageGrossProfitWithPromo: (totalGrossProfit / count).toFixed(currencyDecimals),
+      averageMarginWithPromo: (totalMargin / count).toFixed(percentageDecimals),
     };
   };
 
