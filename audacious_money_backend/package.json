@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch --env-file=.env src/index.ts",
-    "start": "node --import tsx src/index.ts",
+    "start": "npm run migrate:up && node --import tsx src/index.ts",
+    "start:no-migrate": "node --import tsx src/index.ts",
     "migrate:up": "tsx src/db/migrate.ts up",
     "migrate:down": "tsx src/db/migrate.ts down",
     "migrate:status": "tsx src/db/migrate.ts status",

@@ -8,4 +8,4 @@ echo "🔄 Running database migrations..."
 npm run migrate:up
 
 echo "🚀 Starting server..."
-exec bun run src/index.ts
+exec npm start
