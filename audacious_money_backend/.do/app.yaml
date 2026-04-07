@@ -22,7 +22,7 @@ services:
     # Build Configuration
     source_dir: /audacious_money_backend
     build_command: bun install
-    run_command: bun run src/index.ts
+    run_command: bash start.sh
 
     # HTTP Configuration
     http_port: 3001
