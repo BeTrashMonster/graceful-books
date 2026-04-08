@@ -97,7 +97,7 @@ services:
       # CRITICAL: Must match frontend URLs exactly (including https://)
       # Comma-separated list, no spaces
       - key: ALLOWED_ORIGINS
-        value: https://app.audacious.money,https://admin.audacious.money
+        value: https://app.audacious.money,https://admin.audacious.money,https://audacious.money
 
       # Security Settings - Argon2 Password Hashing
       - key: ARGON2_MEMORY_COST
