@@ -788,16 +788,54 @@ auth.post('/cpg-launch-signup', async (c) => {
 });
 
 /**
- * GET /auth/cpg-unsubscribe/:signupId
+ * GET /auth/cpg-signup-info/:signupId
  *
- * Unsubscribe from CPG Product Costing Tool launch notifications
- * Marks the signup as unsubscribed but keeps the record
+ * Get CPG launch signup information for unsubscribe form
  */
-auth.get('/cpg-unsubscribe/:signupId', async (c) => {
+auth.get('/cpg-signup-info/:signupId', async (c) => {
   const { signupId } = c.req.param();
   const db = c.get('db');
 
   try {
+    const result = await db.query(
+      'SELECT id, email, first_name, unsubscribed_at FROM cpg_launch_signups WHERE id = $1',
+      [signupId]
+    );
+
+    if (result.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Signup not found');
+    }
+
+    const signup = result.rows[0];
+
+    return success(c, {
+      email: signup.email,
+      firstName: signup.first_name,
+      unsubscribedAt: signup.unsubscribed_at
+    });
+  } catch (error) {
+    console.error('[Auth] CPG signup info error:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
+  }
+});
+
+/**
+ * POST /auth/cpg-unsubscribe
+ *
+ * Unsubscribe from CPG Product Costing Tool launch notifications
+ * Marks the signup as unsubscribed but keeps the record
+ */
+auth.post('/cpg-unsubscribe', async (c) => {
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const { signupId } = body;
+
+    if (!signupId) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Signup ID is required');
+    }
+
     // Check if signup exists
     const result = await db.query(
       'SELECT id, email, first_name, unsubscribed_at FROM cpg_launch_signups WHERE id = $1',
@@ -826,7 +864,7 @@ auth.get('/cpg-unsubscribe/:signupId', async (c) => {
     console.log('[Auth] CPG launch unsubscribe:', { email: signup.email, signupId });
 
     return success(c, {
-      message: 'You have been unsubscribed from CPG Product Costing Tool launch notifications. Your information has been kept on record but you will not receive any further emails about this launch.'
+      message: 'You have been unsubscribed from CPG Product Costing Tool launch notifications.'
     });
   } catch (error) {
     console.error('[Auth] CPG unsubscribe error:', error);

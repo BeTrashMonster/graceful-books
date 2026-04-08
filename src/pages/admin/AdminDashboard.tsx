@@ -44,6 +44,7 @@ interface CPGLaunchSignup {
   created_at: string;
   notified_at: string | null;
   converted_to_user_id: string | null;
+  unsubscribed_at: string | null;
 }
 
 export default function AdminDashboard() {
@@ -429,11 +430,23 @@ export default function AdminDashboard() {
                             borderRadius: '0.25rem',
                             fontSize: '0.75rem',
                             fontWeight: 600,
-                            backgroundColor: signup.converted_to_user_id ? '#dcfce7' : '#fef3c7',
-                            color: signup.converted_to_user_id ? '#16a34a' : '#92400e',
+                            backgroundColor: signup.unsubscribed_at
+                              ? '#fee2e2'
+                              : signup.converted_to_user_id
+                              ? '#dcfce7'
+                              : '#fef3c7',
+                            color: signup.unsubscribed_at
+                              ? '#991b1b'
+                              : signup.converted_to_user_id
+                              ? '#16a34a'
+                              : '#92400e',
                           }}
                         >
-                          {signup.converted_to_user_id ? 'Converted' : 'Waiting'}
+                          {signup.unsubscribed_at
+                            ? 'Unsubscribed'
+                            : signup.converted_to_user_id
+                            ? 'Converted'
+                            : 'Waiting'}
                         </span>
                       </td>
                     </tr>

@@ -447,7 +447,8 @@ admin.get('/cpg-launch-signups', requireAdmin, async (c) => {
         business_name,
         created_at,
         notified_at,
-        converted_to_user_id
+        converted_to_user_id,
+        unsubscribed_at
        FROM cpg_launch_signups
        ORDER BY created_at DESC`
     );

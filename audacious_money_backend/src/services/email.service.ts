@@ -957,7 +957,7 @@ export async function sendCPGLaunchSignupEmail(
   firstName: string,
   signupId: string
 ): Promise<void> {
-  const unsubscribeUrl = `https://api.audacious.money/auth/cpg-unsubscribe/${signupId}`;
+  const unsubscribeUrl = `https://audacious.money/cpg-unsubscribe?id=${signupId}`;
 
   await client.sendEmail({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
