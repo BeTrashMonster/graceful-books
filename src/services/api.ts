@@ -5,7 +5,7 @@
  * Handles authentication tokens, error handling, and request/response formatting.
  */
 
-// Use production API - hardcoded to avoid environment detection issues
+// Use production API
 const API_URL = 'https://api.audacious.money';
 
 interface ApiError {

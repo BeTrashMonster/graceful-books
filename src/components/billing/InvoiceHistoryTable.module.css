@@ -1,0 +1,119 @@
+/**
+ * InvoiceHistoryTable Styles
+ */
+
+.emptyMessage {
+  text-align: center;
+  padding: 2rem 0;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.invoiceTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.invoiceTable thead {
+  background: var(--color-background-secondary);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.invoiceTable th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.invoiceTable tbody tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.15s ease;
+}
+
+.invoiceTable tbody tr:hover {
+  background: var(--color-background-secondary);
+}
+
+.invoiceTable td {
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+}
+
+.amount {
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.statusBadge.paid {
+  background: var(--color-success-background, #ecfdf5);
+  color: var(--color-success, #10b981);
+}
+
+.statusBadge.open {
+  background: var(--color-info-background, #eff6ff);
+  color: var(--color-info, #3b82f6);
+}
+
+.statusBadge.uncollectible,
+.statusBadge.void {
+  background: var(--color-error-background, #fef2f2);
+  color: var(--color-error, #ef4444);
+}
+
+.statusBadge.draft {
+  background: var(--color-background-secondary);
+  color: var(--color-text-tertiary);
+}
+
+.viewLink,
+.downloadLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-right: 0.75rem;
+  transition: color 0.15s ease;
+}
+
+.viewLink:hover,
+.downloadLink:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .invoiceTable {
+    font-size: 0.813rem;
+  }
+
+  .invoiceTable th,
+  .invoiceTable td {
+    padding: 0.625rem 0.5rem;
+  }
+
+  .viewLink,
+  .downloadLink {
+    display: block;
+    margin: 0.25rem 0;
+  }
+}

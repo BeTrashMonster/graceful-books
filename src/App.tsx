@@ -3,15 +3,18 @@ import { ErrorBoundary } from './components/error/ErrorBoundary'
 import { AppRoutes } from './routes'
 import { AuthProvider } from './contexts/AuthContext'
 import { CPGSettingsProvider } from './contexts/CPGSettingsContext'
+import { SubscriptionProvider } from './contexts/SubscriptionContext'
 
 function App() {
   return (
     <ErrorBoundary level="root">
       <BrowserRouter>
         <AuthProvider>
-          <CPGSettingsProvider>
-            <AppRoutes />
-          </CPGSettingsProvider>
+          <SubscriptionProvider>
+            <CPGSettingsProvider>
+              <AppRoutes />
+            </CPGSettingsProvider>
+          </SubscriptionProvider>
         </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>

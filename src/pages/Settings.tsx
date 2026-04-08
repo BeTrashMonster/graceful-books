@@ -12,6 +12,7 @@ export default function Settings() {
 
       <div className="page-content">
         <DataSafetyPanel />
+        {/* Account management has been moved to the Billing page */}
       </div>
     </div>
   )

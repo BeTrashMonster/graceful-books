@@ -15,6 +15,7 @@ import { CategoryManager } from '../cpg/CategoryManager';
 import { DistributorManager } from '../cpg/DistributorManager';
 import { Modal } from '../modals/Modal';
 import { LeafIcon } from '../common/LeafIcon';
+import { ReadOnlyBanner } from '../subscription/ReadOnlyBanner';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
 import type { CPGCategory } from '../../db/schema/cpg.schema';
@@ -408,6 +409,13 @@ export function CPGLayout() {
                 Company Profile
               </Link>
               <Link
+                to="/cpg/billing"
+                className={styles.menuItem}
+                onClick={() => setShowAccountMenu(false)}
+              >
+                Billing
+              </Link>
+              <Link
                 to="/cpg/settings"
                 className={styles.menuItem}
                 onClick={() => setShowAccountMenu(false)}
@@ -429,6 +437,7 @@ export function CPGLayout() {
       </nav>
 
       <main className={styles.main}>
+        <ReadOnlyBanner />
         <Outlet context={{ onAction: handleAction }} />
 
         {/* Modals */}

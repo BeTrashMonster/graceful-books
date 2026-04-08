@@ -20,6 +20,7 @@ const Receipts = lazy(() => import('../pages/Receipts'))
 const ChartOfAccounts = lazy(() => import('../pages/ChartOfAccounts'))
 const Checklist = lazy(() => import('../pages/Checklist'))
 const CustomerPortal = lazy(() => import('../pages/CustomerPortal'))
+const Billing = lazy(() => import('../pages/Billing'))
 const Settings = lazy(() => import('../pages/Settings'))
 const Login = lazy(() => import('../pages/auth/Login'))
 const Signup = lazy(() => import('../pages/auth/Signup'))
@@ -106,6 +107,7 @@ export function AppRoutes() {
           <Route path="/reports/profit-loss" element={<ProfitLoss />} />
           <Route path="/reports/balance-sheet" element={<BalanceSheet />} />
           <Route path="/reports/cash-flow" element={<CashFlow />} />
+          <Route path="/billing" element={<Billing />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
 
@@ -122,6 +124,7 @@ export function AppRoutes() {
           <Route path="/cpg/strategy-planning" element={<ScenarioPlanning />} />
           <Route path="/cpg/labor-roles" element={<LaborRoles />} />
           <Route path="/cpg/company-profile" element={<CompanyProfile />} />
+          <Route path="/cpg/billing" element={<Billing />} />
           <Route path="/cpg/settings" element={<CPGSettings />} />
           <Route path="/cpg/reports/profit-loss" element={<CPGProfitLoss />} />
           <Route path="/cpg/reports/distribution-cost" element={<DistributionCostReport />} />

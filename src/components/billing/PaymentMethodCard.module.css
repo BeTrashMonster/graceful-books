@@ -1,0 +1,123 @@
+/**
+ * PaymentMethodCard Styles
+ */
+
+.successAlert,
+.errorAlert {
+  margin-bottom: 1rem;
+}
+
+.paymentMethodInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.cardDisplay {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.cardIcon {
+  font-size: 2.5rem;
+}
+
+.cardDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cardBrand {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.5px;
+}
+
+.cardNumber {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  font-family: 'Courier New', monospace;
+}
+
+.cardExpiry {
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+}
+
+.noPaymentMethod {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 0;
+}
+
+.noPaymentMethod p {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+/* Modal Content */
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.modalDescription {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.paymentForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.secureNotice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--color-background-secondary);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.lockIcon {
+  font-size: 1rem;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .paymentMethodInfo {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .paymentMethodInfo button {
+    width: 100%;
+  }
+
+  .cardDisplay {
+    justify-content: center;
+  }
+}

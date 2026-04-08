@@ -4,6 +4,7 @@ import { Header } from './Header'
 import { Sidebar } from './Sidebar'
 import { Footer } from './Footer'
 import { RouteErrorBoundary } from '../error/RouteErrorBoundary'
+import { ReadOnlyBanner } from '../subscription/ReadOnlyBanner'
 import './MainLayout.css'
 
 export function MainLayout() {
@@ -48,6 +49,7 @@ export function MainLayout() {
         )}
 
         <main className="main-layout__content" id="main-content">
+          <ReadOnlyBanner />
           <RouteErrorBoundary>
             <Outlet />
           </RouteErrorBoundary>
