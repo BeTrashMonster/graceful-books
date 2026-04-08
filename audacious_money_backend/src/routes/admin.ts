@@ -429,4 +429,34 @@ admin.delete('/users/:userId/products/:productId', requireAdmin, async (c) => {
   }
 });
 
+/**
+ * GET /admin/cpg-launch-signups
+ *
+ * Get all CPG Product Costing Tool launch signups (admin only)
+ */
+admin.get('/cpg-launch-signups', requireAdmin, async (c) => {
+  const db = c.get('db');
+
+  try {
+    const result = await db.query(
+      `SELECT
+        id,
+        email,
+        first_name,
+        last_name,
+        business_name,
+        created_at,
+        notified_at,
+        converted_to_user_id
+       FROM cpg_launch_signups
+       ORDER BY created_at DESC`
+    );
+
+    return success(c, { signups: result.rows });
+  } catch (error) {
+    console.error('[Admin] Error fetching CPG launch signups:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch launch signups');
+  }
+});
+
 export default admin;

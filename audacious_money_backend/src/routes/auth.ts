@@ -26,7 +26,7 @@ import {
   ErrorCodes,
   ErrorMessages,
 } from '../utils/responses.js';
-import { sendVerificationEmail, sendPasswordResetEmail } from '../services/email.service.js';
+import { sendVerificationEmail, sendPasswordResetEmail, sendAccountReactivatedEmail, sendCPGLaunchSignupEmail } from '../services/email.service.js';
 import { trackAffiliateSignup } from '../services/affiliate.js';
 import { trackFailedLogin, clearFailedLogins } from '../services/security.js';
 
@@ -228,16 +228,7 @@ auth.post('/login', validate(loginSchema), async (c) => {
 
     const user = result.rows[0];
 
-    // Check if account is active
-    if (user.account_status !== 'active') {
-      return forbidden(
-        c,
-        ErrorCodes.ACCOUNT_INACTIVE,
-        'Your account is not active. Please contact support for assistance.'
-      );
-    }
-
-    // Verify password using timing-safe comparison
+    // Verify password using timing-safe comparison (do this before account status check)
     const isValidPassword = await timingSafeVerify(password, user.password_hash);
 
     if (!isValidPassword) {
@@ -249,6 +240,57 @@ auth.post('/login', validate(loginSchema), async (c) => {
         '';
       await trackFailedLogin(db, email, ipAddress);
       return unauthorized(c, ErrorCodes.INVALID_CREDENTIALS, ErrorMessages.INVALID_CREDENTIALS);
+    }
+
+    // Handle suspended accounts - automatically reactivate on successful login
+    if (user.account_status === 'suspended') {
+      console.log(`[Auth] Reactivating suspended account: ${user.id} (${user.email})`);
+
+      await db.query(
+        `UPDATE users
+         SET account_status = 'active', updated_at = NOW()
+         WHERE id = $1`,
+        [user.id]
+      );
+
+      const ipAddress =
+        c.req.header('x-forwarded-for')?.split(',')[0].trim() ||
+        c.req.header('x-real-ip') ||
+        c.req.header('cf-connecting-ip') ||
+        '';
+
+      await db.query(
+        `INSERT INTO admin_audit_log (action, resource_type, resource_id, old_values, new_values, ip_address)
+         VALUES ('account_reactivated', 'user', $1, $2, $3, $4)`,
+        [
+          user.id,
+          JSON.stringify({ account_status: 'suspended' }),
+          JSON.stringify({ account_status: 'active' }),
+          ipAddress,
+        ]
+      );
+
+      // Update user object for the rest of the login flow
+      user.account_status = 'active';
+
+      // Send reactivation email
+      try {
+        await sendAccountReactivatedEmail(user.email, user.first_name);
+      } catch (emailError) {
+        console.error('[Auth] Failed to send account reactivated email:', emailError);
+        // Don't fail the login if email fails
+      }
+
+      console.log(`[Auth] Account reactivated successfully: ${user.id}`);
+    }
+
+    // Check if account is active (after potential reactivation)
+    if (user.account_status !== 'active') {
+      return forbidden(
+        c,
+        ErrorCodes.ACCOUNT_INACTIVE,
+        'Your account is not active. Please contact support for assistance.'
+      );
     }
 
     // Clear any failed login attempts
@@ -671,6 +713,76 @@ auth.post('/reset-password', validate(passwordResetSchema), async (c) => {
     }
   } catch (error) {
     console.error('[Auth] Reset password error:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
+  }
+});
+
+/**
+ * POST /auth/cpg-launch-signup
+ *
+ * Sign up for CPG Product Costing Tool launch notifications
+ * No account creation - just email collection for May 4th, 2026 launch
+ *
+ * Request body:
+ * - email: string (required)
+ * - name: string (required) - Full name or first name
+ * - business: string (optional) - Business name
+ *
+ * Response:
+ * - 201: Signup successful, confirmation email sent
+ * - 409: Email already signed up
+ * - 400: Validation error
+ */
+auth.post('/cpg-launch-signup', async (c) => {
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const { email, name, business } = body;
+
+    // Basic validation
+    if (!email || !name) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Email and name are required');
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Invalid email format');
+    }
+
+    // Check if email already signed up
+    const existingSignup = await db.query(
+      'SELECT 1 FROM cpg_launch_signups WHERE email = $1',
+      [email]
+    );
+
+    if (existingSignup.rowCount > 0) {
+      return conflict(c, 'EMAIL_EXISTS', 'This email is already on the launch list');
+    }
+
+    // Parse name into first/last (simple split)
+    const nameParts = name.trim().split(' ');
+    const firstName = nameParts[0];
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : null;
+
+    // Insert signup
+    await db.query(
+      `INSERT INTO cpg_launch_signups (email, first_name, last_name, business_name)
+       VALUES ($1, $2, $3, $4)`,
+      [email, firstName, lastName, business || null]
+    );
+
+    // Send confirmation email (async, don't block response)
+    sendCPGLaunchSignupEmail(email, firstName).catch((error) => {
+      console.error('[Auth] Error sending CPG launch signup email:', error);
+    });
+
+    console.log('[Auth] CPG launch signup:', { email, firstName });
+
+    return created(c, {}, 'Thanks for signing up! Check your email for confirmation.');
+  } catch (error) {
+    console.error('[Auth] CPG launch signup error:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
   }
 });

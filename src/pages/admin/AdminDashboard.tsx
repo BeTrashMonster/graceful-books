@@ -35,9 +35,21 @@ interface Product {
   active: boolean;
 }
 
+interface CPGLaunchSignup {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string | null;
+  business_name: string | null;
+  created_at: string;
+  notified_at: string | null;
+  converted_to_user_id: string | null;
+}
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
+  const [cpgSignups, setCpgSignups] = useState<CPGLaunchSignup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
@@ -86,6 +98,19 @@ export default function AdminDashboard() {
         }
 
         setUsers(usersData.data.users);
+
+        // Fetch CPG launch signups
+        const cpgSignupsResponse = await fetch(`${API_URL}/admin/cpg-launch-signups`, {
+          headers: {
+            'Authorization': `Bearer ${session.token}`,
+          },
+        });
+
+        const cpgSignupsData = await cpgSignupsResponse.json();
+
+        if (cpgSignupsResponse.ok) {
+          setCpgSignups(cpgSignupsData.data.signups || []);
+        }
 
         // Fetch all products
         const productsResponse = await fetch(`${API_URL}/products`);
@@ -349,6 +374,74 @@ export default function AdminDashboard() {
               Logout
             </button>
           </div>
+        </div>
+
+        {/* CPG Launch Signups Table */}
+        <div
+          style={{
+            backgroundColor: 'white',
+            borderRadius: '0.5rem',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            overflow: 'hidden',
+            marginBottom: '2rem',
+          }}
+        >
+          <div style={{ padding: '1.5rem', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f0f9ff' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#4b006e' }}>
+              🚀 CPG Product Costing Tool Launch Signups ({cpgSignups.length})
+            </h2>
+            <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+              May 4th, 2026 Launch
+            </p>
+          </div>
+
+          {cpgSignups.length === 0 ? (
+            <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+              No launch signups yet
+            </div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', fontSize: '0.875rem' }}>
+                <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                  <tr>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Name</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Email</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Business</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Signed Up</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cpgSignups.map((signup) => (
+                    <tr key={signup.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '0.75rem' }}>
+                        {signup.first_name} {signup.last_name || ''}
+                      </td>
+                      <td style={{ padding: '0.75rem' }}>{signup.email}</td>
+                      <td style={{ padding: '0.75rem' }}>{signup.business_name || '-'}</td>
+                      <td style={{ padding: '0.75rem' }}>
+                        {new Date(signup.created_at).toLocaleDateString()}
+                      </td>
+                      <td style={{ padding: '0.75rem' }}>
+                        <span
+                          style={{
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '0.25rem',
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            backgroundColor: signup.converted_to_user_id ? '#dcfce7' : '#fef3c7',
+                            color: signup.converted_to_user_id ? '#16a34a' : '#92400e',
+                          }}
+                        >
+                          {signup.converted_to_user_id ? 'Converted' : 'Waiting'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* Users Table */}
