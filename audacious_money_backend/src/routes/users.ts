@@ -578,6 +578,9 @@ users.get('/me/payment-methods', async (c) => {
       return success(c, { paymentMethod: null });
     }
 
+    // DEBUG: Log full payment method to see what Stripe actually provides
+    console.log('[Users] Full Stripe PaymentMethod object:', JSON.stringify(paymentMethod, null, 2));
+
     // Return appropriate data based on payment method type
     const methodData: any = {
       id: paymentMethod.id,
