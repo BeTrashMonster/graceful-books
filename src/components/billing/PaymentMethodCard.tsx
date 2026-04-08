@@ -230,18 +230,24 @@ export function PaymentMethodCard({ paymentMethod, onPaymentMethodUpdated }: Pay
               <div className={styles.paymentMethodContent}>
                 <div className={styles.cardDisplay}>
                   <div className={styles.cardIcon}>
+                    {/* Stripe Link */}
+                    {paymentMethod.brand === 'link' && '🔗'}
+                    {/* US Bank Account */}
                     {paymentMethod.type === 'us_bank_account' && '🏦'}
                     {paymentMethod.type === 'link' && '🔗'}
+                    {/* Credit Cards */}
                     {paymentMethod.brand === 'visa' && '💳'}
                     {paymentMethod.brand === 'mastercard' && '💳'}
                     {paymentMethod.brand === 'amex' && '💳'}
                     {paymentMethod.brand === 'discover' && '💳'}
-                    {paymentMethod.type === 'card' && !['visa', 'mastercard', 'amex', 'discover'].includes(paymentMethod.brand) && '💳'}
+                    {paymentMethod.type === 'card' && !['visa', 'mastercard', 'amex', 'discover', 'link'].includes(paymentMethod.brand) && '💳'}
                   </div>
                   <div className={styles.cardDetails}>
                     {/* Payment Type */}
                     <div className={styles.cardBrand}>
-                      {paymentMethod.type === 'us_bank_account' && paymentMethod.bankName ? (
+                      {paymentMethod.brand === 'link' ? (
+                        'Stripe Link Payment Method'
+                      ) : paymentMethod.type === 'us_bank_account' && paymentMethod.bankName ? (
                         `${paymentMethod.bankName} ${paymentMethod.accountType === 'checking' ? 'Checking' : 'Savings'}`
                       ) : paymentMethod.type === 'link' ? (
                         'Bank Account (Stripe Link)'
@@ -258,12 +264,19 @@ export function PaymentMethodCard({ paymentMethod, onPaymentMethodUpdated }: Pay
                       )}
                     </div>
 
-                    {/* Account/Card Number */}
-                    {paymentMethod.last4 && (
+                    {/* Account/Card Number - Hide for Link since it's placeholder data */}
+                    {paymentMethod.last4 && paymentMethod.brand !== 'link' && (
                       <div className={styles.cardNumber}>
                         {paymentMethod.type === 'card' ?
                           `•••• •••• •••• ${paymentMethod.last4}` :
                           `Account ending in ${paymentMethod.last4}`}
+                      </div>
+                    )}
+
+                    {/* Helpful message for Link users */}
+                    {paymentMethod.brand === 'link' && (
+                      <div className={styles.cardExpiry}>
+                        Use the label above to identify this payment method
                       </div>
                     )}
 
@@ -274,8 +287,8 @@ export function PaymentMethodCard({ paymentMethod, onPaymentMethodUpdated }: Pay
                       </div>
                     )}
 
-                    {/* Expiry for cards only */}
-                    {paymentMethod.type === 'card' && paymentMethod.expMonth && paymentMethod.expYear && (
+                    {/* Expiry for cards only - Hide for Link */}
+                    {paymentMethod.type === 'card' && paymentMethod.brand !== 'link' && paymentMethod.expMonth && paymentMethod.expYear && (
                       <div className={styles.cardExpiry}>
                         Expires {paymentMethod.expMonth}/{paymentMethod.expYear}
                       </div>
