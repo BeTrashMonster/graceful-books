@@ -755,30 +755,50 @@ auth.post('/cpg-launch-signup', async (c) => {
 
     // Check if email already signed up
     const existingSignup = await db.query(
-      'SELECT 1 FROM cpg_launch_signups WHERE email = $1',
+      'SELECT id, unsubscribed_at FROM cpg_launch_signups WHERE email = $1',
       [email]
     );
 
+    let signupId: string;
+
     if (existingSignup.rowCount > 0) {
-      return conflict(c, 'EMAIL_EXISTS', 'This email is already on the launch list');
+      const existing = existingSignup.rows[0];
+
+      // If they previously unsubscribed, allow them to re-subscribe
+      if (existing.unsubscribed_at) {
+        await db.query(
+          `UPDATE cpg_launch_signups
+           SET first_name = $1, last_name = $2, business_name = $3,
+               unsubscribed_at = NULL, created_at = NOW()
+           WHERE email = $4`,
+          [firstName, lastName, business || null, email]
+        );
+
+        signupId = existing.id;
+
+        console.log('[Auth] CPG launch re-subscription:', { email, firstName });
+      } else {
+        // Still subscribed - don't allow duplicate signup
+        return conflict(c, 'EMAIL_EXISTS', 'This email is already on the launch list');
+      }
+    } else {
+      // New signup - insert into database
+      const insertResult = await db.query(
+        `INSERT INTO cpg_launch_signups (email, first_name, last_name, business_name)
+         VALUES ($1, $2, $3, $4)
+         RETURNING id`,
+        [email, firstName, lastName, business || null]
+      );
+
+      signupId = insertResult.rows[0].id;
+
+      console.log('[Auth] CPG launch signup:', { email, firstName });
     }
-
-    // Insert signup and get the ID
-    const insertResult = await db.query(
-      `INSERT INTO cpg_launch_signups (email, first_name, last_name, business_name)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id`,
-      [email, firstName, lastName, business || null]
-    );
-
-    const signupId = insertResult.rows[0].id;
 
     // Send confirmation email (async, don't block response)
     sendCPGLaunchSignupEmail(email, firstName, signupId).catch((error) => {
       console.error('[Auth] Error sending CPG launch signup email:', error);
     });
-
-    console.log('[Auth] CPG launch signup:', { email, firstName });
 
     return created(c, {}, 'Thanks for signing up! Check your email for confirmation.');
   } catch (error) {
