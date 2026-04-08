@@ -725,7 +725,8 @@ auth.post('/reset-password', validate(passwordResetSchema), async (c) => {
  *
  * Request body:
  * - email: string (required)
- * - name: string (required) - Full name or first name
+ * - firstName: string (required)
+ * - lastName: string (required)
  * - business: string (optional) - Business name
  *
  * Response:
@@ -738,11 +739,11 @@ auth.post('/cpg-launch-signup', async (c) => {
 
   try {
     const body = await c.req.json();
-    const { email, name, business } = body;
+    const { email, firstName, lastName, business } = body;
 
     // Basic validation
-    if (!email || !name) {
-      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Email and name are required');
+    if (!email || !firstName || !lastName) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Email, first name, and last name are required');
     }
 
     // Validate email format
@@ -760,11 +761,6 @@ auth.post('/cpg-launch-signup', async (c) => {
     if (existingSignup.rowCount > 0) {
       return conflict(c, 'EMAIL_EXISTS', 'This email is already on the launch list');
     }
-
-    // Parse name into first/last (simple split)
-    const nameParts = name.trim().split(' ');
-    const firstName = nameParts[0];
-    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : null;
 
     // Insert signup
     await db.query(
