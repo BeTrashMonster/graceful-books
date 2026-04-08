@@ -99,6 +99,8 @@ export function PaymentMethodCard({ paymentMethod, onPaymentMethodUpdated }: Pay
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [editingNickname, setEditingNickname] = useState(false);
+  const [nickname, setNickname] = useState<string>('');
 
   /**
    * Open update modal and create setup intent
@@ -175,16 +177,29 @@ export function PaymentMethodCard({ paymentMethod, onPaymentMethodUpdated }: Pay
                   {paymentMethod.brand === 'visa' && '💳'}
                   {paymentMethod.brand === 'mastercard' && '💳'}
                   {paymentMethod.brand === 'amex' && '💳'}
-                  {!['visa', 'mastercard', 'amex'].includes(paymentMethod.brand) && '💳'}
+                  {paymentMethod.brand === 'discover' && '💳'}
+                  {paymentMethod.brand === 'link' && '🏦'}
+                  {!['visa', 'mastercard', 'amex', 'discover', 'link'].includes(paymentMethod.brand) && '💳'}
                 </div>
                 <div className={styles.cardDetails}>
                   <div className={styles.cardBrand}>
-                    {paymentMethod.brand.charAt(0).toUpperCase() + paymentMethod.brand.slice(1)}
+                    {paymentMethod.brand === 'link' ? 'Bank Account (Stripe Link)' :
+                     paymentMethod.brand === 'visa' ? 'Visa' :
+                     paymentMethod.brand === 'mastercard' ? 'Mastercard' :
+                     paymentMethod.brand === 'amex' ? 'American Express' :
+                     paymentMethod.brand === 'discover' ? 'Discover' :
+                     paymentMethod.brand.charAt(0).toUpperCase() + paymentMethod.brand.slice(1)}
                   </div>
-                  <div className={styles.cardNumber}>•••• •••• •••• {paymentMethod.last4}</div>
-                  <div className={styles.cardExpiry}>
-                    Expires {paymentMethod.expMonth}/{paymentMethod.expYear}
+                  <div className={styles.cardNumber}>
+                    {paymentMethod.brand === 'link' ?
+                      `Account ending in ${paymentMethod.last4}` :
+                      `•••• •••• •••• ${paymentMethod.last4}`}
                   </div>
+                  {paymentMethod.expMonth && paymentMethod.expYear && (
+                    <div className={styles.cardExpiry}>
+                      Expires {paymentMethod.expMonth}/{paymentMethod.expYear}
+                    </div>
+                  )}
                 </div>
               </div>
               <Button variant="secondary" onClick={handleOpenUpdateModal} disabled={loading}>
