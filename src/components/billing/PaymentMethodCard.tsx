@@ -4,7 +4,7 @@
  * Displays current payment method and allows updating via Stripe Elements.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { Card, CardHeader, CardBody } from '../ui/Card';
@@ -102,6 +102,34 @@ export function PaymentMethodCard({ paymentMethod, onPaymentMethodUpdated }: Pay
   const [editingNickname, setEditingNickname] = useState(false);
   const [nickname, setNickname] = useState<string>('');
 
+  // Load nickname from localStorage on mount
+  useEffect(() => {
+    if (paymentMethod) {
+      const storageKey = `payment_nickname_${paymentMethod.id}`;
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        setNickname(saved);
+      }
+    }
+  }, [paymentMethod]);
+
+  /**
+   * Save nickname to localStorage
+   */
+  const handleSaveNickname = (value: string) => {
+    if (paymentMethod) {
+      const storageKey = `payment_nickname_${paymentMethod.id}`;
+      if (value.trim()) {
+        localStorage.setItem(storageKey, value.trim());
+        setNickname(value.trim());
+      } else {
+        localStorage.removeItem(storageKey);
+        setNickname('');
+      }
+    }
+    setEditingNickname(false);
+  };
+
   /**
    * Open update modal and create setup intent
    */
@@ -172,39 +200,68 @@ export function PaymentMethodCard({ paymentMethod, onPaymentMethodUpdated }: Pay
 
           {paymentMethod ? (
             <div className={styles.paymentMethodInfo}>
-              <div className={styles.cardDisplay}>
-                <div className={styles.cardIcon}>
-                  {paymentMethod.brand === 'visa' && '💳'}
-                  {paymentMethod.brand === 'mastercard' && '💳'}
-                  {paymentMethod.brand === 'amex' && '💳'}
-                  {paymentMethod.brand === 'discover' && '💳'}
-                  {paymentMethod.brand === 'link' && '🏦'}
-                  {!['visa', 'mastercard', 'amex', 'discover', 'link'].includes(paymentMethod.brand) && '💳'}
-                </div>
-                <div className={styles.cardDetails}>
-                  <div className={styles.cardBrand}>
-                    {paymentMethod.brand === 'link' ? 'Bank Account (Stripe Link)' :
-                     paymentMethod.brand === 'visa' ? 'Visa' :
-                     paymentMethod.brand === 'mastercard' ? 'Mastercard' :
-                     paymentMethod.brand === 'amex' ? 'American Express' :
-                     paymentMethod.brand === 'discover' ? 'Discover' :
-                     paymentMethod.brand.charAt(0).toUpperCase() + paymentMethod.brand.slice(1)}
+              {/* Nickname/Label Section */}
+              <div className={styles.nicknameSection}>
+                {editingNickname ? (
+                  <input
+                    type="text"
+                    className={styles.nicknameInput}
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    onBlur={() => handleSaveNickname(nickname)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveNickname(nickname);
+                      if (e.key === 'Escape') { setEditingNickname(false); setNickname(localStorage.getItem(`payment_nickname_${paymentMethod.id}`) || ''); }
+                    }}
+                    placeholder="Add a label (e.g., Business Card)"
+                    autoFocus
+                    maxLength={30}
+                  />
+                ) : (
+                  <div className={styles.nicknameDisplay} onClick={() => setEditingNickname(true)}>
+                    <span className={styles.nicknameText}>
+                      {nickname || 'Add a label (click to edit)'}
+                    </span>
+                    <span className={styles.editIcon}>✏️</span>
                   </div>
-                  <div className={styles.cardNumber}>
-                    {paymentMethod.brand === 'link' ?
-                      `Account ending in ${paymentMethod.last4}` :
-                      `•••• •••• •••• ${paymentMethod.last4}`}
-                  </div>
-                  {paymentMethod.expMonth && paymentMethod.expYear && (
-                    <div className={styles.cardExpiry}>
-                      Expires {paymentMethod.expMonth}/{paymentMethod.expYear}
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
-              <Button variant="secondary" onClick={handleOpenUpdateModal} disabled={loading}>
-                {loading ? 'Loading...' : 'Update Payment Method'}
-              </Button>
+
+              <div className={styles.paymentMethodContent}>
+                <div className={styles.cardDisplay}>
+                  <div className={styles.cardIcon}>
+                    {paymentMethod.brand === 'visa' && '💳'}
+                    {paymentMethod.brand === 'mastercard' && '💳'}
+                    {paymentMethod.brand === 'amex' && '💳'}
+                    {paymentMethod.brand === 'discover' && '💳'}
+                    {paymentMethod.brand === 'link' && '🏦'}
+                    {!['visa', 'mastercard', 'amex', 'discover', 'link'].includes(paymentMethod.brand) && '💳'}
+                  </div>
+                  <div className={styles.cardDetails}>
+                    <div className={styles.cardBrand}>
+                      {paymentMethod.brand === 'link' ? 'Bank Account (Stripe Link)' :
+                       paymentMethod.brand === 'visa' ? 'Visa' :
+                       paymentMethod.brand === 'mastercard' ? 'Mastercard' :
+                       paymentMethod.brand === 'amex' ? 'American Express' :
+                       paymentMethod.brand === 'discover' ? 'Discover' :
+                       paymentMethod.brand.charAt(0).toUpperCase() + paymentMethod.brand.slice(1)}
+                    </div>
+                    <div className={styles.cardNumber}>
+                      {paymentMethod.brand === 'link' ?
+                        `Account ending in ${paymentMethod.last4}` :
+                        `•••• •••• •••• ${paymentMethod.last4}`}
+                    </div>
+                    {paymentMethod.expMonth && paymentMethod.expYear && (
+                      <div className={styles.cardExpiry}>
+                        Expires {paymentMethod.expMonth}/{paymentMethod.expYear}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <Button variant="secondary" onClick={handleOpenUpdateModal} disabled={loading}>
+                  {loading ? 'Loading...' : 'Update Payment Method'}
+                </Button>
+              </div>
             </div>
           ) : (
             <div className={styles.noPaymentMethod}>
