@@ -1020,7 +1020,7 @@ export async function sendCPGLaunchSignupEmail(
           </p>
 
           <p style="font-size: 11px; color: #9ca3af; text-align: center; margin-top: 20px;">
-            Changed your mind? <a href="${unsubscribeUrl}" style="color: #4b006e; text-decoration: underline;">Head back to the sand</a> (we won't judge... much 😉)
+            Changed your mind? <a href="${unsubscribeUrl}" style="color: #4b006e; text-decoration: underline;">Unsubscribe</a> and head back to the sand—we'll be here when you're ready to come out.
           </p>
         </div>
       </div>
@@ -1054,7 +1054,7 @@ If you have any questions in the meantime, just reply to this email. We're here 
 Audacious Money
 Building financial confidence, one step at a time.
 
-Changed your mind? Head back to the sand (we won't judge... much): ${unsubscribeUrl}`,
+Changed your mind? Unsubscribe and head back to the sand—we'll be here when you're ready to come out: ${unsubscribeUrl}`,
     MessageStream: 'outbound'
   });
 }

@@ -23,6 +23,7 @@ import {
   unauthorized,
   forbidden,
   success,
+  notFound,
   ErrorCodes,
   ErrorMessages,
 } from '../utils/responses.js';
