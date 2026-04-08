@@ -762,15 +762,18 @@ auth.post('/cpg-launch-signup', async (c) => {
       return conflict(c, 'EMAIL_EXISTS', 'This email is already on the launch list');
     }
 
-    // Insert signup
-    await db.query(
+    // Insert signup and get the ID
+    const insertResult = await db.query(
       `INSERT INTO cpg_launch_signups (email, first_name, last_name, business_name)
-       VALUES ($1, $2, $3, $4)`,
+       VALUES ($1, $2, $3, $4)
+       RETURNING id`,
       [email, firstName, lastName, business || null]
     );
 
+    const signupId = insertResult.rows[0].id;
+
     // Send confirmation email (async, don't block response)
-    sendCPGLaunchSignupEmail(email, firstName).catch((error) => {
+    sendCPGLaunchSignupEmail(email, firstName, signupId).catch((error) => {
       console.error('[Auth] Error sending CPG launch signup email:', error);
     });
 
@@ -779,6 +782,53 @@ auth.post('/cpg-launch-signup', async (c) => {
     return created(c, {}, 'Thanks for signing up! Check your email for confirmation.');
   } catch (error) {
     console.error('[Auth] CPG launch signup error:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
+  }
+});
+
+/**
+ * GET /auth/cpg-unsubscribe/:signupId
+ *
+ * Unsubscribe from CPG Product Costing Tool launch notifications
+ * Marks the signup as unsubscribed but keeps the record
+ */
+auth.get('/cpg-unsubscribe/:signupId', async (c) => {
+  const { signupId } = c.req.param();
+  const db = c.get('db');
+
+  try {
+    // Check if signup exists
+    const result = await db.query(
+      'SELECT id, email, first_name, unsubscribed_at FROM cpg_launch_signups WHERE id = $1',
+      [signupId]
+    );
+
+    if (result.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Signup not found');
+    }
+
+    const signup = result.rows[0];
+
+    // Check if already unsubscribed
+    if (signup.unsubscribed_at) {
+      return success(c, {
+        message: 'You were already unsubscribed from CPG launch notifications.'
+      });
+    }
+
+    // Mark as unsubscribed
+    await db.query(
+      'UPDATE cpg_launch_signups SET unsubscribed_at = NOW() WHERE id = $1',
+      [signupId]
+    );
+
+    console.log('[Auth] CPG launch unsubscribe:', { email: signup.email, signupId });
+
+    return success(c, {
+      message: 'You have been unsubscribed from CPG Product Costing Tool launch notifications. Your information has been kept on record but you will not receive any further emails about this launch.'
+    });
+  } catch (error) {
+    console.error('[Auth] CPG unsubscribe error:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
   }
 });

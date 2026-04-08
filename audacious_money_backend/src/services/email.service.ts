@@ -954,15 +954,18 @@ Building financial confidence, one step at a time.`,
  */
 export async function sendCPGLaunchSignupEmail(
   to: string,
-  firstName: string
+  firstName: string,
+  signupId: string
 ): Promise<void> {
+  const unsubscribeUrl = `https://api.audacious.money/auth/cpg-unsubscribe/${signupId}`;
+
   await client.sendEmail({
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
     Subject: 'You\'re on the list! Product Costing Tool launches May 4th 🚀',
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #4b006e 0%, #2d5016 100%); padding: 40px; text-align: center; border-radius: 8px 8px 0 0;">
+        <div style="background: #4b006e; padding: 40px; text-align: center; border-radius: 8px 8px 0 0;">
           <h1 style="color: white; margin: 0;">You're In! 🎉</h1>
         </div>
 
@@ -970,7 +973,7 @@ export async function sendCPGLaunchSignupEmail(
           <p style="font-size: 18px; color: #4b006e;">Hey ${firstName},</p>
 
           <p style="font-size: 16px; line-height: 1.6; color: #333;">
-            Your head is officially coming out of the sand! We're excited to have you on the list for the <strong>Product Costing Tool</strong> launch.
+            Congrats on taking this step to gain clarity over your numbers. We're excited to have you on the list for the <strong>Product Costing Tool</strong> launch.
           </p>
 
           <div style="background: white; padding: 25px; border-radius: 8px; border-left: 4px solid #D4AF37; margin: 25px 0;">
@@ -1015,6 +1018,10 @@ export async function sendCPGLaunchSignupEmail(
             Audacious Money<br>
             Building financial confidence, one step at a time.
           </p>
+
+          <p style="font-size: 11px; color: #9ca3af; text-align: center; margin-top: 20px;">
+            Changed your mind? <a href="${unsubscribeUrl}" style="color: #4b006e; text-decoration: underline;">Head back to the sand</a> (we won't judge... much 😉)
+          </p>
         </div>
       </div>
     `,
@@ -1022,7 +1029,7 @@ export async function sendCPGLaunchSignupEmail(
 
 Hey ${firstName},
 
-Your head is officially coming out of the sand! We're excited to have you on the list for the Product Costing Tool launch.
+Congrats on taking this step to gain clarity over your numbers. We're excited to have you on the list for the Product Costing Tool launch.
 
 MARK YOUR CALENDAR
 May 4th, 2026
@@ -1045,7 +1052,9 @@ If you have any questions in the meantime, just reply to this email. We're here 
 — The Audacious Money Team
 
 Audacious Money
-Building financial confidence, one step at a time.`,
+Building financial confidence, one step at a time.
+
+Changed your mind? Head back to the sand (we won't judge... much): ${unsubscribeUrl}`,
     MessageStream: 'outbound'
   });
 }
