@@ -578,14 +578,36 @@ users.get('/me/payment-methods', async (c) => {
       return success(c, { paymentMethod: null });
     }
 
+    // Return appropriate data based on payment method type
+    const methodData: any = {
+      id: paymentMethod.id,
+      type: paymentMethod.type,
+    };
+
+    // Card payment method
+    if (paymentMethod.card) {
+      methodData.brand = paymentMethod.card.brand;
+      methodData.last4 = paymentMethod.card.last4;
+      methodData.expMonth = paymentMethod.card.exp_month;
+      methodData.expYear = paymentMethod.card.exp_year;
+    }
+
+    // US Bank Account payment method
+    if (paymentMethod.us_bank_account) {
+      methodData.brand = 'us_bank_account';
+      methodData.bankName = paymentMethod.us_bank_account.bank_name;
+      methodData.last4 = paymentMethod.us_bank_account.last4;
+      methodData.accountType = paymentMethod.us_bank_account.account_type; // 'checking' or 'savings'
+    }
+
+    // Link payment method
+    if (paymentMethod.link) {
+      methodData.brand = 'link';
+      methodData.email = paymentMethod.link.email;
+    }
+
     return success(c, {
-      paymentMethod: {
-        id: paymentMethod.id,
-        brand: paymentMethod.card?.brand,
-        last4: paymentMethod.card?.last4,
-        expMonth: paymentMethod.card?.exp_month,
-        expYear: paymentMethod.card?.exp_year,
-      },
+      paymentMethod: methodData,
     });
   } catch (error) {
     console.error('[Users] Get payment methods error:', error);

@@ -230,28 +230,52 @@ export function PaymentMethodCard({ paymentMethod, onPaymentMethodUpdated }: Pay
               <div className={styles.paymentMethodContent}>
                 <div className={styles.cardDisplay}>
                   <div className={styles.cardIcon}>
+                    {paymentMethod.type === 'us_bank_account' && '🏦'}
+                    {paymentMethod.type === 'link' && '🔗'}
                     {paymentMethod.brand === 'visa' && '💳'}
                     {paymentMethod.brand === 'mastercard' && '💳'}
                     {paymentMethod.brand === 'amex' && '💳'}
                     {paymentMethod.brand === 'discover' && '💳'}
-                    {paymentMethod.brand === 'link' && '🏦'}
-                    {!['visa', 'mastercard', 'amex', 'discover', 'link'].includes(paymentMethod.brand) && '💳'}
+                    {paymentMethod.type === 'card' && !['visa', 'mastercard', 'amex', 'discover'].includes(paymentMethod.brand) && '💳'}
                   </div>
                   <div className={styles.cardDetails}>
+                    {/* Payment Type */}
                     <div className={styles.cardBrand}>
-                      {paymentMethod.brand === 'link' ? 'Bank Account (Stripe Link)' :
-                       paymentMethod.brand === 'visa' ? 'Visa' :
-                       paymentMethod.brand === 'mastercard' ? 'Mastercard' :
-                       paymentMethod.brand === 'amex' ? 'American Express' :
-                       paymentMethod.brand === 'discover' ? 'Discover' :
-                       paymentMethod.brand.charAt(0).toUpperCase() + paymentMethod.brand.slice(1)}
+                      {paymentMethod.type === 'us_bank_account' && paymentMethod.bankName ? (
+                        `${paymentMethod.bankName} ${paymentMethod.accountType === 'checking' ? 'Checking' : 'Savings'}`
+                      ) : paymentMethod.type === 'link' ? (
+                        'Bank Account (Stripe Link)'
+                      ) : paymentMethod.brand === 'visa' ? (
+                        'Visa'
+                      ) : paymentMethod.brand === 'mastercard' ? (
+                        'Mastercard'
+                      ) : paymentMethod.brand === 'amex' ? (
+                        'American Express'
+                      ) : paymentMethod.brand === 'discover' ? (
+                        'Discover'
+                      ) : (
+                        paymentMethod.brand?.charAt(0).toUpperCase() + paymentMethod.brand?.slice(1)
+                      )}
                     </div>
-                    <div className={styles.cardNumber}>
-                      {paymentMethod.brand === 'link' ?
-                        `Account ending in ${paymentMethod.last4}` :
-                        `•••• •••• •••• ${paymentMethod.last4}`}
-                    </div>
-                    {paymentMethod.expMonth && paymentMethod.expYear && (
+
+                    {/* Account/Card Number */}
+                    {paymentMethod.last4 && (
+                      <div className={styles.cardNumber}>
+                        {paymentMethod.type === 'card' ?
+                          `•••• •••• •••• ${paymentMethod.last4}` :
+                          `Account ending in ${paymentMethod.last4}`}
+                      </div>
+                    )}
+
+                    {/* Email for Link */}
+                    {paymentMethod.email && (
+                      <div className={styles.cardExpiry}>
+                        {paymentMethod.email}
+                      </div>
+                    )}
+
+                    {/* Expiry for cards only */}
+                    {paymentMethod.type === 'card' && paymentMethod.expMonth && paymentMethod.expYear && (
                       <div className={styles.cardExpiry}>
                         Expires {paymentMethod.expMonth}/{paymentMethod.expYear}
                       </div>

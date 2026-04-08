@@ -25,10 +25,16 @@ export interface Subscription {
 
 export interface PaymentMethod {
   id: string;
+  type: string;
   brand: string;
-  last4: string;
-  expMonth: number;
-  expYear: number;
+  last4?: string;
+  expMonth?: number;
+  expYear?: number;
+  // Bank account specific
+  bankName?: string;
+  accountType?: 'checking' | 'savings';
+  // Link specific
+  email?: string;
 }
 
 export interface Invoice {
