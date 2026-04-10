@@ -246,6 +246,29 @@ export function isValidEmail(value: string): boolean {
   }
 }
 
+// =============================================================================
+// CONTACT FORM SCHEMAS
+// =============================================================================
+
+/**
+ * Contact form submission schema
+ */
+export const contactFormSchema = z.object({
+  name: nameSchema,
+  email: emailSchema,
+  subject: z.enum(['general', 'support', 'billing', 'feature', 'bug', 'feedback', 'other'], {
+    errorMap: () => ({ message: 'Invalid subject category' })
+  }),
+  message: z.string()
+    .min(10, 'Message must be at least 10 characters')
+    .max(2000, 'Message must be less than 2000 characters')
+    .trim()
+});
+
+// =============================================================================
+// HELPER FUNCTIONS
+// =============================================================================
+
 /**
  * Sanitize string input (remove control characters, trim)
  */

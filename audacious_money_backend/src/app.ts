@@ -21,6 +21,7 @@ import testEmailRoutes from './routes/test-email.js';
 import productRoutes from './routes/products.js';
 import userRoutes from './routes/users.js';
 import adminRoutes from './routes/admin.js';
+import contactRoutes from './routes/contact.js';
 
 // Create Hono app
 const app = new Hono();
@@ -95,6 +96,9 @@ app.get('/health', async (c) => {
 // ==========================================
 
 app.route('/auth', authRoutes);
+
+// Public contact form route
+app.route('/contact', contactRoutes);
 
 // Public product routes
 app.route('/products', productRoutes);

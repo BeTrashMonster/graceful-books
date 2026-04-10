@@ -1058,3 +1058,69 @@ Changed your mind? Unsubscribe and head back to the sand—we'll be here when yo
     MessageStream: 'outbound'
   });
 }
+
+/**
+ * Send contact form submission to hello@audacious.money
+ */
+export async function sendContactFormEmail(
+  name: string,
+  email: string,
+  subject: string,
+  message: string
+): Promise<void> {
+  const subjectMap: Record<string, string> = {
+    'general': 'General Inquiry',
+    'support': 'Technical Support',
+    'billing': 'Billing Question',
+    'feature': 'Feature Request',
+    'bug': 'Bug Report',
+    'feedback': 'Feedback',
+    'other': 'Other'
+  };
+
+  const subjectLine = subjectMap[subject] || 'Contact Form Submission';
+
+  await client.sendEmail({
+    From: `${FROM_NAME} <${FROM_EMAIL}>`,
+    To: FROM_EMAIL, // Send to hello@audacious.money (or noreply@audacious.money based on your FROM_EMAIL)
+    ReplyTo: email, // User's email for easy reply
+    Subject: `[Contact Form] ${subjectLine} - ${name}`,
+    HtmlBody: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #4b006e;">New Contact Form Submission</h1>
+
+        <div style="background: #f9f5ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #D4AF37;">
+          <h3 style="margin-top: 0; color: #4b006e;">Contact Details</h3>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> <a href="mailto:${email}" style="color: #4b006e;">${email}</a></p>
+          <p><strong>Subject:</strong> ${subjectLine}</p>
+        </div>
+
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #e0e0e0;">
+          <h3 style="margin-top: 0; color: #4b006e;">Message</h3>
+          <p style="white-space: pre-wrap; line-height: 1.6;">${message}</p>
+        </div>
+
+        <hr style="border: none; border-top: 2px solid #D4AF37; margin: 30px 0;">
+        <p style="font-size: 12px; color: #9ca3af;">
+          This message was sent via the Audacious Money contact form.<br>
+          Reply directly to this email to respond to ${name}.
+        </p>
+      </div>
+    `,
+    TextBody: `New Contact Form Submission
+
+Contact Details:
+- Name: ${name}
+- Email: ${email}
+- Subject: ${subjectLine}
+
+Message:
+${message}
+
+---
+This message was sent via the Audacious Money contact form.
+Reply directly to this email to respond to ${name}.`,
+    MessageStream: 'outbound'
+  });
+}
