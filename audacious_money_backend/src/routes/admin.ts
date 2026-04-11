@@ -578,15 +578,19 @@ admin.get('/all-signups', requireAdmin, async (c) => {
     if (tagFilter && ['cpg', 'home', 'bookkeeping'].includes(tagFilter)) {
       query = `SELECT * FROM (${query}) AS all_signups WHERE tag = $1 ORDER BY created_at DESC`;
       const result = await db.query(query, [tagFilter]);
+      console.log('[Admin] All signups (filtered):', { tag: tagFilter, count: result.rowCount, rows: result.rows });
       return success(c, { signups: result.rows });
     } else {
       query += ' ORDER BY created_at DESC';
       const result = await db.query(query);
+      console.log('[Admin] All signups (unfiltered):', { count: result.rowCount, rows: result.rows });
       return success(c, { signups: result.rows });
     }
   } catch (error) {
     console.error('[Admin] Error fetching all signups:', error);
-    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch signups');
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[Admin] Detailed error:', errorMessage);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, `Failed to fetch signups: ${errorMessage}`);
   }
 });
 
