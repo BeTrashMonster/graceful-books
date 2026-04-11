@@ -159,10 +159,15 @@ export default function AdminDashboard() {
         });
 
         if (emailSubsResponse.ok) {
+          console.log('Setting email subscribers:', emailSubsData.data);
           setEmailSubscribers(emailSubsData.data.subscribers || []);
           setEmailMetrics(emailSubsData.data.metrics || null);
         } else {
-          console.error('Failed to fetch email subscribers:', emailSubsData);
+          console.error('Failed to fetch email subscribers:', {
+            status: emailSubsResponse.status,
+            error: emailSubsData.error,
+            fullResponse: emailSubsData
+          });
         }
 
         // Fetch all products
