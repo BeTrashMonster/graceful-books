@@ -1,4 +1,5 @@
-// Admin Dashboard - Unified Email Signups View
+// Admin Dashboard - Unified Email Signups View with Actions (v0.1.1)
+// Updated: 2026-04-10 19:32 - Added Edit/Unsubscribe/Delete actions
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
