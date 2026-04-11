@@ -137,9 +137,17 @@ export default function AdminDashboard() {
         });
 
         const allSignupsData = await allSignupsResponse.json();
+        console.log('All signups response:', {
+          ok: allSignupsResponse.ok,
+          status: allSignupsResponse.status,
+          data: allSignupsData
+        });
 
         if (allSignupsResponse.ok) {
+          console.log('Setting all signups:', allSignupsData.data.signups);
           setAllSignups(allSignupsData.data.signups || []);
+        } else {
+          console.error('Failed to fetch all signups:', allSignupsData);
         }
 
         // Fetch all products
