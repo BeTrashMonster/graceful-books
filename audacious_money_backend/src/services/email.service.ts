@@ -1060,6 +1060,210 @@ Changed your mind? Unsubscribe and head back to the sand—we'll be here when yo
 }
 
 /**
+ * Send home page waitlist signup confirmation
+ */
+export async function sendHomeEmailSignupEmail(
+  to: string,
+  firstName: string,
+  signupId: string
+): Promise<void> {
+  const unsubscribeUrl = `https://audacious.money/home-email-unsubscribe?id=${signupId}`;
+
+  await client.sendEmail({
+    From: `${FROM_NAME} <${FROM_EMAIL}>`,
+    To: to,
+    Subject: 'Welcome to the Rebellion! 🔥',
+    HtmlBody: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #4b006e; padding: 40px; text-align: center; border-radius: 8px 8px 0 0;">
+          <h1 style="color: white; margin: 0;">You're In! 🎉</h1>
+        </div>
+
+        <div style="padding: 40px; background: #faf8f5;">
+          <p style="font-size: 18px; color: #4b006e;">Hey ${firstName},</p>
+
+          <p style="font-size: 16px; line-height: 1.6; color: #333;">
+            Welcome to the rebellion! We're thrilled to have you on the waitlist for the <strong>Audacious Money Bookkeeping Suite</strong>.
+          </p>
+
+          <div style="background: white; padding: 25px; border-radius: 8px; border-left: 4px solid #D4AF37; margin: 25px 0;">
+            <h3 style="margin-top: 0; color: #4b006e;">What's Coming</h3>
+            <p style="color: #666; font-size: 14px; margin: 0;">
+              You'll be the first to know when we launch the full bookkeeping suite designed to give you financial clarity and confidence.
+            </p>
+          </div>
+
+          <h3 style="color: #4b006e;">What You'll Get</h3>
+          <ul style="line-height: 1.8; color: #333;">
+            <li><strong>Automated Bookkeeping</strong> - Focus on your business, not data entry</li>
+            <li><strong>Real-Time Financial Insights</strong> - See where you stand, anytime</li>
+            <li><strong>Intelligent Categorization</strong> - No more spreadsheet headaches</li>
+            <li><strong>Tax-Ready Reports</strong> - Be prepared year-round</li>
+            <li><strong>Expert Support</strong> - We're here when you need us</li>
+          </ul>
+
+          <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 25px 0;">
+            <p style="margin: 0; font-size: 16px; color: #333; line-height: 1.6;">
+              <strong style="color: #4b006e;">This is about money confidence.</strong> You deserve to understand your numbers without the overwhelm.
+            </p>
+          </div>
+
+          <p style="font-size: 16px; line-height: 1.6; color: #333;">
+            In the meantime, check out our <strong>Product Costing Tool</strong> launching May 4th if you're a CPG business owner!
+          </p>
+
+          <p style="font-size: 16px; line-height: 1.6; color: #333;">
+            If you have any questions, just reply to this email. We're here for you.
+          </p>
+
+          <p style="margin-top: 30px;">
+            — The Audacious Money Team
+          </p>
+
+          <hr style="border: none; border-top: 2px solid #D4AF37; margin: 30px 0;">
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            Audacious Money<br>
+            Building financial confidence, one step at a time.
+          </p>
+
+          <p style="font-size: 11px; color: #9ca3af; text-align: center; margin-top: 20px;">
+            Changed your mind? <a href="${unsubscribeUrl}" style="color: #4b006e; text-decoration: underline;">Unsubscribe</a> and head back to the sand—we'll be here when you're ready to come out.
+          </p>
+        </div>
+      </div>
+    `,
+    TextBody: `You're In! 🎉
+
+Hey ${firstName},
+
+Welcome to the rebellion! We're thrilled to have you on the waitlist for the Audacious Money Bookkeeping Suite.
+
+What You'll Get:
+- Automated Bookkeeping - Focus on your business, not data entry
+- Real-Time Financial Insights - See where you stand, anytime
+- Intelligent Categorization - No more spreadsheet headaches
+- Tax-Ready Reports - Be prepared year-round
+- Expert Support - We're here when you need us
+
+This is about money confidence. You deserve to understand your numbers without the overwhelm.
+
+In the meantime, check out our Product Costing Tool launching May 4th if you're a CPG business owner!
+
+If you have any questions, just reply to this email. We're here for you.
+
+— The Audacious Money Team
+
+Audacious Money
+Building financial confidence, one step at a time.
+
+Changed your mind? Unsubscribe and head back to the sand—we'll be here when you're ready to come out: ${unsubscribeUrl}`,
+    MessageStream: 'outbound'
+  });
+}
+
+/**
+ * Send bookkeeping suite waitlist signup confirmation
+ */
+export async function sendBookkeepingSignupEmail(
+  to: string,
+  firstName: string,
+  signupId: string
+): Promise<void> {
+  const unsubscribeUrl = `https://audacious.money/home-email-unsubscribe?id=${signupId}`;
+
+  await client.sendEmail({
+    From: `${FROM_NAME} <${FROM_EMAIL}>`,
+    To: to,
+    Subject: 'Welcome to the Rebellion! 🔥',
+    HtmlBody: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #4b006e; padding: 40px; text-align: center; border-radius: 8px 8px 0 0;">
+          <h1 style="color: white; margin: 0;">You're In! 🎉</h1>
+        </div>
+
+        <div style="padding: 40px; background: #faf8f5;">
+          <p style="font-size: 18px; color: #4b006e;">Hey ${firstName},</p>
+
+          <p style="font-size: 16px; line-height: 1.6; color: #333;">
+            Welcome to the rebellion! We're thrilled to have you on the waitlist for the <strong>Audacious Money Bookkeeping Suite</strong>.
+          </p>
+
+          <div style="background: white; padding: 25px; border-radius: 8px; border-left: 4px solid #D4AF37; margin: 25px 0;">
+            <h3 style="margin-top: 0; color: #4b006e;">What's Coming</h3>
+            <p style="color: #666; font-size: 14px; margin: 0;">
+              You'll be the first to know when we launch the full bookkeeping suite designed to give you financial clarity and confidence.
+            </p>
+          </div>
+
+          <h3 style="color: #4b006e;">What You'll Get</h3>
+          <ul style="line-height: 1.8; color: #333;">
+            <li><strong>Automated Bookkeeping</strong> - Focus on your business, not data entry</li>
+            <li><strong>Real-Time Financial Insights</strong> - See where you stand, anytime</li>
+            <li><strong>Intelligent Categorization</strong> - No more spreadsheet headaches</li>
+            <li><strong>Tax-Ready Reports</strong> - Be prepared year-round</li>
+            <li><strong>Expert Support</strong> - We're here when you need us</li>
+          </ul>
+
+          <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 25px 0;">
+            <p style="margin: 0; font-size: 16px; color: #333; line-height: 1.6;">
+              <strong style="color: #4b006e;">This is about money confidence.</strong> You deserve to understand your numbers without the overwhelm.
+            </p>
+          </div>
+
+          <p style="font-size: 16px; line-height: 1.6; color: #333;">
+            In the meantime, check out our <strong>Product Costing Tool</strong> launching May 4th if you're a CPG business owner!
+          </p>
+
+          <p style="font-size: 16px; line-height: 1.6; color: #333;">
+            If you have any questions, just reply to this email. We're here for you.
+          </p>
+
+          <p style="margin-top: 30px;">
+            — The Audacious Money Team
+          </p>
+
+          <hr style="border: none; border-top: 2px solid #D4AF37; margin: 30px 0;">
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            Audacious Money<br>
+            Building financial confidence, one step at a time.
+          </p>
+
+          <p style="font-size: 11px; color: #9ca3af; text-align: center; margin-top: 20px;">
+            Changed your mind? <a href="${unsubscribeUrl}" style="color: #4b006e; text-decoration: underline;">Unsubscribe</a> and head back to the sand—we'll be here when you're ready to come out.
+          </p>
+        </div>
+      </div>
+    `,
+    TextBody: `You're In! 🎉
+
+Hey ${firstName},
+
+Welcome to the rebellion! We're thrilled to have you on the waitlist for the Audacious Money Bookkeeping Suite.
+
+What You'll Get:
+- Automated Bookkeeping - Focus on your business, not data entry
+- Real-Time Financial Insights - See where you stand, anytime
+- Intelligent Categorization - No more spreadsheet headaches
+- Tax-Ready Reports - Be prepared year-round
+- Expert Support - We're here when you need us
+
+This is about money confidence. You deserve to understand your numbers without the overwhelm.
+
+In the meantime, check out our Product Costing Tool launching May 4th if you're a CPG business owner!
+
+If you have any questions, just reply to this email. We're here for you.
+
+— The Audacious Money Team
+
+Audacious Money
+Building financial confidence, one step at a time.
+
+Changed your mind? Unsubscribe and head back to the sand—we'll be here when you're ready to come out: ${unsubscribeUrl}`,
+    MessageStream: 'outbound'
+  });
+}
+
+/**
  * Send contact form submission to hello@audacious.money
  */
 export async function sendContactFormEmail(

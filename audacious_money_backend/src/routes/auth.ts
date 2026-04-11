@@ -27,7 +27,7 @@ import {
   ErrorCodes,
   ErrorMessages,
 } from '../utils/responses.js';
-import { sendVerificationEmail, sendPasswordResetEmail, sendAccountReactivatedEmail, sendCPGLaunchSignupEmail } from '../services/email.service.js';
+import { sendVerificationEmail, sendPasswordResetEmail, sendAccountReactivatedEmail, sendCPGLaunchSignupEmail, sendHomeEmailSignupEmail, sendBookkeepingSignupEmail } from '../services/email.service.js';
 import { trackAffiliateSignup } from '../services/affiliate.js';
 import { trackFailedLogin, clearFailedLogins } from '../services/security.js';
 
@@ -967,12 +967,12 @@ auth.post('/home-email-signup', async (c) => {
       console.log('[Auth] Home email signup:', { email, firstName });
     }
 
-    // TODO: Send confirmation email when template is ready
-    // sendHomeEmailSignupEmail(email, firstName, signupId).catch((error) => {
-    //   console.error('[Auth] Error sending home email signup email:', error);
-    // });
+    // Send confirmation email (async, don't block response)
+    sendHomeEmailSignupEmail(email, firstName, signupId).catch((error) => {
+      console.error('[Auth] Error sending home email signup email:', error);
+    });
 
-    return created(c, {}, 'Thanks for signing up! We\'ll notify you when we launch.');
+    return created(c, {}, 'Thanks for signing up! Check your email for confirmation.');
   } catch (error) {
     console.error('[Auth] Home email signup error:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
@@ -1054,12 +1054,12 @@ auth.post('/bookkeeping-signup', async (c) => {
       console.log('[Auth] Bookkeeping signup:', { email, firstName });
     }
 
-    // TODO: Send confirmation email when template is ready
-    // sendBookkeepingSignupEmail(email, firstName, signupId).catch((error) => {
-    //   console.error('[Auth] Error sending bookkeeping signup email:', error);
-    // });
+    // Send confirmation email (async, don't block response)
+    sendBookkeepingSignupEmail(email, firstName, signupId).catch((error) => {
+      console.error('[Auth] Error sending bookkeeping signup email:', error);
+    });
 
-    return created(c, {}, 'Thanks for signing up! We\'ll notify you when we launch.');
+    return created(c, {}, 'Thanks for signing up! Check your email for confirmation.');
   } catch (error) {
     console.error('[Auth] Bookkeeping signup error:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
