@@ -516,4 +516,78 @@ admin.get('/bookkeeping-signups', requireAdmin, async (c) => {
   }
 });
 
+/**
+ * GET /admin/all-signups
+ *
+ * Get ALL email signups from all lists with tag filtering (admin only)
+ *
+ * Query params:
+ * - tag: Filter by specific tag (cpg, home, bookkeeping)
+ */
+admin.get('/all-signups', requireAdmin, async (c) => {
+  const db = c.get('db');
+  const tagFilter = c.req.query('tag');
+
+  try {
+    let query = `
+      SELECT
+        id,
+        email,
+        first_name,
+        last_name,
+        business_name,
+        'cpg' as tag,
+        created_at,
+        unsubscribed_at,
+        notified_at,
+        converted_to_user_id
+      FROM cpg_launch_signups
+
+      UNION ALL
+
+      SELECT
+        id,
+        email,
+        first_name,
+        last_name,
+        NULL as business_name,
+        'home' as tag,
+        created_at,
+        unsubscribed_at,
+        NULL as notified_at,
+        NULL as converted_to_user_id
+      FROM home_email_signups
+
+      UNION ALL
+
+      SELECT
+        id,
+        email,
+        first_name,
+        last_name,
+        NULL as business_name,
+        'bookkeeping' as tag,
+        created_at,
+        unsubscribed_at,
+        NULL as notified_at,
+        NULL as converted_to_user_id
+      FROM bookkeeping_signups
+    `;
+
+    // Add WHERE clause for tag filtering
+    if (tagFilter && ['cpg', 'home', 'bookkeeping'].includes(tagFilter)) {
+      query = `SELECT * FROM (${query}) AS all_signups WHERE tag = $1 ORDER BY created_at DESC`;
+      const result = await db.query(query, [tagFilter]);
+      return success(c, { signups: result.rows });
+    } else {
+      query += ' ORDER BY created_at DESC';
+      const result = await db.query(query);
+      return success(c, { signups: result.rows });
+    }
+  } catch (error) {
+    console.error('[Admin] Error fetching all signups:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch signups');
+  }
+});
+
 export default admin;

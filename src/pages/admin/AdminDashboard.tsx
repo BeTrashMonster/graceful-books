@@ -47,30 +47,25 @@ interface CPGLaunchSignup {
   unsubscribed_at: string | null;
 }
 
-interface HomeEmailSignup {
+interface AllSignup {
   id: string;
   email: string;
   first_name: string;
   last_name: string | null;
+  business_name: string | null;
+  tag: 'cpg' | 'home' | 'bookkeeping';
   created_at: string;
   unsubscribed_at: string | null;
-}
-
-interface BookkeepingSignup {
-  id: string;
-  email: string;
-  first_name: string;
-  last_name: string | null;
-  created_at: string;
-  unsubscribed_at: string | null;
+  notified_at: string | null;
+  converted_to_user_id: string | null;
 }
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [cpgSignups, setCpgSignups] = useState<CPGLaunchSignup[]>([]);
-  const [homeSignups, setHomeSignups] = useState<HomeEmailSignup[]>([]);
-  const [bookkeepingSignups, setBookkeepingSignups] = useState<BookkeepingSignup[]>([]);
+  const [allSignups, setAllSignups] = useState<AllSignup[]>([]);
+  const [tagFilter, setTagFilter] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
@@ -133,30 +128,18 @@ export default function AdminDashboard() {
           setCpgSignups(cpgSignupsData.data.signups || []);
         }
 
-        // Fetch home email signups
-        const homeSignupsResponse = await fetch(`${API_URL}/admin/home-email-signups`, {
+        // Fetch all signups (unified view)
+        const tagParam = tagFilter ? `?tag=${tagFilter}` : '';
+        const allSignupsResponse = await fetch(`${API_URL}/admin/all-signups${tagParam}`, {
           headers: {
             'Authorization': `Bearer ${session.token}`,
           },
         });
 
-        const homeSignupsData = await homeSignupsResponse.json();
+        const allSignupsData = await allSignupsResponse.json();
 
-        if (homeSignupsResponse.ok) {
-          setHomeSignups(homeSignupsData.data.signups || []);
-        }
-
-        // Fetch bookkeeping signups
-        const bookkeepingSignupsResponse = await fetch(`${API_URL}/admin/bookkeeping-signups`, {
-          headers: {
-            'Authorization': `Bearer ${session.token}`,
-          },
-        });
-
-        const bookkeepingSignupsData = await bookkeepingSignupsResponse.json();
-
-        if (bookkeepingSignupsResponse.ok) {
-          setBookkeepingSignups(bookkeepingSignupsData.data.signups || []);
+        if (allSignupsResponse.ok) {
+          setAllSignups(allSignupsData.data.signups || []);
         }
 
         // Fetch all products
@@ -174,7 +157,7 @@ export default function AdminDashboard() {
     };
 
     fetchData();
-  }, []);
+  }, [tagFilter]);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -423,7 +406,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* CPG Launch Signups Table */}
+        {/* All Email Signups - Unified Table */}
         <div
           style={{
             backgroundColor: 'white',
@@ -433,18 +416,42 @@ export default function AdminDashboard() {
             marginBottom: '2rem',
           }}
         >
-          <div style={{ padding: '1.5rem', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f0f9ff' }}>
+          <div style={{ padding: '1.5rem', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f0fdf4' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#4b006e' }}>
-              🚀 CPG Product Costing Tool Launch Signups ({cpgSignups.length})
+              📧 All Email Signups ({allSignups.length})
             </h2>
             <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
-              May 4th, 2026 Launch
+              Unified view of all email signups across CPG, Home, and Bookkeeping lists
             </p>
+
+            {/* Tag Filter */}
+            <div style={{ marginTop: '1rem' }}>
+              <label style={{ fontSize: '0.875rem', fontWeight: 600, color: '#4b006e', marginRight: '0.5rem' }}>
+                Filter by list:
+              </label>
+              <select
+                value={tagFilter}
+                onChange={(e) => setTagFilter(e.target.value)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.375rem',
+                  border: '2px solid #d1d5db',
+                  fontSize: '0.875rem',
+                  backgroundColor: 'white',
+                  cursor: 'pointer',
+                }}
+              >
+                <option value="">All Lists</option>
+                <option value="cpg">CPG (Product Costing Tool)</option>
+                <option value="home">Home (Main Waitlist)</option>
+                <option value="bookkeeping">Bookkeeping Suite</option>
+              </select>
+            </div>
           </div>
 
-          {cpgSignups.length === 0 ? (
+          {allSignups.length === 0 ? (
             <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
-              No launch signups yet
+              No signups yet
             </div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
@@ -453,18 +460,33 @@ export default function AdminDashboard() {
                   <tr>
                     <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Name</th>
                     <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Email</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>List</th>
                     <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Business</th>
                     <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Signed Up</th>
                     <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {cpgSignups.map((signup) => (
-                    <tr key={signup.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                  {allSignups.map((signup) => (
+                    <tr key={`${signup.tag}-${signup.id}`} style={{ borderBottom: '1px solid #e5e7eb' }}>
                       <td style={{ padding: '0.75rem' }}>
                         {signup.first_name} {signup.last_name || ''}
                       </td>
                       <td style={{ padding: '0.75rem' }}>{signup.email}</td>
+                      <td style={{ padding: '0.75rem' }}>
+                        <span
+                          style={{
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '0.25rem',
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            backgroundColor: signup.tag === 'cpg' ? '#dbeafe' : signup.tag === 'home' ? '#dcfce7' : '#fef3c7',
+                            color: signup.tag === 'cpg' ? '#1e40af' : signup.tag === 'home' ? '#16a34a' : '#92400e',
+                          }}
+                        >
+                          {signup.tag === 'cpg' ? 'CPG' : signup.tag === 'home' ? 'HOME' : 'BOOKKEEPING'}
+                        </span>
+                      </td>
                       <td style={{ padding: '0.75rem' }}>{signup.business_name || '-'}</td>
                       <td style={{ padding: '0.75rem' }}>
                         {new Date(signup.created_at).toLocaleDateString()}
@@ -493,138 +515,6 @@ export default function AdminDashboard() {
                             : signup.converted_to_user_id
                             ? 'Converted'
                             : 'Waiting'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        {/* Home Page Email Waitlist Signups */}
-        <div
-          style={{
-            backgroundColor: 'white',
-            borderRadius: '0.5rem',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            overflow: 'hidden',
-            marginBottom: '2rem',
-          }}
-        >
-          <div style={{ padding: '1.5rem', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f0fdf4' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#4b006e' }}>
-              📧 Home Page Waitlist Signups ({homeSignups.length})
-            </h2>
-            <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
-              Full bookkeeping suite launch waitlist
-            </p>
-          </div>
-
-          {homeSignups.length === 0 ? (
-            <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
-              No waitlist signups yet
-            </div>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', fontSize: '0.875rem' }}>
-                <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                  <tr>
-                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Name</th>
-                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Email</th>
-                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Signed Up</th>
-                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {homeSignups.map((signup) => (
-                    <tr key={signup.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                      <td style={{ padding: '0.75rem' }}>
-                        {signup.first_name} {signup.last_name || ''}
-                      </td>
-                      <td style={{ padding: '0.75rem' }}>{signup.email}</td>
-                      <td style={{ padding: '0.75rem' }}>
-                        {new Date(signup.created_at).toLocaleDateString()}
-                      </td>
-                      <td style={{ padding: '0.75rem' }}>
-                        <span
-                          style={{
-                            padding: '0.25rem 0.5rem',
-                            borderRadius: '0.25rem',
-                            fontSize: '0.75rem',
-                            fontWeight: 600,
-                            backgroundColor: signup.unsubscribed_at ? '#fee2e2' : '#fef3c7',
-                            color: signup.unsubscribed_at ? '#991b1b' : '#92400e',
-                          }}
-                        >
-                          {signup.unsubscribed_at ? 'Unsubscribed' : 'Waiting'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        {/* Bookkeeping Suite Waitlist Signups */}
-        <div
-          style={{
-            backgroundColor: 'white',
-            borderRadius: '0.5rem',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            overflow: 'hidden',
-            marginBottom: '2rem',
-          }}
-        >
-          <div style={{ padding: '1.5rem', borderBottom: '1px solid #e5e7eb', backgroundColor: '#fef3c7' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#4b006e' }}>
-              📚 Bookkeeping Suite Waitlist Signups ({bookkeepingSignups.length})
-            </h2>
-            <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
-              Full bookkeeping suite launch waitlist
-            </p>
-          </div>
-
-          {bookkeepingSignups.length === 0 ? (
-            <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
-              No waitlist signups yet
-            </div>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', fontSize: '0.875rem' }}>
-                <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                  <tr>
-                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Name</th>
-                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Email</th>
-                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Signed Up</th>
-                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bookkeepingSignups.map((signup) => (
-                    <tr key={signup.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                      <td style={{ padding: '0.75rem' }}>
-                        {signup.first_name} {signup.last_name || ''}
-                      </td>
-                      <td style={{ padding: '0.75rem' }}>{signup.email}</td>
-                      <td style={{ padding: '0.75rem' }}>
-                        {new Date(signup.created_at).toLocaleDateString()}
-                      </td>
-                      <td style={{ padding: '0.75rem' }}>
-                        <span
-                          style={{
-                            padding: '0.25rem 0.5rem',
-                            borderRadius: '0.25rem',
-                            fontSize: '0.75rem',
-                            fontWeight: 600,
-                            backgroundColor: signup.unsubscribed_at ? '#fee2e2' : '#fef3c7',
-                            color: signup.unsubscribed_at ? '#991b1b' : '#92400e',
-                          }}
-                        >
-                          {signup.unsubscribed_at ? 'Unsubscribed' : 'Waiting'}
                         </span>
                       </td>
                     </tr>
