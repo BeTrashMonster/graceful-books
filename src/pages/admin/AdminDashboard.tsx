@@ -1,3 +1,4 @@
+// Admin Dashboard - Unified Email Signups View
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
