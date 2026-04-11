@@ -69,6 +69,9 @@ export default function AdminDashboard() {
   const [tagFilter, setTagFilter] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
+  const [editingSignup, setEditingSignup] = useState<AllSignup | null>(null);
+  const [deletingSignup, setDeletingSignup] = useState<AllSignup | null>(null);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -211,6 +214,89 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     sessionStorage.removeItem('graceful_books_admin_session');
     navigate('/admin/login');
+  };
+
+  const handleUnsubscribeSignup = async (signup: AllSignup) => {
+    if (!session) return;
+
+    const confirmMsg = signup.unsubscribed_at
+      ? `Resubscribe ${signup.email}?`
+      : `Unsubscribe ${signup.email} from the ${signup.tag.toUpperCase()} list?`;
+
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      const response = await fetch(`${API_URL}/admin/signups/${signup.tag}/${signup.id}/unsubscribe`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${session.token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Failed to update subscription status');
+      }
+
+      // Refresh data
+      const tagParam = tagFilter ? `?tag=${tagFilter}` : '';
+      const allSignupsResponse = await fetch(`${API_URL}/admin/all-signups${tagParam}`, {
+        headers: {
+          'Authorization': `Bearer ${session.token}`,
+        },
+      });
+      const allSignupsData = await allSignupsResponse.json();
+      if (allSignupsResponse.ok) {
+        setAllSignups(allSignupsData.data.signups || []);
+      }
+
+      setOpenActionMenu(null);
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    }
+  };
+
+  const handleDeleteSignup = async (signup: AllSignup) => {
+    if (!session) return;
+
+    if (!confirm(`Permanently delete ${signup.email} from the ${signup.tag.toUpperCase()} list? This cannot be undone.`)) {
+      setDeletingSignup(null);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/admin/signups/${signup.tag}/${signup.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Failed to delete signup');
+      }
+
+      // Refresh data
+      const tagParam = tagFilter ? `?tag=${tagFilter}` : '';
+      const allSignupsResponse = await fetch(`${API_URL}/admin/all-signups${tagParam}`, {
+        headers: {
+          'Authorization': `Bearer ${session.token}`,
+        },
+      });
+      const allSignupsData = await allSignupsResponse.json();
+      if (allSignupsResponse.ok) {
+        setAllSignups(allSignupsData.data.signups || []);
+      }
+
+      setOpenActionMenu(null);
+      setDeletingSignup(null);
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+      setDeletingSignup(null);
+    }
   };
 
   const fetchUserProducts = async (userId: string) => {
@@ -473,6 +559,7 @@ export default function AdminDashboard() {
                     <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Business</th>
                     <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Signed Up</th>
                     <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Status</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'center', fontWeight: 600 }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -526,6 +613,93 @@ export default function AdminDashboard() {
                             : 'Waiting'}
                         </span>
                       </td>
+                      <td style={{ padding: '0.75rem', textAlign: 'center', position: 'relative' }}>
+                        <button
+                          onClick={() => setOpenActionMenu(openActionMenu === `${signup.tag}-${signup.id}` ? null : `${signup.tag}-${signup.id}`)}
+                          style={{
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: '0.375rem',
+                            border: '1px solid #d1d5db',
+                            backgroundColor: 'white',
+                            cursor: 'pointer',
+                            fontSize: '0.875rem',
+                            fontWeight: 500,
+                          }}
+                        >
+                          ⋮
+                        </button>
+                        {openActionMenu === `${signup.tag}-${signup.id}` && (
+                          <div
+                            style={{
+                              position: 'absolute',
+                              right: '0.5rem',
+                              top: '100%',
+                              marginTop: '0.25rem',
+                              backgroundColor: 'white',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '0.5rem',
+                              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                              zIndex: 10,
+                              minWidth: '150px',
+                            }}
+                          >
+                            <button
+                              onClick={() => handleUnsubscribeSignup(signup)}
+                              style={{
+                                display: 'block',
+                                width: '100%',
+                                padding: '0.75rem 1rem',
+                                textAlign: 'left',
+                                border: 'none',
+                                backgroundColor: 'transparent',
+                                cursor: 'pointer',
+                                fontSize: '0.875rem',
+                                borderBottom: '1px solid #e5e7eb',
+                              }}
+                              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                            >
+                              {signup.unsubscribed_at ? '↻ Resubscribe' : '✕ Unsubscribe'}
+                            </button>
+                            <button
+                              onClick={() => setEditingSignup(signup)}
+                              style={{
+                                display: 'block',
+                                width: '100%',
+                                padding: '0.75rem 1rem',
+                                textAlign: 'left',
+                                border: 'none',
+                                backgroundColor: 'transparent',
+                                cursor: 'pointer',
+                                fontSize: '0.875rem',
+                                borderBottom: '1px solid #e5e7eb',
+                              }}
+                              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                            >
+                              ✎ Edit Details
+                            </button>
+                            <button
+                              onClick={() => handleDeleteSignup(signup)}
+                              style={{
+                                display: 'block',
+                                width: '100%',
+                                padding: '0.75rem 1rem',
+                                textAlign: 'left',
+                                border: 'none',
+                                backgroundColor: 'transparent',
+                                cursor: 'pointer',
+                                fontSize: '0.875rem',
+                                color: '#dc2626',
+                              }}
+                              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#fee2e2'}
+                              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                            >
+                              🗑 Delete
+                            </button>
+                          </div>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -533,6 +707,178 @@ export default function AdminDashboard() {
             </div>
           )}
         </div>
+
+        {/* Edit Signup Modal */}
+        {editingSignup && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 50,
+            }}
+            onClick={() => setEditingSignup(null)}
+          >
+            <div
+              style={{
+                backgroundColor: 'white',
+                borderRadius: '0.5rem',
+                padding: '2rem',
+                maxWidth: '500px',
+                width: '90%',
+                boxShadow: '0 20px 25px rgba(0, 0, 0, 0.15)',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#4b006e', marginBottom: '1rem' }}>
+                Edit Signup Details
+              </h3>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={editingSignup.email}
+                  readOnly
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.375rem',
+                    backgroundColor: '#f9fafb',
+                    cursor: 'not-allowed',
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  value={editingSignup.first_name}
+                  onChange={(e) => setEditingSignup({ ...editingSignup, first_name: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.375rem',
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  value={editingSignup.last_name || ''}
+                  onChange={(e) => setEditingSignup({ ...editingSignup, last_name: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.375rem',
+                  }}
+                />
+              </div>
+              {editingSignup.tag === 'cpg' && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+                    Business Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editingSignup.business_name || ''}
+                    onChange={(e) => setEditingSignup({ ...editingSignup, business_name: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.375rem',
+                    }}
+                  />
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                <button
+                  onClick={() => setEditingSignup(null)}
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem',
+                    borderRadius: '0.375rem',
+                    border: '1px solid #d1d5db',
+                    backgroundColor: 'white',
+                    cursor: 'pointer',
+                    fontWeight: 500,
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!session) return;
+                    try {
+                      const response = await fetch(`${API_URL}/admin/signups/${editingSignup.tag}/${editingSignup.id}`, {
+                        method: 'PATCH',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${session.token}`,
+                        },
+                        body: JSON.stringify({
+                          firstName: editingSignup.first_name,
+                          lastName: editingSignup.last_name,
+                          businessName: editingSignup.business_name,
+                        }),
+                      });
+
+                      const data = await response.json();
+
+                      if (!response.ok) {
+                        throw new Error(data.error?.message || 'Failed to update signup');
+                      }
+
+                      // Refresh data
+                      const tagParam = tagFilter ? `?tag=${tagFilter}` : '';
+                      const allSignupsResponse = await fetch(`${API_URL}/admin/all-signups${tagParam}`, {
+                        headers: {
+                          'Authorization': `Bearer ${session.token}`,
+                        },
+                      });
+                      const allSignupsData = await allSignupsResponse.json();
+                      if (allSignupsResponse.ok) {
+                        setAllSignups(allSignupsData.data.signups || []);
+                      }
+
+                      setEditingSignup(null);
+                    } catch (err: any) {
+                      alert(`Error: ${err.message}`);
+                    }
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem',
+                    borderRadius: '0.375rem',
+                    border: 'none',
+                    backgroundColor: '#4b006e',
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontWeight: 500,
+                  }}
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Users Table */}
         <div

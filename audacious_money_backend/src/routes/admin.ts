@@ -517,6 +517,134 @@ admin.get('/bookkeeping-signups', requireAdmin, async (c) => {
 });
 
 /**
+ * PATCH /admin/signups/:tag/:id/unsubscribe
+ *
+ * Toggle unsubscribe status for a signup (admin only)
+ */
+admin.patch('/signups/:tag/:id/unsubscribe', requireAdmin, async (c) => {
+  const db = c.get('db');
+  const tag = c.req.param('tag');
+  const id = c.req.param('id');
+
+  if (!['cpg', 'home', 'bookkeeping'].includes(tag)) {
+    return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Invalid tag');
+  }
+
+  const tableName = tag === 'cpg' ? 'cpg_launch_signups' : tag === 'home' ? 'home_email_signups' : 'bookkeeping_signups';
+
+  try {
+    // Check current status
+    const current = await db.query(
+      `SELECT id, unsubscribed_at FROM ${tableName} WHERE id = $1`,
+      [id]
+    );
+
+    if (current.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Signup not found');
+    }
+
+    const isCurrentlyUnsubscribed = current.rows[0].unsubscribed_at !== null;
+
+    // Toggle status
+    if (isCurrentlyUnsubscribed) {
+      // Resubscribe
+      await db.query(
+        `UPDATE ${tableName} SET unsubscribed_at = NULL WHERE id = $1`,
+        [id]
+      );
+    } else {
+      // Unsubscribe
+      await db.query(
+        `UPDATE ${tableName} SET unsubscribed_at = NOW() WHERE id = $1`,
+        [id]
+      );
+    }
+
+    return success(c, { message: isCurrentlyUnsubscribed ? 'Resubscribed successfully' : 'Unsubscribed successfully' });
+  } catch (error) {
+    console.error('[Admin] Error toggling unsubscribe:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to update subscription status');
+  }
+});
+
+/**
+ * DELETE /admin/signups/:tag/:id
+ *
+ * Delete a signup permanently (admin only)
+ */
+admin.delete('/signups/:tag/:id', requireAdmin, async (c) => {
+  const db = c.get('db');
+  const tag = c.req.param('tag');
+  const id = c.req.param('id');
+
+  if (!['cpg', 'home', 'bookkeeping'].includes(tag)) {
+    return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Invalid tag');
+  }
+
+  const tableName = tag === 'cpg' ? 'cpg_launch_signups' : tag === 'home' ? 'home_email_signups' : 'bookkeeping_signups';
+
+  try {
+    const result = await db.query(
+      `DELETE FROM ${tableName} WHERE id = $1 RETURNING id`,
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Signup not found');
+    }
+
+    return success(c, { message: 'Signup deleted successfully' });
+  } catch (error) {
+    console.error('[Admin] Error deleting signup:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to delete signup');
+  }
+});
+
+/**
+ * PATCH /admin/signups/:tag/:id
+ *
+ * Update signup details (admin only)
+ */
+admin.patch('/signups/:tag/:id', requireAdmin, async (c) => {
+  const db = c.get('db');
+  const tag = c.req.param('tag');
+  const id = c.req.param('id');
+
+  if (!['cpg', 'home', 'bookkeeping'].includes(tag)) {
+    return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Invalid tag');
+  }
+
+  const tableName = tag === 'cpg' ? 'cpg_launch_signups' : tag === 'home' ? 'home_email_signups' : 'bookkeeping_signups';
+
+  try {
+    const body = await c.req.json();
+    const { firstName, lastName, businessName } = body;
+
+    let query: string;
+    let params: any[];
+
+    if (tag === 'cpg') {
+      query = `UPDATE ${tableName} SET first_name = $1, last_name = $2, business_name = $3 WHERE id = $4 RETURNING id`;
+      params = [firstName, lastName, businessName || null, id];
+    } else {
+      query = `UPDATE ${tableName} SET first_name = $1, last_name = $2 WHERE id = $3 RETURNING id`;
+      params = [firstName, lastName, id];
+    }
+
+    const result = await db.query(query, params);
+
+    if (result.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Signup not found');
+    }
+
+    return success(c, { message: 'Signup updated successfully' });
+  } catch (error) {
+    console.error('[Admin] Error updating signup:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to update signup');
+  }
+});
+
+/**
  * GET /admin/all-signups
  *
  * Get ALL email signups from all lists with tag filtering (admin only)
