@@ -152,10 +152,17 @@ export default function AdminDashboard() {
         });
 
         const emailSubsData = await emailSubsResponse.json();
+        console.log('Email subscribers response:', {
+          ok: emailSubsResponse.ok,
+          status: emailSubsResponse.status,
+          data: emailSubsData
+        });
 
         if (emailSubsResponse.ok) {
           setEmailSubscribers(emailSubsData.data.subscribers || []);
           setEmailMetrics(emailSubsData.data.metrics || null);
+        } else {
+          console.error('Failed to fetch email subscribers:', emailSubsData);
         }
 
         // Fetch all products
