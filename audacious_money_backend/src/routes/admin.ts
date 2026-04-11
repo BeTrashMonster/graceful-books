@@ -488,4 +488,32 @@ admin.get('/home-email-signups', requireAdmin, async (c) => {
   }
 });
 
+/**
+ * GET /admin/bookkeeping-signups
+ *
+ * Get all bookkeeping suite waitlist signups (admin only)
+ */
+admin.get('/bookkeeping-signups', requireAdmin, async (c) => {
+  const db = c.get('db');
+
+  try {
+    const result = await db.query(
+      `SELECT
+        id,
+        email,
+        first_name,
+        last_name,
+        created_at,
+        unsubscribed_at
+       FROM bookkeeping_signups
+       ORDER BY created_at DESC`
+    );
+
+    return success(c, { signups: result.rows });
+  } catch (error) {
+    console.error('[Admin] Error fetching bookkeeping signups:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch bookkeeping signups');
+  }
+});
+
 export default admin;

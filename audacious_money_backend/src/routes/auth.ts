@@ -979,4 +979,91 @@ auth.post('/home-email-signup', async (c) => {
   }
 });
 
+/**
+ * POST /auth/bookkeeping-signup
+ *
+ * Sign up for bookkeeping suite waitlist
+ *
+ * Request body:
+ * - email: string (required)
+ * - firstName: string (required)
+ * - lastName: string (required)
+ *
+ * Response:
+ * - 201: Signup successful
+ * - 409: Email already signed up
+ * - 400: Validation error
+ */
+auth.post('/bookkeeping-signup', async (c) => {
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const { email, firstName, lastName } = body;
+
+    // Basic validation
+    if (!email || !firstName || !lastName) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Email, first name, and last name are required');
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Invalid email format');
+    }
+
+    // Check if email already signed up
+    const existingSignup = await db.query(
+      'SELECT id, unsubscribed_at FROM bookkeeping_signups WHERE email = $1',
+      [email]
+    );
+
+    let signupId: string;
+
+    if (existingSignup.rowCount > 0) {
+      const existing = existingSignup.rows[0];
+
+      // If they previously unsubscribed, allow them to re-subscribe
+      if (existing.unsubscribed_at) {
+        await db.query(
+          `UPDATE bookkeeping_signups
+           SET first_name = $1, last_name = $2,
+               unsubscribed_at = NULL, created_at = NOW()
+           WHERE email = $3`,
+          [firstName, lastName, email]
+        );
+
+        signupId = existing.id;
+
+        console.log('[Auth] Bookkeeping signup re-subscription:', { email, firstName });
+      } else {
+        // Still subscribed - don't allow duplicate signup
+        return conflict(c, 'EMAIL_EXISTS', 'This email is already on the waitlist');
+      }
+    } else {
+      // New signup - insert into database
+      const insertResult = await db.query(
+        `INSERT INTO bookkeeping_signups (email, first_name, last_name)
+         VALUES ($1, $2, $3)
+         RETURNING id`,
+        [email, firstName, lastName]
+      );
+
+      signupId = insertResult.rows[0].id;
+
+      console.log('[Auth] Bookkeeping signup:', { email, firstName });
+    }
+
+    // TODO: Send confirmation email when template is ready
+    // sendBookkeepingSignupEmail(email, firstName, signupId).catch((error) => {
+    //   console.error('[Auth] Error sending bookkeeping signup email:', error);
+    // });
+
+    return created(c, {}, 'Thanks for signing up! We\'ll notify you when we launch.');
+  } catch (error) {
+    console.error('[Auth] Bookkeeping signup error:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
+  }
+});
+
 export default auth;
