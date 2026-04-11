@@ -565,7 +565,10 @@ admin.get('/email-subscribers', requireAdmin, async (c) => {
     });
   } catch (error) {
     console.error('[Admin] Error fetching email subscribers:', error);
-    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch email subscribers');
+    // Log the actual error for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[Admin] Detailed error:', errorMessage);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, `Failed to fetch email subscribers: ${errorMessage}`);
   }
 });
 
