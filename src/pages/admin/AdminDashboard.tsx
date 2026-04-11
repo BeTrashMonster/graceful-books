@@ -47,40 +47,20 @@ interface CPGLaunchSignup {
   unsubscribed_at: string | null;
 }
 
-interface EmailSubscriber {
+interface HomeEmailSignup {
   id: string;
   email: string;
   first_name: string;
-  last_name: string;
-  business_name: string | null;
-  tags: string[];
-  status: string;
-  subscribed_at: string;
-  unsubscribed_at: string | null;
-  notified_at: string | null;
-  converted_to_user_id: string | null;
+  last_name: string | null;
   created_at: string;
-}
-
-interface EmailSubscriberMetrics {
-  total_subscribed: string;
-  total_unsubscribed: string;
-  total_cpg: string;
-  total_home: string;
-  total_converted: string;
-  total_notified: string;
-  subscribed_today: string;
-  subscribed_this_week: string;
-  subscribed_this_month: string;
+  unsubscribed_at: string | null;
 }
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [cpgSignups, setCpgSignups] = useState<CPGLaunchSignup[]>([]);
-  const [emailSubscribers, setEmailSubscribers] = useState<EmailSubscriber[]>([]);
-  const [emailMetrics, setEmailMetrics] = useState<EmailSubscriberMetrics | null>(null);
-  const [tagFilter, setTagFilter] = useState<string>('');
+  const [homeSignups, setHomeSignups] = useState<HomeEmailSignup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
@@ -143,31 +123,17 @@ export default function AdminDashboard() {
           setCpgSignups(cpgSignupsData.data.signups || []);
         }
 
-        // Fetch unified email subscribers
-        const tagParam = tagFilter ? `?tag=${tagFilter}` : '';
-        const emailSubsResponse = await fetch(`${API_URL}/admin/email-subscribers${tagParam}`, {
+        // Fetch home email signups
+        const homeSignupsResponse = await fetch(`${API_URL}/admin/home-email-signups`, {
           headers: {
             'Authorization': `Bearer ${session.token}`,
           },
         });
 
-        const emailSubsData = await emailSubsResponse.json();
-        console.log('Email subscribers response:', {
-          ok: emailSubsResponse.ok,
-          status: emailSubsResponse.status,
-          data: emailSubsData
-        });
+        const homeSignupsData = await homeSignupsResponse.json();
 
-        if (emailSubsResponse.ok) {
-          console.log('Setting email subscribers:', emailSubsData.data);
-          setEmailSubscribers(emailSubsData.data.subscribers || []);
-          setEmailMetrics(emailSubsData.data.metrics || null);
-        } else {
-          console.error('Failed to fetch email subscribers:', {
-            status: emailSubsResponse.status,
-            error: emailSubsData.error,
-            fullResponse: emailSubsData
-          });
+        if (homeSignupsResponse.ok) {
+          setHomeSignups(homeSignupsData.data.signups || []);
         }
 
         // Fetch all products
@@ -185,7 +151,7 @@ export default function AdminDashboard() {
     };
 
     fetchData();
-  }, [tagFilter]);
+  }, []);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -514,7 +480,7 @@ export default function AdminDashboard() {
           )}
         </div>
 
-        {/* Unified Email Subscribers Table */}
+        {/* Home Page Email Waitlist Signups */}
         <div
           style={{
             backgroundColor: 'white',
@@ -526,65 +492,16 @@ export default function AdminDashboard() {
         >
           <div style={{ padding: '1.5rem', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f0fdf4' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#4b006e' }}>
-              📧 Email Subscribers ({emailSubscribers.length})
+              📧 Home Page Waitlist Signups ({homeSignups.length})
             </h2>
             <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
-              Unified list with tag-based segmentation
-              {emailMetrics && (
-                <span style={{ color: '#16a34a', fontWeight: 600, marginLeft: '0.5rem' }}>
-                  • {emailMetrics.total_converted} converted to customers
-                </span>
-              )}
+              Full bookkeeping suite launch waitlist
             </p>
-
-            {/* Tag Filter */}
-            <div style={{ marginTop: '1rem' }}>
-              <select
-                value={tagFilter}
-                onChange={(e) => setTagFilter(e.target.value)}
-                style={{
-                  padding: '0.5rem',
-                  borderRadius: '0.375rem',
-                  border: '1px solid #d1d5db',
-                  fontSize: '0.875rem',
-                }}
-              >
-                <option value="">All Tags</option>
-                <option value="home">Home Waitlist</option>
-                <option value="cpg">CPG Launch</option>
-              </select>
-            </div>
-
-            {/* Metrics */}
-            {emailMetrics && (
-              <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', fontSize: '0.875rem' }}>
-                <div>
-                  <span style={{ color: '#6b7280' }}>Subscribed: </span>
-                  <span style={{ fontWeight: 600 }}>{emailMetrics.total_subscribed}</span>
-                </div>
-                <div>
-                  <span style={{ color: '#6b7280' }}>CPG: </span>
-                  <span style={{ fontWeight: 600 }}>{emailMetrics.total_cpg}</span>
-                </div>
-                <div>
-                  <span style={{ color: '#6b7280' }}>Home: </span>
-                  <span style={{ fontWeight: 600 }}>{emailMetrics.total_home}</span>
-                </div>
-                <div>
-                  <span style={{ color: '#6b7280' }}>Notified: </span>
-                  <span style={{ fontWeight: 600 }}>{emailMetrics.total_notified}</span>
-                </div>
-                <div>
-                  <span style={{ color: '#6b7280' }}>Converted: </span>
-                  <span style={{ fontWeight: 600, color: '#16a34a' }}>{emailMetrics.total_converted}</span>
-                </div>
-              </div>
-            )}
           </div>
 
-          {emailSubscribers.length === 0 ? (
+          {homeSignups.length === 0 ? (
             <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
-              No email subscribers yet
+              No waitlist signups yet
             </div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
@@ -593,37 +510,19 @@ export default function AdminDashboard() {
                   <tr>
                     <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Name</th>
                     <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Email</th>
-                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Tags</th>
-                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Status</th>
-                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Conversion</th>
                     <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Signed Up</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {emailSubscribers.map((subscriber) => (
-                    <tr key={subscriber.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                  {homeSignups.map((signup) => (
+                    <tr key={signup.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
                       <td style={{ padding: '0.75rem' }}>
-                        {subscriber.first_name} {subscriber.last_name}
+                        {signup.first_name} {signup.last_name || ''}
                       </td>
-                      <td style={{ padding: '0.75rem' }}>{subscriber.email}</td>
+                      <td style={{ padding: '0.75rem' }}>{signup.email}</td>
                       <td style={{ padding: '0.75rem' }}>
-                        <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
-                          {subscriber.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              style={{
-                                padding: '0.125rem 0.375rem',
-                                borderRadius: '0.25rem',
-                                fontSize: '0.75rem',
-                                fontWeight: 500,
-                                backgroundColor: tag === 'cpg' ? '#dbeafe' : '#fef3c7',
-                                color: tag === 'cpg' ? '#1e40af' : '#92400e',
-                              }}
-                            >
-                              {tag.toUpperCase()}
-                            </span>
-                          ))}
-                        </div>
+                        {new Date(signup.created_at).toLocaleDateString()}
                       </td>
                       <td style={{ padding: '0.75rem' }}>
                         <span
@@ -632,46 +531,12 @@ export default function AdminDashboard() {
                             borderRadius: '0.25rem',
                             fontSize: '0.75rem',
                             fontWeight: 600,
-                            backgroundColor: subscriber.status === 'unsubscribed' ? '#fee2e2' : '#dcfce7',
-                            color: subscriber.status === 'unsubscribed' ? '#991b1b' : '#16a34a',
+                            backgroundColor: signup.unsubscribed_at ? '#fee2e2' : '#fef3c7',
+                            color: signup.unsubscribed_at ? '#991b1b' : '#92400e',
                           }}
                         >
-                          {subscriber.status === 'subscribed' ? 'Subscribed' : 'Unsubscribed'}
+                          {signup.unsubscribed_at ? 'Unsubscribed' : 'Waiting'}
                         </span>
-                      </td>
-                      <td style={{ padding: '0.75rem' }}>
-                        {subscriber.converted_to_user_id ? (
-                          <span
-                            style={{
-                              padding: '0.25rem 0.5rem',
-                              borderRadius: '0.25rem',
-                              fontSize: '0.75rem',
-                              fontWeight: 600,
-                              backgroundColor: '#dcfce7',
-                              color: '#16a34a',
-                            }}
-                          >
-                            ✓ Converted
-                          </span>
-                        ) : subscriber.notified_at ? (
-                          <span
-                            style={{
-                              padding: '0.25rem 0.5rem',
-                              borderRadius: '0.25rem',
-                              fontSize: '0.75rem',
-                              fontWeight: 600,
-                              backgroundColor: '#fef3c7',
-                              color: '#92400e',
-                            }}
-                          >
-                            Notified
-                          </span>
-                        ) : (
-                          <span style={{ color: '#9ca3af' }}>Waiting</span>
-                        )}
-                      </td>
-                      <td style={{ padding: '0.75rem' }}>
-                        {new Date(subscriber.created_at).toLocaleDateString()}
                       </td>
                     </tr>
                   ))}

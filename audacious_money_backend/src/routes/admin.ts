@@ -461,114 +461,30 @@ admin.get('/cpg-launch-signups', requireAdmin, async (c) => {
 });
 
 /**
- * GET /admin/email-subscribers
+ * GET /admin/home-email-signups
  *
- * Get all email subscribers with tag filtering and conversion tracking (admin only)
- *
- * Query params:
- * - tag: Filter by specific tag (e.g., "cpg", "home")
- * - search: Search by email or name
- * - status: Filter by status (subscribed, unsubscribed)
- * - limit: Max results to return (default 100, max 500)
- * - offset: Pagination offset (default 0)
+ * Get all home page email waitlist signups (admin only)
  */
-admin.get('/email-subscribers', requireAdmin, async (c) => {
+admin.get('/home-email-signups', requireAdmin, async (c) => {
   const db = c.get('db');
 
   try {
-    // Get query parameters
-    const tag = c.req.query('tag');
-    const search = c.req.query('search');
-    const status = c.req.query('status');
-    const limit = Math.min(parseInt(c.req.query('limit') || '100'), 500);
-    const offset = parseInt(c.req.query('offset') || '0');
-
-    // Build WHERE clauses
-    const whereClauses = [];
-    const params: any[] = [];
-    let paramIndex = 1;
-
-    // Filter by tag if specified
-    if (tag) {
-      whereClauses.push(`tags @> $${paramIndex}::jsonb`);
-      params.push(JSON.stringify([tag]));
-      paramIndex++;
-    }
-
-    // Filter by status if specified
-    if (status) {
-      whereClauses.push(`status = $${paramIndex}`);
-      params.push(status);
-      paramIndex++;
-    }
-
-    // Search by email or name if specified
-    if (search) {
-      whereClauses.push(`(
-        email ILIKE $${paramIndex} OR
-        first_name ILIKE $${paramIndex} OR
-        last_name ILIKE $${paramIndex}
-      )`);
-      params.push(`%${search}%`);
-      paramIndex++;
-    }
-
-    const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
-
-    // Get metrics
-    const metricsResult = await db.query(`
-      SELECT
-        COUNT(*) FILTER (WHERE status = 'subscribed') as total_subscribed,
-        COUNT(*) FILTER (WHERE status = 'unsubscribed') as total_unsubscribed,
-        COUNT(*) FILTER (WHERE tags @> '["cpg"]'::jsonb) as total_cpg,
-        COUNT(*) FILTER (WHERE tags @> '["home"]'::jsonb) as total_home,
-        COUNT(*) FILTER (WHERE converted_to_user_id IS NOT NULL) as total_converted,
-        COUNT(*) FILTER (WHERE notified_at IS NOT NULL) as total_notified,
-        COUNT(*) FILTER (WHERE created_at >= CURRENT_DATE) as subscribed_today,
-        COUNT(*) FILTER (WHERE created_at >= CURRENT_DATE - INTERVAL '7 days') as subscribed_this_week,
-        COUNT(*) FILTER (WHERE created_at >= CURRENT_DATE - INTERVAL '30 days') as subscribed_this_month
-      FROM email_subscribers
-      ${whereClause}
-    `, params);
-
-    // Get subscribers with pagination
-    const subscribersParams = [...params, limit, offset];
-    const subscribersResult = await db.query(`
-      SELECT
+    const result = await db.query(
+      `SELECT
         id,
         email,
         first_name,
         last_name,
-        business_name,
-        tags,
-        status,
-        subscribed_at,
-        unsubscribed_at,
-        notified_at,
-        converted_to_user_id,
         created_at,
-        updated_at
-      FROM email_subscribers
-      ${whereClause}
-      ORDER BY created_at DESC
-      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
-    `, subscribersParams);
+        unsubscribed_at
+       FROM home_email_signups
+       ORDER BY created_at DESC`
+    );
 
-    return success(c, {
-      subscribers: subscribersResult.rows,
-      metrics: metricsResult.rows[0],
-      pagination: {
-        limit,
-        offset,
-        total: parseInt(metricsResult.rows[0].total_subscribed) + parseInt(metricsResult.rows[0].total_unsubscribed)
-      }
-    });
+    return success(c, { signups: result.rows });
   } catch (error) {
-    console.error('[Admin] Error fetching email subscribers:', error);
-    // Log the actual error for debugging
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('[Admin] Detailed error:', errorMessage);
-    return badRequest(c, ErrorCodes.INTERNAL_ERROR, `Failed to fetch email subscribers: ${errorMessage}`);
+    console.error('[Admin] Error fetching home email signups:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch home email signups');
   }
 });
 

@@ -904,7 +904,7 @@ auth.post('/cpg-unsubscribe', async (c) => {
  *
  * Response:
  * - 201: Signup successful
- * - 409: Email already subscribed
+ * - 409: Email already signed up
  * - 400: Validation error
  */
 auth.post('/home-email-signup', async (c) => {
@@ -925,178 +925,56 @@ auth.post('/home-email-signup', async (c) => {
       return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Invalid email format');
     }
 
-    // Check if email already exists
-    const existingSubscriber = await db.query(
-      'SELECT id, tags, status FROM email_subscribers WHERE email = $1',
+    // Check if email already signed up
+    const existingSignup = await db.query(
+      'SELECT id, unsubscribed_at FROM home_email_signups WHERE email = $1',
       [email]
     );
 
-    if (existingSubscriber.rowCount > 0) {
-      const existing = existingSubscriber.rows[0];
-      const currentTags = existing.tags || [];
+    let signupId: string;
 
-      // Check if already has 'home' tag
-      if (currentTags.includes('home')) {
-        return conflict(c, ErrorCodes.EMAIL_EXISTS, 'This email is already subscribed to the waitlist');
+    if (existingSignup.rowCount > 0) {
+      const existing = existingSignup.rows[0];
+
+      // If they previously unsubscribed, allow them to re-subscribe
+      if (existing.unsubscribed_at) {
+        await db.query(
+          `UPDATE home_email_signups
+           SET first_name = $1, last_name = $2,
+               unsubscribed_at = NULL, created_at = NOW()
+           WHERE email = $3`,
+          [firstName, lastName, email]
+        );
+
+        signupId = existing.id;
+
+        console.log('[Auth] Home email re-subscription:', { email, firstName });
+      } else {
+        // Still subscribed - don't allow duplicate signup
+        return conflict(c, 'EMAIL_EXISTS', 'This email is already on the waitlist');
       }
-
-      // Add 'home' tag to existing subscriber
-      const updatedTags = [...currentTags, 'home'];
-      await db.query(
-        'UPDATE email_subscribers SET tags = $1, updated_at = NOW() WHERE email = $2',
-        [JSON.stringify(updatedTags), email]
+    } else {
+      // New signup - insert into database
+      const insertResult = await db.query(
+        `INSERT INTO home_email_signups (email, first_name, last_name)
+         VALUES ($1, $2, $3)
+         RETURNING id`,
+        [email, firstName, lastName]
       );
 
-      console.log('[Auth] Home email signup - added tag to existing:', { email });
+      signupId = insertResult.rows[0].id;
 
-      return created(c, {
-        message: 'Successfully subscribed to the waitlist!'
-      });
+      console.log('[Auth] Home email signup:', { email, firstName });
     }
-
-    // Insert new subscriber with 'home' tag
-    const result = await db.query(
-      `INSERT INTO email_subscribers (email, first_name, last_name, tags, status)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id`,
-      [email, firstName, lastName, JSON.stringify(['home']), 'subscribed']
-    );
-
-    const signupId = result.rows[0].id;
-
-    console.log('[Auth] Home email signup successful:', { email, signupId });
 
     // TODO: Send confirmation email when template is ready
-    // await sendHomeEmailSignupConfirmation(email, firstName);
+    // sendHomeEmailSignupEmail(email, firstName, signupId).catch((error) => {
+    //   console.error('[Auth] Error sending home email signup email:', error);
+    // });
 
-    return created(c, {
-      id: signupId,
-      message: 'Successfully subscribed!'
-    });
+    return created(c, {}, 'Thanks for signing up! We\'ll notify you when we launch.');
   } catch (error) {
     console.error('[Auth] Home email signup error:', error);
-    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
-  }
-});
-
-/**
- * GET /auth/email-subscriber-info/:id
- *
- * Get subscriber info for unsubscribe page (works for any tag)
- *
- * Response:
- * - 200: Subscriber info
- * - 404: Subscriber not found
- */
-auth.get('/email-subscriber-info/:id', async (c) => {
-  const db = c.get('db');
-  const signupId = c.req.param('id');
-
-  try {
-    const result = await db.query(
-      'SELECT email, first_name, tags, unsubscribed_at FROM email_subscribers WHERE id = $1',
-      [signupId]
-    );
-
-    if (result.rowCount === 0) {
-      return notFound(c, ErrorCodes.NOT_FOUND, 'Subscriber not found');
-    }
-
-    const subscriber = result.rows[0];
-
-    return success(c, {
-      email: subscriber.email,
-      firstName: subscriber.first_name,
-      tags: subscriber.tags,
-      unsubscribedAt: subscriber.unsubscribed_at
-    });
-  } catch (error) {
-    console.error('[Auth] Email subscriber info error:', error);
-    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
-  }
-});
-
-/**
- * POST /auth/email-unsubscribe
- *
- * Unsubscribe from email lists (removes all tags or specific tags)
- *
- * Request body:
- * - signupId: string (required) - UUID of subscriber
- * - tags: string[] (optional) - Specific tags to remove (if empty, removes all)
- *
- * Response:
- * - 200: Unsubscribed successfully
- * - 404: Subscriber not found
- */
-auth.post('/email-unsubscribe', async (c) => {
-  const db = c.get('db');
-
-  try {
-    const body = await c.req.json();
-    const { signupId, tags } = body;
-
-    if (!signupId) {
-      return badRequest(c, ErrorCodes.VALIDATION_ERROR, 'Signup ID is required');
-    }
-
-    // Check if subscriber exists
-    const result = await db.query(
-      'SELECT id, email, tags, status FROM email_subscribers WHERE id = $1',
-      [signupId]
-    );
-
-    if (result.rowCount === 0) {
-      return notFound(c, ErrorCodes.NOT_FOUND, 'Subscriber not found');
-    }
-
-    const subscriber = result.rows[0];
-
-    // If already unsubscribed, return success
-    if (subscriber.status === 'unsubscribed') {
-      return success(c, {
-        message: 'You were already unsubscribed from all lists.'
-      });
-    }
-
-    // If no specific tags provided, unsubscribe from everything
-    if (!tags || tags.length === 0) {
-      await db.query(
-        'UPDATE email_subscribers SET status = $1, unsubscribed_at = NOW(), updated_at = NOW() WHERE id = $2',
-        ['unsubscribed', signupId]
-      );
-
-      console.log('[Auth] Email unsubscribe - all:', { email: subscriber.email, signupId });
-
-      return success(c, {
-        message: 'Successfully unsubscribed from all lists.'
-      });
-    }
-
-    // Remove specific tags
-    const currentTags = subscriber.tags || [];
-    const remainingTags = currentTags.filter((tag: string) => !tags.includes(tag));
-
-    // If no tags left, mark as unsubscribed
-    if (remainingTags.length === 0) {
-      await db.query(
-        'UPDATE email_subscribers SET tags = $1, status = $2, unsubscribed_at = NOW(), updated_at = NOW() WHERE id = $3',
-        [JSON.stringify([]), 'unsubscribed', signupId]
-      );
-    } else {
-      await db.query(
-        'UPDATE email_subscribers SET tags = $1, updated_at = NOW() WHERE id = $2',
-        [JSON.stringify(remainingTags), signupId]
-      );
-    }
-
-    console.log('[Auth] Email unsubscribe - specific tags:', { email: subscriber.email, signupId, removedTags: tags });
-
-    return success(c, {
-      message: `Successfully unsubscribed from ${tags.join(', ')}.`
-    });
-  } catch (error) {
-    console.error('[Auth] Email unsubscribe error:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred');
   }
 });
