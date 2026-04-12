@@ -326,7 +326,7 @@ VALUES
   ('debt-management', 'Debt Management', 'Get out of debt faster with smart strategies', 20.00, 5.00, 15.00, 2),
   ('service-provider-management', 'Service Provider Management', 'Manage all your service providers in one place', 30.00, 5.00, 25.00, 3),
   ('cpu-cpg-calculator', 'CPU/CPG Calculator', 'Calculate cost per use and cost per guest', 15.00, 5.00, 10.00, 4),
-  ('bookkeeping-suite', 'Bookkeeping Suite', 'Complete bookkeeping solution for small business', 40.00, 5.00, 35.00, 5),
+  ('bookkeeping-suite', 'Numbers Suite', 'Complete bookkeeping solution for small business', 40.00, 5.00, 35.00, 5),
   ('fractional-cfo', 'Fractional CFO', 'Strategic financial guidance and planning', 60.00, 5.00, 55.00, 6)
 ON CONFLICT (slug) DO NOTHING;
 

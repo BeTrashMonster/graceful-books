@@ -1083,7 +1083,7 @@ export async function sendHomeEmailSignupEmail(
           <p style="font-size: 18px; color: #4b006e;">Hey ${firstName},</p>
 
           <p style="font-size: 16px; line-height: 1.6; color: #333;">
-            Welcome to the rebellion! We're thrilled to have you on the waitlist for the <strong>Audacious Money Bookkeeping Suite</strong>.
+            Welcome to the rebellion! We're thrilled to have you on the waitlist for the <strong>Audacious Money Numbers Suite</strong>.
           </p>
 
           <div style="background: white; padding: 25px; border-radius: 8px; border-left: 4px solid #D4AF37; margin: 25px 0;">
@@ -1109,7 +1109,7 @@ export async function sendHomeEmailSignupEmail(
           </div>
 
           <p style="font-size: 16px; line-height: 1.6; color: #333;">
-            In the meantime, check out our <strong>Product Costing Tool</strong> launching May 4th if you're a CPG business owner!
+            In the meantime, check out our <strong>Product Costing Tool</strong> launching May 4th if you're a CPG business owner! <a href="https://audacious.money/cpg-landing" style="color: #4b006e; text-decoration: underline; font-weight: 600;">Learn more →</a>
           </p>
 
           <p style="font-size: 16px; line-height: 1.6; color: #333;">
@@ -1136,7 +1136,7 @@ export async function sendHomeEmailSignupEmail(
 
 Hey ${firstName},
 
-Welcome to the rebellion! We're thrilled to have you on the waitlist for the Audacious Money Bookkeeping Suite.
+Welcome to the rebellion! We're thrilled to have you on the waitlist for the Audacious Money Numbers Suite.
 
 What You'll Get:
 - Automated Bookkeeping - Focus on your business, not data entry
@@ -1147,7 +1147,7 @@ What You'll Get:
 
 This is about money confidence. You deserve to understand your numbers without the overwhelm.
 
-In the meantime, check out our Product Costing Tool launching May 4th if you're a CPG business owner!
+In the meantime, check out our Product Costing Tool launching May 4th if you're a CPG business owner! Learn more at https://audacious.money/cpg-landing
 
 If you have any questions, just reply to this email. We're here for you.
 
@@ -1185,7 +1185,7 @@ export async function sendBookkeepingSignupEmail(
           <p style="font-size: 18px; color: #4b006e;">Hey ${firstName},</p>
 
           <p style="font-size: 16px; line-height: 1.6; color: #333;">
-            Welcome to the rebellion! We're thrilled to have you on the waitlist for the <strong>Audacious Money Bookkeeping Suite</strong>.
+            Welcome to the rebellion! We're thrilled to have you on the waitlist for the <strong>Audacious Money Numbers Suite</strong>.
           </p>
 
           <div style="background: white; padding: 25px; border-radius: 8px; border-left: 4px solid #D4AF37; margin: 25px 0;">
@@ -1211,7 +1211,7 @@ export async function sendBookkeepingSignupEmail(
           </div>
 
           <p style="font-size: 16px; line-height: 1.6; color: #333;">
-            In the meantime, check out our <strong>Product Costing Tool</strong> launching May 4th if you're a CPG business owner!
+            In the meantime, check out our <strong>Product Costing Tool</strong> launching May 4th if you're a CPG business owner! <a href="https://audacious.money/cpg-landing" style="color: #4b006e; text-decoration: underline; font-weight: 600;">Learn more →</a>
           </p>
 
           <p style="font-size: 16px; line-height: 1.6; color: #333;">
@@ -1238,7 +1238,7 @@ export async function sendBookkeepingSignupEmail(
 
 Hey ${firstName},
 
-Welcome to the rebellion! We're thrilled to have you on the waitlist for the Audacious Money Bookkeeping Suite.
+Welcome to the rebellion! We're thrilled to have you on the waitlist for the Audacious Money Numbers Suite.
 
 What You'll Get:
 - Automated Bookkeeping - Focus on your business, not data entry
@@ -1249,7 +1249,7 @@ What You'll Get:
 
 This is about money confidence. You deserve to understand your numbers without the overwhelm.
 
-In the meantime, check out our Product Costing Tool launching May 4th if you're a CPG business owner!
+In the meantime, check out our Product Costing Tool launching May 4th if you're a CPG business owner! Learn more at https://audacious.money/cpg-landing
 
 If you have any questions, just reply to this email. We're here for you.
 
