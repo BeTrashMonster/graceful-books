@@ -1109,7 +1109,7 @@ export async function sendHomeEmailSignupEmail(
           </div>
 
           <p style="font-size: 16px; line-height: 1.6; color: #333;">
-            In the meantime, check out our <strong>Product Costing Tool</strong> launching May 4th if you're a CPG business owner! <a href="https://audacious.money/cpg-landing" style="color: #4b006e; text-decoration: underline; font-weight: 600;">Learn more →</a>
+            In the meantime, check out our <a href="https://audacious.money/cpg-landing" style="color: #4b006e; text-decoration: none; font-weight: 600;">Product Costing Tool</a> launching May 4th if you're a CPG business owner!
           </p>
 
           <p style="font-size: 16px; line-height: 1.6; color: #333;">
@@ -1147,7 +1147,7 @@ What You'll Get:
 
 This is about money confidence. You deserve to understand your numbers without the overwhelm.
 
-In the meantime, check out our Product Costing Tool launching May 4th if you're a CPG business owner! Learn more at https://audacious.money/cpg-landing
+In the meantime, check out our Product Costing Tool launching May 4th if you're a CPG business owner!
 
 If you have any questions, just reply to this email. We're here for you.
 
@@ -1211,7 +1211,7 @@ export async function sendBookkeepingSignupEmail(
           </div>
 
           <p style="font-size: 16px; line-height: 1.6; color: #333;">
-            In the meantime, check out our <strong>Product Costing Tool</strong> launching May 4th if you're a CPG business owner! <a href="https://audacious.money/cpg-landing" style="color: #4b006e; text-decoration: underline; font-weight: 600;">Learn more →</a>
+            In the meantime, check out our <a href="https://audacious.money/cpg-landing" style="color: #4b006e; text-decoration: none; font-weight: 600;">Product Costing Tool</a> launching May 4th if you're a CPG business owner!
           </p>
 
           <p style="font-size: 16px; line-height: 1.6; color: #333;">
@@ -1249,7 +1249,7 @@ What You'll Get:
 
 This is about money confidence. You deserve to understand your numbers without the overwhelm.
 
-In the meantime, check out our Product Costing Tool launching May 4th if you're a CPG business owner! Learn more at https://audacious.money/cpg-landing
+In the meantime, check out our Product Costing Tool launching May 4th if you're a CPG business owner!
 
 If you have any questions, just reply to this email. We're here for you.
 
