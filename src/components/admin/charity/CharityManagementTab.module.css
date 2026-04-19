@@ -72,6 +72,12 @@
   font-size: 0.875rem;
 }
 
+.displayOrder {
+  font-weight: 600;
+  color: #6b7280;
+  text-align: center;
+}
+
 .charityName {
   font-weight: 600;
   color: #1a1a1a;
@@ -188,7 +194,19 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
 }
 
 .form input,
@@ -205,6 +223,12 @@
 .form textarea:focus {
   outline: none;
   border-color: #4f46e5;
+}
+
+.helpText {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: -0.25rem;
 }
 
 .modalActions {

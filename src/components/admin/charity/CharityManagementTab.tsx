@@ -5,13 +5,14 @@
  */
 
 import { useState } from 'react';
-import type { CharityAnalytics, CreateCharityRequest, UpdateCharityRequest } from '../../../services/charities.api';
+import type { CharityAnalytics, CreateCharityRequest, UpdateCharityRequest, Charity } from '../../../services/charities.api';
 import {
   createCharity,
   updateCharity,
   inactivateCharity,
   verifyCharity,
   rejectCharity,
+  getAdminCharity,
 } from '../../../services/charities.api';
 import { CharityStatus, CharityCategory } from '../../../types/database.types';
 import styles from './CharityManagementTab.module.css';
@@ -26,7 +27,8 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedCharity, setSelectedCharity] = useState<CharityAnalytics | null>(null);
-  const [editingCharity, setEditingCharity] = useState<CharityAnalytics | null>(null);
+  const [editingCharity, setEditingCharity] = useState<Charity | null>(null);
+  const [loadingEdit, setLoadingEdit] = useState(false);
 
   // Filter charities
   const filteredCharities = charities.filter((c) => {
@@ -46,6 +48,19 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
     } catch (error) {
       console.error('Error creating charity:', error);
       alert(error instanceof Error ? error.message : 'Failed to create charity');
+    }
+  };
+
+  const handleEditCharity = async (charityId: string) => {
+    setLoadingEdit(true);
+    try {
+      const fullCharity = await getAdminCharity(charityId);
+      setEditingCharity(fullCharity);
+    } catch (error) {
+      console.error('Error fetching charity details:', error);
+      alert(error instanceof Error ? error.message : 'Failed to load charity details');
+    } finally {
+      setLoadingEdit(false);
     }
   };
 
@@ -128,6 +143,7 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
         <table className={styles.table}>
           <thead>
             <tr>
+              <th>Order</th>
               <th>Name</th>
               <th>EIN</th>
               <th>Category</th>
@@ -140,6 +156,7 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
           <tbody>
             {filteredCharities.map((charity) => (
               <tr key={charity.id}>
+                <td className={styles.displayOrder}>{charity.displayOrder}</td>
                 <td className={styles.charityName}>{charity.name}</td>
                 <td>{charity.ein}</td>
                 <td>{charity.category}</td>
@@ -153,9 +170,10 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
                 <td>
                   <div className={styles.actions}>
                     <button
-                      onClick={() => setEditingCharity(charity)}
+                      onClick={() => handleEditCharity(charity.id)}
                       className={styles.editBtn}
                       title="Edit charity"
+                      disabled={loadingEdit}
                     >
                       ✏️
                     </button>
@@ -252,50 +270,68 @@ function AddCharityModal({ onAdd, onClose }: AddCharityModalProps) {
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <h2>Add New Charity</h2>
         <form onSubmit={handleSubmit} className={styles.form}>
-          <input
-            type="text"
-            placeholder="Charity Name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-          <input
-            type="text"
-            placeholder="EIN (XX-XXXXXXX)"
-            value={formData.ein}
-            onChange={(e) => setFormData({ ...formData, ein: e.target.value })}
-            pattern="\d{2}-\d{7}"
-            required
-          />
-          <input
-            type="text"
-            placeholder="Website (e.g., redcross.org)"
-            value={formData.website}
-            onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-            required
-          />
-          <select
-            value={formData.category}
-            onChange={(e) => setFormData({ ...formData, category: e.target.value as CharityCategory })}
-            required
-          >
-            <option value="EDUCATION">Education</option>
-            <option value="ENVIRONMENT">Environment</option>
-            <option value="HEALTH">Health</option>
-            <option value="POVERTY">Poverty</option>
-            <option value="ANIMAL_WELFARE">Animal Welfare</option>
-            <option value="HUMAN_RIGHTS">Human Rights</option>
-            <option value="DISASTER_RELIEF">Disaster Relief</option>
-            <option value="ARTS_CULTURE">Arts & Culture</option>
-            <option value="COMMUNITY">Community</option>
-            <option value="OTHER">Other</option>
-          </select>
-          <textarea
-            placeholder="Short Description"
-            value={formData.shortDescription}
-            onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
-            rows={3}
-          />
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Charity Name *</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>EIN *</label>
+            <input
+              type="text"
+              placeholder="XX-XXXXXXX"
+              value={formData.ein}
+              onChange={(e) => setFormData({ ...formData, ein: e.target.value })}
+              pattern="\d{2}-\d{7}"
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Website *</label>
+            <input
+              type="text"
+              placeholder="e.g., redcross.org"
+              value={formData.website}
+              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Category *</label>
+            <select
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value as CharityCategory })}
+              required
+            >
+              <option value="EDUCATION">Education</option>
+              <option value="ENVIRONMENT">Environment</option>
+              <option value="HEALTH">Health</option>
+              <option value="POVERTY">Poverty</option>
+              <option value="ANIMAL_WELFARE">Animal Welfare</option>
+              <option value="HUMAN_RIGHTS">Human Rights</option>
+              <option value="DISASTER_RELIEF">Disaster Relief</option>
+              <option value="ARTS_CULTURE">Arts & Culture</option>
+              <option value="COMMUNITY">Community</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Short Description</label>
+            <textarea
+              placeholder="Brief description shown in charity selection"
+              value={formData.shortDescription}
+              onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
+              rows={3}
+            />
+          </div>
           <div className={styles.modalActions}>
             <button type="button" onClick={onClose}>Cancel</button>
             <button type="submit" className={styles.submitBtn}>Add Charity</button>
@@ -308,21 +344,21 @@ function AddCharityModal({ onAdd, onClose }: AddCharityModalProps) {
 
 /* Edit Charity Modal */
 interface EditCharityModalProps {
-  charity: CharityAnalytics;
+  charity: Charity;
   onUpdate: (data: UpdateCharityRequest) => void;
   onClose: () => void;
 }
 
 function EditCharityModal({ charity, onUpdate, onClose }: EditCharityModalProps) {
   const [formData, setFormData] = useState<UpdateCharityRequest>({
-    name: charity.name,
-    ein: charity.ein,
-    website: charity.website,
-    category: charity.category,
+    name: charity.name || '',
+    ein: charity.ein || '',
+    website: charity.website || '',
+    category: charity.category || 'EDUCATION',
     shortDescription: charity.shortDescription || '',
     longDescription: charity.longDescription || '',
     logo: charity.logo || '',
-    displayOrder: charity.displayOrder,
+    displayOrder: charity.displayOrder || 999,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -342,69 +378,104 @@ function EditCharityModal({ charity, onUpdate, onClose }: EditCharityModalProps)
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <h2>Edit {charity.name}</h2>
         <form onSubmit={handleSubmit} className={styles.form}>
-          <input
-            type="text"
-            placeholder="Charity Name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-          <input
-            type="text"
-            placeholder="EIN (XX-XXXXXXX)"
-            value={formData.ein}
-            onChange={(e) => setFormData({ ...formData, ein: e.target.value })}
-            pattern="\d{2}-\d{7}"
-            required
-          />
-          <input
-            type="text"
-            placeholder="Website (e.g., redcross.org)"
-            value={formData.website}
-            onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-            required
-          />
-          <select
-            value={formData.category}
-            onChange={(e) => setFormData({ ...formData, category: e.target.value as CharityCategory })}
-            required
-          >
-            <option value="EDUCATION">Education</option>
-            <option value="ENVIRONMENT">Environment</option>
-            <option value="HEALTH">Health</option>
-            <option value="POVERTY">Poverty</option>
-            <option value="ANIMAL_WELFARE">Animal Welfare</option>
-            <option value="HUMAN_RIGHTS">Human Rights</option>
-            <option value="DISASTER_RELIEF">Disaster Relief</option>
-            <option value="ARTS_CULTURE">Arts & Culture</option>
-            <option value="COMMUNITY">Community</option>
-            <option value="OTHER">Other</option>
-          </select>
-          <textarea
-            placeholder="Short Description"
-            value={formData.shortDescription}
-            onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
-            rows={3}
-          />
-          <textarea
-            placeholder="Long Description"
-            value={formData.longDescription}
-            onChange={(e) => setFormData({ ...formData, longDescription: e.target.value })}
-            rows={5}
-          />
-          <input
-            type="text"
-            placeholder="Logo URL (optional)"
-            value={formData.logo}
-            onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-          />
-          <input
-            type="number"
-            placeholder="Display Order"
-            value={formData.displayOrder}
-            onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) })}
-            min="0"
-          />
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Charity Name *</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>EIN *</label>
+            <input
+              type="text"
+              placeholder="XX-XXXXXXX"
+              value={formData.ein}
+              onChange={(e) => setFormData({ ...formData, ein: e.target.value })}
+              pattern="\d{2}-\d{7}"
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Website *</label>
+            <input
+              type="text"
+              placeholder="e.g., redcross.org"
+              value={formData.website}
+              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Category *</label>
+            <select
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value as CharityCategory })}
+              required
+            >
+              <option value="EDUCATION">Education</option>
+              <option value="ENVIRONMENT">Environment</option>
+              <option value="HEALTH">Health</option>
+              <option value="POVERTY">Poverty</option>
+              <option value="ANIMAL_WELFARE">Animal Welfare</option>
+              <option value="HUMAN_RIGHTS">Human Rights</option>
+              <option value="DISASTER_RELIEF">Disaster Relief</option>
+              <option value="ARTS_CULTURE">Arts & Culture</option>
+              <option value="COMMUNITY">Community</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Short Description</label>
+            <textarea
+              placeholder="Brief description shown in charity selection"
+              value={formData.shortDescription}
+              onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
+              rows={3}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Long Description</label>
+            <textarea
+              placeholder="Detailed description for charity profile"
+              value={formData.longDescription}
+              onChange={(e) => setFormData({ ...formData, longDescription: e.target.value })}
+              rows={5}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Logo URL</label>
+            <input
+              type="text"
+              placeholder="https://example.com/logo.png"
+              value={formData.logo}
+              onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+            />
+            <small className={styles.helpText}>
+              Enter a direct URL to the charity's logo image. Recommended size: 200x200px.
+            </small>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Display Order *</label>
+            <input
+              type="number"
+              value={formData.displayOrder}
+              onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })}
+              min="0"
+            />
+            <small className={styles.helpText}>
+              Lower numbers appear first. Use this to control the order charities appear in the selection list.
+            </small>
+          </div>
           <div className={styles.modalActions}>
             <button type="button" onClick={onClose}>Cancel</button>
             <button type="submit" className={styles.submitBtn}>Update Charity</button>
