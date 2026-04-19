@@ -21,7 +21,7 @@ import { HelpTooltip } from '../help/HelpTooltip';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
 import { normalizeVariant, validateCPGRecipe } from '../../db/schema/cpg.schema';
-import type { CPGCategory, CPGRecipe } from '../../db/schema/cpg.schema';
+import type { CPGCategory, CPGRecipe, CPGSettings } from '../../db/schema/cpg.schema';
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './RecipeBuilder.module.css';
@@ -69,6 +69,7 @@ export function RecipeBuilder({
   const [isComplete, setIsComplete] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showPermanentDeleteConfirm, setShowPermanentDeleteConfirm] = useState(false);
+  const [cpgSettings, setCpgSettings] = useState<CPGSettings | null>(null);
 
   // Load categories and existing recipe
   useEffect(() => {
@@ -80,6 +81,14 @@ export function RecipeBuilder({
     const loadData = async () => {
       try {
         console.log('🔵 RecipeBuilder: Loading categories for companyId:', companyId);
+
+        // Load CPG settings for decimal precision
+        const settings = await db.cpgSettings
+          .where('company_id')
+          .equals(companyId)
+          .filter((s) => s.active && !s.deleted_at)
+          .first();
+        setCpgSettings(settings);
 
         // Load categories - use simple query to avoid compound index issues
         const cats = await db.cpgCategories
@@ -110,11 +119,13 @@ export function RecipeBuilder({
           setComponents(componentItems);
         } else {
           // Start with one empty component if no recipe exists
+          const decimalPlaces = settings?.decimal_places_numbers ?? 2;
+          const defaultQuantity = (1).toFixed(decimalPlaces);
           const newComponent: RecipeComponentItem = {
             id: uuidv4(),
             category_id: '',
             variant: null,
-            quantity: '1.00',
+            quantity: defaultQuantity,
             isNew: true,
           };
           setComponents([newComponent]);
@@ -195,11 +206,13 @@ export function RecipeBuilder({
   }, [components, categories]);
 
   const addComponent = () => {
+    const decimalPlaces = cpgSettings?.decimal_places_numbers ?? 2;
+    const defaultQuantity = (1).toFixed(decimalPlaces);
     const newComponent: RecipeComponentItem = {
       id: uuidv4(),
       category_id: '',
       variant: null,
-      quantity: '1.00',
+      quantity: defaultQuantity,
       isNew: true,
     };
     setComponents((prev) => [...prev, newComponent]);
@@ -231,6 +244,20 @@ export function RecipeBuilder({
 
   const getCategory = (categoryId: string) => {
     return categories.find((c) => c.id === categoryId);
+  };
+
+  const formatQuantity = (value: string): string => {
+    const decimalPlaces = cpgSettings?.decimal_places_numbers ?? 2;
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return value;
+    return numValue.toFixed(decimalPlaces);
+  };
+
+  const handleQuantityBlur = (componentId: string, value: string) => {
+    if (value && value.trim() !== '') {
+      const formatted = formatQuantity(value);
+      updateComponent(componentId, 'quantity', formatted);
+    }
   };
 
   const handleArchiveRecipe = async () => {
@@ -475,10 +502,14 @@ export function RecipeBuilder({
         </h3>
         <div className={styles.componentList}>
           <div className={styles.componentHeader}>
-            <div style={{ flex: 1.5 }}>Category</div>
-            <div style={{ flex: 1 }}>Variant</div>
-            <div style={{ flex: 1 }}>Qty</div>
-            <div style={{ flex: 1, textAlign: 'right' }}>Cost/Unit</div>
+            <div style={{ flex: 1.1 }}>Category</div>
+            <div style={{ flex: 0.7 }}>Variant</div>
+            <div style={{ width: '10px' }}></div>
+            <div style={{ flex: 1.2 }}>Qty</div>
+            <div style={{ width: '25px', textAlign: 'center' }}>×</div>
+            <div style={{ flex: 0.9, textAlign: 'right' }}>Cost/Unit</div>
+            <div style={{ width: '25px', textAlign: 'center' }}>=</div>
+            <div style={{ flex: 0.7, textAlign: 'right' }}>Line Total</div>
             <div style={{ width: '80px' }}></div>
           </div>
 
@@ -500,7 +531,7 @@ export function RecipeBuilder({
             return (
               <div key={component.id} className={styles.componentRow}>
                 <div className={styles.componentFields}>
-                  <div style={{ flex: 1.5 }}>
+                  <div style={{ flex: 1.1 }}>
                     <select
                       value={component.category_id}
                       onChange={(e) =>
@@ -527,8 +558,8 @@ export function RecipeBuilder({
                     )}
                   </div>
 
-                  {hasVariants && (
-                    <div style={{ flex: 1 }}>
+                  <div style={{ flex: 0.7 }}>
+                    {hasVariants ? (
                       <select
                         value={component.variant || ''}
                         onChange={(e) =>
@@ -547,10 +578,15 @@ export function RecipeBuilder({
                           </option>
                         ))}
                       </select>
-                    </div>
-                  )}
+                    ) : (
+                      <div style={{ height: '42px' }}></div>
+                    )}
+                  </div>
 
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  {/* Spacer */}
+                  <div style={{ width: '10px' }}></div>
+
+                  <div style={{ flex: 1.2, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Input
                       type="number"
                       step="0.01"
@@ -558,14 +594,17 @@ export function RecipeBuilder({
                       onChange={(e) =>
                         updateComponent(component.id, 'quantity', e.target.value)
                       }
+                      onBlur={(e) =>
+                        handleQuantityBlur(component.id, e.target.value)
+                      }
                       placeholder="0"
                       error={errors[`component_${index}_quantity`]}
                       fullWidth
-                      style={{ fontSize: '1.125rem' }}
+                      style={{ fontSize: '1rem' }}
                     />
                     {category && (
                       <div style={{
-                        fontSize: '0.9375rem',
+                        fontSize: '0.8125rem',
                         color: '#64748b',
                         fontWeight: 500,
                         whiteSpace: 'nowrap',
@@ -576,8 +615,14 @@ export function RecipeBuilder({
                     )}
                   </div>
 
+                  {/* Multiplication symbol */}
+                  <div style={{ width: '25px', textAlign: 'center', paddingTop: '0.5rem', fontSize: '1.125rem', color: '#94a3b8', fontWeight: 600 }}>
+                    ×
+                  </div>
+
+                  {/* Cost/Unit */}
                   <div
-                    style={{ flex: 1, textAlign: 'right', paddingTop: '0.5rem' }}
+                    style={{ flex: 0.9, textAlign: 'right', paddingTop: '0.5rem' }}
                   >
                     {costInfo ? (
                       costInfo.hasCostData ? (
@@ -585,9 +630,33 @@ export function RecipeBuilder({
                           ${costInfo.unitCost}
                         </span>
                       ) : (
+                        <span className={styles.costMissing} style={{ fontSize: '0.875rem' }}>
+                          -
+                        </span>
+                      )
+                    ) : (
+                      <span className={styles.costMissing}>-</span>
+                    )}
+                  </div>
+
+                  {/* Equals symbol */}
+                  <div style={{ width: '25px', textAlign: 'center', paddingTop: '0.5rem', fontSize: '1.125rem', color: '#94a3b8', fontWeight: 600 }}>
+                    =
+                  </div>
+
+                  {/* Line Total */}
+                  <div
+                    style={{ flex: 0.7, textAlign: 'right', paddingTop: '0.5rem' }}
+                  >
+                    {costInfo ? (
+                      costInfo.hasCostData && costInfo.subtotal ? (
+                        <span className={styles.costValue}>
+                          ${costInfo.subtotal}
+                        </span>
+                      ) : (
                         <span className={styles.costMissing} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', justifyContent: 'flex-end', fontSize: '0.875rem' }}>
                           <span className={styles.warningIcon}>⚠️</span>
-                          <span>Add invoices to calculate</span>
+                          <span>Add invoices</span>
                           <HelpTooltip
                             content={`Once you enter invoices for ${category?.name || 'this category'}${component.variant ? ` (${component.variant})` : ''}, we'll automatically calculate the cost per unit. Go to the Invoice Timeline below to add your invoices.`}
                             position="left"
