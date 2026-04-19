@@ -149,6 +149,7 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
               <th>Category</th>
               <th>Status</th>
               <th>Lifetime Total</th>
+              <th>Total Due</th>
               <th>Active Users</th>
               <th>Actions</th>
             </tr>
@@ -166,6 +167,7 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
                   </span>
                 </td>
                 <td className={styles.amount}>${(charity.lifetimeTotal / 100).toLocaleString()}</td>
+                <td className={styles.amountDue}>${(charity.pendingDistributionAmount / 100).toLocaleString()}</td>
                 <td>{charity.activeUserSelections}</td>
                 <td>
                   <div className={styles.actions}>
