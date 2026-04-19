@@ -128,6 +128,7 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
         <table className={styles.table}>
           <thead>
             <tr>
+              <th>Order</th>
               <th>Name</th>
               <th>EIN</th>
               <th>Category</th>
@@ -140,6 +141,7 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
           <tbody>
             {filteredCharities.map((charity) => (
               <tr key={charity.id}>
+                <td className={styles.displayOrder}>{charity.displayOrder}</td>
                 <td className={styles.charityName}>{charity.name}</td>
                 <td>{charity.ein}</td>
                 <td>{charity.category}</td>

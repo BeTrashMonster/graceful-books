@@ -72,6 +72,12 @@
   font-size: 0.875rem;
 }
 
+.displayOrder {
+  font-weight: 600;
+  color: #6b7280;
+  text-align: center;
+}
+
 .charityName {
   font-weight: 600;
   color: #1a1a1a;
