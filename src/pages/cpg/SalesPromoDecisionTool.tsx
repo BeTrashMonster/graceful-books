@@ -48,6 +48,28 @@ import styles from './SalesPromoDecisionTool.module.css';
  * - Fetches latest CPUs from invoices
  * - Saves promo decisions to database
  */
+
+/**
+ * Convert date string (YYYY-MM-DD) to local midnight timestamp
+ * Prevents timezone shifts when saving/loading dates
+ */
+const dateStringToLocalTimestamp = (dateString: string): number => {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day).getTime();
+};
+
+/**
+ * Convert timestamp to date string (YYYY-MM-DD) in local timezone
+ * Prevents timezone shifts when displaying dates
+ */
+const timestampToLocalDateString = (timestamp: number): string => {
+  const date = new Date(timestamp);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 type ViewTab = 'decision-tool' | 'promo-tracker';
 
 export default function SalesPromoDecisionTool() {
@@ -377,8 +399,8 @@ export default function SalesPromoDecisionTool() {
         const formData: Partial<PromoFormData> = {
           promoName: promo.promo_name,
           retailerName: promo.retailer_name || '',
-          promoStartDate: promo.promo_start_date ? new Date(promo.promo_start_date).toISOString().split('T')[0] : '',
-          promoEndDate: promo.promo_end_date ? new Date(promo.promo_end_date).toISOString().split('T')[0] : '',
+          promoStartDate: promo.promo_start_date ? timestampToLocalDateString(promo.promo_start_date) : '',
+          promoEndDate: promo.promo_end_date ? timestampToLocalDateString(promo.promo_end_date) : '',
           storeSalePercentage: promo.store_sale_percentage,
           producerPaybackPercentage: promo.producer_payback_percentage,
           demoHoursEntries: convertedDemoEntries,
@@ -486,8 +508,8 @@ export default function SalesPromoDecisionTool() {
           {
             promo_name: formData.promoName,
             retailer_name: formData.retailerName,
-            promo_start_date: formData.promoStartDate ? new Date(formData.promoStartDate).getTime() : undefined,
-            promo_end_date: formData.promoEndDate ? new Date(formData.promoEndDate).getTime() : undefined,
+            promo_start_date: formData.promoStartDate ? dateStringToLocalTimestamp(formData.promoStartDate) : undefined,
+            promo_end_date: formData.promoEndDate ? dateStringToLocalTimestamp(formData.promoEndDate) : undefined,
             store_sale_percentage: formData.storeSalePercentage,
             producer_payback_percentage: formData.producerPaybackPercentage,
             demo_hours_entries: convertedDemoEntries,
@@ -502,8 +524,8 @@ export default function SalesPromoDecisionTool() {
           {
             promo_name: formData.promoName,
             retailer_name: formData.retailerName,
-            promo_start_date: formData.promoStartDate ? new Date(formData.promoStartDate).getTime() : undefined,
-            promo_end_date: formData.promoEndDate ? new Date(formData.promoEndDate).getTime() : undefined,
+            promo_start_date: formData.promoStartDate ? dateStringToLocalTimestamp(formData.promoStartDate) : undefined,
+            promo_end_date: formData.promoEndDate ? dateStringToLocalTimestamp(formData.promoEndDate) : undefined,
             store_sale_percentage: formData.storeSalePercentage,
             producer_payback_percentage: formData.producerPaybackPercentage,
             demo_hours_entries: convertedDemoEntries,
@@ -517,8 +539,8 @@ export default function SalesPromoDecisionTool() {
             companyId: companyId,
             promoName: formData.promoName,
             retailerName: formData.retailerName,
-            promoStartDate: formData.promoStartDate ? new Date(formData.promoStartDate).getTime() : undefined,
-            promoEndDate: formData.promoEndDate ? new Date(formData.promoEndDate).getTime() : undefined,
+            promoStartDate: formData.promoStartDate ? dateStringToLocalTimestamp(formData.promoStartDate) : undefined,
+            promoEndDate: formData.promoEndDate ? dateStringToLocalTimestamp(formData.promoEndDate) : undefined,
             storeSalePercentage: formData.storeSalePercentage,
             producerPaybackPercentage: formData.producerPaybackPercentage,
             demoHoursEntries: formData.demoHoursEntries,
