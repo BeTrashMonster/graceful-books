@@ -13,7 +13,7 @@ export function MainLayout() {
 
   useEffect(() => {
     const checkMobile = () => {
-      const mobile = window.innerWidth < 1024
+      const mobile = window.innerWidth < 768
       setIsMobile(mobile)
       // On desktop, sidebar should be open by default
       if (!mobile) {

@@ -27,7 +27,7 @@
 }
 
 /* Desktop sidebar - always visible */
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .sidebar {
     transform: translateX(0);
   }

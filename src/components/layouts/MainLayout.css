@@ -9,24 +9,28 @@
   display: flex;
   flex: 1;
   position: relative;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .main-layout__content {
   flex: 1;
   padding: 1.5rem;
   overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
   transition: margin-left 0.3s ease;
 }
 
 /* Desktop: Sidebar takes space */
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .main-layout__content {
     margin-left: 260px;
   }
 }
 
-/* Tablet and below: Full width, sidebar overlays */
-@media (max-width: 1023px) {
+/* Mobile: Full width, sidebar overlays */
+@media (max-width: 767px) {
   .main-layout__content {
     margin-left: 0;
     width: 100%;
