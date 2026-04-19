@@ -5,13 +5,14 @@
  */
 
 import { useState } from 'react';
-import type { CharityAnalytics, CreateCharityRequest, UpdateCharityRequest } from '../../../services/charities.api';
+import type { CharityAnalytics, CreateCharityRequest, UpdateCharityRequest, Charity } from '../../../services/charities.api';
 import {
   createCharity,
   updateCharity,
   inactivateCharity,
   verifyCharity,
   rejectCharity,
+  getAdminCharity,
 } from '../../../services/charities.api';
 import { CharityStatus, CharityCategory } from '../../../types/database.types';
 import styles from './CharityManagementTab.module.css';
@@ -26,7 +27,8 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedCharity, setSelectedCharity] = useState<CharityAnalytics | null>(null);
-  const [editingCharity, setEditingCharity] = useState<CharityAnalytics | null>(null);
+  const [editingCharity, setEditingCharity] = useState<Charity | null>(null);
+  const [loadingEdit, setLoadingEdit] = useState(false);
 
   // Filter charities
   const filteredCharities = charities.filter((c) => {
@@ -46,6 +48,19 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
     } catch (error) {
       console.error('Error creating charity:', error);
       alert(error instanceof Error ? error.message : 'Failed to create charity');
+    }
+  };
+
+  const handleEditCharity = async (charityId: string) => {
+    setLoadingEdit(true);
+    try {
+      const fullCharity = await getAdminCharity(charityId);
+      setEditingCharity(fullCharity);
+    } catch (error) {
+      console.error('Error fetching charity details:', error);
+      alert(error instanceof Error ? error.message : 'Failed to load charity details');
+    } finally {
+      setLoadingEdit(false);
     }
   };
 
@@ -155,9 +170,10 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
                 <td>
                   <div className={styles.actions}>
                     <button
-                      onClick={() => setEditingCharity(charity)}
+                      onClick={() => handleEditCharity(charity.id)}
                       className={styles.editBtn}
                       title="Edit charity"
+                      disabled={loadingEdit}
                     >
                       ✏️
                     </button>
@@ -310,21 +326,21 @@ function AddCharityModal({ onAdd, onClose }: AddCharityModalProps) {
 
 /* Edit Charity Modal */
 interface EditCharityModalProps {
-  charity: CharityAnalytics;
+  charity: Charity;
   onUpdate: (data: UpdateCharityRequest) => void;
   onClose: () => void;
 }
 
 function EditCharityModal({ charity, onUpdate, onClose }: EditCharityModalProps) {
   const [formData, setFormData] = useState<UpdateCharityRequest>({
-    name: charity.name,
-    ein: charity.ein,
-    website: charity.website,
-    category: charity.category,
+    name: charity.name || '',
+    ein: charity.ein || '',
+    website: charity.website || '',
+    category: charity.category || 'EDUCATION',
     shortDescription: charity.shortDescription || '',
     longDescription: charity.longDescription || '',
     logo: charity.logo || '',
-    displayOrder: charity.displayOrder,
+    displayOrder: charity.displayOrder || 999,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
