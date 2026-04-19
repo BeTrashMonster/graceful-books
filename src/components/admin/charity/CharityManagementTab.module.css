@@ -115,6 +115,7 @@
   gap: 0.5rem;
 }
 
+.editBtn,
 .verifyBtn,
 .rejectBtn,
 .inactivateBtn {
@@ -125,6 +126,15 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+}
+
+.editBtn {
+  background: #3b82f6;
+  color: white;
+}
+
+.editBtn:hover {
+  background: #2563eb;
 }
 
 .verifyBtn {

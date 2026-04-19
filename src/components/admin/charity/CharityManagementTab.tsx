@@ -5,7 +5,7 @@
  */
 
 import { useState } from 'react';
-import type { CharityAnalytics, CreateCharityRequest } from '../../../services/charities.api';
+import type { CharityAnalytics, CreateCharityRequest, UpdateCharityRequest } from '../../../services/charities.api';
 import {
   createCharity,
   updateCharity,
@@ -26,6 +26,7 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedCharity, setSelectedCharity] = useState<CharityAnalytics | null>(null);
+  const [editingCharity, setEditingCharity] = useState<CharityAnalytics | null>(null);
 
   // Filter charities
   const filteredCharities = charities.filter((c) => {
@@ -45,6 +46,17 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
     } catch (error) {
       console.error('Error creating charity:', error);
       alert(error instanceof Error ? error.message : 'Failed to create charity');
+    }
+  };
+
+  const handleUpdateCharity = async (charityId: string, data: UpdateCharityRequest) => {
+    try {
+      await updateCharity(charityId, data);
+      setEditingCharity(null);
+      onRefresh();
+    } catch (error) {
+      console.error('Error updating charity:', error);
+      alert(error instanceof Error ? error.message : 'Failed to update charity');
     }
   };
 
@@ -140,6 +152,13 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
                 <td>{charity.activeUserSelections}</td>
                 <td>
                   <div className={styles.actions}>
+                    <button
+                      onClick={() => setEditingCharity(charity)}
+                      className={styles.editBtn}
+                      title="Edit charity"
+                    >
+                      ✏️
+                    </button>
                     {charity.status === 'PENDING' && (
                       <>
                         <button
@@ -177,6 +196,15 @@ export function CharityManagementTab({ charities, onRefresh }: Props) {
         <AddCharityModal
           onAdd={handleAddCharity}
           onClose={() => setShowAddForm(false)}
+        />
+      )}
+
+      {/* Edit Charity Modal */}
+      {editingCharity && (
+        <EditCharityModal
+          charity={editingCharity}
+          onUpdate={(data) => handleUpdateCharity(editingCharity.id, data)}
+          onClose={() => setEditingCharity(null)}
         />
       )}
 
@@ -271,6 +299,115 @@ function AddCharityModal({ onAdd, onClose }: AddCharityModalProps) {
           <div className={styles.modalActions}>
             <button type="button" onClick={onClose}>Cancel</button>
             <button type="submit" className={styles.submitBtn}>Add Charity</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/* Edit Charity Modal */
+interface EditCharityModalProps {
+  charity: CharityAnalytics;
+  onUpdate: (data: UpdateCharityRequest) => void;
+  onClose: () => void;
+}
+
+function EditCharityModal({ charity, onUpdate, onClose }: EditCharityModalProps) {
+  const [formData, setFormData] = useState<UpdateCharityRequest>({
+    name: charity.name,
+    ein: charity.ein,
+    website: charity.website,
+    category: charity.category,
+    shortDescription: charity.shortDescription || '',
+    longDescription: charity.longDescription || '',
+    logo: charity.logo || '',
+    displayOrder: charity.displayOrder,
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Auto-prepend https:// if no protocol is present
+    let website = formData.website?.trim() || '';
+    if (website && !website.match(/^https?:\/\//i)) {
+      website = `https://${website}`;
+    }
+
+    onUpdate({ ...formData, website });
+  };
+
+  return (
+    <div className={styles.modal}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <h2>Edit {charity.name}</h2>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <input
+            type="text"
+            placeholder="Charity Name"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
+          />
+          <input
+            type="text"
+            placeholder="EIN (XX-XXXXXXX)"
+            value={formData.ein}
+            onChange={(e) => setFormData({ ...formData, ein: e.target.value })}
+            pattern="\d{2}-\d{7}"
+            required
+          />
+          <input
+            type="text"
+            placeholder="Website (e.g., redcross.org)"
+            value={formData.website}
+            onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+            required
+          />
+          <select
+            value={formData.category}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value as CharityCategory })}
+            required
+          >
+            <option value="EDUCATION">Education</option>
+            <option value="ENVIRONMENT">Environment</option>
+            <option value="HEALTH">Health</option>
+            <option value="POVERTY">Poverty</option>
+            <option value="ANIMAL_WELFARE">Animal Welfare</option>
+            <option value="HUMAN_RIGHTS">Human Rights</option>
+            <option value="DISASTER_RELIEF">Disaster Relief</option>
+            <option value="ARTS_CULTURE">Arts & Culture</option>
+            <option value="COMMUNITY">Community</option>
+            <option value="OTHER">Other</option>
+          </select>
+          <textarea
+            placeholder="Short Description"
+            value={formData.shortDescription}
+            onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
+            rows={3}
+          />
+          <textarea
+            placeholder="Long Description"
+            value={formData.longDescription}
+            onChange={(e) => setFormData({ ...formData, longDescription: e.target.value })}
+            rows={5}
+          />
+          <input
+            type="text"
+            placeholder="Logo URL (optional)"
+            value={formData.logo}
+            onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+          />
+          <input
+            type="number"
+            placeholder="Display Order"
+            value={formData.displayOrder}
+            onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) })}
+            min="0"
+          />
+          <div className={styles.modalActions}>
+            <button type="button" onClick={onClose}>Cancel</button>
+            <button type="submit" className={styles.submitBtn}>Update Charity</button>
           </div>
         </form>
       </div>
