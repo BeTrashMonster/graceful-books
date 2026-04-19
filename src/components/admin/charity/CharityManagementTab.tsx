@@ -209,11 +209,18 @@ function AddCharityModal({ onAdd, onClose }: AddCharityModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAdd(formData);
+
+    // Auto-prepend https:// if no protocol is present
+    let website = formData.website.trim();
+    if (website && !website.match(/^https?:\/\//i)) {
+      website = `https://${website}`;
+    }
+
+    onAdd({ ...formData, website });
   };
 
   return (
-    <div className={styles.modal} onClick={onClose}>
+    <div className={styles.modal}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <h2>Add New Charity</h2>
         <form onSubmit={handleSubmit} className={styles.form}>
@@ -233,8 +240,8 @@ function AddCharityModal({ onAdd, onClose }: AddCharityModalProps) {
             required
           />
           <input
-            type="url"
-            placeholder="Website"
+            type="text"
+            placeholder="Website (e.g., redcross.org)"
             value={formData.website}
             onChange={(e) => setFormData({ ...formData, website: e.target.value })}
             required
@@ -289,7 +296,7 @@ function RejectModal({ charity, onReject, onClose }: RejectModalProps) {
   };
 
   return (
-    <div className={styles.modal} onClick={onClose}>
+    <div className={styles.modal}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <h2>Reject {charity.name}</h2>
         <form onSubmit={handleSubmit} className={styles.form}>
