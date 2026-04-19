@@ -162,7 +162,7 @@ export async function sendTrialEndingSoonEmail(
     Subject: `Your ${productName} trial ends in 7 days`,
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #2563eb;">Your Trial Ends Soon</h1>
+        <h1 style="color: #4b006e;">Your Trial Ends Soon</h1>
         <p>Just a friendly heads up: your 30-day trial of <strong>${productName}</strong> ends in 7 days.</p>
 
         <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
@@ -321,7 +321,7 @@ export async function sendSubscriptionCancelledEmail(
     Subject: `Your ${productName} subscription has been cancelled`,
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #2563eb;">Subscription Cancelled</h1>
+        <h1 style="color: #4b006e;">Subscription Cancelled</h1>
         <p>We've cancelled your subscription to <strong>${productName}</strong> as requested.</p>
 
         <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -370,17 +370,17 @@ export async function sendEmailVerificationEmail(
     Subject: 'Verify your email address',
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #2563eb;">Verify Your Email</h1>
+        <h1 style="color: #4b006e;">Verify Your Email</h1>
         <p>Thanks for signing up! Please verify your email address to get started.</p>
 
         <div style="margin: 30px 0;">
-          <a href="${verifyUrl}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+          <a href="${verifyUrl}" style="display: inline-block; background: #4b006e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
             Verify Email Address
           </a>
         </div>
 
         <p style="font-size: 14px; color: #6b7280;">Or copy and paste this link into your browser:</p>
-        <p style="font-size: 14px; color: #2563eb; word-break: break-all;">${verifyUrl}</p>
+        <p style="font-size: 14px; color: #4b006e; word-break: break-all;">${verifyUrl}</p>
 
         <p><strong>Didn't sign up?</strong> You can safely ignore this email.</p>
 
@@ -517,7 +517,7 @@ export async function sendAccountDeactivatedEmail(
     Subject: 'Your Audacious Money account has been deactivated',
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #2563eb;">Account Deactivated</h1>
+        <h1 style="color: #4b006e;">Account Deactivated</h1>
         <p>Hi ${userName},</p>
         <p>We've deactivated your Audacious Money account as requested. Take all the time you need - we'll be here when you're ready to come back.</p>
 
@@ -654,7 +654,7 @@ export async function sendSubscriptionPausedEmail(
     Subject: `Your ${productName} subscription has been paused`,
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #2563eb;">Subscription Paused</h1>
+        <h1 style="color: #4b006e;">Subscription Paused</h1>
         <p>Hi ${userName},</p>
         <p>We've paused your subscription to <strong>${productName}</strong> as requested. We totally understand - life happens!</p>
 
