@@ -30,9 +30,14 @@ class ApiClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
-    // Get auth token from session storage
-    const sessionData = sessionStorage.getItem('graceful_books_session');
-    const token = sessionData ? JSON.parse(sessionData).token : null;
+    // Get auth token from session storage (check both user and admin sessions)
+    const userSessionData = sessionStorage.getItem('graceful_books_session');
+    const adminSessionData = sessionStorage.getItem('graceful_books_admin_session');
+    const token = adminSessionData
+      ? JSON.parse(adminSessionData).token
+      : userSessionData
+      ? JSON.parse(userSessionData).token
+      : null;
 
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
