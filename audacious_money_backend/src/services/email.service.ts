@@ -442,7 +442,7 @@ export async function sendAccountDeletedEmail(
     Subject: 'Your Audacious Money account has been deleted',
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #2563eb;">Account Deleted</h1>
+        <h1 style="color: #4b006e;">Account Deleted</h1>
         <p>Hi ${userName},</p>
         <p>We've successfully deleted your Audacious Money account as requested.</p>
 
