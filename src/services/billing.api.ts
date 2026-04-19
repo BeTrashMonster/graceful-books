@@ -127,8 +127,6 @@ export async function deleteAccount(data: {
   password: string;
   confirmText: string;
 }): Promise<{ message: string; deleted: boolean }> {
-  const response = await api.delete<{ data: { message: string; deleted: boolean } }>('/users/me', {
-    data,
-  });
+  const response = await api.delete<{ data: { message: string; deleted: boolean } }>('/users/me', data);
   return response.data;
 }
