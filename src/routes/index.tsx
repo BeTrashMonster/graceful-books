@@ -37,6 +37,7 @@ const AccountRegisterPage = lazy(() => import('../pages/AccountRegisterPage'))
 const NotFound = lazy(() => import('../pages/NotFound'))
 const Forbidden = lazy(() => import('../pages/Forbidden'))
 const AdminCharities = lazy(() => import('../pages/admin/AdminCharities'))
+const AdminCharityDashboard = lazy(() => import('../pages/admin/AdminCharityDashboard'))
 const AdminLogin = lazy(() => import('../pages/admin/AdminLogin'))
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'))
 const DevTools = lazy(() => import('../pages/DevTools'))
@@ -79,6 +80,7 @@ export function AppRoutes() {
         {/* Admin routes (no layout) */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/charities" element={<AdminCharityDashboard />} />
 
         {/* Developer tools - accessible without full layout */}
         <Route path="/dev-tools" element={<DevTools />} />
@@ -135,10 +137,10 @@ export function AppRoutes() {
         {/* Customer portal - public with token auth */}
         <Route path="/portal/:token" element={<CustomerPortal />} />
 
-        {/* Admin-only routes with layout */}
-        <Route element={<AdminRoute><ProtectedRoute><MainLayout /></ProtectedRoute></AdminRoute>}>
+        {/* Admin-only routes with layout - commented out, using standalone charity dashboard */}
+        {/* <Route element={<AdminRoute><ProtectedRoute><MainLayout /></ProtectedRoute></AdminRoute>}>
           <Route path="/admin/charities" element={<AdminCharities />} />
-        </Route>
+        </Route> */}
 
         {/* Root redirect */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />

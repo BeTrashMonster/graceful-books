@@ -472,6 +472,21 @@ export default function AdminDashboard() {
           </div>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button
+              onClick={() => navigate('/admin/charities')}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+              }}
+            >
+              🏛️ Charity Management
+            </button>
+            <button
               onClick={() => setShowPasswordChange(true)}
               style={{
                 padding: '0.5rem 1rem',

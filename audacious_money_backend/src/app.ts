@@ -22,6 +22,7 @@ import productRoutes from './routes/products.js';
 import userRoutes from './routes/users.js';
 import adminRoutes from './routes/admin.js';
 import contactRoutes from './routes/contact.js';
+import charityRoutes from './routes/charities.js';
 
 // Create Hono app
 const app = new Hono();
@@ -102,6 +103,9 @@ app.route('/contact', contactRoutes);
 
 // Public product routes
 app.route('/products', productRoutes);
+
+// Charity routes (public and protected)
+app.route('/charities', charityRoutes);
 
 // Protected user routes
 app.route('/users', userRoutes);
