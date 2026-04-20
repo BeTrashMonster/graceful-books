@@ -23,7 +23,10 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../../../../components/core/Button';
+import { Input } from '../../../../components/forms/Input';
+import { Modal } from '../../../../components/modals/Modal';
 import { ErrorMessage } from '../../../../components/feedback/ErrorMessage';
 import { MarginQualityBadge } from '../../../../components/cpg/MarginQualityBadge';
 import { Loading } from '../../../../components/feedback/Loading';
@@ -34,6 +37,9 @@ import type {
   CPGFinishedProduct,
   CPGSettings,
   CPGLaborRole,
+  CPGRecipe,
+  CPGCategory,
+  CPGProductLabor,
 } from '../../../../db/schema/cpg.schema';
 import { getProfitMarginQualityWithSettings } from '../../../../db/schema/cpg.schema';
 import { cpuCalculatorService } from '../../../../services/cpg/cpuCalculator.service';
@@ -92,6 +98,8 @@ interface WhatIfCalculatorTabProps {
 // ============================================================================
 
 export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatIfCalculatorTabProps) {
+  const navigate = useNavigate();
+
   // ========================================
   // State - Data Loading
   // ========================================
@@ -212,6 +220,52 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
   } | null>(null);
 
   // ========================================
+  // Convert to Product Modal State
+  // ========================================
+  const [showConvertModal, setShowConvertModal] = useState(false);
+
+  // Apply purple header styling to convert modal
+  useEffect(() => {
+    if (!showConvertModal) return;
+
+    const timer = setTimeout(() => {
+      const dialog = document.querySelector('[role="dialog"]');
+      if (!dialog) return;
+
+      const modalTitle = dialog.querySelector('#modal-title') as HTMLElement;
+      const modalHeader = modalTitle?.parentElement as HTMLElement;
+      const closeButton = dialog.querySelector('[aria-label="Close modal"]') as HTMLElement;
+
+      if (modalHeader) {
+        modalHeader.style.backgroundColor = '#4b006e';
+        modalHeader.style.padding = '0.75rem 1.5rem';
+        modalHeader.style.borderBottom = 'none';
+      }
+
+      if (modalTitle) {
+        modalTitle.style.color = '#ffffff';
+      }
+
+      if (closeButton) {
+        closeButton.style.color = '#ffffff';
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [showConvertModal]);
+  const [convertProductData, setConvertProductData] = useState({
+    productName: '',
+    sku: '',
+    description: '',
+    unitOfMeasure: 'each',
+    piecesPerUnit: '1'
+  });
+  const [convertingToProduct, setConvertingToProduct] = useState(false);
+  const [convertErrors, setConvertErrors] = useState<Record<string, string>>({});
+  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
+  const [createdProductName, setCreatedProductName] = useState('');
+
+  // ========================================
   // Load Data on Mount
   // ========================================
   useEffect(() => {
@@ -328,11 +382,8 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
         .and(c => c.active && c.deleted_at === null)
         .toArray();
 
-      // Sort by sort_order, then by name
-      categories.sort((a, b) => {
-        if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order;
-        return a.name.localeCompare(b.name);
-      });
+      // Sort alphabetically by name
+      categories.sort((a, b) => a.name.localeCompare(b.name));
 
       setCategoriesData(categories);
 
@@ -854,7 +905,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
     setNewIngredient({ ...newIngredient, category: categoryName, variant: '', costPerUnit: '' });
     setAvailableVariants([]);
 
-    if (!categoryName) return;
+    if (!categoryName || categoryName === '__custom__') return;
 
     // Find the category data
     const category = categoriesData.find(c => c.name === categoryName);
@@ -864,112 +915,64 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
     const variants = category.variants || [];
     setAvailableVariants(variants);
 
-    // Auto-populate first variant if only one exists
-    if (variants.length === 1) {
+    // Auto-populate CPU based on variants
+    if (variants.length === 0) {
+      // No variants - fetch CPU directly
+      await fetchCPUForCategoryAndVariant(categoryName, null);
+    } else if (variants.length === 1) {
+      // One variant - auto-select and fetch CPU
       handleVariantChange(categoryName, variants[0]);
+    }
+    // Multiple variants - wait for user to select
+  };
+
+  // Helper to fetch CPU for a category/variant combination
+  const fetchCPUForCategoryAndVariant = async (categoryName: string, variantName: string | null) => {
+    try {
+      const oneYearAgo = Date.now() - (365 * 24 * 60 * 60 * 1000);
+
+      const category = categoriesData.find(c => c.name === categoryName);
+      if (!category) return;
+
+      const result = await cpuCalculatorService.calculateRawMaterialCPU(
+        category.id,
+        variantName,
+        companyId,
+        { start: oneYearAgo, end: Date.now() }
+      );
+
+      if (result !== null) {
+        setNewIngredient(prev => ({
+          ...prev,
+          category: categoryName,
+          variant: variantName || '',
+          costPerUnit: result
+        }));
+      }
+    } catch (err) {
+      console.error('Error fetching CPU:', err);
     }
   };
 
   // Handle variant selection - fetch average CPU from last 365 days
   const handleVariantChange = async (categoryName: string, variantName: string) => {
     if (!categoryName || !variantName) return;
+    await fetchCPUForCategoryAndVariant(categoryName, variantName);
+  };
 
-    // Set variant immediately
-    setNewIngredient(prev => ({ ...prev, category: categoryName, variant: variantName, costPerUnit: '' }));
+  // Format helpers for decimal places based on user settings
+  const formatNumberValue = (value: string): string => {
+    const decimalPlaces = cpgSettings?.decimal_places_numbers ?? 2;
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return value;
+    return numValue.toFixed(decimalPlaces);
+  };
 
-    try {
-      const oneYearAgo = Date.now() - (365 * 24 * 60 * 60 * 1000);
-
-      console.log('=== CPU LOOKUP DEBUG ===');
-      console.log('Looking for category:', `"${categoryName}"`);
-      console.log('Looking for variant:', `"${variantName}"`);
-
-      // Step 1: Find the category ID from the category name
-      const category = categoriesData.find(c => c.name === categoryName);
-      if (!category) {
-        console.log('❌ Category not found in categoriesData');
-        return;
-      }
-
-      console.log('✅ Found category ID:', category.id);
-
-      // Step 2: Get all invoices from last 365 days
-      const allInvoices = await db.cpgInvoices
-        .where('company_id')
-        .equals(companyId)
-        .and(inv =>
-          inv.active &&
-          inv.deleted_at === null &&
-          inv.invoice_date >= oneYearAgo
-        )
-        .toArray();
-
-      console.log('Total invoices in range:', allInvoices.length);
-
-      // Step 3: Search through cost_attribution for matching category_id + variant
-      const cpuValues: number[] = [];
-
-      console.log('Searching through', allInvoices.length, 'invoices...');
-
-      allInvoices.forEach((invoice, idx) => {
-        if (!invoice.cost_attribution || !invoice.calculated_cpus) {
-          console.log(`Invoice ${idx + 1}: No cost_attribution or calculated_cpus`);
-          return;
-        }
-
-        console.log(`Invoice ${idx + 1} (${invoice.invoice_number || invoice.id}):`);
-        console.log('  - cost_attribution keys:', Object.keys(invoice.cost_attribution));
-        console.log('  - calculated_cpus keys:', Object.keys(invoice.calculated_cpus));
-
-        // Search each cost_attribution entry
-        Object.entries(invoice.cost_attribution).forEach(([key, attribution]) => {
-          const categoryMatch = attribution.category_id === category.id;
-
-          // Strip quotes from both sides for comparison (variants might be stored with quotes)
-          const cleanAttributionVariant = attribution.variant?.replace(/^["']|["']$/g, '') || '';
-          const cleanLookupVariant = variantName.replace(/^["']|["']$/g, '');
-          const variantMatch = cleanAttributionVariant === cleanLookupVariant;
-
-          console.log(`    Checking key "${key}":`);
-          console.log(`      Category: ${attribution.category_id} === ${category.id} ? ${categoryMatch}`);
-          console.log(`      Variant: "${cleanAttributionVariant}" === "${cleanLookupVariant}" ? ${variantMatch}`);
-          console.log(`      Both match? ${categoryMatch && variantMatch}`);
-
-          if (categoryMatch && variantMatch) {
-            // Found a match! Get the CPU from calculated_cpus
-            // The CPU key format is: "category_id_variant" (e.g., "y4XR7LunYkgEyFOPqQhan_1 oz")
-            // NOT the cost_attribution key format (e.g., "BottleBranding_1oz")
-            const cpuKey = `${category.id}_${cleanAttributionVariant}`;
-
-            const cpuValue = invoice.calculated_cpus?.[cpuKey];
-            console.log(`      Looking for CPU with key "${cpuKey}"`);
-            console.log(`      Found CPU value:`, cpuValue);
-
-            const cpu = parseFloat(cpuValue || '0');
-            console.log(`      Parsed CPU:`, cpu);
-
-            if (cpu > 0) {
-              cpuValues.push(cpu);
-              console.log(`      ✅ MATCH! Added CPU: ${cpu}`);
-            } else {
-              console.log(`      ⚠️ CPU is 0 or invalid`);
-            }
-          }
-        });
-      });
-
-      console.log('Total CPU values found:', cpuValues.length, cpuValues);
-
-      if (cpuValues.length > 0) {
-        const avgCPU = cpuValues.reduce((sum, cpu) => sum + cpu, 0) / cpuValues.length;
-        console.log('✅ Average CPU:', avgCPU);
-        setNewIngredient(prev => ({ ...prev, variant: variantName, costPerUnit: avgCPU.toFixed(2) }));
-      } else {
-        console.log('❌ No CPU values found for this category+variant in last 365 days');
-      }
-    } catch (err) {
-      console.error('💥 Error fetching average CPU:', err);
-    }
+  const formatCurrencyValue = (value: string): string => {
+    const decimalPlaces = cpgSettings?.decimal_places_currency ?? 2;
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return value;
+    return numValue.toFixed(decimalPlaces);
   };
 
   const addIngredientToRecipe = () => {
@@ -981,8 +984,8 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
       id: Date.now().toString(),
       category: newIngredient.category,
       variant: newIngredient.variant,
-      quantity: newIngredient.quantity,
-      costPerUnit: newIngredient.costPerUnit,
+      quantity: formatNumberValue(newIngredient.quantity),
+      costPerUnit: formatCurrencyValue(newIngredient.costPerUnit),
     };
 
     setRecipeIngredients([...recipeIngredients, ingredient]);
@@ -1009,8 +1012,8 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
     const laborRole = {
       id: Date.now().toString(),
       roleName: newLaborRole.roleName,
-      hoursPerUnit: newLaborRole.hoursPerUnit,
-      hourlyRate: newLaborRole.hourlyRate,
+      hoursPerUnit: formatNumberValue(newLaborRole.hoursPerUnit),
+      hourlyRate: formatCurrencyValue(newLaborRole.hourlyRate),
     };
 
     setRecipeLaborRoles([...recipeLaborRoles, laborRole]);
@@ -1045,6 +1048,163 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
   const calculateRecipeTotalCPU = (): number => {
     return calculateRecipeMaterialCPU() + calculateRecipeLaborCost();
+  };
+
+  const handleConvertToProduct = async () => {
+    setConvertErrors({});
+
+    if (!convertProductData.productName.trim()) {
+      setConvertErrors({ productName: 'Product name is required' });
+      return;
+    }
+
+    const piecesPerUnitNum = parseInt(convertProductData.piecesPerUnit, 10);
+    if (isNaN(piecesPerUnitNum) || piecesPerUnitNum < 1) {
+      setConvertErrors({ piecesPerUnit: 'Pieces per unit must be at least 1' });
+      return;
+    }
+
+    setConvertingToProduct(true);
+
+    try {
+      const { v4: uuidv4 } = await import('uuid');
+      const productId = uuidv4();
+      const now = Date.now();
+
+      // Create the finished product
+      const newProduct: Partial<CPGFinishedProduct> = {
+        id: productId,
+        company_id: companyId,
+        product_name: convertProductData.productName.trim(),
+        sku: convertProductData.sku.trim() || null,
+        description: convertProductData.description.trim() || null,
+        unit_of_measure: convertProductData.unitOfMeasure,
+        pieces_per_unit: piecesPerUnitNum,
+        msrp: targetRetailPrice ? parseFloat(targetRetailPrice) : null,
+        active: true,
+        created_at: now,
+        updated_at: now,
+        deleted_at: null,
+        version_vector: { [deviceId]: 1 },
+      };
+
+      await db.cpgFinishedProducts.add(newProduct as any);
+
+      // Create recipe entries for each ingredient
+      for (const ingredient of recipeIngredients) {
+        // Find the category by name to get the ID and variant info
+        const category = categoriesData.find(c => c.name === ingredient.category);
+
+        if (category) {
+          const recipeId = uuidv4();
+          const newRecipe: Partial<CPGRecipe> = {
+            id: recipeId,
+            company_id: companyId,
+            finished_product_id: productId,
+            category_id: category.id,
+            variant: ingredient.variant || null,
+            quantity: ingredient.quantity,
+            notes: null,
+            active: true,
+            created_at: now,
+            updated_at: now,
+            deleted_at: null,
+            version_vector: { [deviceId]: 1 },
+          };
+
+          await db.cpgRecipes.add(newRecipe as any);
+        }
+      }
+
+      // Create labor role assignments for this product
+      for (const laborRole of recipeLaborRoles) {
+        // First, check if labor role exists, otherwise create it
+        let existingRole = await db.cpgLaborRoles
+          .where('company_id')
+          .equals(companyId)
+          .and(role => role.role_name === laborRole.roleName && role.deleted_at === null)
+          .first();
+
+        let laborRoleId: string;
+
+        if (!existingRole) {
+          // Create new labor role
+          laborRoleId = uuidv4();
+          const newRole: Partial<CPGLaborRole> = {
+            id: laborRoleId,
+            company_id: companyId,
+            role_name: laborRole.roleName,
+            description: null,
+            compensation_type: 'hourly',
+            hourly_rate: laborRole.hourlyRate,
+            salary_amount: null,
+            salary_period: null,
+            calculated_hourly_rate: null,
+            notes: null,
+            active: true,
+            created_at: now,
+            updated_at: now,
+            deleted_at: null,
+            version_vector: { [deviceId]: 1 },
+          };
+          await db.cpgLaborRoles.add(newRole as any);
+        } else {
+          laborRoleId = existingRole.id;
+        }
+
+        // Create product labor assignment
+        const assignmentId = uuidv4();
+        const newLaborAssignment: Partial<CPGProductLabor> = {
+          id: assignmentId,
+          company_id: companyId,
+          finished_product_id: productId,
+          labor_role_id: laborRoleId,
+          entry_mode: 'per_unit',
+          hours_per_batch: null,
+          batch_size: null,
+          hours_per_unit: laborRole.hoursPerUnit,
+          notes: null,
+          active: true,
+          created_at: now,
+          updated_at: now,
+          deleted_at: null,
+          version_vector: { [deviceId]: 1 },
+        };
+
+        await db.cpgProductLabors.add(newLaborAssignment as any);
+      }
+
+      // Dispatch event to update UI
+      window.dispatchEvent(
+        new CustomEvent('cpg-data-updated', { detail: { type: 'finished-product' } })
+      );
+
+      // Close modal and show success notification
+      setShowConvertModal(false);
+      setCreatedProductName(convertProductData.productName.trim());
+      setShowSuccessNotification(true);
+
+      // Reset form
+      setConvertProductData({
+        productName: '',
+        sku: '',
+        description: '',
+        unitOfMeasure: 'each',
+        piecesPerUnit: '1'
+      });
+      setConvertErrors({});
+
+      // Auto-hide notification after 10 seconds
+      setTimeout(() => {
+        setShowSuccessNotification(false);
+      }, 10000);
+
+    } catch (error) {
+      console.error('Error creating product:', error);
+      setConvertErrors({ form: 'Failed to create product. Please try again.' });
+    } finally {
+      setConvertingToProduct(false);
+    }
   };
 
   const exportRecipeCSV = () => {
@@ -2715,6 +2875,11 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                   min="0"
                   value={targetRetailPrice}
                   onChange={(e) => setTargetRetailPrice(e.target.value)}
+                  onBlur={(e) => {
+                    if (e.target.value && e.target.value.trim() !== '') {
+                      setTargetRetailPrice(formatCurrencyValue(e.target.value));
+                    }
+                  }}
                   placeholder="$0.00"
                   className={styles.targetPriceInput}
                 />
@@ -2722,6 +2887,23 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
               <div className={styles.addIngredientSection}>
                 <h4>Add Ingredient:</h4>
+
+                {/* Labels Row */}
+                <div className={styles.ingredientLabelsRow} style={{
+                  display: 'flex',
+                  gap: '0.75rem',
+                  marginBottom: '0.5rem',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: '#64748b'
+                }}>
+                  <div style={{ flex: 1.5 }}>Category</div>
+                  <div style={{ flex: 1 }}>Variant</div>
+                  <div style={{ flex: 0.8 }}>Quantity</div>
+                  <div style={{ flex: 0.8 }}>Cost per Unit</div>
+                  <div style={{ width: '120px' }}></div>
+                </div>
+
                 <div className={styles.ingredientInputRow}>
                   {/* Category Selection */}
                   <select
@@ -2729,7 +2911,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                     onChange={(e) => handleCategoryChange(e.target.value)}
                     className={styles.categorySelect}
                   >
-                    <option value="">Category</option>
+                    <option value="">Select category...</option>
                     {categoriesData.map(cat => (
                       <option key={cat.id} value={cat.name}>{cat.name}</option>
                     ))}
@@ -2755,7 +2937,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                           onChange={(e) => handleVariantChange(newIngredient.category, e.target.value)}
                           className={styles.variantInput}
                         >
-                          <option value="">Variant</option>
+                          <option value="">Select variant...</option>
                           {availableVariants.map(variant => (
                             <option key={variant} value={variant}>{variant}</option>
                           ))}
@@ -2763,7 +2945,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                       ) : (
                         <input
                           type="text"
-                          placeholder="Variant (optional)"
+                          placeholder="Enter variant (optional)"
                           value={newIngredient.variant}
                           onChange={(e) => setNewIngredient({ ...newIngredient, variant: e.target.value })}
                           className={styles.variantInput}
@@ -2777,9 +2959,14 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                     type="number"
                     step="0.01"
                     min="0"
-                    placeholder="Qty"
+                    placeholder="0.00"
                     value={newIngredient.quantity}
                     onChange={(e) => setNewIngredient({ ...newIngredient, quantity: e.target.value })}
+                    onBlur={(e) => {
+                      if (e.target.value && e.target.value.trim() !== '') {
+                        setNewIngredient({ ...newIngredient, quantity: formatNumberValue(e.target.value) });
+                      }
+                    }}
                     className={styles.qtyInput}
                   />
 
@@ -2788,9 +2975,14 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                     type="number"
                     step="0.01"
                     min="0"
-                    placeholder="$CPU"
+                    placeholder="0.00"
                     value={newIngredient.costPerUnit}
                     onChange={(e) => setNewIngredient({ ...newIngredient, costPerUnit: e.target.value })}
+                    onBlur={(e) => {
+                      if (e.target.value && e.target.value.trim() !== '') {
+                        setNewIngredient({ ...newIngredient, costPerUnit: formatCurrencyValue(e.target.value) });
+                      }
+                    }}
                     className={styles.cpuInput}
                   />
 
@@ -2852,6 +3044,11 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                                 min="0"
                                 value={ing.quantity}
                                 onChange={(e) => updateRecipeIngredient(ing.id, 'quantity', e.target.value)}
+                                onBlur={(e) => {
+                                  if (e.target.value && e.target.value.trim() !== '') {
+                                    updateRecipeIngredient(ing.id, 'quantity', formatNumberValue(e.target.value));
+                                  }
+                                }}
                                 className={styles.recipeEditInput}
                                 style={{ width: '80px' }}
                               />
@@ -2863,6 +3060,11 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                                 min="0"
                                 value={ing.costPerUnit}
                                 onChange={(e) => updateRecipeIngredient(ing.id, 'costPerUnit', e.target.value)}
+                                onBlur={(e) => {
+                                  if (e.target.value && e.target.value.trim() !== '') {
+                                    updateRecipeIngredient(ing.id, 'costPerUnit', formatCurrencyValue(e.target.value));
+                                  }
+                                }}
                                 className={styles.recipeEditInput}
                                 style={{ width: '90px' }}
                               />
@@ -2888,28 +3090,83 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
               </div>
 
               {/* Labor Roles Section */}
-              <div className={styles.laborRolesSection} style={{ marginTop: '2rem' }}>
+              <div className={styles.laborRolesSection} style={{ marginTop: '2rem', marginBottom: '3rem' }}>
                 <h4 style={{ color: '#D4AF37' }}>Labor Roles:</h4>
+
+                {/* Labels Row */}
+                <div className={styles.laborLabelsRow} style={{
+                  display: 'flex',
+                  gap: '0.75rem',
+                  marginBottom: '0.5rem',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: '#D4AF37'
+                }}>
+                  <div style={{ flex: 2 }}>Role Name</div>
+                  <div style={{ width: '120px' }}>Hours per Unit</div>
+                  <div style={{ width: '120px' }}>Hourly Rate ($)</div>
+                  <div style={{ width: '120px' }}></div>
+                </div>
+
                 <div className={styles.addLaborSection}>
                   <div className={styles.laborInputRow} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                    {/* Role Name */}
-                    <input
-                      type="text"
-                      placeholder="Role Name (e.g., Chef, Packager)"
+                    {/* Role Name Dropdown */}
+                    <select
                       value={newLaborRole.roleName}
-                      onChange={(e) => setNewLaborRole({ ...newLaborRole, roleName: e.target.value })}
+                      onChange={(e) => {
+                        const selectedValue = e.target.value;
+                        if (selectedValue === '__custom__') {
+                          setNewLaborRole({ roleName: '__custom__', hoursPerUnit: '', hourlyRate: '' });
+                        } else if (selectedValue) {
+                          // Find the selected role and auto-populate hourly rate
+                          const role = laborRoles.find(r => r.role_name === selectedValue);
+                          if (role) {
+                            // Use hourly_rate if available, or calculated_hourly_rate for salaried employees
+                            const rate = role.hourly_rate || role.calculated_hourly_rate || '';
+                            setNewLaborRole({
+                              roleName: role.role_name,
+                              hoursPerUnit: '', // User needs to enter this (product-specific)
+                              hourlyRate: rate
+                            });
+                          }
+                        } else {
+                          setNewLaborRole({ roleName: '', hoursPerUnit: '', hourlyRate: '' });
+                        }
+                      }}
                       className={styles.laborInput}
                       style={{ flex: '2', padding: '0.5rem', border: '2px solid #D4AF37', borderRadius: '4px' }}
-                    />
+                    >
+                      <option value="">Select role...</option>
+                      {laborRoles.map(role => (
+                        <option key={role.id} value={role.role_name}>{role.role_name}</option>
+                      ))}
+                      <option value="__custom__">+ Custom Role</option>
+                    </select>
+
+                    {/* Custom Role Name Input (shows when custom is selected) */}
+                    {newLaborRole.roleName === '__custom__' && (
+                      <input
+                        type="text"
+                        placeholder="Enter custom role name"
+                        onChange={(e) => setNewLaborRole({ ...newLaborRole, roleName: e.target.value })}
+                        className={styles.laborInput}
+                        style={{ flex: '2', padding: '0.5rem', border: '2px solid #D4AF37', borderRadius: '4px', marginLeft: '-0.75rem' }}
+                      />
+                    )}
 
                     {/* Hours Per Unit */}
                     <input
                       type="number"
                       step="0.01"
                       min="0"
-                      placeholder="Hours/Unit"
+                      placeholder="0.00"
                       value={newLaborRole.hoursPerUnit}
                       onChange={(e) => setNewLaborRole({ ...newLaborRole, hoursPerUnit: e.target.value })}
+                      onBlur={(e) => {
+                        if (e.target.value && e.target.value.trim() !== '') {
+                          setNewLaborRole({ ...newLaborRole, hoursPerUnit: formatNumberValue(e.target.value) });
+                        }
+                      }}
                       className={styles.hoursInput}
                       style={{ width: '120px', padding: '0.5rem', border: '2px solid #D4AF37', borderRadius: '4px' }}
                     />
@@ -2919,9 +3176,14 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                       type="number"
                       step="0.01"
                       min="0"
-                      placeholder="$/Hour"
+                      placeholder="0.00"
                       value={newLaborRole.hourlyRate}
                       onChange={(e) => setNewLaborRole({ ...newLaborRole, hourlyRate: e.target.value })}
+                      onBlur={(e) => {
+                        if (e.target.value && e.target.value.trim() !== '') {
+                          setNewLaborRole({ ...newLaborRole, hourlyRate: formatCurrencyValue(e.target.value) });
+                        }
+                      }}
                       className={styles.rateInput}
                       style={{ width: '120px', padding: '0.5rem', border: '2px solid #D4AF37', borderRadius: '4px' }}
                     />
@@ -2973,6 +3235,11 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                                 min="0"
                                 value={role.hoursPerUnit}
                                 onChange={(e) => updateRecipeLaborRole(role.id, 'hoursPerUnit', e.target.value)}
+                                onBlur={(e) => {
+                                  if (e.target.value && e.target.value.trim() !== '') {
+                                    updateRecipeLaborRole(role.id, 'hoursPerUnit', formatNumberValue(e.target.value));
+                                  }
+                                }}
                                 className={styles.recipeEditInput}
                                 style={{ width: '100px', color: '#D4AF37' }}
                               />
@@ -2984,6 +3251,11 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                                 min="0"
                                 value={role.hourlyRate}
                                 onChange={(e) => updateRecipeLaborRole(role.id, 'hourlyRate', e.target.value)}
+                                onBlur={(e) => {
+                                  if (e.target.value && e.target.value.trim() !== '') {
+                                    updateRecipeLaborRole(role.id, 'hourlyRate', formatCurrencyValue(e.target.value));
+                                  }
+                                }}
                                 className={styles.recipeEditInput}
                                 style={{ width: '100px', color: '#D4AF37' }}
                               />
@@ -3051,13 +3323,21 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
                       </div>
                     </div>
 
-                    <div className={styles.exportButtonContainer}>
+                    <div className={styles.exportButtonContainer} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                       <button
                         onClick={exportRecipeCSV}
                         className={styles.exportRecipeButton}
                       >
                         Export Recipe (CSV)
                       </button>
+
+                      <Button
+                        variant="gold"
+                        onClick={() => setShowConvertModal(true)}
+                        disabled={recipeIngredients.length === 0}
+                      >
+                        Save as Product →
+                      </Button>
                     </div>
                   </>
                 );
@@ -3313,6 +3593,204 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Convert to Product Modal */}
+      <Modal
+        isOpen={showConvertModal}
+        onClose={() => {
+          setShowConvertModal(false);
+          setConvertErrors({});
+        }}
+        title="Save Recipe as Product"
+        size="md"
+        closeOnBackdropClick={false}
+        footer={
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowConvertModal(false);
+                setConvertErrors({});
+              }}
+              disabled={convertingToProduct}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="gold"
+              onClick={handleConvertToProduct}
+              disabled={convertingToProduct || !convertProductData.productName.trim()}
+            >
+              {convertingToProduct ? 'Creating Product...' : 'Create Product'}
+            </Button>
+          </div>
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {convertErrors.form && (
+            <div style={{ padding: '1rem', background: '#fee', border: '1px solid #fcc', borderRadius: '8px', color: '#c00', fontSize: '0.9375rem' }}>
+              {convertErrors.form}
+            </div>
+          )}
+
+          <p style={{ marginBottom: '0.5rem', color: '#64748b', fontSize: '0.9375rem' }}>
+            This will create a new finished product in My Products with all your recipe ingredients and labor roles.
+          </p>
+
+          {/* Product Name and SKU */}
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
+            <Input
+              label="Product Name"
+              placeholder="ex: 1oz Eucalyptus Candle"
+              value={convertProductData.productName}
+              onChange={(e) => setConvertProductData({ ...convertProductData, productName: e.target.value })}
+              error={convertErrors.productName}
+              required
+              fullWidth
+              autoFocus
+            />
+
+            <Input
+              label="SKU (Optional)"
+              placeholder="ex: EUCAL-1OZ"
+              value={convertProductData.sku}
+              onChange={(e) => setConvertProductData({ ...convertProductData, sku: e.target.value })}
+              error={convertErrors.sku}
+              fullWidth
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.875rem', color: '#374151' }}>
+              Description (Optional)
+            </label>
+            <textarea
+              value={convertProductData.description}
+              onChange={(e) => setConvertProductData({ ...convertProductData, description: e.target.value })}
+              placeholder="Brief description of your product..."
+              rows={2}
+              style={{
+                width: '100%',
+                padding: '0.625rem 0.875rem',
+                border: '2px solid #d1d5db',
+                borderRadius: '0.375rem',
+                fontSize: '0.9375rem',
+                fontFamily: 'inherit',
+                resize: 'vertical',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+
+          {/* Unit of Measure and Pieces Per Unit */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.875rem', color: '#374151' }}>
+                Unit of Measure
+              </label>
+              <select
+                value={convertProductData.unitOfMeasure}
+                onChange={(e) => setConvertProductData({ ...convertProductData, unitOfMeasure: e.target.value })}
+                style={{
+                  width: '100%',
+                  minHeight: '44px',
+                  padding: '0.625rem 0.875rem',
+                  border: '2px solid #d1d5db',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.9375rem',
+                  backgroundColor: '#ffffff',
+                  outline: 'none',
+                  transition: 'border-color 150ms ease-out',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <option value="each">Each</option>
+                <option value="case">Case</option>
+                <option value="dozen">Dozen</option>
+                <option value="pack">Pack</option>
+              </select>
+              <p style={{ fontSize: '0.8125rem', color: '#6b7280', margin: '0.25rem 0 0 0' }}>
+                How you sell this product
+              </p>
+            </div>
+
+            <Input
+              label="Pieces per Unit"
+              type="number"
+              placeholder="1"
+              value={convertProductData.piecesPerUnit}
+              onChange={(e) => setConvertProductData({ ...convertProductData, piecesPerUnit: e.target.value })}
+              error={convertErrors.piecesPerUnit}
+              required
+              fullWidth
+              helperText="How many items in one unit"
+            />
+          </div>
+        </div>
+      </Modal>
+
+      {/* Success Notification */}
+      {showSuccessNotification && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            zIndex: 10001,
+            backgroundColor: 'white',
+            padding: '1.5rem',
+            borderRadius: '12px',
+            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.2)',
+            border: '2px solid #FFD700',
+            background: 'linear-gradient(135deg, rgba(75, 0, 110, 0.05), rgba(255, 215, 0, 0.05))',
+            minWidth: '400px',
+            maxWidth: '500px',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+            <h4 style={{ margin: 0, color: '#4b006e', fontSize: '1.125rem', fontWeight: 600 }}>
+              ✓ Product Created!
+            </h4>
+            <button
+              onClick={() => setShowSuccessNotification(false)}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '1.5rem',
+                cursor: 'pointer',
+                color: '#64748b',
+                padding: 0,
+                lineHeight: 1,
+              }}
+            >
+              ×
+            </button>
+          </div>
+          <p style={{ margin: '0.5rem 0', color: '#1e293b', fontSize: '0.9375rem' }}>
+            "{createdProductName}" has been successfully added to{' '}
+            <button
+              onClick={() => {
+                navigate('/cpg/my-products');
+                setShowSuccessNotification(false);
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#D4AF37',
+                fontWeight: 600,
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                padding: 0,
+                fontSize: 'inherit',
+              }}
+            >
+              My Products
+            </button>
+            .
+          </p>
         </div>
       )}
     </div>
