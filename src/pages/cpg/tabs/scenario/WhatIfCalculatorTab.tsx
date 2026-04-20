@@ -279,6 +279,18 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
     calculateUnitCost();
   }, [calculatorPrice, calculatorQuantity, calculatorFromUnit, calculatorToQuantity, calculatorToUnit, calculatorType]);
 
+  // ========================================
+  // Auto-close success notification after 5 seconds
+  // ========================================
+  useEffect(() => {
+    if (showSuccessNotification) {
+      const timer = setTimeout(() => {
+        setShowSuccessNotification(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccessNotification]);
+
   const loadInitialData = async () => {
     try {
       setLoading(true);
@@ -1075,7 +1087,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
       const newProduct: Partial<CPGFinishedProduct> = {
         id: productId,
         company_id: companyId,
-        product_name: convertProductData.productName.trim(),
+        name: convertProductData.productName.trim(),
         sku: convertProductData.sku.trim() || null,
         description: convertProductData.description.trim() || null,
         unit_of_measure: convertProductData.unitOfMeasure,
@@ -1176,7 +1188,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
       // Dispatch event to update UI
       window.dispatchEvent(
-        new CustomEvent('cpg-data-updated', { detail: { type: 'finished-product' } })
+        new CustomEvent('cpg-data-updated', { detail: { type: 'product' } })
       );
 
       // Close modal and show success notification
@@ -3734,22 +3746,38 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
       {/* Success Notification */}
       {showSuccessNotification && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            zIndex: 10001,
-            backgroundColor: 'white',
-            padding: '1.5rem',
-            borderRadius: '12px',
-            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.2)',
-            border: '2px solid #FFD700',
-            background: 'linear-gradient(135deg, rgba(75, 0, 110, 0.05), rgba(255, 215, 0, 0.05))',
-            minWidth: '400px',
-            maxWidth: '500px',
-          }}
-        >
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={() => setShowSuccessNotification(false)}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              zIndex: 10000,
+            }}
+          />
+
+          {/* Notification */}
+          <div
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 10001,
+              backgroundColor: '#ffffff',
+              padding: '2rem',
+              borderRadius: '16px',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+              border: '3px solid #D4AF37',
+              minWidth: '450px',
+              maxWidth: '550px',
+            }}
+          >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
             <h4 style={{ margin: 0, color: '#4b006e', fontSize: '1.125rem', fontWeight: 600 }}>
               ✓ Product Created!
@@ -3792,6 +3820,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
             .
           </p>
         </div>
+        </>
       )}
     </div>
   );
