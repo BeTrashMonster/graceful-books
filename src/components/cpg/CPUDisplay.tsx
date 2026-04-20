@@ -616,7 +616,7 @@ export function CPUDisplay({
   filteredProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case 'name':
-        return a.productName.localeCompare(b.productName);
+        return (a.productName || '').localeCompare(b.productName || '');
       case 'cpu-asc': {
         // CPU ↑ = highest first, lowest last (descending)
         const aCPU = a.cpu ? parseFloat(a.cpu) : -Infinity;
@@ -1764,8 +1764,8 @@ export function CPUDisplay({
 
               switch (tableSortColumn) {
                 case 'name':
-                  aVal = a.productName.toLowerCase();
-                  bVal = b.productName.toLowerCase();
+                  aVal = (a.productName || '').toLowerCase();
+                  bVal = (b.productName || '').toLowerCase();
                   break;
                 case 'cost':
                   aVal = a.cost ?? -Infinity;

@@ -3801,7 +3801,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
             "{createdProductName}" has been successfully added to{' '}
             <button
               onClick={() => {
-                navigate('/cpg/my-products');
+                navigate('/cpg/products');
                 setShowSuccessNotification(false);
               }}
               style={{
