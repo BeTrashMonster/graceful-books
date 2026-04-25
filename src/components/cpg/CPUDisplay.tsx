@@ -402,18 +402,28 @@ export function CPUDisplay({
     e.preventDefault();
     if (!draggedProductKey) return;
 
-    // Check if target position is already occupied by another product
-    const isOccupied = Object.entries(productPositions).some(
-      ([productKey, position]) => productKey !== draggedProductKey && position === targetIndex
-    );
+    // Get the current position of the dragged product
+    const draggedPosition = productPositions[draggedProductKey];
 
-    // Only update if position is not occupied
-    if (!isOccupied) {
-      setProductPositions(prev => ({
-        ...prev,
-        [draggedProductKey]: targetIndex,
-      }));
-    }
+    // Check if target position is occupied by another product
+    const targetProductKey = Object.entries(productPositions).find(
+      ([productKey, position]) => productKey !== draggedProductKey && position === targetIndex
+    )?.[0];
+
+    setProductPositions(prev => {
+      const updated = { ...prev };
+
+      if (targetProductKey) {
+        // Swap positions: move target product to dragged product's old position
+        updated[targetProductKey] = draggedPosition;
+        updated[draggedProductKey] = targetIndex;
+      } else {
+        // Just move to empty position
+        updated[draggedProductKey] = targetIndex;
+      }
+
+      return updated;
+    });
 
     setDraggedProductKey(null);
     setDragOverIndex(null);
