@@ -11,6 +11,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
 import { FinancialWebGraph } from '../../components/cpg/FinancialWebGraph';
 import { DatePicker } from '../../components/common/DatePicker';
+import { ProductSetupBanner } from '../../components/banners/ProductSetupBanner';
 import { createFinancialWebDataService } from '../../services/cpg/financialWebData.service';
 import type { FinancialWebData } from '../../services/cpg/financialWebData.service';
 import type { CPGFinishedProduct } from '../../db/schema/cpg.schema';
@@ -483,8 +484,16 @@ export default function CPGDashboard() {
     );
   }
 
+  const handleStartSetup = () => {
+    // Navigate to the products page or show a modal with QuickProductSetup
+    navigate('/cpg/products');
+  };
+
   return (
     <div className={styles.container}>
+      {/* Product Setup Banner - shown if user skipped during signup */}
+      <ProductSetupBanner onStartSetup={handleStartSetup} />
+
       {/* Graph + Filters Side-by-Side */}
       <div className={styles.mainLayout}>
         {/* The Graph */}

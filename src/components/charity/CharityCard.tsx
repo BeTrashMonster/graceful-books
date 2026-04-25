@@ -111,8 +111,8 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
           </span>
         </div>
 
-        {showFullDescription && (
-          <p className={styles.description}>{charity.description}</p>
+        {showFullDescription && charity.shortDescription && (
+          <p className={styles.description}>{charity.shortDescription}</p>
         )}
 
         <div className={styles.footer}>

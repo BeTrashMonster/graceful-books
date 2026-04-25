@@ -451,7 +451,8 @@ export interface Charity {
   id: string; // UUID
   name: string; // Charity name (e.g., "Khan Academy", "GiveDirectly")
   ein: string; // EIN/Tax ID (format: XX-XXXXXXX)
-  description: string; // 1-2 sentence description
+  shortDescription: string | null; // 1-2 sentence description for cards/previews
+  longDescription: string | null; // Detailed description for charity detail pages
   category: CharityCategory; // Charity category
   website: string; // Charity website URL
   logo: string | null; // Logo URL or icon identifier
@@ -463,6 +464,7 @@ export interface Charity {
   created_at: number; // Unix timestamp
   updated_at: number; // Unix timestamp
   active: boolean; // Whether the charity is currently available for selection (deprecated - use status instead)
+  displayOrder: number; // Sort order for displaying charities (lower numbers first)
 }
 
 // ============================================================================

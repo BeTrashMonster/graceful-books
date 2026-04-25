@@ -88,7 +88,8 @@ export function CharitySelector({
       filtered = filtered.filter(
         (c) =>
           c.name.toLowerCase().includes(query) ||
-          c.description.toLowerCase().includes(query)
+          c.shortDescription?.toLowerCase().includes(query) ||
+          c.longDescription?.toLowerCase().includes(query)
       );
     }
 
@@ -205,14 +206,24 @@ export function CharitySelector({
         </div>
       ) : (
         <div className={styles.grid}>
-          {filteredCharities.map((charity) => (
-            <CharityCard
-              key={charity.id}
-              charity={charity}
-              selected={charity.id === selectedCharityId}
-              onClick={onSelect}
-            />
-          ))}
+          {filteredCharities.map((charity, index) => {
+            // Calculate position dynamically for all items
+            const angle = (index * 360) / filteredCharities.length;
+            const radius = window.innerWidth <= 768 ? 200 : 300;
+            const style = {
+              transform: `rotate(${angle}deg) translate(${radius}px) rotate(-${angle}deg)`
+            };
+
+            return (
+              <div key={charity.id} style={style}>
+                <CharityCard
+                  charity={charity}
+                  selected={charity.id === selectedCharityId}
+                  onClick={onSelect}
+                />
+              </div>
+            );
+          })}
         </div>
       )}
 
