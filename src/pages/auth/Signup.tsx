@@ -320,7 +320,7 @@ export default function Signup() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className={styles.togglePassword}
+                  className={`${styles.togglePassword} ${showPassword ? styles.active : ''}`}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? '👁️' : '👁️‍🗨️'}
@@ -347,7 +347,7 @@ export default function Signup() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className={styles.togglePassword}
+                  className={`${styles.togglePassword} ${showConfirmPassword ? styles.active : ''}`}
                   aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                 >
                   {showConfirmPassword ? '👁️' : '👁️‍🗨️'}

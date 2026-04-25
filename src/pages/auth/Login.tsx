@@ -233,6 +233,8 @@ export default function Login() {
                   cursor: 'pointer',
                   padding: '0.25rem',
                   fontSize: '1.25rem',
+                  color: showPassword ? '#a855f7' : '#6b7280',
+                  transition: 'color 0.2s',
                 }}
               >
                 {showPassword ? '👁️' : '👁️‍🗨️'}

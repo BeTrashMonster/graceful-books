@@ -131,6 +131,11 @@ select.input {
   padding: 0.25rem;
   color: #6b7280;
   font-size: 1.125rem;
+  transition: color 0.2s;
+}
+
+.togglePassword.active {
+  color: #a855f7;
 }
 
 .passwordHint {
