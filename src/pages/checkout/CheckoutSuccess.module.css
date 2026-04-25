@@ -1,0 +1,182 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+  background-color: var(--color-background, #f9fafb);
+}
+
+.card {
+  max-width: 32rem;
+  width: 100%;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.wideCard {
+  max-width: 1200px;
+  width: 100%;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--color-text-primary, #111827);
+}
+
+.description {
+  color: var(--color-text-secondary, #6b7280);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.primaryButton {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-primary, #3b82f6);
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background-color: var(--color-primary-dark, #2563eb);
+}
+
+.primaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  color: var(--color-text-secondary, #6b7280);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.secondaryButton:hover:not(:disabled) {
+  border-color: var(--color-primary, #3b82f6);
+  color: var(--color-primary, #3b82f6);
+}
+
+.secondaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.error {
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+  background-color: #fee2e2;
+  color: #991b1b;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.worksheetOptions {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 2rem;
+  margin: 2rem 0;
+  align-items: center;
+}
+
+.worksheetOption {
+  padding: 2rem;
+  background-color: var(--color-background, #f9fafb);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+.worksheetOption h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  color: var(--color-text-primary, #111827);
+}
+
+.worksheetOption p {
+  margin: 0 0 1.5rem 0;
+  color: var(--color-text-secondary, #6b7280);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.worksheetDivider {
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  font-size: 0.875rem;
+}
+
+.primaryButton svg,
+.secondaryButton svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .wideCard {
+    padding: 1.5rem;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .worksheetOptions {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .worksheetDivider {
+    display: none;
+  }
+
+  .worksheetOption {
+    padding: 1.5rem;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .primaryButton,
+  .secondaryButton {
+    transition: none;
+  }
+}
