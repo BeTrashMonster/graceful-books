@@ -1,9 +1,17 @@
 .card {
   background: var(--color-surface, #ffffff);
-  border: 2px solid var(--color-border, #e5e7eb);
-  border-radius: 0.5rem;
-  padding: 1.25rem;
+  border: 3px solid var(--color-border, #e5e7eb);
+  border-radius: 50%;
+  padding: 1.5rem;
   transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .card.clickable {
@@ -22,8 +30,10 @@
 }
 
 .card.selected {
-  border-color: var(--color-primary, #3b82f6);
-  background: var(--color-primary-light, #eff6ff);
+  border-color: #a855f7;
+  border-width: 4px;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.2);
 }
 
 .header {
@@ -39,10 +49,11 @@
 }
 
 .name {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0.5rem 0;
   color: var(--color-text-primary, #111827);
+  line-height: 1.2;
 }
 
 .selectedBadge {
@@ -61,15 +72,21 @@
 }
 
 .description {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--color-text-secondary, #6b7280);
-  margin: 0 0 1rem 0;
-  line-height: 1.5;
+  margin: 0.5rem 0;
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
 }
 
 .footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+  margin-top: auto;
 }
 
 .link {

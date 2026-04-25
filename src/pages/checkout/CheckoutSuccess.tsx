@@ -71,23 +71,9 @@ export default function CheckoutSuccess() {
   };
 
   const handleWorksheetComplete = () => {
-    // Navigate to appropriate dashboard
-    const userData = localStorage.getItem('graceful_books_user');
-
-    if (userData) {
-      const parsed = JSON.parse(userData);
-      const { selectedProduct } = parsed;
-
-      if (selectedProduct === 'cpu-cpg-calculator') {
-        navigate('/cpg/dashboard');
-      } else if (selectedProduct === 'bookkeeping-suite' || selectedProduct === 'fractional-cfo') {
-        navigate('/onboarding/assessment');
-      } else {
-        navigate('/dashboard');
-      }
-    } else {
-      navigate('/dashboard');
-    }
+    // This checkout flow is specifically for CPG Costing Tool signup
+    // Always navigate to CPG dashboard
+    navigate('/cpg/dashboard');
   };
 
   const handleSkipWorksheet = () => {
@@ -138,17 +124,11 @@ export default function CheckoutSuccess() {
 
       {step === 'charity' && (
         <div className={styles.wideCard}>
-          <h1 className={styles.title}>Support a Cause You Care About</h1>
-          <p className={styles.description}>
-            As part of your subscription, $5 goes directly to a charity of your choice each month.
-            Select one below, or skip this step for now.
-          </p>
-
           <CharitySelector
             selectedCharityId={selectedCharityId}
             onSelect={handleCharitySelect}
-            showSearch={true}
-            showFilters={true}
+            showSearch={false}
+            showFilters={false}
           />
 
           {error && <div className={styles.error}>{error}</div>}
