@@ -1,7 +1,8 @@
 # Zero-Knowledge Support System - Implementation Roadmap
 
-**Version:** 1.0
+**Version:** 2.0
 **Created:** 2026-04-25
+**Updated:** 2026-04-25
 **Status:** Pre-Implementation
 **Epic:** REQ-SUPPORT-001 - In-App Feedback & Support System
 
@@ -9,9 +10,11 @@
 
 ## Executive Summary
 
-This roadmap implements a comprehensive support system that maintains zero-knowledge encryption while providing effective user support. The architecture uses **user-controlled access grants** where users explicitly grant temporary, revocable access to support staff.
+This roadmap implements a comprehensive support system that maintains zero-knowledge encryption while providing effective human support. The architecture uses **user-controlled access grants** where users explicitly grant temporary, revocable access to support staff.
 
 **Key Innovation:** Support cannot access encrypted data without explicit, time-limited, revocable user permission.
+
+**Support Model:** Human-staffed support with 24-48 hour response time commitment.
 
 ---
 
@@ -20,11 +23,10 @@ This roadmap implements a comprehensive support system that maintains zero-knowl
 ### Core Components
 
 1. **Support Session Management** - User grants temporary access tokens
-2. **In-App Support Widget** - User-facing support request interface
+2. **In-App Support Menu Item** - User-facing support request interface
 3. **Admin Support Dashboard** - Support staff interface for handling requests
-4. **AI First-Line Support** - Groq AI provides immediate assistance
-5. **Email Escalation** - Human support with 24-hour SLA
-6. **Audit Trail** - Complete history of support access
+4. **Email Notifications** - Confirmation and updates via email
+5. **Audit Trail** - Complete history of support access
 
 ### Access Types
 
@@ -35,9 +37,8 @@ This roadmap implements a comprehensive support system that maintains zero-knowl
 
 ## Implementation Phases
 
-### 📋 Phase 1: Foundation & Database (Group A)
+### Phase 1: Foundation & Database (Group A)
 **Parallel Execution:** All tasks can run simultaneously
-**Timeline:** 3-5 days
 
 #### A1: Database Schema
 **File:** `audacious_money_backend/src/db/migrations/012_support_system.sql`
@@ -75,14 +76,12 @@ CREATE TABLE support_tickets (
   description TEXT NOT NULL,
   user_email VARCHAR(255) NOT NULL,
   user_name VARCHAR(255) NOT NULL,
-  ai_response TEXT, -- First-line AI response
-  ai_helpful BOOLEAN, -- User feedback on AI response
   context_data JSONB, -- Page URL, browser info, recent actions, etc.
   assigned_to UUID REFERENCES admin_users(id),
   resolved_at TIMESTAMPTZ,
   closed_at TIMESTAMPTZ,
   first_response_at TIMESTAMPTZ,
-  response_time_minutes INTEGER, -- SLA tracking
+  response_time_hours INTEGER, -- SLA tracking
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -91,7 +90,7 @@ CREATE TABLE support_tickets (
 CREATE TABLE support_ticket_messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   ticket_id UUID NOT NULL REFERENCES support_tickets(id) ON DELETE CASCADE,
-  sender_type VARCHAR(20) NOT NULL CHECK (sender_type IN ('user', 'admin', 'ai', 'system')),
+  sender_type VARCHAR(20) NOT NULL CHECK (sender_type IN ('user', 'admin', 'system')),
   sender_id UUID, -- user_id or admin_id
   sender_name VARCHAR(255) NOT NULL,
   message TEXT NOT NULL,
@@ -168,14 +167,12 @@ export interface SupportTicket {
   description: string;
   userEmail: string;
   userName: string;
-  aiResponse?: string;
-  aiHelpful?: boolean;
   contextData?: Record<string, any>;
   assignedTo?: string;
   resolvedAt?: Date;
   closedAt?: Date;
   firstResponseAt?: Date;
-  responseTimeMinutes?: number;
+  responseTimeHours?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -183,7 +180,7 @@ export interface SupportTicket {
 export interface SupportTicketMessage {
   id: string;
   ticketId: string;
-  senderType: 'user' | 'admin' | 'ai' | 'system';
+  senderType: 'user' | 'admin' | 'system';
   senderId?: string;
   senderName: string;
   message: string;
@@ -300,9 +297,8 @@ export function isSessionValid(session: {
 
 ---
 
-### 🔌 Phase 2: Backend API Routes (Group B)
+### Phase 2: Backend API Routes (Group B)
 **Parallel Execution:** B1, B2, B3 can run in parallel
-**Timeline:** 5-7 days
 
 #### B1: User Support Session Endpoints
 **File:** `audacious_money_backend/src/routes/support.ts`
@@ -350,18 +346,15 @@ Implements:
 - `GET /support/tickets/:id` - Get ticket details
 - `POST /support/tickets/:id/messages` - Add message to ticket
 - `POST /support/tickets/:id/attachments` - Upload attachment
-- `PUT /support/tickets/:id/ai-feedback` - Rate AI response
 
 **Key Features:**
 - Auto-generate ticket number
 - Capture context data (URL, browser, recent actions)
-- Call Groq AI for first-line response
 - Send email notification to founder
 - Track response time for SLA
 
 **Acceptance Criteria:**
 - [ ] Tickets created with unique ticket number
-- [ ] AI response generated within 5 seconds
 - [ ] Context data properly captured and stored
 - [ ] Email notification sent to hello@audacious.money
 - [ ] User can add messages to their tickets
@@ -422,65 +415,120 @@ if (session.accessType === 'books_access') {
 
 ---
 
-### 🎨 Phase 3: Frontend - User Support Widget (Group C)
-**Sequential Execution:** C1 → C2 → C3
-**Timeline:** 5-7 days
+### Phase 3: Frontend - User Support Interface (Group C)
+**Sequential Execution:** C1 → C2 → C3 → C4 → C5
 
-#### C1: Support Widget UI Component
-**File:** `src/components/support/SupportWidget.tsx`
+#### C1: Support Menu Item in Left Sidebar
+**File:** `src/components/layout/LeftSidebar.tsx` (update existing)
 
-Floating "?" button in bottom-right corner that opens modal with:
-- Quick help search
-- "Contact Support" button
-- Link to help center
-- View my support tickets
+**Placement:** Add "Contact Support" menu item:
+- Below "Settings"
+- Above "Logout"
+- In company toggle section (bottom-left)
 
-**File:** `src/components/support/SupportWidget.module.css`
+**Visual Design:**
+```
+┌─────────────────────────┐
+│  Company Name           │
+│  -------------------    │
+│  Dashboard              │
+│  Transactions           │
+│  Reports                │
+│  ...                    │
+│  Settings               │
+│  Contact Support    ← NEW
+│  Logout                 │
+└─────────────────────────┘
+```
+
+**Behavior:**
+- Clicking opens "Contact Support" modal
+- Icon: Life preserver or headset (no question mark)
+- Label: "Contact Support"
+- No badge or notification indicator
 
 **Acceptance Criteria:**
-- [ ] Widget accessible from all pages
-- [ ] Unobtrusive but easily discoverable
-- [ ] Smooth open/close animations
-- [ ] Mobile responsive
-- [ ] Keyboard accessible (Escape to close)
+- [ ] Menu item appears in correct position
+- [ ] Click opens support modal
+- [ ] Icon is clear and professional
+- [ ] Mobile responsive (hamburger menu)
+- [ ] Keyboard accessible
 - [ ] WCAG 2.1 AA compliant
 
 **Dependencies:** None (can start immediately)
 
 ---
 
-#### C2: Create Support Ticket Modal
-**File:** `src/components/support/CreateTicketModal.tsx`
+#### C2: Contact Support Modal
+**File:** `src/components/support/ContactSupportModal.tsx`
 
-Multi-step modal:
+**Single-step form:**
 
-**Step 1: AI Help First**
-- User describes their issue
-- AI provides immediate suggestions
-- "Was this helpful?" feedback buttons
-- If not helpful → proceed to Step 2
+```
+┌────────────────────────────────────────┐
+│  Contact Support                       │
+├────────────────────────────────────────┤
+│                                        │
+│  Our support team is here to help.    │
+│  Please allow 24-48 hours for a       │
+│  response.                             │
+│                                        │
+│  Category: [Dropdown]                  │
+│    - Bug Report                        │
+│    - Question                          │
+│    - Feature Request                   │
+│    - Billing                           │
+│    - Other                             │
+│                                        │
+│  Subject:                              │
+│  [Text field]                          │
+│                                        │
+│  Description:                          │
+│  [Large text area]                     │
+│  (Tell us what happened or what you    │
+│   need help with)                      │
+│                                        │
+│  Attach Screenshot (Optional):         │
+│  [File upload button]                  │
+│  [Warning: Please review screenshots   │
+│   for sensitive financial data]        │
+│                                        │
+│  [Cancel]  [Submit Support Request]    │
+└────────────────────────────────────────┘
+```
 
-**Step 2: Create Ticket**
-- Category dropdown (Bug, Question, Feature Request, Billing, Other)
-- Subject field
-- Description field (rich text)
-- Optional screenshot upload
-- "⚠️ Warning: Screenshots may contain sensitive data"
-- Submit button
+**After successful submission:**
 
-**Step 3: Confirmation**
-- "Ticket created! Ticket #TICKET-2026-12345"
-- "We'll respond within 24 hours"
-- Option to grant support access
-- Link to view ticket status
+```
+┌────────────────────────────────────────┐
+│  Support Request Submitted             │
+├────────────────────────────────────────┤
+│                                        │
+│  Thank you for contacting us!          │
+│                                        │
+│  Your ticket number:                   │
+│  TICKET-2026-12345                     │
+│  [Copy to Clipboard]                   │
+│                                        │
+│  We will respond within 24-48 hours    │
+│  via email at: user@example.com        │
+│                                        │
+│  You can also:                         │
+│  - View ticket status in My Tickets    │
+│  - Grant access to support (optional)  │
+│                                        │
+│  [View My Tickets]  [Grant Access]     │
+│  [Close]                               │
+└────────────────────────────────────────┘
+```
 
 **Acceptance Criteria:**
-- [ ] AI response appears within 5 seconds
-- [ ] User can rate AI helpfulness
 - [ ] Form validation prevents empty submissions
 - [ ] Screenshot warning shown before upload
 - [ ] Success confirmation clearly displayed
 - [ ] Ticket number prominent and copyable
+- [ ] 24-48 hour timeframe stated clearly
+- [ ] Links to My Tickets and Grant Access functional
 
 **Dependencies:** C1, B2
 
@@ -489,7 +537,7 @@ Multi-step modal:
 #### C3: Grant Support Access Modal
 **File:** `src/components/support/GrantAccessModal.tsx`
 
-Clear explanation modal:
+**Clear explanation modal (no emojis):**
 
 ```
 ┌─────────────────────────────────────────┐
@@ -501,14 +549,14 @@ Clear explanation modal:
 │                                         │
 │  Choose access level:                   │
 │                                         │
-│  ○ Admin Only (Recommended)            │
-│    Support sees: Email, subscription,  │
-│    payment history                      │
-│    Support CANNOT see: Financial data  │
+│  ( ) Admin Only (Recommended)           │
+│      Support sees: Email, subscription, │
+│      payment history                    │
+│      Support CANNOT see: Financial data │
 │                                         │
-│  ○ Full Books Access                   │
-│    Support sees: All financial data    │
-│    (transactions, accounts, reports)    │
+│  ( ) Full Books Access                  │
+│      Support sees: All financial data   │
+│      (transactions, accounts, reports)  │
 │                                         │
 │  Access expires in: 24 hours           │
 │  You can revoke anytime                 │
@@ -517,7 +565,8 @@ Clear explanation modal:
 └─────────────────────────────────────────┘
 ```
 
-After granting:
+**After granting:**
+
 ```
 ┌─────────────────────────────────────────┐
 │  Access Granted                         │
@@ -527,7 +576,7 @@ After granting:
 │                                         │
 │  ┌───────────────────────────────────┐ │
 │  │ SUP-A3F2-8D1E-9C4B-7E5A          │ │
-│  │ [Copy]                             │ │
+│  │ [Copy to Clipboard]                │ │
 │  └───────────────────────────────────┘ │
 │                                         │
 │  Provide this token to support when    │
@@ -544,6 +593,7 @@ After granting:
 - [ ] Expiration time clearly stated
 - [ ] Link to manage sessions
 - [ ] Cannot grant if already active session exists
+- [ ] No emojis in interface
 
 **Dependencies:** C1, B1
 
@@ -552,7 +602,7 @@ After granting:
 #### C4: My Support Sessions Page
 **File:** `src/pages/support/MySessions.tsx`
 
-Table showing:
+**Table showing:**
 - Session Token (masked: SUP-****-****-****-7E5A)
 - Access Type (Admin Only / Full Books Access)
 - Created date
@@ -562,13 +612,23 @@ Table showing:
 - Access count
 - Actions: [View Details] [Revoke]
 
+**Empty State:**
+```
+No support sessions yet.
+
+When you grant access to support, sessions
+will appear here. You can revoke access
+anytime.
+```
+
 **Acceptance Criteria:**
 - [ ] Sessions sorted by created date (newest first)
 - [ ] Active sessions highlighted
 - [ ] One-click revoke with confirmation
 - [ ] Shows who accessed and when
 - [ ] Empty state if no sessions
-- [ ] Pagination if >20 sessions
+- [ ] Pagination if more than 20 sessions
+- [ ] No emojis in interface
 
 **Dependencies:** C1, B1
 
@@ -577,7 +637,7 @@ Table showing:
 #### C5: My Support Tickets Page
 **File:** `src/pages/support/MyTickets.tsx`
 
-List of tickets with:
+**List of tickets with:**
 - Ticket number
 - Subject
 - Category badge
@@ -593,6 +653,14 @@ List of tickets with:
 - Mark as resolved
 - Grant access to support (if not already)
 
+**Empty State:**
+```
+No support tickets yet.
+
+Need help? Click "Contact Support" in the
+left sidebar to create your first ticket.
+```
+
 **Acceptance Criteria:**
 - [ ] Tickets sorted by updated date
 - [ ] Status filters (Open, In Progress, Resolved)
@@ -600,26 +668,26 @@ List of tickets with:
 - [ ] User can mark ticket as resolved
 - [ ] Conversation thread easy to follow
 - [ ] File attachments display correctly
+- [ ] No emojis in interface
 
 **Dependencies:** C1, B2
 
 ---
 
-### 👨‍💼 Phase 4: Admin Support Dashboard (Group D)
+### Phase 4: Admin Support Dashboard (Group D)
 **Parallel Execution:** D1 and D2 can run in parallel
-**Timeline:** 7-10 days
 
 #### D1: Admin Support Ticket Queue
 **File:** `src/pages/admin/SupportQueue.tsx`
 
-Dashboard showing:
+**Dashboard showing:**
 - Open tickets (prioritized)
 - Assigned to me
 - Waiting for user
 - Recently resolved
 - SLA breach warnings
 
-Filters:
+**Filters:**
 - Status
 - Priority
 - Category
@@ -635,12 +703,13 @@ Filters:
 - Request context data
 
 **Acceptance Criteria:**
-- [ ] Tickets load within 2 seconds
+- [ ] Tickets load performantly
 - [ ] Real-time updates when new tickets arrive
 - [ ] SLA timer shows time remaining
 - [ ] Can assign tickets to team members
 - [ ] Internal notes clearly marked
 - [ ] Quick reply templates available
+- [ ] No emojis in interface
 
 **Dependencies:** B3
 
@@ -649,7 +718,7 @@ Filters:
 #### D2: Admin Support Session Access
 **File:** `src/components/admin/SupportSessionAccess.tsx`
 
-Interface for using support tokens:
+**Interface for using support tokens:**
 
 ```
 ┌─────────────────────────────────────────┐
@@ -665,7 +734,7 @@ Interface for using support tokens:
 └─────────────────────────────────────────┘
 ```
 
-After successful access:
+**After successful access:**
 - Shows user's encrypted data
 - Decryption key provided (if books_access)
 - Access tracked and logged
@@ -678,6 +747,7 @@ After successful access:
 - [ ] Access logged with admin email
 - [ ] Decryption instructions shown
 - [ ] Cannot access twice (increment only)
+- [ ] No emojis in interface
 
 **Dependencies:** B3
 
@@ -686,15 +756,14 @@ After successful access:
 #### D3: Admin Support Metrics Dashboard
 **File:** `src/pages/admin/SupportMetrics.tsx`
 
-Metrics displayed:
+**Metrics displayed:**
 - Total tickets (today, week, month)
 - Average response time
-- SLA compliance %
+- SLA compliance percentage
 - Tickets by category (pie chart)
 - Tickets by priority (bar chart)
 - Resolution time distribution
 - Active support sessions
-- AI helpfulness rating
 
 **Acceptance Criteria:**
 - [ ] Metrics update in real-time
@@ -702,108 +771,48 @@ Metrics displayed:
 - [ ] Can filter by date range
 - [ ] Export to CSV available
 - [ ] Drill-down into categories
+- [ ] No emojis in interface
 
 **Dependencies:** B3
 
 ---
 
-### 🤖 Phase 5: AI Integration (Group E)
-**Sequential Execution:** E1 → E2
-**Timeline:** 3-5 days
-
-#### E1: Groq AI Service
-**File:** `audacious_money_backend/src/services/groq.service.ts`
-
-Functions:
-- `generateSupportResponse(userQuestion: string, contextData: any): Promise<string>`
-- `categorizeSupportTicket(description: string): Promise<Category>`
-- `suggestPriority(description: string): Promise<Priority>`
-
-**Integration:**
-- Use Groq AI API (already spec'd in REQUIREMENTS.md)
-- Model: llama-3.1-70b or similar
-- Prompt engineering for supportive tone
-- NEVER send unencrypted financial data to Groq
-
-**Prompt Template:**
-```
-You are a helpful, patient support assistant for Audacious Money,
-a bookkeeping platform. A user has the following question:
-
-{userQuestion}
-
-Context: {contextData}
-
-Provide a clear, supportive response in 2-3 paragraphs. Use a warm,
-Steadiness communication style. If the issue requires human support,
-suggest creating a support ticket.
-```
-
-**Acceptance Criteria:**
-- [ ] AI response generated in <5 seconds
-- [ ] Tone is warm and supportive
-- [ ] No financial data sent to Groq
-- [ ] Error handling if API fails
-- [ ] Fallback message if AI unavailable
-
-**Dependencies:** None (can start anytime)
-
----
-
-#### E2: AI Response Integration
-**File:** `audacious_money_backend/src/routes/support-tickets.ts` (update)
-
-When ticket created:
-1. Generate AI response
-2. Save to ticket.aiResponse
-3. Return in ticket creation response
-4. Track if user rated it helpful
-
-**Acceptance Criteria:**
-- [ ] AI response included in ticket creation
-- [ ] User can rate helpful/not helpful
-- [ ] If helpful, suggest closing ticket
-- [ ] If not helpful, proceed to human escalation
-
-**Dependencies:** E1, B2
-
----
-
-### 📧 Phase 6: Email Notifications (Group F)
+### Phase 5: Email Notifications (Group E)
 **Parallel Execution:** All tasks can run in parallel
-**Timeline:** 3-4 days
 
-#### F1: Email Templates
+#### E1: Email Templates
 **File:** `audacious_money_backend/src/services/email.service.ts` (add to existing)
 
-New email templates:
-1. **Support Ticket Created** (to user)
-   - Ticket number
-   - AI response
-   - 24-hour response promise
-   - Link to view ticket
+**New email templates:**
 
-2. **Support Ticket Reply** (to user when admin responds)
-   - Admin's message
-   - Link to reply
-   - Ticket status
+**1. Support Ticket Created (to user):**
+- Ticket number
+- Subject and description echo
+- 24-48 hour response promise
+- Link to view ticket
+- Support team is human-staffed
 
-3. **Support Ticket Resolved** (to user)
-   - Resolution summary
-   - Satisfaction survey link
-   - Ticket marked resolved
+**2. Support Ticket Reply (to user when admin responds):**
+- Admin's message
+- Link to reply
+- Ticket status
 
-4. **New Support Ticket** (to founder/support team)
-   - User info (name, email, support key)
-   - Ticket category and priority
-   - Description
-   - Link to admin dashboard
+**3. Support Ticket Resolved (to user):**
+- Resolution summary
+- Satisfaction survey link
+- Ticket marked resolved
 
-5. **Critical Issue Alert** (to founder)
-   - Immediate notification for critical priority
-   - User details
-   - Issue description
-   - Direct link to ticket
+**4. New Support Ticket (to founder/support team):**
+- User info (name, email, support key)
+- Ticket category and priority
+- Description
+- Link to admin dashboard
+
+**5. Critical Issue Alert (to founder):**
+- Immediate notification for critical priority
+- User details
+- Issue description
+- Direct link to ticket
 
 **Acceptance Criteria:**
 - [ ] All emails use royal purple (#4b006e)
@@ -811,16 +820,18 @@ New email templates:
 - [ ] Mobile responsive HTML
 - [ ] Plain text fallback
 - [ ] Unsubscribe link (except critical alerts)
-- [ ] Reply-to: support email address
+- [ ] Reply-to: hello@audacious.money
+- [ ] 24-48 hour timeframe stated clearly
+- [ ] Emphasize human support (not AI)
 
 **Dependencies:** None
 
 ---
 
-#### F2: Email Service Integration
+#### E2: Email Service Integration
 **File:** `audacious_money_backend/src/routes/support-tickets.ts` (update)
 
-Send emails at these trigger points:
+**Send emails at these trigger points:**
 - Ticket created → User confirmation + Founder notification
 - Admin replies → User notification
 - Ticket resolved → User confirmation
@@ -832,15 +843,14 @@ Send emails at these trigger points:
 - [ ] Failed emails logged for retry
 - [ ] Rate limiting on user emails (max 10/hour)
 
-**Dependencies:** F1, B2
+**Dependencies:** E1, B2
 
 ---
 
-### 🔒 Phase 7: Security & Testing (Group G)
-**Sequential Execution:** G1 → G2 → G3
-**Timeline:** 5-7 days
+### Phase 6: Security & Testing (Group F)
+**Sequential Execution:** F1 → F2 → F3
 
-#### G1: Security Hardening
+#### F1: Security Hardening
 
 **Tasks:**
 1. Audit all support endpoints for authorization
@@ -865,23 +875,21 @@ Send emails at these trigger points:
 
 ---
 
-#### G2: Unit & Integration Tests
+#### F2: Unit & Integration Tests
 
 **Backend Tests:**
 - `support.routes.test.ts` - User support endpoints
 - `support-tickets.routes.test.ts` - Ticket management
 - `admin/support.routes.test.ts` - Admin endpoints
 - `supportToken.test.ts` - Token generation/validation
-- `groq.service.test.ts` - AI service
 
 **Frontend Tests:**
-- `SupportWidget.test.tsx` - Widget component
-- `CreateTicketModal.test.tsx` - Ticket creation flow
+- `ContactSupportModal.test.tsx` - Ticket creation flow
 - `GrantAccessModal.test.tsx` - Access grant flow
 - `MySessions.test.tsx` - Session management
 - `MyTickets.test.tsx` - Ticket viewing
 
-**Target Coverage:** >85%
+**Target Coverage:** Greater than 85%
 
 **Acceptance Criteria:**
 - [ ] All endpoints have test coverage
@@ -890,20 +898,20 @@ Send emails at these trigger points:
 - [ ] Edge cases tested
 - [ ] Integration tests for full flows
 
-**Dependencies:** G1
+**Dependencies:** F1
 
 ---
 
-#### G3: End-to-End Testing
+#### F3: End-to-End Testing
 
 **Test Scenarios:**
-1. User creates ticket → AI responds → Escalates to human
+1. User creates ticket → Receives email confirmation
 2. User grants admin_only access → Admin uses token
 3. User grants books_access → Admin decrypts data
 4. User revokes access → Admin token rejected
 5. Support session expires → Cannot be used
 6. Admin assigns ticket → User receives email
-7. Admin resolves ticket → User satisfaction survey
+7. Admin resolves ticket → User receives confirmation
 
 **Tools:** Playwright
 
@@ -913,15 +921,14 @@ Send emails at these trigger points:
 - [ ] Screenshots captured on failure
 - [ ] Test data cleanup after runs
 
-**Dependencies:** G2
+**Dependencies:** F2
 
 ---
 
-### 🚀 Phase 8: Deployment & Monitoring (Group H)
-**Sequential Execution:** H1 → H2 → H3
-**Timeline:** 3-4 days
+### Phase 7: Deployment & Monitoring (Group G)
+**Sequential Execution:** G1 → G2 → G3
 
-#### H1: Database Migration
+#### G1: Database Migration
 
 **Tasks:**
 1. Review migration script
@@ -938,27 +945,27 @@ Send emails at these trigger points:
 - [ ] All indexes created successfully
 - [ ] Rollback script ready if needed
 
-**Dependencies:** G3 (all testing complete)
+**Dependencies:** F3 (all testing complete)
 
 ---
 
-#### H2: Feature Flags & Gradual Rollout
+#### G2: Feature Flags & Gradual Rollout
 
 **File:** `src/config/featureFlags.ts` (update)
 
 ```typescript
 export const FEATURE_FLAGS = {
-  SUPPORT_WIDGET: false, // Start disabled
-  SUPPORT_AI: false,
+  SUPPORT_CONTACT: false, // Start disabled
   SUPPORT_FILE_UPLOADS: false,
+  SUPPORT_ACCESS_GRANTS: false,
 };
 ```
 
 **Rollout Plan:**
-1. Week 1: Enable for internal team only
-2. Week 2: Enable for 10% of beta users
-3. Week 3: Enable for 50% of beta users
-4. Week 4: Enable for 100% of users
+1. Enable for internal team only
+2. Enable for 10% of beta users
+3. Enable for 50% of beta users
+4. Enable for 100% of users
 
 **Acceptance Criteria:**
 - [ ] Feature flags control visibility
@@ -966,27 +973,25 @@ export const FEATURE_FLAGS = {
 - [ ] Gradual rollout percentages work
 - [ ] Metrics tracked per cohort
 
-**Dependencies:** H1
+**Dependencies:** G1
 
 ---
 
-#### H3: Monitoring & Alerts
+#### G3: Monitoring & Alerts
 
 **Metrics to Track:**
 - Support ticket creation rate
 - Average response time
-- SLA compliance %
-- AI helpfulness rating
+- SLA compliance percentage (24-48 hours)
 - Support session grants per day
 - Failed support token uses
 - Email delivery success rate
 
 **Alerts to Configure:**
-- SLA breach (response >24 hours)
+- SLA breach (response greater than 48 hours)
 - Critical ticket created
 - Support session grant rate spike
 - Email delivery failures
-- AI service downtime
 - Database connection issues
 
 **Tools:** Grafana + Prometheus (already spec'd)
@@ -997,7 +1002,7 @@ export const FEATURE_FLAGS = {
 - [ ] On-call rotation notified
 - [ ] Alert fatigue minimized
 
-**Dependencies:** H2
+**Dependencies:** G2
 
 ---
 
@@ -1005,21 +1010,21 @@ export const FEATURE_FLAGS = {
 
 ### Launch Criteria (All must be met)
 
-- [ ] All acceptance criteria in Phases 1-8 complete
+- [ ] All acceptance criteria in Phases 1-7 complete
 - [ ] Security audit passed
-- [ ] >85% test coverage
+- [ ] Greater than 85% test coverage
 - [ ] Zero critical bugs
 - [ ] Documentation complete
 - [ ] Team trained on support workflow
 - [ ] Rollback plan tested
 
-### Post-Launch Metrics (30 days)
+### Post-Launch Metrics
 
-- **Response Time:** <24 hours (target: 95% of tickets)
-- **Resolution Time:** <3 days average
-- **User Satisfaction:** >4.0/5.0 rating
-- **AI Helpfulness:** >60% users rate helpful
-- **Support Load:** <10 tickets/day (manageable volume)
+- **Response Time:** Less than 48 hours (target: 95% of tickets)
+- **Resolution Time:** Less than 5 days average
+- **User Satisfaction:** Greater than 4.0/5.0 rating
+- **Support Load:** Less than 20 tickets/day (manageable volume)
+- **Session Grant Rate:** Track for abuse patterns
 
 ---
 
@@ -1037,8 +1042,8 @@ Phase 2 (Backend)         │              │
 └── B3 (Admin) ←─────────────────────────┘
                           ↓
 Phase 3 (User UI)         │
-├── C1 (Widget)           │
-├── C2 (Ticket Modal) ←───┤
+├── C1 (Menu Item)        │
+├── C2 (Contact Modal) ←──┤
 ├── C3 (Grant Access) ←───┤
 ├── C4 (Sessions Page) ←──┤
 └── C5 (Tickets Page) ←───┘
@@ -1048,56 +1053,49 @@ Phase 4 (Admin UI)        │
 ├── D2 (Session Access) ←─┤
 └── D3 (Metrics) ←────────┘
                           ↓
-Phase 5 (AI)              │
-├── E1 (Groq Service)     │
+Phase 5 (Email)           │
+├── E1 (Templates)        │
 └── E2 (Integration) ←────┘
                           ↓
-Phase 6 (Email)           │
-├── F1 (Templates)        │
-└── F2 (Integration) ←────┘
+Phase 6 (Security)        │
+├── F1 (Hardening) ←──────┘
+├── F2 (Unit Tests) ←─────┘
+└── F3 (E2E Tests) ←──────┘
                           ↓
-Phase 7 (Security)        │
-├── G1 (Hardening) ←──────┘
-├── G2 (Unit Tests) ←─────┘
-└── G3 (E2E Tests) ←──────┘
-                          ↓
-Phase 8 (Deploy)          │
-├── H1 (Migration) ←──────┘
-├── H2 (Rollout) ←────────┘
-└── H3 (Monitoring) ←─────┘
+Phase 7 (Deploy)          │
+├── G1 (Migration) ←──────┘
+├── G2 (Rollout) ←────────┘
+└── G3 (Monitoring) ←─────┘
 ```
 
 ---
 
 ## Parallel Execution Plan
 
-### Sprint 1 (Weeks 1-2)
+### Sprint 1
 **Parallel Agents:**
 - Agent A: Phase 1 (A1, A2, A3) - Foundation
-- Agent B: Phase 5 (E1) - Groq AI Service
-- Agent C: Phase 6 (F1) - Email Templates
+- Agent B: Phase 5 (E1) - Email Templates
 
-### Sprint 2 (Weeks 3-4)
+### Sprint 2
 **Parallel Agents:**
 - Agent A: Phase 2 (B1) - User Support Sessions
 - Agent B: Phase 2 (B2) - Support Tickets
 - Agent C: Phase 2 (B3) - Admin Support
 
-### Sprint 3 (Weeks 5-6)
+### Sprint 3
 **Parallel Agents:**
-- Agent A: Phase 3 (C1, C2, C3) - User UI
-- Agent B: Phase 4 (D1, D2) - Admin UI
-- Agent C: Phase 5 (E2) + Phase 6 (F2) - Integrations
+- Agent A: Phase 3 (C1, C2, C3, C4, C5) - User UI
+- Agent B: Phase 4 (D1, D2, D3) - Admin UI
+- Agent C: Phase 5 (E2) - Email Integration
 
-### Sprint 4 (Week 7)
+### Sprint 4
 **Sequential:**
-- Agent A: Phase 7 (G1, G2, G3) - Security & Testing
+- Agent A: Phase 6 (F1, F2, F3) - Security & Testing
 
-### Sprint 5 (Week 8)
+### Sprint 5
 **Sequential:**
-- Agent A: Phase 8 (H1, H2, H3) - Deployment
-
-**Total Timeline:** 8 weeks with 3 parallel agents
+- Agent A: Phase 7 (G1, G2, G3) - Deployment
 
 ---
 
@@ -1110,20 +1108,20 @@ Phase 8 (Deploy)          │
    - Mitigation: Security audit before launch, gradual rollout
    - Fallback: Start with admin_only access type only
 
-2. **AI Response Quality**
-   - Risk: Groq AI might give poor responses
-   - Mitigation: Human review of AI responses, feedback loop
-   - Fallback: Disable AI, direct to human immediately
-
-3. **Email Delivery**
+2. **Email Delivery**
    - Risk: Support emails might not reach users
    - Mitigation: Monitor delivery rates, backup notification methods
    - Fallback: In-app notifications if email fails
 
-4. **Support Overload**
+3. **Support Overload**
    - Risk: Too many tickets, cannot meet SLA
-   - Mitigation: AI filters common questions, hire support staff
-   - Fallback: Extend SLA to 48 hours temporarily
+   - Mitigation: Monitor ticket volume, hire support staff if needed
+   - Fallback: Extend SLA to 72 hours temporarily
+
+4. **Session Token Security**
+   - Risk: Tokens could be intercepted or misused
+   - Mitigation: 24-hour expiration, revocable, audit trail
+   - Fallback: Disable access grants, support only via description
 
 ---
 
@@ -1133,12 +1131,11 @@ Phase 8 (Deploy)          │
 - [ ] Help center article: "How to Contact Support"
 - [ ] Help center article: "Granting Support Access"
 - [ ] Help center article: "Managing Support Sessions"
-- [ ] Video tutorial: "Getting Help" (3-5 minutes)
 
 ### For Support Team
 - [ ] Support workflow handbook
 - [ ] Using support tokens guide
-- [ ] Common issues & responses
+- [ ] Common issues and responses
 - [ ] Escalation procedures
 - [ ] SLA compliance tracking
 
@@ -1156,37 +1153,24 @@ Phase 8 (Deploy)          │
 
 Each phase requires sign-off before proceeding to next:
 
-- [ ] **Phase 1:** Database schema reviewed by DBA
-- [ ] **Phase 2:** API endpoints tested by QA
-- [ ] **Phase 3:** User UI approved by Product
-- [ ] **Phase 4:** Admin UI approved by Support Lead
-- [ ] **Phase 5:** AI responses reviewed by Founder
-- [ ] **Phase 6:** Email templates approved by Marketing
-- [ ] **Phase 7:** Security audit passed
-- [ ] **Phase 8:** Production deployment successful
+- [ ] **Phase 1:** Database schema reviewed
+- [ ] **Phase 2:** API endpoints tested
+- [ ] **Phase 3:** User UI approved
+- [ ] **Phase 4:** Admin UI approved
+- [ ] **Phase 5:** Email templates approved
+- [ ] **Phase 6:** Security audit passed
+- [ ] **Phase 7:** Production deployment successful
 
 ---
 
-## Contact & Resources
+## Key Documents
 
-**Project Owner:** Founder
-**Technical Lead:** TBD
-**Support Lead:** TBD
-**QA Lead:** TBD
-
-**Key Documents:**
 - REQ-SUPPORT-001 in REQUIREMENTS.md
 - Support API spec in ROADMAPS_API.md
 - Zero-knowledge architecture in SPEC.md
 
-**Communication:**
-- Daily standup: 9:00 AM PT
-- Sprint planning: Mondays
-- Sprint review: Fridays
-- Blocker escalation: Immediate Slack ping
-
 ---
 
 **Last Updated:** 2026-04-25
-**Version:** 1.0
+**Version:** 2.0
 **Status:** Ready for Implementation
