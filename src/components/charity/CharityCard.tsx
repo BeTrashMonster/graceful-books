@@ -1,6 +1,5 @@
 import { HTMLAttributes, forwardRef } from 'react';
 import type { Charity } from '../../types/database.types';
-import { getCategoryDisplay } from '../../db/schema/charity.schema';
 import styles from './CharityCard.module.css';
 import clsx from 'clsx';
 
@@ -81,34 +80,29 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
         aria-pressed={onClick ? selected : undefined}
         {...props}
       >
-        <div className={styles.header}>
-          <div className={styles.titleRow}>
-            <h3 className={styles.name}>{charity.name}</h3>
-            {selected && (
-              <div className={styles.selectedBadge} aria-label="Selected">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                >
-                  <circle cx="10" cy="10" r="10" fill="currentColor" />
-                  <path
-                    d="M6 10L9 13L14 7"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-            )}
-          </div>
-          <span className={styles.category}>
-            {getCategoryDisplay(charity.category)}
-          </span>
+        <div className={styles.titleRow}>
+          <h3 className={styles.name}>{charity.name}</h3>
+          {selected && (
+            <div className={styles.selectedBadge} aria-label="Selected">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <circle cx="10" cy="10" r="10" fill="currentColor" />
+                <path
+                  d="M6 10L9 13L14 7"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          )}
         </div>
 
         {showFullDescription && charity.shortDescription && (

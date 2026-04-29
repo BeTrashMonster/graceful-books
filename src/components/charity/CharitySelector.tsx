@@ -120,14 +120,6 @@ export function CharitySelector({
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>Choose a Charity to Support</h2>
-        <p className={styles.description}>
-          Part of your subscription helps others. Choose a cause close to your heart.
-          $5 from your monthly subscription goes directly to your chosen charity.
-        </p>
-      </div>
-
       {showSearch && (
         <div className={styles.searchContainer}>
           <div className={styles.searchInputWrapper}>
@@ -206,6 +198,15 @@ export function CharitySelector({
         </div>
       ) : (
         <div className={styles.grid}>
+          {/* Center title/subtitle */}
+          <div className={styles.centerHeader}>
+            <h2 className={styles.centerTitle}>Choose a Charity</h2>
+            <p className={styles.centerDescription}>
+              $5/month goes to your chosen cause
+            </p>
+          </div>
+
+          {/* Charity cards in circle */}
           {filteredCharities.map((charity, index) => {
             // Calculate position dynamically for all items
             const angle = (index * 360) / filteredCharities.length;
