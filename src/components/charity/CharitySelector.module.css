@@ -36,9 +36,12 @@
   top: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
-  max-width: 250px;
+  max-width: 280px;
+  margin: 0 !important;
+  width: auto !important;
+  height: auto !important;
 }
 
 .centerTitle {
@@ -128,8 +131,8 @@
 
 .grid {
   position: relative;
-  width: 800px;
-  height: 800px;
+  width: 1000px;
+  height: 1000px;
   margin: 2rem auto;
   display: flex;
   align-items: center;
@@ -139,12 +142,12 @@
 /* Circular layout - items positioned around a circle */
 .grid > * {
   position: absolute;
-  width: 220px;
-  height: 220px;
+  width: 260px;
+  height: 260px;
   left: 50%;
   top: 50%;
-  margin-left: -110px;
-  margin-top: -110px;
+  margin-left: -130px;
+  margin-top: -130px;
 }
 
 /* Positions calculated dynamically via inline styles */
@@ -152,15 +155,15 @@
   .grid {
     width: 90vw;
     height: 90vw;
-    max-width: 600px;
-    max-height: 600px;
+    max-width: 700px;
+    max-height: 700px;
   }
 
   .grid > * {
-    width: 160px;
-    height: 160px;
-    margin-left: -80px;
-    margin-top: -80px;
+    width: 200px;
+    height: 200px;
+    margin-left: -100px;
+    margin-top: -100px;
   }
 }
 
