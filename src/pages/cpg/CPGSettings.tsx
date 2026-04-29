@@ -5,8 +5,11 @@ import { db } from '../../db';
 import { CPGSettingsService } from '../../services/cpg/cpgSettings.service';
 import { UserFeaturePreferencesService } from '../../services/userFeaturePreferences.service';
 import { DataSafetyPanel } from '../../components/settings/DataSafetyPanel';
+import { CharitySelector } from '../../components/charity';
 import type { FeatureName } from '../../services/userFeaturePreferences.service';
 import type { CPGSettings } from '../../db/schema/cpg.schema';
+import type { Charity } from '../../types/database.types';
+import { getMyCharitySelection, selectCharity as selectCharityAPI, type CharitySelection } from '../../services/charities.api';
 import styles from './CPGSettings.module.css';
 
 /**
@@ -74,12 +77,38 @@ export function CPGSettings() {
   }, [userFeaturePrefs]);
 
   // Collapsible section state
-  const [featuresSectionExpanded, setFeaturesSectionExpanded] = useState(true);
+  const [charitySectionExpanded, setCharitySectionExpanded] = useState(true);
+  const [featuresSectionExpanded, setFeaturesSectionExpanded] = useState(false);
   const [marginSectionExpanded, setMarginSectionExpanded] = useState(false);
   const [financialSectionExpanded, setFinancialSectionExpanded] = useState(false);
   const [displaySectionExpanded, setDisplaySectionExpanded] = useState(false);
   const [reportingSectionExpanded, setReportingSectionExpanded] = useState(false);
   const [dataSectionExpanded, setDataSectionExpanded] = useState(false);
+
+  // Charity selection state
+  const [currentCharitySelection, setCurrentCharitySelection] = useState<CharitySelection | null>(null);
+  const [isLoadingCharity, setIsLoadingCharity] = useState(true);
+  const [isChangingCharity, setIsChangingCharity] = useState(false);
+  const [showCharitySelector, setShowCharitySelector] = useState(false);
+
+  /**
+   * Load user charity selection
+   */
+  useEffect(() => {
+    const loadCharitySelection = async () => {
+      setIsLoadingCharity(true);
+      try {
+        const selection = await getMyCharitySelection();
+        setCurrentCharitySelection(selection);
+      } catch (error) {
+        console.error('Failed to load charity selection:', error);
+      } finally {
+        setIsLoadingCharity(false);
+      }
+    };
+
+    loadCharitySelection();
+  }, []);
 
   /**
    * Load user feature preferences
@@ -170,6 +199,29 @@ export function CPGSettings() {
 
     loadSettings();
   }, [companyId, deviceId]);
+
+  /**
+   * Handle charity selection
+   */
+  const handleCharitySelect = async (charity: Charity) => {
+    setIsChangingCharity(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    try {
+      const selection = await selectCharityAPI(charity.id);
+      setCurrentCharitySelection(selection);
+      setShowCharitySelector(false);
+      setSuccessMessage(`Charity updated to ${charity.name}! This will take effect with your next payment.`);
+      setTimeout(() => setSuccessMessage(null), 5000);
+    } catch (error) {
+      console.error('Failed to update charity selection:', error);
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to update charity selection');
+      setTimeout(() => setErrorMessage(null), 5000);
+    } finally {
+      setIsChangingCharity(false);
+    }
+  };
 
   /**
    * Toggle feature activation
@@ -445,6 +497,132 @@ export function CPGSettings() {
       <DataSafetyPanel companyId={companyId || undefined} />
 
       {/* Settings Sections */}
+
+      {/* Charity Selection Section */}
+      <div className={styles.settingsSection}>
+        <div
+          className={styles.sectionHeader}
+          onClick={() => setCharitySectionExpanded(!charitySectionExpanded)}
+        >
+          <div className={styles.sectionHeaderLeft}>
+            <span className={styles.sectionIcon}>💝</span>
+            <div className={styles.sectionHeaderContent}>
+              <h2 className={styles.sectionTitle}>Charity Selection</h2>
+              <p className={styles.sectionSubtitle}>
+                Choose which charity receives $5 from your monthly subscription
+              </p>
+            </div>
+          </div>
+          <span className={`${styles.expandIcon} ${charitySectionExpanded ? styles.expanded : ''}`}>
+            ▼
+          </span>
+        </div>
+
+        <div className={`${styles.sectionContent} ${charitySectionExpanded ? styles.expanded : ''}`}>
+          <div className={styles.sectionInner}>
+            {isLoadingCharity ? (
+              <div className={styles.loadingCharity}>
+                <p>Loading charity information...</p>
+              </div>
+            ) : currentCharitySelection ? (
+              <div className={styles.currentCharityContainer}>
+                <div className={styles.currentCharityInfo}>
+                  <h3 className={styles.currentCharityTitle}>Current Selection</h3>
+                  <div className={styles.currentCharityCard}>
+                    <div className={styles.currentCharityDetails}>
+                      <h4 className={styles.charityName}>{currentCharitySelection.charity.name}</h4>
+                      {currentCharitySelection.charity.shortDescription && (
+                        <p className={styles.charityDescription}>
+                          {currentCharitySelection.charity.shortDescription}
+                        </p>
+                      )}
+                      <div className={styles.charityMeta}>
+                        <span className={styles.charityCategory}>
+                          {currentCharitySelection.charity.category}
+                        </span>
+                        <a
+                          href={currentCharitySelection.charity.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.charityWebsite}
+                        >
+                          Visit Website →
+                        </a>
+                      </div>
+                      <p className={styles.selectedSince}>
+                        Selected since {new Date(currentCharitySelection.selectedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {showCharitySelector ? (
+                  <div className={styles.charitySelectorContainer}>
+                    <CharitySelector
+                      selectedCharityId={currentCharitySelection.charityId}
+                      onSelect={handleCharitySelect}
+                      showSearch={false}
+                      showFilters={false}
+                    />
+                    <div className={styles.charitySelectorActions}>
+                      <Button
+                        variant="secondary"
+                        onClick={() => setShowCharitySelector(false)}
+                        disabled={isChangingCharity}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={styles.changeCharityActions}>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setShowCharitySelector(true)}
+                    >
+                      Change Charity
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className={styles.noCharityContainer}>
+                <p className={styles.noCharityMessage}>
+                  You haven't selected a charity yet. Choose one now to start making an impact!
+                </p>
+                {showCharitySelector ? (
+                  <div className={styles.charitySelectorContainer}>
+                    <CharitySelector
+                      selectedCharityId={null}
+                      onSelect={handleCharitySelect}
+                      showSearch={false}
+                      showFilters={false}
+                    />
+                    <div className={styles.charitySelectorActions}>
+                      <Button
+                        variant="secondary"
+                        onClick={() => setShowCharitySelector(false)}
+                        disabled={isChangingCharity}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={styles.changeCharityActions}>
+                    <Button
+                      variant="primary"
+                      onClick={() => setShowCharitySelector(true)}
+                    >
+                      Select a Charity
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Feature Preferences Section */}
       <div className={styles.settingsSection}>

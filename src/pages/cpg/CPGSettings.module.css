@@ -524,6 +524,124 @@
   }
 }
 
+/* Charity Selection Styles */
+.loadingCharity {
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.currentCharityContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.currentCharityInfo {
+  flex: 1;
+}
+
+.currentCharityTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 1rem 0;
+}
+
+.currentCharityCard {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(147, 51, 234, 0.05) 100%);
+  border: 2px solid #a855f7;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.currentCharityDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.charityName {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #4b006e;
+  margin: 0;
+}
+
+.charityDescription {
+  font-size: 0.9375rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.charityMeta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.charityCategory {
+  display: inline-block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.charityWebsite {
+  font-size: 0.875rem;
+  color: #a855f7;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.charityWebsite:hover {
+  color: #9333ea;
+  text-decoration: underline;
+}
+
+.selectedSince {
+  font-size: 0.8125rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.changeCharityActions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.charitySelectorContainer {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: #f9fafb;
+  border-radius: 0.75rem;
+}
+
+.charitySelectorActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.noCharityContainer {
+  text-align: center;
+  padding: 2rem;
+}
+
+.noCharityMessage {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
+}
+
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   .loadingIcon {
@@ -534,7 +652,8 @@
   .colorPicker,
   .sectionHeader,
   .expandIcon,
-  .sectionContent {
+  .sectionContent,
+  .charityWebsite {
     transition: none;
   }
 }
