@@ -209,14 +209,34 @@ export function CharitySelector({
         </div>
       ) : (
         <div className={styles.grid}>
-          {filteredCharities.map((charity) => (
-            <CharityCard
-              key={charity.id}
-              charity={charity}
-              selected={charity.id === selectedCharityId}
-              onClick={onSelect}
-            />
-          ))}
+          {/* Center golden circle */}
+          <div className={styles.centerHeader}>
+            <h2 className={styles.centerTitle}>
+              Select<br />Give Back
+            </h2>
+            <p className={styles.centerDescription}>
+              $5/month to your chosen cause
+            </p>
+          </div>
+
+          {/* Charity cards in perfect pentagon */}
+          {filteredCharities.map((charity, index) => {
+            const angle = (index * 360) / filteredCharities.length;
+            const radius = window.innerWidth <= 768 ? 200 : 270;
+            const style = {
+              transform: `rotate(${angle}deg) translate(${radius}px) rotate(-${angle}deg)`
+            };
+
+            return (
+              <div key={charity.id} style={style}>
+                <CharityCard
+                  charity={charity}
+                  selected={charity.id === selectedCharityId}
+                  onClick={onSelect}
+                />
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
