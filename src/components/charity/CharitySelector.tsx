@@ -212,7 +212,7 @@ export function CharitySelector({
           {filteredCharities.map((charity, index) => {
             // Calculate position dynamically for all items - equally spaced in a ring
             const angle = (index * 360) / filteredCharities.length;
-            const radius = window.innerWidth <= 768 ? 200 : 350;
+            const radius = window.innerWidth <= 768 ? 160 : 250;
             const style = {
               transform: `rotate(${angle}deg) translate(${radius}px) rotate(-${angle}deg)`
             };
