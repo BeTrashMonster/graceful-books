@@ -131,8 +131,8 @@
 
 .grid {
   position: relative;
-  width: 700px;
-  height: 700px;
+  width: 850px;
+  height: 850px;
   margin: 1rem auto;
   display: flex;
   align-items: center;
@@ -142,12 +142,12 @@
 /* Circular layout - items positioned around a circle */
 .grid > * {
   position: absolute;
-  width: 220px;
-  height: 220px;
+  width: 260px;
+  height: 260px;
   left: 50%;
   top: 50%;
-  margin-left: -110px;
-  margin-top: -110px;
+  margin-left: -130px;
+  margin-top: -130px;
 }
 
 /* Positions calculated dynamically via inline styles */

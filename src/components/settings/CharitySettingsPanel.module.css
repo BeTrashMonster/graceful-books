@@ -1,0 +1,258 @@
+.panel {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 0.5rem 0;
+}
+
+.description {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0 0 1.5rem 0;
+  line-height: 1.6;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.error {
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  color: #c00;
+  font-size: 0.875rem;
+}
+
+.success {
+  background: #efe;
+  border: 1px solid #cfc;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  color: #060;
+  font-size: 0.875rem;
+}
+
+/* Current Selection */
+.currentSelection {
+  margin-top: 1rem;
+}
+
+.currentTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 1rem 0;
+}
+
+.charityCard {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(147, 51, 234, 0.05) 100%);
+  border: 2px solid #a855f7;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.charityInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.charityName {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.charityDescription {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.charityCategory {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+.charityLink {
+  color: #a855f7;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+.charityLink:hover {
+  color: #9333ea;
+  text-decoration: underline;
+}
+
+.changeButton {
+  padding: 0.75rem 1.5rem;
+  background: #a855f7;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.changeButton:hover {
+  background: #9333ea;
+}
+
+.changeButton:focus {
+  outline: 2px solid #a855f7;
+  outline-offset: 2px;
+}
+
+/* No Selection */
+.noSelection {
+  text-align: center;
+  padding: 2rem;
+  background: var(--color-background, #f9fafb);
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+}
+
+.noSelection p {
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0 0 1rem 0;
+}
+
+.selectButton {
+  padding: 0.75rem 1.5rem;
+  background: #a855f7;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.selectButton:hover {
+  background: #9333ea;
+}
+
+.selectButton:focus {
+  outline: 2px solid #a855f7;
+  outline-offset: 2px;
+}
+
+/* Selector Container */
+.selectorContainer {
+  margin-top: 1.5rem;
+}
+
+.selectorHeader {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.selectorTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 0.5rem 0;
+}
+
+.selectorNote {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  font-style: italic;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.cancelButton {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: var(--color-text-secondary, #6b7280);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background: var(--color-background, #f9fafb);
+  border-color: var(--color-text-secondary, #6b7280);
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.saveButton {
+  padding: 0.75rem 1.5rem;
+  background: #a855f7;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: #9333ea;
+}
+
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.saveButton:focus,
+.cancelButton:focus {
+  outline: 2px solid #a855f7;
+  outline-offset: 2px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .actions {
+    flex-direction: column;
+  }
+
+  .cancelButton,
+  .saveButton {
+    width: 100%;
+  }
+}

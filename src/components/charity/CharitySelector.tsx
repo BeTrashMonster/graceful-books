@@ -200,7 +200,7 @@ export function CharitySelector({
         <div className={styles.grid}>
           {/* Center title/subtitle */}
           <div className={styles.centerHeader}>
-            <h2 className={styles.centerTitle}>Choose a Charity</h2>
+            <h2 className={styles.centerTitle}>Give Back</h2>
             <p className={styles.centerDescription}>
               $5/month goes to your chosen cause
             </p>
@@ -210,7 +210,7 @@ export function CharitySelector({
           {filteredCharities.map((charity, index) => {
             // Calculate position dynamically for all items
             const angle = (index * 360) / filteredCharities.length;
-            const radius = window.innerWidth <= 768 ? 180 : 270;
+            const radius = window.innerWidth <= 768 ? 180 : 325;
             const style = {
               transform: `rotate(${angle}deg) translate(${radius}px) rotate(-${angle}deg)`
             };
