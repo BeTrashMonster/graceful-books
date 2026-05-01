@@ -219,6 +219,12 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
           distribution_method: item.distribution_method,
         }));
 
+        console.log('🔍 LOADED INVOICE DATA:', {
+          invoice_id: invoice.id,
+          cost_attribution: invoice.cost_attribution,
+          mapped_items: items,
+        });
+
         setCostItems(items);
       } catch (error) {
         console.error('Error loading invoice data:', error);
@@ -343,6 +349,17 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
           }
 
           const calculated = calculateMissingValue(item, field);
+          console.log('🔍 CALCULATION RESULT:', {
+            item_id: id,
+            field,
+            before: {
+              units: item.units_purchased,
+              price: item.unit_price,
+              manual_line_total: item.manual_line_total,
+            },
+            calculated,
+            after: { ...item, ...calculated },
+          });
           return { ...item, ...calculated };
         }
         return item;
@@ -508,6 +525,10 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         isDistribution: category.is_distribution_category,
         item_distribution_method: item.distribution_method,
         saved_distribution_method: costAttribution[key].distribution_method,
+        unit_of_measurement: item.unit_of_measurement,
+        saved_unit_of_measurement: costAttribution[key].unit_of_measurement,
+        manual_line_total: item.manual_line_total,
+        saved_manual_line_total: costAttribution[key].manual_line_total,
       });
     });
 
