@@ -227,12 +227,17 @@ export function CharitySelector({
               transform: `rotate(${angle}deg) translate(${radius}px) rotate(-${angle}deg)`
             };
 
+            // Assign unique jewel-tone color to each charity
+            const colors = ['emerald', 'sapphire', 'ruby', 'amethyst', 'topaz'] as const;
+            const colorTheme = colors[index % colors.length];
+
             return (
               <div key={charity.id} style={style}>
                 <CharityCard
                   charity={charity}
                   selected={charity.id === selectedCharityId}
                   onClick={onSelect}
+                  colorTheme={colorTheme}
                 />
               </div>
             );

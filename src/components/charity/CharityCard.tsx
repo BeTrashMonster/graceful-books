@@ -20,6 +20,10 @@ export interface CharityCardProps extends Omit<HTMLAttributes<HTMLDivElement>, '
    * Whether to show the full description
    */
   showFullDescription?: boolean;
+  /**
+   * Color theme for the card (emerald, sapphire, ruby, amethyst, topaz)
+   */
+  colorTheme?: 'emerald' | 'sapphire' | 'ruby' | 'amethyst' | 'topaz';
 }
 
 /**
@@ -48,6 +52,7 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
       selected = false,
       onClick,
       showFullDescription = true,
+      colorTheme,
       className,
       ...props
     },
@@ -69,6 +74,7 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
         ref={ref}
         className={clsx(
           styles.card,
+          colorTheme && styles[colorTheme],
           selected && styles.selected,
           onClick && styles.clickable,
           className
