@@ -27,6 +27,7 @@ export interface AddInvoiceModalProps {
   onClose: () => void;
   onSuccess?: () => void;
   onNeedCategories?: () => void;
+  onNavigateToRecipe?: (finishedProductId: string, productName: string) => void; // Navigate to recipe builder for a product
   invoiceId?: string; // If provided, modal is in edit or duplicate mode
   mode?: 'new' | 'edit' | 'duplicate'; // Determines the modal behavior
 }
@@ -46,7 +47,7 @@ interface CostAttributionItem {
   lastChangedField?: 'units' | 'price' | 'total'; // Track which field user last changed for smart calculation
 }
 
-export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, invoiceId, mode = 'new' }: AddInvoiceModalProps) {
+export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, onNavigateToRecipe, invoiceId, mode = 'new' }: AddInvoiceModalProps) {
   const auth = useAuth();
   console.log('AddInvoiceModal - Full auth object:', auth);
   console.log('AddInvoiceModal - auth keys:', Object.keys(auth));
@@ -1319,10 +1320,37 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                               </div>
                               <button
                                 type="button"
-                                onClick={(e) => {
+                                onClick={async (e) => {
                                   e.stopPropagation();
-                                  // TODO: Navigate to recipe builder for this product
-                                  alert(`Navigate to recipe for: ${warning.productName}`);
+
+                                  if (!onNavigateToRecipe) {
+                                    alert('Navigation not configured');
+                                    return;
+                                  }
+
+                                  // Auto-save the invoice first
+                                  const saveConfirmed = window.confirm(
+                                    `Save this invoice and edit the recipe for "${warning.productName}"?\n\n` +
+                                    `Your invoice changes will be saved automatically before opening the recipe builder.`
+                                  );
+
+                                  if (!saveConfirmed) return;
+
+                                  // Trigger the submit handler to save the invoice
+                                  const form = document.querySelector('form');
+                                  if (form) {
+                                    const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                                    const submitted = form.dispatchEvent(submitEvent);
+
+                                    // If form submission succeeded, navigate
+                                    if (submitted) {
+                                      // Wait a bit for save to complete
+                                      setTimeout(() => {
+                                        onNavigateToRecipe(warning.finishedProductId, warning.productName);
+                                        onClose();
+                                      }, 500);
+                                    }
+                                  }
                                 }}
                                 style={{
                                   padding: '0.25rem 0.5rem',

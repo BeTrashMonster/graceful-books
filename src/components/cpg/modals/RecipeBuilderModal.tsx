@@ -19,6 +19,7 @@ export interface RecipeBuilderModalProps {
   onClose: () => void;
   finishedProductId: string;
   productName: string;
+  onNavigateToInvoice?: (invoiceId: string, invoiceNumber: string) => void;
 }
 
 export function RecipeBuilderModal({
@@ -26,6 +27,7 @@ export function RecipeBuilderModal({
   onClose,
   finishedProductId,
   productName,
+  onNavigateToInvoice,
 }: RecipeBuilderModalProps) {
   // Apply purple header styling to modal
   useEffect(() => {
@@ -79,6 +81,7 @@ export function RecipeBuilderModal({
         productName={productName}
         onSave={handleSave}
         onCancel={handleCancel}
+        onNavigateToInvoice={onNavigateToInvoice}
       />
     </Modal>
   );

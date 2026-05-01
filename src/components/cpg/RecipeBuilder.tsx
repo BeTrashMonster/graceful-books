@@ -32,6 +32,7 @@ export interface RecipeBuilderProps {
   productName: string;
   onSave: () => void;
   onCancel: () => void;
+  onNavigateToInvoice?: (invoiceId: string, invoiceNumber: string) => void; // Navigate to edit a specific invoice
 }
 
 interface RecipeComponentItem {
@@ -60,6 +61,7 @@ export function RecipeBuilder({
   productName,
   onSave,
   onCancel,
+  onNavigateToInvoice,
 }: RecipeBuilderProps) {
   const { companyId, deviceId } = useAuth();
   const [categories, setCategories] = useState<CPGCategory[]>([]);
@@ -861,10 +863,32 @@ export function RecipeBuilder({
                               </div>
                               <button
                                 type="button"
-                                onClick={(e) => {
+                                onClick={async (e) => {
                                   e.stopPropagation();
-                                  // TODO: Navigate to invoice edit for this invoice
-                                  alert(`Navigate to edit invoice: ${warning.invoiceNumber}`);
+
+                                  if (!onNavigateToInvoice) {
+                                    alert('Navigation not configured');
+                                    return;
+                                  }
+
+                                  // Auto-save the recipe first
+                                  const saveConfirmed = window.confirm(
+                                    `Save this recipe and edit invoice "${warning.invoiceNumber}"?\n\n` +
+                                    `Your recipe changes will be saved automatically before opening the invoice.`
+                                  );
+
+                                  if (!saveConfirmed) return;
+
+                                  // Call the save handler directly
+                                  try {
+                                    await handleSave();
+                                    // Navigate after save completes
+                                    onNavigateToInvoice(warning.invoiceId, warning.invoiceNumber);
+                                    onCancel(); // Close the recipe builder
+                                  } catch (error) {
+                                    console.error('Error saving recipe before navigation:', error);
+                                    alert('Failed to save recipe. Please try again.');
+                                  }
                                 }}
                                 style={{
                                   padding: '0.25rem 0.5rem',
