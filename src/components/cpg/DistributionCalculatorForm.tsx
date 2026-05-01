@@ -103,9 +103,6 @@ export function DistributionCalculatorForm({
   // ===== ERRORS =====
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // ===== UNIT MISMATCH WARNINGS =====
-  const [unitWarnings, setUnitWarnings] = useState<string[]>([]);
-
   // ===== HELPER FUNCTIONS =====
   function generateId(): string {
     return Math.random().toString(36).substring(2, 11);
@@ -431,7 +428,6 @@ export function DistributionCalculatorForm({
         .toArray();
 
       const productOptions: ProductOption[] = [];
-      const allWarnings: string[] = [];
 
       for (const product of products) {
         let materialCPU: string | null = null;
@@ -443,11 +439,6 @@ export function DistributionCalculatorForm({
             product.id,
             companyId
           );
-
-          // Collect unit mismatch warnings
-          if (cpuBreakdown.unitMismatchWarnings && cpuBreakdown.unitMismatchWarnings.length > 0) {
-            allWarnings.push(...cpuBreakdown.unitMismatchWarnings);
-          }
 
           // Round to company's decimal precision to prevent HTML5 validation errors
           if (cpuBreakdown.materialCPU) {
@@ -470,7 +461,6 @@ export function DistributionCalculatorForm({
       }
 
       setAvailableProducts(productOptions);
-      setUnitWarnings(allWarnings);
       console.log('Loaded products with decimal precision:', productOptions, `(${decimalPlaces} decimals)`);
     } catch (error) {
       console.error('Error loading products:', error);
@@ -809,54 +799,6 @@ export function DistributionCalculatorForm({
 
   return (
     <form onSubmit={handleCalculate} className={styles.formGrid}>
-      {/* ===== UNIT MISMATCH WARNINGS ===== */}
-      {unitWarnings.length > 0 && (
-        <div style={{
-          padding: '1rem 1.25rem',
-          background: '#fef3c7',
-          border: '2px solid #f59e0b',
-          borderRadius: '8px',
-          marginBottom: '1rem',
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '0.75rem',
-          }}>
-            <span style={{ fontSize: '1.25rem', flexShrink: 0 }}>⚠️</span>
-            <div style={{ flex: 1 }}>
-              <div style={{
-                fontWeight: 600,
-                color: '#92400e',
-                fontSize: '0.9375rem',
-                marginBottom: '0.5rem',
-              }}>
-                Unit Mismatch Detected
-              </div>
-              <div style={{
-                color: '#78350f',
-                fontSize: '0.875rem',
-                lineHeight: 1.5,
-              }}>
-                {unitWarnings.map((warning, index) => (
-                  <div key={index} style={{ marginTop: index > 0 ? '0.5rem' : 0 }}>
-                    {warning}
-                  </div>
-                ))}
-              </div>
-              <div style={{
-                marginTop: '0.75rem',
-                fontSize: '0.8125rem',
-                color: '#92400e',
-                fontStyle: 'italic',
-              }}>
-                Please update your invoices or recipes to use compatible units (e.g., all weight units or all volume units).
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ===== SHIPMENT CONFIGURATION ===== */}
       <Card>
         <CardHeader>

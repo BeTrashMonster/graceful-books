@@ -202,7 +202,11 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         setVendorName(invoice.vendor_name || '');
         setPaymentMethod(invoice.payment_method || '');
         setNotes(invoice.notes || '');
-        setTotalInvoiceAmount(invoice.total_paid || '');
+        // Format total_paid to 2 decimal places for display
+        const formattedTotal = invoice.total_paid
+          ? parseFloat(invoice.total_paid).toFixed(2).replace(/\.?0+$/, '')
+          : '';
+        setTotalInvoiceAmount(formattedTotal);
 
         // Populate cost items from cost_attribution
         // IMPORTANT: Preserve ALL user-entered values exactly as stored
