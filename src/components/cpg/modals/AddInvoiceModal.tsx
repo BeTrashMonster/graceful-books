@@ -433,11 +433,17 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
       if (incompatibleRecipes.length > 0) {
         // Get first incompatible recipe's unit for warning message
         const recipeUnit = (incompatibleRecipes[0].unit_of_measurement as Unit) || 'each';
-        const warningMsg = getUnitMismatchWarning(invoiceUnit, recipeUnit, 'invoice', 'recipe');
+
+        // Get category name for warning message
+        const category = categories.find(c => c.id === categoryId);
+        const categoryName = category?.name || 'this category';
+        const productName = variant ? `${categoryName} (${variant})` : categoryName;
+
+        const warningMsg = getUnitMismatchWarning(invoiceUnit, recipeUnit, productName);
 
         setUnitWarnings(prev => ({
           ...prev,
-          [itemId]: warningMsg
+          [itemId]: warningMsg || ''
         }));
       } else {
         // Units are compatible - clear warning

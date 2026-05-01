@@ -269,11 +269,17 @@ export function RecipeBuilder({
           attr.category_id === categoryId && attr.variant === variant
         );
         const invoiceUnit = (matchingAttr?.unit_of_measurement as Unit) || 'each';
-        const warningMsg = getUnitMismatchWarning(recipeUnit as Unit, invoiceUnit, 'recipe', 'invoice');
+
+        // Get category name for warning message
+        const category = await db.cpgCategories.get(categoryId);
+        const categoryName = category?.name || 'this category';
+        const productName = variant ? `${categoryName} (${variant})` : categoryName;
+
+        const warningMsg = getUnitMismatchWarning(invoiceUnit, recipeUnit as Unit, productName);
 
         setUnitWarnings(prev => ({
           ...prev,
-          [componentId]: warningMsg
+          [componentId]: warningMsg || ''
         }));
       } else {
         // Units are compatible - clear warning
