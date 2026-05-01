@@ -24,7 +24,7 @@ import { normalizeVariant, validateCPGRecipe } from '../../db/schema/cpg.schema'
 import type { CPGCategory, CPGRecipe, CPGSettings } from '../../db/schema/cpg.schema';
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import { v4 as uuidv4 } from 'uuid';
-import { type Unit, areUnitsCompatible, getUnitMismatchWarning } from '../../utils/unitConversion';
+import { type Unit, areUnitsCompatible, getUnitMismatchWarning, UNIT_CATALOG } from '../../utils/unitConversion';
 import styles from './RecipeBuilder.module.css';
 
 export interface RecipeBuilderProps {
@@ -72,7 +72,8 @@ export function RecipeBuilder({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showPermanentDeleteConfirm, setShowPermanentDeleteConfirm] = useState(false);
   const [cpgSettings, setCpgSettings] = useState<CPGSettings | null>(null);
-  const [unitWarnings, setUnitWarnings] = useState<Record<string, string>>({});
+  const [unitWarnings, setUnitWarnings] = useState<Record<string, { count: number; items: Array<{ invoiceNumber: string; invoiceDate: string; invoiceUnit: string; invoiceId: string }> }>>({});
+  const [expandedWarnings, setExpandedWarnings] = useState<Record<string, boolean>>({});
 
   // Load categories and existing recipe
   useEffect(() => {
@@ -251,38 +252,47 @@ export function RecipeBuilder({
         return;
       }
 
-      // Check if any invoice uses a different unit that's incompatible
-      const incompatibleInvoices = matchingInvoices.filter(inv => {
-        const matchingAttrs = Object.values(inv.cost_attribution || {}).filter(attr =>
+      // Find ALL invoices with incompatible units (not just the first one)
+      const incompatibleItems: Array<{ invoiceNumber: string; invoiceDate: string; invoiceUnit: string; invoiceId: string }> = [];
+
+      for (const invoice of matchingInvoices) {
+        const matchingAttrs = Object.values(invoice.cost_attribution || {}).filter(attr =>
           attr.category_id === categoryId && attr.variant === variant
         );
-        return matchingAttrs.some(attr => {
+
+        for (const attr of matchingAttrs) {
           const invoiceUnit = (attr.unit_of_measurement as Unit) || 'each';
-          return !areUnitsCompatible(recipeUnit as Unit, invoiceUnit);
-        });
-      });
 
-      if (incompatibleInvoices.length > 0) {
-        // Get first incompatible invoice's unit for warning message
-        const firstInvoice = incompatibleInvoices[0];
-        const matchingAttr = Object.values(firstInvoice.cost_attribution || {}).find(attr =>
-          attr.category_id === categoryId && attr.variant === variant
-        );
-        const invoiceUnit = (matchingAttr?.unit_of_measurement as Unit) || 'each';
+          // Only include truly incompatible units (skip convertible ones like oz↔lb)
+          if (!areUnitsCompatible(recipeUnit as Unit, invoiceUnit)) {
+            const invoiceDate = new Date(invoice.invoice_date).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric'
+            });
+            const invoiceNumber = invoice.invoice_number || `Invoice ${invoiceDate}`;
 
-        // Get category name for warning message
-        const category = await db.cpgCategories.get(categoryId);
-        const categoryName = category?.name || 'this category';
-        const productName = variant ? `${categoryName} (${variant})` : categoryName;
+            incompatibleItems.push({
+              invoiceNumber,
+              invoiceDate,
+              invoiceUnit: UNIT_CATALOG[invoiceUnit]?.label || invoiceUnit,
+              invoiceId: invoice.id
+            });
+            break; // Only add each invoice once
+          }
+        }
+      }
 
-        const warningMsg = getUnitMismatchWarning(invoiceUnit, recipeUnit as Unit, productName);
-
+      if (incompatibleItems.length > 0) {
         setUnitWarnings(prev => ({
           ...prev,
-          [componentId]: warningMsg || ''
+          [componentId]: {
+            count: incompatibleItems.length,
+            items: incompatibleItems
+          }
         }));
       } else {
-        // Units are compatible - clear warning
+        // All units are compatible - clear warning
         setUnitWarnings(prev => {
           const updated = { ...prev };
           delete updated[componentId];
@@ -817,16 +827,64 @@ export function RecipeBuilder({
                     border: '2px solid #f59e0b',
                     borderRadius: '0.375rem',
                     fontSize: '0.875rem',
-                    color: '#92400e',
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '0.5rem'
+                    color: '#92400e'
                   }}>
-                    <span style={{ fontSize: '1.125rem', flexShrink: 0 }}>⚠️</span>
-                    <div>
-                      <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Unit Mismatch Warning</div>
-                      <div>{unitWarnings[component.id]}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                         onClick={() => setExpandedWarnings(prev => ({ ...prev, [component.id]: !prev[component.id] }))}>
+                      <span style={{ fontSize: '1.125rem', flexShrink: 0 }}>⚠️</span>
+                      <div style={{ fontWeight: 600, flex: 1 }}>
+                        {unitWarnings[component.id].count} {unitWarnings[component.id].count === 1 ? 'invoice uses' : 'invoices use'} incompatible units
+                      </div>
+                      <span style={{ fontSize: '0.75rem', color: '#92400e', fontWeight: 600 }}>
+                        {expandedWarnings[component.id] ? '[Hide Details ▲]' : '[Show Details ▼]'}
+                      </span>
                     </div>
+
+                    {expandedWarnings[component.id] && (
+                      <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #fbbf24' }}>
+                        <div style={{ marginBottom: '0.5rem', fontSize: '0.8125rem' }}>
+                          This recipe uses <strong>{UNIT_CATALOG[component.unit_of_measurement as Unit]?.label || component.unit_of_measurement}</strong>, but these invoices can't auto-convert:
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          {unitWarnings[component.id].items.map((warning, idx) => (
+                            <div key={idx} style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              padding: '0.5rem',
+                              backgroundColor: '#fffbeb',
+                              borderRadius: '0.25rem',
+                              fontSize: '0.8125rem'
+                            }}>
+                              <div>
+                                • <strong>{warning.invoiceNumber}</strong> ({warning.invoiceDate}): Uses {warning.invoiceUnit}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // TODO: Navigate to invoice edit for this invoice
+                                  alert(`Navigate to edit invoice: ${warning.invoiceNumber}`);
+                                }}
+                                style={{
+                                  padding: '0.25rem 0.5rem',
+                                  fontSize: '0.75rem',
+                                  color: '#7c3aed',
+                                  backgroundColor: 'transparent',
+                                  border: '1px solid #7c3aed',
+                                  borderRadius: '0.25rem',
+                                  cursor: 'pointer',
+                                  fontWeight: 500,
+                                  whiteSpace: 'nowrap'
+                                }}
+                              >
+                                Edit Invoice →
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

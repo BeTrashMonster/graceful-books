@@ -72,7 +72,8 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(false);
-  const [unitWarnings, setUnitWarnings] = useState<Record<string, string>>({});
+  const [unitWarnings, setUnitWarnings] = useState<Record<string, { count: number; items: Array<{ productName: string; recipeUnit: string; finishedProductId: string }> }>>({});
+  const [expandedWarnings, setExpandedWarnings] = useState<Record<string, boolean>>({});
   const errorAlertRef = useRef<HTMLDivElement>(null);
 
   const isEditMode = mode === 'edit';
@@ -424,29 +425,36 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         return;
       }
 
-      // Check if any recipe uses a different unit that's incompatible
-      const incompatibleRecipes = recipes.filter(r => {
-        const recipeUnit = (r.unit_of_measurement as Unit) || 'each';
-        return !areUnitsCompatible(invoiceUnit, recipeUnit);
-      });
+      // Find ALL recipes with incompatible units (not just the first one)
+      const incompatibleItems: Array<{ productName: string; recipeUnit: string; finishedProductId: string }> = [];
 
-      if (incompatibleRecipes.length > 0) {
-        // Get first incompatible recipe's unit for warning message
-        const recipeUnit = (incompatibleRecipes[0].unit_of_measurement as Unit) || 'each';
+      for (const recipe of recipes) {
+        const recipeUnit = (recipe.unit_of_measurement as Unit) || 'each';
 
-        // Get category name for warning message
-        const category = categories.find(c => c.id === categoryId);
-        const categoryName = category?.name || 'this category';
-        const productName = variant ? `${categoryName} (${variant})` : categoryName;
+        // Only include truly incompatible units (skip convertible ones like oz↔lb)
+        if (!areUnitsCompatible(invoiceUnit, recipeUnit)) {
+          // Get the finished product name
+          const finishedProduct = await db.cpgFinishedProducts.get(recipe.finished_product_id);
+          const productName = finishedProduct?.name || 'Unknown Product';
 
-        const warningMsg = getUnitMismatchWarning(invoiceUnit, recipeUnit, productName);
+          incompatibleItems.push({
+            productName,
+            recipeUnit: UNIT_CATALOG[recipeUnit]?.label || recipeUnit,
+            finishedProductId: recipe.finished_product_id
+          });
+        }
+      }
 
+      if (incompatibleItems.length > 0) {
         setUnitWarnings(prev => ({
           ...prev,
-          [itemId]: warningMsg || ''
+          [itemId]: {
+            count: incompatibleItems.length,
+            items: incompatibleItems
+          }
         }));
       } else {
-        // Units are compatible - clear warning
+        // All units are compatible - clear warning
         setUnitWarnings(prev => {
           const updated = { ...prev };
           delete updated[itemId];
@@ -1277,16 +1285,64 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                     border: '2px solid #f59e0b',
                     borderRadius: '0.375rem',
                     fontSize: '0.875rem',
-                    color: '#92400e',
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '0.5rem'
+                    color: '#92400e'
                   }}>
-                    <span style={{ fontSize: '1.125rem', flexShrink: 0 }}>⚠️</span>
-                    <div>
-                      <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Unit Mismatch Warning</div>
-                      <div>{unitWarnings[item.id]}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                         onClick={() => setExpandedWarnings(prev => ({ ...prev, [item.id]: !prev[item.id] }))}>
+                      <span style={{ fontSize: '1.125rem', flexShrink: 0 }}>⚠️</span>
+                      <div style={{ fontWeight: 600, flex: 1 }}>
+                        {unitWarnings[item.id].count} {unitWarnings[item.id].count === 1 ? 'recipe uses' : 'recipes use'} incompatible units
+                      </div>
+                      <span style={{ fontSize: '0.75rem', color: '#92400e', fontWeight: 600 }}>
+                        {expandedWarnings[item.id] ? '[Hide Details ▲]' : '[Show Details ▼]'}
+                      </span>
                     </div>
+
+                    {expandedWarnings[item.id] && (
+                      <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #fbbf24' }}>
+                        <div style={{ marginBottom: '0.5rem', fontSize: '0.8125rem' }}>
+                          This invoice uses <strong>{UNIT_CATALOG[item.unit_of_measurement]?.label || item.unit_of_measurement}</strong>, but these recipes can't auto-convert:
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          {unitWarnings[item.id].items.map((warning, idx) => (
+                            <div key={idx} style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              padding: '0.5rem',
+                              backgroundColor: '#fffbeb',
+                              borderRadius: '0.25rem',
+                              fontSize: '0.8125rem'
+                            }}>
+                              <div>
+                                • Recipe in <strong>"{warning.productName}"</strong>: Uses {warning.recipeUnit}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // TODO: Navigate to recipe builder for this product
+                                  alert(`Navigate to recipe for: ${warning.productName}`);
+                                }}
+                                style={{
+                                  padding: '0.25rem 0.5rem',
+                                  fontSize: '0.75rem',
+                                  color: '#7c3aed',
+                                  backgroundColor: 'transparent',
+                                  border: '1px solid #7c3aed',
+                                  borderRadius: '0.25rem',
+                                  cursor: 'pointer',
+                                  fontWeight: 500,
+                                  whiteSpace: 'nowrap'
+                                }}
+                              >
+                                Edit Recipe →
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
