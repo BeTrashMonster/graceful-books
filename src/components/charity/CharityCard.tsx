@@ -78,13 +78,18 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
 
     // Custom gradient border for NAYA (dream catcher colors: black, red, yellow, white starting at 9 o'clock)
     if (charity.name === 'NAYA Family and Youth' || charity.name.includes('NAYA')) {
-      cardStyle.border = '3px solid transparent';
+      cardStyle.border = '5px solid transparent';
       cardStyle.backgroundImage = `
-        conic-gradient(from 270deg, #000000 0deg 90deg, #DC143C 90deg 180deg, #FFD700 180deg 270deg, #FFFFFF 270deg 360deg),
-        radial-gradient(circle at top, ${charity.brandColorBackground}dd 0%, ${charity.brandColorBackground} 100%)
+        conic-gradient(from 270deg, #000000 0deg 90deg, #DC143C 90deg 180deg, #FFD700 180deg 270deg, #FFFFFF 270deg 360deg)
       `;
       cardStyle.backgroundOrigin = 'border-box';
-      cardStyle.backgroundClip = 'padding-box, border-box';
+      cardStyle.backgroundClip = 'border-box';
+      cardStyle.boxShadow = `
+        inset 0 0 0 3px #ffffff,
+        0 8px 32px rgba(0, 0, 0, 0.2),
+        inset 0 2px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -2px 10px rgba(0, 0, 0, 0.1)
+      `;
     }
 
     // Custom button styles for Built Oregon and NAYA
