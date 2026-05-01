@@ -41,6 +41,7 @@ interface CostAttributionItem {
   manual_line_total?: string; // Optional override for rounding issues
   distribution_method?: 'equal' | 'weighted'; // For S+H categories only
   showAdvanced?: boolean; // Toggle for advanced fields
+  lastChangedField?: 'units' | 'price' | 'total'; // Track which field user last changed for smart calculation
 }
 
 export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, invoiceId, mode = 'new' }: AddInvoiceModalProps) {
@@ -202,6 +203,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         setTotalInvoiceAmount(invoice.total_paid || '');
 
         // Populate cost items from cost_attribution
+        // IMPORTANT: Preserve ALL user-entered values exactly as stored
         const items: CostAttributionItem[] = Object.entries(invoice.cost_attribution || {}).map(([key, item]) => ({
           id: key,
           category_id: item.category_id,
@@ -210,7 +212,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
           units_purchased: item.units_purchased,
           unit_price: item.unit_price,
           units_received: item.units_received || item.units_purchased,
-          manual_line_total: undefined, // Don't preserve manual overrides in edit mode
+          manual_line_total: item.manual_line_total || undefined, // Preserve manual line total
           distribution_method: item.distribution_method,
         }));
 
@@ -246,14 +248,62 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
     setCostItems(prev => prev.filter(item => item.id !== id));
   };
 
+  /**
+   * Smart calculation helper - calculates missing value from 2 provided values
+   * Supports: Units + Price → Total, Total + Units → Price, Total + Price → Units
+   */
+  const calculateMissingValue = (item: CostAttributionItem, changedField: 'units' | 'price' | 'total'): Partial<CostAttributionItem> => {
+    const units = parseFloat(item.units_purchased || '0');
+    const price = parseFloat(item.unit_price || '0');
+    const total = parseFloat(item.manual_line_total || '0');
+
+    const hasUnits = item.units_purchased && item.units_purchased.trim() !== '' && units > 0;
+    const hasPrice = item.unit_price && item.unit_price.trim() !== '' && price > 0;
+    const hasTotal = item.manual_line_total && item.manual_line_total.trim() !== '' && total > 0;
+
+    // Scenario: Changed units or price → calculate line total
+    if ((changedField === 'units' || changedField === 'price') && hasUnits && hasPrice) {
+      const calculated = units * price;
+      return { manual_line_total: calculated.toFixed(6).replace(/\.?0+$/, '') };
+    }
+
+    // Scenario: Changed line total + have units → calculate price
+    if (changedField === 'total' && hasTotal && hasUnits) {
+      const calculated = total / units;
+      return { unit_price: calculated.toFixed(6).replace(/\.?0+$/, '') };
+    }
+
+    // Scenario: Changed line total + have price → calculate units
+    if (changedField === 'total' && hasTotal && hasPrice) {
+      const calculated = total / price;
+      return { units_purchased: calculated.toFixed(6).replace(/\.?0+$/, '') };
+    }
+
+    // Scenario: Changed units + have total (but not price) → calculate price
+    if (changedField === 'units' && hasUnits && hasTotal && !hasPrice) {
+      const calculated = total / units;
+      return { unit_price: calculated.toFixed(6).replace(/\.?0+$/, '') };
+    }
+
+    // Scenario: Changed price + have total (but not units) → calculate units
+    if (changedField === 'price' && hasPrice && hasTotal && !hasUnits) {
+      const calculated = total / price;
+      return { units_purchased: calculated.toFixed(6).replace(/\.?0+$/, '') };
+    }
+
+    return {};
+  };
+
   const updateCostItem = (id: string, field: keyof CostAttributionItem, value: any) => {
     if (field === 'distribution_method') {
       console.log('[AddInvoiceModal] updateCostItem - distribution_method:', { id, value });
     }
+
     setCostItems(prev =>
       prev.map(item => {
         if (item.id === id) {
           const updated = { ...item, [field]: value };
+
           // Auto-fill units_received when units_purchased changes
           // Update if: empty, or was previously synced with units_purchased
           if (field === 'units_purchased' && typeof value === 'string') {
@@ -261,10 +311,35 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
               updated.units_received = value;
             }
           }
+
+          // NOTE: Smart calculation moved to onBlur to prevent mid-typing recalculation
+
           if (field === 'distribution_method') {
             console.log('[AddInvoiceModal] Updated item:', updated);
           }
           return updated;
+        }
+        return item;
+      })
+    );
+  };
+
+  /**
+   * Trigger smart calculation after user finishes editing a field (onBlur)
+   * This prevents recalculation while typing
+   */
+  const handleFieldBlur = (id: string, field: 'units' | 'price' | 'total') => {
+    setCostItems(prev =>
+      prev.map(item => {
+        if (item.id === id) {
+          const category = getCategory(item.category_id);
+          // Skip calculation for S+H categories
+          if (category?.is_distribution_category) {
+            return item;
+          }
+
+          const calculated = calculateMissingValue(item, field);
+          return { ...item, ...calculated };
         }
         return item;
       })
@@ -727,13 +802,13 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
             const isDistributionCategory = category?.is_distribution_category === true;
 
             // Determine grid layout based on category type
-            let gridColumns = '1.5fr 0.8fr 0.8fr 1.5fr'; // Default: Category, Units, Price, Description
+            let gridColumns = '1.5fr 0.7fr 0.7fr 0.8fr 1.2fr'; // Default: Category, Units, Price, Line Total, Description
             if (isDistributionCategory && hasVariants) {
               gridColumns = '1.5fr 1fr 1fr 1fr 1.2fr'; // Category, Variant, Distribution, Total Cost, Description
             } else if (isDistributionCategory) {
               gridColumns = '1.5fr 1fr 1fr 1.2fr'; // Category, Distribution, Total Cost, Description
             } else if (hasVariants) {
-              gridColumns = '1.5fr 1fr 0.8fr 0.8fr 1.2fr'; // Category, Variant, Units, Price, Description
+              gridColumns = '1.5fr 1fr 0.7fr 0.7fr 0.8fr 1.2fr'; // Category, Variant, Units, Price, Line Total, Description
             }
 
             return (
@@ -947,6 +1022,8 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                             if (value !== e.target.value) {
                               updateCostItem(item.id, 'units_purchased', value);
                             }
+                            // Smart calculation after user finishes editing
+                            handleFieldBlur(item.id, 'units');
                           }}
                           style={{
                             width: '100%',
@@ -980,6 +1057,8 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                               if (value !== e.target.value) {
                                 updateCostItem(item.id, 'unit_price', value);
                               }
+                              // Smart calculation after user finishes editing
+                              handleFieldBlur(item.id, 'price');
                             }}
                             style={{
                               width: '100%',
@@ -993,6 +1072,41 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                               transition: 'border-color 150ms ease-out',
                             }}
                             required
+                          />
+                        </div>
+                      </div>
+
+                      {/* Line Total */}
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
+                          Line Total
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', fontSize: '0.9375rem', fontWeight: 500 }}>$</span>
+                          <input
+                            type="text"
+                            placeholder="0.00"
+                            value={item.manual_line_total || ''}
+                            onChange={(e) => updateCostItem(item.id, 'manual_line_total', e.target.value || undefined)}
+                            onBlur={(e) => {
+                              const { value } = processMathInput(e.target.value, true);
+                              if (value !== e.target.value && value) {
+                                updateCostItem(item.id, 'manual_line_total', value);
+                              }
+                              // Smart calculation after user finishes editing
+                              handleFieldBlur(item.id, 'total');
+                            }}
+                            style={{
+                              width: '100%',
+                              minHeight: '38px',
+                              padding: '0.5rem 0.75rem 0.5rem 1.75rem',
+                              border: '2px solid #d1d5db',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.9375rem',
+                              backgroundColor: item.manual_line_total ? '#ffffff' : '#f9fafb',
+                              outline: 'none',
+                              transition: 'border-color 150ms ease-out',
+                            }}
                           />
                         </div>
                       </div>
@@ -1024,65 +1138,44 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                   </div>
                 </div>
 
-                {/* Line total - expandable version */}
-                {item.units_purchased && item.unit_price && (
-                  <div style={{
-                    marginTop: '0.5rem',
-                    padding: '0.625rem 0.875rem',
-                    backgroundColor: '#E5F6DF',
-                    borderRadius: '0.375rem',
-                    border: '1px solid #c8e1ba',
-                  }}>
-                    {/* Always visible: Line total + Adjust button */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{ color: '#6b7280', fontWeight: 500, fontSize: '0.8125rem' }}>Line Total:</span>
-                        <span style={{ color: '#0f172a', fontWeight: 700, fontSize: '1rem' }}>
-                          ${item.manual_line_total && parseFloat(item.manual_line_total) > 0
-                            ? parseFloat(item.manual_line_total).toFixed(2)
-                            : (parseFloat(item.units_purchased) * parseFloat(item.unit_price)).toFixed(2)
-                          }
-                        </span>
-                      </div>
+                {/* Advanced fields - Units Received */}
+                {!isDistributionCategory && (item.units_purchased || item.unit_price) && (
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <button
+                      type="button"
+                      onClick={() => updateCostItem(item.id, 'showAdvanced', !item.showAdvanced)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#7c3aed',
+                        fontSize: '0.8125rem',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        padding: '0.25rem 0.5rem',
+                        borderRadius: '0.25rem',
+                        transition: 'background-color 150ms ease-out',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(124, 58, 237, 0.1)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      {item.showAdvanced ? '▲ Hide Advanced' : '▼ Show Advanced (Units Received)'}
+                    </button>
 
-                      <button
-                        type="button"
-                        onClick={() => updateCostItem(item.id, 'showAdvanced', !item.showAdvanced)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: '#7c3aed',
-                          fontSize: '0.8125rem',
-                          fontWeight: 500,
-                          cursor: 'pointer',
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '0.25rem',
-                          transition: 'background-color 150ms ease-out',
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(124, 58, 237, 0.1)'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                      >
-                        {item.showAdvanced ? '▲ Hide' : '▼ Adjust'}
-                      </button>
-                    </div>
-
-                    {/* Expandable: Advanced fields */}
                     {item.showAdvanced && (
                       <div style={{
-                        marginTop: '0.75rem',
-                        paddingTop: '0.75rem',
-                        borderTop: '1px solid #e9d5ff',
-                        display: 'grid',
-                        gridTemplateColumns: '1fr 1fr',
-                        gap: '0.75rem'
+                        marginTop: '0.5rem',
+                        padding: '0.75rem',
+                        backgroundColor: '#f9fafb',
+                        borderRadius: '0.375rem',
+                        border: '1px solid #e5e7eb',
                       }}>
-                        <div>
+                        <div style={{ maxWidth: '200px' }}>
                           <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.75rem', color: '#6b7280' }}>
                             Units Received (if different)
                           </label>
                           <input
                             type="text"
-                            placeholder={item.units_purchased}
+                            placeholder={item.units_purchased || '0'}
                             value={item.units_received}
                             onChange={(e) => updateCostItem(item.id, 'units_received', e.target.value)}
                             onBlur={(e) => {
@@ -1102,37 +1195,6 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                               outline: 'none',
                             }}
                           />
-                        </div>
-
-                        <div>
-                          <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.75rem', color: '#6b7280' }}>
-                            Override Total (for rounding)
-                          </label>
-                          <div style={{ position: 'relative' }}>
-                            <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', fontSize: '0.875rem' }}>$</span>
-                            <input
-                              type="text"
-                              placeholder="Leave blank if exact"
-                              value={item.manual_line_total || ''}
-                              onChange={(e) => updateCostItem(item.id, 'manual_line_total', e.target.value || undefined)}
-                              onBlur={(e) => {
-                                const { value } = processMathInput(e.target.value, true);
-                                if (value !== e.target.value) {
-                                  updateCostItem(item.id, 'manual_line_total', value || undefined);
-                                }
-                              }}
-                              style={{
-                                width: '100%',
-                                minHeight: '36px',
-                                padding: '0.5rem 0.75rem 0.5rem 1.75rem',
-                                border: '2px solid #e5e7eb',
-                                borderRadius: '0.375rem',
-                                fontSize: '0.875rem',
-                                backgroundColor: '#ffffff',
-                                outline: 'none',
-                              }}
-                            />
-                          </div>
                         </div>
                       </div>
                     )}

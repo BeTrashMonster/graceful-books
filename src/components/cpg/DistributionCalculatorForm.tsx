@@ -412,6 +412,15 @@ export function DistributionCalculatorForm({
         return;
       }
 
+      // Get company decimal precision settings
+      const settings = await db.cpgSettings
+        .where('company_id')
+        .equals(companyId)
+        .and(s => s.active && !s.deleted_at)
+        .first();
+
+      const decimalPlaces = settings?.decimal_places_currency ?? 2; // Default to 2 if not set
+
       const products = await db.cpgFinishedProducts
         .where('company_id')
         .equals(companyId)
@@ -431,12 +440,13 @@ export function DistributionCalculatorForm({
             companyId
           );
 
+          // Round to company's decimal precision to prevent HTML5 validation errors
           if (cpuBreakdown.materialCPU) {
-            materialCPU = cpuBreakdown.materialCPU;
+            materialCPU = parseFloat(cpuBreakdown.materialCPU).toFixed(decimalPlaces);
           }
 
           if (cpuBreakdown.laborCost) {
-            laborCost = cpuBreakdown.laborCost;
+            laborCost = parseFloat(cpuBreakdown.laborCost).toFixed(decimalPlaces);
           }
         } catch (error) {
           console.error(`Failed to get CPU for ${product.name}:`, error);
@@ -451,7 +461,7 @@ export function DistributionCalculatorForm({
       }
 
       setAvailableProducts(productOptions);
-      console.log('Loaded products:', productOptions);
+      console.log('Loaded products with decimal precision:', productOptions, `(${decimalPlaces} decimals)`);
     } catch (error) {
       console.error('Error loading products:', error);
     } finally {
@@ -512,9 +522,9 @@ export function DistributionCalculatorForm({
         return {
           ...p,
           productName: product.productName,
-          pricePerUnit: product.latestPrice || p.pricePerUnit,
-          baseCPU: product.latestCPU || p.baseCPU,
-          productionCPU: product.latestLaborCost || p.productionCPU,
+          pricePerUnit: product.latestPrice || p.pricePerUnit || '',
+          baseCPU: product.latestCPU || p.baseCPU || '',
+          productionCPU: product.latestLaborCost || p.productionCPU || '',
           // Auto-fill quantity with default units per pallet if it's the first product
           quantity: pallet.products.length === 1 && !p.quantity ? defaultUnitsPerPallet : p.quantity,
         };
@@ -551,8 +561,8 @@ export function DistributionCalculatorForm({
       if (!product.pricePerUnit || parseFloat(product.pricePerUnit) <= 0) {
         errors.push(`Pallet ${index + 1}, Product ${pIdx + 1}: Price required`);
       }
-      if (!product.baseCPU || parseFloat(product.baseCPU) <= 0) {
-        errors.push(`Pallet ${index + 1}, Product ${pIdx + 1}: Base CPU required`);
+      if (!product.baseCPU || product.baseCPU.trim() === '' || parseFloat(product.baseCPU) < 0) {
+        errors.push(`Pallet ${index + 1}, Product ${pIdx + 1}: Base CPU is required`);
       }
     });
 
@@ -971,7 +981,7 @@ export function DistributionCalculatorForm({
                           <span className={styles.currencySymbol}>$</span>
                           <input
                             type="number"
-                            step="0.01"
+                            step="any"
                             min="0"
                             value={product.baseCPU}
                             onChange={(e) => updateProduct(pallet.id, product.id, 'baseCPU', e.target.value)}
@@ -987,7 +997,7 @@ export function DistributionCalculatorForm({
                           <span className={styles.currencySymbol}>$</span>
                           <input
                             type="number"
-                            step="0.01"
+                            step="any"
                             min="0"
                             value={product.productionCPU}
                             onChange={(e) => updateProduct(pallet.id, product.id, 'productionCPU', e.target.value)}
