@@ -46,6 +46,7 @@ export interface ProductBreakdownModalProps {
   companyName?: string;
   companyId: string;
   onNavigateToVendorIntel?: (vendorName: string) => void;
+  onNavigateToRecipe?: (productId: string, productName: string) => void;
   bundleStructure?: {
     products: Array<{
       productId: string;
@@ -91,6 +92,7 @@ export function ProductBreakdownModal({
   companyName = 'Your Company',
   companyId,
   onNavigateToVendorIntel,
+  onNavigateToRecipe,
   bundleStructure,
 }: ProductBreakdownModalProps) {
   const [selectedComponent, setSelectedComponent] = useState<ProductBreakdownComponent | null>(null);
@@ -1471,6 +1473,7 @@ export function ProductBreakdownModal({
           }}
           onSuccess={handleInvoiceSaved}
           invoiceId={editingInvoiceId}
+          onNavigateToRecipe={onNavigateToRecipe}
         />
       )}
 

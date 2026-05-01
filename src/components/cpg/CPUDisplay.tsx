@@ -39,6 +39,7 @@ export interface CPUDisplayProps {
   onProductSelectionChange?: (selected: Set<string>) => void;
   onStatusFilterChange?: (status: 'all' | 'complete' | 'incomplete') => void;
   onSortByChange?: (sortBy: 'name' | 'cpu-asc' | 'cpu-desc' | 'missing') => void;
+  onNavigateToRecipe?: (productId: string, productName: string) => void;
 }
 
 type DateRangePreset = '3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all';
@@ -48,6 +49,7 @@ type SortDirection = 'asc' | 'desc';
 
 export function CPUDisplay({
   isLoading = false,
+  onNavigateToRecipe,
   selectedProducts = new Set(),
   statusFilter = 'all',
   sortBy = 'name',
@@ -2038,6 +2040,7 @@ export function CPUDisplay({
           }}
           onSuccess={handleInvoiceSaved}
           invoiceId={editingInvoiceId || undefined}
+          onNavigateToRecipe={onNavigateToRecipe}
         />
       )}
 

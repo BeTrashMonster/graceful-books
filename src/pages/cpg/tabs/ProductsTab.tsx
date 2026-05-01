@@ -17,6 +17,7 @@
  */
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CPUDisplay } from '../../../components/cpg/CPUDisplay';
 import styles from '../CPUTracker.module.css';
 
@@ -29,10 +30,24 @@ export default function ProductsTab({
   finishedProducts,
   isLoading,
 }: ProductsTabProps) {
+  const navigate = useNavigate();
+
   // Tab-specific state
   const [selectedProductsTab1, setSelectedProductsTab1] = useState<Set<string>>(new Set());
   const [productStatusFilter, setProductStatusFilter] = useState<'all' | 'complete' | 'incomplete'>('all');
   const [productSortBy, setProductSortBy] = useState<'name' | 'cpu-asc' | 'cpu-desc' | 'missing'>('name');
+
+  const handleNavigateToRecipe = (productId: string, productName: string) => {
+    // Navigate to Finished Products page with state to open recipe
+    navigate('/cpg/products', {
+      state: {
+        openRecipe: {
+          productId,
+          productName
+        }
+      }
+    });
+  };
 
   return (
     <div id="products-panel" role="tabpanel" aria-labelledby="products-tab">
@@ -47,6 +62,7 @@ export default function ProductsTab({
           onProductSelectionChange={setSelectedProductsTab1}
           onStatusFilterChange={setProductStatusFilter}
           onSortByChange={setProductSortBy}
+          onNavigateToRecipe={handleNavigateToRecipe}
         />
       </section>
     </div>

@@ -483,6 +483,20 @@ export function CPGLayout() {
             console.log('Invoice added successfully');
           }}
           onNeedCategories={handleNeedCategories}
+          onNavigateToRecipe={(productId: string, productName: string) => {
+            // Close the invoice modal
+            closeModal();
+
+            // Navigate to the Finished Products page with state to open specific recipe
+            navigate('/cpg/products', {
+              state: {
+                openRecipe: {
+                  productId,
+                  productName
+                }
+              }
+            });
+          }}
         />
         {activeModal === 'manage-categories' && companyId && (
           <CategoryManager
