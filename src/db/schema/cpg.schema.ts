@@ -112,6 +112,7 @@ export interface CPGInvoice extends BaseEntity {
       variant: string | null; // User-defined variant name (e.g., "8oz", "Small", etc.) or null for no variant
       description?: string; // Optional description of the line item
       units_purchased: string; // Decimal as string for precision
+      unit_of_measurement?: string; // Unit (oz, lb, ml, L, each, etc.) - defaults to 'each' for backward compatibility
       unit_price: string;
       units_received: string | null; // For reconciliation
       manual_line_total?: string; // Optional override for rounding discrepancies
@@ -908,6 +909,7 @@ export interface CPGRecipe extends BaseEntity {
 
   // Quantity needed
   quantity: string; // e.g., "1.00" for 1oz oil, "1" for 1 bottle
+  unit_of_measurement?: string; // Unit (oz, lb, ml, L, each, etc.) - defaults to 'each' for backward compatibility
 
   // Metadata
   notes: string | null;

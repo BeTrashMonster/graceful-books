@@ -40,6 +40,12 @@ import {
   formatValidationError,
 } from '../../utils/validation';
 import { LaborRoleService } from './laborRole.service';
+import {
+  convertPricePerUnit,
+  areUnitsCompatible,
+  isValidUnit,
+  type Unit,
+} from '../../utils/unitConversion';
 
 // Configure Decimal.js for currency precision (2 decimal places for currency)
 Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_UP });
@@ -734,23 +740,25 @@ export class CPUCalculatorService {
 
   /**
    * Calculate CPU for a raw material based on invoice history
-   * Uses Latest Purchase Price method (most recent invoice for that category/variant)
+   * Uses weighted average across all invoices, with unit conversion support
    *
    * @param categoryId Raw material category ID
    * @param variant Raw material variant (e.g., "1oz", "5oz")
    * @param companyId Company ID
    * @param dateRange Optional date range to filter invoices
-   * @returns CPU as string or null if no invoices found
+   * @param targetUnit Optional target unit for conversion (e.g., if recipe needs "oz" but invoice is in "lb")
+   * @returns CPU as string or null if no invoices found or units incompatible
    *
    * @example
-   * const cpu = await service.calculateRawMaterialCPU('cat-oil', '1oz', 'comp-123');
-   * // Returns "0.42" if invoice exists, null if no invoice found
+   * const cpu = await service.calculateRawMaterialCPU('cat-oil', '1oz', 'comp-123', null, 'oz');
+   * // Returns "0.42" if invoice exists, null if no invoice found or incompatible units
    */
   async calculateRawMaterialCPU(
     categoryId: string,
     variant: string | null,
     companyId: string,
-    dateRange?: { start: number; end: number } | null
+    dateRange?: { start: number; end: number } | null,
+    targetUnit?: Unit | string | null
   ): Promise<string | null> {
     try {
       serviceLogger.info('Calculating raw material CPU', {
@@ -808,6 +816,7 @@ export class CPUCalculatorService {
       // This matches the calculation in CPUBreakdownModal
       let totalCost = new Decimal(0);
       let totalUnitsReceived = new Decimal(0);
+      let hasUnitConversionWarning = false;
 
       for (const invoice of relevantInvoices) {
         const costAttribution = invoice.cost_attribution;
@@ -829,6 +838,9 @@ export class CPUCalculatorService {
           const matchesVariant = normalizedAttrVariant === normalizedTargetVariant;
 
           if (matchesCategory && matchesVariant) {
+            // Get invoice unit (default to 'each' for backward compatibility)
+            const invoiceUnit = (attr.unit_of_measurement || 'each') as Unit;
+
             // Calculate cost for this line item
             // If the invoice has S+H distribution, use landed cost (material + distributed S+H)
             // Otherwise, use the raw material cost
@@ -848,7 +860,52 @@ export class CPUCalculatorService {
                 : new Decimal(attr.units_purchased).times(new Decimal(attr.unit_price));
             }
 
-            const lineUnits = new Decimal(attr.units_received || attr.units_purchased);
+            let lineUnits = new Decimal(attr.units_received || attr.units_purchased);
+
+            // Apply unit conversion if targetUnit is specified
+            if (targetUnit && isValidUnit(targetUnit as string)) {
+              const target = targetUnit as Unit;
+
+              // Check if units are compatible
+              if (!areUnitsCompatible(invoiceUnit, target)) {
+                serviceLogger.warn('Incompatible units detected', {
+                  categoryId,
+                  variant,
+                  invoiceUnit,
+                  targetUnit: target,
+                  invoiceId: invoice.id
+                });
+                hasUnitConversionWarning = true;
+                // Skip this line item - can't convert incompatible units
+                continue;
+              }
+
+              // Convert units: if invoice is in "lb" and target is "oz", convert lineUnits from lb to oz
+              // This way the CPU will be in the target unit
+              // Example: 5 lb @ $80 total = $16/lb
+              //          Convert: 5 lb = 80 oz, so $80 / 80 oz = $1/oz
+              const convertedUnits = convertPricePerUnit(1, invoiceUnit, target);
+
+              if (convertedUnits !== null) {
+                // convertPricePerUnit gives us the conversion factor for prices
+                // But we need to convert quantities, which is the inverse
+                // If 1 lb = 16 oz, then to convert 5 lb to oz: 5 * 16 = 80 oz
+                // The factor from convertPricePerUnit(1, 'lb', 'oz') = 1/16
+                // So we need the inverse: 1 / (1/16) = 16
+                const quantityConversionFactor = new Decimal(1).dividedBy(convertedUnits);
+                lineUnits = lineUnits.times(quantityConversionFactor);
+
+                serviceLogger.debug('Unit conversion applied', {
+                  categoryId,
+                  variant,
+                  fromUnit: invoiceUnit,
+                  toUnit: target,
+                  originalUnits: attr.units_received || attr.units_purchased,
+                  convertedUnits: lineUnits.toFixed(4),
+                  invoiceId: invoice.id
+                });
+              }
+            }
 
             totalCost = totalCost.plus(lineCost);
             totalUnitsReceived = totalUnitsReceived.plus(lineUnits);
@@ -859,21 +916,25 @@ export class CPUCalculatorService {
       if (totalUnitsReceived.equals(0)) {
         serviceLogger.warn('No units received for category/variant', {
           categoryId,
-          variant
+          variant,
+          hasUnitConversionWarning
         });
         return null;
       }
 
       // Weighted average CPU = total cost / total units received
+      // If unit conversion was applied, this CPU is in the target unit
       const cpu = totalCost.dividedBy(totalUnitsReceived);
 
       serviceLogger.info('Raw material CPU calculated (weighted average)', {
         categoryId,
         variant,
+        targetUnit: targetUnit || 'none',
         cpu: cpu.toFixed(6),
         totalCost: totalCost.toFixed(6),
         totalUnitsReceived: totalUnitsReceived.toFixed(4),
-        invoiceCount: relevantInvoices.length
+        invoiceCount: relevantInvoices.length,
+        hasUnitConversionWarning
       });
 
       return cpu.toFixed(6);
@@ -1069,12 +1130,16 @@ export class CPUCalculatorService {
           continue;
         }
 
-        // Calculate CPU for this raw material
+        // Get unit from recipe (default to 'each' for backward compatibility)
+        const recipeUnit = (recipeLine.unit_of_measurement || 'each') as Unit;
+
+        // Calculate CPU for this raw material with unit conversion
         const unitCost = await this.calculateRawMaterialCPU(
           recipeLine.category_id,
           recipeLine.variant,
           companyId,
-          dateRange
+          dateRange,
+          recipeUnit // Pass recipe unit for automatic conversion
         );
 
         const hasCostData = unitCost !== null;
@@ -1096,7 +1161,7 @@ export class CPUCalculatorService {
           categoryId: recipeLine.category_id,
           variant: recipeLine.variant,
           quantity: recipeLine.quantity,
-          unitOfMeasure: category.unit_of_measure,
+          unitOfMeasure: recipeUnit, // Use recipe unit instead of category unit
           unitCost: unitCost,
           subtotal: subtotal,
           hasCostData: hasCostData,
@@ -1106,6 +1171,7 @@ export class CPUCalculatorService {
           categoryName: category.name,
           variant: recipeLine.variant,
           quantity: recipeLine.quantity,
+          recipeUnit,
           unitCost,
           subtotal,
           hasCostData,

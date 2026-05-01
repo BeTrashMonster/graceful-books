@@ -19,6 +19,7 @@ import { CPGCategoryService } from '../../../services/cpg/cpgCategory.service';
 import { v4 as uuidv4 } from 'uuid';
 import { processMathInput } from '../../../utils/mathParser';
 import { processDateInput } from '../../../utils/dateUtils';
+import { UNIT_CATALOG, type Unit, getUnitsByType } from '../../../utils/unitConversion';
 import styles from './CPGModals.module.css';
 
 export interface AddInvoiceModalProps {
@@ -36,6 +37,7 @@ interface CostAttributionItem {
   variant: string | null;
   description: string;
   units_purchased: string;
+  unit_of_measurement: Unit; // Unit (oz, lb, ml, each, etc.)
   unit_price: string;
   units_received: string;
   manual_line_total?: string; // Optional override for rounding issues
@@ -210,6 +212,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
           variant: item.variant || null,
           description: item.description || '',
           units_purchased: item.units_purchased,
+          unit_of_measurement: (item.unit_of_measurement as Unit) || 'each', // Default to 'each' for backward compatibility
           unit_price: item.unit_price,
           units_received: item.units_received || item.units_purchased,
           manual_line_total: item.manual_line_total || undefined, // Preserve manual line total
@@ -237,6 +240,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         variant: null,
         description: '',
         units_purchased: '',
+        unit_of_measurement: 'each' as Unit, // Default to 'each'
         unit_price: '',
         units_received: '',
         distribution_method: undefined,
@@ -491,6 +495,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         variant: item.variant,
         description: item.description || undefined,
         units_purchased: normalizeDecimal(item.units_purchased),
+        unit_of_measurement: item.unit_of_measurement, // Save unit of measurement
         unit_price: normalizeDecimal(item.unit_price),
         units_received: normalizeDecimal(item.units_received || item.units_purchased),
         manual_line_total: item.manual_line_total || undefined,
@@ -802,13 +807,13 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
             const isDistributionCategory = category?.is_distribution_category === true;
 
             // Determine grid layout based on category type
-            let gridColumns = '1.5fr 0.7fr 0.7fr 0.8fr 1.2fr'; // Default: Category, Units, Price, Line Total, Description
+            let gridColumns = '1.5fr 0.6fr 0.6fr 0.6fr 0.7fr 1.2fr'; // Default: Category, Units, Unit, Price, Line Total, Description
             if (isDistributionCategory && hasVariants) {
               gridColumns = '1.5fr 1fr 1fr 1fr 1.2fr'; // Category, Variant, Distribution, Total Cost, Description
             } else if (isDistributionCategory) {
               gridColumns = '1.5fr 1fr 1fr 1.2fr'; // Category, Distribution, Total Cost, Description
             } else if (hasVariants) {
-              gridColumns = '1.5fr 1fr 0.7fr 0.7fr 0.8fr 1.2fr'; // Category, Variant, Units, Price, Line Total, Description
+              gridColumns = '1.5fr 1fr 0.6fr 0.6fr 0.6fr 0.7fr 1.2fr'; // Category, Variant, Units, Unit, Price, Line Total, Description
             }
 
             return (
@@ -1038,6 +1043,49 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                           }}
                           required
                         />
+                      </div>
+
+                      {/* Unit of Measurement */}
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
+                          Unit *
+                        </label>
+                        <select
+                          value={item.unit_of_measurement}
+                          onChange={(e) => updateCostItem(item.id, 'unit_of_measurement', e.target.value as Unit)}
+                          style={{
+                            width: '100%',
+                            minHeight: '38px',
+                            padding: '0.5rem 0.75rem',
+                            border: '2px solid #d1d5db',
+                            borderRadius: '0.375rem',
+                            fontSize: '0.9375rem',
+                            backgroundColor: '#ffffff',
+                            outline: 'none',
+                            transition: 'border-color 150ms ease-out',
+                          }}
+                          required
+                        >
+                          <optgroup label="Weight">
+                            <option value="oz">oz</option>
+                            <option value="lb">lb</option>
+                            <option value="g">g</option>
+                            <option value="kg">kg</option>
+                          </optgroup>
+                          <optgroup label="Volume">
+                            <option value="ml">ml</option>
+                            <option value="L">L</option>
+                            <option value="fl oz">fl oz</option>
+                            <option value="cup">cup</option>
+                            <option value="qt">qt</option>
+                            <option value="gal">gal</option>
+                          </optgroup>
+                          <optgroup label="Count">
+                            <option value="each">each</option>
+                            <option value="dozen">dozen</option>
+                            <option value="case">case</option>
+                          </optgroup>
+                        </select>
                       </div>
 
                       {/* Unit Price */}
