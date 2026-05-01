@@ -65,11 +65,35 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
     };
 
     // Use brand colors from charity or fallback to default
-    const cardStyle = {
+    const cardStyle: React.CSSProperties = {
       ...(charity.brandColorBackground && {
         background: `radial-gradient(circle at top, ${charity.brandColorBackground}dd 0%, ${charity.brandColorBackground} 100%)`
       })
     };
+
+    // Custom border for Built Oregon (black outline)
+    if (charity.name === 'Built Oregon') {
+      cardStyle.border = '3px solid #000000';
+    }
+
+    // Custom gradient border for NAYA (dream catcher colors: black, red, yellow, white starting at 9 o'clock)
+    if (charity.name === 'NAYA Family and Youth' || charity.name.includes('NAYA')) {
+      cardStyle.border = '3px solid transparent';
+      cardStyle.backgroundImage = `
+        conic-gradient(from 270deg, #000000 0deg 90deg, #DC143C 90deg 180deg, #FFD700 180deg 270deg, #FFFFFF 270deg 360deg),
+        radial-gradient(circle at top, ${charity.brandColorBackground}dd 0%, ${charity.brandColorBackground} 100%)
+      `;
+      cardStyle.backgroundOrigin = 'border-box';
+      cardStyle.backgroundClip = 'padding-box, border-box';
+    }
+
+    // Custom button styles for Built Oregon and NAYA
+    const isBuiltOrNAYA = charity.name === 'Built Oregon' || charity.name.includes('NAYA');
+    const buttonStyle: React.CSSProperties | undefined = isBuiltOrNAYA ? {
+      background: 'transparent',
+      border: '2px solid #000000',
+      color: '#000000',
+    } : undefined;
 
     return (
       <div
@@ -134,6 +158,7 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
             target="_blank"
             rel="noopener noreferrer"
             className={styles.link}
+            style={buttonStyle}
             onClick={(e) => e.stopPropagation()}
           >
             Learn more
