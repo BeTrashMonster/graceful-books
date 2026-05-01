@@ -44,6 +44,7 @@ import {
   convertPricePerUnit,
   areUnitsCompatible,
   isValidUnit,
+  getUnitMismatchWarning,
   type Unit,
 } from '../../utils/unitConversion';
 
@@ -186,6 +187,7 @@ export interface FinishedProductCPUResult {
     costPerUnit: string;
   }>;
   isComplete: boolean;
+  unitMismatchWarnings?: string[]; // User-friendly warnings about incompatible units
   bundleStructure?: {
     products: Array<{
       productId: string;
@@ -236,6 +238,7 @@ export interface FinishedProductCPUBreakdown {
   }>;
   isComplete: boolean;
   missingComponents: string[];
+  unitMismatchWarnings?: string[]; // User-friendly warnings about incompatible units
   bundleStructure?: {
     products: Array<{
       productId: string;
@@ -747,18 +750,22 @@ export class CPUCalculatorService {
    * @param companyId Company ID
    * @param dateRange Optional date range to filter invoices
    * @param targetUnit Optional target unit for conversion (e.g., if recipe needs "oz" but invoice is in "lb")
+   * @param warnings Optional array to collect unit mismatch warnings
    * @returns CPU as string or null if no invoices found or units incompatible
    *
    * @example
-   * const cpu = await service.calculateRawMaterialCPU('cat-oil', '1oz', 'comp-123', null, 'oz');
+   * const warnings: string[] = [];
+   * const cpu = await service.calculateRawMaterialCPU('cat-oil', '1oz', 'comp-123', null, 'oz', warnings);
    * // Returns "0.42" if invoice exists, null if no invoice found or incompatible units
+   * // warnings array will contain any unit mismatch messages
    */
   async calculateRawMaterialCPU(
     categoryId: string,
     variant: string | null,
     companyId: string,
     dateRange?: { start: number; end: number } | null,
-    targetUnit?: Unit | string | null
+    targetUnit?: Unit | string | null,
+    warnings?: string[]
   ): Promise<string | null> {
     try {
       serviceLogger.info('Calculating raw material CPU', {
@@ -868,12 +875,25 @@ export class CPUCalculatorService {
 
               // Check if units are compatible
               if (!areUnitsCompatible(invoiceUnit, target)) {
+                // Get category name for warning message
+                const category = await this.db.cpgCategories.get(categoryId);
+                const productName = variant
+                  ? `${category?.name || 'Unknown'} (${variant})`
+                  : (category?.name || 'Unknown');
+
+                const warningMessage = getUnitMismatchWarning(invoiceUnit, target, productName);
+
+                if (warningMessage && warnings) {
+                  warnings.push(warningMessage);
+                }
+
                 serviceLogger.warn('Incompatible units detected', {
                   categoryId,
                   variant,
                   invoiceUnit,
                   targetUnit: target,
-                  invoiceId: invoice.id
+                  invoiceId: invoice.id,
+                  warningMessage
                 });
                 hasUnitConversionWarning = true;
                 // Skip this line item - can't convert incompatible units
@@ -1076,6 +1096,7 @@ export class CPUCalculatorService {
           breakdown: aggregatedBreakdown,
           laborBreakdown: undefined,
           isComplete,
+          unitMismatchWarnings: undefined, // Bundles inherit warnings from component products
           bundleStructure: {
             products: bundleProducts,
           },
@@ -1098,12 +1119,14 @@ export class CPUCalculatorService {
           breakdown: [],
           laborBreakdown: undefined,
           isComplete: false,
+          unitMismatchWarnings: undefined,
         };
       }
 
       const breakdown: FinishedProductCPUResult['breakdown'] = [];
       let totalCPU = new Decimal(0);
       let isComplete = true;
+      const unitMismatchWarnings: string[] = [];
 
       // Process each component in the recipe
       for (const recipeLine of recipeLines) {
@@ -1139,7 +1162,8 @@ export class CPUCalculatorService {
           recipeLine.variant,
           companyId,
           dateRange,
-          recipeUnit // Pass recipe unit for automatic conversion
+          recipeUnit, // Pass recipe unit for automatic conversion
+          unitMismatchWarnings // Collect warnings
         );
 
         const hasCostData = unitCost !== null;
@@ -1199,6 +1223,7 @@ export class CPUCalculatorService {
         breakdown,
         laborBreakdown: hasLaborCost ? laborResult.breakdown : undefined,
         isComplete,
+        unitMismatchWarnings: unitMismatchWarnings.length > 0 ? unitMismatchWarnings : undefined,
       };
 
       serviceLogger.info('Finished product CPU calculated', {
@@ -1225,6 +1250,7 @@ export class CPUCalculatorService {
         breakdown: [],
         laborBreakdown: undefined,
         isComplete: false,
+        unitMismatchWarnings: undefined,
       };
     }
   }
@@ -1294,6 +1320,7 @@ export class CPUCalculatorService {
         laborBreakdown: cpuResult.laborBreakdown,
         isComplete: cpuResult.isComplete,
         missingComponents,
+        unitMismatchWarnings: cpuResult.unitMismatchWarnings,
         bundleStructure: cpuResult.bundleStructure,
       };
 
