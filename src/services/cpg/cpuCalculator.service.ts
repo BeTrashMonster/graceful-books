@@ -72,9 +72,13 @@ export interface CreateInvoiceParams {
     {
       category_id: string;
       variant: string | null;
+      description?: string;
       units_purchased: string;
+      unit_of_measurement?: string; // Unit (oz, lb, ml, each, etc.)
       unit_price: string;
       units_received?: string; // Optional - defaults to units_purchased
+      manual_line_total?: string; // Optional override for rounding issues
+      distribution_method?: 'equal' | 'weighted';
     }
   >;
   additional_costs?: Record<string, string>; // e.g., { "Shipping": "50.00", "Screen Printing": "75.00" }
@@ -96,9 +100,13 @@ export interface UpdateInvoiceParams {
     {
       category_id: string;
       variant: string | null;
+      description?: string;
       units_purchased: string;
+      unit_of_measurement?: string; // Unit (oz, lb, ml, each, etc.)
       unit_price: string;
       units_received?: string;
+      manual_line_total?: string; // Optional override for rounding issues
+      distribution_method?: 'equal' | 'weighted';
     }
   >;
   additional_costs?: Record<string, string>;
@@ -340,9 +348,13 @@ export class CPUCalculatorService {
         normalizedAttribution[key] = {
           category_id: attr.category_id,
           variant: attr.variant,
+          description: attr.description,
           units_purchased: attr.units_purchased,
+          unit_of_measurement: attr.unit_of_measurement,
           unit_price: attr.unit_price,
           units_received: attr.units_received || attr.units_purchased,
+          manual_line_total: attr.manual_line_total,
+          distribution_method: attr.distribution_method,
         };
       }
 
@@ -1454,9 +1466,13 @@ export class CPUCalculatorService {
       {
         category_id: string;
         variant: string | null;
+        description?: string;
         units_purchased: string;
+        unit_of_measurement?: string;
         unit_price: string;
         units_received?: string;
+        manual_line_total?: string;
+        distribution_method?: 'equal' | 'weighted';
       }
     >
   ): CPGInvoice['cost_attribution'] {
@@ -1465,9 +1481,13 @@ export class CPUCalculatorService {
       normalized[key] = {
         category_id: attr.category_id,
         variant: attr.variant,
+        description: attr.description,
         units_purchased: attr.units_purchased,
+        unit_of_measurement: attr.unit_of_measurement,
         unit_price: attr.unit_price,
         units_received: attr.units_received || attr.units_purchased,
+        manual_line_total: attr.manual_line_total,
+        distribution_method: attr.distribution_method,
       };
     }
     return normalized;
