@@ -80,8 +80,8 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
     if (charity.name === 'NAYA Family and Youth' || charity.name.includes('NAYA')) {
       cardStyle.border = '6px solid transparent';
       cardStyle.borderRadius = '50%';
-      cardStyle.backgroundImage = `
-        radial-gradient(circle at top, ${charity.brandColorBackground}dd 0%, ${charity.brandColorBackground} 100%),
+      cardStyle.background = `
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%),
         conic-gradient(from 270deg, #000000 0deg 90deg, #DC143C 90deg 180deg, #FFD700 180deg 270deg, #FFFFFF 270deg 360deg)
       `;
       cardStyle.backgroundOrigin = 'padding-box, border-box';

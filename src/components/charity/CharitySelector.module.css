@@ -72,7 +72,7 @@
   padding: 0;
   border: 5px solid #D4AF37;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.25) 0%, rgba(45, 0, 66, 0.95) 70%);
+  background: #4b006e;
   backdrop-filter: blur(20px);
   box-shadow:
     0 0 0 2px rgba(212, 175, 55, 0.3),
