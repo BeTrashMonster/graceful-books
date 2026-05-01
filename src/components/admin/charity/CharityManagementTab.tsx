@@ -343,6 +343,9 @@ function EditCharityModal({ charity, onUpdate, onClose }: EditCharityModalProps)
     longDescription: charity.longDescription || '',
     logo: charity.logo || '',
     displayOrder: charity.displayOrder || 999,
+    brandColorBackground: charity.brandColorBackground || '',
+    brandColorTitle: charity.brandColorTitle || '',
+    brandColorDescription: charity.brandColorDescription || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -425,6 +428,50 @@ function EditCharityModal({ charity, onUpdate, onClose }: EditCharityModalProps)
             onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) })}
             min="0"
           />
+
+          <div className={styles.colorFields}>
+            <label>Brand Colors (Hex codes)</label>
+            <div className={styles.colorInputGroup}>
+              <input
+                type="text"
+                placeholder="Background Color (e.g., #4BA9A0)"
+                value={formData.brandColorBackground}
+                onChange={(e) => setFormData({ ...formData, brandColorBackground: e.target.value })}
+                pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+              />
+              <div
+                className={styles.colorPreview}
+                style={{ backgroundColor: formData.brandColorBackground || '#ccc' }}
+              />
+            </div>
+            <div className={styles.colorInputGroup}>
+              <input
+                type="text"
+                placeholder="Title Color (e.g., #FFFFFF)"
+                value={formData.brandColorTitle}
+                onChange={(e) => setFormData({ ...formData, brandColorTitle: e.target.value })}
+                pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+              />
+              <div
+                className={styles.colorPreview}
+                style={{ backgroundColor: formData.brandColorTitle || '#ccc' }}
+              />
+            </div>
+            <div className={styles.colorInputGroup}>
+              <input
+                type="text"
+                placeholder="Description Color (e.g., #FFFFFF)"
+                value={formData.brandColorDescription}
+                onChange={(e) => setFormData({ ...formData, brandColorDescription: e.target.value })}
+                pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+              />
+              <div
+                className={styles.colorPreview}
+                style={{ backgroundColor: formData.brandColorDescription || '#ccc' }}
+              />
+            </div>
+          </div>
+
           <div className={styles.modalActions}>
             <button type="button" onClick={onClose}>Cancel</button>
             <button type="submit" className={styles.submitBtn}>Update Charity</button>

@@ -39,7 +39,10 @@ export const createDefaultCharity = (
   category: CharityCategory,
   website: string,
   createdBy?: string,
-  logo?: string
+  logo?: string,
+  brandColorBackground?: string,
+  brandColorTitle?: string,
+  brandColorDescription?: string
 ): Partial<Charity> => {
   const now = Date.now();
   return {
@@ -56,6 +59,9 @@ export const createDefaultCharity = (
     created_at: now,
     updated_at: now,
     active: true,
+    brandColorBackground: brandColorBackground || null,
+    brandColorTitle: brandColorTitle || null,
+    brandColorDescription: brandColorDescription || null,
   };
 };
 

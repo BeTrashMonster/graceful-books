@@ -465,6 +465,9 @@ export interface Charity {
   updated_at: number; // Unix timestamp
   active: boolean; // Whether the charity is currently available for selection (deprecated - use status instead)
   displayOrder: number; // Sort order for displaying charities (lower numbers first)
+  brandColorBackground: string | null; // Hex color for charity card background (e.g., "#4BA9A0")
+  brandColorTitle: string | null; // Hex color for charity title text (e.g., "#FFFFFF")
+  brandColorDescription: string | null; // Hex color for charity description text (e.g., "#FFFFFF")
 }
 
 // ============================================================================

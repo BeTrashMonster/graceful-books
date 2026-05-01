@@ -242,3 +242,36 @@
 .submitBtn:hover {
   background: #4338ca;
 }
+
+.colorFields {
+  border-top: 2px solid #e5e7eb;
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.colorFields label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.colorInputGroup {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.colorInputGroup input {
+  flex: 1;
+}
+
+.colorPreview {
+  width: 50px;
+  height: 38px;
+  border-radius: 0.375rem;
+  border: 2px solid #e5e7eb;
+  flex-shrink: 0;
+}

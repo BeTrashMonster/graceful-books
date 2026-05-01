@@ -226,6 +226,9 @@ export interface CreateCharityRequest {
   logo?: string;
   paymentAddress?: string;
   displayOrder?: number;
+  brandColorBackground?: string;
+  brandColorTitle?: string;
+  brandColorDescription?: string;
 }
 
 export async function createCharity(data: CreateCharityRequest): Promise<Charity> {
@@ -249,6 +252,9 @@ export interface UpdateCharityRequest {
   logo?: string;
   paymentAddress?: string;
   displayOrder?: number;
+  brandColorBackground?: string;
+  brandColorTitle?: string;
+  brandColorDescription?: string;
 }
 
 export async function updateCharity(charityId: string, data: UpdateCharityRequest): Promise<Charity> {

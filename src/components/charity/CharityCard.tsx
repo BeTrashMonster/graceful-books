@@ -20,10 +20,6 @@ export interface CharityCardProps extends Omit<HTMLAttributes<HTMLDivElement>, '
    * Whether to show the full description
    */
   showFullDescription?: boolean;
-  /**
-   * Color theme for the card (emerald, sapphire, ruby, amethyst, topaz)
-   */
-  colorTheme?: 'emerald' | 'sapphire' | 'ruby' | 'amethyst' | 'topaz';
 }
 
 /**
@@ -52,7 +48,6 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
       selected = false,
       onClick,
       showFullDescription = true,
-      colorTheme,
       className,
       ...props
     },
@@ -69,16 +64,23 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
       }
     };
 
+    // Use brand colors from charity or fallback to default
+    const cardStyle = {
+      ...(charity.brandColorBackground && {
+        background: `radial-gradient(circle at top, ${charity.brandColorBackground}dd 0%, ${charity.brandColorBackground} 100%)`
+      })
+    };
+
     return (
       <div
         ref={ref}
         className={clsx(
           styles.card,
-          colorTheme && styles[colorTheme],
           selected && styles.selected,
           onClick && styles.clickable,
           className
         )}
+        style={cardStyle}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         role={onClick ? 'button' : undefined}
@@ -87,7 +89,12 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
         {...props}
       >
         <div className={styles.titleRow}>
-          <h3 className={styles.name}>{charity.name}</h3>
+          <h3
+            className={styles.name}
+            style={charity.brandColorTitle ? { color: charity.brandColorTitle } : undefined}
+          >
+            {charity.name}
+          </h3>
           {selected && (
             <div className={styles.selectedBadge} aria-label="Selected">
               <svg
@@ -112,7 +119,12 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
         </div>
 
         {showFullDescription && charity.shortDescription && (
-          <p className={styles.description}>{charity.shortDescription}</p>
+          <p
+            className={styles.description}
+            style={charity.brandColorDescription ? { color: charity.brandColorDescription } : undefined}
+          >
+            {charity.shortDescription}
+          </p>
         )}
 
         <div className={styles.footer}>
