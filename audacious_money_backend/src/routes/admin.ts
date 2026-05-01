@@ -824,6 +824,9 @@ admin.get('/charities/:id', requireAdmin, async (c) => {
         createdBy: row.created_by,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
+        brandColorBackground: row.brandColorBackground,
+        brandColorTitle: row.brandColorTitle,
+        brandColorDescription: row.brandColorDescription,
       },
     });
   } catch (error) {
@@ -858,6 +861,9 @@ const createCharitySchema = z.object({
   logo: z.string().max(500).optional(),
   paymentAddress: z.string().optional(), // Will be encrypted
   displayOrder: z.number().int().optional(),
+  brandColorBackground: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).optional(),
+  brandColorTitle: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).optional(),
+  brandColorDescription: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).optional(),
 });
 
 admin.post('/charities', requireAdmin, validate(createCharitySchema), async (c) => {
@@ -884,9 +890,10 @@ admin.post('/charities', requireAdmin, validate(createCharitySchema), async (c) 
     const result = await db.query(
       `INSERT INTO charities (
          name, ein, short_description, long_description, website,
-         category, logo, payment_address, status, active, display_order, created_by
+         category, logo, payment_address, status, active, display_order, created_by,
+         "brandColorBackground", "brandColorTitle", "brandColorDescription"
        )
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'PENDING', false, $9, $10)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'PENDING', false, $9, $10, $11, $12, $13)
        RETURNING id, name, ein, status, created_at`,
       [
         data.name,
@@ -899,6 +906,9 @@ admin.post('/charities', requireAdmin, validate(createCharitySchema), async (c) 
         data.paymentAddress || null, // TODO: Encrypt this
         data.displayOrder || 999,
         adminId,
+        data.brandColorBackground || null,
+        data.brandColorTitle || null,
+        data.brandColorDescription || null,
       ]
     );
 
@@ -996,6 +1006,18 @@ admin.patch('/charities/:id', requireAdmin, validate(updateCharitySchema), async
     if (data.displayOrder !== undefined) {
       updates.push(`display_order = $${paramCount++}`);
       values.push(data.displayOrder);
+    }
+    if (data.brandColorBackground !== undefined) {
+      updates.push(`"brandColorBackground" = $${paramCount++}`);
+      values.push(data.brandColorBackground);
+    }
+    if (data.brandColorTitle !== undefined) {
+      updates.push(`"brandColorTitle" = $${paramCount++}`);
+      values.push(data.brandColorTitle);
+    }
+    if (data.brandColorDescription !== undefined) {
+      updates.push(`"brandColorDescription" = $${paramCount++}`);
+      values.push(data.brandColorDescription);
     }
 
     if (updates.length === 0) {

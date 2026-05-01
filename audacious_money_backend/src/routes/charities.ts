@@ -43,7 +43,8 @@ charities.get('/', async (c) => {
   try {
     const result = await db.query(
       `SELECT id, name, short_description, long_description, website, ein,
-              category, logo, display_order, created_at, updated_at
+              category, logo, display_order, created_at, updated_at,
+              "brandColorBackground", "brandColorTitle", "brandColorDescription"
        FROM charities
        WHERE status = 'VERIFIED' AND active = true
        ORDER BY display_order ASC, name ASC`
@@ -62,6 +63,9 @@ charities.get('/', async (c) => {
         displayOrder: row.display_order,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
+        brandColorBackground: row.brandColorBackground,
+        brandColorTitle: row.brandColorTitle,
+        brandColorDescription: row.brandColorDescription,
       })),
     });
   } catch (error) {
