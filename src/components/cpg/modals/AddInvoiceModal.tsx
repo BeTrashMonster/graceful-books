@@ -19,7 +19,7 @@ import { CPGCategoryService } from '../../../services/cpg/cpgCategory.service';
 import { v4 as uuidv4 } from 'uuid';
 import { processMathInput } from '../../../utils/mathParser';
 import { processDateInput } from '../../../utils/dateUtils';
-import { UNIT_CATALOG, type Unit, getUnitsByType } from '../../../utils/unitConversion';
+import { UNIT_CATALOG, type Unit, getUnitsByType, areUnitsCompatible, getUnitMismatchWarning } from '../../../utils/unitConversion';
 import styles from './CPGModals.module.css';
 
 export interface AddInvoiceModalProps {
@@ -72,6 +72,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(false);
+  const [unitWarnings, setUnitWarnings] = useState<Record<string, string>>({});
   const errorAlertRef = useRef<HTMLDivElement>(null);
 
   const isEditMode = mode === 'edit';
@@ -223,12 +224,6 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
           distribution_method: item.distribution_method,
         }));
 
-        console.log('🔍 LOADED INVOICE DATA:', {
-          invoice_id: invoice.id,
-          cost_attribution: invoice.cost_attribution,
-          mapped_items: items,
-        });
-
         setCostItems(items);
       } catch (error) {
         console.error('Error loading invoice data:', error);
@@ -326,6 +321,16 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
             }
           }
 
+          // Check for unit mismatches when category, variant, or unit changes
+          if (field === 'category_id' || field === 'variant' || field === 'unit_of_measurement') {
+            const categoryId = field === 'category_id' ? value : updated.category_id;
+            const variant = field === 'variant' ? value : updated.variant;
+            const unit = field === 'unit_of_measurement' ? value : updated.unit_of_measurement;
+
+            // Trigger async check (don't await - it updates state independently)
+            checkUnitMismatch(id, categoryId, variant, unit);
+          }
+
           // NOTE: Smart calculation moved to onBlur to prevent mid-typing recalculation
 
           if (field === 'distribution_method') {
@@ -353,17 +358,6 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
           }
 
           const calculated = calculateMissingValue(item, field);
-          console.log('🔍 CALCULATION RESULT:', {
-            item_id: id,
-            field,
-            before: {
-              units: item.units_purchased,
-              price: item.unit_price,
-              manual_line_total: item.manual_line_total,
-            },
-            calculated,
-            after: { ...item, ...calculated },
-          });
           return { ...item, ...calculated };
         }
         return item;
@@ -390,6 +384,78 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
 
   const getCategory = (categoryId: string) => {
     return categories.find(c => c.id === categoryId);
+  };
+
+  /**
+   * Check for unit mismatches between invoice entry and existing recipes
+   * Queries recipes table and shows warning if units are incompatible
+   */
+  const checkUnitMismatch = async (itemId: string, categoryId: string, variant: string | null, invoiceUnit: Unit) => {
+    if (!companyId || !categoryId) {
+      // Clear warning for this item
+      setUnitWarnings(prev => {
+        const updated = { ...prev };
+        delete updated[itemId];
+        return updated;
+      });
+      return;
+    }
+
+    try {
+      // Query recipes that use this category+variant
+      const recipes = await db.cpgRecipes
+        .where('company_id')
+        .equals(companyId)
+        .filter(r =>
+          r.active &&
+          !r.deleted_at &&
+          r.category_id === categoryId &&
+          r.variant === variant
+        )
+        .toArray();
+
+      if (recipes.length === 0) {
+        // No recipes exist yet - clear warning
+        setUnitWarnings(prev => {
+          const updated = { ...prev };
+          delete updated[itemId];
+          return updated;
+        });
+        return;
+      }
+
+      // Check if any recipe uses a different unit that's incompatible
+      const incompatibleRecipes = recipes.filter(r => {
+        const recipeUnit = (r.unit_of_measurement as Unit) || 'each';
+        return !areUnitsCompatible(invoiceUnit, recipeUnit);
+      });
+
+      if (incompatibleRecipes.length > 0) {
+        // Get first incompatible recipe's unit for warning message
+        const recipeUnit = (incompatibleRecipes[0].unit_of_measurement as Unit) || 'each';
+        const warningMsg = getUnitMismatchWarning(invoiceUnit, recipeUnit, 'invoice', 'recipe');
+
+        setUnitWarnings(prev => ({
+          ...prev,
+          [itemId]: warningMsg
+        }));
+      } else {
+        // Units are compatible - clear warning
+        setUnitWarnings(prev => {
+          const updated = { ...prev };
+          delete updated[itemId];
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error('Error checking unit mismatch:', error);
+      // Clear warning on error
+      setUnitWarnings(prev => {
+        const updated = { ...prev };
+        delete updated[itemId];
+        return updated;
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -522,24 +588,9 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         manual_line_total: item.manual_line_total || undefined,
         distribution_method: item.distribution_method || undefined,
       };
-
-      console.log('[AddInvoiceModal] Building cost attribution:', {
-        key,
-        category,
-        isDistribution: category.is_distribution_category,
-        item_distribution_method: item.distribution_method,
-        saved_distribution_method: costAttribution[key].distribution_method,
-        unit_of_measurement: item.unit_of_measurement,
-        saved_unit_of_measurement: costAttribution[key].unit_of_measurement,
-        manual_line_total: item.manual_line_total,
-        saved_manual_line_total: costAttribution[key].manual_line_total,
-      });
     });
 
     if (hasErrors) return;
-
-    console.log('[AddInvoiceModal] Final costAttribution:', costAttribution);
-    console.log('[AddInvoiceModal] Cost items before submission:', JSON.stringify(costItems, null, 2));
 
     // Save to database using cpuCalculatorService (which calculates CPUs)
     setIsSubmitting(true);
@@ -1210,6 +1261,28 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                     />
                   </div>
                 </div>
+
+                {/* Unit Mismatch Warning */}
+                {unitWarnings[item.id] && (
+                  <div style={{
+                    marginTop: '0.5rem',
+                    padding: '0.75rem 1rem',
+                    backgroundColor: '#fef3c7',
+                    border: '2px solid #f59e0b',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    color: '#92400e',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '0.5rem'
+                  }}>
+                    <span style={{ fontSize: '1.125rem', flexShrink: 0 }}>⚠️</span>
+                    <div>
+                      <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Unit Mismatch Warning</div>
+                      <div>{unitWarnings[item.id]}</div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Advanced fields - Units Received */}
                 {!isDistributionCategory && (item.units_purchased || item.unit_price) && (

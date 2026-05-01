@@ -283,7 +283,12 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
                         fontSize: '0.875rem',
                       }}>
                         <div>
-                          <div style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Units Purchased</div>
+                          <div style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.25rem' }}>
+                            Units Purchased
+                            {item.unit_of_measurement && (
+                              <span style={{ fontWeight: 600, color: '#4b006e' }}> ({item.unit_of_measurement})</span>
+                            )}
+                          </div>
                           <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{unitsPurchased.toFixed(2)}</div>
                         </div>
                         <div>
@@ -333,12 +338,6 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
         {/* S+H Distribution Breakdown */}
         {(() => {
           const shippingBreakdown = ShippingDistributionService.getInvoiceShippingBreakdown(invoice, categories);
-          console.log('[InvoiceDetailsModal] S+H Breakdown:', {
-            invoice,
-            shippingBreakdown,
-            costAttribution: invoice.cost_attribution,
-            hasDistributionMethod: Object.values(invoice.cost_attribution || {}).some(line => line.distribution_method)
-          });
           if (shippingBreakdown.length === 0) return null;
 
           return (

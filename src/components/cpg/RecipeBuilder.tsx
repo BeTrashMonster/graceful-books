@@ -24,6 +24,7 @@ import { normalizeVariant, validateCPGRecipe } from '../../db/schema/cpg.schema'
 import type { CPGCategory, CPGRecipe, CPGSettings } from '../../db/schema/cpg.schema';
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import { v4 as uuidv4 } from 'uuid';
+import { type Unit, areUnitsCompatible, getUnitMismatchWarning } from '../../utils/unitConversion';
 import styles from './RecipeBuilder.module.css';
 
 export interface RecipeBuilderProps {
@@ -39,6 +40,7 @@ interface RecipeComponentItem {
   category_id: string;
   variant: string | null;
   quantity: string;
+  unit_of_measurement: string; // Unit (oz, lb, ml, each, etc.)
   isNew?: boolean; // Track if this is a new line or existing
 }
 
@@ -70,6 +72,7 @@ export function RecipeBuilder({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showPermanentDeleteConfirm, setShowPermanentDeleteConfirm] = useState(false);
   const [cpgSettings, setCpgSettings] = useState<CPGSettings | null>(null);
+  const [unitWarnings, setUnitWarnings] = useState<Record<string, string>>({});
 
   // Load categories and existing recipe
   useEffect(() => {
@@ -114,6 +117,7 @@ export function RecipeBuilder({
             category_id: r.category_id,
             variant: r.variant,
             quantity: r.quantity,
+            unit_of_measurement: (r.unit_of_measurement as string) || 'each', // Default to 'each' for backward compatibility
             isNew: false,
           }));
           setComponents(componentItems);
@@ -126,6 +130,7 @@ export function RecipeBuilder({
             category_id: '',
             variant: null,
             quantity: defaultQuantity,
+            unit_of_measurement: 'each', // Default to 'each'
             isNew: true,
           };
           setComponents([newComponent]);
@@ -205,6 +210,90 @@ export function RecipeBuilder({
     calculateCosts();
   }, [components, categories]);
 
+  /**
+   * Check for unit mismatches between recipe entry and existing invoices
+   * Queries invoices table and shows warning if units are incompatible
+   */
+  const checkUnitMismatch = async (componentId: string, categoryId: string, variant: string | null, recipeUnit: string) => {
+    if (!companyId || !categoryId) {
+      // Clear warning for this component
+      setUnitWarnings(prev => {
+        const updated = { ...prev };
+        delete updated[componentId];
+        return updated;
+      });
+      return;
+    }
+
+    try {
+      // Query invoices that have this category+variant in their cost_attribution
+      const invoices = await db.cpgInvoices
+        .where('company_id')
+        .equals(companyId)
+        .filter(inv => !inv.deleted_at)
+        .toArray();
+
+      // Check cost_attribution for matching category+variant
+      const matchingInvoices = invoices.filter(inv => {
+        if (!inv.cost_attribution) return false;
+        return Object.values(inv.cost_attribution).some(attr =>
+          attr.category_id === categoryId && attr.variant === variant
+        );
+      });
+
+      if (matchingInvoices.length === 0) {
+        // No invoices exist yet - clear warning
+        setUnitWarnings(prev => {
+          const updated = { ...prev };
+          delete updated[componentId];
+          return updated;
+        });
+        return;
+      }
+
+      // Check if any invoice uses a different unit that's incompatible
+      const incompatibleInvoices = matchingInvoices.filter(inv => {
+        const matchingAttrs = Object.values(inv.cost_attribution || {}).filter(attr =>
+          attr.category_id === categoryId && attr.variant === variant
+        );
+        return matchingAttrs.some(attr => {
+          const invoiceUnit = (attr.unit_of_measurement as Unit) || 'each';
+          return !areUnitsCompatible(recipeUnit as Unit, invoiceUnit);
+        });
+      });
+
+      if (incompatibleInvoices.length > 0) {
+        // Get first incompatible invoice's unit for warning message
+        const firstInvoice = incompatibleInvoices[0];
+        const matchingAttr = Object.values(firstInvoice.cost_attribution || {}).find(attr =>
+          attr.category_id === categoryId && attr.variant === variant
+        );
+        const invoiceUnit = (matchingAttr?.unit_of_measurement as Unit) || 'each';
+        const warningMsg = getUnitMismatchWarning(recipeUnit as Unit, invoiceUnit, 'recipe', 'invoice');
+
+        setUnitWarnings(prev => ({
+          ...prev,
+          [componentId]: warningMsg
+        }));
+      } else {
+        // Units are compatible - clear warning
+        setUnitWarnings(prev => {
+          const updated = { ...prev };
+          delete updated[componentId];
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error('Error checking unit mismatch:', error);
+      // Clear warning on error
+      setUnitWarnings(prev => {
+        const updated = { ...prev };
+        delete updated[componentId];
+        return updated;
+      });
+    }
+  };
+
   const addComponent = () => {
     const decimalPlaces = cpgSettings?.decimal_places_numbers ?? 2;
     const defaultQuantity = (1).toFixed(decimalPlaces);
@@ -213,6 +302,7 @@ export function RecipeBuilder({
       category_id: '',
       variant: null,
       quantity: defaultQuantity,
+      unit_of_measurement: 'each', // Default to 'each'
       isNew: true,
     };
     setComponents((prev) => [...prev, newComponent]);
@@ -235,6 +325,17 @@ export function RecipeBuilder({
           if (field === 'category_id') {
             updated.variant = null;
           }
+
+          // Check for unit mismatches when category, variant, or unit changes
+          if (field === 'category_id' || field === 'variant' || field === 'unit_of_measurement') {
+            const categoryId = field === 'category_id' ? (value as string) : updated.category_id;
+            const variant = field === 'variant' ? (value as string | null) : updated.variant;
+            const unit = field === 'unit_of_measurement' ? (value as string) : updated.unit_of_measurement;
+
+            // Trigger async check (don't await - it updates state independently)
+            checkUnitMismatch(id, categoryId, variant, unit);
+          }
+
           return updated;
         }
         return c;
@@ -416,6 +517,7 @@ export function RecipeBuilder({
             category_id: component.category_id,
             variant: component.variant,
             quantity: component.quantity,
+            unit_of_measurement: component.unit_of_measurement,
             notes: null,
             active: true,
             created_at: Date.now(),
@@ -433,6 +535,7 @@ export function RecipeBuilder({
               category_id: component.category_id,
               variant: component.variant,
               quantity: component.quantity,
+              unit_of_measurement: component.unit_of_measurement,
               updated_at: Date.now(),
               version_vector: {
                 ...existingRecipe.version_vector,
@@ -586,7 +689,7 @@ export function RecipeBuilder({
                   {/* Spacer */}
                   <div style={{ width: '10px' }}></div>
 
-                  <div style={{ flex: 1.2, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <div style={{ flex: 0.7 }}>
                     <Input
                       type="number"
                       step="0.01"
@@ -602,17 +705,35 @@ export function RecipeBuilder({
                       fullWidth
                       style={{ fontSize: '1rem' }}
                     />
-                    {category && (
-                      <div style={{
-                        fontSize: '0.8125rem',
-                        color: '#64748b',
-                        fontWeight: 500,
-                        whiteSpace: 'nowrap',
-                        minWidth: 'fit-content'
-                      }}>
-                        {category.unit_of_measure}
-                      </div>
-                    )}
+                  </div>
+
+                  {/* Unit of Measurement */}
+                  <div style={{ flex: 0.5 }}>
+                    <select
+                      value={component.unit_of_measurement}
+                      onChange={(e) => updateComponent(component.id, 'unit_of_measurement', e.target.value)}
+                      className={styles.select}
+                    >
+                      <optgroup label="Weight">
+                        <option value="oz">oz</option>
+                        <option value="lb">lb</option>
+                        <option value="g">g</option>
+                        <option value="kg">kg</option>
+                      </optgroup>
+                      <optgroup label="Volume">
+                        <option value="ml">ml</option>
+                        <option value="L">L</option>
+                        <option value="fl oz">fl oz</option>
+                        <option value="cup">cup</option>
+                        <option value="qt">qt</option>
+                        <option value="gal">gal</option>
+                      </optgroup>
+                      <optgroup label="Count">
+                        <option value="each">each</option>
+                        <option value="dozen">dozen</option>
+                        <option value="case">case</option>
+                      </optgroup>
+                    </select>
                   </div>
 
                   {/* Multiplication symbol */}
@@ -680,6 +801,28 @@ export function RecipeBuilder({
                     </Button>
                   </div>
                 </div>
+
+                {/* Unit Mismatch Warning */}
+                {unitWarnings[component.id] && (
+                  <div style={{
+                    marginTop: '0.5rem',
+                    padding: '0.75rem 1rem',
+                    backgroundColor: '#fef3c7',
+                    border: '2px solid #f59e0b',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    color: '#92400e',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '0.5rem'
+                  }}>
+                    <span style={{ fontSize: '1.125rem', flexShrink: 0 }}>⚠️</span>
+                    <div>
+                      <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Unit Mismatch Warning</div>
+                      <div>{unitWarnings[component.id]}</div>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })
