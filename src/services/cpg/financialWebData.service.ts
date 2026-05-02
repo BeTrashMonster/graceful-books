@@ -284,6 +284,7 @@ export class FinancialWebDataService {
       variants: null,
       unit_of_measure: 'various',
       sort_order: 999,
+      is_distribution_category: false,
       active: true,
       created_at: Date.now(),
       updated_at: Date.now(),

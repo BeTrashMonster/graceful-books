@@ -221,6 +221,7 @@ class CPGIntegrationService {
         invoice_number: params.invoice_number || null,
         invoice_date: params.invoice_date,
         vendor_name: params.vendor_name || vendorContact?.name || null,
+        payment_method: null, // Not provided in integration params - user can edit later
         notes: params.notes || null,
         cost_attribution: params.cost_attribution,
         additional_costs: params.additional_costs || null,

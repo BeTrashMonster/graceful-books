@@ -79,6 +79,7 @@ export async function seedCPGDemoData(
       variants: null, // No variants - just bulk oil
       unit_of_measure: 'oz',
       sort_order: 1,
+      is_distribution_category: false,
       active: true,
       created_at: now,
       updated_at: now,
@@ -94,6 +95,7 @@ export async function seedCPGDemoData(
       variants: ['1oz', '5oz'], // Two size variants
       unit_of_measure: 'each',
       sort_order: 2,
+      is_distribution_category: false,
       active: true,
       created_at: now,
       updated_at: now,
@@ -109,6 +111,7 @@ export async function seedCPGDemoData(
       variants: ['1oz', '5oz'], // Two size variants
       unit_of_measure: 'each',
       sort_order: 3,
+      is_distribution_category: false,
       active: true,
       created_at: now,
       updated_at: now,
@@ -124,6 +127,7 @@ export async function seedCPGDemoData(
       variants: null, // No variants - one size fits all
       unit_of_measure: 'each',
       sort_order: 4,
+      is_distribution_category: false,
       active: true,
       created_at: now,
       updated_at: now,
@@ -344,6 +348,7 @@ export async function seedCPGDemoData(
       invoice_number: 'INV-001',
       invoice_date: thirtyDaysAgo,
       vendor_name: 'ABC Oils',
+      payment_method: 'Credit Card',
       notes: 'Bulk lavender oil purchase',
       cost_attribution: {
         oil_bulk: {
@@ -374,6 +379,7 @@ export async function seedCPGDemoData(
       invoice_number: 'INV-002',
       invoice_date: twentyFiveDaysAgo,
       vendor_name: 'XYZ Packaging',
+      payment_method: 'Credit Card',
       notes: 'Small bottles order',
       cost_attribution: {
         bottle_1oz: {
@@ -404,6 +410,7 @@ export async function seedCPGDemoData(
       invoice_number: 'INV-003',
       invoice_date: twentyFiveDaysAgo,
       vendor_name: 'XYZ Packaging',
+      payment_method: 'Credit Card',
       notes: 'Large bottles order',
       cost_attribution: {
         bottle_5oz: {
@@ -434,6 +441,7 @@ export async function seedCPGDemoData(
       invoice_number: 'INV-004',
       invoice_date: twentyDaysAgo,
       vendor_name: 'BoxCo',
+      payment_method: 'Credit Card',
       notes: 'Packaging boxes',
       cost_attribution: {
         box_1oz: {
@@ -473,6 +481,7 @@ export async function seedCPGDemoData(
       invoice_number: 'INV-005',
       invoice_date: fifteenDaysAgo,
       vendor_name: 'PrintPro',
+      payment_method: 'Check',
       notes: 'Product labels',
       cost_attribution: {
         label: {
