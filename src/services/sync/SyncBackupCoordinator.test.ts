@@ -4,13 +4,12 @@
  * Comprehensive tests for operation coordination and priority management.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import {
   SyncBackupCoordinator,
   createSyncBackupCoordinator,
   OperationType,
   OperationStatus,
-  DEFAULT_COORDINATOR_CONFIG,
   type CoordinatorConfig,
 } from './SyncBackupCoordinator'
 
@@ -88,7 +87,7 @@ describe('SyncBackupCoordinator', () => {
       expect(backupBefore!.status).toBe(OperationStatus.RUNNING)
 
       // Request sync (should pause backup)
-      const syncOp = coordinator.requestSync()!
+      const _syncOp = coordinator.requestSync()!
 
       const backupAfter = coordinator.getOperation(backupOp)
       expect(backupAfter!.status).toBe(OperationStatus.PAUSED)
@@ -318,8 +317,8 @@ describe('SyncBackupCoordinator', () => {
   describe('getOperationsByType', () => {
     it('should return operations by type', () => {
       const sync1 = coordinator.requestSync()!
-      const sync2 = coordinator.requestSync()!
-      const backup1 = coordinator.requestBackup()!
+      const _sync2 = coordinator.requestSync()!
+      const _backup1 = coordinator.requestBackup()!
 
       coordinator.startOperation(sync1)
 

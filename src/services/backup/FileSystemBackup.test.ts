@@ -5,12 +5,11 @@
  * Tests browser support detection, permission flows, and error handling.
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   detectBrowserSupport,
   requestFolderPermission,
   storeDirectoryHandle,
-  retrieveDirectoryHandle,
   verifyDirectoryPermission,
   requestPermissionReauthorization,
   clearDirectoryHandle,
@@ -41,11 +40,11 @@ class MockFileSystemDirectoryHandle {
     return this.permissionState;
   }
 
-  async getFileHandle(name: string, options?: { create?: boolean }): Promise<FileSystemFileHandle> {
+  async getFileHandle(name: string, _options?: { create?: boolean }): Promise<FileSystemFileHandle> {
     return new MockFileSystemFileHandle(name) as unknown as FileSystemFileHandle;
   }
 
-  async removeEntry(name: string): Promise<void> {
+  async removeEntry(_name: string): Promise<void> {
     // Mock removal
   }
 }
@@ -68,14 +67,14 @@ class MockFileSystemFileHandle {
 // Mock IndexedDB
 class MockIDBDatabase {
   objectStoreNames = {
-    contains: (name: string) => false,
+    contains: (_name: string) => false,
   };
 
   transaction(storeNames: string[], mode: IDBTransactionMode): MockIDBTransaction {
     return new MockIDBTransaction(storeNames, mode);
   }
 
-  createObjectStore(name: string, options?: IDBObjectStoreParameters): MockIDBObjectStore {
+  createObjectStore(_name: string, _options?: IDBObjectStoreParameters): MockIDBObjectStore {
     return new MockIDBObjectStore();
   }
 }

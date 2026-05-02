@@ -13,11 +13,7 @@ import {
   generateRestorationUrl,
   parseRestorationUrl,
   isValidRestorationUrl,
-  type GenerateTokenResult,
-  type ValidateTokenResult,
-  type UseTokenResult,
 } from './RestorationTokenService'
-import type { RestorationToken } from '../../db/schema/restorationTokens.schema'
 
 describe('RestorationTokenService', () => {
   let service: RestorationTokenService
@@ -196,7 +192,7 @@ describe('RestorationTokenService', () => {
       })
 
       // Manually expire the token
-      const token = await db.restorationTokens.get(generateResult.tokenId!)
+      const _token = await db.restorationTokens.get(generateResult.tokenId!)
       await db.restorationTokens.update(generateResult.tokenId!, {
         expires_at: Date.now() - 1000, // Expired 1 second ago
       })
