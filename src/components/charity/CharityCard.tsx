@@ -144,7 +144,7 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
           )}
         </div>
 
-        {showFullDescription && charity.shortDescription && (
+        {charity.shortDescription && (
           <p
             className={styles.description}
             style={charity.brandColorDescription ? { color: charity.brandColorDescription } : undefined}

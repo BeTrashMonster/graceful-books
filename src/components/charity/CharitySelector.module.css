@@ -7,7 +7,7 @@
   border-radius: 1.5rem;
   position: relative;
   overflow: hidden;
-  min-height: 700px;
+  min-height: 770px;
   max-height: 95vh;
   display: flex;
   align-items: center;
@@ -26,8 +26,8 @@
 /* THE CONSTELLATION - Perfect pentagon circle */
 .grid {
   position: relative;
-  width: 650px;
-  height: 650px;
+  width: 720px;
+  height: 720px;
   margin: 0 auto;
 }
 
@@ -86,7 +86,7 @@
 }
 
 .centerTitle {
-  font-size: 1.625rem;
+  font-size: 1.5rem;
   font-weight: 800;
   background: linear-gradient(135deg, #ffffff 0%, #D4AF37 50%, #ffffff 100%);
   -webkit-background-clip: text;
