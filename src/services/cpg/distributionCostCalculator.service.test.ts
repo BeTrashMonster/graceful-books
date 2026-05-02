@@ -20,11 +20,9 @@ import Decimal from 'decimal.js';
 import { TreasureChestDB } from '../../db/database';
 import {
   DistributionCostCalculatorService,
-  DEFAULT_MARGIN_THRESHOLDS,
   type DistributionCalcParams,
   type MarginThresholds,
 } from './distributionCostCalculator.service';
-import type { CPGDistributor } from '../../db/schema/cpg.schema';
 
 describe('DistributionCostCalculatorService', () => {
   let db: TreasureChestDB;
@@ -527,7 +525,7 @@ describe('DistributionCostCalculatorService', () => {
         },
       };
 
-      const result = await service.calculateDistributionCost(params);
+      const _result = await service.calculateDistributionCost(params);
 
       // Total CPU = 1.00 + 0.81 = 1.81
       // Margin = ((3.00 - 1.81) / 3.00) × 100 = 39.67% ... hmm, that's poor

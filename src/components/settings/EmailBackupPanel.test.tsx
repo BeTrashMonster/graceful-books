@@ -8,7 +8,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { EmailBackupPanel } from './EmailBackupPanel'
-import type { EmailScheduleConfig } from '../../services/backup/EmailSchedulingService'
 
 describe('EmailBackupPanel', () => {
   const mockProps = {
@@ -114,7 +113,7 @@ describe('EmailBackupPanel', () => {
     it('should render all days of week', () => {
       render(<EmailBackupPanel {...mockProps} />)
 
-      const daySelect = screen.getByLabelText(/Day of Week/i) as HTMLSelectElement
+      const _daySelect = screen.getByLabelText(/Day of Week/i) as HTMLSelectElement
       const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
       days.forEach((day) => {
@@ -166,7 +165,7 @@ describe('EmailBackupPanel', () => {
     it('should have 15-minute intervals', () => {
       render(<EmailBackupPanel {...mockProps} />)
 
-      const minuteSelect = screen.getByLabelText(/Minute/i)
+      const _minuteSelect = screen.getByLabelText(/Minute/i)
 
       expect(screen.getByRole('option', { name: ':00' })).toBeInTheDocument()
       expect(screen.getByRole('option', { name: ':15' })).toBeInTheDocument()

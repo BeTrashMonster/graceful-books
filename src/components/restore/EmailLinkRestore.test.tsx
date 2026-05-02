@@ -252,7 +252,7 @@ describe('EmailLinkRestore', () => {
       // Fast-forward to password step
       const user = userEvent.setup()
 
-      const { rerender } = render(
+      const { rerender: _rerender } = render(
         <EmailLinkRestore
           onSuccess={mockOnSuccess}
           onBack={mockOnBack}
@@ -417,7 +417,7 @@ describe('EmailLinkRestore', () => {
         .mockResolvedValueOnce(undefined)
 
       // Navigate to password step
-      const { rerender } = render(
+      const { rerender: _rerender } = render(
         <EmailLinkRestore
           onSuccess={mockOnSuccess}
           onBack={mockOnBack}
@@ -463,7 +463,7 @@ describe('EmailLinkRestore', () => {
       )
 
       // Navigate through to error state
-      const { rerender } = render(
+      const { rerender: _rerender } = render(
         <EmailLinkRestore
           onSuccess={mockOnSuccess}
           onBack={mockOnBack}

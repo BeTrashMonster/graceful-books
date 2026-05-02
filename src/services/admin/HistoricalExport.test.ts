@@ -9,7 +9,6 @@ import {
   generateHistoricalExport,
   validateHistoricalExport,
   formatExportSummary,
-  type HistoricalExportData,
 } from './HistoricalExport'
 import { db } from '../../store/database'
 import type {
@@ -20,8 +19,6 @@ import type {
   ContactEntity,
   AuditLogEntity,
 } from '../../store/types'
-import type { Invoice } from '../../db/schema/invoices.schema'
-import type { Bill } from '../../db/schema/bills.schema'
 
 const mockCompany: CompanyEntity = {
   id: 'company-1',
