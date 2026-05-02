@@ -232,7 +232,7 @@ export function validateCompleteTransaction(
   if (failedItems.length > 0) {
     return {
       success: false,
-      error: failedItems[0].error,
+      error: failedItems[0]?.error || 'Validation failed',
     };
   }
 
@@ -654,7 +654,7 @@ const markupPercentageSchema = z
 /**
  * CPG Distributor Fee validation
  */
-const CPGDistributorFeeValidationSchema = z.object({
+export const CPGDistributorFeeValidationSchema = z.object({
   id: uuidSchema,
   description: mediumTextSchema,
   amount: positiveDecimalSchema,
@@ -969,7 +969,7 @@ export interface ValidationResult<T> {
  * Wrap Zod validation result in standardized format
  */
 export function wrapValidationResult<T>(
-  result: z.SafeParseReturnType<unknown, T>
+  result: { success: boolean; data?: T; error?: z.ZodError }
 ): ValidationResult<T> {
   if (result.success) {
     return {
