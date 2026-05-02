@@ -58,10 +58,17 @@
 
 /* Compact mode - hide description until hover */
 .card.compact .description {
-  display: none;
+  opacity: 0;
+  max-height: 0;
+  margin: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease, max-height 0.3s ease, margin 0.3s ease;
 }
 
 .card.compact:hover .description {
+  opacity: 1;
+  max-height: 100px;
+  margin: 0 0 1.25rem 0;
   display: -webkit-box;
 }
 
@@ -148,6 +155,7 @@
   backdrop-filter: blur(10px);
   border: 2px solid rgba(255, 255, 255, 0.25);
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
 }
 
 .link:hover {

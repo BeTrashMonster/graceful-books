@@ -34,16 +34,16 @@
 /* Position charity cards in circle - exclude centerHeader */
 .grid > div:not(.centerHeader) {
   position: absolute;
-  width: 180px;
-  height: 180px;
+  width: 210px;
+  height: 210px;
   left: 50%;
   top: 50%;
-  margin-left: -90px;
-  margin-top: -90px;
+  margin-left: -105px;
+  margin-top: -105px;
 }
 
 /* Center golden circle - PERFECTLY CENTERED */
-/* Force cache refresh v4 */
+/* Force cache refresh v5 */
 .centerHeader {
   position: absolute;
   left: 50%;
@@ -52,8 +52,8 @@
   text-align: center;
   z-index: 100;
   pointer-events: none;
-  width: 180px;
-  height: 180px;
+  width: 160px;
+  height: 160px;
   padding: 0;
   border: 5px solid #D4AF37;
   border-radius: 50%;
