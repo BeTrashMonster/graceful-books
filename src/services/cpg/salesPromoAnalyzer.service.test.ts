@@ -12,7 +12,6 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import Decimal from 'decimal.js';
 import { SalesPromoAnalyzerService } from './salesPromoAnalyzer.service';
 import type { TreasureChestDB } from '../../db/database';
 import type { CPGSalesPromo } from '../../db/schema/cpg.schema';
@@ -1029,7 +1028,7 @@ describe('SalesPromoAnalyzerService', () => {
     });
 
     it('should exclude deleted promos when activeOnly=true', async () => {
-      const promo1 = await service.createPromo(
+      const _promo1 = await service.createPromo(
         {
           companyId,
           promoName: 'Active Promo',
@@ -1057,7 +1056,7 @@ describe('SalesPromoAnalyzerService', () => {
     });
 
     it('should include deleted promos when activeOnly=false', async () => {
-      const promo1 = await service.createPromo(
+      const _promo1 = await service.createPromo(
         {
           companyId,
           promoName: 'Active Promo',

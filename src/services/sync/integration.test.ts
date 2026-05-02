@@ -10,9 +10,6 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
-  createSyncClient,
-  createSyncSignature,
-  createSyncQueue,
   createSyncCRDT,
   createSyncRateLimiter,
   createSyncBackupCoordinator,
