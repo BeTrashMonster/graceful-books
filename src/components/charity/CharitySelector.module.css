@@ -7,7 +7,7 @@
   border-radius: 1.5rem;
   position: relative;
   overflow: hidden;
-  min-height: 800px;
+  min-height: 950px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,15 +25,13 @@
 /* THE CONSTELLATION - Perfect pentagon circle */
 .grid {
   position: relative;
-  width: 750px;
-  height: 750px;
+  width: 900px;
+  height: 900px;
   margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.grid > * {
+/* Position charity cards in circle - exclude centerHeader */
+.grid > div:not(.centerHeader) {
   position: absolute;
   width: 260px;
   height: 260px;
@@ -44,6 +42,7 @@
 }
 
 /* Center golden circle - PERFECTLY CENTERED */
+/* Force cache refresh v2 */
 .centerHeader {
   position: absolute;
   left: 50%;
@@ -170,15 +169,15 @@
 @media (max-width: 900px) {
   .container {
     padding: 1.5rem 1rem;
-    min-height: 700px;
+    min-height: 750px;
   }
 
   .grid {
-    width: 650px;
-    height: 650px;
+    width: 750px;
+    height: 750px;
   }
 
-  .grid > * {
+  .grid > div:not(.centerHeader) {
     width: 220px;
     height: 220px;
     margin-left: -110px;
@@ -186,8 +185,8 @@
   }
 
   .centerHeader {
-    width: 180px;
-    height: 180px;
+    width: 160px;
+    height: 160px;
   }
 
   .centerTitle {
@@ -207,7 +206,7 @@
     max-height: 550px;
   }
 
-  .grid > * {
+  .grid > div:not(.centerHeader) {
     width: 180px;
     height: 180px;
     margin-left: -90px;

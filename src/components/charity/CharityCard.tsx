@@ -78,11 +78,10 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
 
     // Custom gradient border for NAYA (dream catcher colors: black, red, yellow, white starting at 9 o'clock)
     if (charity.name === 'NAYA Family and Youth' || charity.name.includes('NAYA')) {
-      const nayaBlue = charity.brandColorBackground || '#4d65ff';
       cardStyle.border = '6px solid transparent';
       cardStyle.borderRadius = '50%';
       cardStyle.background = `
-        radial-gradient(circle at top, ${nayaBlue}dd 0%, ${nayaBlue} 100%),
+        radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%),
         conic-gradient(from 270deg, #000000 0deg 90deg, #DC143C 90deg 180deg, #FFD700 180deg 270deg, #FFFFFF 270deg 360deg)
       `;
       cardStyle.backgroundOrigin = 'padding-box, border-box';
