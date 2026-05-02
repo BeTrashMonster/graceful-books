@@ -1,12 +1,14 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from './ProtectedRoute'
-import { _AdminRoute } from './_AdminRoute'
+import { AdminRoute } from './AdminRoute'
 import { PageLoader } from '../components/loading/PageLoader'
 import { MainLayout } from '../components/layouts/MainLayout'
 import { CPGLayout } from '../components/layouts/CPGLayout'
 
 // Lazy load page components
+// Note: These components appear "unused" to ESLint but are consumed by React Router.
+// Do NOT prefix these variables with underscore - it breaks the import paths.
 const Dashboard = lazy(() => import('../pages/Dashboard'))
 const Transactions = lazy(() => import('../pages/Transactions'))
 const Reports = lazy(() => import('../pages/Reports'))
@@ -36,7 +38,7 @@ const Reconciliation = lazy(() => import('../pages/Reconciliation'))
 const AccountRegisterPage = lazy(() => import('../pages/AccountRegisterPage'))
 const NotFound = lazy(() => import('../pages/NotFound'))
 const Forbidden = lazy(() => import('../pages/Forbidden'))
-const _AdminCharities = lazy(() => import('../pages/admin/_AdminCharities'))
+const AdminCharities = lazy(() => import('../pages/admin/AdminCharities'))
 const AdminCharityDashboard = lazy(() => import('../pages/admin/AdminCharityDashboard'))
 const AdminLogin = lazy(() => import('../pages/admin/AdminLogin'))
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'))

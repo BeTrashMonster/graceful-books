@@ -19,7 +19,15 @@ module.exports = {
     ],
     '@typescript-eslint/no-unused-vars': [
       'error',
-      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        // IMPORTANT: Lazy-loaded route components appear unused to ESLint but are used by React Router.
+        // Variables assigned from lazy() imports should NOT be prefixed with underscore.
+        // They are consumed by the router configuration, just not in a way TypeScript detects.
+        // To fix: Add '// eslint-disable-next-line @typescript-eslint/no-unused-vars' above the lazy import
+        // DO NOT prefix with underscore or the import path breaks.
+      },
     ],
     // Include security rules
     ...securityConfig.rules,
