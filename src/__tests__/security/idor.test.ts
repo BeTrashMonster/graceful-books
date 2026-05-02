@@ -15,7 +15,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { nanoid } from 'nanoid'
-import { db } from '../../store/database'
+// import { db } from '../../store/database'
 
 // Import account store functions
 import {

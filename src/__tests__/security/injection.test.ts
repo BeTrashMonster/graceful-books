@@ -294,7 +294,7 @@ describe('Injection Prevention Security Tests', () => {
 
       expect(result.success).toBe(true)
       if (result.success) {
-        expect(result.data.lines[0].memo).toBe(SQL_INJECTION_PAYLOADS.OR_1_EQUALS_1)
+        expect(result.data!.lines[0].memo).toBe(SQL_INJECTION_PAYLOADS.OR_1_EQUALS_1)
       }
     })
 

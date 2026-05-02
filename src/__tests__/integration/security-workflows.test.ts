@@ -207,12 +207,14 @@ async function createTestTransaction(
     status: 'draft' as TransactionStatus,
     lines: [
       {
+        id: nanoid(),
         accountId,
         debit: amount,
         credit: 0,
         memo: 'Debit line',
       },
       {
+        id: nanoid(),
         accountId: offsetAccount.id,
         debit: 0,
         credit: amount,
@@ -246,15 +248,15 @@ async function clearDatabase() {
 describe('Integration: Complete User Journey with Cross-Company Access', () => {
   let companyA: string
   let companyB: string
-  let userA: string
-  let userB: string
+  let _userA: string
+  let _userB: string
 
   beforeEach(async () => {
     await clearDatabase()
     companyA = generateCompanyId()
     companyB = generateCompanyId()
-    userA = generateUserId()
-    userB = generateUserId()
+    _userA = generateUserId()
+    _userB = generateUserId()
   })
 
   afterEach(async () => {
@@ -315,7 +317,7 @@ describe('Integration: Complete User Journey with Cross-Company Access', () => {
 
   it('should prevent cross-company transaction access in complete workflow', async () => {
     // Setup: Create accounts for both companies
-    const companyAAccount = await createTestAccount(companyA, 'Company A Account')
+    const _companyAAccount = await createTestAccount(companyA, 'Company A Account')
     const companyBAccount = await createTestAccount(companyB, 'Company B Account')
 
     // Company B creates a transaction
@@ -872,7 +874,7 @@ describe.skip('Integration: Session Hijacking Prevention', () => {
       session.device_fingerprint
     )
 
-    expect(originalValidation.valid).toBe(true)
+    expect(originalValidation.isValid).toBe(true)
     expect(originalValidation.session).toBeDefined()
 
     // Try to validate with tampered fingerprint - should fail
@@ -882,7 +884,7 @@ describe.skip('Integration: Session Hijacking Prevention', () => {
       tamperedFingerprint
     )
 
-    expect(tamperedValidation.valid).toBe(false)
+    expect(tamperedValidation.isValid).toBe(false)
     expect(tamperedValidation.reason).toBeDefined()
     expect(tamperedValidation.reason).toContain('fingerprint')
   })
@@ -914,7 +916,7 @@ describe.skip('Integration: Session Hijacking Prevention', () => {
       session1.device_fingerprint
     )
 
-    expect(oldSessionValidation.valid).toBe(false)
+    expect(oldSessionValidation.isValid).toBe(false)
     expect(oldSessionValidation.reason).toContain('revoked')
 
     // New session should be valid
@@ -923,7 +925,7 @@ describe.skip('Integration: Session Hijacking Prevention', () => {
       rotationResult.newSession.device_fingerprint
     )
 
-    expect(newSessionValidation.valid).toBe(true)
+    expect(newSessionValidation.isValid).toBe(true)
   })
 
   it('should force logout on security threat detection', async () => {
@@ -949,7 +951,7 @@ describe.skip('Integration: Session Hijacking Prevention', () => {
       session.device_fingerprint
     )
 
-    expect(validation.valid).toBe(false)
+    expect(validation.isValid).toBe(false)
     expect(validation.reason).toContain('revoked')
   })
 
@@ -982,7 +984,7 @@ describe.skip('Integration: Session Hijacking Prevention', () => {
     // Validation with wrong fingerprint should fail
     const crossValidation = await validateSessionWithFingerprint(sessionA, fingerprintB)
 
-    expect(crossValidation.valid).toBe(false)
+    expect(crossValidation.isValid).toBe(false)
   })
 
   it('should invalidate all sessions on password change', async () => {
@@ -1177,7 +1179,7 @@ describe('Integration: Data Export and Backup Security', () => {
     // Validate the backup
     const validationResult = await BackupService.validateBackup(backupFile, passphrase)
 
-    expect(validationResult.valid).toBe(true)
+    expect(validationResult.isValid).toBe(true)
     expect(validationResult.canDecrypt).toBe(true)
 
     // Create tampered backup content
@@ -1198,7 +1200,7 @@ describe('Integration: Data Export and Backup Security', () => {
       passphrase
     )
 
-    expect(tamperedValidation.valid).toBe(false)
+    expect(tamperedValidation.isValid).toBe(false)
     expect(tamperedValidation.error).toBeDefined()
   })
 
@@ -1251,7 +1253,7 @@ describe('Integration: Data Export and Backup Security', () => {
     const companyB = generateCompanyId()
 
     // Create data for both companies
-    const companyAAccount = await createTestAccount(companyA, 'Company A Account')
+    const _companyAAccount = await createTestAccount(companyA, 'Company A Account')
     const companyBAccount = await createTestAccount(companyB, 'Company B Account')
 
     await createTestTransaction(companyA, companyAAccount.id, 500.0)

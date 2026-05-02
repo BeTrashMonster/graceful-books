@@ -177,13 +177,9 @@ export default defineConfig({
     css: true,
     // Worker pool configuration to prevent timeouts under load
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        maxForks: 4, // Reduce concurrent workers to prevent pool exhaustion
-        minForks: 1,
-        singleFork: false,
-      },
-    },
+    maxForks: 4, // Reduce concurrent workers to prevent pool exhaustion
+    minForks: 1,
+    singleFork: false,
     // Increase test timeout for slower tests
     testTimeout: 30000, // 30 seconds (default is 5 seconds)
     hookTimeout: 30000, // 30 seconds for setup/teardown hooks

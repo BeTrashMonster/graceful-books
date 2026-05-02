@@ -201,9 +201,9 @@ describe('Authorization Utilities', () => {
       expect(result.authorized).toBe(true)
       if (result.authorized) {
         expect(result.resource).toHaveLength(3)
-        expect(result.resource[0].id).toBe('resource-1')
-        expect(result.resource[1].id).toBe('resource-2')
-        expect(result.resource[2].id).toBe('resource-3')
+        expect(result.resource![0].id).toBe('resource-1')
+        expect(result.resource![1].id).toBe('resource-2')
+        expect(result.resource![2].id).toBe('resource-3')
       }
     })
 
@@ -260,7 +260,7 @@ describe('Authorization Utilities', () => {
       expect(result.authorized).toBe(true)
       if (result.authorized) {
         expect(result.resource).toHaveLength(1)
-        expect(result.resource[0].id).toBe('resource-1')
+        expect(result.resource![0].id).toBe('resource-1')
       }
     })
 
@@ -333,16 +333,14 @@ describe('Authorization Utilities', () => {
     })
 
     it('should return VALIDATION_ERROR for null', () => {
-      // @ts-expect-error - Testing runtime validation
-      const error = validateCompanyId(null)
+      const error = validateCompanyId(null as any)
 
       expect(error).toBeDefined()
       expect(error?.code).toBe('VALIDATION_ERROR')
     })
 
     it('should return VALIDATION_ERROR for undefined', () => {
-      // @ts-expect-error - Testing runtime validation
-      const error = validateCompanyId(undefined)
+      const error = validateCompanyId(undefined as any)
 
       expect(error).toBeDefined()
       expect(error?.code).toBe('VALIDATION_ERROR')
