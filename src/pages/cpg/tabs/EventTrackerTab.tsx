@@ -231,7 +231,7 @@ export function EventTrackerTab({ urlStartDate, urlEndDate }: EventTrackerTabPro
     return 'Upcoming';
   };
 
-  const getStatusBadgeClass = (status: string): string => {
+  const _getStatusBadgeClass = (status: string): string => {
     switch (status) {
       case 'completed':
         return styles.statusCompleted;
@@ -356,7 +356,7 @@ export function EventTrackerTab({ urlStartDate, urlEndDate }: EventTrackerTabPro
     return (totalSold / totalBrought) * 100;
   };
 
-  const calculateVariance = (event: CPGEvent): number => {
+  const _calculateVariance = (event: CPGEvent): number => {
     if (!event.actual_total_profit || event.status !== 'completed') return 0;
     // Variance is actual profit minus projected (total cost is investment, profit is return)
     const projectedProfit = 0; // For planned events, we don't have a profit projection

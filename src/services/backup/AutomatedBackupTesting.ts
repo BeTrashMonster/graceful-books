@@ -422,7 +422,7 @@ export async function runAutomatedBackupTest(
  * @returns Validation result
  */
 async function validateRestoredData(
-  companyId: string,
+  _companyId: string,
   backupData: any
 ): Promise<{
   valid: boolean
@@ -522,7 +522,7 @@ async function validateRestoredData(
  * @param testId - Test ID
  * @param companyId - Company ID
  */
-async function cleanupTestArtifacts(testId: string, companyId: string): Promise<void> {
+async function cleanupTestArtifacts(testId: string, _companyId: string): Promise<void> {
   try {
     // In a real implementation, this would:
     // 1. Delete test backup files from storage

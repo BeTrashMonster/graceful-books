@@ -85,7 +85,7 @@ export interface GDPRErasureResult {
 async function anonymizeRecord(
   tableName: string,
   recordId: string,
-  companyId: string
+  _companyId: string
 ): Promise<boolean> {
   try {
     const dbTable = (db as any)[tableName]
@@ -161,7 +161,7 @@ async function anonymizeRecord(
 export async function processGDPRErasureRequest(
   request: GDPRErasureRequest
 ): Promise<GDPRErasureResult> {
-  const { companyId, userId, userEmail, requestedBy, reason, anonymize = true } = request
+  const { companyId, userId, _userEmail, requestedBy, reason, anonymize = true } = request
 
   const result: GDPRErasureResult = {
     success: false,

@@ -22,7 +22,7 @@
  * - Type safety with proper error handling
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, _useMemo } from 'react';
 import { Button } from '../../../../components/core/Button';
 import { ErrorMessage } from '../../../../components/feedback/ErrorMessage';
 import { MarginQualityBadge } from '../../../../components/cpg/MarginQualityBadge';
@@ -87,7 +87,7 @@ interface WhatIfCalculatorTabProps {
 // Component
 // ============================================================================
 
-export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatIfCalculatorTabProps) {
+export function WhatIfCalculatorTab({ distributors, companyId, _deviceId }: WhatIfCalculatorTabProps) {
   // ========================================
   // State - Data Loading
   // ========================================
@@ -512,7 +512,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
   // ========================================
 
   // Evaluate math expressions in input (e.g., "0.81 + 0.04" or just "+ 0.04")
-  const evaluateMathExpression = useCallback((expression: string, currentValue: number): number | null => {
+  const _evaluateMathExpression = useCallback((expression: string, currentValue: number): number | null => {
     try {
       // Remove $ and commas
       const cleaned = expression.trim().replace(/[$,]/g, '');
@@ -540,7 +540,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
   }, []);
 
   // Get adjusted value for a specific product and field
-  const getAdjustedValue = (productId: string, field: string): number | null => {
+  const _getAdjustedValue = (productId: string, field: string): number | null => {
     const productAdjustments = adjustedValues.get(productId);
     if (!productAdjustments) return null;
     return productAdjustments.get(field) || null;
@@ -1198,7 +1198,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
             </thead>
             <tbody>
               {results.map(result => {
-                const adjustedResult = calculateAdjustedResult(result);
+                const _adjustedResult = calculateAdjustedResult(result);
                 const hasAdjustments = adjustedValues.has(result.productId);
 
                 return (

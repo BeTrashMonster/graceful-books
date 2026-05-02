@@ -20,14 +20,14 @@ import type {
   DeletionLog,
 } from '../../types/retention.types';
 import {
-  LEGAL_MINIMUM_RETENTION_DAYS,
+  _LEGAL_MINIMUM_RETENTION_DAYS,
   requiresLegalRetention,
   calculateEffectiveRetention,
 } from '../../types/retention.types';
 import {
   getRetentionPolicies,
   upsertRetentionPolicy,
-  deleteRetentionPolicy,
+  _deleteRetentionPolicy,
   getRetentionStatistics,
   autoPurgeCompany,
   getDeletionLogs,

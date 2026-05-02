@@ -36,7 +36,7 @@ import {
 } from '../../../services/cpg/historicalAnalytics.service';
 import type { CPGDistributor } from '../../../db/schema/cpg.schema';
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import _autoTable from 'jspdf-autotable';
 import styles from '../Distribution.module.css';
 
 interface DistributorCostsTabProps {
@@ -195,7 +195,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
     }).format(num);
   };
 
-  const getTrendDirectionIcon = (direction: 'increasing' | 'decreasing' | 'stable'): string => {
+  const _getTrendDirectionIcon = (direction: 'increasing' | 'decreasing' | 'stable'): string => {
     switch (direction) {
       case 'increasing':
         return '📈';
@@ -291,7 +291,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
       const point = trend.data_points.find(p => p.calculation_id === calc.id);
       if (!point) return;
 
-      const calcNumber = index + 1;
+      const _calcNumber = index + 1;
       const totalUnits = parseFloat(calc.num_pallets) * parseFloat(calc.units_per_pallet);
       const numPallets = parseFloat(calc.num_pallets);
       const products = Object.keys(calc.variant_data || {});
@@ -475,7 +475,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
     y += 5;
 
     // Table rows
-    trend.data_points.forEach((point, index) => {
+    trend.data_points.forEach((point, _index) => {
       const fullCalc = fullCalcs.find(c => c?.id === point.calculation_id);
       const products = fullCalc?.variant_data ? Object.keys(fullCalc.variant_data).join(', ') : '';
       // Get invoice number from fullCalc (which has all the data)
@@ -557,7 +557,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
       const point = trend.data_points.find(p => p.calculation_id === calc.id);
       if (!point) return;
 
-      const calcNumber = index + 1;
+      const _calcNumber = index + 1;
       const totalUnits = parseFloat(calc.num_pallets) * parseFloat(calc.units_per_pallet);
       const numPallets = parseFloat(calc.num_pallets);
       const palletWord = numPallets === 1 ? 'Pallet' : 'Pallets';
@@ -865,7 +865,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
       const point = trend.data_points.find(p => p.calculation_id === calc.id);
       if (!point) return;
 
-      const calcNumber = index + 1;
+      const _calcNumber = index + 1;
 
       // Build product lookup from pallet_data for accurate quantities
       const productLookup: Record<string, { pallet_number: number, quantity: number }> = {};
@@ -1580,7 +1580,7 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
                         />
                       )}
                       <Tooltip
-                        content={({ active, payload, label }) => {
+                        content={({ active, payload, _label }) => {
                           if (active && payload && payload.length > 0) {
                             const dataPoint = payload[0].payload;
 

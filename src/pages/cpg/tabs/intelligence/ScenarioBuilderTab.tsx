@@ -761,7 +761,7 @@ export default function ScenarioBuilderTab({
                   }
 
                   // Slider range based on mode
-                  let sliderMin, sliderMax, sliderStep, minLabel, maxLabel;
+                  let sliderMin, sliderMax, sliderStep, _minLabel, _maxLabel;
                   if (currentMode === 'percentage') {
                     sliderMin = -50;
                     sliderMax = 100;

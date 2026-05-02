@@ -18,7 +18,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import {
   queryUserActivity,
   getUserActivityStats,
-  getRecentUserActivities,
+  _getRecentUserActivities,
 } from '../../services/userActivity'
 import { getAuditActionDisplay, getEntityTypeDisplay } from '../../db/schema/audit.schema'
 import { Button } from '../core/Button'

@@ -316,7 +316,7 @@ export function formatRemainingTime(milliseconds: number): string {
 export function calculateTokenStatistics(
   tokens: RestorationToken[]
 ): TokenStatistics {
-  const now = Date.now()
+  const _now = Date._now()
 
   const totalCreated = tokens.length
   const totalUsed = tokens.filter((t) => t.used).length

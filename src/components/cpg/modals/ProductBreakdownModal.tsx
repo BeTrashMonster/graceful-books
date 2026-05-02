@@ -12,14 +12,14 @@
 import { useState, useEffect } from 'react';
 import { Modal } from '../../modals/Modal';
 import { Button } from '../../core/Button';
-import { HelpTooltip } from '../../help/HelpTooltip';
+import { _HelpTooltip } from '../../help/_HelpTooltip';
 import { db } from '../../../db/database';
 import { InvoiceDetailsModal } from './InvoiceDetailsModal';
 import { AddInvoiceModal } from './AddInvoiceModal';
 import { VendorDetailsModal } from './VendorDetailsModal';
 import { LaborRoleService } from '../../../services/cpg/laborRole.service';
 import type { CPGInvoice } from '../../../db/schema/cpg.schema';
-import styles from './CPGModals.module.css';
+import _styles from './CPGModals.module.css';
 
 export interface ProductBreakdownComponent {
   categoryId?: string;
@@ -85,9 +85,9 @@ export function ProductBreakdownModal({
   totalCPU,
   isComplete,
   breakdown,
-  missingComponents,
+  _missingComponents,
   msrp,
-  onComponentClick,
+  _onComponentClick,
   dateRange,
   companyName = 'Your Company',
   companyId,
@@ -187,7 +187,7 @@ export function ProductBreakdownModal({
         for (const invoice of invoices) {
           if (!invoice.cost_attribution) continue;
 
-          for (const [key, item] of Object.entries(invoice.cost_attribution)) {
+          for (const [_key, item] of Object.entries(invoice.cost_attribution)) {
             if (item.category_id === selectedComponent.categoryId) {
               const itemVariant = item.variant || null;
               if (itemVariant === selectedComponent.variant) {
@@ -272,7 +272,7 @@ export function ProductBreakdownModal({
           for (const invoice of invoices) {
             if (!invoice.cost_attribution) continue;
 
-            for (const [key, item] of Object.entries(invoice.cost_attribution)) {
+            for (const [_key, item] of Object.entries(invoice.cost_attribution)) {
               if (item.category_id === selectedComponent.categoryId) {
                 const itemVariant = item.variant || null;
                 if (itemVariant === selectedComponent.variant) {
@@ -364,7 +364,7 @@ export function ProductBreakdownModal({
     downloadFile(csv, `${filename}.csv`, 'text/csv');
   };
 
-  const exportPDFSummary = (filename: string) => {
+  const exportPDFSummary = (_filename: string) => {
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -487,7 +487,7 @@ export function ProductBreakdownModal({
       for (const invoice of invoices) {
         if (!invoice.cost_attribution) continue;
 
-        for (const [key, attr] of Object.entries(invoice.cost_attribution)) {
+        for (const [_key, attr] of Object.entries(invoice.cost_attribution)) {
           if (attr.category_id === component.categoryId) {
             const variantMatches =
               (attr.variant === null && component.variant === null) ||
@@ -1052,7 +1052,7 @@ export function ProductBreakdownModal({
                   }}>
                     Labor ({laborBreakdown.length})
                   </div>
-                  {laborBreakdown.map((role, index) => {
+                  {laborBreakdown.map((role, _index) => {
                     const isSelected = selectedLaborRole?.roleId === role.roleId;
 
                     return (

@@ -36,7 +36,7 @@ import type {
 import {
   createDefaultCPGEvent,
   validateCPGEvent,
-  getProfitMarginQuality,
+  _getProfitMarginQuality,
   getProfitMarginQualityWithSettings,
   createDefaultCPGSettings,
 } from '../../db/schema/cpg.schema';
@@ -161,7 +161,7 @@ export class EventAnalyzerService {
   async updateEvent(
     eventId: string,
     updates: Partial<CPGEvent>,
-    deviceId: string
+    _deviceId: string
   ): Promise<void> {
     serviceLogger.info('Updating event', { eventId });
 
@@ -332,7 +332,7 @@ export class EventAnalyzerService {
     }
 
     // Calculate average margin to determine recommendation
-    const avgMarginDifference = variantCount > 0
+    const _avgMarginDifference = variantCount > 0
       ? totalMarginDifference.div(variantCount)
       : new Decimal(0);
 
@@ -366,7 +366,7 @@ export class EventAnalyzerService {
 
     // Calculate break-even units (average across variants)
     let breakEvenUnits = new Decimal(0);
-    for (const [variantName, variantData] of Object.entries(params.variantEventData)) {
+    for (const [_variantName, variantData] of Object.entries(params.variantEventData)) {
       const retailPrice = new Decimal(variantData.retailPrice);
       const baseCPU = new Decimal(variantData.baseCPU);
       const grossProfitPerUnit = retailPrice.minus(baseCPU);

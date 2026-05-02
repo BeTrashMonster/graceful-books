@@ -37,7 +37,7 @@ export interface RawMaterialsTabProps {
 }
 
 export default function RawMaterialsTab({
-  companyId,
+  _companyId,
   invoices,
   categories,
   onViewInvoice,

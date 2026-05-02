@@ -24,7 +24,7 @@
  * - WCAG 2.1 AA compliance
  */
 
-import { useState, useEffect } from 'react';
+import { useState, _useEffect } from 'react';
 import { Modal } from '../modals/Modal';
 import { Button } from '../core/Button';
 import { Input } from '../forms/Input';

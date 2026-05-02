@@ -15,13 +15,15 @@ import { useAuth } from '../../contexts/AuthContext';
 import styles from './CPGPages.module.css';
 
 export default function FinishedProducts() {
-  const { companyId } = useAuth();
+  const { _companyId } = useAuth();
   const location = useLocation();
   const [recipeModalOpen, setRecipeModalOpen] = useState(false);
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<{
     id: string;
     name: string;
+    highlightCategoryId?: string;
+    highlightVariant?: string | null;
   } | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<{
     id: string;
@@ -32,15 +34,28 @@ export default function FinishedProducts() {
   useEffect(() => {
     const state = location.state as any;
     if (state?.openRecipe) {
-      handleOpenRecipeBuilder(state.openRecipe.productId);
+      handleOpenRecipeBuilder(
+        state.openRecipe.productId,
+        state.openRecipe.categoryId,
+        state.openRecipe.variant
+      );
     }
   }, [location.state]);
 
-  const handleOpenRecipeBuilder = async (productId: string) => {
+  const handleOpenRecipeBuilder = async (
+    productId: string,
+    categoryId?: string,
+    variant?: string | null
+  ) => {
     // Get product details
     const product = await db.cpgFinishedProducts.get(productId);
     if (product) {
-      setSelectedProduct({ id: product.id, name: product.name });
+      setSelectedProduct({
+        id: product.id,
+        name: product.name,
+        highlightCategoryId: categoryId,
+        highlightVariant: variant
+      });
       setRecipeModalOpen(true);
     }
   };
@@ -76,6 +91,8 @@ export default function FinishedProducts() {
           finishedProductId={selectedProduct.id}
           productName={selectedProduct.name}
           onNavigateToInvoice={handleNavigateToInvoice}
+          highlightCategoryId={selectedProduct.highlightCategoryId}
+          highlightVariant={selectedProduct.highlightVariant}
         />
       )}
 
@@ -85,10 +102,10 @@ export default function FinishedProducts() {
         onClose={handleCloseInvoice}
         invoiceId={selectedInvoice?.id}
         mode="edit"
-        onNavigateToRecipe={async (productId: string, productName: string) => {
+        onNavigateToRecipe={async (productId: string, _productName: string, categoryId?: string, variant?: string | null) => {
           // Close invoice modal and open recipe modal
           setInvoiceModalOpen(false);
-          handleOpenRecipeBuilder(productId);
+          handleOpenRecipeBuilder(productId, categoryId, variant);
         }}
       />
     </div>

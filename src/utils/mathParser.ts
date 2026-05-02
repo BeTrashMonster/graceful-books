@@ -35,7 +35,7 @@ export function evaluateMathExpression(input: string): number | null {
 
   try {
     // Split by operators while keeping them
-    const tokens = cleaned.split(/([+\-*/()])/g).filter(t => t);
+    const _tokens = cleaned.split(/([+\-*/()])/g).filter(t => t);
 
     // Simple validation - must not start/end with operator (except -)
     if (/[+*/]$/.test(cleaned) || /^[+*/]/.test(cleaned)) {

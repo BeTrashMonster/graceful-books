@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from './ProtectedRoute'
-import { AdminRoute } from './AdminRoute'
+import { _AdminRoute } from './_AdminRoute'
 import { PageLoader } from '../components/loading/PageLoader'
 import { MainLayout } from '../components/layouts/MainLayout'
 import { CPGLayout } from '../components/layouts/CPGLayout'
@@ -36,7 +36,7 @@ const Reconciliation = lazy(() => import('../pages/Reconciliation'))
 const AccountRegisterPage = lazy(() => import('../pages/AccountRegisterPage'))
 const NotFound = lazy(() => import('../pages/NotFound'))
 const Forbidden = lazy(() => import('../pages/Forbidden'))
-const AdminCharities = lazy(() => import('../pages/admin/AdminCharities'))
+const _AdminCharities = lazy(() => import('../pages/admin/_AdminCharities'))
 const AdminCharityDashboard = lazy(() => import('../pages/admin/AdminCharityDashboard'))
 const AdminLogin = lazy(() => import('../pages/admin/AdminLogin'))
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'))
@@ -63,6 +63,7 @@ const TradeSpendReport = lazy(() => import('../pages/cpg/reports/TradeSpendRepor
 
 // Test Pages
 const LoaderTest = lazy(() => import('../pages/LoaderTest'))
+const CharitySelectorTest = lazy(() => import('../pages/CharitySelectorTest'))
 
 export function AppRoutes() {
   return (
@@ -86,6 +87,7 @@ export function AppRoutes() {
         <Route path="/dev-tools" element={<DevTools />} />
         <Route path="/developer-tools" element={<DevTools />} />
         <Route path="/loader-test" element={<LoaderTest />} />
+        <Route path="/charity-selector-test" element={<CharitySelectorTest />} />
 
         {/* Onboarding routes */}
         <Route path="/onboarding" element={<Onboarding />} />

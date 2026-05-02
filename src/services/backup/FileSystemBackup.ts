@@ -517,7 +517,7 @@ export async function requestPermissionReauthorization(
 
     if (permissionState === 'granted') {
       // Update last verified timestamp
-      const updateResult = await updateDirectoryHandleVerification(handle);
+      const _updateResult = await updateDirectoryHandleVerification(handle);
 
       fileSystemLogger.info('Permission reauthorization granted');
       return { success: true };
@@ -544,7 +544,7 @@ export async function requestPermissionReauthorization(
  * @returns Promise resolving to success status
  */
 async function updateDirectoryHandleVerification(
-  handle: FileSystemDirectoryHandle
+  _handle: FileSystemDirectoryHandle
 ): Promise<{ success: boolean }> {
   try {
     const db = await openFileHandleDB();

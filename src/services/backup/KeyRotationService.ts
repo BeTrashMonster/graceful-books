@@ -20,8 +20,8 @@
 import { db } from '../../db';
 import { logger } from '../../utils/logger';
 import { validateCompanyId } from '../../utils/authorization';
-import { AppError, ErrorCode, error, success, type OperationResult } from '../../utils/errors';
-import type { Company } from '../../types/database.types';
+import { _AppError, ErrorCode, error, success, type OperationResult } from '../../utils/errors';
+import type { _Company } from '../../types/database.types';
 import { incrementVersionVector, getDeviceId } from '../../db/crdt';
 
 const keyRotationLogger = logger.child('KeyRotationService');

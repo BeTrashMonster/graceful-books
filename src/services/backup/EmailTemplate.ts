@@ -68,12 +68,12 @@ export function generateRestorationEmail(
   options: EmailTemplateOptions
 ): EmailTemplateResult {
   const {
-    recipientEmail,
-    restorationUrl,
+    _recipientEmail,
+    _restorationUrl,
     companyName,
-    backupDate,
-    expirationDate,
-    backupSizeFormatted,
+    _backupDate,
+    _expirationDate,
+    _backupSizeFormatted,
   } = options
 
   const subject = `Your ${companyName} Backup is Ready`

@@ -179,7 +179,7 @@ export async function exampleGetSecurityStats(
  */
 export async function exampleLoginWithSecurityLogging(
   email: string,
-  password: string,
+  _password: string,
   db: TreasureChestDB
 ) {
   // Simulated authentication logic

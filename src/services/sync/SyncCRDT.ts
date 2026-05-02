@@ -267,7 +267,7 @@ export class SyncCRDT {
     // For this implementation, we use LWW for the entire record
     // A more sophisticated approach would track per-field timestamps
     const winner = this.resolveLastWriteWins(local, remote)
-    const loser = winner === local ? remote : local
+    const _loser = winner === local ? remote : local
 
     // Merge version vectors
     const mergedVector = this.mergeVersionVectors(

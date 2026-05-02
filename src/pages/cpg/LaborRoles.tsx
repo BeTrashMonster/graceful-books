@@ -19,7 +19,7 @@ import { OwnerPayCalculatorTab } from './tabs/labor/OwnerPayCalculatorTab';
 import { LaborReportsTab } from './tabs/labor/LaborReportsTab';
 import { PinIcon } from '../../components/common/PinIcon';
 import { useTabPinning } from '../../hooks/useTabPinning';
-import { useAuth } from '../../contexts/AuthContext';
+import { _useAuth } from '../../contexts/AuthContext';
 import { PAGE_IDS } from '../../db/schema/tabPreferences.schema';
 import styles from './LaborRoles.module.css';
 

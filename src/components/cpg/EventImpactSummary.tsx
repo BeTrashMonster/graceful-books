@@ -156,8 +156,8 @@ export function EventImpactSummary({
 
   if (hasFinancialData) {
     const retailPrice = parseFloat(averageRetailPrice);
-    const cpu = parseFloat(averageCPU);
-    const eventCost = parseFloat(averageEventCostPerUnit);
+    const _cpu = parseFloat(averageCPU);
+    const _eventCost = parseFloat(averageEventCostPerUnit);
 
     // Expected scenario uses the expected labor cost per unit
     const expectedGrossProfit = parseFloat(averageGrossProfitWithEvent || '0');
@@ -187,7 +187,7 @@ export function EventImpactSummary({
 
   // Calculate break-even percentage
   const breakEvenUnitsNum = parseFloat(breakEvenUnits);
-  const breakEvenPercentage = totalUnitsNum > 0 ? (breakEvenUnitsNum / totalUnitsNum) * 100 : 0;
+  const _breakEvenPercentage = totalUnitsNum > 0 ? (breakEvenUnitsNum / totalUnitsNum) * 100 : 0;
 
   return (
     <div className={clsx(styles.container, className)}>

@@ -171,7 +171,7 @@ export function RestorationOptionsScreen({
   syncAvailable = true,
   loading = false,
 }: RestorationOptionsScreenProps) {
-  const [selectedMethod, setSelectedMethod] = useState<RestorationMethod>(null)
+  const [_selectedMethod, setSelectedMethod] = useState<RestorationMethod>(null)
 
   const handleSelectMethod = (method: RestorationMethod) => {
     if (loading) return

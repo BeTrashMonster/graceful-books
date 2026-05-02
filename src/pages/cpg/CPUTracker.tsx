@@ -20,7 +20,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/core/Button';
 import { AddInvoiceModal } from '../../components/cpg/modals/AddInvoiceModal';
 // import { CPUTimeline } from '../../components/cpg/CPUTimeline'; // Unused for now
@@ -47,6 +47,7 @@ type CPUTrackerTab = 'products' | 'raw-materials' | 'comparison';
 export default function CPUTracker() {
   const { companyId } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Tab pinning
   const { defaultTab, pinTab, unpinTab, isTabPinned, isLoading: isPinningLoading } = useTabPinning({
@@ -103,7 +104,7 @@ export default function CPUTracker() {
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
   const [invoiceFormMode, setInvoiceFormMode] = useState<'new' | 'edit' | 'duplicate'>('new');
-  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | undefined>(undefined);
+  const [_selectedCategoryFilter, _setSelectedCategoryFilter] = useState<string | undefined>(undefined);
   const [showArchived] = useState(false); // Reserved for future archive feature
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -699,6 +700,18 @@ export default function CPUTracker() {
           onSuccess={handleInvoiceSaved}
           invoiceId={editingInvoiceId || undefined}
           mode={invoiceFormMode}
+          onNavigateToRecipe={(productId: string, productName: string, categoryId?: string, variant?: string | null) => {
+            // Close invoice modal
+            setShowInvoiceForm(false);
+            setEditingInvoiceId(null);
+            setInvoiceFormMode('new');
+            // Navigate to Finished Products page with state to open recipe
+            navigate('/cpg/products', {
+              state: {
+                openRecipe: { productId, productName, categoryId, variant }
+              }
+            });
+          }}
         />
       )}
 

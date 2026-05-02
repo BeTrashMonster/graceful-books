@@ -355,7 +355,7 @@ export class S3BackupUploadService {
       const numParts = Math.ceil(size / partSizeBytes)
 
       // Upload parts in parallel (with concurrency limit)
-      const parts = await this.uploadPartsInParallel(
+      const _parts = await this.uploadPartsInParallel(
         key,
         options.data,
         uploadState,
@@ -472,8 +472,8 @@ export class S3BackupUploadService {
    * @returns Upload state
    */
   private async initializeMultipartUpload(
-    key: string,
-    metadata?: Record<string, string>
+    _key: string,
+    _metadata?: Record<string, string>
   ): Promise<MultipartUploadState> {
     // In real implementation, this would call AWS SDK createMultipartUpload
     return {
@@ -492,10 +492,10 @@ export class S3BackupUploadService {
    * @returns Part upload result
    */
   private async uploadPart(
-    key: string,
-    uploadId: string,
+    _key: string,
+    _uploadId: string,
     partNumber: number,
-    data: Uint8Array | Buffer | Blob
+    _data: Uint8Array | Buffer | Blob
   ): Promise<{ etag: string }> {
     // In real implementation, this would call AWS SDK uploadPart
     return {
@@ -511,8 +511,8 @@ export class S3BackupUploadService {
    * @returns Completion result
    */
   private async completeMultipartUpload(
-    key: string,
-    uploadState: MultipartUploadState
+    _key: string,
+    _uploadState: MultipartUploadState
   ): Promise<{ etag: string; versionId?: string }> {
     // In real implementation, this would call AWS SDK completeMultipartUpload
     return {
@@ -530,9 +530,9 @@ export class S3BackupUploadService {
    * @returns Upload result
    */
   private async performS3Upload(
-    key: string,
-    data: Uint8Array | Buffer | Blob,
-    metadata?: Record<string, string>
+    _key: string,
+    _data: Uint8Array | Buffer | Blob,
+    _metadata?: Record<string, string>
   ): Promise<{ etag: string; versionId?: string }> {
     // In real implementation, this would use AWS SDK putObject
     // For now, this is a placeholder
@@ -549,7 +549,7 @@ export class S3BackupUploadService {
    * @returns Download data
    */
   private async performS3Download(
-    key: string
+    _key: string
   ): Promise<{ data: Uint8Array; size: number; etag: string }> {
     // In real implementation, this would use AWS SDK getObject
     // For now, this is a placeholder that simulates download

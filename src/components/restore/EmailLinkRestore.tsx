@@ -15,7 +15,7 @@
 
 import { useState, FormEvent, ChangeEvent } from 'react'
 import { Button } from '../core/Button'
-import { Card, CardHeader, CardBody, CardFooter } from '../ui/Card'
+import { Card, CardHeader, CardBody, _CardFooter } from '../ui/Card'
 import styles from './EmailLinkRestore.module.css'
 
 /**

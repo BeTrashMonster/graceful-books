@@ -105,7 +105,7 @@ const EMAIL_RATE_LIMITS = {
 export class EmailSchedulingService {
   private scheduleIntervalId?: number
   private config: EmailScheduleConfig
-  private backupScheduler?: BackupScheduler
+  private _backupScheduler?: BackupScheduler
 
   constructor(
     config: EmailScheduleConfig = DEFAULT_EMAIL_SCHEDULE,
@@ -383,7 +383,7 @@ export class EmailSchedulingService {
    * @param messageId - Message ID
    * @returns Delivery status
    */
-  async getDeliveryStatus(messageId: string): Promise<EmailDeliveryStatus | null> {
+  async getDeliveryStatus(_messageId: string): Promise<EmailDeliveryStatus | null> {
     // In real implementation, would query email service status
     // For now, this is a placeholder
     return null
@@ -395,7 +395,7 @@ export class EmailSchedulingService {
    * @param userId - User ID
    * @returns True if user can send email
    */
-  private async checkRateLimit(userId: string): Promise<boolean> {
+  private async checkRateLimit(_userId: string): Promise<boolean> {
     // In real implementation, would check database
     // For now, allow all sends
     return true
@@ -406,7 +406,7 @@ export class EmailSchedulingService {
    *
    * @param userId - User ID
    */
-  private async recordEmailSend(userId: string): Promise<void> {
+  private async recordEmailSend(_userId: string): Promise<void> {
     // In real implementation, would record in database
     // For now, this is a placeholder
   }
@@ -417,7 +417,7 @@ export class EmailSchedulingService {
    * @param messageId - Message ID
    * @returns Retry count
    */
-  private async getRetryCount(messageId: string): Promise<number> {
+  private async getRetryCount(_messageId: string): Promise<number> {
     // In real implementation, would query database
     return 0
   }
@@ -428,7 +428,7 @@ export class EmailSchedulingService {
    * @param messageId - Message ID
    * @returns Last retry timestamp
    */
-  private async getLastRetryTime(messageId: string): Promise<number | null> {
+  private async getLastRetryTime(_messageId: string): Promise<number | null> {
     // In real implementation, would query database
     return null
   }
@@ -438,7 +438,7 @@ export class EmailSchedulingService {
    *
    * @param messageId - Message ID
    */
-  private async incrementRetryCount(messageId: string): Promise<void> {
+  private async incrementRetryCount(_messageId: string): Promise<void> {
     // In real implementation, would update database
   }
 
@@ -447,7 +447,7 @@ export class EmailSchedulingService {
    *
    * @param messageId - Message ID
    */
-  private async clearRetryTracking(messageId: string): Promise<void> {
+  private async clearRetryTracking(_messageId: string): Promise<void> {
     // In real implementation, would clear database
   }
 

@@ -119,7 +119,7 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
 
     try {
       // Get stored directory handle and check status
-      const dirHandle = await retrieveDirectoryHandle()
+      const _dirHandle = await retrieveDirectoryHandle()
       const directoryStatus = await getBackupDirectoryStatus()
 
       console.log('📊 Directory status:', directoryStatus)

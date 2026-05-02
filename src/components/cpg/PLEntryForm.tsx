@@ -403,7 +403,7 @@ export function PLEntryForm({
   );
 
   // Get dynamic period label for info box
-  const currentPeriodLabel = periodStart && periodEnd
+  const _currentPeriodLabel = periodStart && periodEnd
     ? generatePeriodLabel(periodType, parseDateLocal(periodStart).getTime(), parseDateLocal(periodEnd).getTime())
     : 'your most recent period';
 

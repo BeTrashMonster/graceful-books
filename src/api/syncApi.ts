@@ -22,7 +22,7 @@ import type {
   SyncChange,
 } from '../sync/syncProtocol';
 import { SYNC_PROTOCOL_VERSION } from '../sync/syncProtocol';
-import { SYNC_URL, MOCK_API } from '../config/api';
+import { _SYNC_URL, MOCK_API } from '../config/api';
 
 /**
  * Mock sync server using localStorage

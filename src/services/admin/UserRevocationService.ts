@@ -359,7 +359,7 @@ async function notifyRemainingUsers(options: {
   newEpoch: number
   remainingUsers: UserEntity[]
 }): Promise<number> {
-  const { companyId, revokedUserId, revokedUserName, newEpoch, remainingUsers } = options
+  const { _companyId, revokedUserId, revokedUserName, newEpoch, remainingUsers } = options
 
   const notification: KeyRotationNotification = {
     type: 'KEY_ROTATION',

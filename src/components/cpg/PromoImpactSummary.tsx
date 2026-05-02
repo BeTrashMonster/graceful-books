@@ -101,10 +101,10 @@ export function PromoImpactSummary({
   variantData,
   className,
 }: PromoImpactSummaryProps) {
-  const { formatCurrency, formatNumber, formatPercentage } = useCPGSettings();
+  const { formatCurrency, _formatNumber, formatPercentage } = useCPGSettings();
   const marginDiff = parseFloat(marginDifference);
-  const isPositiveImpact = marginDiff >= 0;
-  const isNegativeImpact = marginDiff < 0;
+  const _isPositiveImpact = marginDiff >= 0;
+  const _isNegativeImpact = marginDiff < 0;
 
   // Fixed 2-decimal formatter for summary boxes only
   const formatCurrencyFixed2 = (value: number): string => {
@@ -150,7 +150,7 @@ export function PromoImpactSummary({
   const totalPromoCostNum = parseFloat(totalPromoCost);
   const expectedTotalPayback = totalPromoCostNum;
   const adjustedTotalPayback = totalUnitsNum > 0 ? (totalPromoCostNum * (adjustedUnits / totalUnitsNum)) : 0;
-  const paybackDifference = expectedTotalPayback - adjustedTotalPayback;
+  const _paybackDifference = expectedTotalPayback - adjustedTotalPayback;
 
   // Calculate adjusted financial metrics (if we have the average data)
   const hasFinancialData = averageRetailPrice && averageCPU && averageSalesPromoCost;
@@ -161,8 +161,8 @@ export function PromoImpactSummary({
 
   if (hasFinancialData) {
     const retailPrice = parseFloat(averageRetailPrice);
-    const cpu = parseFloat(averageCPU);
-    const salesPromo = parseFloat(averageSalesPromoCost);
+    const _cpu = parseFloat(averageCPU);
+    const _salesPromo = parseFloat(averageSalesPromoCost);
 
     // Expected scenario uses the expected labor cost per unit
     const expectedGrossProfit = parseFloat(averageGrossProfitWithPromo || '0');

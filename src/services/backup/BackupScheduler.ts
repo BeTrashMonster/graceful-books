@@ -389,7 +389,7 @@ export class BackupScheduler {
    * Uses synchronous backup approach for beforeunload compatibility.
    */
   private setupBeforeUnloadBackup(): void {
-    this.beforeUnloadListener = (event: BeforeUnloadEvent) => {
+    this.beforeUnloadListener = (_event: BeforeUnloadEvent) => {
       backupSchedulerLogger.info('beforeunload event detected');
 
       // Trigger backup (non-blocking)

@@ -62,7 +62,7 @@ interface ProductCPUSummary {
 }
 
 export function LaborScenariosTab() {
-  const { companyId, deviceId } = useAuth();
+  const { companyId, _deviceId } = useAuth();
   const [service] = useState(() => new LaborRoleService(db));
   const { formatCurrency, formatNumber, formatPercentage } = useCPGSettings();
 
@@ -531,7 +531,7 @@ export function LaborScenariosTab() {
                     {/* Role Rows */}
                     {group.roles.map(role => {
                       const delta = role.scenarioCost - role.currentCost;
-                      const deltaPercent = role.currentCost > 0
+                      const _deltaPercent = role.currentCost > 0
                         ? ((delta / role.currentCost) * 100)
                         : 0;
 
@@ -664,7 +664,7 @@ export function LaborScenariosTab() {
                     const totalCurrent = cpuSummaries.reduce((sum, s) => sum + s.currentLaborCPU, 0);
                     const totalScenario = cpuSummaries.reduce((sum, s) => sum + s.scenarioLaborCPU, 0);
                     const totalChange = totalScenario - totalCurrent;
-                    const totalChangePercent = totalCurrent > 0 ? (totalChange / totalCurrent) * 100 : 0;
+                    const _totalChangePercent = totalCurrent > 0 ? (totalChange / totalCurrent) * 100 : 0;
                     return totalChange > 0 ? styles.impactIncrease : styles.impactDecrease;
                   })()}>
                     {(() => {

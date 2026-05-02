@@ -20,11 +20,11 @@ import { Input } from '../forms/Input';
 import { HelpTooltip } from '../help/HelpTooltip';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
-import { normalizeVariant, validateCPGRecipe } from '../../db/schema/cpg.schema';
+import { normalizeVariant, _validateCPGRecipe } from '../../db/schema/cpg.schema';
 import type { CPGCategory, CPGRecipe, CPGSettings } from '../../db/schema/cpg.schema';
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import { v4 as uuidv4 } from 'uuid';
-import { type Unit, areUnitsCompatible, getUnitMismatchWarning, UNIT_CATALOG } from '../../utils/unitConversion';
+import { type Unit, areUnitsCompatible, _getUnitMismatchWarning, UNIT_CATALOG } from '../../utils/unitConversion';
 import { formatDateFromTimestamp } from '../../utils/dateUtils';
 import styles from './RecipeBuilder.module.css';
 
@@ -61,7 +61,7 @@ interface ComponentCost {
 
 export function RecipeBuilder({
   finishedProductId,
-  productName,
+  _productName,
   onSave,
   onCancel,
   onNavigateToInvoice,

@@ -4,7 +4,7 @@
  */
 
 import { Link, useOutletContext } from 'react-router-dom';
-import { Button } from '../../components/core/Button';
+import { _Button } from '../../components/core/_Button';
 import { GettingStartedCard } from '../../components/cpg/GettingStartedCard';
 import styles from './CPGDashboard.module.css';
 

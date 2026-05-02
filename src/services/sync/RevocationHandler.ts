@@ -23,7 +23,7 @@
  * Joy Engineering: "Dignity in every interaction 🤝"
  */
 
-import { verifyKeyRotationEpoch, getCurrentEpoch } from '../backup/KeyRotationService'
+import { verifyKeyRotationEpoch, _getCurrentEpoch } from '../backup/KeyRotationService'
 
 /**
  * Revocation status

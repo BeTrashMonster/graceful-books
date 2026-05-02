@@ -404,7 +404,7 @@ export function DistributorProfileForm({
     onSubmit(formData);
   };
 
-  const getUnitLabel = (unit: Fee['unit']): string => {
+  const _getUnitLabel = (unit: Fee['unit']): string => {
     const labels = {
       per_pallet: 'per pallet',
       per_case: 'per case',
@@ -838,7 +838,7 @@ export function DistributorProfileForm({
                 <h4 style={{ marginBottom: '0.75rem', fontWeight: 600, color: '#92400e' }}>Removed Defaults:</h4>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   {removedDefaultLabels.map((label, index) => {
-                    const defaultItem = COMMON_FEE_SUGGESTIONS.find(s => s.label === label);
+                    const _defaultItem = COMMON_FEE_SUGGESTIONS.find(s => s.label === label);
                     return (
                       <button
                         key={index}

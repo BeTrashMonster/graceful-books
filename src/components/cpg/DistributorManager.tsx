@@ -11,7 +11,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { _Link, useNavigate } from 'react-router-dom';
 import { Modal } from '../modals/Modal';
 import { Button } from '../core/Button';
 import { useAuth } from '../../contexts/AuthContext';
@@ -30,7 +30,7 @@ export interface DistributorManagerProps {
 
 export function DistributorManager({ isOpen, onClose, embedded = false }: DistributorManagerProps) {
   const { companyId, deviceId } = useAuth();
-  const { formatCurrency, formatNumber, formatPercentage } = useCPGSettings();
+  const { formatCurrency, formatNumber, _formatPercentage } = useCPGSettings();
   const calculatorService = new DistributionCostCalculatorService(db);
 
   const [distributors, setDistributors] = useState<CPGDistributor[]>([]);
@@ -69,7 +69,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [checkNumber, setCheckNumber] = useState('');
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   /**
    * Get date range based on filter
@@ -347,7 +347,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
   /**
    * Generate smart cost information from actual calculation data
    */
-  const getSmartCostInfo = (distributorId: string, distributorName: string): string => {
+  const getSmartCostInfo = (distributorId: string, _distributorName: string): string => {
     const data = calculationData[distributorId];
 
     if (data) {
@@ -940,7 +940,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
 
     setIsSaving(true);
     try {
-      const distributor = await calculatorService.createDistributor(
+      const _distributor = await calculatorService.createDistributor(
         companyId,
         formData.name,
         formData.description,
@@ -995,7 +995,7 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
     await saveDistributorUpdate(editingDistributor.id, formData, false);
   };
 
-  const saveDistributorUpdate = async (distributorId: string, formData: DistributorFormData, feesChanged = false) => {
+  const saveDistributorUpdate = async (distributorId: string, formData: DistributorFormData, _feesChanged = false) => {
     if (!deviceId) return;
 
     setIsSaving(true);

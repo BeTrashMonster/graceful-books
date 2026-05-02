@@ -12,14 +12,14 @@
  * - Confirmation dialogs for destructive actions
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, _useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../../../components/core/Button';
 import { Loading } from '../../../../components/feedback/Loading';
 import { ErrorMessage } from '../../../../components/feedback/ErrorMessage';
 import type { CPGImpactScenario } from '../../../../db/schema/cpg.schema';
 import { impactShareService } from '../../../../services/cpg/impactShare.service';
-import { db } from '../../../../db/database';
+import { _db } from '../../../../_db/database';
 import { useAuth } from '../../../../contexts/AuthContext';
 import styles from './ManageScenariosTab.module.css';
 
