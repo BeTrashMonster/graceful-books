@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "dev:3007": "vite --port 3007",
-    "build": "tsc --noEmit || true && vite build",
+    "build": "vite build",
     "build:staging": "tsc --noEmit || true && vite build --mode staging",
     "build:production": "tsc --noEmit || true && vite build --mode production",
     "preview": "vite preview",
