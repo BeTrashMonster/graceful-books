@@ -379,8 +379,8 @@ export default function Signup() {
           <CharitySelector
             selectedCharityId={selectedCharity?.id}
             onSelect={handleCharitySelect}
-            showSearch
-            showFilters
+            showSearch={false}
+            showFilters={false}
           />
 
           <div className={styles.navigationButtons}>

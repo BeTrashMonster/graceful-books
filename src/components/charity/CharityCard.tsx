@@ -96,6 +96,13 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
       color: '#000000',
     } : undefined;
 
+    // Determine if this is NAYA or Senior Dog (keep original size)
+    const isOriginalSize = charity.name.includes('NAYA') || charity.name.includes('Senior Dog');
+    const titleStyle: React.CSSProperties = {
+      ...(charity.brandColorTitle && { color: charity.brandColorTitle }),
+      ...(isOriginalSize && { fontSize: '1.75rem' })
+    };
+
     return (
       <div
         ref={ref}
@@ -117,7 +124,7 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
         <div className={styles.titleRow}>
           <h3
             className={styles.name}
-            style={charity.brandColorTitle ? { color: charity.brandColorTitle } : undefined}
+            style={titleStyle}
           >
             {charity.name}
           </h3>
@@ -173,13 +180,6 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
             </svg>
           </a>
         </div>
-
-        {/* Tooltip on hover for compact mode */}
-        {!showFullDescription && charity.shortDescription && (
-          <div className={styles.tooltip}>
-            <p className={styles.tooltipText}>{charity.shortDescription}</p>
-          </div>
-        )}
       </div>
     );
   }

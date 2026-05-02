@@ -1,7 +1,6 @@
 /* Base card - background will be set via inline styles from database */
 .card {
   background: radial-gradient(circle at top, rgba(100, 100, 100, 0.9) 0%, rgba(80, 80, 80, 1) 100%);
-  backdrop-filter: blur(10px);
   border: 3px solid rgba(255, 255, 255, 0.25);
   border-radius: 50%;
   padding: 1.75rem 1.5rem;
@@ -20,7 +19,7 @@
     0 3px 12px rgba(0, 0, 0, 0.15),
     inset 0 2px 0 rgba(255, 255, 255, 0.1),
     inset 0 -2px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Shimmer effect overlay */
@@ -56,67 +55,73 @@
   transform: translateY(-6px) scale(1.05);
 }
 
-/* Tooltip for compact mode */
+/* Tooltip for compact mode - appears over center circle */
 .tooltip {
-  position: absolute;
-  left: calc(100% + 20px);
+  position: fixed;
+  left: 50%;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translate(-50%, -50%);
   width: 280px;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(20px);
-  border: 2px solid rgba(212, 175, 55, 0.3);
-  border-radius: 1rem;
-  padding: 1.25rem;
+  height: 280px;
+  background: linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%);
+  border: 4px solid #B8860B;
+  border-radius: 50%;
+  padding: 2.5rem 1.5rem;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(212, 175, 55, 0.1);
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    inset 0 2px 0 rgba(255, 255, 255, 0.3);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  z-index: 1000;
+  transition: opacity 0.3s ease;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Arrow pointing to the circle */
+/* Backdrop overlay - rounded to match circle */
 .tooltip::before {
   content: '';
-  position: absolute;
-  right: 100%;
+  position: fixed;
+  left: 50%;
   top: 50%;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-top: 12px solid transparent;
-  border-bottom: 12px solid transparent;
-  border-right: 12px solid rgba(212, 175, 55, 0.3);
-}
-
-.tooltip::after {
-  content: '';
-  position: absolute;
-  right: 100%;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-top: 10px solid transparent;
-  border-bottom: 10px solid transparent;
-  border-right: 10px solid rgba(255, 255, 255, 0.98);
-  margin-right: -1px;
+  transform: translate(-50%, -50%);
+  width: 320px;
+  height: 320px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 50%;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .card:hover .tooltip {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(-50%) translateX(5px);
+  transform: translate(-50%, -50%);
+}
+
+.card:hover .tooltip::before {
+  opacity: 1;
 }
 
 .tooltipText {
   margin: 0;
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: #333;
-  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #2d1b00;
+  font-weight: 600;
+  text-align: center;
+}
+
+.tooltipText strong {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #2d1b00;
+  display: block;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
 }
 
 .card.clickable:focus {
@@ -146,13 +151,14 @@
 }
 
 .name {
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 800;
   margin: 0;
   color: #ffffff;
-  line-height: 1.2;
+  line-height: 1.1;
   letter-spacing: -0.01em;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  text-align: center;
 }
 
 .selectedBadge {

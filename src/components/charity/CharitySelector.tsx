@@ -22,6 +22,10 @@ export interface CharitySelectorProps {
    * Whether to show category filters
    */
   showFilters?: boolean;
+  /**
+   * Optional: provide charities directly (for testing)
+   */
+  charities?: Charity[];
 }
 
 /**
@@ -50,16 +54,23 @@ export function CharitySelector({
   onSelect,
   showSearch = true,
   showFilters = true,
+  charities: providedCharities,
 }: CharitySelectorProps) {
   const [charities, setCharities] = useState<Charity[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CharityCategory | 'all'>('all');
+  const [hoveredCharity, setHoveredCharity] = useState<Charity | null>(null);
 
-  // Load charities on mount
+  // Load charities on mount (or use provided ones)
   useEffect(() => {
-    loadCharities();
-  }, []);
+    if (providedCharities) {
+      setCharities(providedCharities);
+      setLoading(false);
+    } else {
+      loadCharities();
+    }
+  }, [providedCharities]);
 
   const loadCharities = async () => {
     setLoading(true);
@@ -208,28 +219,14 @@ export function CharitySelector({
           )}
         </div>
       ) : (
-        <div className={styles.grid}>
+        <>
+          <div className={styles.grid}>
           {/* Center golden circle */}
           <div className={styles.centerHeader}>
             <h2 className={styles.centerTitle}>
-              Select<br />Give Back
+              Choose<br />Your<br />Cause
             </h2>
-            <p className={styles.centerDescription}>
-              $5/month to your chosen cause
-            </p>
           </div>
-
-          {/* Arrows from center to charities */}
-          {filteredCharities.map((charity, index) => {
-            const angle = (index * 360) / filteredCharities.length;
-            const radius = window.innerWidth <= 768 ? 180 : 270;
-            const arrowStyle = {
-              height: `${radius - 80}px`,
-              transform: `rotate(${angle}deg)`,
-              transformOrigin: 'bottom center'
-            };
-            return <div key={`arrow-${charity.id}`} className={styles.arrow} style={arrowStyle} />;
-          })}
 
           {/* Charity cards in perfect pentagon */}
           {filteredCharities.map((charity, index) => {
@@ -240,7 +237,12 @@ export function CharitySelector({
             };
 
             return (
-              <div key={charity.id} style={style}>
+              <div
+                key={charity.id}
+                style={style}
+                onMouseEnter={() => setHoveredCharity(charity)}
+                onMouseLeave={() => setHoveredCharity(null)}
+              >
                 <CharityCard
                   charity={charity}
                   selected={charity.id === selectedCharityId}
@@ -251,6 +253,27 @@ export function CharitySelector({
             );
           })}
         </div>
+
+        {/* Honor Panel - Shows hovered charity details over center circle */}
+        {hoveredCharity && (
+          <div className={styles.honorPanel}>
+            <div className={styles.honorContent}>
+              <div className={styles.honorHeader}>
+                <h3 className={styles.honorTitle}>{hoveredCharity.name}</h3>
+                <div className={styles.honorDivider}></div>
+              </div>
+              <p className={styles.honorDescription}>
+                {hoveredCharity.longDescription || hoveredCharity.shortDescription}
+              </p>
+              <div className={styles.honorFooter}>
+                <div className={styles.honorImpact}>
+                  ✨ $5 from your membership helps fund their vital work
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        </>
       )}
     </div>
   );
