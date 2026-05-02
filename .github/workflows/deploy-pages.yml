@@ -28,6 +28,10 @@ on:
 env:
   NODE_VERSION: '18'
 
+permissions:
+  contents: read
+  deployments: write
+
 jobs:
   # Build application
   build:
