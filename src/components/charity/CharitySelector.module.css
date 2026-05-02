@@ -3,11 +3,12 @@
   max-width: 1100px;
   margin: 0 auto;
   background: #ffffff;
-  padding: 2rem 1.5rem;
+  padding: 1.5rem 1rem;
   border-radius: 1.5rem;
   position: relative;
   overflow: hidden;
-  min-height: 950px;
+  min-height: 850px;
+  max-height: 95vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,24 +26,24 @@
 /* THE CONSTELLATION - Perfect pentagon circle */
 .grid {
   position: relative;
-  width: 900px;
-  height: 900px;
+  width: 800px;
+  height: 800px;
   margin: 0 auto;
 }
 
 /* Position charity cards in circle - exclude centerHeader */
 .grid > div:not(.centerHeader) {
   position: absolute;
-  width: 260px;
-  height: 260px;
+  width: 240px;
+  height: 240px;
   left: 50%;
   top: 50%;
-  margin-left: -130px;
-  margin-top: -130px;
+  margin-left: -120px;
+  margin-top: -120px;
 }
 
 /* Center golden circle - PERFECTLY CENTERED */
-/* Force cache refresh v2 */
+/* Force cache refresh v3 */
 .centerHeader {
   position: absolute;
   left: 50%;
@@ -51,8 +52,8 @@
   text-align: center;
   z-index: 100;
   pointer-events: none;
-  width: 220px;
-  height: 220px;
+  width: 200px;
+  height: 200px;
   padding: 0;
   border: 5px solid #D4AF37;
   border-radius: 50%;
@@ -85,7 +86,7 @@
 }
 
 .centerTitle {
-  font-size: 1.875rem;
+  font-size: 1.75rem;
   font-weight: 800;
   background: linear-gradient(135deg, #ffffff 0%, #D4AF37 50%, #ffffff 100%);
   -webkit-background-clip: text;
@@ -168,20 +169,21 @@
 /* Responsive */
 @media (max-width: 900px) {
   .container {
-    padding: 1.5rem 1rem;
-    min-height: 750px;
+    padding: 1rem;
+    min-height: 650px;
+    max-height: 90vh;
   }
 
   .grid {
-    width: 750px;
-    height: 750px;
+    width: 650px;
+    height: 650px;
   }
 
   .grid > div:not(.centerHeader) {
-    width: 220px;
-    height: 220px;
-    margin-left: -110px;
-    margin-top: -110px;
+    width: 200px;
+    height: 200px;
+    margin-left: -100px;
+    margin-top: -100px;
   }
 
   .centerHeader {

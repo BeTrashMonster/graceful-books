@@ -222,7 +222,7 @@ export function CharitySelector({
           {/* Charity cards in perfect pentagon */}
           {filteredCharities.map((charity, index) => {
             const angle = (index * 360) / filteredCharities.length;
-            const radius = window.innerWidth <= 768 ? 200 : 320;
+            const radius = window.innerWidth <= 768 ? 200 : 285;
             const style = {
               transform: `rotate(${angle}deg) translate(${radius}px) rotate(-${angle}deg)`
             };
