@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 import type { Connect, Plugin } from 'vite'
 import wasm from 'vite-plugin-wasm'
-import topLevelAwait from 'vite-plugin-top-level-await'
 
 /**
  * Subresource Integrity (SRI) Validation Plugin
@@ -116,11 +115,6 @@ export default defineConfig({
   plugins: [
     // CRITICAL: wasm() must come BEFORE react() to handle WASM imports correctly
     wasm(),
-    topLevelAwait({
-      // Ensure WASM modules can use top-level await
-      promiseExportName: '__tla',
-      promiseImportName: i => `__tla_${i}`
-    }),
     react(),
     {
       name: 'security-headers',
