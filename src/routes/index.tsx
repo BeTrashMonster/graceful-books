@@ -65,7 +65,6 @@ const TradeSpendReport = lazy(() => import('../pages/cpg/reports/TradeSpendRepor
 
 // Test Pages
 const LoaderTest = lazy(() => import('../pages/LoaderTest'))
-const CharitySelectorTest = lazy(() => import('../pages/CharitySelectorTest'))
 
 export function AppRoutes() {
   return (
@@ -89,7 +88,6 @@ export function AppRoutes() {
         <Route path="/dev-tools" element={<DevTools />} />
         <Route path="/developer-tools" element={<DevTools />} />
         <Route path="/loader-test" element={<LoaderTest />} />
-        <Route path="/charity-selector-test" element={<CharitySelectorTest />} />
 
         {/* Onboarding routes */}
         <Route path="/onboarding" element={<Onboarding />} />
