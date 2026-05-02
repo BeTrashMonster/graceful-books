@@ -144,15 +144,6 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
           )}
         </div>
 
-        {charity.shortDescription && (
-          <p
-            className={styles.description}
-            style={charity.brandColorDescription ? { color: charity.brandColorDescription } : undefined}
-          >
-            {charity.shortDescription}
-          </p>
-        )}
-
         <div className={styles.footer}>
           <span className={styles.category}>{charity.category}</span>
           <a
@@ -182,6 +173,13 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
             </svg>
           </a>
         </div>
+
+        {/* Tooltip on hover for compact mode */}
+        {!showFullDescription && charity.shortDescription && (
+          <div className={styles.tooltip}>
+            <p className={styles.tooltipText}>{charity.shortDescription}</p>
+          </div>
+        )}
       </div>
     );
   }

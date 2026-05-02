@@ -56,20 +56,67 @@
   transform: translateY(-6px) scale(1.05);
 }
 
-/* Compact mode - hide description until hover */
-.card.compact .description {
+/* Tooltip for compact mode */
+.tooltip {
+  position: absolute;
+  left: calc(100% + 20px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 280px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(212, 175, 55, 0.1);
   opacity: 0;
-  max-height: 0;
-  margin: 0;
-  overflow: hidden;
-  transition: opacity 0.3s ease, max-height 0.3s ease, margin 0.3s ease;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1000;
 }
 
-.card.compact:hover .description {
+/* Arrow pointing to the circle */
+.tooltip::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-right: 12px solid rgba(212, 175, 55, 0.3);
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 10px solid rgba(255, 255, 255, 0.98);
+  margin-right: -1px;
+}
+
+.card:hover .tooltip {
   opacity: 1;
-  max-height: 100px;
-  margin: 0 0 1.25rem 0;
-  display: -webkit-box;
+  pointer-events: auto;
+  transform: translateY(-50%) translateX(5px);
+}
+
+.tooltipText {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #333;
+  font-weight: 400;
 }
 
 .card.clickable:focus {
