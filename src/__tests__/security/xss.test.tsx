@@ -25,7 +25,7 @@
  */
 
 import { describe, it, expect, _beforeEach, _afterEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import React from 'react'
 import {

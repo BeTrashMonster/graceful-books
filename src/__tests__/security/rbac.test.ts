@@ -596,7 +596,7 @@ describe('RBAC - Integration Patterns', () => {
   it('should demonstrate correct usage pattern with authorization.ts', () => {
     // This test documents the correct pattern for using RBAC with authorization
     const companyUser = createMockCompanyUser(UserRole.ACCOUNTANT)
-    const companyId = 'test-company-id'
+    const _companyId = 'test-company-id'
 
     // Step 1: Would check company ownership first (using authorization.ts)
     // const authCheck = requireCompanyOwnership(resource, companyId)

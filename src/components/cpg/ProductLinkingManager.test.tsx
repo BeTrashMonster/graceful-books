@@ -210,7 +210,7 @@ describe('ProductLinkingManager', () => {
   });
 
   it('should create product link successfully', async () => {
-    const { container } = render(
+    render(
       <ProductLinkingManager companyId={testCompanyId} categories={testCategories} />
     );
 

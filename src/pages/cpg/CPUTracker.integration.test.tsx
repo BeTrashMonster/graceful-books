@@ -486,7 +486,7 @@ describe('CPUTracker Integration Tests', () => {
     });
 
     it('maintains keyboard navigation between tabs', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
       render(<CPUTracker companyId="company-123" />);
 
       await waitFor(() => {

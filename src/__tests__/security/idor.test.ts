@@ -733,7 +733,7 @@ describe('IDOR Prevention Security Tests', () => {
     })
 
     it('should return only Company A invoices in batch query', async () => {
-      const { invoiceA_id, invoiceB_id } = await createTestInvoices()
+      const { invoiceA_id: _invoiceA_id, invoiceB_id } = await createTestInvoices()
 
       const result = await getInvoices(companyA_id)
 

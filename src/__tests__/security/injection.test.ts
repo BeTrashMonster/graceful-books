@@ -38,7 +38,6 @@ import {
 import {
   createContact,
   queryContacts,
-  getContact,
 } from '../../store/contacts'
 import { nanoid } from 'nanoid'
 

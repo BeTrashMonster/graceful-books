@@ -10,7 +10,6 @@ import {
   type RestorationToken,
   type TokenValidationResult,
   type CreateRestorationTokenOptions,
-  type TokenStatistics,
   createRestorationToken,
   isTokenExpired,
   validateTokenState,
