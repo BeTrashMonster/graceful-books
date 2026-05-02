@@ -27,7 +27,7 @@ export interface AddInvoiceModalProps {
   onClose: () => void;
   onSuccess?: () => void;
   onNeedCategories?: () => void;
-  onNavigateToRecipe?: (finishedProductId: string, productName: string) => void; // Navigate to recipe builder for a product
+  onNavigateToRecipe?: (finishedProductId: string, productName: string, categoryId?: string, variant?: string | null) => void; // Navigate to recipe builder for a product
   invoiceId?: string; // If provided, modal is in edit or duplicate mode
   mode?: 'new' | 'edit' | 'duplicate'; // Determines the modal behavior
 }
@@ -73,8 +73,9 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(false);
-  const [unitWarnings, setUnitWarnings] = useState<Record<string, { count: number; items: Array<{ productName: string; recipeUnit: string; finishedProductId: string }> }>>({});
+  const [unitWarnings, setUnitWarnings] = useState<Record<string, { count: number; items: Array<{ productName: string; recipeUnit: string; finishedProductId: string; categoryId: string; variant: string | null }> }>>({});
   const [expandedWarnings, setExpandedWarnings] = useState<Record<string, boolean>>({});
+  const [confirmNavigation, setConfirmNavigation] = useState<{ productId: string; productName: string; categoryId: string; variant: string | null } | null>(null);
   const errorAlertRef = useRef<HTMLDivElement>(null);
 
   const isEditMode = mode === 'edit';
@@ -197,10 +198,11 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
 
         // Populate form fields
         setInvoiceNumber(invoice.invoice_number || '');
+        // Use UTC methods to avoid timezone issues
         const date = new Date(invoice.invoice_date);
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const year = date.getFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const year = date.getUTCFullYear();
         setInvoiceDate(`${month}/${day}/${year}`);
         setVendorName(invoice.vendor_name || '');
         setPaymentMethod(invoice.payment_method || '');
@@ -427,7 +429,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
       }
 
       // Find ALL recipes with incompatible units (not just the first one)
-      const incompatibleItems: Array<{ productName: string; recipeUnit: string; finishedProductId: string }> = [];
+      const incompatibleItems: Array<{ productName: string; recipeUnit: string; finishedProductId: string; categoryId: string; variant: string | null }> = [];
 
       for (const recipe of recipes) {
         const recipeUnit = (recipe.unit_of_measurement as Unit) || 'each';
@@ -436,12 +438,23 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         if (!areUnitsCompatible(invoiceUnit, recipeUnit)) {
           // Get the finished product name
           const finishedProduct = await db.cpgFinishedProducts.get(recipe.finished_product_id);
-          const productName = finishedProduct?.name || 'Unknown Product';
+
+          // Skip recipes with missing or deleted products (orphaned data)
+          if (!finishedProduct || !finishedProduct.active || finishedProduct.deleted_at) {
+            console.warn(
+              '⚠️ Found orphaned recipe (recipe.id=' + recipe.id + ') pointing to ' +
+              (finishedProduct ? 'deleted' : 'missing') + ' product (product_id=' + recipe.finished_product_id + '). ' +
+              'This recipe will be hidden from warnings. Consider cleaning up orphaned recipes.'
+            );
+            continue;
+          }
 
           incompatibleItems.push({
-            productName,
+            productName: finishedProduct.name,
             recipeUnit: UNIT_CATALOG[recipeUnit]?.label || recipeUnit,
-            finishedProductId: recipe.finished_product_id
+            finishedProductId: recipe.finished_product_id,
+            categoryId,
+            variant
           });
         }
       }
@@ -473,35 +486,32 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Core save logic that can be called from handleSubmit or navigation flow
+  const saveInvoice = async (): Promise<boolean> => {
     setErrors({});
 
     if (!companyId) {
       setErrors({ form: 'Not authenticated' });
-      return;
+      return false;
     }
-
-    console.log('Invoice date value:', invoiceDate, typeof invoiceDate);
 
     if (!invoiceDate) {
       setErrors({ form: 'Please enter an invoice date' });
-      return;
+      return false;
     }
 
-    // Convert date to ISO format and then to timestamp
+    // Convert date to ISO format and then to timestamp at noon UTC to avoid timezone issues
     const { iso } = processDateInput(invoiceDate);
-    const invoiceDateTimestamp = new Date(iso).getTime();
-    console.log('Invoice date ISO:', iso, 'timestamp:', invoiceDateTimestamp, 'isValid:', !isNaN(invoiceDateTimestamp) && invoiceDateTimestamp > 0);
+    const invoiceDateTimestamp = new Date(iso + 'T12:00:00Z').getTime();
 
     if (isNaN(invoiceDateTimestamp) || invoiceDateTimestamp <= 0) {
       setErrors({ form: `Invalid invoice date: ${invoiceDate}. Please use MM/DD/YYYY format.` });
-      return;
+      return false;
     }
 
     if (!totalInvoiceAmount || parseFloat(totalInvoiceAmount) <= 0) {
       setErrors({ form: 'Please enter a total invoice amount' });
-      return;
+      return false;
     }
 
     // Filter out empty cost items (items with no data entered)
@@ -517,7 +527,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
 
     if (filledCostItems.length === 0) {
       setErrors({ form: 'Please add at least one cost item' });
-      return;
+      return false;
     }
 
     // Check balance validation (±$0.01 tolerance)
@@ -526,7 +536,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
       setErrors({
         form: `Line items ($${lineItemsTotal.toFixed(2)}) don't match invoice total ($${invoiceTotal.toFixed(2)}). Remaining: $${remaining.toFixed(2)}`
       });
-      return;
+      return false;
     }
 
     // Build cost attribution object
@@ -605,7 +615,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
       };
     });
 
-    if (hasErrors) return;
+    if (hasErrors) return false;
 
     // Save to database using cpuCalculatorService (which calculates CPUs)
     setIsSubmitting(true);
@@ -645,15 +655,23 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
       // Dispatch CustomEvent on successful save
       window.dispatchEvent(new CustomEvent('cpg-data-updated', { detail: { type: 'invoice' } }));
 
-      // Reset form and close
-      resetForm();
-      onSuccess?.();
-      onClose();
+      return true;
     } catch (error) {
       console.error(`Error ${isEditMode ? 'updating' : isDuplicateMode ? 'duplicating' : 'adding'} invoice:`, error);
       setErrors({ form: `Failed to ${isEditMode ? 'update' : isDuplicateMode ? 'duplicate' : 'save'} invoice. Please try again.` });
+      return false;
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const success = await saveInvoice();
+    if (success) {
+      resetForm();
+      onSuccess?.();
+      onClose();
     }
   };
 
@@ -721,6 +739,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
   };
 
   return (
+    <>
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
@@ -1320,7 +1339,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                               </div>
                               <button
                                 type="button"
-                                onClick={async (e) => {
+                                onClick={(e) => {
                                   e.stopPropagation();
 
                                   if (!onNavigateToRecipe) {
@@ -1328,29 +1347,13 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                                     return;
                                   }
 
-                                  // Auto-save the invoice first
-                                  const saveConfirmed = window.confirm(
-                                    `Save this invoice and edit the recipe for "${warning.productName}"?\n\n` +
-                                    `Your invoice changes will be saved automatically before opening the recipe builder.`
-                                  );
-
-                                  if (!saveConfirmed) return;
-
-                                  // Trigger the submit handler to save the invoice
-                                  const form = document.querySelector('form');
-                                  if (form) {
-                                    const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-                                    const submitted = form.dispatchEvent(submitEvent);
-
-                                    // If form submission succeeded, navigate
-                                    if (submitted) {
-                                      // Wait a bit for save to complete
-                                      setTimeout(() => {
-                                        onNavigateToRecipe(warning.finishedProductId, warning.productName);
-                                        onClose();
-                                      }, 500);
-                                    }
-                                  }
+                                  // Show branded confirmation modal
+                                  setConfirmNavigation({
+                                    productId: warning.finishedProductId,
+                                    productName: warning.productName,
+                                    categoryId: warning.categoryId,
+                                    variant: warning.variant
+                                  });
                                 }}
                                 style={{
                                   padding: '0.25rem 0.5rem',
@@ -1573,5 +1576,93 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         )}
       </form>
     </Modal>
+
+    {/* Branded Confirmation Modal for Navigation */}
+    {confirmNavigation && (
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10001
+        }}
+        onClick={() => setConfirmNavigation(null)}
+      >
+        <div
+          style={{
+            backgroundColor: 'white',
+            borderRadius: '0.75rem',
+            padding: '2rem',
+            maxWidth: '500px',
+            width: '90%',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h3 style={{
+            margin: '0 0 1rem 0',
+            fontSize: '1.25rem',
+            fontWeight: 600,
+            color: '#111827'
+          }}>
+            Edit Recipe
+          </h3>
+
+          <p style={{
+            margin: '0 0 1.5rem 0',
+            color: '#6b7280',
+            lineHeight: 1.5
+          }}>
+            Your invoice changes will be saved automatically before opening the recipe builder for <strong>"{confirmNavigation.productName}"</strong>.
+          </p>
+
+          <div style={{
+            display: 'flex',
+            gap: '0.75rem',
+            justifyContent: 'flex-end'
+          }}>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmNavigation(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="purple"
+              onClick={async () => {
+                if (!onNavigateToRecipe) return;
+
+                // Save the invoice
+                const success = await saveInvoice();
+
+                if (success) {
+                  const { productId, productName, categoryId, variant } = confirmNavigation;
+                  setConfirmNavigation(null);
+
+                  // Call the navigation callback
+                  onNavigateToRecipe(productId, productName, categoryId, variant);
+
+                  // Close the invoice modal
+                  resetForm();
+                  onSuccess?.();
+                  onClose();
+                }
+                // If save failed, errors are already displayed, keep modal open
+              }}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Saving...' : 'Save & Edit Recipe'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

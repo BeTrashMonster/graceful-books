@@ -25,6 +25,7 @@ import type { CPGCategory, CPGRecipe, CPGSettings } from '../../db/schema/cpg.sc
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import { v4 as uuidv4 } from 'uuid';
 import { type Unit, areUnitsCompatible, getUnitMismatchWarning, UNIT_CATALOG } from '../../utils/unitConversion';
+import { formatDateFromTimestamp } from '../../utils/dateUtils';
 import styles from './RecipeBuilder.module.css';
 
 export interface RecipeBuilderProps {
@@ -33,6 +34,8 @@ export interface RecipeBuilderProps {
   onSave: () => void;
   onCancel: () => void;
   onNavigateToInvoice?: (invoiceId: string, invoiceNumber: string) => void; // Navigate to edit a specific invoice
+  highlightCategoryId?: string; // Highlight this category when opening (from navigation)
+  highlightVariant?: string | null; // Highlight this variant when opening (from navigation)
 }
 
 interface RecipeComponentItem {
@@ -62,6 +65,8 @@ export function RecipeBuilder({
   onSave,
   onCancel,
   onNavigateToInvoice,
+  highlightCategoryId,
+  highlightVariant,
 }: RecipeBuilderProps) {
   const { companyId, deviceId } = useAuth();
   const [categories, setCategories] = useState<CPGCategory[]>([]);
@@ -76,6 +81,8 @@ export function RecipeBuilder({
   const [cpgSettings, setCpgSettings] = useState<CPGSettings | null>(null);
   const [unitWarnings, setUnitWarnings] = useState<Record<string, { count: number; items: Array<{ invoiceNumber: string; invoiceDate: string; invoiceUnit: string; invoiceId: string }> }>>({});
   const [expandedWarnings, setExpandedWarnings] = useState<Record<string, boolean>>({});
+  const [confirmNavigation, setConfirmNavigation] = useState<{ invoiceId: string; invoiceNumber: string } | null>(null);
+  const [highlightedComponentId, setHighlightedComponentId] = useState<string | null>(null);
 
   // Load categories and existing recipe
   useEffect(() => {
@@ -146,6 +153,26 @@ export function RecipeBuilder({
     loadData();
   }, [companyId, finishedProductId]);
 
+  // Highlight the specified component when navigating from invoice
+  useEffect(() => {
+    if (!highlightCategoryId || components.length === 0) return;
+
+    // Find the component that matches the category and variant
+    const matchingComponent = components.find(
+      c => c.category_id === highlightCategoryId && c.variant === highlightVariant
+    );
+
+    if (matchingComponent) {
+      setHighlightedComponentId(matchingComponent.id);
+      // Auto-expand the warning for this component if it exists
+      if (unitWarnings[matchingComponent.id]) {
+        setExpandedWarnings(prev => ({ ...prev, [matchingComponent.id]: true }));
+      }
+      // Clear highlight after 3 seconds
+      setTimeout(() => setHighlightedComponentId(null), 3000);
+    }
+  }, [highlightCategoryId, highlightVariant, components, unitWarnings]);
+
   // Calculate costs whenever components change
   useEffect(() => {
     if (components.length === 0) return;
@@ -167,11 +194,13 @@ export function RecipeBuilder({
           if (!category) continue;
 
           // Get CPU using weighted average from cpuCalculatorService (last 365 days)
+          // Pass the component's unit so the service can convert or filter incompatible invoices
           const unitCost = await cpuCalculatorService.calculateRawMaterialCPU(
             component.category_id,
             component.variant,
             companyId!,
-            dateRange
+            dateRange,
+            component.unit_of_measurement as Unit // Pass target unit for conversion/filtering
           );
           const hasCostData = unitCost !== null;
 
@@ -267,16 +296,15 @@ export function RecipeBuilder({
 
           // Only include truly incompatible units (skip convertible ones like oz↔lb)
           if (!areUnitsCompatible(recipeUnit as Unit, invoiceUnit)) {
-            const invoiceDate = new Date(invoice.invoice_date).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric'
-            });
-            const invoiceNumber = invoice.invoice_number || `Invoice ${invoiceDate}`;
+            const formattedDate = formatDateFromTimestamp(invoice.invoice_date, 'short');
+
+            // Use invoice number if available, otherwise use "Unnamed Invoice"
+            const displayNumber = invoice.invoice_number || 'Unnamed Invoice';
+            const displayVendor = invoice.vendor_name ? ` - ${invoice.vendor_name}` : '';
 
             incompatibleItems.push({
-              invoiceNumber,
-              invoiceDate,
+              invoiceNumber: `${displayNumber}${displayVendor}`,
+              invoiceDate: formattedDate,
               invoiceUnit: UNIT_CATALOG[invoiceUnit]?.label || invoiceUnit,
               invoiceId: invoice.id
             });
@@ -649,8 +677,20 @@ export function RecipeBuilder({
                 normalizeVariant(c.variant) === normalizeVariant(component.variant)
             );
 
+            const isHighlighted = component.id === highlightedComponentId;
+
             return (
-              <div key={component.id} className={styles.componentRow}>
+              <div
+                key={component.id}
+                className={styles.componentRow}
+                style={isHighlighted ? {
+                  backgroundColor: '#fef3c7',
+                  border: '2px solid #f59e0b',
+                  borderRadius: '0.5rem',
+                  padding: '0.75rem',
+                  transition: 'all 0.3s ease'
+                } : undefined}
+              >
                 <div className={styles.componentFields}>
                   <div style={{ flex: 1.1 }}>
                     <select
@@ -863,7 +903,7 @@ export function RecipeBuilder({
                               </div>
                               <button
                                 type="button"
-                                onClick={async (e) => {
+                                onClick={(e) => {
                                   e.stopPropagation();
 
                                   if (!onNavigateToInvoice) {
@@ -871,24 +911,11 @@ export function RecipeBuilder({
                                     return;
                                   }
 
-                                  // Auto-save the recipe first
-                                  const saveConfirmed = window.confirm(
-                                    `Save this recipe and edit invoice "${warning.invoiceNumber}"?\n\n` +
-                                    `Your recipe changes will be saved automatically before opening the invoice.`
-                                  );
-
-                                  if (!saveConfirmed) return;
-
-                                  // Call the save handler directly
-                                  try {
-                                    await handleSave();
-                                    // Navigate after save completes
-                                    onNavigateToInvoice(warning.invoiceId, warning.invoiceNumber);
-                                    onCancel(); // Close the recipe builder
-                                  } catch (error) {
-                                    console.error('Error saving recipe before navigation:', error);
-                                    alert('Failed to save recipe. Please try again.');
-                                  }
+                                  // Show branded confirmation modal
+                                  setConfirmNavigation({
+                                    invoiceId: warning.invoiceId,
+                                    invoiceNumber: warning.invoiceNumber
+                                  });
                                 }}
                                 style={{
                                   padding: '0.25rem 0.5rem',
@@ -1097,6 +1124,90 @@ export function RecipeBuilder({
                 style={{ backgroundColor: '#dc2626' }}
               >
                 Permanently Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Branded Confirmation Modal for Navigation to Invoice */}
+      {confirmNavigation && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10001
+          }}
+          onClick={() => setConfirmNavigation(null)}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '0.75rem',
+              padding: '2rem',
+              maxWidth: '500px',
+              width: '90%',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{
+              margin: '0 0 1rem 0',
+              fontSize: '1.25rem',
+              fontWeight: 600,
+              color: '#111827'
+            }}>
+              Edit Invoice
+            </h3>
+
+            <p style={{
+              margin: '0 0 1.5rem 0',
+              color: '#6b7280',
+              lineHeight: 1.5
+            }}>
+              Your recipe changes will be saved automatically before opening the invoice editor for <strong>"{confirmNavigation.invoiceNumber}"</strong>.
+            </p>
+
+            <div style={{
+              display: 'flex',
+              gap: '0.75rem',
+              justifyContent: 'flex-end'
+            }}>
+              <Button
+                variant="outline"
+                onClick={() => setConfirmNavigation(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="purple"
+                onClick={async () => {
+                  if (!onNavigateToInvoice) return;
+
+                  const { invoiceId, invoiceNumber } = confirmNavigation;
+                  setConfirmNavigation(null);
+
+                  // Call the save handler directly
+                  try {
+                    await handleSave();
+                    // Navigate after save completes
+                    onNavigateToInvoice(invoiceId, invoiceNumber);
+                    onCancel(); // Close the recipe builder
+                  } catch (error) {
+                    console.error('Error saving recipe before navigation:', error);
+                    alert('Failed to save recipe. Please try again.');
+                  }
+                }}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Saving...' : 'Save & Edit Invoice'}
               </Button>
             </div>
           </div>

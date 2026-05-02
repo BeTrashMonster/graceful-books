@@ -137,7 +137,7 @@ export function CPUDisplay({
   // Load product positions from localStorage
   useEffect(() => {
     if (!companyId) return;
-    const savedPositions = localStorage.getItem(`cpg-product-grid-positions-${companyId}`);
+    const savedPositions = localStorage.getItem(`cpg-product-grid-positions-v2-${companyId}`);
     if (savedPositions) {
       try {
         setProductPositions(JSON.parse(savedPositions));
@@ -145,13 +145,16 @@ export function CPUDisplay({
         console.error('Failed to parse saved product positions:', err);
       }
     }
+
+    // Clean up old v1 positions (used SKU as key, which wasn't unique)
+    localStorage.removeItem(`cpg-product-grid-positions-${companyId}`);
   }, [companyId]);
 
   // Save product positions to localStorage
   useEffect(() => {
     if (!companyId) return;
     if (Object.keys(productPositions).length > 0) {
-      localStorage.setItem(`cpg-product-grid-positions-${companyId}`, JSON.stringify(productPositions));
+      localStorage.setItem(`cpg-product-grid-positions-v2-${companyId}`, JSON.stringify(productPositions));
     }
   }, [productPositions, companyId]);
 
@@ -163,18 +166,34 @@ export function CPUDisplay({
       const updated = { ...prev };
       let hasChanges = false;
 
-      // Get all currently occupied positions
+      // Step 1: Clean up orphaned position entries (keys that don't match any current product)
+      const currentProductKeys = new Set(
+        products.map(p => p.productId || p.sku || p.productName)
+      );
+
+      Object.keys(updated).forEach(key => {
+        if (!currentProductKeys.has(key)) {
+          console.log('🧹 Cleaning up orphaned position entry:', key, '→', updated[key]);
+          delete updated[key];
+          hasChanges = true;
+        }
+      });
+
+      // Step 2: Repack all products into lowest available positions
+      // Get all currently occupied positions (after cleanup)
       const occupiedPositions = new Set(Object.values(updated));
 
       // Assign positions to products that don't have one
       products.forEach((product) => {
-        const productKey = product.sku || product.productName;
+        // Use productId as key (guaranteed unique), fallback to SKU then name
+        const productKey = product.productId || product.sku || product.productName;
         if (updated[productKey] === undefined) {
           // Find the first unoccupied position
           let position = 0;
           while (occupiedPositions.has(position)) {
             position++;
           }
+          console.log('🆕 Assigning new position:', productKey, '→', position);
           updated[productKey] = position;
           occupiedPositions.add(position); // Mark this position as occupied
           hasChanges = true;
@@ -623,6 +642,7 @@ export function CPUDisplay({
 
     return true;
   });
+
 
   // Apply sorting
   filteredProducts = [...filteredProducts].sort((a, b) => {
@@ -1408,9 +1428,12 @@ export function CPUDisplay({
               });
             } else {
               // Use saved drag-and-drop positions
+              // Build set of occupied positions
+              const occupiedPositions = new Set(Object.values(productPositions));
+
               const maxPosition = Math.max(
                 ...orderedProducts.map(p => {
-                  const key = p.sku || p.productName;
+                  const key = p.productId || p.sku || p.productName;
                   return productPositions[key] ?? 0;
                 }),
                 orderedProducts.length - 1
@@ -1418,12 +1441,24 @@ export function CPUDisplay({
               gridSize = Math.max(maxPosition + 10, 20);
 
               positionMap = {};
-              orderedProducts.forEach(product => {
-                const key = product.sku || product.productName;
-                const position = productPositions[key];
-                if (position !== undefined) {
-                  positionMap[position] = product;
+
+              orderedProducts.forEach((product) => {
+                // Use productId as key (guaranteed unique), fallback to SKU then name
+                const key = product.productId || product.sku || product.productName;
+                let position = productPositions[key];
+
+                // If product doesn't have a saved position, it should have been assigned by the useEffect
+                // But if somehow it's still missing, assign it to the first available position
+                if (position === undefined) {
+                  position = 0;
+                  while (occupiedPositions.has(position)) {
+                    position++;
+                  }
+                  occupiedPositions.add(position);
+                  console.warn('⚠️ Product missing from productPositions:', key, 'assigned to position:', position);
                 }
+
+                positionMap[position] = product;
               });
             }
 
@@ -1459,7 +1494,7 @@ export function CPUDisplay({
                   const hasRecipe = product.breakdown.length > 0;
                   const materialCount = product.breakdown.length;
                   const laborCount = product.laborBreakdown?.length || 0;
-                  const productKey = product.sku || product.productName;
+                  const productKey = product.productId || product.sku || product.productName;
 
                   // Determine background color - use custom if set, otherwise default
                   let bgColor = cardColors[productKey];
@@ -1474,7 +1509,7 @@ export function CPUDisplay({
 
                   return (
                     <article
-                      key={`${product.sku || product.productName}-${index}`}
+                      key={`${product.productId || product.sku || product.productName}-${index}`}
                       draggable
                       onDragStart={() => handleDragStart(productKey)}
                       onDragOver={(e) => handleDragOver(e, index)}
@@ -1882,7 +1917,7 @@ export function CPUDisplay({
                   <tbody>
                     {sortedProducts.map((product, index) => {
                     const hasRecipe = product.breakdown.length > 0;
-                    const productKey = product.sku || product.productName;
+                    const productKey = product.productId || product.sku || product.productName;
 
                     // Use custom color if set, otherwise default (same as cards)
                     let rowBg = cardColors[productKey];
@@ -1892,7 +1927,7 @@ export function CPUDisplay({
 
                     return (
                       <tr
-                        key={`${product.sku || product.productName}-${index}`}
+                        key={`${product.productId || product.sku || product.productName}-${index}`}
                         style={{
                           background: rowBg,
                           borderBottom: '1px solid #e5e7eb',

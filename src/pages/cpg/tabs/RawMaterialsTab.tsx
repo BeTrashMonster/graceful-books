@@ -21,6 +21,7 @@ import { useState, useMemo } from 'react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { CPGCategory, CPGInvoice } from '../../../db/schema/cpg.schema';
+import { formatDateFromTimestamp } from '../../../utils/dateUtils';
 import styles from '../CPUTracker.module.css';
 
 export type DateRangePreset = '3mo' | '6mo' | '12mo' | 'last-calendar-year' | 'this-calendar-year' | 'custom' | 'all';
@@ -329,7 +330,7 @@ export default function RawMaterialsTab({
   const exportRawMaterialsCSVSummary = () => {
     const headers = ['Date', 'Vendor', 'Invoice #', 'Categories', 'Total Paid'];
     const rows = filteredRawMaterialInvoices.map(inv => [
-      new Date(inv.invoice_date).toLocaleDateString(),
+      formatDateFromTimestamp(inv.invoice_date),
       inv.vendor_name,
       inv.invoice_number || '-',
       inv.cost_attribution
@@ -366,7 +367,7 @@ export default function RawMaterialsTab({
       startY: 50,
       head: [['Date', 'Vendor', 'Invoice #', 'Categories', 'Total']],
       body: filteredRawMaterialInvoices.map(inv => [
-        new Date(inv.invoice_date).toLocaleDateString(),
+        formatDateFromTimestamp(inv.invoice_date),
         inv.vendor_name,
         inv.invoice_number || '-',
         inv.cost_attribution
@@ -409,7 +410,7 @@ export default function RawMaterialsTab({
             : parseFloat(attr.units_purchased) * parseFloat(attr.unit_price);
 
           rows.push([
-            new Date(inv.invoice_date).toLocaleDateString(),
+            formatDateFromTimestamp(inv.invoice_date),
             inv.vendor_name,
             inv.invoice_number || '-',
             category?.name || 'Unknown',
@@ -424,7 +425,7 @@ export default function RawMaterialsTab({
       } else {
         // Invoice with no cost attribution
         rows.push([
-          new Date(inv.invoice_date).toLocaleDateString(),
+          formatDateFromTimestamp(inv.invoice_date),
           inv.vendor_name,
           inv.invoice_number || '-',
           '-',
@@ -1085,7 +1086,7 @@ export default function RawMaterialsTab({
 
                 return (
                   <tr key={invoice.id}>
-                    <td>{new Date(invoice.invoice_date).toLocaleDateString()}</td>
+                    <td>{formatDateFromTimestamp(invoice.invoice_date)}</td>
                     <td>{invoice.vendor_name}</td>
                     <td>{invoice.invoice_number || '-'}</td>
                     <td>

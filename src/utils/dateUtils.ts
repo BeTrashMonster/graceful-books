@@ -106,3 +106,33 @@ export function processDateInput(dateString: string): { formatted: string; iso: 
 
   return { formatted: trimmed, iso: trimmed };
 }
+
+/**
+ * Format a timestamp for display using UTC to avoid timezone issues
+ * This ensures dates are displayed consistently regardless of user's timezone
+ *
+ * @param timestamp - Unix timestamp in milliseconds
+ * @param format - 'short' (Mar 29, 2026) or 'numeric' (3/29/2026)
+ * @returns Formatted date string
+ */
+export function formatDateFromTimestamp(
+  timestamp: number,
+  format: 'short' | 'numeric' = 'numeric'
+): string {
+  const date = new Date(timestamp);
+
+  if (format === 'short') {
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      timeZone: 'UTC'
+    });
+  }
+
+  // Numeric format: MM/DD/YYYY
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const year = date.getUTCFullYear();
+  return `${month}/${day}/${year}`;
+}
