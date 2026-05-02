@@ -11,7 +11,6 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import Decimal from 'decimal.js';
 import { ScenarioPlanningService } from './scenarioPlanning.service';
 import type { TreasureChestDB } from '../../db/database';
 import type {
@@ -26,7 +25,7 @@ const createMockDB = () => {
 
   return {
     cpgDistributors: {
-      where: vi.fn((field: string) => ({
+      where: vi.fn((_field: string) => ({
         anyOf: vi.fn((ids: string[]) => ({
           and: vi.fn(() => ({
             toArray: vi.fn(async () =>

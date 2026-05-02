@@ -23,8 +23,6 @@ import {
   validateBackupFile,
   getFriendlyBackupErrorMessage,
   BackupFallback,
-  type BrowserCapabilities,
-  type BackupCapabilityResult,
 } from './BackupFallback';
 import { BackupService } from './backupService';
 import { AppError, ErrorCode } from '../../utils/errors';

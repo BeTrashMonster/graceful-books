@@ -25,7 +25,7 @@ import {
   type BackupFileMetadata,
   type RetentionPolicy,
 } from './BackupVersioning';
-import { AppError, ErrorCode } from '../../utils/errors';
+import { AppError } from '../../utils/errors';
 
 describe('BackupVersioning', () => {
   describe('generateBackupFilename', () => {
@@ -431,7 +431,7 @@ describe('BackupVersioning', () => {
         if (metadata) backups.push(metadata);
       }
 
-      const result = analyzeBackupRetention(backups);
+      const _result = analyzeBackupRetention(backups);
 
       // All metadata objects should be updated with shouldRetain status
       // Check that at most 1 daily snapshot is kept for that specific day

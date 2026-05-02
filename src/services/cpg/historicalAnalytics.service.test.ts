@@ -12,7 +12,6 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import Decimal from 'decimal.js';
 import { HistoricalAnalyticsService } from './historicalAnalytics.service';
 import type { TreasureChestDB } from '../../db/database';
 import type {
@@ -556,7 +555,7 @@ describe('HistoricalAnalyticsService', () => {
   describe('analyzeTradeSpendROI', () => {
     it('should analyze trade spend ROI', async () => {
       const companyId = 'company-1';
-      const now = Date.now();
+      const _now = Date.now();
 
       const mockPromos = [
         createMockPromo('promo-1', companyId, 'Summer Sale', '500.00', 'approved'),
