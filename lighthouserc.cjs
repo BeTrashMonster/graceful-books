@@ -17,10 +17,10 @@ module.exports = {
       // URLs to test - adjust based on your build output
       staticDistDir: './dist',
       url: [
-        'http://localhost/index.html',
-        'http://localhost/index.html#/dashboard',
-        'http://localhost/index.html#/transactions',
-        'http://localhost/index.html#/reports',
+        'http://localhost/',
+        'http://localhost/#/dashboard',
+        'http://localhost/#/transactions',
+        'http://localhost/#/reports',
       ],
       numberOfRuns: 3, // Run lighthouse 3 times and take median
       settings: {
