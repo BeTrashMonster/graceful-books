@@ -31,8 +31,8 @@
   margin: 0 auto;
 }
 
-/* Position charity cards in circle - exclude centerHeader */
-.grid > div:not(.centerHeader) {
+/* Position charity cards in circle - exclude centerHeader and arrows */
+.grid > div:not(.centerHeader):not(.arrow) {
   position: absolute;
   width: 210px;
   height: 210px;
@@ -40,6 +40,19 @@
   top: 50%;
   margin-left: -105px;
   margin-top: -105px;
+}
+
+/* Arrows from center to charity circles */
+.arrow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 105px;
+  transform-origin: bottom center;
+  background: linear-gradient(to top, rgba(212, 175, 55, 0.3), transparent);
+  pointer-events: none;
+  z-index: 5;
 }
 
 /* Center golden circle - PERFECTLY CENTERED */

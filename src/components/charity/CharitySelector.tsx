@@ -219,6 +219,18 @@ export function CharitySelector({
             </p>
           </div>
 
+          {/* Arrows from center to charities */}
+          {filteredCharities.map((charity, index) => {
+            const angle = (index * 360) / filteredCharities.length;
+            const radius = window.innerWidth <= 768 ? 180 : 270;
+            const arrowStyle = {
+              height: `${radius - 80}px`,
+              transform: `rotate(${angle}deg)`,
+              transformOrigin: 'bottom center'
+            };
+            return <div key={`arrow-${charity.id}`} className={styles.arrow} style={arrowStyle} />;
+          })}
+
           {/* Charity cards in perfect pentagon */}
           {filteredCharities.map((charity, index) => {
             const angle = (index * 360) / filteredCharities.length;
