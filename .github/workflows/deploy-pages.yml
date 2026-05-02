@@ -29,7 +29,7 @@ env:
   NODE_VERSION: '18'
 
 permissions:
-  contents: read
+  contents: write      # Need write for pushing deployment tags
   deployments: write
 
 jobs:
