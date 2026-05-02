@@ -137,7 +137,7 @@ jobs:
     if: (github.ref == 'refs/heads/main' && github.event_name == 'push') || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
     environment:
       name: production
-      url: https://gracefulbooks.com
+      url: https://app.audacious.money
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -170,20 +170,20 @@ jobs:
         run: |
           echo "Waiting for deployment to propagate..."
           sleep 15
-          curl -f https://gracefulbooks.com || exit 1
+          curl -f https://app.audacious.money || exit 1
 
       - name: Create deployment summary
         run: |
           echo "## 🚀 Production Deployment Successful" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**URL:** https://gracefulbooks.com" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** https://app.audacious.money" >> $GITHUB_STEP_SUMMARY
           echo "**Environment:** production" >> $GITHUB_STEP_SUMMARY
           echo "**Tag:** ${{ steps.tag.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### URLs" >> $GITHUB_STEP_SUMMARY
-          echo "- Main: https://gracefulbooks.com" >> $GITHUB_STEP_SUMMARY
-          echo "- WWW: https://www.gracefulbooks.com" >> $GITHUB_STEP_SUMMARY
+          echo "- Main: https://app.audacious.money" >> $GITHUB_STEP_SUMMARY
+          echo "- WWW: https://www.app.audacious.money" >> $GITHUB_STEP_SUMMARY
 
       - name: Tag deployment in Git
         run: |
@@ -195,7 +195,7 @@ jobs:
       - name: Notify successful deployment
         run: |
           echo "✅ Production deployment completed successfully"
-          echo "URL: https://gracefulbooks.com"
+          echo "URL: https://app.audacious.money"
 
   # Lighthouse CI for performance
   lighthouse:
@@ -232,16 +232,16 @@ jobs:
 
       - name: Test homepage loads
         run: |
-          curl -f https://gracefulbooks.com || exit 1
+          curl -f https://app.audacious.money || exit 1
 
       - name: Test static assets
         run: |
           # Check for essential files
-          curl -f https://gracefulbooks.com/assets/ || true
+          curl -f https://app.audacious.money/assets/ || true
 
       - name: Verify meta tags
         run: |
-          response=$(curl -s https://gracefulbooks.com)
+          response=$(curl -s https://app.audacious.money)
           echo "$response" | grep -q '<title>' || exit 1
           echo "$response" | grep -q 'viewport' || exit 1
 
