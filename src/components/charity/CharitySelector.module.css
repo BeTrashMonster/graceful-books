@@ -7,7 +7,7 @@
   border-radius: 1.5rem;
   position: relative;
   overflow: hidden;
-  min-height: 850px;
+  min-height: 700px;
   max-height: 95vh;
   display: flex;
   align-items: center;
@@ -26,24 +26,24 @@
 /* THE CONSTELLATION - Perfect pentagon circle */
 .grid {
   position: relative;
-  width: 800px;
-  height: 800px;
+  width: 650px;
+  height: 650px;
   margin: 0 auto;
 }
 
 /* Position charity cards in circle - exclude centerHeader */
 .grid > div:not(.centerHeader) {
   position: absolute;
-  width: 240px;
-  height: 240px;
+  width: 180px;
+  height: 180px;
   left: 50%;
   top: 50%;
-  margin-left: -120px;
-  margin-top: -120px;
+  margin-left: -90px;
+  margin-top: -90px;
 }
 
 /* Center golden circle - PERFECTLY CENTERED */
-/* Force cache refresh v3 */
+/* Force cache refresh v4 */
 .centerHeader {
   position: absolute;
   left: 50%;
@@ -52,8 +52,8 @@
   text-align: center;
   z-index: 100;
   pointer-events: none;
-  width: 200px;
-  height: 200px;
+  width: 180px;
+  height: 180px;
   padding: 0;
   border: 5px solid #D4AF37;
   border-radius: 50%;
@@ -86,7 +86,7 @@
 }
 
 .centerTitle {
-  font-size: 1.75rem;
+  font-size: 1.625rem;
   font-weight: 800;
   background: linear-gradient(135deg, #ffffff 0%, #D4AF37 50%, #ffffff 100%);
   -webkit-background-clip: text;
@@ -94,7 +94,7 @@
   background-clip: text;
   margin: 0 0 0.375rem 0;
   line-height: 0.95;
-  padding: 0 1rem;
+  padding: 0 0.75rem;
   filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.5));
 }
 
@@ -170,20 +170,20 @@
 @media (max-width: 900px) {
   .container {
     padding: 1rem;
-    min-height: 650px;
+    min-height: 600px;
     max-height: 90vh;
   }
 
   .grid {
-    width: 650px;
-    height: 650px;
+    width: 550px;
+    height: 550px;
   }
 
   .grid > div:not(.centerHeader) {
-    width: 200px;
-    height: 200px;
-    margin-left: -100px;
-    margin-top: -100px;
+    width: 160px;
+    height: 160px;
+    margin-left: -80px;
+    margin-top: -80px;
   }
 
   .centerHeader {
@@ -204,20 +204,20 @@
   .grid {
     width: 90vw;
     height: 90vw;
-    max-width: 550px;
-    max-height: 550px;
+    max-width: 480px;
+    max-height: 480px;
   }
 
   .grid > div:not(.centerHeader) {
-    width: 180px;
-    height: 180px;
-    margin-left: -90px;
-    margin-top: -90px;
+    width: 140px;
+    height: 140px;
+    margin-left: -70px;
+    margin-top: -70px;
   }
 
   .centerHeader {
-    width: 160px;
-    height: 160px;
+    width: 140px;
+    height: 140px;
   }
 }
 

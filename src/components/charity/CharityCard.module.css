@@ -56,6 +56,15 @@
   transform: translateY(-6px) scale(1.05);
 }
 
+/* Compact mode - hide description until hover */
+.card.compact .description {
+  display: none;
+}
+
+.card.compact:hover .description {
+  display: -webkit-box;
+}
+
 .card.clickable:focus {
   outline: 3px solid #D4AF37;
   outline-offset: 5px;

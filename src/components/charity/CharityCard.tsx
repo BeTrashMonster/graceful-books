@@ -103,6 +103,7 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
           styles.card,
           selected && styles.selected,
           onClick && styles.clickable,
+          !showFullDescription && styles.compact,
           className
         )}
         style={cardStyle}
