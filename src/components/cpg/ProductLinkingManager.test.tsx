@@ -6,6 +6,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ProductLinkingManager } from './ProductLinkingManager';
 import { db } from '../../db';
+import { createTestCPGCategory } from '../../test/fixtures/cpg.fixtures';
 import type { CPGCategory, Product, Account } from '../../types/database.types';
 
 describe('ProductLinkingManager', () => {
@@ -23,34 +24,26 @@ describe('ProductLinkingManager', () => {
     await db.products.clear();
     await db.accounts.clear();
 
-    // Create test data
+    // Create test data using type-safe fixtures
     testCategories = [
-      {
+      createTestCPGCategory({
         id: 'cat-oil',
         company_id: testCompanyId,
         name: 'Oil',
         description: 'Olive oil',
         variants: ['8oz', '16oz'],
+        unit_of_measure: 'oz',
         sort_order: 1,
-        active: true,
-        created_at: Date.now(),
-        updated_at: Date.now(),
-        deleted_at: null,
-        version_vector: { [testDeviceId]: 1 },
-      },
-      {
+      }),
+      createTestCPGCategory({
         id: 'cat-bottle',
         company_id: testCompanyId,
         name: 'Bottle',
         description: 'Glass bottles',
         variants: ['8oz', '16oz'],
+        unit_of_measure: 'each',
         sort_order: 2,
-        active: true,
-        created_at: Date.now(),
-        updated_at: Date.now(),
-        deleted_at: null,
-        version_vector: { [testDeviceId]: 1 },
-      },
+      }),
     ];
 
     testProducts = [
