@@ -4,8 +4,8 @@
  * Comprehensive tests for persistent message queue with retry logic.
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { SyncQueue, createSyncQueue, type QueuedMessage } from './SyncQueue'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { SyncQueue, createSyncQueue } from './SyncQueue'
 import { SyncPayloadType, type SyncPayload } from '../../config/syncConfig'
 
 // Helper to create test payload
@@ -306,9 +306,7 @@ describe('SyncQueue', () => {
       const payload = createTestPayload()
       const id = await queue.enqueue(payload)
 
-      const before = Date.now()
       await queue.markFailed(id)
-      const after = Date.now()
 
       // We can't directly access the message, but we can verify it's in queue
       const stats = await queue.getStatistics()

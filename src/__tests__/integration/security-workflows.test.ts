@@ -248,15 +248,11 @@ async function clearDatabase() {
 describe('Integration: Complete User Journey with Cross-Company Access', () => {
   let companyA: string
   let companyB: string
-  let _userA: string
-  let _userB: string
 
   beforeEach(async () => {
     await clearDatabase()
     companyA = generateCompanyId()
     companyB = generateCompanyId()
-    _userA = generateUserId()
-    _userB = generateUserId()
   })
 
   afterEach(async () => {
@@ -317,7 +313,6 @@ describe('Integration: Complete User Journey with Cross-Company Access', () => {
 
   it('should prevent cross-company transaction access in complete workflow', async () => {
     // Setup: Create accounts for both companies
-    const _companyAAccount = await createTestAccount(companyA, 'Company A Account')
     const companyBAccount = await createTestAccount(companyB, 'Company B Account')
 
     // Company B creates a transaction
@@ -678,7 +673,6 @@ describe('Integration: Multi-User Role-Based Access Control', () => {
 describe('Integration: Privilege Escalation Prevention', () => {
   let companyId: string
   let lowPrivilegeUser: CompanyUser
-  let highPrivilegeUser: CompanyUser
 
   beforeEach(async () => {
     await clearDatabase()
@@ -687,11 +681,6 @@ describe('Integration: Privilege Escalation Prevention', () => {
       generateUserId(),
       companyId,
       UserRole.VIEWER
-    )
-    highPrivilegeUser = createMockCompanyUser(
-      generateUserId(),
-      companyId,
-      UserRole.OWNER
     )
   })
 
@@ -1253,7 +1242,7 @@ describe('Integration: Data Export and Backup Security', () => {
     const companyB = generateCompanyId()
 
     // Create data for both companies
-    const _companyAAccount = await createTestAccount(companyA, 'Company A Account')
+    const companyAAccount = await createTestAccount(companyA, 'Company A Account')
     const companyBAccount = await createTestAccount(companyB, 'Company B Account')
 
     await createTestTransaction(companyA, companyAAccount.id, 500.0)
