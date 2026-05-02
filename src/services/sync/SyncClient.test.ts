@@ -10,7 +10,6 @@ import {
   SyncClient,
   SyncEvent,
   createSyncClient,
-  type SyncEventListener,
 } from './SyncClient'
 import {
   SyncConnectionStatus,
@@ -62,7 +61,7 @@ class MockWebSocket {
     }
   }
 
-  send(data: string): void {
+  send(_data: string): void {
     if (this.readyState !== MockWebSocket.OPEN) {
       throw new Error('WebSocket is not open')
     }

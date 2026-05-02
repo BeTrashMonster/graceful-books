@@ -8,7 +8,6 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   SyncRateLimiter,
   createSyncRateLimiter,
-  DEFAULT_RATE_LIMITER_CONFIG,
   type RateLimiterConfig,
 } from './SyncRateLimiter'
 
@@ -374,7 +373,7 @@ describe('SyncRateLimiter', () => {
 
     it('should unban user after ban duration', () => {
       const userId = 'user1'
-      const deviceId = 'device1'
+      const _deviceId = 'device1'
 
       // Ban user
       rateLimiter.banUser(userId)

@@ -9,7 +9,7 @@
  * - 7-year retention enforcement for financial records
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { nanoid } from 'nanoid';
 import {
   getRetentionPolicies,
@@ -22,7 +22,6 @@ import {
   getDeletionLogs,
 } from './retention.service';
 import {
-  RetentionEntityType,
   DeletionMethod,
   LEGAL_MINIMUM_RETENTION_DAYS,
   isEligibleForPurge,

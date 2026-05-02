@@ -19,7 +19,6 @@ import {
 } from './secureDataExport.service'
 import type { SecureExportRequest } from './secureDataExport.service'
 import type { CSVExportConfig, CSVExportResult } from '../types/csv.types'
-import { RateLimitError } from '../utils/rateLimiter'
 import { AppError } from '../utils/errors'
 
 // Mock dependencies
@@ -196,7 +195,7 @@ describe('secureDataExport', () => {
     })
 
     it('should include rate limit info in result', async () => {
-      const { rateLimiter, SECURITY_RATE_LIMITS } = await import('../utils/rateLimiter')
+      const { rateLimiter } = await import('../utils/rateLimiter')
       const mockResetsAt = Date.now() + 3600000
       vi.mocked(rateLimiter.checkWithLogging).mockResolvedValueOnce({
         allowed: true,
