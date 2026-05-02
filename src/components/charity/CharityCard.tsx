@@ -64,11 +64,17 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
       }
     };
 
+    // Charities that need extra top padding for better title centering
+    const needsTopPadding = charity.name.includes('Feed Seven') ||
+                            charity.name.includes('Built Oregon') ||
+                            charity.name.includes('Hot Mess');
+
     // Use brand colors from charity or fallback to default
     const cardStyle: React.CSSProperties = {
       ...(charity.brandColorBackground && {
         background: `radial-gradient(circle at top, ${charity.brandColorBackground}dd 0%, ${charity.brandColorBackground} 100%)`
-      })
+      }),
+      ...(needsTopPadding && { paddingTop: '2.5rem' })
     };
 
     // Custom border for Built Oregon (black outline)
@@ -98,9 +104,12 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
 
     // Determine if this is NAYA or Senior Dog (keep original size)
     const isOriginalSize = charity.name.includes('NAYA') || charity.name.includes('Senior Dog');
+    // Remove shadow from Senior Dog Rescue specifically
+    const isSeniorDog = charity.name.includes('Senior Dog');
     const titleStyle: React.CSSProperties = {
       ...(charity.brandColorTitle && { color: charity.brandColorTitle }),
-      ...(isOriginalSize && { fontSize: '1.75rem' })
+      ...(isOriginalSize && { fontSize: '1.75rem' }),
+      ...(isSeniorDog && { textShadow: 'none' })
     };
 
     return (
