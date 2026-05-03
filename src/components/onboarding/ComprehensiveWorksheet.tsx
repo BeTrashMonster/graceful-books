@@ -58,8 +58,10 @@ interface Invoice {
 }
 
 interface WorksheetData {
+  version: string;
+  created_at: string;
   categories: Category[];
-  products: Product[];
+  finished_products: Product[];
   recipes: Recipe[];
   invoices: Invoice[];
 }
@@ -606,27 +608,48 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
       .filter(p => p.name.trim() && p.msrp.trim())
       .map(({ recipeItems, ...product }) => product);
 
-    // Extract recipes
+    // Extract recipes - category_id, variant, quantity, unit
     const validRecipes = products
       .filter(p => p.name.trim() && p.recipeItems.length > 0)
       .map(p => ({
         product_id: p.id,
-        items: p.recipeItems.filter(item => item.category_id && item.quantity.trim())
+        items: p.recipeItems
+          .filter(item => item.category_id && item.quantity.trim() && item.unit_of_measurement)
+          .map(item => ({
+            category_id: item.category_id,
+            ...(item.variant && { variant: item.variant }), // Only include if present
+            quantity: item.quantity,
+            unit: item.unit_of_measurement
+          }))
       }))
       .filter(r => r.items.length > 0);
 
-    // Extract valid invoices
+    // Extract valid invoices - category_id, variant, quantity, unit, unit_cost
     const validInvoices = invoices
       .filter(i => i.vendor_name.trim() && i.items.length > 0)
       .map(inv => ({
-        ...inv,
-        items: inv.items.filter(item => item.category_id && item.quantity.trim() && item.unit_cost.trim())
+        id: inv.id,
+        vendor_name: inv.vendor_name,
+        invoice_date: inv.invoice_date,
+        ...(inv.invoice_number && { invoice_number: inv.invoice_number }), // Only include if present
+        items: inv.items
+          .filter(item => item.category_id && item.quantity.trim() && item.unit_cost.trim() && item.unit_of_measurement)
+          .map(item => ({
+            category_id: item.category_id,
+            ...(item.variant && { variant: item.variant }), // Only include if present
+            quantity: item.quantity,
+            unit: item.unit_of_measurement,
+            unit_cost: item.unit_cost
+          })),
+        ...(inv.notes && { notes: inv.notes }) // Only include if present
       }))
       .filter(i => i.items.length > 0);
 
     onComplete({
+      version: '1.0.0',
+      created_at: new Date().toISOString(),
       categories,
-      products: validProducts,
+      finished_products: validProducts,
       recipes: validRecipes,
       invoices: validInvoices
     });

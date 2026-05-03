@@ -56,7 +56,10 @@ export function processDateInput(dateString: string): { formatted: string; iso: 
   // Handle YYYY-MM-DD format (native date input) - convert to MM/DD/YYYY for display
   if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
     const [year, month, day] = trimmed.split('-');
-    return { formatted: `${month}/${day}/${year}`, iso: trimmed };
+    // Fix edge case: browser creates "0026" when user types "26"
+    const expandedYear = year.length === 4 && parseInt(year, 10) < 100 ? expandYear(year.slice(-2)) : year;
+    const iso = `${expandedYear}-${month}-${day}`;
+    return { formatted: `${month}/${day}/${expandedYear}`, iso };
   }
 
   // Handle MMDDYY format (6 digits, no separators) - 022626

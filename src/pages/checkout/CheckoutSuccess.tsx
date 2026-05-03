@@ -8,9 +8,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CharitySelector } from '../../components/charity';
-import { QuickProductSetup } from '../../components/onboarding/QuickProductSetup';
+import { ComprehensiveWorksheet } from '../../components/onboarding/ComprehensiveWorksheet';
 import type { Charity } from '../../types/database.types';
 import { selectCharity } from '../../services/charities.api';
+import { importWorksheetData } from '../../services/cpg/worksheetImporter.service';
+import { useAuth } from '../../hooks/useAuth';
+import { getDeviceId } from '../../utils/device';
 import styles from './CheckoutSuccess.module.css';
 
 type OnboardingStep = 'processing' | 'success' | 'charity' | 'worksheet' | 'complete';
@@ -18,6 +21,7 @@ type OnboardingStep = 'processing' | 'success' | 'charity' | 'worksheet' | 'comp
 export default function CheckoutSuccess() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
   const [step, setStep] = useState<OnboardingStep>('processing');
   const [selectedCharityId, setSelectedCharityId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -70,29 +74,46 @@ export default function CheckoutSuccess() {
     setStep('worksheet');
   };
 
-  const handleWorksheetComplete = () => {
-    // This checkout flow is specifically for CPG Costing Tool signup
-    // Always navigate to CPG dashboard
-    navigate('/cpg/dashboard');
-  };
-
   const handleSkipWorksheet = () => {
-    // Mark worksheet as skipped
+    // Mark worksheet as skipped and navigate to CPG dashboard
     localStorage.setItem('cpg_worksheet_status', 'skipped');
-    handleWorksheetComplete();
+    navigate('/cpg');
   };
 
-  const handleProductsSubmit = async (products: any[]) => {
+  const handleWorksheetComplete = async (worksheetData: any) => {
+    if (!user?.company_id) {
+      setError('User not found. Please log in again.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
     try {
-      // TODO: Add API call to save products
-      // For now, store in localStorage
-      localStorage.setItem('cpg_initial_products', JSON.stringify(products));
+      const deviceId = getDeviceId();
+
+      // Import worksheet data into database
+      const result = await importWorksheetData(
+        worksheetData,
+        user.company_id,
+        deviceId
+      );
+
+      if (!result.success) {
+        setError(`Failed to import data: ${result.errors.join(', ')}`);
+        return;
+      }
+
+      // Mark worksheet as completed
       localStorage.setItem('cpg_worksheet_status', 'completed');
 
-      handleWorksheetComplete();
+      // Navigate to CPG dashboard
+      navigate('/cpg');
     } catch (error) {
-      console.error('Failed to save products:', error);
-      setError(error instanceof Error ? error.message : 'Failed to save products');
+      console.error('Failed to import worksheet data:', error);
+      setError(error instanceof Error ? error.message : 'Failed to save worksheet data');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -154,8 +175,8 @@ export default function CheckoutSuccess() {
 
       {step === 'worksheet' && (
         <div className={styles.wideCard}>
-          <QuickProductSetup
-            onComplete={handleProductsSubmit}
+          <ComprehensiveWorksheet
+            onComplete={handleWorksheetComplete}
             onSkip={handleSkipWorksheet}
           />
         </div>
