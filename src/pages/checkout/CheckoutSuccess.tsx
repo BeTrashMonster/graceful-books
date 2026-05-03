@@ -93,14 +93,29 @@ export default function CheckoutSuccess() {
 
   const handleWorksheetComplete = async (worksheetData: any) => {
     console.log('🎯 CheckoutSuccess handleWorksheetComplete called');
-    console.log('📊 User:', user);
+    console.log('📊 User from hook:', user);
     console.log('📦 Worksheet data received:', worksheetData);
 
-    if (!user?.company_id) {
-      console.error('❌ No company_id found on user');
-      setError('User not found. Please log in again.');
+    // Try to get user from hook, or fall back to session storage
+    let companyId = user?.company_id;
+
+    if (!companyId) {
+      console.log('⚠️ No user from hook, checking sessionStorage...');
+      const sessionData = sessionStorage.getItem('graceful_books_session');
+      if (sessionData) {
+        const session = JSON.parse(sessionData);
+        companyId = session?.user?.company_id;
+        console.log('📦 Found company_id in sessionStorage:', companyId);
+      }
+    }
+
+    if (!companyId) {
+      console.error('❌ No company_id found anywhere');
+      setError('User session not found. Please refresh the page and try again.');
       return;
     }
+
+    console.log('✅ Using company_id:', companyId);
 
     setIsSubmitting(true);
     setError(null);
@@ -113,7 +128,7 @@ export default function CheckoutSuccess() {
       console.log('📥 Calling importWorksheetData...');
       const result = await importWorksheetData(
         worksheetData,
-        user.company_id,
+        companyId,
         deviceId
       );
 
