@@ -328,7 +328,7 @@ export function OwnerPayCalculatorTab() {
 
       // Calculate hourly rate (assuming 2080 hours per year = 40hrs/week * 52 weeks)
       const yearlyPay = monthlyPay * 12;
-      const hourlyRate = (yearlyPay / 2080).toFixed(2);
+      const hourlyRate = (yearlyPay / 2080).toFixed(6);
 
       const scenarioLabel = scenario.charAt(0).toUpperCase() + scenario.slice(1);
       const roleName = `${owner.name} - ${scenarioLabel}`;
@@ -341,10 +341,10 @@ export function OwnerPayCalculatorTab() {
         await service.updateRole(
           existingRole.id,
           {
-            salaryAmount: yearlyPay.toFixed(2),
+            salaryAmount: yearlyPay.toFixed(6),
             salaryPeriod: 'yearly',
             notes: existingRole.notes
-              ? `${existingRole.notes}\nUpdated on ${effectiveDate}: New yearly salary $${yearlyPay.toFixed(2)}`
+              ? `${existingRole.notes}\nUpdated on ${effectiveDate}: New yearly salary $${yearlyPay.toFixed(6)}`
               : `Updated on ${effectiveDate}: New yearly salary $${yearlyPay.toFixed(2)}`,
           },
           deviceId || 'default'

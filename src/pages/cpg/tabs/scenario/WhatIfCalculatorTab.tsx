@@ -596,7 +596,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
 
         // Determine margin quality
         const marginQuality = cpgSettings
-          ? getProfitMarginQualityWithSettings(margin.toFixed(2), cpgSettings)
+          ? getProfitMarginQualityWithSettings(margin.toFixed(6), cpgSettings)
           : 'gutCheck';
 
         calculationResults.push({
@@ -691,7 +691,7 @@ export function WhatIfCalculatorTab({ distributors, companyId, deviceId }: WhatI
     const totalCPU = baseCPU + distributionCPU + promoCPU;
     const margin = retailPrice > 0 ? ((retailPrice - totalCPU) / retailPrice) * 100 : 0;
     const marginQuality = cpgSettings
-      ? getProfitMarginQualityWithSettings(margin.toFixed(2), cpgSettings)
+      ? getProfitMarginQualityWithSettings(margin.toFixed(6), cpgSettings)
       : 'gutCheck';
 
     return {
