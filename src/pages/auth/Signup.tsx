@@ -357,9 +357,10 @@ export default function Signup() {
 
             <button
               type="submit"
+              disabled={isLoading}
               className={styles.submitButton}
             >
-              Continue
+              {isLoading ? 'Creating Account...' : 'Continue'}
             </button>
           </form>
 
