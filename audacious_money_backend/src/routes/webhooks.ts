@@ -10,6 +10,19 @@ import { getDatabase } from '../db/connection.js';
 const webhooks = new Hono();
 
 /**
+ * DEBUG: Check if webhook secret is loaded
+ * TODO: Remove this in production
+ */
+webhooks.get('/stripe/debug', async (c) => {
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  return c.json({
+    secretConfigured: !!webhookSecret,
+    secretPrefix: webhookSecret ? webhookSecret.substring(0, 10) + '...' : null,
+    secretLength: webhookSecret ? webhookSecret.length : 0,
+  });
+});
+
+/**
  * Stripe webhook endpoint
  *
  * SECURITY: This endpoint must be accessible without authentication
@@ -33,6 +46,12 @@ webhooks.post('/stripe', async (c) => {
       return c.json({ error: 'Missing signature' }, 400);
     }
 
+    // Debug logging
+    console.log('[Webhook] Secret prefix:', webhookSecret.substring(0, 10) + '...');
+    console.log('[Webhook] Secret length:', webhookSecret.length);
+    console.log('[Webhook] Body length:', body.length);
+    console.log('[Webhook] Signature present:', !!signature);
+
     // Verify Stripe signature
     const { verifyWebhookSignature } = await import('../services/stripe.service.js');
 
@@ -41,6 +60,7 @@ webhooks.post('/stripe', async (c) => {
       event = verifyWebhookSignature(body, signature, webhookSecret);
     } catch (err: any) {
       console.error('[Webhook] Signature verification failed:', err.message);
+      console.error('[Webhook] Error details:', err);
       return c.json({ error: 'Invalid signature' }, 400);
     }
 
