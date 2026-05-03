@@ -11,6 +11,7 @@ import { Input } from '../../forms/Input';
 import { Autocomplete } from '../../forms/Autocomplete';
 import { Button } from '../../core/Button';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useCPGSettingsContext } from '../../../contexts/CPGSettingsContext';
 import { db } from '../../../db/database';
 import { createDefaultCPGInvoice, validateCPGInvoice, createDefaultCPGVendor } from '../../../db/schema/cpg.schema';
 import type { CPGCategory, CPGVendor } from '../../../db/schema/cpg.schema';
@@ -54,6 +55,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
   const companyId = auth.companyId;
   const deviceId = auth.deviceId || 'default-device';
   console.log('AddInvoiceModal - Extracted values:', { companyId, deviceId });
+  const { formatCurrency } = useCPGSettingsContext();
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [invoiceDate, setInvoiceDate] = useState(() => {
     const today = new Date();
@@ -534,7 +536,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
     const balanceDiff = Math.abs(remaining);
     if (balanceDiff > 0.01) {
       setErrors({
-        form: `Line items ($${lineItemsTotal.toFixed(2)}) don't match invoice total ($${invoiceTotal.toFixed(2)}). Remaining: $${remaining.toFixed(2)}`
+        form: `Line items (${formatCurrency(lineItemsTotal)}) don't match invoice total (${formatCurrency(invoiceTotal)}). Remaining: ${formatCurrency(remaining)}`
       });
       return false;
     }
@@ -1554,11 +1556,11 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>Invoice Total:</span>
-                <strong>${invoiceTotal.toFixed(2)}</strong>
+                <strong>{formatCurrency(invoiceTotal)}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>Line Items:</span>
-                <strong>${lineItemsTotal.toFixed(2)}</strong>
+                <strong>{formatCurrency(lineItemsTotal)}</strong>
               </div>
               <div style={{
                 display: 'flex',
