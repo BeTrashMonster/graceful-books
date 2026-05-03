@@ -22,7 +22,7 @@ type OnboardingStep = 'processing' | 'success' | 'charity' | 'backup' | 'workshe
 export default function CheckoutSuccess() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
+  const { companyId: authCompanyId, userIdentifier } = useAuth();
   const [step, setStep] = useState<OnboardingStep>('processing');
   const [selectedCharityId, setSelectedCharityId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -93,24 +93,27 @@ export default function CheckoutSuccess() {
 
   const handleWorksheetComplete = async (worksheetData: any) => {
     console.log('🎯 CheckoutSuccess handleWorksheetComplete called');
-    console.log('📊 User from hook:', user);
+    console.log('📊 Auth companyId:', authCompanyId);
+    console.log('📊 Auth userIdentifier:', userIdentifier);
     console.log('📦 Worksheet data received:', worksheetData);
 
-    // Try to get user from hook, or fall back to session storage
-    let companyId = user?.company_id;
+    // Try to get company ID from auth hook, or fall back to session storage
+    let companyId = authCompanyId;
 
     if (!companyId) {
-      console.log('⚠️ No user from hook, checking sessionStorage...');
+      console.log('⚠️ No companyId from auth hook, checking sessionStorage...');
       const sessionData = sessionStorage.getItem('graceful_books_session');
       if (sessionData) {
         const session = JSON.parse(sessionData);
-        companyId = session?.user?.company_id;
-        console.log('📦 Found company_id in sessionStorage:', companyId);
+        // Backend returns user.id which IS the company_id
+        companyId = session?.user?.id;
+        console.log('📦 Found user.id in sessionStorage:', companyId);
       }
     }
 
     if (!companyId) {
       console.error('❌ No company_id found anywhere');
+      console.log('🔍 Full sessionStorage data:', sessionStorage.getItem('graceful_books_session'));
       setError('User session not found. Please refresh the page and try again.');
       return;
     }
