@@ -509,7 +509,7 @@ export default function VendorIntelTab({
 
       // If no market data, use our own price
       if (bestPrice === Infinity) {
-        bestPrice = avgPrice;
+        bestPrice = _avgPrice;
         bestVendor = selectedVendor.vendorName;
       }
 
@@ -875,7 +875,7 @@ export default function VendorIntelTab({
     // Build result array
     const results = Array.from(variantMap.entries()).map(([variant, vendorMap]) => {
       const vendors = Array.from(vendorMap.entries()).map(([vendorName, prices]) => {
-        const _avgPrice = prices.reduce((sum, p) => sum + p, 0) / prices.length;
+        const avgPrice = prices.reduce((sum, p) => sum + p, 0) / prices.length;
         return {
           vendorName,
           avgPrice,
