@@ -991,6 +991,28 @@ export function CPGSettings() {
                 </select>
               </div>
 
+              {/* Recalculate CPUs Button */}
+              <div className={styles.formField}>
+                <label className={styles.label}>
+                  Update Legacy Data
+                </label>
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={handleRecalculateAllCPUs}
+                  loading={isRecalculating}
+                  disabled={isRecalculating}
+                >
+                  🔄 Recalculate All Invoices
+                </Button>
+                <p className={styles.fieldHint}>
+                  Updates all existing invoices with full 6-decimal precision. Use this if you have old invoices showing zeros when you increase decimal places (e.g., $2.5800 instead of $2.5805).
+                </p>
+                {recalculationMessage && (
+                  <p className={styles.successMessage}>{recalculationMessage}</p>
+                )}
+              </div>
+
             </div>
           </div>
         </div>
