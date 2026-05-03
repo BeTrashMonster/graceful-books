@@ -140,7 +140,9 @@ charities.post('/select', requireAuth, validate(selectCharitySchema), async (c) 
   try {
     // Verify charity exists and is active
     const charityResult = await db.query(
-      `SELECT id, name FROM charities WHERE id = $1 AND status = 'VERIFIED' AND active = true`,
+      `SELECT id, name, short_description, website, ein, category, logo
+       FROM charities
+       WHERE id = $1 AND status = 'VERIFIED' AND active = true`,
       [charityId]
     );
 
@@ -174,6 +176,14 @@ charities.post('/select', requireAuth, validate(selectCharitySchema), async (c) 
         charityId: selection.charity_id,
         selectedAt: selection.selected_at,
         effectiveFrom: selection.effective_from,
+        charity: {
+          name: charity.name,
+          shortDescription: charity.short_description,
+          website: charity.website,
+          ein: charity.ein,
+          category: charity.category,
+          logo: charity.logo,
+        },
       },
     });
   } catch (error) {
