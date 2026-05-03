@@ -1610,9 +1610,23 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
           ) : (
             <button
               type="button"
-              onClick={handleSubmit}
+              onClick={() => {
+                const errors = getBlockingErrors();
+                console.log('🔘 Confirm + Save clicked!');
+                console.log('❌ Blocking errors:', errors);
+                console.log('🔒 Button disabled?', errors.length > 0);
+                if (errors.length === 0) {
+                  handleSubmit();
+                } else {
+                  console.log('⚠️ Button is disabled due to errors above');
+                }
+              }}
               className={styles.primaryButton}
               disabled={getBlockingErrors().length > 0}
+              style={{
+                opacity: getBlockingErrors().length > 0 ? 0.5 : 1,
+                cursor: getBlockingErrors().length > 0 ? 'not-allowed' : 'pointer'
+              }}
             >
               ✓ Confirm + Save
             </button>
