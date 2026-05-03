@@ -487,17 +487,46 @@ export function CPGSettings() {
             invoice.additional_costs || null
           );
 
-          // Also recalculate unit_price from line totals where applicable
+          // Recalculate unit_price with full precision
           const updatedCostAttribution = { ...invoice.cost_attribution };
-          for (const [key, item] of Object.entries(updatedCostAttribution)) {
-            if (item.manual_line_total && item.units_purchased) {
-              const units = parseFloat(item.units_purchased);
-              const lineTotal = parseFloat(item.manual_line_total);
-              if (units > 0) {
-                const calculatedPrice = lineTotal / units;
+          const costAttrEntries = Object.entries(updatedCostAttribution);
+
+          // Check if single-item invoice (can use total_paid directly)
+          if (costAttrEntries.length === 1) {
+            const [key, item] = costAttrEntries[0];
+            const units = parseFloat(item.units_purchased || '0');
+            const invoiceTotal = typeof invoice.total_paid === 'number'
+              ? invoice.total_paid
+              : parseFloat(invoice.total_paid || '0');
+
+            if (units > 0 && invoiceTotal > 0) {
+              const calculatedPrice = invoiceTotal / units;
+              updatedCostAttribution[key] = {
+                ...item,
+                unit_price: calculatedPrice.toFixed(6).replace(/\.?0+$/, '')
+              };
+            }
+          } else {
+            // Multi-item invoice: recalculate from manual_line_total if present
+            for (const [key, item] of costAttrEntries) {
+              if (item.manual_line_total && item.units_purchased) {
+                const units = parseFloat(item.units_purchased);
+                const lineTotal = parseFloat(item.manual_line_total);
+                if (units > 0) {
+                  const calculatedPrice = lineTotal / units;
+                  updatedCostAttribution[key] = {
+                    ...item,
+                    unit_price: calculatedPrice.toFixed(6).replace(/\.?0+$/, '')
+                  };
+                }
+              } else if (item.units_purchased && item.unit_price) {
+                // No manual_line_total, calculate line total from current values and preserve it
+                const units = parseFloat(item.units_purchased);
+                const price = parseFloat(item.unit_price);
+                const lineTotal = units * price;
                 updatedCostAttribution[key] = {
                   ...item,
-                  unit_price: calculatedPrice.toFixed(6).replace(/\.?0+$/, '')
+                  manual_line_total: lineTotal.toFixed(6).replace(/\.?0+$/, '')
                 };
               }
             }
