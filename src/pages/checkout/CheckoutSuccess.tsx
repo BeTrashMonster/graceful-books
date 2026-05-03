@@ -92,7 +92,12 @@ export default function CheckoutSuccess() {
   };
 
   const handleWorksheetComplete = async (worksheetData: any) => {
+    console.log('🎯 CheckoutSuccess handleWorksheetComplete called');
+    console.log('📊 User:', user);
+    console.log('📦 Worksheet data received:', worksheetData);
+
     if (!user?.company_id) {
+      console.error('❌ No company_id found on user');
       setError('User not found. Please log in again.');
       return;
     }
@@ -102,26 +107,32 @@ export default function CheckoutSuccess() {
 
     try {
       const deviceId = getDeviceId();
+      console.log('🔑 Device ID:', deviceId);
 
       // Import worksheet data into database
+      console.log('📥 Calling importWorksheetData...');
       const result = await importWorksheetData(
         worksheetData,
         user.company_id,
         deviceId
       );
 
+      console.log('📊 Import result:', result);
+
       if (!result.success) {
+        console.error('❌ Import failed:', result.errors);
         setError(`Failed to import data: ${result.errors.join(', ')}`);
         return;
       }
 
       // Mark worksheet as completed
       localStorage.setItem('cpg_worksheet_status', 'completed');
+      console.log('✅ Worksheet marked as completed, navigating to /cpg');
 
       // Navigate to CPG dashboard
       navigate('/cpg');
     } catch (error) {
-      console.error('Failed to import worksheet data:', error);
+      console.error('💥 Exception in handleWorksheetComplete:', error);
       setError(error instanceof Error ? error.message : 'Failed to save worksheet data');
     } finally {
       setIsSubmitting(false);
@@ -196,6 +207,7 @@ export default function CheckoutSuccess() {
 
       {step === 'worksheet' && (
         <div className={styles.wideCard}>
+          {error && <div className={styles.error}>{error}</div>}
           <ComprehensiveWorksheet
             onComplete={handleWorksheetComplete}
             onSkip={handleSkipWorksheet}

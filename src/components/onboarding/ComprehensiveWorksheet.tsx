@@ -603,6 +603,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   };
 
   const handleSubmit = () => {
+    console.log('📝 Worksheet handleSubmit called');
     // Extract valid products
     const validProducts = products
       .filter(p => p.name.trim() && p.msrp.trim())
@@ -645,14 +646,17 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
       }))
       .filter(i => i.items.length > 0);
 
-    onComplete({
+    const worksheetData = {
       version: '1.0.0',
       created_at: new Date().toISOString(),
       categories,
       finished_products: validProducts,
       recipes: validRecipes,
       invoices: validInvoices
-    });
+    };
+
+    console.log('📤 Calling onComplete with data:', worksheetData);
+    onComplete(worksheetData);
   };
 
   return (
@@ -693,24 +697,24 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                   )}
                 </div>
 
-                {/* Product details */}
+                {/* Product details - all on one line */}
                 <div className={styles.productDetails}>
-                  <div className={styles.field}>
-                    <label htmlFor={`product-name-${prodIndex}`} className={styles.label}>
-                      Product Name <span className={styles.required}>*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id={`product-name-${prodIndex}`}
-                      value={product.name}
-                      onChange={(e) => updateProduct(prodIndex, 'name', e.target.value)}
-                      placeholder="e.g., Lavender Body Lotion"
-                      className={styles.input}
-                    />
-                  </div>
-
-                  <div className={styles.fieldRow}>
+                  <div className={styles.fieldRow3}>
                     <div className={styles.field}>
+                      <label htmlFor={`product-name-${prodIndex}`} className={styles.label}>
+                        Product Name <span className={styles.required}>*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id={`product-name-${prodIndex}`}
+                        value={product.name}
+                        onChange={(e) => updateProduct(prodIndex, 'name', e.target.value)}
+                        placeholder="e.g., Lavender Body Lotion"
+                        className={styles.input}
+                      />
+                    </div>
+
+                    <div className={styles.fieldSmall}>
                       <label htmlFor={`product-msrp-${prodIndex}`} className={styles.label}>
                         Retail Price <span className={styles.required}>*</span>
                       </label>
@@ -729,9 +733,9 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                       </div>
                     </div>
 
-                    <div className={styles.field}>
+                    <div className={styles.fieldSmall}>
                       <label htmlFor={`product-sku-${prodIndex}`} className={styles.label}>
-                        SKU (Optional)
+                        SKU
                       </label>
                       <input
                         type="text"
