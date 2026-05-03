@@ -13,7 +13,7 @@ import { ComprehensiveWorksheet } from '../../components/onboarding/Comprehensiv
 import type { Charity } from '../../types/database.types';
 import { selectCharity } from '../../services/charities.api';
 import { importWorksheetData } from '../../services/cpg/worksheetImporter.service';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 import { getDeviceId } from '../../utils/device';
 import styles from './CheckoutSuccess.module.css';
 
