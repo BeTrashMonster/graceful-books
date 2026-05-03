@@ -89,10 +89,7 @@ export function AppRoutes() {
         <Route path="/dev-tools" element={<DevTools />} />
         <Route path="/developer-tools" element={<DevTools />} />
         <Route path="/loader-test" element={<LoaderTest />} />
-<<<<<<< HEAD
         <Route path="/product-setup-test" element={<ProductSetupTest />} />
-=======
->>>>>>> parent of c5b2b97 (fix: Fix 186 unused variables in production code by prefixing with underscore)
 
         {/* Onboarding routes */}
         <Route path="/onboarding" element={<Onboarding />} />
