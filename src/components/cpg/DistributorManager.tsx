@@ -435,10 +435,10 @@ export function DistributorManager({ isOpen, onClose, embedded = false }: Distri
    * Calculate amount due for an invoice
    */
   const getAmountDue = (invoice: CPGDistributionCalculation): string => {
-    if (invoice.is_draft) return '0.00';
+    if (invoice.is_draft) return '0.000000';
     const totalAmount = parseFloat(invoice.invoice_total_amount || invoice.total_distribution_cost);
     const amountPaid = parseFloat(invoice.amount_paid || '0');
-    return (totalAmount - amountPaid).toFixed(2);
+    return (totalAmount - amountPaid).toFixed(6);
   };
 
   /**

@@ -213,7 +213,7 @@ export function RecipeBuilder({
           let subtotalValue = 0;
           if (hasCostData && component.quantity) {
             subtotalValue = parseFloat(unitCost!) * parseFloat(component.quantity);
-            subtotal = subtotalValue.toFixed(2); // Round for display only
+            subtotal = subtotalValue.toFixed(6); // Store with full precision
             total += subtotalValue; // Add unrounded value to total
           }
 
@@ -230,7 +230,7 @@ export function RecipeBuilder({
         }
 
         setCostBreakdown(breakdown);
-        const finalCPU = allHaveCostData && breakdown.length > 0 ? total.toFixed(2) : null;
+        const finalCPU = allHaveCostData && breakdown.length > 0 ? total.toFixed(6) : null;
         console.log('RecipeBuilder CPU calculation:', { total, finalCPU, breakdown });
         setTotalCPU(finalCPU);
         setIsComplete(allHaveCostData);

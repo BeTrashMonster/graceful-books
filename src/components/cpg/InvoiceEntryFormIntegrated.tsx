@@ -226,7 +226,7 @@ export function InvoiceEntryFormIntegrated({
         const cpu = directCost.plus(allocatedAdditional).dividedBy(unitsReceived);
 
         const variant = attr.variant || 'none';
-        cpus[variant] = cpu.toFixed(2);
+        cpus[variant] = cpu.toFixed(6);
       }
 
       setPreviewCPUs(cpus);
