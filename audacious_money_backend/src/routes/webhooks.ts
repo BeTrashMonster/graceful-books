@@ -18,7 +18,11 @@ webhooks.get('/stripe/debug', async (c) => {
   return c.json({
     secretConfigured: !!webhookSecret,
     secretPrefix: webhookSecret ? webhookSecret.substring(0, 10) + '...' : null,
+    secretSuffix: webhookSecret ? '...' + webhookSecret.substring(webhookSecret.length - 5) : null,
     secretLength: webhookSecret ? webhookSecret.length : 0,
+    startsWithQuote: webhookSecret ? webhookSecret[0] === '"' || webhookSecret[0] === "'" : false,
+    endsWithQuote: webhookSecret ? webhookSecret[webhookSecret.length - 1] === '"' || webhookSecret[webhookSecret.length - 1] === "'" : false,
+    hasWhitespace: webhookSecret ? webhookSecret !== webhookSecret.trim() : false,
   });
 });
 
