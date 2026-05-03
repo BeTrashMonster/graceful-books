@@ -15,6 +15,7 @@
 
 import { useState, useRef } from 'react';
 import type { StandaloneFinancials } from '../../db/schema/standaloneFinancials.schema';
+import { useCPGSettingsContext } from '../../contexts/CPGSettingsContext';
 import styles from './FinancialTimeline.module.css';
 
 export interface FinancialTimelineProps {
@@ -51,6 +52,9 @@ export function FinancialTimeline({
   const [hoveredMonth, setHoveredMonth] = useState<number | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, right: 0 });
   const monthRowRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Get formatting functions from context (respects user decimal settings)
+  const { formatCurrency: formatCurrencyFromContext } = useCPGSettingsContext();
 
   // Get all years that have data
   const allYears = new Set<number>();
@@ -157,16 +161,11 @@ export function FinancialTimeline({
     return selectedMonth === data.month && propSelectedYear === data.year;
   };
 
-  // Format currency for tooltip
+  // Format currency for tooltip (handles undefined and string values)
   const formatCurrency = (value: string | number | undefined) => {
     if (!value) return '$0.00';
     const num = typeof value === 'string' ? parseFloat(value) : value;
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(num);
+    return formatCurrencyFromContext(num);
   };
 
   // Format date range for tooltip

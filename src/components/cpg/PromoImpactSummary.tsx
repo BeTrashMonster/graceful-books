@@ -106,11 +106,6 @@ export function PromoImpactSummary({
   const isPositiveImpact = marginDiff >= 0;
   const isNegativeImpact = marginDiff < 0;
 
-  // Fixed 2-decimal formatter for summary boxes only
-  const formatCurrencyFixed2 = (value: number): string => {
-    return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
-
   // Tab state for what-if scenarios
   type WhatIfMode = 'per-variant' | 'overall';
   const [whatIfMode, setWhatIfMode] = useState<WhatIfMode>('per-variant');
@@ -211,7 +206,7 @@ export function PromoImpactSummary({
           <div className={styles.metricLabel}>Potential Payback</div>
           <div className={clsx(styles.metricValue, styles.totalCost)}>
             <span className={styles.amount}>
-              {formatCurrencyFixed2(parseFloat(totalPromoCost))}
+              {formatCurrency(parseFloat(totalPromoCost))}
             </span>
           </div>
           <div className={styles.metricDescription}>
@@ -231,7 +226,7 @@ export function PromoImpactSummary({
               </div>
               <div className={clsx(styles.metricValue, styles.actualCost)}>
                 <span className={styles.amount}>
-                  {formatCurrencyFixed2(parseFloat(totalActualLaborCost))}
+                  {formatCurrency(parseFloat(totalActualLaborCost))}
                 </span>
               </div>
               <div className={styles.metricDescription}>
@@ -247,7 +242,7 @@ export function PromoImpactSummary({
             <div className={styles.metricLabel}>Total Out of Pocket</div>
             <div className={clsx(styles.metricValue, styles.totalCost)}>
               <span className={styles.amount}>
-                {formatCurrencyFixed2(parseFloat(totalPromoCost) + parseFloat(totalActualLaborCost))}
+                {formatCurrency(parseFloat(totalPromoCost) + parseFloat(totalActualLaborCost))}
               </span>
             </div>
             <div className={styles.metricDescription}>
@@ -262,7 +257,7 @@ export function PromoImpactSummary({
             <div className={styles.metricLabel}>Sweat Equity</div>
             <div className={clsx(styles.metricValue, styles.opportunityCost)}>
               <span className={styles.amount}>
-                {formatCurrencyFixed2(parseFloat(totalOpportunityCost))}
+                {formatCurrency(parseFloat(totalOpportunityCost))}
               </span>
             </div>
             <div className={styles.metricDescription}>

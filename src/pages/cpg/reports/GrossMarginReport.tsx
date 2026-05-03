@@ -13,6 +13,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useCPGSettingsContext } from '../../../contexts/CPGSettingsContext';
 import { ReportExportButton } from '../../../components/cpg/reports/ReportExportButton';
 import { getGrossMarginByProduct } from '../../../services/cpg/cpgReporting.service';
 import type { GrossMarginData, MarginQuality } from '../../../services/cpg/cpgReporting.service';
@@ -24,6 +25,7 @@ type SortOrder = 'asc' | 'desc';
 
 export default function GrossMarginReport() {
   const { companyId } = useAuth();
+  const { formatCurrency } = useCPGSettingsContext();
   const [marginData, setMarginData] = useState<GrossMarginData[]>([]);
   const [filteredData, setFilteredData] = useState<GrossMarginData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -171,13 +173,6 @@ export default function GrossMarginReport() {
       default:
         return 'Good (50-60%)';
     }
-  };
-
-  const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(value);
   };
 
   const formatPercentage = (value: number): string => {

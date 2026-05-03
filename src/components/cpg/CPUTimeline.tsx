@@ -20,6 +20,7 @@
 import { useState } from 'react';
 import type { CPGCategory } from '../../db/schema/cpg.schema';
 import type { CPUHistoryEntry } from '../../services/cpg/cpuCalculator.service';
+import { useCPGSettingsContext } from '../../contexts/CPGSettingsContext';
 import styles from './CPUTimeline.module.css';
 
 export interface CPUTimelineProps {
@@ -33,6 +34,9 @@ export interface CPUTimelineProps {
 export function CPUTimeline({ history, categories: _categories, onInvoiceClick, onArchiveInvoice, onUnarchiveInvoice }: CPUTimelineProps) {
   const [expandedInvoices, setExpandedInvoices] = useState<Set<string>>(new Set());
   const [showArchiveConfirm, setShowArchiveConfirm] = useState<string | null>(null);
+
+  // Get formatting functions from context (respects user decimal settings)
+  const { formatCurrency, formatNumber } = useCPGSettingsContext();
 
   const toggleInvoice = (invoiceId: string) => {
     const newExpanded = new Set(expandedInvoices);
@@ -50,10 +54,6 @@ export function CPUTimeline({ history, categories: _categories, onInvoiceClick, 
       day: 'numeric',
       year: 'numeric',
     });
-  };
-
-  const formatCurrency = (value: string): string => {
-    return `$${parseFloat(value).toFixed(2)}`;
   };
 
   // Group entries by invoice
@@ -188,14 +188,14 @@ export function CPUTimeline({ history, categories: _categories, onInvoiceClick, 
                             <div className={styles.detailRow}>
                               <span className={styles.detailLabel}>Cost Per Unit:</span>
                               <span className={styles.detailValue}>
-                                {formatCurrency(entry.cpu)}
+                                {formatCurrency(parseFloat(entry.cpu))}
                               </span>
                             </div>
 
                             <div className={styles.detailRow}>
                               <span className={styles.detailLabel}>Units Received:</span>
                               <span className={styles.detailValue}>
-                                {parseFloat(entry.units_received).toFixed(2)}
+                                {formatNumber(parseFloat(entry.units_received))}
                               </span>
                             </div>
                           </div>

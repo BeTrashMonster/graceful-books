@@ -10,6 +10,7 @@ import { Modal } from '../../modals/Modal';
 import { Button } from '../../core/Button';
 import { db } from '../../../db/database';
 import type { CPGInvoice } from '../../../db/schema/cpg.schema';
+import { useCPGSettingsContext } from '../../../contexts/CPGSettingsContext';
 import styles from './CPGModals.module.css';
 
 export interface VendorDetailsModalProps {
@@ -36,6 +37,9 @@ export function VendorDetailsModal({
 }: VendorDetailsModalProps) {
   const [stats, setStats] = useState<VendorStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Get formatting functions from context (respects user decimal settings)
+  const { formatCurrency } = useCPGSettingsContext();
 
   useEffect(() => {
     if (!isOpen || !vendorName) return;
@@ -94,10 +98,6 @@ export function VendorDetailsModal({
 
     loadVendorStats();
   }, [isOpen, vendorName, companyId]);
-
-  const formatCurrency = (value: number): string => {
-    return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
 
   const formatDate = (timestamp: number): string => {
     return new Date(timestamp).toLocaleDateString('en-US', {

@@ -13,6 +13,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useCPGSettingsContext } from '../../../contexts/CPGSettingsContext';
 import { ReportDateRangePicker, DateRange } from '../../../components/cpg/reports/ReportDateRangePicker';
 import { ReportExportButton } from '../../../components/cpg/reports/ReportExportButton';
 import { getTradeSpendSummary } from '../../../services/cpg/cpgReporting.service';
@@ -24,6 +25,7 @@ type RecommendationFilter = 'all' | 'participate' | 'decline' | 'neutral';
 
 export default function TradeSpendReport() {
   const { companyId } = useAuth();
+  const { formatCurrency } = useCPGSettingsContext();
   const [summary, setSummary] = useState<TradeSpendSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -113,13 +115,6 @@ export default function TradeSpendReport() {
   };
 
   const filteredPromos = getFilteredPromos();
-
-  const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(value);
-  };
 
   const formatDate = (timestamp: number | null): string => {
     if (!timestamp) return 'N/A';

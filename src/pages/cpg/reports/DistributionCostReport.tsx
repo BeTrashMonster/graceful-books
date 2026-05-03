@@ -12,6 +12,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useCPGSettingsContext } from '../../../contexts/CPGSettingsContext';
 import { ReportExportButton } from '../../../components/cpg/reports/ReportExportButton';
 import { compareDistributors } from '../../../services/cpg/cpgReporting.service';
 import type { DistributorComparison } from '../../../services/cpg/cpgReporting.service';
@@ -21,6 +22,7 @@ import styles from './DistributionCostReport.module.css';
 
 export default function DistributionCostReport() {
   const { companyId } = useAuth();
+  const { formatCurrency } = useCPGSettingsContext();
   const [comparison, setComparison] = useState<DistributorComparison | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -88,13 +90,6 @@ export default function DistributionCostReport() {
         return [...prev, distributorId];
       }
     });
-  };
-
-  const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(value);
   };
 
   const formatPercentage = (value: number): string => {

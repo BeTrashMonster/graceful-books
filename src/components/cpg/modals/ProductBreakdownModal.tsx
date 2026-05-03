@@ -19,6 +19,7 @@ import { AddInvoiceModal } from './AddInvoiceModal';
 import { VendorDetailsModal } from './VendorDetailsModal';
 import { LaborRoleService } from '../../../services/cpg/laborRole.service';
 import type { CPGInvoice } from '../../../db/schema/cpg.schema';
+import { useCPGSettingsContext } from '../../../contexts/CPGSettingsContext';
 import styles from './CPGModals.module.css';
 
 export interface ProductBreakdownComponent {
@@ -104,6 +105,9 @@ export function ProductBreakdownModal({
   const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
   const [showVendorDetails, setShowVendorDetails] = useState(false);
   const [selectedVendorName, setSelectedVendorName] = useState<string | null>(null);
+
+  // Get formatting functions from context (respects user decimal settings)
+  const { formatCurrency } = useCPGSettingsContext();
 
   // Labor state
   const [laborBreakdown, setLaborBreakdown] = useState<Array<{
@@ -220,11 +224,6 @@ export function ProductBreakdownModal({
 
     loadContributions();
   }, [selectedComponent, companyId]);
-
-  const formatCurrency = (value: number | string): string => {
-    const num = typeof value === 'string' ? parseFloat(value) : value;
-    return `$${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
 
   const formatDate = (timestamp: number): string => {
     return new Date(timestamp).toLocaleDateString('en-US', {

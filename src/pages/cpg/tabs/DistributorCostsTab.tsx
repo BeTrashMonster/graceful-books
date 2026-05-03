@@ -35,6 +35,7 @@ import {
   type DistributorCostTrend,
 } from '../../../services/cpg/historicalAnalytics.service';
 import type { CPGDistributor } from '../../../db/schema/cpg.schema';
+import { useCPGSettingsContext } from '../../../contexts/CPGSettingsContext';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import styles from '../Distribution.module.css';
@@ -46,6 +47,9 @@ interface DistributorCostsTabProps {
 export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
   const navigate = useNavigate();
   const service = createHistoricalAnalyticsService(db);
+
+  // Get formatting functions from context (respects user decimal settings)
+  const { formatCurrency: formatCurrencyFromContext, formatNumber } = useCPGSettingsContext();
 
   // Read URL parameters
   const urlParams = new URLSearchParams(window.location.search);
@@ -183,16 +187,11 @@ export function DistributorCostsTab({ companyId }: DistributorCostsTabProps) {
     });
   };
 
+  // Wrapper to handle string|number types and use context formatting
   const formatCurrency = (value: string | number): string => {
     const num = typeof value === 'string' ? parseFloat(value) : value;
     if (isNaN(num)) return '$0.00';
-
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(num);
+    return formatCurrencyFromContext(num);
   };
 
   const getTrendDirectionIcon = (direction: 'increasing' | 'decreasing' | 'stable'): string => {

@@ -19,6 +19,7 @@ import { Modal } from '../../modals/Modal';
 import { Button } from '../../core/Button';
 import { db } from '../../../db/database';
 import type { CPGInvoice, CPGCategory } from '../../../db/schema/cpg.schema';
+import { useCPGSettingsContext } from '../../../contexts/CPGSettingsContext';
 import styles from './CPGModals.module.css';
 
 export interface CPUBreakdownModalProps {
@@ -53,6 +54,9 @@ export function CPUBreakdownModal({
   const [contributions, setContributions] = useState<InvoiceContribution[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Get formatting functions from context (respects user decimal settings)
+  const { formatCurrency } = useCPGSettingsContext();
 
   useEffect(() => {
     if (!isOpen || !categoryId) return;
@@ -129,10 +133,6 @@ export function CPUBreakdownModal({
       day: 'numeric',
       year: 'numeric',
     });
-  };
-
-  const formatCurrency = (value: number): string => {
-    return `$${value.toFixed(2)}`;
   };
 
   // Calculate total units and total cost

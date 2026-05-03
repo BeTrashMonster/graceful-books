@@ -5,6 +5,7 @@ import { db } from '../../../db';
 import type { CPGSalesPromo } from '../../../db/schema/cpg.schema';
 import { MarkPromoCompleteModal } from '../../../components/cpg/modals/MarkPromoCompleteModal';
 import { promoExportService } from '../../../services/cpg/promoExport.service';
+import { useCPGSettingsContext } from '../../../contexts/CPGSettingsContext';
 import styles from './PromoTrackerTab.module.css';
 
 type PromoStatus = 'all' | 'draft' | 'approved' | 'declined' | 'active' | 'completed';
@@ -13,6 +14,9 @@ type MarginQuality = 'all' | 'gutCheck' | 'good' | 'better' | 'best';
 export function PromoTrackerTab() {
   const navigate = useNavigate();
   const { companyId } = useAuth();
+
+  // Get formatting functions from context (respects user decimal settings)
+  const { formatCurrency: formatCurrencyFromContext } = useCPGSettingsContext();
 
   // Filters
   const [statusFilter, setStatusFilter] = useState<PromoStatus>('all');
@@ -213,12 +217,10 @@ export function PromoTrackerTab() {
     });
   };
 
+  // Wrapper to handle string|number types and use context formatting
   const formatCurrency = (value: string | number): string => {
     const num = typeof value === 'string' ? parseFloat(value) : value;
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(num);
+    return formatCurrencyFromContext(num);
   };
 
   const handleEdit = (promoId: string) => {

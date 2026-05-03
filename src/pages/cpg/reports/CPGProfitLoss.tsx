@@ -13,6 +13,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useCPGSettingsContext } from '../../../contexts/CPGSettingsContext';
 import { ReportDateRangePicker, DateRange } from '../../../components/cpg/reports/ReportDateRangePicker';
 import { ReportExportButton } from '../../../components/cpg/reports/ReportExportButton';
 import { generateCPGProfitLoss } from '../../../services/cpg/cpgReporting.service';
@@ -21,6 +22,7 @@ import styles from './CPGProfitLoss.module.css';
 
 export default function CPGProfitLoss() {
   const { companyId } = useAuth();
+  const { formatCurrency } = useCPGSettingsContext();
   const [report, setReport] = useState<CPGProfitLossReport | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,13 +60,6 @@ export default function CPGProfitLoss() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(value);
   };
 
   const formatPercentage = (value: number): string => {

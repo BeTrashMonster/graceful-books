@@ -12,6 +12,7 @@ import { db } from '../../../db';
 import type { CPGEvent } from '../../../db/schema/cpg.schema';
 import { MarkEventCompleteModal } from '../../../components/cpg/modals/MarkEventCompleteModal';
 import { eventExportService } from '../../../services/cpg/eventExport.service';
+import { useCPGSettingsContext } from '../../../contexts/CPGSettingsContext';
 import styles from './EventTrackerTab.module.css';
 
 type EventStatus = 'all' | 'upcoming' | 'pending' | 'completed';
@@ -25,6 +26,9 @@ interface EventTrackerTabProps {
 export function EventTrackerTab({ urlStartDate, urlEndDate }: EventTrackerTabProps) {
   const navigate = useNavigate();
   const { companyId } = useAuth();
+
+  // Get formatting functions from context (respects user decimal settings)
+  const { formatCurrency: formatCurrencyFromContext } = useCPGSettingsContext();
 
   // Filters
   const [statusFilter, setStatusFilter] = useState<EventStatus>('all');
@@ -264,12 +268,10 @@ export function EventTrackerTab({ urlStartDate, urlEndDate }: EventTrackerTabPro
     });
   };
 
+  // Wrapper to handle string|number types and use context formatting
   const formatCurrency = (value: string | number): string => {
     const num = typeof value === 'string' ? parseFloat(value) : value;
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(num);
+    return formatCurrencyFromContext(num);
   };
 
   const handleEdit = (eventId: string) => {

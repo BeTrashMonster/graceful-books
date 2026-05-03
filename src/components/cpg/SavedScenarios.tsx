@@ -5,6 +5,7 @@ import { ErrorMessage } from '../feedback/ErrorMessage';
 import { Modal } from '../modals/Modal';
 import { db } from '../../db/database';
 import type { CPGDistributionCalculation, CPGDistributor } from '../../db/schema/cpg.schema';
+import { useCPGSettingsContext } from '../../contexts/CPGSettingsContext';
 import styles from './SavedScenarios.module.css';
 
 interface SavedScenariosProps {
@@ -36,6 +37,9 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
   const [selectedScenarios, setSelectedScenarios] = useState<Set<string>>(new Set());
   const [showComparisonModal, setShowComparisonModal] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
+
+  // Get formatting functions from context (respects user decimal settings)
+  const { formatCurrency: formatCurrencyFromContext } = useCPGSettingsContext();
 
   useEffect(() => {
     loadData();
@@ -147,7 +151,7 @@ export function SavedScenarios({ companyId, deviceId, onLoadScenario, onConvertT
   };
 
   const formatCurrency = (value: string): string => {
-    return `$${parseFloat(value).toFixed(2)}`;
+    return formatCurrencyFromContext(parseFloat(value));
   };
 
   const toggleScenarioSelection = (scenarioId: string) => {

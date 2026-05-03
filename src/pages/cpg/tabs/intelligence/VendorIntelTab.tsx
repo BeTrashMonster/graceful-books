@@ -7,6 +7,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import type { CPGCategory, CPGInvoice, CPGVendor } from '../../../../db/schema/cpg.schema';
 import { db } from '../../../../db/database';
+import { useCPGSettingsContext } from '../../../../contexts/CPGSettingsContext';
 import styles from './VendorIntelTab.module.css';
 import lockAndKeyImage from '../../../../assets/images/lock-and-key.png';
 import pointingFingerImage from '../../../../assets/images/pointing-finger.png';
@@ -73,14 +74,6 @@ interface ComponentRow {
   isBest: boolean;
 }
 
-const formatCurrency = (value: number): string => {
-  return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-};
-
-const formatNumber = (value: number): string => {
-  return value.toLocaleString('en-US');
-};
-
 const getDateRangeLabel = (dateRange: VendorIntelTabProps['dateRange']): string => {
   switch (dateRange) {
     case '3mo': return 'Last 3 Months';
@@ -113,6 +106,9 @@ export default function VendorIntelTab({
   const [viewMode, setViewMode] = useState<'component' | 'vendor'>('vendor');
   const [selectedVendor, setSelectedVendor] = useState<VendorOverview | null>(null);
   const [currentVendorRecord, setCurrentVendorRecord] = useState<CPGVendor | null>(null);
+
+  // Get formatting functions from context (respects user decimal settings)
+  const { formatCurrency, formatNumber } = useCPGSettingsContext();
 
   // Helper: Determine if we're viewing S+H (distribution) categories
   const isViewingShippingCategory = useMemo(() => {

@@ -17,6 +17,7 @@ import { Button } from '../../core/Button';
 import { db } from '../../../db/database';
 import type { CPGInvoice, CPGCategory } from '../../../db/schema/cpg.schema';
 import { ShippingDistributionService } from '../../../services/cpg/shippingDistribution.service';
+import { useCPGSettingsContext } from '../../../contexts/CPGSettingsContext';
 import styles from './CPGModals.module.css';
 
 export interface InvoiceDetailsModalProps {
@@ -31,6 +32,9 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
   const [categories, setCategories] = useState<CPGCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Get formatting functions from context (respects user decimal settings)
+  const { formatCurrency } = useCPGSettingsContext();
 
   // Apply purple header styling when modal is open
   useEffect(() => {
@@ -115,10 +119,6 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
       day: 'numeric',
       year: 'numeric',
     });
-  };
-
-  const formatCurrency = (value: string): string => {
-    return `$${parseFloat(value).toFixed(2)}`;
   };
 
   if (isLoading) {
@@ -220,7 +220,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
             }}>
               <span style={{ fontWeight: 500, color: '#64748b' }}>Total Paid:</span>
               <strong style={{ color: '#4b006e', fontSize: '1.125rem' }}>
-                {formatCurrency(invoice.total_paid)}
+                {formatCurrency(parseFloat(invoice.total_paid))}
               </strong>
             </div>
           </div>
@@ -266,7 +266,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <div style={{ fontWeight: 600, color: '#4b006e', fontSize: '1.125rem' }}>
-                          {formatCurrency(lineTotal.toFixed(2))}
+                          {formatCurrency(lineTotal)}
                         </div>
                       </div>
                     </div>
@@ -293,7 +293,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
                         </div>
                         <div>
                           <div style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Unit Price</div>
-                          <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{formatCurrency(item.unit_price)}</div>
+                          <div style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{formatCurrency(parseFloat(item.unit_price))}</div>
                         </div>
                         <div>
                           <div style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Units Received</div>
@@ -366,7 +366,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <div style={{ fontWeight: 600, color: '#4b006e', fontSize: '1.125rem' }}>
-                          {formatCurrency(shItem.shTotal)}
+                          {formatCurrency(parseFloat(shItem.shTotal))}
                         </div>
                       </div>
                     </div>
@@ -390,7 +390,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
                                 {lineCategoryName}
                                 {lineItem.variant && <span> - {lineItem.variant}</span>}
                               </span>
-                              <span style={{ fontWeight: 600 }}>{formatCurrency(amount)}</span>
+                              <span style={{ fontWeight: 600 }}>{formatCurrency(parseFloat(amount))}</span>
                             </div>
                           );
                         })}
@@ -412,7 +412,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
                 {Object.entries(invoice.additional_costs).map(([name, amount]) => (
                   <div key={name} style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ color: '#64748b' }}>{name}:</span>
-                    <strong>{formatCurrency(amount)}</strong>
+                    <strong>{formatCurrency(parseFloat(amount))}</strong>
                   </div>
                 ))}
               </div>
@@ -466,7 +466,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
                     }}
                   >
                     <span style={{ fontWeight: 500, color: '#374151' }}>{displayName}</span>
-                    <strong style={{ color: '#4b006e', fontSize: '1.125rem' }}>{formatCurrency(cpu)}</strong>
+                    <strong style={{ color: '#4b006e', fontSize: '1.125rem' }}>{formatCurrency(parseFloat(cpu))}</strong>
                   </div>
                 );
               })}
