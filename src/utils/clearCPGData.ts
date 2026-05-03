@@ -4,6 +4,7 @@
  */
 
 import { db } from '../db/database';
+import { restoreCPGData } from './restoreCPGData';
 
 export interface ClearCPGDataResult {
   categoriesDeleted: number;
@@ -203,9 +204,13 @@ if (typeof window !== 'undefined') {
     }
   };
 
+  // Add restore function
+  (window as any).restoreCPGData = restoreCPGData;
+
   console.log('✅ CPG Data Utilities loaded. Available commands:');
   console.log('  - window.getCompanyId() - Get your current company ID');
   console.log('  - window.getCPGDataCounts(companyId) - Check current data counts');
   console.log('  - window.clearCPGData(companyId) - Clear all CPG data for a company');
   console.log('  - window.debugCategories(companyId) - Debug category loading issues');
+  console.log('  - window.restoreCPGData(companyId) - Restore soft-deleted CPG data');
 }

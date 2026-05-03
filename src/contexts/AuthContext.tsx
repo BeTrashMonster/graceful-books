@@ -59,16 +59,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
             isLoading: false,
           })
         } else {
-          // No session found
-          setAuthState({
-            isAuthenticated: false,
-            userIdentifier: null,
-            companyId: null,
-            currentCompany: null,
-            deviceId: null,
-            role: 'user',
-            isLoading: false,
-          })
+          // Fallback: Check localStorage for dev/legacy setup
+          const localData = localStorage.getItem('graceful_books_user')
+          if (localData) {
+            const parsed = JSON.parse(localData)
+            setAuthState({
+              isAuthenticated: true,
+              userIdentifier: parsed.userIdentifier || null,
+              companyId: parsed.companyId || null,
+              currentCompany: parsed.companyId ? {
+                id: parsed.companyId,
+                name: parsed.companyName || parsed.companyId
+              } : null,
+              deviceId: parsed.deviceId || parsed.userIdentifier || null,
+              role: 'user',
+              isLoading: false,
+            })
+          } else {
+            // No session found
+            setAuthState({
+              isAuthenticated: false,
+              userIdentifier: null,
+              companyId: null,
+              currentCompany: null,
+              deviceId: null,
+              role: 'user',
+              isLoading: false,
+            })
+          }
         }
       } catch (error) {
         console.error('Failed to load auth data:', error)
