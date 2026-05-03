@@ -105,9 +105,9 @@ export default function CheckoutSuccess() {
       const sessionData = sessionStorage.getItem('graceful_books_session');
       if (sessionData) {
         const session = JSON.parse(sessionData);
-        // Backend returns user.id which IS the company_id
-        companyId = session?.user?.id;
-        console.log('📦 Found user.id in sessionStorage:', companyId);
+        // Session format is flat: { userId, userEmail, token }
+        companyId = session?.userId;
+        console.log('📦 Found userId in sessionStorage:', companyId);
       }
     }
 

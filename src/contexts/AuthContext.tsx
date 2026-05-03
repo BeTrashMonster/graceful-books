@@ -42,17 +42,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (sessionData) {
           const parsed = JSON.parse(sessionData)
 
-          // Extract user data from session
-          const user = parsed.user || {}
-          const userId = user.id || null
+          // Handle both session formats:
+          // Flat format (current): { userId, userEmail, token, expiresAt }
+          // Nested format (legacy): { user: { id, email }, token, products }
+          const userId = parsed.userId || parsed.user?.id || null
+          const userEmail = parsed.userEmail || parsed.user?.email || null
+          const userName = parsed.user?.firstName && parsed.user?.lastName
+            ? `${parsed.user.firstName} ${parsed.user.lastName}`
+            : userEmail
 
           setAuthState({
             isAuthenticated: !!parsed.token,
-            userIdentifier: user.email || null,
+            userIdentifier: userEmail,
             companyId: userId, // Use user ID as company ID for data isolation
             currentCompany: userId ? {
               id: userId,
-              name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email
+              name: userName || userId
             } : null,
             deviceId: userId, // Use user ID as device ID for now
             role: 'user',
