@@ -1,0 +1,1219 @@
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Progress bar */
+.progressContainer {
+  margin-bottom: 2rem;
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background: var(--color-background, #f3f4f6);
+  border-radius: 1rem;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #D4AF37, #F4E5B8);
+  border-radius: 1rem;
+  transition: width 0.3s ease;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.progressText {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 0.5rem 0;
+}
+
+.description {
+  font-size: 1.0625rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Content area */
+.content {
+  margin-bottom: 2rem;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.stepHint {
+  text-align: center;
+  color: var(--color-text-secondary, #6b7280);
+  font-size: 0.9375rem;
+  margin: 0 0 1rem 0;
+}
+
+/* Product card - larger with recipe section */
+.productCard {
+  background: white;
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: border-color 0.2s;
+}
+
+.productCard:focus-within {
+  border-color: var(--color-primary, #4b006e);
+}
+
+/* Generic card for invoices */
+.card {
+  background: white;
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: border-color 0.2s;
+}
+
+.card:focus-within {
+  border-color: var(--color-primary, #4b006e);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #D4AF37;
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #4b006e;
+  margin: 0;
+}
+
+.expandIcon {
+  color: #4b006e;
+  font-size: 0.75rem;
+  transition: transform 0.2s;
+}
+
+.collapsedSummary {
+  padding: 0.5rem 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.removeButton {
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  color: var(--color-text-secondary, #6b7280);
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.removeButton:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Product details section */
+.productDetails {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px dashed var(--color-border, #e5e7eb);
+}
+
+/* Recipe section */
+.recipeSection {
+  background: linear-gradient(135deg, #f3e8ff 0%, #faf5ff 100%);
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  border: 2px solid #c084fc;
+}
+
+.recipeTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4b006e;
+  margin: 0 0 0.5rem 0;
+}
+
+.recipeHint {
+  font-size: 0.875rem;
+  color: #6b1a8f;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
+.ingredientRow {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 0.5rem;
+  border: 2px solid #E5F6DF;
+  box-shadow: 0 2px 4px rgba(22, 163, 74, 0.05);
+}
+
+.ingredientFields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.removeInlineButton {
+  flex-shrink: 0;
+  padding: 0.375rem 0.625rem;
+  background: transparent;
+  color: var(--color-text-secondary, #6b7280);
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 1.75rem; /* Align with first input */
+}
+
+.removeInlineButton:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Category selection/creation */
+.categorySelect {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.categorySelect .select {
+  flex: 1;
+}
+
+.newCategoryButton {
+  padding: 0.75rem 1rem;
+  background: white;
+  color: var(--color-primary, #4b006e);
+  border: 1px solid var(--color-primary, #4b006e);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.newCategoryButton:hover {
+  background: var(--color-primary-light, #f3e8ff);
+}
+
+.newCategoryInput {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.newCategoryInput .input {
+  flex: 1;
+}
+
+.createButton,
+.cancelButton {
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.createButton {
+  background: var(--color-primary, #4b006e);
+  color: white;
+}
+
+.createButton:hover {
+  background: var(--color-primary-dark, #3d0052);
+}
+
+.cancelButton {
+  background: transparent;
+  color: var(--color-text-secondary, #6b7280);
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+.cancelButton:hover {
+  background: var(--color-background, #f9fafb);
+}
+
+.addIngredientButton {
+  padding: 0.625rem 1rem;
+  background: white;
+  color: var(--color-primary, #4b006e);
+  border: 1px dashed var(--color-primary, #4b006e);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.5rem;
+}
+
+.addIngredientButton:hover {
+  background: var(--color-primary-light, #f3e8ff);
+}
+
+/* Entry mode toggle */
+.entryModeToggle {
+  display: flex;
+  gap: 0.5rem;
+  border: 2px solid #D4AF37;
+  border-radius: 0.375rem;
+  padding: 0.25rem;
+  background: #fefce8;
+}
+
+.toggleActive,
+.toggleInactive {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggleActive {
+  background: linear-gradient(135deg, #4b006e 0%, #6b1a8f 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(75, 0, 110, 0.2);
+}
+
+.toggleInactive {
+  background: transparent;
+  color: #6b7280;
+}
+
+.toggleInactive:hover {
+  background: #f3e8ff;
+  color: #4b006e;
+}
+
+/* Calculation hint */
+.calculationHint {
+  font-size: 0.875rem;
+  color: #8b5cf6;
+  font-weight: 600;
+  padding: 0.5rem;
+  background: #f3e8ff;
+  border-radius: 0.375rem;
+  text-align: center;
+  margin-top: -0.25rem;
+  border: 1px solid #c084fc;
+}
+
+/* Invoice total */
+.validationWarning {
+  padding: 0.75rem 1rem;
+  margin-top: 0.75rem;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border: 2px solid #ef4444;
+  border-radius: 0.5rem;
+  color: #991b1b;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+}
+
+.invoiceTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+  background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
+  border: 3px solid #D4AF37;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.invoiceTotalLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4b006e;
+}
+
+.invoiceTotalAmount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #D4AF37;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Invoice items */
+.invoiceItemsTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 1.25rem 0 0.75rem 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.invoiceItemRow {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+  margin-bottom: 0.75rem;
+  padding: 0.875rem;
+  background: var(--color-background, #f9fafb);
+  border-radius: 0.5rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.invoiceItemRow .input,
+.invoiceItemRow .select {
+  padding: 0.5rem 0.625rem;
+  font-size: 0.9375rem;
+}
+
+.invoiceItemRow .inputGroup .input {
+  padding-left: 1.5rem;
+}
+
+.invoiceItemRow .inputPrefix {
+  font-size: 0.875rem;
+  left: 0.625rem;
+}
+
+.invoiceItemRow .label {
+  font-size: 0.8125rem;
+}
+
+.invoiceItemRow .removeInlineButton {
+  padding: 0.25rem 0.5rem;
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.addSmallButton {
+  padding: 0.5rem 1rem;
+  background: white;
+  color: var(--color-primary, #4b006e);
+  border: 1px dashed var(--color-primary, #4b006e);
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.5rem;
+}
+
+.addSmallButton:hover {
+  background: var(--color-primary-light, #f3e8ff);
+}
+
+/* Form fields */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.fieldSmall {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 0 1 auto;
+  min-width: 70px;
+  max-width: 110px;
+}
+
+.fieldMedium {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 0 1 auto;
+  min-width: 100px;
+  max-width: 140px;
+}
+
+.fieldXSmall {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+  min-width: 90px;
+  max-width: 120px;
+}
+
+.invoicePriceFields {
+  display: flex;
+  gap: 0;
+  align-items: flex-end;
+  flex-wrap: nowrap;
+}
+
+.invoicePriceFields > .fieldXSmall:first-child {
+  margin-right: 1.5rem;
+}
+
+.invoicePriceFields > .fieldXSmall {
+  flex-shrink: 0;
+}
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.fieldRow3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #111827);
+}
+
+.required {
+  color: #dc2626;
+}
+
+.input,
+.select,
+.textarea {
+  padding: 0.75rem 1rem;
+  border: 2px solid #16a34a;
+  background: #E5F6DF;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: #16a34a;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.inputGroup {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputPrefix {
+  position: absolute;
+  left: 1rem;
+  color: var(--color-text-secondary, #6b7280);
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.inputGroup .input {
+  padding-left: 2rem;
+}
+
+.addButton {
+  padding: 0.875rem 1.5rem;
+  background: white;
+  color: var(--color-primary, #4b006e);
+  border: 2px dashed var(--color-primary, #4b006e);
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.addButton:hover:not(:disabled) {
+  background: var(--color-primary-light, #f3e8ff);
+}
+
+.addButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Review page */
+/* Review Page - Branded with purple, gold, green */
+
+.reviewSummaryCard {
+  background: linear-gradient(135deg, #f3e8ff 0%, #faf5ff 100%);
+  border: 3px solid #D4AF37;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+}
+
+.reviewSummaryTitle {
+  color: #4b006e;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+}
+
+.reviewStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.reviewStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border-radius: 0.75rem;
+  border: 2px solid #D4AF37;
+}
+
+.reviewStatNumber {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #D4AF37;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.reviewStatLabel {
+  font-size: 0.875rem;
+  color: #4b006e;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.reviewErrorsBox {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border: 3px solid #dc2626;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.reviewErrorsHeader {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #991b1b;
+  margin-bottom: 0.75rem;
+}
+
+.reviewErrorsList {
+  margin: 0 0 0.75rem 1.25rem;
+  padding: 0;
+  color: #991b1b;
+}
+
+.reviewErrorsList li {
+  margin-bottom: 0.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.reviewErrorsNote {
+  margin: 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid #fca5a5;
+  font-size: 0.875rem;
+  color: #7f1d1d;
+  font-style: italic;
+}
+
+/* Critical warnings - orange/amber for missing invoices */
+.reviewCriticalBox {
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+  border: 3px solid #ea580c;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.15);
+}
+
+.reviewCriticalHeader {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #7c2d12;
+  margin-bottom: 0.875rem;
+}
+
+.reviewCriticalList {
+  margin: 0 0 0.875rem 1.25rem;
+  padding: 0;
+  color: #7c2d12;
+}
+
+.reviewCriticalList li {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.reviewCriticalNote {
+  margin: 0;
+  padding-top: 0.875rem;
+  border-top: 2px solid #fb923c;
+  font-size: 0.9375rem;
+  color: #9a3412;
+  font-weight: 500;
+}
+
+/* Minor warnings - yellow for incomplete data */
+.reviewWarningsBox {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid #f59e0b;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.reviewWarningsHeader {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 0.75rem;
+}
+
+.reviewWarningsList {
+  margin: 0 0 0.75rem 1.25rem;
+  padding: 0;
+  color: #92400e;
+}
+
+.reviewWarningsList li {
+  margin-bottom: 0.25rem;
+  font-size: 0.9375rem;
+}
+
+.reviewWarningsNote {
+  margin: 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid #fcd34d;
+  font-size: 0.875rem;
+  color: #78350f;
+  font-style: italic;
+}
+
+.reviewSuccessBox {
+  background: linear-gradient(135deg, #E5F6DF 0%, #d1f4e0 100%);
+  border: 2px solid #16a34a;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  color: #166534;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.reviewSection {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+}
+
+.reviewSection:last-child {
+  margin-bottom: 0;
+}
+
+.reviewSectionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #4b006e;
+  margin: 0 0 1.25rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px solid #D4AF37;
+}
+
+.reviewCard {
+  padding: 1rem 1.25rem;
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  margin-bottom: 0.75rem;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.reviewCard:last-child {
+  margin-bottom: 0;
+}
+
+.reviewCardClickable {
+  cursor: pointer;
+}
+
+.reviewCardClickable:hover {
+  border-color: #f59e0b;
+  box-shadow: 0 2px 12px rgba(245, 158, 11, 0.25);
+  background: #fefce8;
+}
+
+.reviewCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.reviewCardTitle {
+  font-size: 1rem;
+  color: #111827;
+}
+
+.reviewCardMeta {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.reviewPrice {
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.reviewSku {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.reviewCardContent {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.reviewRecipeCount {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.reviewInvoiceDetails {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  flex-wrap: wrap;
+}
+
+.reviewIngredientsList {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.reviewIngredientPill {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+  border: 1px solid #c084fc;
+  border-radius: 1rem;
+  font-size: 0.8125rem;
+  color: #4b006e;
+  font-weight: 500;
+}
+
+.reviewCardWarnings {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.reviewWarningTag {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  color: #92400e;
+  font-weight: 500;
+}
+
+.reviewCardErrors {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.reviewErrorTag {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  color: #991b1b;
+  font-weight: 600;
+}
+
+.reviewCategoriesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.reviewCategoryChip {
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+  border: 2px solid #c084fc;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  color: #4b006e;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.reviewCategoryVariants {
+  font-size: 0.75rem;
+  color: #7c3aed;
+  font-weight: normal;
+}
+
+.reviewSignature {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
+  border: 3px solid #D4AF37;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+}
+
+.reviewSignatureContent {
+  text-align: center;
+}
+
+.reviewSignatureText {
+  margin: 0;
+  font-size: 1rem;
+  color: #4b006e;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.reviewEmpty {
+  color: #6b7280;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem 1rem;
+  margin: 0;
+}
+
+/* Legacy review classes - keep for backwards compatibility */
+.reviewTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--color-border, #e5e7eb);
+}
+
+.reviewItem {
+  padding: 0.75rem;
+  background: var(--color-background, #f9fafb);
+  border-radius: 0.375rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9375rem;
+}
+
+.reviewItem:last-child {
+  margin-bottom: 0;
+}
+
+.reviewVariants {
+  color: var(--color-text-secondary, #6b7280);
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.reviewRecipe {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+/* Navigation */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.leftActions,
+.rightActions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.primaryButton {
+  padding: 0.875rem 2rem;
+  background: linear-gradient(135deg, #4b006e 0%, #6b1a8f 100%);
+  color: white;
+  border: 2px solid #D4AF37;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(75, 0, 110, 0.3);
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3d0052 0%, #5a1475 100%);
+  box-shadow: 0 6px 16px rgba(75, 0, 110, 0.4);
+  transform: translateY(-1px);
+}
+
+.primaryButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.primaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  padding: 0.875rem 1.5rem;
+  background: transparent;
+  color: var(--color-text-secondary, #6b7280);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.secondaryButton:hover {
+  border-color: var(--color-primary, #4b006e);
+  color: var(--color-primary, #4b006e);
+  background: var(--color-primary-light, #f3e8ff);
+}
+
+.skipButton {
+  padding: 0.875rem 1.5rem;
+  background: transparent;
+  color: var(--color-text-secondary, #6b7280);
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.skipButton:hover {
+  color: var(--color-text-primary, #111827);
+  background: var(--color-background, #f3f4f6);
+}
+
+/* Note */
+.note {
+  text-align: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #f3e8ff 0%, #faf5ff 100%);
+  border-radius: 0.5rem;
+  border: 2px solid #c084fc;
+}
+
+.note p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b1a8f;
+  line-height: 1.6;
+}
+
+.note strong {
+  color: #4b006e;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem 0.5rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .description {
+    font-size: 0.9375rem;
+  }
+
+  .fieldRow,
+  .fieldRow3 {
+    grid-template-columns: 1fr;
+  }
+
+  .ingredientRow {
+    flex-direction: column;
+  }
+
+  .removeInlineButton {
+    align-self: flex-end;
+    margin-top: 0;
+  }
+
+  .invoiceItemRow {
+    flex-direction: column;
+  }
+
+  .fieldSmall,
+  .fieldMedium,
+  .fieldXSmall {
+    min-width: 100%;
+    flex: 1;
+  }
+
+  .categorySelect {
+    flex-direction: column;
+  }
+
+  .newCategoryInput {
+    flex-direction: column;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .leftActions,
+  .rightActions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .skipButton {
+    width: 100%;
+  }
+
+  /* Reverse order on mobile so primary is on top */
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  /* Review page responsive */
+  .reviewStats {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .reviewStat {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .reviewStatNumber {
+    font-size: 2rem;
+  }
+
+  .reviewCategoriesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .reviewCardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .reviewCardMeta {
+    width: 100%;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .progressFill,
+  .productCard,
+  .card,
+  .input,
+  .select,
+  .textarea,
+  .addButton,
+  .primaryButton,
+  .secondaryButton,
+  .skipButton,
+  .removeButton,
+  .removeInlineButton,
+  .newCategoryButton,
+  .createButton,
+  .cancelButton,
+  .addIngredientButton,
+  .addSmallButton {
+    transition: none;
+  }
+}
