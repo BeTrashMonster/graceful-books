@@ -3,7 +3,6 @@ import { Button } from '../../components/core/Button';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db';
 import { CPGSettingsService } from '../../services/cpg/cpgSettings.service';
-import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import { UserFeaturePreferencesService } from '../../services/userFeaturePreferences.service';
 import { DataSafetyPanel } from '../../components/settings/DataSafetyPanel';
 import { CharitySelector } from '../../components/charity';
@@ -30,8 +29,6 @@ export function CPGSettings() {
   const [settings, setSettings] = useState<CPGSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isRecalculating, setIsRecalculating] = useState(false);
-  const [recalculationMessage, setRecalculationMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -457,59 +454,6 @@ export function CPGSettings() {
       setErrorMessage('Failed to reset settings. Please try again.');
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  /**
-   * Recalculate all invoice CPUs with full precision
-   */
-  const handleRecalculateAllCPUs = async () => {
-    if (!companyId) return;
-
-    setIsRecalculating(true);
-    setRecalculationMessage(null);
-    setErrorMessage(null);
-
-    try {
-      // Get all invoices with cost attribution
-      const allInvoices = await db.cpgInvoices.where('company_id').equals(companyId).toArray();
-      const invoicesToUpdate = allInvoices.filter(inv => inv.cost_attribution);
-
-      console.log(`🔄 Recalculating CPUs for ${invoicesToUpdate.length} invoices...`);
-
-      let updated = 0;
-
-      for (const invoice of invoicesToUpdate) {
-        try {
-          // Recalculate CPUs with full precision
-          const { totalPaid, calculatedCPUs } = cpuCalculatorService.calculateInvoiceCPUs(
-            invoice.cost_attribution,
-            invoice.additional_costs || null
-          );
-
-          // Update the invoice
-          await db.cpgInvoices.update(invoice.id, {
-            total_paid: totalPaid,
-            calculated_cpus: calculatedCPUs,
-            updated_at: Date.now(),
-          });
-
-          updated++;
-        } catch (error) {
-          console.error(`Error updating invoice ${invoice.invoice_number || invoice.id}:`, error);
-        }
-      }
-
-      // Trigger UI refresh
-      window.dispatchEvent(new CustomEvent('cpg-data-updated', { detail: { type: 'invoice' } }));
-
-      setRecalculationMessage(`✅ Recalculated ${updated} of ${invoicesToUpdate.length} invoices with full precision`);
-      setTimeout(() => setRecalculationMessage(null), 5000);
-    } catch (error) {
-      console.error('Failed to recalculate CPUs:', error);
-      setErrorMessage(`Failed to recalculate: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsRecalculating(false);
     }
   };
 
@@ -974,27 +918,6 @@ export function CPGSettings() {
                 </select>
               </div>
 
-              {/* Recalculate CPUs Button */}
-              <div className={styles.formField}>
-                <label className={styles.label}>
-                  Update Existing Data
-                </label>
-                <Button
-                  variant="secondary"
-                  size="md"
-                  onClick={handleRecalculateAllCPUs}
-                  loading={isRecalculating}
-                  disabled={isRecalculating}
-                >
-                  🔄 Recalculate All Invoice CPUs
-                </Button>
-                <p className={styles.fieldHint}>
-                  Recalculates all invoices with full 6-decimal precision. Run this after changing decimal settings to update existing data.
-                </p>
-                {recalculationMessage && (
-                  <p className={styles.successMessage}>{recalculationMessage}</p>
-                )}
-              </div>
             </div>
           </div>
         </div>
