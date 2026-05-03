@@ -73,6 +73,14 @@ interface ComprehensiveWorksheetProps {
 
 type Step = 'products' | 'invoices' | 'review';
 
+// Generate temp ID in format expected by importer: temp-{timestamp}-{random}
+let tempIdCounter = 0;
+const generateTempId = (): string => {
+  tempIdCounter++;
+  const random = Math.random().toString(36).substring(2, 10);
+  return `temp-${tempIdCounter}-${random}`;
+};
+
 // Units of measurement (matching CPG system)
 const UNITS_OF_MEASUREMENT = [
   // Weight
@@ -145,7 +153,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   // Track products with embedded recipe UI
   const [products, setProducts] = useState<Array<Product & { recipeItems: RecipeItem[] }>>([
     {
-      id: crypto.randomUUID(),
+      id: generateTempId(),
       name: '',
       msrp: '',
       sku: '',
@@ -154,7 +162,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   ]);
 
   const [invoices, setInvoices] = useState<Invoice[]>([
-    { id: crypto.randomUUID(), vendor_name: '', invoice_date: '', invoice_total: '', items: [], notes: '' }
+    { id: generateTempId(), vendor_name: '', invoice_date: '', invoice_total: '', items: [], notes: '' }
   ]);
 
   // Track which invoices are expanded (accordion)
@@ -188,7 +196,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   const addProduct = () => {
     if (products.length < 10) {
       setProducts([...products, {
-        id: crypto.randomUUID(),
+        id: generateTempId(),
         name: '',
         msrp: '',
         sku: '',
@@ -264,7 +272,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
     } else {
       // Create new category
       const newCategory: Category = {
-        id: crypto.randomUUID(),
+        id: generateTempId(),
         name,
         variants: [],
         sort_order: categories.length
@@ -297,7 +305,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
 
   // Invoice handlers
   const addInvoice = () => {
-    const newId = crypto.randomUUID();
+    const newId = generateTempId();
     setInvoices([...invoices, {
       id: newId,
       vendor_name: '',
