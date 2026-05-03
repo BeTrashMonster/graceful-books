@@ -196,33 +196,37 @@ async function handleCheckoutSessionCompleted(session: any) {
       );
     }
 
-    // Get user details for welcome email
-    const userResult = await db.query(
-      `SELECT email, first_name FROM users WHERE id = $1`,
-      [userId]
-    );
-
-    if (userResult.rows.length > 0) {
-      const user = userResult.rows[0];
-      const { sendProductWelcomeEmail } = await import('../services/email.service.js');
-
-      // Get product details
-      const productResult = await db.query(
-        `SELECT name FROM products WHERE id = $1`,
-        [productId]
+    // Get user details for welcome email (optional - don't fail webhook if email fails)
+    try {
+      const userResult = await db.query(
+        `SELECT email, first_name FROM users WHERE id = $1`,
+        [userId]
       );
 
-      if (productResult.rows.length > 0) {
-        await sendProductWelcomeEmail(
-          user.email,
-          user.first_name,
-          productResult.rows[0].name
+      if (userResult.rows.length > 0) {
+        const user = userResult.rows[0];
+        const { sendProductWelcomeEmail } = await import('../services/email.service.js');
+
+        // Get product details
+        const productResult = await db.query(
+          `SELECT name FROM products WHERE id = $1`,
+          [productId]
         );
-        console.log('[Webhook] Welcome email sent to:', user.email);
+
+        if (productResult.rows.length > 0) {
+          await sendProductWelcomeEmail(
+            user.email,
+            user.first_name,
+            productResult.rows[0].name
+          );
+          console.log('[Webhook] Welcome email sent to:', user.email);
+        }
       }
+    } catch (emailError) {
+      console.warn('[Webhook] Failed to send welcome email (non-critical):', emailError instanceof Error ? emailError.message : emailError);
     }
 
-    console.log('[Webhook] Checkout session completed successfully');
+    console.log('[Webhook] ✅ Product assigned successfully');
   } catch (error) {
     console.error('[Webhook] Error processing checkout session:', error);
     throw error;
@@ -317,21 +321,25 @@ async function handleSubscriptionDeleted(subscription: any) {
       [subscription.canceled_at || Math.floor(Date.now() / 1000), subscription.id]
     );
 
-    // Get user details for cancellation email
-    const result = await db.query(
-      `SELECT u.email, u.first_name, p.name as product_name
-       FROM user_products up
-       JOIN users u ON u.id = up.user_id
-       JOIN products p ON p.id = up.product_id
-       WHERE up.stripe_subscription_id = $1`,
-      [subscription.id]
-    );
+    // Get user details for cancellation email (optional - don't fail if email fails)
+    try {
+      const result = await db.query(
+        `SELECT u.email, u.first_name, p.name as product_name
+         FROM user_products up
+         JOIN users u ON u.id = up.user_id
+         JOIN products p ON p.id = up.product_id
+         WHERE up.stripe_subscription_id = $1`,
+        [subscription.id]
+      );
 
-    if (result.rows.length > 0) {
-      const { email, first_name, product_name } = result.rows[0];
-      const { sendSubscriptionCancelledEmail } = await import('../services/email.service.js');
-      await sendSubscriptionCancelledEmail(email, first_name, product_name);
-      console.log('[Webhook] Cancellation email sent');
+      if (result.rows.length > 0) {
+        const { email, first_name, product_name } = result.rows[0];
+        const { sendSubscriptionCancelledEmail } = await import('../services/email.service.js');
+        await sendSubscriptionCancelledEmail(email, first_name, product_name);
+        console.log('[Webhook] Cancellation email sent');
+      }
+    } catch (emailError) {
+      console.warn('[Webhook] Failed to send cancellation email (non-critical):', emailError instanceof Error ? emailError.message : emailError);
     }
 
     console.log('[Webhook] Subscription deleted successfully');
@@ -506,16 +514,20 @@ async function handleInvoicePaymentSucceeded(invoice: any) {
         // For now, just log it
         console.log(`[Webhook] Payment successful for user ${user_id}, product ${product_id}`);
 
-        // Send receipt email
-        const { sendPaymentReceiptEmail } = await import('../services/email.service.js');
-        await sendPaymentReceiptEmail(
-          email,
-          first_name,
-          product_name,
-          invoice.amount_paid / 100,
-          invoice.currency.toUpperCase()
-        );
-        console.log('[Webhook] Payment receipt sent');
+        // Send receipt email (optional - don't fail if email fails)
+        try {
+          const { sendPaymentReceiptEmail } = await import('../services/email.service.js');
+          await sendPaymentReceiptEmail(
+            email,
+            first_name,
+            product_name,
+            invoice.amount_paid / 100,
+            invoice.currency.toUpperCase()
+          );
+          console.log('[Webhook] Payment receipt sent');
+        } catch (emailError) {
+          console.warn('[Webhook] Failed to send payment receipt (non-critical):', emailError instanceof Error ? emailError.message : emailError);
+        }
       }
     }
 
@@ -543,27 +555,31 @@ async function handleInvoicePaymentFailed(invoice: any) {
         [invoice.subscription]
       );
 
-      // Get user details for payment failure notification
-      const result = await db.query(
-        `SELECT u.email, u.first_name, p.name as product_name
-         FROM user_products up
-         JOIN users u ON u.id = up.user_id
-         JOIN products p ON p.id = up.product_id
-         WHERE up.stripe_subscription_id = $1`,
-        [invoice.subscription]
-      );
-
-      if (result.rows.length > 0) {
-        const { email, first_name, product_name } = result.rows[0];
-        const { sendPaymentFailedEmail } = await import('../services/email.service.js');
-        await sendPaymentFailedEmail(
-          email,
-          first_name,
-          product_name,
-          invoice.amount_due / 100,
-          invoice.currency.toUpperCase()
+      // Get user details for payment failure notification (optional - don't fail if email fails)
+      try {
+        const result = await db.query(
+          `SELECT u.email, u.first_name, p.name as product_name
+           FROM user_products up
+           JOIN users u ON u.id = up.user_id
+           JOIN products p ON p.id = up.product_id
+           WHERE up.stripe_subscription_id = $1`,
+          [invoice.subscription]
         );
-        console.log('[Webhook] Payment failure notification sent');
+
+        if (result.rows.length > 0) {
+          const { email, first_name, product_name } = result.rows[0];
+          const { sendPaymentFailedEmail } = await import('../services/email.service.js');
+          await sendPaymentFailedEmail(
+            email,
+            first_name,
+            product_name,
+            invoice.amount_due / 100,
+            invoice.currency.toUpperCase()
+          );
+          console.log('[Webhook] Payment failure notification sent');
+        }
+      } catch (emailError) {
+        console.warn('[Webhook] Failed to send payment failure email (non-critical):', emailError instanceof Error ? emailError.message : emailError);
       }
     }
 
