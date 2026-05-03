@@ -23,19 +23,24 @@ import type { CPGDistributor } from '../../db/schema/cpg.schema';
 import { ScenarioPlanningService } from '../../services/cpg/scenarioPlanning.service';
 import { CompareDistributorsTab } from './tabs/scenario/CompareDistributorsTab';
 import { WhatIfCalculatorTab } from './tabs/scenario/WhatIfCalculatorTab';
+import { ProductImpactTab } from './tabs/scenario/ProductImpactTab';
 import styles from './ScenarioPlanning.module.css';
 
-type AnalysisType = 'whatif' | 'compare';
-type SchemaTabType = 'what-if' | 'compare';
+type AnalysisType = 'whatif' | 'compare' | 'product-impact';
+type SchemaTabType = 'what-if' | 'compare' | 'product-impact';
 
 // Helper to map internal tab values to schema tab values
 const toSchemaTab = (tab: AnalysisType): SchemaTabType => {
-  return tab === 'whatif' ? 'what-if' : 'compare';
+  if (tab === 'whatif') return 'what-if';
+  if (tab === 'product-impact') return 'product-impact';
+  return 'compare';
 };
 
 // Helper to map schema tab values to internal tab values
 const fromSchemaTab = (tab: SchemaTabType | string): AnalysisType => {
-  return tab === 'what-if' ? 'whatif' : 'compare';
+  if (tab === 'what-if') return 'whatif';
+  if (tab === 'product-impact') return 'product-impact';
+  return 'compare';
 };
 
 /**
@@ -67,7 +72,7 @@ export default function ScenarioPlanning() {
   useEffect(() => {
     const loadPinnedState = async () => {
       const states: Record<string, boolean> = {};
-      const schemaTabs: SchemaTabType[] = ['what-if', 'compare'];
+      const schemaTabs: SchemaTabType[] = ['what-if', 'compare', 'product-impact'];
 
       for (const tab of schemaTabs) {
         states[tab] = await isTabPinned(tab);
@@ -93,6 +98,7 @@ export default function ScenarioPlanning() {
         setPinnedTabs({
           'what-if': schemaTabId === 'what-if',
           'compare': schemaTabId === 'compare',
+          'product-impact': schemaTabId === 'product-impact',
         });
       }
     } catch (error) {
@@ -149,6 +155,17 @@ export default function ScenarioPlanning() {
           />
         </button>
         <button
+          className={analysisType === 'product-impact' ? styles.tabActive : styles.tab}
+          onClick={() => setAnalysisType('product-impact')}
+        >
+          Sales Impact Scenarios
+          <PinIcon
+            isPinned={pinnedTabs['product-impact'] || false}
+            onClick={() => handlePinToggle('product-impact')}
+            size={14}
+          />
+        </button>
+        <button
           className={analysisType === 'compare' ? styles.tabActive : styles.tab}
           onClick={() => setAnalysisType('compare')}
         >
@@ -168,6 +185,10 @@ export default function ScenarioPlanning() {
           companyId={companyId}
           deviceId={deviceId}
         />
+      )}
+
+      {analysisType === 'product-impact' && (
+        <ProductImpactTab />
       )}
 
       {analysisType === 'compare' && (

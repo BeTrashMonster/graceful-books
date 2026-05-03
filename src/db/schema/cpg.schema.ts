@@ -14,6 +14,7 @@
  */
 
 import { nanoid } from 'nanoid';
+import Decimal from 'decimal.js';
 import type { BaseEntity } from '../../types/database.types';
 
 // ============================================================================
@@ -706,11 +707,15 @@ export const validateCPGEvent = (event: Partial<CPGEvent>): string[] => {
  * Calculate profit margin percentage
  */
 export const calculateProfitMargin = (price: string, cost: string): string => {
-  const priceNum = parseFloat(price);
-  const costNum = parseFloat(cost);
-  if (priceNum === 0) return '0.000000';
-  const margin = ((priceNum - costNum) / priceNum) * 100;
-  return margin.toFixed(6);
+  try {
+    const priceNum = new Decimal(price);
+    const costNum = new Decimal(cost);
+    if (priceNum.isZero()) return '0.000000';
+    const margin = priceNum.minus(costNum).dividedBy(priceNum).times(100);
+    return margin.toFixed(6);
+  } catch {
+    return '0.000000';
+  }
 };
 
 /**
@@ -1350,29 +1355,33 @@ export const calculateHourlyRateFromSalary = (
   salaryAmount: string,
   salaryPeriod: 'yearly' | 'monthly' | 'biweekly' | 'weekly'
 ): string => {
-  const amount = parseFloat(salaryAmount);
-  if (isNaN(amount) || amount <= 0) return '0.000000';
+  try {
+    const amount = new Decimal(salaryAmount);
+    if (amount.lessThanOrEqualTo(0)) return '0.000000';
 
-  let hoursPerPeriod: number;
-  switch (salaryPeriod) {
-    case 'yearly':
-      hoursPerPeriod = 2080; // 52 weeks × 40 hours
-      break;
-    case 'monthly':
-      hoursPerPeriod = 173.33; // 2080 / 12
-      break;
-    case 'biweekly':
-      hoursPerPeriod = 80; // 2 weeks × 40 hours
-      break;
-    case 'weekly':
-      hoursPerPeriod = 40;
-      break;
-    default:
-      return '0.000000';
+    let hoursPerPeriod: string;
+    switch (salaryPeriod) {
+      case 'yearly':
+        hoursPerPeriod = '2080'; // 52 weeks × 40 hours
+        break;
+      case 'monthly':
+        hoursPerPeriod = '173.33'; // 2080 / 12
+        break;
+      case 'biweekly':
+        hoursPerPeriod = '80'; // 2 weeks × 40 hours
+        break;
+      case 'weekly':
+        hoursPerPeriod = '40';
+        break;
+      default:
+        return '0.000000';
+    }
+
+    const hourlyRate = amount.dividedBy(new Decimal(hoursPerPeriod));
+    return hourlyRate.toFixed(6);
+  } catch {
+    return '0.000000';
   }
-
-  const hourlyRate = amount / hoursPerPeriod;
-  return hourlyRate.toFixed(6);
 };
 
 // ============================================================================
@@ -1521,13 +1530,17 @@ export const calculateHoursPerUnit = (
   hoursPerBatch: string,
   batchSize: string
 ): string => {
-  const hours = parseFloat(hoursPerBatch);
-  const size = parseFloat(batchSize);
+  try {
+    const hours = new Decimal(hoursPerBatch);
+    const size = new Decimal(batchSize);
 
-  if (isNaN(hours) || isNaN(size) || size === 0) return '0.000000';
+    if (size.isZero()) return '0.000000';
 
-  const hoursPerUnit = hours / size;
-  return hoursPerUnit.toFixed(6); // Use 6 decimals for precision
+    const hoursPerUnit = hours.dividedBy(size);
+    return hoursPerUnit.toFixed(6); // Use 6 decimals for precision
+  } catch {
+    return '0.000000';
+  }
 };
 
 /**
@@ -1537,13 +1550,14 @@ export const calculateLaborCostPerUnit = (
   hoursPerUnit: string,
   hourlyRate: string
 ): string => {
-  const hours = parseFloat(hoursPerUnit);
-  const rate = parseFloat(hourlyRate);
-
-  if (isNaN(hours) || isNaN(rate)) return '0.000000';
-
-  const cost = hours * rate;
-  return cost.toFixed(6);
+  try {
+    const hours = new Decimal(hoursPerUnit);
+    const rate = new Decimal(hourlyRate);
+    const cost = hours.times(rate);
+    return cost.toFixed(6);
+  } catch {
+    return '0.000000';
+  }
 };
 
 // ============================================================================

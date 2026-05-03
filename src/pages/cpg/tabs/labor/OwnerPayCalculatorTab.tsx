@@ -19,8 +19,10 @@ import { useAuth } from '../../../../contexts/AuthContext';
 import { db } from '../../../../db/database';
 import { LaborRoleService } from '../../../../services/cpg/laborRole.service';
 import { cpuCalculatorService } from '../../../../services/cpg/cpuCalculator.service';
-import type { CPGFinishedProduct, CPGLaborRole, CPGProductLabor } from '../../../../db/schema/cpg.schema';
+import type { CPGFinishedProduct, CPGLaborRole } from '../../../../db/schema/cpg.schema';
 import { useCPGSettings } from '../../../../hooks/useCPGSettings';
+import { ProductImpactAnalysis, type OwnerData } from '../../../../components/cpg/ProductImpactAnalysis';
+import Decimal from 'decimal.js';
 import styles from './OwnerPayCalculatorTab.module.css';
 
 interface Expense {
@@ -844,18 +846,22 @@ function ProductImpactContent({
   calculateScenario,
   companyId,
 }: ProductImpactContentProps) {
-  const [productData, setProductData] = useState<Record<string, { price: number; cpu: number; laborCostPerUnit: number }>>({});
+  const [productData, setProductData] = useState<Record<string, { price: string; cpu: string; laborCostPerUnit: string }>>({});
   const [loading, setLoading] = useState(true);
+  const [dataVersion, setDataVersion] = useState(0);
 
-  useEffect(() => {
-    loadProductData();
-  }, [products, companyId]);
-
-  const loadProductData = async () => {
+  const loadProductData = async (forceReload = false) => {
+    console.log('🟢 loadProductData CALLED', { forceReload, productsCount: products.length });
+    if (forceReload) {
+      console.log('🔄 FORCE RELOADING product data...');
+    }
     try {
       setLoading(true);
-      const data: Record<string, { price: number; cpu: number; laborCostPerUnit: number }> = {};
+      const data: Record<string, { price: string; cpu: string; laborCostPerUnit: string }> = {};
       const laborService = new LaborRoleService(db);
+
+      console.log('=== Loading Product Data ===');
+      console.log('Products to process:', products.map(p => p.name));
 
       // Get all labor roles to identify owner's pay roles
       const allRoles = await db.cpgLaborRoles
@@ -871,45 +877,51 @@ function ProductImpactContent({
           .map((role) => role.id)
       );
 
+      console.log(`Processing ${products.length} products...`);
+
       for (const product of products) {
+        console.log(`\n--- Processing: ${product.name} (ID: ${product.id}) ---`);
+
         // Get product CPU (raw materials only)
-        const cpuResult = await cpuCalculatorService.calculateFinishedProductCPU(
-          product.id,
-          companyId,
-          null
-        );
-        // Use materialCPU for raw COGS (excludes labor)
-        const cpu = cpuResult?.materialCPU ? parseFloat(cpuResult.materialCPU) : 0;
-        const price = parseFloat(product.msrp || '0');
+        try {
+          const cpuResult = await cpuCalculatorService.calculateFinishedProductCPU(
+            product.id,
+            companyId,
+            null
+          );
+          // Use materialCPU for raw COGS (excludes labor) - keep as string for precision
+          const cpu = cpuResult?.materialCPU || '0';
+          const price = product.msrp || '0';
 
-        // Calculate labor cost excluding owner's pay
-        let laborCostPerUnit = 0;
+          console.log(`  CPU: ${cpu}, Price: ${price}`);
 
-        // Get labor assignments for this product
-        const assignments = await db.cpgProductLabors
-          .where('finished_product_id')
-          .equals(product.id)
-          .and((a) => a.deleted_at === null)
-          .toArray();
+          // Calculate labor cost using the service method
+          const laborResult = await laborService.calculateProductLaborCost(product.id);
 
-        for (const assignment of assignments) {
-          // Skip if this assignment is for an owner's pay role
-          if (ownerPayRoleIds.has(assignment.labor_role_id)) {
-            continue;
+          console.log(`  Labor breakdown:`, laborResult.breakdown);
+          console.log(`  ✓ Total Labor: $${laborResult.totalLaborCostPerUnit}`);
+
+          // Filter out owner's pay roles from total
+          let laborCostPerUnit = new Decimal(0);
+          for (const item of laborResult.breakdown) {
+            if (!ownerPayRoleIds.has(item.roleId)) {
+              laborCostPerUnit = laborCostPerUnit.plus(new Decimal(item.costPerUnit));
+            }
           }
 
-          // Get the labor role
-          const role = allRoles.find((r) => r.id === assignment.labor_role_id);
-          if (!role) continue;
+          console.log(`  ✓ Labor (excluding owner's pay): $${laborCostPerUnit.toString()}`);
 
-          // Calculate labor cost for this assignment
-          const hoursPerUnit = parseFloat(assignment.hours_per_unit || '0');
-          const hourlyRate = parseFloat(role.hourly_rate || role.calculated_hourly_rate || '0');
-          laborCostPerUnit += hoursPerUnit * hourlyRate;
+          data[product.id] = {
+            price,
+            cpu,
+            laborCostPerUnit: laborCostPerUnit.toFixed(6)
+          };
+        } catch (error) {
+          console.error(`  ✗ Error processing ${product.name}:`, error);
         }
-
-        data[product.id] = { price, cpu, laborCostPerUnit };
       }
+
+      console.log('\n=== Final productData ===', data);
 
       setProductData(data);
     } catch (err) {
@@ -919,8 +931,164 @@ function ProductImpactContent({
     }
   };
 
+  useEffect(() => {
+    console.log('🔵 ProductImpactContent useEffect triggered', { productsLength: products.length, dataVersion });
+    loadProductData(true);
+  }, [products, companyId, dataVersion]);
+
+  // Reload product data when any related data changes
+  useEffect(() => {
+    const handleDataUpdate = (e: CustomEvent) => {
+      const updateTypes = [
+        'labor-assignment',
+        'labor-role',
+        'invoice',
+        'recipe',
+        'category',
+        'finished-product'
+      ];
+
+      if (updateTypes.includes(e.detail?.type)) {
+        console.log(`CPG data updated (${e.detail?.type}), reloading product data...`);
+        setDataVersion(v => v + 1);
+      }
+    };
+
+    window.addEventListener('cpg-data-updated', handleDataUpdate as EventListener);
+    return () => window.removeEventListener('cpg-data-updated', handleDataUpdate as EventListener);
+  }, []);
+
   // Get formatting functions from parent component
   const { formatCurrency: formatCurrencyFn } = useCPGSettings();
+
+  // Export to CSV
+  const exportToCSV = async () => {
+    const lines: string[] = [];
+
+    // Header
+    lines.push(`Product Impact Analysis - ${scenario.charAt(0).toUpperCase() + scenario.slice(1)} Scenario`);
+    lines.push(`Generated: ${new Date().toLocaleString()}`);
+    lines.push('');
+
+    // Summary Section
+    lines.push('=== SUMMARY ===');
+    lines.push('Product,Units,Metric,Per Unit,Total');
+
+    const testResults = calculateTestResults();
+    let summaryRevenue = new Decimal(0);
+    let summaryMaterials = new Decimal(0);
+    let summaryLabor = new Decimal(0);
+
+    products.forEach((product) => {
+      const units = new Decimal(testUnits[product.id] || '0');
+      const data = productData[product.id];
+
+      if (data && units.greaterThan(0)) {
+        const revenue = units.times(new Decimal(data.price));
+        const materials = units.times(new Decimal(data.cpu));
+        const labor = units.times(new Decimal(data.laborCostPerUnit));
+
+        lines.push(`${product.name},${units},Revenue,$${data.price},$${revenue.toFixed(2)}`);
+        lines.push(`${product.name},${units},Materials,$${data.cpu},$${materials.toFixed(6)}`);
+        lines.push(`${product.name},${units},Labor,$${data.laborCostPerUnit},$${labor.toFixed(6)}`);
+        lines.push('');
+
+        summaryRevenue = summaryRevenue.plus(revenue);
+        summaryMaterials = summaryMaterials.plus(materials);
+        summaryLabor = summaryLabor.plus(labor);
+      }
+    });
+
+    lines.push(',,TOTALS,,');
+    lines.push(`,,Total Revenue,,$${summaryRevenue.toFixed(2)}`);
+    lines.push(`,,Total Materials,,$${summaryMaterials.toFixed(6)}`);
+    lines.push(`,,Total Labor (owner pay roles excluded),,$${summaryLabor.toFixed(6)}`);
+    lines.push(`,,Owner's Pay Needed,,$${getTotalOwnerPay().toFixed(2)}`);
+    const gap = summaryRevenue.minus(summaryMaterials).minus(summaryLabor).minus(getTotalOwnerPay());
+    lines.push(`,,${gap.greaterThanOrEqualTo(0) ? 'Available for Operations' : 'Amount to Bridge'},,$${gap.abs().toFixed(2)}`);
+    lines.push('');
+    lines.push('');
+
+    // Detail Section
+    lines.push('=== DETAIL BREAKDOWN ===');
+
+    for (const product of products) {
+      const units = new Decimal(testUnits[product.id] || '0');
+      if (units.lessThanOrEqualTo(0)) continue;
+
+      const data = productData[product.id];
+      if (!data) continue;
+
+      lines.push('');
+      lines.push(`Product: ${product.name}`);
+      lines.push(`Units Sold: ${units}`);
+      lines.push('');
+
+      // Material Breakdown
+      lines.push('Material CPU Breakdown:');
+      try {
+        const cpuBreakdown = await cpuCalculatorService.calculateFinishedProductCPU(
+          product.id,
+          companyId,
+          null
+        );
+
+        if (cpuBreakdown?.breakdown) {
+          lines.push('Component,Quantity,Unit,Unit Cost,Subtotal');
+          cpuBreakdown.breakdown.forEach((item) => {
+            lines.push(`${item.categoryName}${item.variant ? ` (${item.variant})` : ''},${item.quantity},${item.unitOfMeasure},$${item.unitCost || '0.000000'},$${item.subtotal || '0.000000'}`);
+          });
+          lines.push(`Total Material CPU:,,,,$${data.cpu}`);
+        }
+      } catch (err) {
+        lines.push('Error loading material breakdown');
+      }
+      lines.push('');
+
+      // Labor Breakdown
+      lines.push('Labor Cost Breakdown:');
+      try {
+        const laborService = new LaborRoleService(db);
+        const laborBreakdown = await laborService.calculateProductLaborCost(product.id);
+
+        if (laborBreakdown?.breakdown) {
+          lines.push('Role,Hours per Unit,Hourly Rate,Cost per Unit');
+          laborBreakdown.breakdown.forEach((item) => {
+            lines.push(`${item.roleName},${item.hoursPerUnit},$${item.hourlyRate},$${item.costPerUnit}`);
+          });
+          lines.push(`Total Labor Cost:,,,$${data.laborCostPerUnit}`);
+        }
+      } catch (err) {
+        lines.push('Error loading labor breakdown');
+      }
+      lines.push('');
+
+      // Product Summary
+      lines.push('Product Summary:');
+      lines.push(`Selling Price per Unit:,$${data.price}`);
+      lines.push(`Material Cost per Unit:,$${data.cpu}`);
+      lines.push(`Labor Cost per Unit:,$${data.laborCostPerUnit}`);
+      const productRevenue = units.times(new Decimal(data.price));
+      const productMaterials = units.times(new Decimal(data.cpu));
+      const productLabor = units.times(new Decimal(data.laborCostPerUnit));
+      lines.push(`Total Revenue (${units} units):,$${productRevenue.toFixed(2)}`);
+      lines.push(`Total Materials (${units} units):,$${productMaterials.toFixed(6)}`);
+      lines.push(`Total Labor (${units} units):,$${productLabor.toFixed(6)}`);
+      lines.push('');
+    }
+
+    // Create and download CSV
+    const csvContent = lines.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `product-impact-${scenario}-${Date.now()}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Calculate total owner's pay needed for selected scenario
   const getTotalOwnerPay = () => {
@@ -932,36 +1100,55 @@ function ProductImpactContent({
     }, 0);
   };
 
-  // Calculate test results with detailed breakdown
+  // Calculate test results with detailed breakdown using Decimal for precision
   const calculateTestResults = () => {
+    console.log('=== CALCULATE TEST RESULTS ===');
+    console.log('Products in calculation:', products.map(p => p.name));
+    console.log('testUnits:', testUnits);
+    console.log('productData:', productData);
+
     const totalOwnerPay = getTotalOwnerPay();
-    let grossRevenue = 0;
-    let rawCOGS = 0;
-    let laborCost = 0;
+    let grossRevenue = new Decimal(0);
+    let rawCOGS = new Decimal(0);
+    let laborCost = new Decimal(0);
 
     products.forEach((product) => {
-      const units = parseFloat(testUnits[product.id] || '0');
+      const units = new Decimal(testUnits[product.id] || '0');
       const data = productData[product.id];
 
-      if (data) {
-        grossRevenue += units * data.price;
-        rawCOGS += units * data.cpu;
-        laborCost += units * data.laborCostPerUnit;
+      console.log(`[CALC] ${product.name} (ID: ${product.id}):`, {
+        units: units.toString(),
+        hasData: !!data,
+        data: data
+      });
+
+      if (data && units.greaterThan(0)) {
+        const revenue = units.times(new Decimal(data.price));
+        const cogs = units.times(new Decimal(data.cpu));
+        const labor = units.times(new Decimal(data.laborCostPerUnit));
+
+        console.log(`  Revenue: ${units} × ${data.price} = ${revenue}`);
+        console.log(`  COGS: ${units} × ${data.cpu} = ${cogs}`);
+        console.log(`  Labor: ${units} × ${data.laborCostPerUnit} = ${labor}`);
+
+        grossRevenue = grossRevenue.plus(revenue);
+        rawCOGS = rawCOGS.plus(cogs);
+        laborCost = laborCost.plus(labor);
       }
     });
 
     // Calculate bottom line
-    const netBeforeOwnerPay = grossRevenue - rawCOGS - laborCost;
-    const finalGap = netBeforeOwnerPay - totalOwnerPay;
+    const netBeforeOwnerPay = grossRevenue.minus(rawCOGS).minus(laborCost);
+    const finalGap = netBeforeOwnerPay.minus(totalOwnerPay);
 
     return {
-      grossRevenue,
-      rawCOGS,
-      laborCost,
+      grossRevenue: parseFloat(grossRevenue.toFixed(6)),
+      rawCOGS: parseFloat(rawCOGS.toFixed(6)),
+      laborCost: parseFloat(laborCost.toFixed(6)),
       totalOwnerPay,
-      netBeforeOwnerPay,
-      finalGap,
-      isCovered: finalGap >= 0,
+      netBeforeOwnerPay: parseFloat(netBeforeOwnerPay.toFixed(6)),
+      finalGap: parseFloat(finalGap.toFixed(6)),
+      isCovered: finalGap.greaterThanOrEqualTo(0),
     };
   };
 
@@ -976,7 +1163,16 @@ function ProductImpactContent({
     <div className={styles.productImpactContainer}>
       {/* Let's Play! */}
       <div className={styles.playSide}>
-        <h3>Let's Play!</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3>Let's Play!</h3>
+          <button
+            onClick={() => setDataVersion(v => v + 1)}
+            style={{ padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}
+            title="Reload product data from database"
+          >
+            🔄 Reload Data
+          </button>
+        </div>
         <p className={styles.playDescription}>
           Enter your projected sales to see the full breakdown: revenue, costs, and whether you'll cover owner's pay.
         </p>
@@ -1013,7 +1209,12 @@ function ProductImpactContent({
             </span>
           </div>
           <div className={styles.resultRow}>
-            <span className={styles.resultLabel}>Labor Cost:</span>
+            <span className={styles.resultLabel}>
+              Labor Cost:
+              <span style={{ fontStyle: 'italic', fontSize: '0.85em', color: '#666', marginLeft: '0.5rem' }}>
+                (owner pay roles excluded - see below)
+              </span>
+            </span>
             <span className={`${styles.resultValue} ${testResults.laborCost > 0 ? styles.resultNegative : ''}`}>
               {testResults.laborCost > 0 ? '-' : ''}{formatCurrencyFn(testResults.laborCost)}
             </span>
@@ -1026,7 +1227,7 @@ function ProductImpactContent({
           </div>
           <div className={`${styles.resultRow} ${styles.resultFinal}`}>
             <span className={styles.resultLabel}>
-              {testResults.isCovered ? 'Growth Cushion:' : 'Amount to Bridge:'}
+              {testResults.isCovered ? 'Available for Operations:' : 'Amount to Bridge:'}
             </span>
             <span
               className={`${styles.resultValue} ${
@@ -1039,6 +1240,13 @@ function ProductImpactContent({
           <div className={styles.resultNote}>
             This calculation only includes the expenses listed above - it's a baseline guide, not your full picture.
           </div>
+          <Button
+            variant="outline"
+            onClick={exportToCSV}
+            style={{ marginTop: '1rem', width: '100%' }}
+          >
+            📊 Export Detailed Breakdown to CSV
+          </Button>
         </div>
       </div>
     </div>

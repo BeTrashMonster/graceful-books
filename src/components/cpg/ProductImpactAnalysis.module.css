@@ -1,0 +1,955 @@
+/* Product Impact Analysis Styles */
+
+.container {
+  padding: 0;
+  max-width: 100%;
+  margin: 0;
+}
+
+.scenarioTabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.tab,
+.tabActive {
+  padding: 0.875rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  color: #D4AF37;
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.tabActive {
+  color: #D4AF37;
+  border-bottom-color: #D4AF37;
+  background: linear-gradient(135deg, rgba(232, 212, 160, 0.1) 0%, rgba(212, 175, 55, 0.15) 100%);
+  font-weight: 600;
+}
+
+.noProducts {
+  padding: 2rem;
+  margin: 1.5rem 0;
+  text-align: center;
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border: 2px solid #f3e8ff;
+  border-radius: 8px;
+}
+
+.noProducts p {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.impactLoading {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-style: italic;
+}
+
+.productImpactContainer {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Play Section */
+.playSide {
+  background: white;
+  border: 2px solid #E5F6DF;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.playSide h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #4b006e;
+  margin: 0 0 0.5rem 0;
+}
+
+.playDescription {
+  font-size: 0.95rem;
+  color: #666;
+  margin: 0 0 1.5rem 0;
+}
+
+.playInputs {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.playInputRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.playInputRow label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.playInput {
+  width: 120px;
+  padding: 0.625rem 0.75rem;
+  background-color: #E5F6DF;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  text-align: right;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.playInput:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.playInput:hover:not(:focus) {
+  border-color: #D4AF37;
+}
+
+.unitsLabel {
+  font-size: 0.875rem;
+  color: #666;
+  width: 40px;
+}
+
+/* Results */
+.playResults {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border: 2px solid #f3e8ff;
+  border-radius: 8px;
+}
+
+.resultRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.resultRow:nth-child(1) {
+  padding-top: 0;
+}
+
+.resultRow:last-child {
+  border-bottom: none;
+}
+
+.resultFinal {
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 3px solid #4b006e;
+  font-size: 1.25rem;
+  font-weight: 700;
+  background: rgba(212, 175, 55, 0.05);
+  padding: 1rem;
+  margin: 0.5rem -0.5rem 0 -0.5rem;
+  border-radius: 6px;
+  justify-content: flex-end;
+}
+
+.resultLabel {
+  color: #666;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.resultFinal .resultLabel {
+  color: #4b006e;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.resultValue {
+  color: #1a1a1a;
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+.resultFinal .resultValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.resultPositive {
+  color: #22c55e;
+  font-weight: 700;
+}
+
+.resultNegative {
+  color: #4b006e;
+  font-weight: 700;
+}
+
+.resultNote {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e0e0e0;
+  font-size: 0.875rem;
+  color: #999;
+  text-align: center;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.intro {
+  margin-bottom: 2rem;
+  font-size: 1rem;
+  color: #666;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-size: 1.125rem;
+  color: #666;
+}
+
+/* Section Box (Following Design System) */
+.section {
+  background-color: #ffffff;
+  border-left: 4px solid #D4AF37;
+  border-right: 4px solid #D4AF37;
+  border-bottom: 4px solid #D4AF37;
+  border-radius: 8px;
+  padding: 0;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  overflow: hidden;
+}
+
+.section h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 1.25rem 2rem;
+  color: #ffffff;
+  background: #4b006e;
+}
+
+.section > p {
+  font-size: 1rem;
+  color: #666;
+  margin: 0 0 1.5rem 0;
+  padding: 1.5rem 2rem 0 2rem;
+}
+
+.section > *:not(h2):not(p) {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.section > *:last-child {
+  padding-bottom: 2rem;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+}
+
+.sectionHeader h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #4b006e;
+  margin: 0;
+}
+
+/* Owner Card */
+.ownerCard {
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: #faf5ff;
+  border: 2px solid #f3e8ff;
+  border-radius: 12px;
+}
+
+.ownerHeader {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.removeOwnerButton {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: #dc2626;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.removeOwnerButton:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  transform: scale(1.05);
+}
+
+.ownerNameInput {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  background-color: #E5F6DF;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ownerNameInput:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.ownerNameInput:hover:not(:focus) {
+  border-color: #D4AF37;
+}
+
+/* Expense Table */
+.expenseTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+
+.expenseTable thead th {
+  padding: 1rem;
+  text-align: left;
+  background: #f3e8ff;
+  color: #4b006e;
+  font-weight: 600;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.expenseTable tbody td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.expenseTable tbody tr:hover {
+  background: #f9fafb;
+}
+
+.inputField {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  background-color: #E5F6DF;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.inputField:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.inputField:hover:not(:focus) {
+  border-color: #D4AF37;
+}
+
+/* Period Toggle */
+.periodToggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.toggleButton,
+.toggleActive {
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.toggleButton:hover {
+  border-color: #D4AF37;
+  color: #D4AF37;
+}
+
+.toggleActive {
+  background: #4b006e;
+  border-color: #4b006e;
+  color: white;
+  font-weight: 600;
+}
+
+.deleteButton {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #dc2626;
+  transition: all 0.2s ease;
+}
+
+.deleteButton:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+/* Break-Even Summary */
+.breakEvenSummary {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border: 2px solid #f3e8ff;
+  border-radius: 8px;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.summaryLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #666;
+}
+
+.summaryValue {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #D4AF37;
+}
+
+/* Effective Date Section */
+.effectiveDateSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border: 2px solid #f3e8ff;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.effectiveDateLabel {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #4b006e;
+  white-space: nowrap;
+}
+
+.effectiveDateInput {
+  padding: 0.625rem 0.75rem;
+  background-color: #E5F6DF;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.effectiveDateInput:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.effectiveDateInput:hover:not(:focus) {
+  border-color: #D4AF37;
+}
+
+.effectiveDateHint {
+  font-size: 0.875rem;
+  color: #999;
+  font-style: italic;
+}
+
+/* Scenario Grid */
+.scenarioGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.scenarioColumn {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.scenarioColumn:hover {
+  transform: translateY(-2px);
+  border-color: #D4AF37;
+}
+
+.scenarioTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 1rem;
+  text-align: center;
+  color: white;
+  background: #4b006e;
+}
+
+.scenarioContent {
+  padding: 1.5rem;
+}
+
+.scenarioRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.scenarioLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #666;
+}
+
+.scenarioValue {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.scenarioInput {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  background-color: #E5F6DF;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.scenarioInput:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.scenarioInput:hover:not(:focus) {
+  border-color: #D4AF37;
+}
+
+.scenarioTotal {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.scenarioTotal .scenarioValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #D4AF37;
+}
+
+.scenarioYearly {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+/* Grand Total Grid */
+.grandTotalGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.grandTotalItem {
+  padding: 2rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border: 2px solid #f3e8ff;
+  border-radius: 8px;
+  text-align: center;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.grandTotalItem:hover {
+  transform: translateY(-2px);
+  border-color: #D4AF37;
+}
+
+.grandTotalLabel {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #4b006e;
+  margin-bottom: 0.75rem;
+}
+
+.grandTotalValue {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #D4AF37;
+}
+
+/* Product Impact Analysis */
+.noProductsMessage {
+  padding: 2rem;
+  margin: 1.5rem 0;
+  text-align: center;
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border: 2px solid #f3e8ff;
+  border-radius: 8px;
+}
+
+.noProductsMessage p {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.noProductsMessage strong {
+  color: #4b006e;
+  font-weight: 600;
+}
+
+.productImpactTabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  padding: 0 2rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.impactTab,
+.impactTabActive {
+  padding: 0.875rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.impactTab:hover {
+  color: #D4AF37;
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.impactTabActive {
+  color: #D4AF37;
+  border-bottom-color: #D4AF37;
+  background: linear-gradient(135deg, rgba(232, 212, 160, 0.1) 0%, rgba(212, 175, 55, 0.15) 100%);
+  font-weight: 600;
+}
+
+.impactLoading {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-style: italic;
+}
+
+.productImpactContainer {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Play Section */
+.playSide {
+  background: white;
+  border: 2px solid #E5F6DF;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.playSide h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #4b006e;
+  margin: 0 0 0.5rem 0;
+}
+
+.playDescription {
+  font-size: 0.95rem;
+  color: #666;
+  margin: 0 0 1.5rem 0;
+}
+
+.playInputs {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.playInputRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.playInputRow label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.playInput {
+  width: 120px;
+  padding: 0.625rem 0.75rem;
+  background-color: #E5F6DF;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  text-align: right;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.playInput:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.playInput:hover:not(:focus) {
+  border-color: #D4AF37;
+}
+
+.unitsLabel {
+  font-size: 0.875rem;
+  color: #666;
+  width: 40px;
+}
+
+/* Results */
+.playResults {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border: 2px solid #f3e8ff;
+  border-radius: 8px;
+}
+
+.resultRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.resultRow:nth-child(1) {
+  /* Revenue row - emphasized */
+  padding-top: 0;
+}
+
+.resultRow:nth-child(4) {
+  /* Owner's Pay row - last before final */
+  border-bottom: 2px solid #d0d0d0;
+}
+
+.resultRow:last-child {
+  border-bottom: none;
+}
+
+.resultFinal {
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 3px solid #4b006e;
+  font-size: 1.25rem;
+  font-weight: 700;
+  background: rgba(212, 175, 55, 0.05);
+  padding: 1rem;
+  margin: 0.5rem -0.5rem 0 -0.5rem;
+  border-radius: 6px;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.resultLabel {
+  color: #666;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.resultFinal .resultLabel {
+  color: #4b006e;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.resultValue {
+  color: #1a1a1a;
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+.resultFinal .resultValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.resultPositive {
+  color: #22c55e;
+  font-weight: 700;
+}
+
+.resultNegative {
+  color: #4b006e;
+  font-weight: 700;
+}
+
+.resultNote {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e0e0e0;
+  font-size: 0.875rem;
+  color: #999;
+  text-align: center;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* Success Modal */
+.successModalContent {
+  padding: 1rem 0;
+}
+
+.successModalLine {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  color: #1a1a1a;
+  line-height: 1.6;
+}
+
+.successModalLine:first-child {
+  font-weight: 600;
+  color: #4b006e;
+  font-size: 1.125rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .scenarioGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grandTotalGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .scenarioGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .grandTotalGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .productImpactContainer {
+    padding: 1rem;
+  }
+
+  .productImpactTabs {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .impactTab,
+  .impactTabActive {
+    border-bottom: 1px solid #e0e0e0;
+    border-left: 3px solid transparent;
+  }
+
+  .impactTabActive {
+    border-left-color: #D4AF37;
+    border-bottom-color: #e0e0e0;
+  }
+
+  .playInputRow {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .playInput {
+    width: 100%;
+  }
+
+  .unitsLabel {
+    width: auto;
+  }
+
+  .expenseTable {
+    font-size: 0.875rem;
+  }
+
+  .expenseTable thead th,
+  .expenseTable tbody td {
+    padding: 0.5rem;
+  }
+}
