@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CharitySelector } from '../../components/charity';
+import { BackupLocationSetup } from '../../components/onboarding/BackupLocationSetup';
 import { ComprehensiveWorksheet } from '../../components/onboarding/ComprehensiveWorksheet';
 import type { Charity } from '../../types/database.types';
 import { selectCharity } from '../../services/charities.api';
@@ -16,7 +17,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { getDeviceId } from '../../utils/device';
 import styles from './CheckoutSuccess.module.css';
 
-type OnboardingStep = 'processing' | 'success' | 'charity' | 'worksheet' | 'complete';
+type OnboardingStep = 'processing' | 'success' | 'charity' | 'backup' | 'worksheet' | 'complete';
 
 export default function CheckoutSuccess() {
   const navigate = useNavigate();
@@ -61,7 +62,7 @@ export default function CheckoutSuccess() {
 
     try {
       await selectCharity(selectedCharityId);
-      setStep('worksheet');
+      setStep('backup');
     } catch (err) {
       console.error('Failed to save charity selection:', err);
       setError(err instanceof Error ? err.message : 'Failed to save charity selection');
@@ -71,6 +72,16 @@ export default function CheckoutSuccess() {
   };
 
   const handleSkipCharity = async () => {
+    setStep('backup');
+  };
+
+  const handleBackupComplete = (directoryPath: string) => {
+    console.log('Backup location selected:', directoryPath);
+    setStep('worksheet');
+  };
+
+  const handleSkipBackup = () => {
+    console.log('Backup location setup skipped');
     setStep('worksheet');
   };
 
@@ -170,6 +181,16 @@ export default function CheckoutSuccess() {
               {isSubmitting ? 'Saving...' : 'Continue'}
             </button>
           </div>
+        </div>
+      )}
+
+      {step === 'backup' && (
+        <div className={styles.wideCard}>
+          <BackupLocationSetup
+            onComplete={handleBackupComplete}
+            onSkip={handleSkipBackup}
+            isOnboarding={true}
+          />
         </div>
       )}
 
