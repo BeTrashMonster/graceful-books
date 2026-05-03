@@ -635,7 +635,7 @@ export function PromoDetailsForm({
     }
   };
 
-  const _handleAddVariant = () => {
+  const handleAddVariant = () => {
     const unselectedVariants = availableVariants.filter(
       (v) => !formData.selectedVariants.includes(v)
     );

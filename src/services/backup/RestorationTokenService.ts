@@ -24,7 +24,7 @@ import { db } from '../../store/database'
 import {
   type RestorationToken,
   type CreateRestorationTokenOptions,
-  type _TokenValidationResult,
+  type TokenValidationResult,
   createRestorationToken,
   validateTokenState,
   markTokenAsUsed,

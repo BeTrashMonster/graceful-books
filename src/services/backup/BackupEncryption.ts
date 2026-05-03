@@ -18,7 +18,7 @@
 
 import type { MasterKey, CryptoResult } from '../../crypto/types';
 import { encrypt, decrypt } from '../../crypto/encryption';
-import { deriveMasterKey, _generateSalt } from '../../crypto/keyDerivation';
+import { deriveMasterKey, generateSalt } from '../../crypto/keyDerivation';
 import { logger } from '../../utils/logger';
 import { AppError, ErrorCode } from '../../utils/errors';
 

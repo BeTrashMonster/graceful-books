@@ -69,7 +69,7 @@ export default function DistributionCostAnalyzer() {
   const [savingScenario, setSavingScenario] = useState(false);
 
   // Auth context
-  const { companyId, deviceId, _currentCompany, isLoading: authLoading } = useAuth();
+  const { companyId, deviceId, currentCompany, isLoading: authLoading } = useAuth();
 
   // Service
   const [calculatorService] = useState(

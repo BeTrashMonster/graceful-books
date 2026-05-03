@@ -131,7 +131,7 @@ export class ImpactShareService {
   async updateScenario(
     scenarioId: string,
     updates: Partial<CPGImpactScenario>,
-    _deviceId: string
+    deviceId: string
   ): Promise<void> {
     serviceLogger.info('Updating Impact Share scenario', { scenarioId });
 
@@ -160,7 +160,7 @@ export class ImpactShareService {
    * Activate scenario
    * Note: Multiple scenarios can be active, but only one per product
    */
-  async activateScenario(scenarioId: string, _deviceId: string): Promise<void> {
+  async activateScenario(scenarioId: string, deviceId: string): Promise<void> {
     serviceLogger.info('Activating Impact Share scenario', { scenarioId });
 
     const scenario = await this.db.cpgImpactScenarios.get(scenarioId);
@@ -217,7 +217,7 @@ export class ImpactShareService {
   /**
    * Deactivate scenario (set to inactive)
    */
-  async deactivateScenario(scenarioId: string, _deviceId: string): Promise<void> {
+  async deactivateScenario(scenarioId: string, deviceId: string): Promise<void> {
     serviceLogger.info('Deactivating Impact Share scenario', { scenarioId });
 
     await this.db.cpgImpactScenarios.update(scenarioId, {
@@ -231,7 +231,7 @@ export class ImpactShareService {
   /**
    * Mark scenario as saved (from active)
    */
-  async saveScenario(scenarioId: string, _deviceId: string): Promise<void> {
+  async saveScenario(scenarioId: string, deviceId: string): Promise<void> {
     serviceLogger.info('Saving Impact Share scenario', { scenarioId });
 
     await this.db.cpgImpactScenarios.update(scenarioId, {

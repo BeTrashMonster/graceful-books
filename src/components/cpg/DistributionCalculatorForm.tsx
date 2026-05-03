@@ -19,7 +19,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import type { CPGDistributor } from '../../db/schema/cpg.schema';
 import type { DistributionCalcParams } from '../../services/cpg/distributionCostCalculator.service';
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
-import _Decimal from 'decimal.js';
+import Decimal from 'decimal.js';
 import styles from './DistributionCalculatorForm.module.css';
 
 export interface DistributionCalculatorFormProps {
@@ -91,14 +91,14 @@ export function DistributionCalculatorForm({
 
   // ===== PRODUCT OPTIONS =====
   const [availableProducts, setAvailableProducts] = useState<ProductOption[]>([]);
-  const [_loadingProducts, setLoadingProducts] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   // ===== FEE SELECTION =====
   const [feeSelections, setFeeSelections] = useState<Record<string, FeeSelection>>({});
 
   // ===== ZONE SELECTION =====
   const [selectedZone, setSelectedZone] = useState<string>('');
-  const [_numPalletsToZone, _setNumPalletsToZone] = useState('');
+  const [numPalletsToZone, setNumPalletsToZone] = useState('');
 
   // ===== ERRORS =====
   const [errors, setErrors] = useState<Record<string, string>>({});

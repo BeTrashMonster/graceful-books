@@ -78,7 +78,7 @@ export function SyncRelayRestore({
   const [useCustomRelay, setUseCustomRelay] = useState(false)
   const [error, setError] = useState('')
   const [isConnecting, setIsConnecting] = useState(false)
-  const [_isRestoring, setIsRestoring] = useState(false)
+  const [isRestoring, setIsRestoring] = useState(false)
 
   /**
    * Validates relay URL format

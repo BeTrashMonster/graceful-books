@@ -40,7 +40,7 @@ import type {
 import {
   createDefaultCPGSalesPromo,
   validateCPGSalesPromo,
-  _getProfitMarginQuality,
+  getProfitMarginQuality,
   getProfitMarginQualityWithSettings,
   createDefaultCPGSettings,
 } from '../../db/schema/cpg.schema';

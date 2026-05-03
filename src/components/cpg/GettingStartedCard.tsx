@@ -29,7 +29,7 @@ export function GettingStartedCard({ onAction }: GettingStartedCardProps) {
     hasInvoices: false,
   });
   const [isDismissed, setIsDismissed] = useState(false);
-  const [_isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!companyId) return;

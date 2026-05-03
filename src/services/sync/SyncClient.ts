@@ -257,7 +257,7 @@ export class SyncClient {
         resolve()
       }
 
-      ws.onerror = (_event) => {
+      ws.onerror = (event) => {
         clearTimeout(timeout)
         reject(
           this.createError(
@@ -376,7 +376,7 @@ export class SyncClient {
 
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null
-      this.connect().catch((_error) => {
+      this.connect().catch((error) => {
         // Error already handled in connect()
       })
     }, delay)

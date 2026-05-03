@@ -104,7 +104,7 @@ interface ChartDataPoint {
 type SortColumn = 'component' | 'current' | 'avg' | 'change' | 'lastBuy';
 
 export default function CPUTrendsTab({
-  _companyId,
+  companyId,
   selectedProducts,
   productCPUData,
   products,
@@ -177,9 +177,9 @@ export default function CPUTrendsTab({
         let product: FinishedProduct | undefined;
         let cpuData: ProductCPUData | undefined;
         let productName = 'All Components';
-        let _aggregateCPU: string | null = null;
-        let _aggregateMargin: number | null = null;
-        let _aggregateSellingPrice: string | null = null;
+        let aggregateCPU: string | null = null;
+        let aggregateMargin: number | null = null;
+        let aggregateSellingPrice: string | null = null;
 
         if (productId !== 'all-components') {
           product = products.find(p => p.id === productId);
@@ -241,7 +241,7 @@ export default function CPUTrendsTab({
 
         // Collect price data for all components that match our filters
         filteredInvoices.forEach(inv => {
-          Object.entries(inv.cost_attribution || {}).forEach(([_key, attr]) => {
+          Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
             const category = categories.find(c => c.id === attr.category_id);
             const isSHCategory = category?.is_distribution_category === true;
 
@@ -306,7 +306,7 @@ export default function CPUTrendsTab({
           filteredInvoices.forEach(inv => {
             // Find S+H items on this invoice
             const shItems = Object.entries(inv.cost_attribution || {})
-              .filter(([_key, attr]) => {
+              .filter(([key, attr]) => {
                 const category = categories.find(c => c.id === attr.category_id);
                 return category?.is_distribution_category === true;
               });
@@ -315,11 +315,11 @@ export default function CPUTrendsTab({
 
             // Find material items on this invoice
             const materialItems = Object.entries(inv.cost_attribution || {})
-              .filter(([_key, attr]) => {
+              .filter(([key, attr]) => {
                 const category = categories.find(c => c.id === attr.category_id);
                 return category?.is_distribution_category !== true;
               })
-              .map(([_key, attr]) => ({
+              .map(([key, attr]) => ({
                 categoryId: attr.category_id,
                 categoryName: categories.find(c => c.id === attr.category_id)?.name || 'Unknown',
                 variant: attr.variant,
@@ -335,7 +335,7 @@ export default function CPUTrendsTab({
             const totalMaterialValue = materialItems.reduce((sum, item) => sum + item.total, 0);
 
             // For each S+H item, distribute to materials
-            shItems.forEach(([_key, shAttr]) => {
+            shItems.forEach(([key, shAttr]) => {
               const shTotal = parseFloat(shAttr.unit_price); // S+H is stored as total in unit_price
               if (isNaN(shTotal) || shTotal <= 0) return;
 
@@ -436,7 +436,7 @@ export default function CPUTrendsTab({
           componentTrends.sort((a, b) => a.componentName.localeCompare(b.componentName));
 
           // Calculate CPU - use cpuData if available (which includes quantities)
-          let _calculatedCPU = 0;
+          let calculatedCPU = 0;
           if (productId !== 'all-components' && cpuData) {
             // For individual products, use the subtotals from breakdown (already includes quantities)
             calculatedCPU = cpuData.breakdown?.reduce((sum, comp) => {

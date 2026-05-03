@@ -84,7 +84,7 @@ export function CPUBreakdownModal({
           if (!invoice.cost_attribution) continue;
 
           // Check each line item in the invoice
-          for (const [_key, item] of Object.entries(invoice.cost_attribution)) {
+          for (const [key, item] of Object.entries(invoice.cost_attribution)) {
             if (item.category_id === categoryId) {
               // Check if variant matches (null means no variant specified)
               const itemVariant = item.variant || null;

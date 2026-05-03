@@ -10,7 +10,7 @@ import { Modal } from '../../modals/Modal';
 import { Button } from '../../core/Button';
 import { db } from '../../../db/database';
 import type { CPGInvoice } from '../../../db/schema/cpg.schema';
-import _styles from './CPGModals.module.css';
+import styles from './CPGModals.module.css';
 
 export interface VendorDetailsModalProps {
   isOpen: boolean;

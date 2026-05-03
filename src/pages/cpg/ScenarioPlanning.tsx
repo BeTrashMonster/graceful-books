@@ -42,7 +42,7 @@ const fromSchemaTab = (tab: SchemaTabType | string): AnalysisType => {
  * Strategy Planning Component
  */
 export default function ScenarioPlanning() {
-  const { companyId, deviceId, _userIdentifier } = useAuth();
+  const { companyId, deviceId, userIdentifier } = useAuth();
 
   // Tab pinning
   const { defaultTab, pinTab, unpinTab, isTabPinned, isLoading: isPinningLoading } = useTabPinning({
@@ -53,7 +53,7 @@ export default function ScenarioPlanning() {
   const [pinnedTabs, setPinnedTabs] = useState<Record<string, boolean>>({});
   const [distributors, setDistributors] = useState<CPGDistributor[]>([]);
   const [loading, setLoading] = useState(true);
-  const [_error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [service] = useState(() => new ScenarioPlanningService(db));
 
   // Update active tab when pinned default loads

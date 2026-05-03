@@ -25,7 +25,7 @@
 
 import {
   type SyncPayload,
-  type _SyncChangeMetadata,
+  type SyncChangeMetadata,
   SyncErrorCode,
   type SyncError,
 } from '../../config/syncConfig'
@@ -72,7 +72,7 @@ export interface VerificationResult {
  */
 export class SyncSignature {
   private signatureKey: CryptoKey | null = null
-  private _masterKey: CryptoKey | null = null
+  private masterKey: CryptoKey | null = null
   private currentEpoch: number = 0
 
   constructor() {
@@ -346,7 +346,7 @@ export class SyncSignature {
    * @returns ArrayBuffer
    * @private
    */
-  private _base64ToBuffer(base64: string): ArrayBuffer {
+  private base64ToBuffer(base64: string): ArrayBuffer {
     const binary = atob(base64)
     const bytes = new Uint8Array(binary.length)
     for (let i = 0; i < binary.length; i++) {

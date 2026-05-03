@@ -11,14 +11,14 @@
  * - URL parameter support for pre-selecting scenario
  */
 
-import { useState, useEffect, _useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Loading } from '../../../../components/feedback/Loading';
 import { ErrorMessage } from '../../../../components/feedback/ErrorMessage';
 import { MarginQualityBadge } from '../../../../components/cpg/MarginQualityBadge';
 import type { CPGImpactScenario } from '../../../../db/schema/cpg.schema';
 import { impactShareService } from '../../../../services/cpg/impactShare.service';
-import { _db } from '../../../../_db/database';
+import { db } from '../../../../db/database';
 import { useAuth } from '../../../../contexts/AuthContext';
 import styles from './CompareScenariosTab.module.css';
 
@@ -119,7 +119,7 @@ export function CompareScenariosTab() {
   // Helper Functions
   // ========================================
 
-  const _getScenarioName = (scenarioId: string) => {
+  const getScenarioName = (scenarioId: string) => {
     const scenario = availableScenarios.find((s) => s.id === scenarioId);
     return scenario ? scenario.scenario_name : 'Unknown';
   };

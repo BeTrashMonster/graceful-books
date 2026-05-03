@@ -544,7 +544,7 @@ export default function CostIntelligenceTab({
     setSelectedProductsForComparison(new Set(productsWithMargin));
   }, [finishedProducts, productCPUData]);
 
-  const _selectMissingCostData = useCallback(() => {
+  const selectMissingCostData = useCallback(() => {
     const productsWithMissingData = finishedProducts
       .filter(p => {
         const data = productCPUData.get(p.id);

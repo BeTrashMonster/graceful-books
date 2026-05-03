@@ -35,7 +35,7 @@ export function CompareDistributorsTab({ distributors, companyId, service }: Com
   const [selectedDistributorIds, setSelectedDistributorIds] = useState<string[]>([]);
   const [comparisonResult, setComparisonResult] = useState<DistributorComparisonReport | null>(null);
   const [costTrends, setCostTrends] = useState<Record<string, string>>({});
-  const [_categories, _setCategories] = useState<CPGCategory[]>([]);
+  const [categories, setCategories] = useState<CPGCategory[]>([]);
   const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
   const [comparisonParams, setComparisonParams] = useState({
     numPallets: '1',
@@ -592,7 +592,7 @@ export function CompareDistributorsTab({ distributors, companyId, service }: Com
               // Get base CPU and price from the variant data
               const variantData = comparisonParams.variants.find(v => v.name === variantName);
               const baseCPU = variantData?.baseCPU || '0.00';
-              const _sellPrice = variantData?.price || '0.00';
+              const sellPrice = variantData?.price || '0.00';
 
               return (
                 <div key={variantName} className={styles.variantSection}>

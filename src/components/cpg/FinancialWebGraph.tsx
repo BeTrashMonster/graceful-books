@@ -230,7 +230,7 @@ export function FinancialWebGraph({
           content: tooltipContent,
         });
       })
-      .on('mouseout', function(_event, d) {
+      .on('mouseout', function(event, d) {
         d3.select(this).transition().duration(200).attr('r', nodeScale(parseFloat(d.totalSpent)));
         setTooltip(prev => ({ ...prev, visible: false }));
 

@@ -9,7 +9,7 @@ import styles from './Signup.module.css';
 type SignupStep = 'credentials' | 'charity' | 'product';
 
 export default function Signup() {
-  const _navigate = useNavigate();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState<SignupStep>('credentials');
   const [email, setEmail] = useState('');

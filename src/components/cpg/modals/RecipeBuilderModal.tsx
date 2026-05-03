@@ -20,8 +20,6 @@ export interface RecipeBuilderModalProps {
   finishedProductId: string;
   productName: string;
   onNavigateToInvoice?: (invoiceId: string, invoiceNumber: string) => void;
-  highlightCategoryId?: string;
-  highlightVariant?: string | null;
 }
 
 export function RecipeBuilderModal({
@@ -30,8 +28,6 @@ export function RecipeBuilderModal({
   finishedProductId,
   productName,
   onNavigateToInvoice,
-  highlightCategoryId,
-  highlightVariant,
 }: RecipeBuilderModalProps) {
   // Apply purple header styling to modal
   useEffect(() => {
@@ -86,8 +82,6 @@ export function RecipeBuilderModal({
         onSave={handleSave}
         onCancel={handleCancel}
         onNavigateToInvoice={onNavigateToInvoice}
-        highlightCategoryId={highlightCategoryId}
-        highlightVariant={highlightVariant}
       />
     </Modal>
   );

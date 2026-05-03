@@ -17,7 +17,7 @@ import { Button } from '../core/Button';
 import { db } from '../../db/database';
 import { useAuth } from '../../contexts/AuthContext';
 import type { CPGFinishedProduct } from '../../db/schema/cpg.schema';
-import { _checkFinishedProductHasRecipes } from '../../db/schema/cpg.schema';
+import { checkFinishedProductHasRecipes } from '../../db/schema/cpg.schema';
 import { AddProductModal } from './modals/AddProductModal';
 import { BundleProductsModal } from './modals/BundleProductsModal';
 import { LaborAssignmentModal } from './modals/LaborAssignmentModal';

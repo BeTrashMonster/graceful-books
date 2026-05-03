@@ -266,7 +266,7 @@ export async function cleanupExpiredEvents(): Promise<{
     const sevenYearsAgo = Date.now() - 7 * 365 * 24 * 60 * 60 * 1000;
 
     // Find expired events
-    const _expiredEvents = await db.backupAuditLogs
+    const expiredEvents = await db.backupAuditLogs
       .where('timestamp')
       .below(sevenYearsAgo)
       .toArray();

@@ -62,7 +62,7 @@ const DEFAULT_EXPENSES: Omit<Expense, 'id'>[] = [
 export function OwnerPayCalculatorTab() {
   const { companyId, deviceId } = useAuth();
   const [service] = useState(() => new LaborRoleService(db));
-  const { formatCurrency, _formatNumber } = useCPGSettings();
+  const { formatCurrency, formatNumber } = useCPGSettings();
 
   const [owners, setOwners] = useState<Owner[]>(() => {
     // Load saved owners from localStorage
@@ -855,7 +855,7 @@ function ProductImpactContent({
     try {
       setLoading(true);
       const data: Record<string, { price: number; cpu: number; laborCostPerUnit: number }> = {};
-      const _laborService = new LaborRoleService(db);
+      const laborService = new LaborRoleService(db);
 
       // Get all labor roles to identify owner's pay roles
       const allRoles = await db.cpgLaborRoles

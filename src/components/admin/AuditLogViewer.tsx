@@ -17,13 +17,13 @@ import { db } from '../../db'
 import { useAuth } from '../../contexts/AuthContext'
 import { querySecurityEvents, getSecurityEventStats, SecurityEventType } from '../../utils/securityLogger'
 import {
-  _getFilteredAuditLogs,
-  _getBackupSyncAuditLogs,
+  getFilteredAuditLogs,
+  getBackupSyncAuditLogs,
   exportAuditLogsToCSV,
   downloadCSV,
-  _formatAuditLogSummary,
-  _getActionDisplayName,
-  _getActionBadgeColor,
+  formatAuditLogSummary,
+  getActionDisplayName,
+  getActionBadgeColor,
   verifyAuditChainIntegrity,
   formatVerificationResult,
   BackupAuditEventType,

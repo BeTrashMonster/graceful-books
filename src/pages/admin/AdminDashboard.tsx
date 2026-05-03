@@ -65,14 +65,14 @@ interface AllSignup {
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
-  const [_cpgSignups, setCpgSignups] = useState<CPGLaunchSignup[]>([]);
+  const [cpgSignups, setCpgSignups] = useState<CPGLaunchSignup[]>([]);
   const [allSignups, setAllSignups] = useState<AllSignup[]>([]);
   const [tagFilter, setTagFilter] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
   const [editingSignup, setEditingSignup] = useState<AllSignup | null>(null);
-  const [_deletingSignup, setDeletingSignup] = useState<AllSignup | null>(null);
+  const [deletingSignup, setDeletingSignup] = useState<AllSignup | null>(null);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',

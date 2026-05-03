@@ -163,8 +163,8 @@ export default function VendorIntelTab({
   const [vendorComponents, setVendorComponents] = useState<ComponentRow[]>([]);
   const [vendorInvoices, setVendorInvoices] = useState<CPGInvoice[]>([]);
 
-  const [_vendorSortColumn, _setVendorSortColumn] = useState<'spend'>('spend');
-  const [_vendorSortDirection, _setVendorSortDirection] = useState<'desc'>('desc');
+  const [vendorSortColumn, setVendorSortColumn] = useState<'spend'>('spend');
+  const [vendorSortDirection, setVendorSortDirection] = useState<'desc'>('desc');
   const [expandedComponents, setExpandedComponents] = useState<Set<string>>(new Set());
   const [invoiceDropdownDateRange, setInvoiceDropdownDateRange] = useState<Map<string, VendorIntelTabProps['dateRange']>>(new Map());
 
@@ -361,7 +361,7 @@ export default function VendorIntelTab({
     const componentSet = new Set<string>();
 
     filteredInvoices.forEach(inv => {
-      Object.entries(inv.cost_attribution || {}).forEach(([_key, attr]) => {
+      Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
         // Filter based on whether viewing S+H or materials
         if (!shouldIncludeLineItem(attr)) return;
 
@@ -416,7 +416,7 @@ export default function VendorIntelTab({
 
     // Collect data for this vendor (filtered by date range)
     filteredInvoices.forEach(inv => {
-      Object.entries(inv.cost_attribution || {}).forEach(([_key, attr]) => {
+      Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
         // Filter based on whether viewing S+H or materials
         if (!shouldIncludeLineItem(attr)) return;
 
@@ -456,7 +456,7 @@ export default function VendorIntelTab({
       if (startDate > 0 && inv.invoice_date < startDate) return;
       if (endDate > 0 && inv.invoice_date > endDate) return;
 
-      Object.entries(inv.cost_attribution || {}).forEach(([_key, attr]) => {
+      Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
         // Filter based on whether viewing S+H or materials
         if (!shouldIncludeLineItem(attr)) return;
 
@@ -489,7 +489,7 @@ export default function VendorIntelTab({
       const [categoryId, variant] = compKey.split(':');
       const category = categories.find(c => c.id === categoryId);
 
-      const _avgPrice = data.avgPrices.reduce((sum, p) => sum + p, 0) / data.avgPrices.length;
+      const avgPrice = data.avgPrices.reduce((sum, p) => sum + p, 0) / data.avgPrices.length;
       const lastPricePaid = data.lastPrice;
 
       // Find best market price and vendor
@@ -764,7 +764,7 @@ export default function VendorIntelTab({
         const stats = vendorStats.get(vendor)!;
         stats.invoices.add(inv.id);
 
-        Object.entries(inv.cost_attribution || {}).forEach(([_key, attr]) => {
+        Object.entries(inv.cost_attribution || {}).forEach(([key, attr]) => {
           // Filter based on whether viewing S+H or materials
           if (!shouldIncludeLineItem(attr)) return;
 
@@ -1079,7 +1079,7 @@ export default function VendorIntelTab({
       // Build overview array
       const overviews = Array.from(componentMap.values()).map(comp => {
         const variants = Array.from(comp.variantData.entries()).map(([variant, data]) => {
-          const _avgPrice = data.prices.length > 0
+          const avgPrice = data.prices.length > 0
             ? data.prices.reduce((sum, p) => sum + p, 0) / data.prices.length
             : 0;
           const minPrice = data.prices.length > 0 ? Math.min(...data.prices) : 0;
@@ -1302,7 +1302,7 @@ export default function VendorIntelTab({
           `"${notes}"`
         ].join(','));
       } else {
-        Object.entries(attrs).forEach(([_key, attr], idx) => {
+        Object.entries(attrs).forEach(([key, attr], idx) => {
           const categoryName = categories.find(c => c.id === attr.category_id)?.name || 'Unknown';
           const variant = attr.variant || 'N/A';
           const units = attr.units_purchased || '0';
@@ -1408,7 +1408,7 @@ export default function VendorIntelTab({
       const totalPaid = inv.total_paid || '0.00';
 
       const attrs = inv.cost_attribution || {};
-      Object.entries(attrs).forEach(([_key, attr], _idx) => {
+      Object.entries(attrs).forEach(([key, attr], idx) => {
         // Filter based on whether viewing S+H or materials
         if (!shouldIncludeLineItem(attr)) return;
 
@@ -2001,7 +2001,7 @@ export default function VendorIntelTab({
                         </tr>
                       </thead>
                       <tbody>
-                        {sortedVendorComponents.map((comp, _idx) => {
+                        {sortedVendorComponents.map((comp, idx) => {
                           const componentKey = `${comp.categoryId}-${comp.variant}`;
                           const isExpanded = expandedComponents.has(componentKey);
 
@@ -2502,7 +2502,7 @@ export default function VendorIntelTab({
                     <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem' }}>
                       {comp.variants.length > 0 ? (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
-                          {comp.variants.map((v, _idx) => (
+                          {comp.variants.map((v, idx) => (
                             <span
                               key={idx}
                               style={{
@@ -2567,7 +2567,7 @@ export default function VendorIntelTab({
 
                   return (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                      {variantPricing.map((variantData, _idx) => {
+                      {variantPricing.map((variantData, idx) => {
                         const variantKey = `${selectedComponent.categoryId}-${variantData.variant || 'no-variant'}`;
                         const isExpanded = expandedVariants.has(variantKey);
                         const bestVendor = variantData.vendors.find(v => v.isBest);

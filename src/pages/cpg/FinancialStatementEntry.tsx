@@ -53,7 +53,7 @@ const fromSchemaTab = (tab: SchemaTabType | string): InternalTabType => {
 
 export default function FinancialStatementEntry() {
   const { companyId } = useAuth();
-  const _navigate = useNavigate();
+  const navigate = useNavigate();
 
   // Tab pinning
   const { defaultTab, pinTab, unpinTab, isTabPinned, isLoading: isPinningLoading } = useTabPinning({

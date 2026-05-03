@@ -21,7 +21,7 @@ import React, { useState, useEffect } from 'react'
 import {
   type SyncConfig,
   DEFAULT_SYNC_CONFIG,
-  _SELF_HOSTED_SYNC_CONFIG,
+  SELF_HOSTED_SYNC_CONFIG,
   validateSyncConfig,
   SyncConnectionStatus,
   type SyncStatistics,
@@ -45,7 +45,7 @@ export interface SyncSettingsPanelProps {
  * Sync Settings Panel Component
  */
 export function SyncSettingsPanel({
-  _userId,
+  userId,
   initialConfig = {},
   statistics,
   onSave,

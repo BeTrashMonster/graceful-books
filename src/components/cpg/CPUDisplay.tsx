@@ -20,7 +20,7 @@ import type { FinishedProductCPUBreakdown } from '../../services/cpg/cpuCalculat
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../db/database';
-import { _HelpTooltip } from '../help/_HelpTooltip';
+import { HelpTooltip } from '../help/HelpTooltip';
 import { CPUBreakdownModal } from './modals/CPUBreakdownModal';
 import { ProductBreakdownModal } from './modals/ProductBreakdownModal';
 import { InvoiceDetailsModal } from './modals/InvoiceDetailsModal';
@@ -415,7 +415,7 @@ export function CPUDisplay({
     setDragOverIndex(targetIndex);
   };
 
-  const _handleDragLeave = () => {
+  const handleDragLeave = () => {
     setDragOverIndex(null);
   };
 

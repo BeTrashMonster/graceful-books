@@ -12,14 +12,14 @@ import { Autocomplete } from '../../forms/Autocomplete';
 import { Button } from '../../core/Button';
 import { useAuth } from '../../../contexts/AuthContext';
 import { db } from '../../../db/database';
-import { _createDefaultCPGInvoice, _validateCPGInvoice, createDefaultCPGVendor } from '../../../db/schema/cpg.schema';
+import { createDefaultCPGInvoice, validateCPGInvoice, createDefaultCPGVendor } from '../../../db/schema/cpg.schema';
 import type { CPGCategory, CPGVendor } from '../../../db/schema/cpg.schema';
 import { cpuCalculatorService } from '../../../services/cpg/cpuCalculator.service';
 import { CPGCategoryService } from '../../../services/cpg/cpgCategory.service';
 import { v4 as uuidv4 } from 'uuid';
 import { processMathInput } from '../../../utils/mathParser';
 import { processDateInput } from '../../../utils/dateUtils';
-import { UNIT_CATALOG, type Unit, _getUnitsByType, areUnitsCompatible, _getUnitMismatchWarning } from '../../../utils/unitConversion';
+import { UNIT_CATALOG, type Unit, getUnitsByType, areUnitsCompatible, getUnitMismatchWarning } from '../../../utils/unitConversion';
 import styles from './CPGModals.module.css';
 
 export interface AddInvoiceModalProps {

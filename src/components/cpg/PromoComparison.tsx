@@ -102,7 +102,7 @@ export function PromoComparison({ variants, className }: PromoComparisonProps) {
     return labelMap[quality];
   };
 
-  const _hasDemoCosts = variants.some(v => v.withPromo.demoHoursCost);
+  const hasDemoCosts = variants.some(v => v.withPromo.demoHoursCost);
 
   return (
     <div className={clsx(styles.container, className)}>

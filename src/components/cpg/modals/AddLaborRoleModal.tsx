@@ -39,7 +39,7 @@ export function AddLaborRoleModal({
 }: AddLaborRoleModalProps) {
   const { companyId, deviceId } = useAuth();
   const [service] = useState(() => new LaborRoleService(db));
-  const { _formatCurrency } = useCPGSettings();
+  const { formatCurrency } = useCPGSettings();
 
   // Form state
   const [roleName, setRoleName] = useState('');
@@ -341,7 +341,7 @@ export function AddLaborRoleModal({
               }}
               onBlur={(e) => {
                 const cleanValue = removeCommas(e.target.value);
-                const { value, _calculated } = processMathInput(cleanValue, true);
+                const { value, calculated } = processMathInput(cleanValue, true);
                 setSalaryAmount(value);
                 setSalaryAmountDisplay(formatWithCommas(value));
               }}
