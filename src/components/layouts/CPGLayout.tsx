@@ -423,15 +423,6 @@ export function CPGLayout() {
               >
                 Settings
               </Link>
-              <a
-                href="https://audacious.money/support"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.menuItem}
-                onClick={() => setShowAccountMenu(false)}
-              >
-                Support
-              </a>
               <button
                 onClick={() => {
                   setShowAccountMenu(false);
