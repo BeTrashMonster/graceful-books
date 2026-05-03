@@ -210,7 +210,7 @@ export default function VendorIntelTab({
       });
     });
 
-    const _avgPrice = allPrices.length > 0
+    const avgPrice = allPrices.length > 0
       ? allPrices.reduce((sum, p) => sum + p, 0) / allPrices.length
       : 0;
 
@@ -391,7 +391,7 @@ export default function VendorIntelTab({
       });
     });
 
-    const _avgPrice = allPrices.length > 0 ? allPrices.reduce((sum, p) => sum + p, 0) / allPrices.length : 0;
+    const avgPrice = allPrices.length > 0 ? allPrices.reduce((sum, p) => sum + p, 0) / allPrices.length : 0;
 
     setSelectedVendorStats({
       totalSpend,
