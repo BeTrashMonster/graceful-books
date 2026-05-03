@@ -709,7 +709,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                         id={`product-name-${prodIndex}`}
                         value={product.name}
                         onChange={(e) => updateProduct(prodIndex, 'name', e.target.value)}
-                        placeholder="e.g., Lavender Body Lotion"
+                        placeholder="ex:Lavender Body Lotion"
                         className={styles.input}
                       />
                     </div>
@@ -742,7 +742,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                         id={`product-sku-${prodIndex}`}
                         value={product.sku}
                         onChange={(e) => updateProduct(prodIndex, 'sku', e.target.value)}
-                        placeholder="e.g., LBL-8OZ"
+                        placeholder="ex:LBL-8OZ"
                         className={styles.input}
                       />
                     </div>
@@ -753,7 +753,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                 <div className={styles.recipeSection}>
                   <h4 className={styles.recipeTitle}>What goes into this product?</h4>
                   <p className={styles.recipeHint}>
-                    Add ingredients by category (e.g., "Oils"). Use variants to specify which type (e.g., "Coconut Oil" vs "Jojoba Oil").
+                    Add items by category (ex: "Mushrooms") that make up your product. Use variants to specify different types or sizes (ex: "Oyster" vs "Button").
                   </p>
 
                   {product.recipeItems.map((item, itemIndex) => {
@@ -766,14 +766,14 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                           {/* Category and Variant on same line */}
                           <div className={styles.fieldRow}>
                             <div className={styles.field}>
-                              <label className={styles.label}>Ingredient Category</label>
+                              <label className={styles.label}>Item Category</label>
                               {showNewCategoryInput[key] ? (
                                 <div className={styles.newCategoryInput}>
                                   <input
                                     type="text"
                                     value={newCategoryName[key] || ''}
                                     onChange={(e) => setNewCategoryName({ ...newCategoryName, [key]: e.target.value })}
-                                    placeholder="e.g., Oils"
+                                    placeholder="ex: Mushrooms"
                                     className={styles.input}
                                     autoFocus
                                     onKeyDown={(e) => {
@@ -839,7 +839,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                       }
                                     }
                                   }}
-                                  placeholder="e.g., Oils"
+                                  placeholder="ex: Mushrooms"
                                   className={styles.input}
                                 />
                               )}
@@ -855,7 +855,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                       type="text"
                                       value={newVariantValue[key] || ''}
                                       onChange={(e) => setNewVariantValue({ ...newVariantValue, [key]: e.target.value })}
-                                      placeholder="e.g., Coconut"
+                                      placeholder="ex: Oyster"
                                       className={styles.input}
                                       autoFocus
                                       onKeyDown={(e) => {
@@ -926,7 +926,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                         addVariantToCategory(selectedCategory.id, value);
                                       }
                                     }}
-                                    placeholder="e.g., Coconut"
+                                    placeholder="ex: Oyster"
                                     className={styles.input}
                                   />
                                 )}
@@ -966,7 +966,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                     type="number"
                                     value={item.quantity_per_batch || ''}
                                     onChange={(e) => updateRecipeItem(prodIndex, itemIndex, 'quantity_per_batch', e.target.value)}
-                                    placeholder="e.g., 10"
+                                    placeholder="ex:10"
                                     step="0.01"
                                     min="0"
                                     className={styles.input}
@@ -990,7 +990,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                     type="number"
                                     value={item.batch_size || ''}
                                     onChange={(e) => updateRecipeItem(prodIndex, itemIndex, 'batch_size', e.target.value)}
-                                    placeholder="e.g., 100"
+                                    placeholder="ex:100"
                                     step="1"
                                     min="1"
                                     className={styles.input}
@@ -1014,7 +1014,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                   type="number"
                                   value={item.quantity}
                                   onChange={(e) => updateRecipeItem(prodIndex, itemIndex, 'quantity', e.target.value)}
-                                  placeholder="e.g., 0.10"
+                                  placeholder="ex:0.10"
                                   step="0.000001"
                                   min="0"
                                   className={styles.input}
@@ -1053,7 +1053,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                     onClick={() => addRecipeItem(prodIndex)}
                     className={styles.addIngredientButton}
                   >
-                    + Add Ingredient
+                    + Add Item
                   </button>
                 </div>
               </div>
@@ -1132,7 +1132,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                       type="text"
                       value={invoice.vendor_name}
                       onChange={(e) => updateInvoice(invIndex, 'vendor_name', e.target.value)}
-                      placeholder="e.g., Mountain Rose Herbs"
+                      placeholder="ex:Mountain Rose Herbs"
                       className={styles.input}
                     />
                   </div>
@@ -1178,7 +1178,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                       type="text"
                       value={invoice.invoice_number || ''}
                       onChange={(e) => updateInvoice(invIndex, 'invoice_number', e.target.value)}
-                      placeholder="e.g., INV-2026-001"
+                      placeholder="ex:INV-2026-001"
                       className={styles.input}
                     />
                   </div>
