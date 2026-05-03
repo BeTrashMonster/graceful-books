@@ -54,6 +54,7 @@ interface BackupHistoryEntry {
   size: number
   status: 'success' | 'failed'
   errorMessage?: string
+  companyId?: string // User/company who created this backup
 }
 
 /**
@@ -158,24 +159,45 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
 
   /**
    * Load backup history from IndexedDB
+   * Filters by companyId to show only this user's backups
    */
   const loadBackupHistory = async (): Promise<BackupHistoryEntry[]> => {
     try {
-      console.log('📖 Loading backup history from IndexedDB...')
-      const db = await openDB('GracefulBooksBackupHistory', 1, {
-        upgrade(db) {
-          console.log('🔧 Creating backup history database (load)...')
+      console.log('📖 Loading backup history from IndexedDB for companyId:', companyId)
+      const db = await openDB('GracefulBooksBackupHistory', 2, {
+        upgrade(db, oldVersion) {
+          console.log('🔧 Upgrading backup history database from version', oldVersion)
+
+          // Create store if it doesn't exist (version 1)
           if (!db.objectStoreNames.contains('backups')) {
             const store = db.createObjectStore('backups', { keyPath: 'id' })
             store.createIndex('timestamp', 'timestamp', { unique: false })
-            console.log('✨ Backup history object store created (load)')
+            store.createIndex('companyId', 'companyId', { unique: false })
+            console.log('✨ Backup history object store created')
+          } else if (oldVersion < 2) {
+            // Add companyId index for existing databases (version 2 upgrade)
+            const transaction = db.transaction.objectStore('backups')
+            if (!transaction.indexNames.contains('companyId')) {
+              transaction.createIndex('companyId', 'companyId', { unique: false })
+              console.log('✨ Added companyId index to existing backup history')
+            }
           }
         },
       })
 
-      // Get all backups, sorted by timestamp (newest first)
-      const allBackups = await db.getAll('backups')
-      console.log('📦 Raw backups from DB:', allBackups)
+      // Get all backups for this company
+      let allBackups: BackupHistoryEntry[]
+
+      if (companyId) {
+        // Filter by companyId using the index
+        const index = db.transaction('backups').store.index('companyId')
+        allBackups = await index.getAll(companyId)
+        console.log(`📦 Found ${allBackups.length} backups for companyId: ${companyId}`)
+      } else {
+        // No companyId provided - get all backups (fallback for backwards compatibility)
+        allBackups = await db.getAll('backups')
+        console.log(`📦 No companyId - loaded ${allBackups.length} total backups`)
+      }
 
       const sorted = allBackups
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
@@ -195,13 +217,23 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
   const saveToBackupHistory = async (entry: BackupHistoryEntry): Promise<void> => {
     try {
       console.log('💾 Attempting to save backup to history:', entry)
-      const db = await openDB('GracefulBooksBackupHistory', 1, {
-        upgrade(db) {
+      const db = await openDB('GracefulBooksBackupHistory', 2, {
+        upgrade(db, oldVersion) {
           console.log('🔧 Creating backup history database...')
+
+          // Create store if it doesn't exist (version 1)
           if (!db.objectStoreNames.contains('backups')) {
             const store = db.createObjectStore('backups', { keyPath: 'id' })
             store.createIndex('timestamp', 'timestamp', { unique: false })
+            store.createIndex('companyId', 'companyId', { unique: false })
             console.log('✨ Backup history object store created')
+          } else if (oldVersion < 2) {
+            // Add companyId index for existing databases (version 2 upgrade)
+            const transaction = db.transaction.objectStore('backups')
+            if (!transaction.indexNames.contains('companyId')) {
+              transaction.createIndex('companyId', 'companyId', { unique: false })
+              console.log('✨ Added companyId index to existing backup history')
+            }
           }
         },
       })
@@ -383,6 +415,7 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
             timestamp: backupTimestamp,
             size: writeResult.fileSize || 0,
             status: 'success',
+            companyId: companyId || undefined,
           }
           await saveToBackupHistory(historyEntry)
 
@@ -434,6 +467,7 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
             timestamp: backupTimestamp,
             size: result.blob.size,
             status: 'success',
+            companyId: companyId || undefined,
           }
           await saveToBackupHistory(historyEntry)
 
