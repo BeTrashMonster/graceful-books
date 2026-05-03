@@ -56,8 +56,8 @@ app.use('*', async (c, next) => {
 // Webhook routes (must be before rate limiting)
 app.route('/webhooks', webhookRoutes);
 
-// Auth endpoints: 5 requests per minute
-app.use('/auth/*', rateLimiter({ max: 5, window: 60 }));
+// Auth endpoints: 10 requests per 5 minutes (prevents brute force, allows testing)
+app.use('/auth/*', rateLimiter({ max: 10, window: 300 }));
 
 // All other endpoints: 100 requests per minute
 app.use('*', rateLimiter({ max: 100, window: 60 }));
