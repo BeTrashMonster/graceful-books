@@ -207,9 +207,9 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         setVendorName(invoice.vendor_name || '');
         setPaymentMethod(invoice.payment_method || '');
         setNotes(invoice.notes || '');
-        // Format total_paid to 2 decimal places for display
+        // Preserve full precision when loading invoice for editing
         const formattedTotal = invoice.total_paid
-          ? parseFloat(invoice.total_paid).toFixed(2).replace(/\.?0+$/, '')
+          ? parseFloat(invoice.total_paid).toString()
           : '';
         setTotalInvoiceAmount(formattedTotal);
 
