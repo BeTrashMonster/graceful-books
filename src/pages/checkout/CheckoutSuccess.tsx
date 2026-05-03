@@ -85,10 +85,69 @@ export default function CheckoutSuccess() {
     setStep('worksheet');
   };
 
-  const handleSkipWorksheet = () => {
+  const handleSkipWorksheet = async () => {
+    // Update session with product info before navigating
+    await updateSessionWithProducts();
+
     // Mark worksheet as skipped and navigate to CPG dashboard
     localStorage.setItem('cpg_worksheet_status', 'skipped');
     navigate('/cpg');
+  };
+
+  /**
+   * Fetch user's subscription and update session with products array
+   * This is needed so ProtectedRoute can verify product access
+   */
+  const updateSessionWithProducts = async () => {
+    try {
+      const sessionData = sessionStorage.getItem('graceful_books_session');
+      if (!sessionData) {
+        console.warn('⚠️ No session found, cannot update products');
+        return;
+      }
+
+      const session = JSON.parse(sessionData);
+      const token = session.token;
+
+      if (!token) {
+        console.warn('⚠️ No token in session, cannot fetch products');
+        return;
+      }
+
+      console.log('🔄 Fetching user subscription to update session...');
+
+      const response = await fetch('https://api.audacious.money/users/me/subscription', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        console.warn('⚠️ Failed to fetch subscription:', response.status);
+        return;
+      }
+
+      const data = await response.json();
+      console.log('📦 Subscription data:', data);
+
+      if (data.data?.subscription) {
+        const { productSlug, productName, productId } = data.data.subscription;
+
+        // Update session with products array
+        session.products = [{
+          id: productId,
+          name: productName,
+          slug: productSlug,
+        }];
+
+        sessionStorage.setItem('graceful_books_session', JSON.stringify(session));
+        console.log('✅ Session updated with product:', productSlug);
+      }
+    } catch (error) {
+      console.error('❌ Error updating session with products:', error);
+      // Don't throw - this is non-critical, user might still access via dev mode
+    }
   };
 
   const handleWorksheetComplete = async (worksheetData: any) => {
@@ -145,9 +204,13 @@ export default function CheckoutSuccess() {
 
       // Mark worksheet as completed
       localStorage.setItem('cpg_worksheet_status', 'completed');
-      console.log('✅ Worksheet marked as completed, navigating to /cpg');
+      console.log('✅ Worksheet marked as completed');
+
+      // Fetch user's subscription to update session with product info
+      await updateSessionWithProducts();
 
       // Navigate to CPG dashboard
+      console.log('📍 Navigating to /cpg');
       navigate('/cpg');
     } catch (error) {
       console.error('💥 Exception in handleWorksheetComplete:', error);
