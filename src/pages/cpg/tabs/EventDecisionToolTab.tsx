@@ -1139,7 +1139,7 @@ export function EventDecisionToolTab({ editEventId }: EventDecisionToolTabProps)
 
             // WITHOUT Event scenario
             const grossProfitWithout = retailPrice - baseCPU;
-            const marginWithout = retailPrice > 0 ? ((grossProfitWithout / retailPrice) * 100).toFixed(2) : '0.00';
+            const marginWithout = retailPrice > 0 ? ((grossProfitWithout / retailPrice) * 100).toFixed(6) : '0.000000';
             const marginQualityWithout = getMarginQuality(marginWithout);
 
             // WITH Event scenario
