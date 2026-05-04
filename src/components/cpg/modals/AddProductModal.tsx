@@ -3,6 +3,7 @@
  *
  * Modal for creating new finished products or editing existing ones.
  * Includes validation for name uniqueness, SKU uniqueness, and Selling Price format.
+ * Now includes recipe entry functionality for one-step product + recipe creation.
  */
 
 import { useState, useEffect, useRef } from 'react';
@@ -17,6 +18,8 @@ import {
   validateCPGFinishedProduct,
   type CPGFinishedProduct,
 } from '../../../db/schema/cpg.schema';
+import { createDefaultCPGRecipe, type CPGRecipe } from '../../../db/schema/cpg.schema';
+import { createDefaultCPGCategory, type CPGCategory } from '../../../db/schema/cpg.schema';
 import { processMathInput } from '../../../utils/mathParser';
 import styles from './CPGModals.module.css';
 
@@ -33,6 +36,55 @@ const UNIT_OPTIONS = [
   { value: 'dozen', label: 'Dozen' },
   { value: 'pack', label: 'Pack' },
 ];
+
+// Units of measurement for recipe items (matching CPG system)
+const UNITS_OF_MEASUREMENT = [
+  // Weight
+  'oz', 'lb', 'g', 'kg',
+  // Volume
+  'ml', 'L', 'fl oz', 'cup', 'qt', 'gal',
+  // Count
+  'each', 'dozen', 'case'
+];
+
+// Recipe item interface
+interface RecipeItem {
+  category_id: string;
+  variant?: string;
+  // Batch-to-unit conversion support
+  entry_mode: 'per_batch' | 'per_unit';
+  quantity_per_batch?: string;  // e.g., "10" (for entire batch)
+  batch_size?: string;           // e.g., "100" (units produced)
+  quantity: string;              // Calculated or directly entered per-unit amount
+  unit_of_measurement?: string;  // oz, lb, ml, L, each, etc.
+}
+
+// Local category interface
+interface LocalCategory {
+  id: string;
+  name: string;
+  variants: string[];
+  sort_order: number;
+}
+
+// Generate temp ID for recipe items and categories
+let tempIdCounter = 0;
+const generateTempId = (): string => {
+  tempIdCounter++;
+  const random = Math.random().toString(36).substring(2, 10);
+  return `temp-${tempIdCounter}-${random}`;
+};
+
+// Calculate quantity per unit from batch data
+const calculateQuantityPerUnit = (quantityPerBatch: string, batchSize: string): string => {
+  const qty = parseFloat(quantityPerBatch);
+  const size = parseFloat(batchSize);
+
+  if (isNaN(qty) || isNaN(size) || size === 0) return '0';
+
+  const qtyPerUnit = qty / size;
+  return qtyPerUnit.toFixed(6); // 6 decimal precision
+};
 
 export function AddProductModal({
   isOpen,
@@ -51,12 +103,45 @@ export function AddProductModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const errorAlertRef = useRef<HTMLDivElement>(null);
 
+  // Recipe state
+  const [recipeItems, setRecipeItems] = useState<RecipeItem[]>([]);
+  const [categories, setCategories] = useState<LocalCategory[]>([]);
+  const [newCategoryName, setNewCategoryName] = useState<Record<string, string>>({});
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState<Record<string, boolean>>({});
+  const [showNewVariantInput, setShowNewVariantInput] = useState<Record<string, boolean>>({});
+  const [newVariantValue, setNewVariantValue] = useState<Record<string, string>>({});
+
   // Scroll to error when errors are set
   useEffect(() => {
     if (Object.keys(errors).length > 0 && errorAlertRef.current) {
       errorAlertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, [errors]);
+
+  // Load existing categories when modal opens
+  useEffect(() => {
+    if (!isOpen || !companyId) return;
+
+    const loadCategories = async () => {
+      const existingCategories = await db.cpgCategories
+        .where('company_id')
+        .equals(companyId)
+        .and((c) => c.deleted_at === null)
+        .sortBy('sort_order');
+
+      // Convert to local format with variants
+      const localCats: LocalCategory[] = existingCategories.map(cat => ({
+        id: cat.id,
+        name: cat.name,
+        variants: cat.variants || [],
+        sort_order: cat.sort_order
+      }));
+
+      setCategories(localCats);
+    };
+
+    loadCategories();
+  }, [isOpen, companyId]);
 
   // Apply purple header styling when modal is open
   useEffect(() => {
@@ -108,6 +193,80 @@ export function AddProductModal({
     }
     setErrors({});
   }, [editingProduct, isOpen]);
+
+  // Recipe item handlers
+  const addRecipeItem = () => {
+    setRecipeItems([...recipeItems, {
+      category_id: '',
+      entry_mode: 'per_batch',
+      quantity_per_batch: '',
+      batch_size: '',
+      quantity: '',
+      unit_of_measurement: 'oz'
+    }]);
+  };
+
+  const removeRecipeItem = (itemIndex: number) => {
+    setRecipeItems(recipeItems.filter((_, i) => i !== itemIndex));
+  };
+
+  const updateRecipeItem = (itemIndex: number, field: keyof RecipeItem, value: string) => {
+    const updated = [...recipeItems];
+    const item = { ...updated[itemIndex], [field]: value };
+
+    // Auto-calculate quantity per unit when in per_batch mode
+    if (item.entry_mode === 'per_batch') {
+      if (field === 'quantity_per_batch' || field === 'batch_size') {
+        const qtyBatch = field === 'quantity_per_batch' ? value : item.quantity_per_batch || '';
+        const batchSz = field === 'batch_size' ? value : item.batch_size || '';
+
+        if (qtyBatch && batchSz) {
+          item.quantity = calculateQuantityPerUnit(qtyBatch, batchSz);
+        }
+      }
+    }
+
+    updated[itemIndex] = item;
+    setRecipeItems(updated);
+  };
+
+  // Category handlers (create on-the-fly)
+  const createCategory = (itemIndex: number) => {
+    const key = `item-${itemIndex}`;
+    const name = newCategoryName[key]?.trim();
+
+    if (!name) return;
+
+    // Check if category already exists
+    const existing = categories.find(c => c.name.toLowerCase() === name.toLowerCase());
+    if (existing) {
+      // Use existing category
+      updateRecipeItem(itemIndex, 'category_id', existing.id);
+    } else {
+      // Create new category (will be saved to DB on submit)
+      const newCategory: LocalCategory = {
+        id: generateTempId(),
+        name,
+        variants: [],
+        sort_order: categories.length
+      };
+      setCategories([...categories, newCategory]);
+      updateRecipeItem(itemIndex, 'category_id', newCategory.id);
+    }
+
+    // Clear input
+    setNewCategoryName({ ...newCategoryName, [key]: '' });
+    setShowNewCategoryInput({ ...showNewCategoryInput, [key]: false });
+  };
+
+  const addVariantToCategory = (categoryId: string, variant: string) => {
+    const updated = categories.map(cat =>
+      cat.id === categoryId
+        ? { ...cat, variants: [...cat.variants, variant] }
+        : cat
+    );
+    setCategories(updated);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -169,15 +328,70 @@ export function AddProductModal({
       return;
     }
 
-    // Save to database
+    // Save to database (product + recipe + categories)
     setIsSubmitting(true);
     try {
+      const productId = editingProduct?.id || (productData as CPGFinishedProduct).id;
+
+      // Step 1: Save any new categories that were created inline
+      const newCategoriesToSave: CPGCategory[] = [];
+      const categoryIdMap: Record<string, string> = {}; // temp ID -> real ID
+
+      for (const cat of categories) {
+        if (cat.id.startsWith('temp-')) {
+          // This is a new category - save it
+          const realCategoryId = nanoid();
+          const dbCategory: CPGCategory = {
+            ...createDefaultCPGCategory(companyId, cat.name, deviceId || 'default'),
+            id: realCategoryId,
+            variants: cat.variants,
+            sort_order: cat.sort_order,
+          };
+          newCategoriesToSave.push(dbCategory);
+          categoryIdMap[cat.id] = realCategoryId;
+        }
+      }
+
+      if (newCategoriesToSave.length > 0) {
+        await db.cpgCategories.bulkAdd(newCategoriesToSave);
+      }
+
+      // Step 2: Save product
       if (editingProduct) {
         // Update existing product
         await db.cpgFinishedProducts.update(editingProduct.id, productData);
       } else {
         // Add new product
         await db.cpgFinishedProducts.add(productData as CPGFinishedProduct);
+      }
+
+      // Step 3: Save recipe items (if any)
+      if (recipeItems.length > 0) {
+        const validRecipeItems = recipeItems.filter(
+          item => item.category_id && item.quantity.trim() && item.unit_of_measurement
+        );
+
+        const dbRecipeItems: CPGRecipe[] = validRecipeItems.map(item => {
+          // Map temp category IDs to real IDs
+          const realCategoryId = categoryIdMap[item.category_id] || item.category_id;
+
+          return {
+            ...createDefaultCPGRecipe(
+              companyId,
+              productId,
+              realCategoryId,
+              item.quantity,
+              deviceId || 'default'
+            ),
+            id: nanoid(),
+            variant: item.variant || null,
+            unit_of_measurement: item.unit_of_measurement || 'oz',
+          };
+        });
+
+        if (dbRecipeItems.length > 0) {
+          await db.cpgRecipes.bulkAdd(dbRecipeItems);
+        }
       }
 
       // Dispatch update event
@@ -204,6 +418,12 @@ export function AddProductModal({
     setDescription('');
     setUnitOfMeasure('each');
     setPiecesPerUnit('1');
+    setRecipeItems([]);
+    setCategories([]);
+    setNewCategoryName({});
+    setShowNewCategoryInput({});
+    setShowNewVariantInput({});
+    setNewVariantValue({});
     setErrors({});
     onClose();
   };
@@ -327,6 +547,527 @@ export function AddProductModal({
             fullWidth
             helperText="How many individual items in one unit (ex: 12 bottles per case)"
           />
+        </div>
+
+        {/* Recipe Section */}
+        <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '2px solid #e5e7eb' }}>
+          <div style={{ marginBottom: '1rem' }}>
+            <h4 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#111827', marginBottom: '0.5rem' }}>
+              Recipe (Optional)
+            </h4>
+            <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>
+              Add items by category (ex: "Package") that make up your product. Use variants to specify different types or sizes (ex: "1 oz Small" vs "10 oz Large").
+            </p>
+          </div>
+
+          {recipeItems.map((item, itemIndex) => {
+            const key = `item-${itemIndex}`;
+            const selectedCategory = categories.find(c => c.id === item.category_id);
+
+            return (
+              <div key={itemIndex} style={{
+                display: 'flex',
+                gap: '0.75rem',
+                alignItems: 'flex-start',
+                marginBottom: '1rem',
+                padding: '1rem',
+                background: '#E5F6DF',
+                borderRadius: '0.5rem',
+                position: 'relative'
+              }}>
+                <div style={{ flex: 1 }}>
+                  {/* Category and Variant Row */}
+                  <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>
+                        Item Category
+                      </label>
+                      {showNewCategoryInput[key] ? (
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <input
+                            type="text"
+                            value={newCategoryName[key] || ''}
+                            onChange={(e) => setNewCategoryName({ ...newCategoryName, [key]: e.target.value })}
+                            placeholder="ex: Package"
+                            style={{
+                              flex: 1,
+                              minHeight: '44px',
+                              padding: '0.625rem 0.875rem',
+                              border: '2px solid #d1d5db',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.9375rem',
+                              backgroundColor: '#ffffff'
+                            }}
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                createCategory(itemIndex);
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => createCategory(itemIndex)}
+                            style={{
+                              padding: '0.5rem 1rem',
+                              backgroundColor: '#d4af37',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.875rem',
+                              fontWeight: 500,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Create
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowNewCategoryInput({ ...showNewCategoryInput, [key]: false });
+                              setNewCategoryName({ ...newCategoryName, [key]: '' });
+                            }}
+                            style={{
+                              padding: '0.5rem 1rem',
+                              backgroundColor: 'transparent',
+                              color: '#6b7280',
+                              border: '1px solid #d1d5db',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.875rem',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : categories.length > 0 ? (
+                        <select
+                          value={item.category_id}
+                          onChange={(e) => {
+                            if (e.target.value === '__new__') {
+                              setShowNewCategoryInput({ ...showNewCategoryInput, [key]: true });
+                            } else {
+                              updateRecipeItem(itemIndex, 'category_id', e.target.value);
+                            }
+                          }}
+                          style={{
+                            width: '100%',
+                            minHeight: '44px',
+                            padding: '0.625rem 0.875rem',
+                            border: '2px solid #d1d5db',
+                            borderRadius: '0.375rem',
+                            fontSize: '0.9375rem',
+                            backgroundColor: '#ffffff'
+                          }}
+                        >
+                          <option value="">Select...</option>
+                          {categories.map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                          ))}
+                          <option value="__new__">+ Add New Category</option>
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          value={newCategoryName[key] || ''}
+                          onChange={(e) => setNewCategoryName({ ...newCategoryName, [key]: e.target.value })}
+                          onBlur={(e) => {
+                            const value = e.target.value.trim();
+                            if (value) {
+                              createCategory(itemIndex);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              const value = e.currentTarget.value.trim();
+                              if (value) {
+                                createCategory(itemIndex);
+                              }
+                            }
+                          }}
+                          placeholder="ex: Package"
+                          style={{
+                            width: '100%',
+                            minHeight: '44px',
+                            padding: '0.625rem 0.875rem',
+                            border: '2px solid #d1d5db',
+                            borderRadius: '0.375rem',
+                            fontSize: '0.9375rem',
+                            backgroundColor: '#ffffff'
+                          }}
+                        />
+                      )}
+                    </div>
+
+                    {/* Variant (only show if category selected) */}
+                    {selectedCategory && (
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>
+                          Variant (optional)
+                        </label>
+                        {showNewVariantInput[key] ? (
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <input
+                              type="text"
+                              value={newVariantValue[key] || ''}
+                              onChange={(e) => setNewVariantValue({ ...newVariantValue, [key]: e.target.value })}
+                              placeholder="ex: 1 oz Small"
+                              style={{
+                                flex: 1,
+                                minHeight: '44px',
+                                padding: '0.625rem 0.875rem',
+                                border: '2px solid #d1d5db',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.9375rem',
+                                backgroundColor: '#ffffff'
+                              }}
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  const variant = newVariantValue[key]?.trim();
+                                  if (variant) {
+                                    addVariantToCategory(selectedCategory.id, variant);
+                                    updateRecipeItem(itemIndex, 'variant', variant);
+                                    setNewVariantValue({ ...newVariantValue, [key]: '' });
+                                    setShowNewVariantInput({ ...showNewVariantInput, [key]: false });
+                                  }
+                                }
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const variant = newVariantValue[key]?.trim();
+                                if (variant) {
+                                  addVariantToCategory(selectedCategory.id, variant);
+                                  updateRecipeItem(itemIndex, 'variant', variant);
+                                  setNewVariantValue({ ...newVariantValue, [key]: '' });
+                                  setShowNewVariantInput({ ...showNewVariantInput, [key]: false });
+                                }
+                              }}
+                              style={{
+                                padding: '0.5rem 1rem',
+                                backgroundColor: '#d4af37',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.875rem',
+                                fontWeight: 500,
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Create
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowNewVariantInput({ ...showNewVariantInput, [key]: false });
+                                setNewVariantValue({ ...newVariantValue, [key]: '' });
+                              }}
+                              style={{
+                                padding: '0.5rem 1rem',
+                                backgroundColor: 'transparent',
+                                color: '#6b7280',
+                                border: '1px solid #d1d5db',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.875rem',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : selectedCategory.variants.length > 0 ? (
+                          <select
+                            value={item.variant || ''}
+                            onChange={(e) => {
+                              if (e.target.value === '__new__') {
+                                setShowNewVariantInput({ ...showNewVariantInput, [key]: true });
+                              } else {
+                                updateRecipeItem(itemIndex, 'variant', e.target.value);
+                              }
+                            }}
+                            style={{
+                              width: '100%',
+                              minHeight: '44px',
+                              padding: '0.625rem 0.875rem',
+                              border: '2px solid #d1d5db',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.9375rem',
+                              backgroundColor: '#ffffff'
+                            }}
+                          >
+                            <option value="">Select...</option>
+                            {selectedCategory.variants.map((variant, i) => (
+                              <option key={i} value={variant}>{variant}</option>
+                            ))}
+                            <option value="__new__">+ Add New Variant</option>
+                          </select>
+                        ) : (
+                          <input
+                            type="text"
+                            value={item.variant || ''}
+                            onChange={(e) => updateRecipeItem(itemIndex, 'variant', e.target.value)}
+                            onBlur={(e) => {
+                              const value = e.target.value.trim();
+                              if (value && !selectedCategory.variants.includes(value)) {
+                                addVariantToCategory(selectedCategory.id, value);
+                              }
+                            }}
+                            placeholder="ex: 1 oz Small"
+                            style={{
+                              width: '100%',
+                              minHeight: '44px',
+                              padding: '0.625rem 0.875rem',
+                              border: '2px solid #d1d5db',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.9375rem',
+                              backgroundColor: '#ffffff'
+                            }}
+                          />
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Entry Mode Toggle */}
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>
+                      How do you measure this?
+                    </label>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button
+                        type="button"
+                        onClick={() => updateRecipeItem(itemIndex, 'entry_mode', 'per_batch')}
+                        style={{
+                          flex: 1,
+                          padding: '0.625rem 1rem',
+                          backgroundColor: item.entry_mode === 'per_batch' ? '#4b006e' : 'transparent',
+                          color: item.entry_mode === 'per_batch' ? 'white' : '#6b7280',
+                          border: item.entry_mode === 'per_batch' ? 'none' : '1px solid #d1d5db',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem',
+                          fontWeight: 500,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Per Batch
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateRecipeItem(itemIndex, 'entry_mode', 'per_unit')}
+                        style={{
+                          flex: 1,
+                          padding: '0.625rem 1rem',
+                          backgroundColor: item.entry_mode === 'per_unit' ? '#4b006e' : 'transparent',
+                          color: item.entry_mode === 'per_unit' ? 'white' : '#6b7280',
+                          border: item.entry_mode === 'per_unit' ? 'none' : '1px solid #d1d5db',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem',
+                          fontWeight: 500,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Per Unit
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Batch Entry Mode */}
+                  {item.entry_mode === 'per_batch' && (
+                    <>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>
+                            Quantity per Batch
+                          </label>
+                          <input
+                            type="number"
+                            value={item.quantity_per_batch || ''}
+                            onChange={(e) => updateRecipeItem(itemIndex, 'quantity_per_batch', e.target.value)}
+                            placeholder="ex: 10"
+                            step="0.01"
+                            min="0"
+                            style={{
+                              width: '100%',
+                              minHeight: '44px',
+                              padding: '0.625rem 0.875rem',
+                              border: '2px solid #d1d5db',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.9375rem',
+                              backgroundColor: '#ffffff'
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>
+                            Unit
+                          </label>
+                          <select
+                            value={item.unit_of_measurement || ''}
+                            onChange={(e) => updateRecipeItem(itemIndex, 'unit_of_measurement', e.target.value)}
+                            style={{
+                              width: '100%',
+                              minHeight: '44px',
+                              padding: '0.625rem 0.875rem',
+                              border: '2px solid #d1d5db',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.9375rem',
+                              backgroundColor: '#ffffff'
+                            }}
+                          >
+                            {UNITS_OF_MEASUREMENT.map(unit => (
+                              <option key={unit} value={unit}>{unit}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>
+                            Batch Size (units made)
+                          </label>
+                          <input
+                            type="number"
+                            value={item.batch_size || ''}
+                            onChange={(e) => updateRecipeItem(itemIndex, 'batch_size', e.target.value)}
+                            placeholder="ex: 100"
+                            step="1"
+                            min="1"
+                            style={{
+                              width: '100%',
+                              minHeight: '44px',
+                              padding: '0.625rem 0.875rem',
+                              border: '2px solid #d1d5db',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.9375rem',
+                              backgroundColor: '#ffffff'
+                            }}
+                          />
+                        </div>
+                      </div>
+                      {item.quantity_per_batch && item.batch_size && (
+                        <div style={{
+                          fontSize: '0.875rem',
+                          color: '#059669',
+                          fontWeight: 500,
+                          padding: '0.5rem',
+                          backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                          borderRadius: '0.375rem'
+                        }}>
+                          → {item.quantity} {item.unit_of_measurement} per unit
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Per Unit Entry Mode */}
+                  {item.entry_mode === 'per_unit' && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0.75rem' }}>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>
+                          Quantity per Unit
+                        </label>
+                        <input
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) => updateRecipeItem(itemIndex, 'quantity', e.target.value)}
+                          placeholder="ex: 0.10"
+                          step="0.000001"
+                          min="0"
+                          style={{
+                            width: '100%',
+                            minHeight: '44px',
+                            padding: '0.625rem 0.875rem',
+                            border: '2px solid #d1d5db',
+                            borderRadius: '0.375rem',
+                            fontSize: '0.9375rem',
+                            backgroundColor: '#ffffff'
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>
+                          Unit
+                        </label>
+                        <select
+                          value={item.unit_of_measurement || ''}
+                          onChange={(e) => updateRecipeItem(itemIndex, 'unit_of_measurement', e.target.value)}
+                          style={{
+                            width: '100%',
+                            minHeight: '44px',
+                            padding: '0.625rem 0.875rem',
+                            border: '2px solid #d1d5db',
+                            borderRadius: '0.375rem',
+                            fontSize: '0.9375rem',
+                            backgroundColor: '#ffffff'
+                          }}
+                        >
+                          {UNITS_OF_MEASUREMENT.map(unit => (
+                            <option key={unit} value={unit}>{unit}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => removeRecipeItem(itemIndex)}
+                  style={{
+                    position: 'absolute',
+                    top: '0.5rem',
+                    right: '0.5rem',
+                    width: '28px',
+                    height: '28px',
+                    backgroundColor: '#ef4444',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '50%',
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 10
+                  }}
+                  aria-label="Remove ingredient"
+                >
+                  ✕
+                </button>
+              </div>
+            );
+          })}
+
+          <button
+            type="button"
+            onClick={addRecipeItem}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              backgroundColor: 'transparent',
+              color: '#4b006e',
+              border: '2px dashed #d1d5db',
+              borderRadius: '0.375rem',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#4b006e';
+              e.currentTarget.style.backgroundColor = 'rgba(75, 0, 110, 0.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#d1d5db';
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
+          >
+            + Add Recipe Item
+          </button>
         </div>
       </form>
     </Modal>
