@@ -86,24 +86,37 @@ export default function CheckoutSuccess() {
   };
 
   const handleSkipWorksheet = async () => {
-    // Update session with product info before navigating
-    await updateSessionWithProducts();
+    setIsSubmitting(true);
+    setError(null);
 
-    // Mark worksheet as skipped and navigate to CPG dashboard
-    localStorage.setItem('cpg_worksheet_status', 'skipped');
-    navigate('/cpg');
+    try {
+      // Update session with product info before navigating (with retries)
+      const success = await updateSessionWithProducts();
+
+      if (!success) {
+        setError('Unable to verify your subscription. Please refresh the page and try again, or contact support if the issue persists.');
+        return;
+      }
+
+      // Mark worksheet as skipped and navigate to CPG dashboard
+      localStorage.setItem('cpg_worksheet_status', 'skipped');
+      navigate('/cpg');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   /**
    * Fetch user's subscription and update session with products array
    * This is needed so ProtectedRoute can verify product access
+   * Retries up to 5 times with exponential backoff to handle webhook delays
    */
-  const updateSessionWithProducts = async () => {
+  const updateSessionWithProducts = async (retries = 5): Promise<boolean> => {
     try {
       const sessionData = sessionStorage.getItem('graceful_books_session');
       if (!sessionData) {
         console.warn('⚠️ No session found, cannot update products');
-        return;
+        return false;
       }
 
       const session = JSON.parse(sessionData);
@@ -111,10 +124,10 @@ export default function CheckoutSuccess() {
 
       if (!token) {
         console.warn('⚠️ No token in session, cannot fetch products');
-        return;
+        return false;
       }
 
-      console.log('🔄 Fetching user subscription to update session...');
+      console.log(`🔄 Fetching user subscription to update session (attempt ${6 - retries}/5)...`);
 
       const response = await fetch('https://api.audacious.money/users/me/subscription', {
         headers: {
@@ -125,7 +138,16 @@ export default function CheckoutSuccess() {
 
       if (!response.ok) {
         console.warn('⚠️ Failed to fetch subscription:', response.status);
-        return;
+
+        // Retry with exponential backoff if we have retries left
+        if (retries > 0) {
+          const delay = (6 - retries) * 1000; // 1s, 2s, 3s, 4s, 5s
+          console.log(`⏳ Waiting ${delay}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return updateSessionWithProducts(retries - 1);
+        }
+
+        return false;
       }
 
       const data = await response.json();
@@ -143,10 +165,32 @@ export default function CheckoutSuccess() {
 
         sessionStorage.setItem('graceful_books_session', JSON.stringify(session));
         console.log('✅ Session updated with product:', productSlug);
+        return true;
+      } else {
+        console.warn('⚠️ No subscription found in response');
+
+        // Retry if subscription doesn't exist yet (webhook might still be processing)
+        if (retries > 0) {
+          const delay = (6 - retries) * 1000;
+          console.log(`⏳ Subscription not ready, waiting ${delay}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return updateSessionWithProducts(retries - 1);
+        }
+
+        return false;
       }
     } catch (error) {
       console.error('❌ Error updating session with products:', error);
-      // Don't throw - this is non-critical, user might still access via dev mode
+
+      // Retry on error if we have retries left
+      if (retries > 0) {
+        const delay = (6 - retries) * 1000;
+        console.log(`⏳ Error occurred, waiting ${delay}ms before retry...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return updateSessionWithProducts(retries - 1);
+      }
+
+      return false;
     }
   };
 
@@ -206,8 +250,14 @@ export default function CheckoutSuccess() {
       localStorage.setItem('cpg_worksheet_status', 'completed');
       console.log('✅ Worksheet marked as completed');
 
-      // Fetch user's subscription to update session with product info
-      await updateSessionWithProducts();
+      // Fetch user's subscription to update session with product info (with retries)
+      console.log('🔄 Updating session with products...');
+      const sessionUpdateSuccess = await updateSessionWithProducts();
+
+      if (!sessionUpdateSuccess) {
+        setError('Unable to verify your subscription. Please refresh the page and try again, or contact support if the issue persists.');
+        return;
+      }
 
       // Navigate to CPG dashboard
       console.log('📍 Navigating to /cpg');
