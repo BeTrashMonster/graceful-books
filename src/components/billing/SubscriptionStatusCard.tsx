@@ -182,11 +182,12 @@ export function SubscriptionStatusCard({
 
           {/* Actions */}
           <div className={styles.actions}>
-            {isActive && (
+            {/* TODO: Re-enable pause functionality post-launch after implementing full enforcement */}
+            {/* {isActive && (
               <Button variant="secondary" onClick={() => setShowPauseModal(true)}>
                 Pause Subscription
               </Button>
-            )}
+            )} */}
             {isPaused && (
               <Button variant="primary" onClick={() => setShowResumeModal(true)}>
                 Resume Subscription
