@@ -132,6 +132,8 @@ export default function RawMaterialsTab({
       const invDate = new Date(inv.invoice_date);
       const startDate = new Date(rawMaterialsDateRange.start);
       const endDate = new Date(rawMaterialsDateRange.end);
+      // Set endDate to end of day (23:59:59.999) to include all invoices on that date
+      endDate.setHours(23, 59, 59, 999);
       if (invDate < startDate || invDate > endDate) return false;
 
       // Vendor filter (exact match, case-insensitive)
@@ -230,6 +232,8 @@ export default function RawMaterialsTab({
       const invDate = new Date(inv.invoice_date);
       const startDate = new Date(rawMaterialsDateRange.start);
       const endDate = new Date(rawMaterialsDateRange.end);
+      // Set endDate to end of day to include all invoices on that date
+      endDate.setHours(23, 59, 59, 999);
       return invDate >= startDate && invDate <= endDate;
     });
 
