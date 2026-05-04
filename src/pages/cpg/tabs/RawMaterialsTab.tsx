@@ -339,6 +339,10 @@ export default function RawMaterialsTab({
       inv.invoice_number || '-',
       inv.cost_attribution
         ? Object.values(inv.cost_attribution).map(attr => {
+            // Check if personal item first
+            if (attr.is_personal || attr.category_id === 'personal') {
+              return 'Personal';
+            }
             const category = categories.find(c => c.id === attr.category_id);
             return category?.name || 'Unknown';
           }).join(', ')
@@ -376,6 +380,10 @@ export default function RawMaterialsTab({
         inv.invoice_number || '-',
         inv.cost_attribution
           ? Object.values(inv.cost_attribution).map(attr => {
+              // Check if personal item first
+              if (attr.is_personal || attr.category_id === 'personal') {
+                return 'Personal';
+              }
               const category = categories.find(c => c.id === attr.category_id);
               return category?.name || 'Unknown';
             }).join(', ')
@@ -417,7 +425,7 @@ export default function RawMaterialsTab({
             formatDateFromTimestamp(inv.invoice_date),
             inv.vendor_name,
             inv.invoice_number || '-',
-            category?.name || 'Unknown',
+            (attr.is_personal || attr.category_id === 'personal') ? 'Personal' : (category?.name || 'Unknown'),
             attr.variant || '-',
             attr.units_purchased,
             `$${parseFloat(attr.unit_price).toFixed(2)}`,
@@ -1081,6 +1089,10 @@ export default function RawMaterialsTab({
               {filteredRawMaterialInvoices.map((invoice) => {
                 const invoiceCategories = invoice.cost_attribution
                   ? Object.values(invoice.cost_attribution).map(attr => {
+                      // Check if personal item first
+                      if (attr.is_personal || attr.category_id === 'personal') {
+                        return 'Personal';
+                      }
                       const category = categories.find(c => c.id === attr.category_id);
                       return category?.name || 'Unknown';
                     })
