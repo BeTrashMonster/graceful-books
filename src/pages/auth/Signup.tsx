@@ -4,6 +4,7 @@ import { CharitySelector } from '../../components/charity';
 import type { Charity } from '../../types/database.types';
 import { signup } from '../../services/auth.api';
 import { getProducts, type Product } from '../../services/products.api';
+import { LoadingOverlay } from '../../components/feedback/Loading';
 import styles from './Signup.module.css';
 
 type SignupStep = 'credentials' | 'charity' | 'product';
@@ -517,6 +518,12 @@ export default function Signup() {
           </div>
         </div>
       )}
+
+      <LoadingOverlay
+        isVisible={isLoading}
+        message="This is the 'calm before your clarity' moment"
+        showLogo
+      />
     </div>
   );
 }
