@@ -20,6 +20,8 @@ import {
 } from '../../../db/schema/cpg.schema';
 import { createDefaultCPGRecipe, type CPGRecipe } from '../../../db/schema/cpg.schema';
 import { createDefaultCPGCategory, type CPGCategory } from '../../../db/schema/cpg.schema';
+import { createDefaultCPGProductLabor, type CPGProductLabor } from '../../../db/schema/cpg.schema';
+import { createDefaultCPGLaborRole, type CPGLaborRole } from '../../../db/schema/cpg.schema';
 import { processMathInput } from '../../../utils/mathParser';
 import styles from './CPGModals.module.css';
 
@@ -59,12 +61,29 @@ interface RecipeItem {
   unit_of_measurement?: string;  // oz, lb, ml, L, each, etc.
 }
 
+// Labor item interface
+interface LaborItem {
+  labor_role_id: string;
+  // Batch-to-unit conversion support
+  entry_mode: 'per_batch' | 'per_unit';
+  hours_per_batch?: string;  // e.g., "8.00" (hours for entire batch)
+  batch_size?: string;       // e.g., "100" (units produced)
+  hours_per_unit?: string;   // Calculated or directly entered per-unit hours
+}
+
 // Local category interface
 interface LocalCategory {
   id: string;
   name: string;
   variants: string[];
   sort_order: number;
+}
+
+// Local labor role interface
+interface LocalLaborRole {
+  id: string;
+  role_name: string;
+  hourly_rate: string;
 }
 
 // Generate temp ID for recipe items and categories
@@ -112,6 +131,13 @@ export function AddProductModal({
   const [showNewVariantInput, setShowNewVariantInput] = useState<Record<string, boolean>>({});
   const [newVariantValue, setNewVariantValue] = useState<Record<string, string>>({});
 
+  // Labor state
+  const [laborItems, setLaborItems] = useState<LaborItem[]>([]);
+  const [laborRoles, setLaborRoles] = useState<LocalLaborRole[]>([]);
+  const [newLaborRoleName, setNewLaborRoleName] = useState<Record<string, string>>({});
+  const [newLaborHourlyRate, setNewLaborHourlyRate] = useState<Record<string, string>>({});
+  const [showNewLaborRoleInput, setShowNewLaborRoleInput] = useState<Record<string, boolean>>({});
+
   // Scroll to error when errors are set
   useEffect(() => {
     if (Object.keys(errors).length > 0 && errorAlertRef.current) {
@@ -119,7 +145,7 @@ export function AddProductModal({
     }
   }, [errors]);
 
-  // Load existing categories and invoices when modal opens
+  // Load existing categories, invoices, and labor roles when modal opens
   useEffect(() => {
     if (!isOpen || !companyId) return;
 
@@ -140,6 +166,24 @@ export function AddProductModal({
       }));
 
       setCategories(localCats);
+
+      // Load labor roles
+      const existingRoles = await db.cpgLaborRoles
+        .where('company_id')
+        .equals(companyId)
+        .and((r) => r.deleted_at === null)
+        .toArray();
+
+      // Convert to local format
+      const localRoles: LocalLaborRole[] = existingRoles.map(role => ({
+        id: role.id,
+        role_name: role.role_name,
+        hourly_rate: role.compensation_type === 'hourly'
+          ? (role.hourly_rate || '20.00')
+          : (role.calculated_hourly_rate || '20.00')
+      }));
+
+      setLaborRoles(localRoles);
 
       // Load invoices for validation
       const invoices = await db.cpgInvoices
@@ -324,6 +368,75 @@ export function AddProductModal({
     return `No invoice found for ${categoryName}${variantText}`;
   };
 
+  // Labor item handlers
+  const addLaborItem = () => {
+    setLaborItems([...laborItems, {
+      labor_role_id: '',
+      entry_mode: 'per_batch',
+      hours_per_batch: '',
+      batch_size: '',
+      hours_per_unit: ''
+    }]);
+  };
+
+  const removeLaborItem = (itemIndex: number) => {
+    setLaborItems(laborItems.filter((_, i) => i !== itemIndex));
+  };
+
+  const updateLaborItem = (itemIndex: number, field: keyof LaborItem, value: string) => {
+    const updated = [...laborItems];
+    const item = { ...updated[itemIndex], [field]: value };
+
+    // Auto-calculate hours per unit when in per_batch mode
+    if (item.entry_mode === 'per_batch') {
+      if (field === 'hours_per_batch' || field === 'batch_size') {
+        const hoursBatch = field === 'hours_per_batch' ? value : item.hours_per_batch || '';
+        const batchSz = field === 'batch_size' ? value : item.batch_size || '';
+
+        if (hoursBatch && batchSz) {
+          const hours = parseFloat(hoursBatch);
+          const size = parseFloat(batchSz);
+          if (!isNaN(hours) && !isNaN(size) && size > 0) {
+            item.hours_per_unit = (hours / size).toFixed(6);
+          }
+        }
+      }
+    }
+
+    updated[itemIndex] = item;
+    setLaborItems(updated);
+  };
+
+  // Create labor role on-the-fly
+  const createLaborRole = (itemIndex: number) => {
+    const key = `labor-${itemIndex}`;
+    const name = newLaborRoleName[key]?.trim();
+    const rate = newLaborHourlyRate[key]?.trim() || '20.00';
+
+    if (!name) return;
+
+    // Check if role already exists
+    const existing = laborRoles.find(r => r.role_name.toLowerCase() === name.toLowerCase());
+    if (existing) {
+      // Use existing role
+      updateLaborItem(itemIndex, 'labor_role_id', existing.id);
+    } else {
+      // Create new role (will be saved to DB on submit)
+      const newRole: LocalLaborRole = {
+        id: generateTempId(),
+        role_name: name,
+        hourly_rate: rate
+      };
+      setLaborRoles([...laborRoles, newRole]);
+      updateLaborItem(itemIndex, 'labor_role_id', newRole.id);
+    }
+
+    // Clear inputs
+    setNewLaborRoleName({ ...newLaborRoleName, [key]: '' });
+    setNewLaborHourlyRate({ ...newLaborHourlyRate, [key]: '20.00' });
+    setShowNewLaborRoleInput({ ...showNewLaborRoleInput, [key]: false });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
@@ -450,6 +563,66 @@ export function AddProductModal({
         }
       }
 
+      // Step 4: Save new labor roles and labor assignments (if any)
+      const laborRoleIdMap: Record<string, string> = {}; // temp ID -> real ID
+
+      if (laborItems.length > 0) {
+        // First, save any new labor roles that were created inline
+        const newLaborRolesToSave: CPGLaborRole[] = [];
+
+        for (const role of laborRoles) {
+          if (role.id.startsWith('temp-')) {
+            // This is a new role - save it
+            const realRoleId = nanoid();
+            const dbRole: CPGLaborRole = {
+              ...createDefaultCPGLaborRole(companyId, role.role_name, deviceId || 'default'),
+              id: realRoleId,
+              hourly_rate: role.hourly_rate,
+              compensation_type: 'hourly',
+              salary_amount: null,
+              salary_period: null,
+              calculated_hourly_rate: null,
+            };
+            newLaborRolesToSave.push(dbRole);
+            laborRoleIdMap[role.id] = realRoleId;
+          }
+        }
+
+        if (newLaborRolesToSave.length > 0) {
+          await db.cpgLaborRoles.bulkAdd(newLaborRolesToSave);
+        }
+
+        // Then, save labor assignments
+        const validLaborItems = laborItems.filter(
+          item => item.labor_role_id &&
+            (item.entry_mode === 'per_unit' ? item.hours_per_unit?.trim() :
+             (item.hours_per_batch?.trim() && item.batch_size?.trim()))
+        );
+
+        const dbLaborItems: CPGProductLabor[] = validLaborItems.map(item => {
+          // Map temp role IDs to real IDs
+          const realRoleId = laborRoleIdMap[item.labor_role_id] || item.labor_role_id;
+
+          return {
+            ...createDefaultCPGProductLabor(
+              companyId,
+              productId,
+              realRoleId,
+              deviceId || 'default'
+            ),
+            id: nanoid(),
+            entry_mode: item.entry_mode,
+            hours_per_batch: item.hours_per_batch || null,
+            batch_size: item.batch_size || null,
+            hours_per_unit: item.hours_per_unit || null,
+          };
+        });
+
+        if (dbLaborItems.length > 0) {
+          await db.cpgProductLabors.bulkAdd(dbLaborItems);
+        }
+      }
+
       // Dispatch update event
       window.dispatchEvent(
         new CustomEvent('cpg-data-updated', { detail: { type: 'product' } })
@@ -480,6 +653,11 @@ export function AddProductModal({
     setShowNewCategoryInput({});
     setShowNewVariantInput({});
     setNewVariantValue({});
+    setLaborItems([]);
+    setLaborRoles([]);
+    setNewLaborRoleName({});
+    setNewLaborHourlyRate({});
+    setShowNewLaborRoleInput({});
     setErrors({});
     onClose();
   };
@@ -609,7 +787,7 @@ export function AddProductModal({
         <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '2px solid #e5e7eb' }}>
           <div style={{ marginBottom: '1rem' }}>
             <h4 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#111827', marginBottom: '0.5rem' }}>
-              Recipe (Optional)
+              Recipe
             </h4>
             <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>
               Add items by category (ex: "Package") that make up your product. Use variants to specify different types or sizes (ex: "1 oz Small" vs "10 oz Large").
@@ -1148,6 +1326,382 @@ export function AddProductModal({
             }}
           >
             + Add Recipe Item
+          </button>
+        </div>
+
+        {/* Labor Section */}
+        <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '2px solid #e5e7eb' }}>
+          <div style={{ marginBottom: '1rem' }}>
+            <h4 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#111827', marginBottom: '0.5rem' }}>
+              Labor
+            </h4>
+            <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>
+              Add labor roles that contribute to making this product. Track hours per batch or per unit.
+            </p>
+          </div>
+
+          {/* Grid container for two items per row */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '1rem',
+            marginBottom: '1rem'
+          }}>
+            {laborItems.map((item, itemIndex) => {
+              const key = `labor-${itemIndex}`;
+              const selectedRole = laborRoles.find(r => r.id === item.labor_role_id);
+
+              return (
+                <div key={itemIndex} style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem',
+                  padding: '1rem',
+                  background: '#E5F6DF',
+                  borderRadius: '0.5rem',
+                  position: 'relative'
+                }}>
+                  {/* Labor Role Selection */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>
+                      Labor Role
+                    </label>
+                    {showNewLaborRoleInput[key] ? (
+                      <div style={{ marginBottom: '0.75rem' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                          <input
+                            type="text"
+                            value={newLaborRoleName[key] || ''}
+                            onChange={(e) => setNewLaborRoleName({ ...newLaborRoleName, [key]: e.target.value })}
+                            placeholder="ex: Production Worker"
+                            style={{
+                              flex: 1,
+                              minHeight: '44px',
+                              padding: '0.625rem 0.875rem',
+                              border: '2px solid #d1d5db',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.9375rem',
+                              backgroundColor: '#ffffff'
+                            }}
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                createLaborRole(itemIndex);
+                              }
+                            }}
+                          />
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                          <div style={{ flex: 1 }}>
+                            <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.75rem', color: '#6b7280' }}>
+                              Hourly Rate
+                            </label>
+                            <input
+                              type="number"
+                              value={newLaborHourlyRate[key] || '20.00'}
+                              onChange={(e) => setNewLaborHourlyRate({ ...newLaborHourlyRate, [key]: e.target.value })}
+                              placeholder="20.00"
+                              step="0.01"
+                              min="0"
+                              style={{
+                                width: '100%',
+                                minHeight: '44px',
+                                padding: '0.625rem 0.875rem',
+                                border: '2px solid #d1d5db',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.9375rem',
+                                backgroundColor: '#ffffff'
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button
+                            type="button"
+                            onClick={() => createLaborRole(itemIndex)}
+                            style={{
+                              flex: 1,
+                              padding: '0.5rem 1rem',
+                              backgroundColor: '#d4af37',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.875rem',
+                              fontWeight: 500,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Create
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowNewLaborRoleInput({ ...showNewLaborRoleInput, [key]: false });
+                              setNewLaborRoleName({ ...newLaborRoleName, [key]: '' });
+                              setNewLaborHourlyRate({ ...newLaborHourlyRate, [key]: '20.00' });
+                            }}
+                            style={{
+                              flex: 1,
+                              padding: '0.5rem 1rem',
+                              backgroundColor: 'transparent',
+                              color: '#6b7280',
+                              border: '1px solid #d1d5db',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.875rem',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : laborRoles.length > 0 ? (
+                      <select
+                        value={item.labor_role_id}
+                        onChange={(e) => {
+                          if (e.target.value === '__new__') {
+                            setShowNewLaborRoleInput({ ...showNewLaborRoleInput, [key]: true });
+                          } else {
+                            updateLaborItem(itemIndex, 'labor_role_id', e.target.value);
+                          }
+                        }}
+                        style={{
+                          width: '100%',
+                          minHeight: '44px',
+                          padding: '0.625rem 0.875rem',
+                          border: '2px solid #d1d5db',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.9375rem',
+                          backgroundColor: '#ffffff'
+                        }}
+                      >
+                        <option value="">Select...</option>
+                        {laborRoles.map(role => (
+                          <option key={role.id} value={role.id}>{role.role_name} (${role.hourly_rate}/hr)</option>
+                        ))}
+                        <option value="__new__">+ Add New Role</option>
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        value={newLaborRoleName[key] || ''}
+                        onChange={(e) => setNewLaborRoleName({ ...newLaborRoleName, [key]: e.target.value })}
+                        onBlur={() => {
+                          if (newLaborRoleName[key]?.trim()) {
+                            createLaborRole(itemIndex);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (newLaborRoleName[key]?.trim()) {
+                              createLaborRole(itemIndex);
+                            }
+                          }
+                        }}
+                        placeholder="ex: Production Worker"
+                        style={{
+                          width: '100%',
+                          minHeight: '44px',
+                          padding: '0.625rem 0.875rem',
+                          border: '2px solid #d1d5db',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.9375rem',
+                          backgroundColor: '#ffffff'
+                        }}
+                      />
+                    )}
+                  </div>
+
+                  {/* Entry Mode Toggle */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>
+                      How do you measure hours?
+                    </label>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button
+                        type="button"
+                        onClick={() => updateLaborItem(itemIndex, 'entry_mode', 'per_batch')}
+                        style={{
+                          flex: 1,
+                          padding: '0.625rem 1rem',
+                          backgroundColor: item.entry_mode === 'per_batch' ? '#4b006e' : 'transparent',
+                          color: item.entry_mode === 'per_batch' ? 'white' : '#6b7280',
+                          border: item.entry_mode === 'per_batch' ? 'none' : '1px solid #d1d5db',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem',
+                          fontWeight: 500,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Per Batch
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateLaborItem(itemIndex, 'entry_mode', 'per_unit')}
+                        style={{
+                          flex: 1,
+                          padding: '0.625rem 1rem',
+                          backgroundColor: item.entry_mode === 'per_unit' ? '#4b006e' : 'transparent',
+                          color: item.entry_mode === 'per_unit' ? 'white' : '#6b7280',
+                          border: item.entry_mode === 'per_unit' ? 'none' : '1px solid #d1d5db',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem',
+                          fontWeight: 500,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Per Unit
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Batch Entry Mode */}
+                  {item.entry_mode === 'per_batch' && (
+                    <>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>
+                            Hours per Batch
+                          </label>
+                          <input
+                            type="number"
+                            value={item.hours_per_batch || ''}
+                            onChange={(e) => updateLaborItem(itemIndex, 'hours_per_batch', e.target.value)}
+                            placeholder="ex: 8.00"
+                            step="0.01"
+                            min="0"
+                            style={{
+                              width: '100%',
+                              minHeight: '44px',
+                              padding: '0.625rem 0.875rem',
+                              border: '2px solid #d1d5db',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.9375rem',
+                              backgroundColor: '#ffffff'
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>
+                            Batch Size (units)
+                          </label>
+                          <input
+                            type="number"
+                            value={item.batch_size || ''}
+                            onChange={(e) => updateLaborItem(itemIndex, 'batch_size', e.target.value)}
+                            placeholder="ex: 100"
+                            step="1"
+                            min="1"
+                            style={{
+                              width: '100%',
+                              minHeight: '44px',
+                              padding: '0.625rem 0.875rem',
+                              border: '2px solid #d1d5db',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.9375rem',
+                              backgroundColor: '#ffffff'
+                            }}
+                          />
+                        </div>
+                      </div>
+                      {item.hours_per_batch && item.batch_size && (
+                        <div style={{
+                          fontSize: '0.875rem',
+                          color: '#059669',
+                          fontWeight: 500,
+                          padding: '0.5rem',
+                          backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                          borderRadius: '0.375rem'
+                        }}>
+                          → {item.hours_per_unit} hours per unit
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Per Unit Entry Mode */}
+                  {item.entry_mode === 'per_unit' && (
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>
+                        Hours per Unit
+                      </label>
+                      <input
+                        type="number"
+                        value={item.hours_per_unit || ''}
+                        onChange={(e) => updateLaborItem(itemIndex, 'hours_per_unit', e.target.value)}
+                        placeholder="ex: 0.08"
+                        step="0.000001"
+                        min="0"
+                        style={{
+                          width: '100%',
+                          minHeight: '44px',
+                          padding: '0.625rem 0.875rem',
+                          border: '2px solid #d1d5db',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.9375rem',
+                          backgroundColor: '#ffffff'
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => removeLaborItem(itemIndex)}
+                    style={{
+                      position: 'absolute',
+                      top: '0.5rem',
+                      right: '0.5rem',
+                      width: '28px',
+                      height: '28px',
+                      backgroundColor: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '50%',
+                      fontSize: '1rem',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      zIndex: 10
+                    }}
+                    aria-label="Remove labor assignment"
+                  >
+                    ✕
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            onClick={addLaborItem}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              backgroundColor: 'transparent',
+              color: '#4b006e',
+              border: '2px dashed #d1d5db',
+              borderRadius: '0.375rem',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#4b006e';
+              e.currentTarget.style.backgroundColor = 'rgba(75, 0, 110, 0.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#d1d5db';
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
+          >
+            + Add Labor Assignment
           </button>
         </div>
       </form>
