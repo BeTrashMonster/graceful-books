@@ -1525,17 +1525,19 @@ export class CPUCalculatorService {
     // Calculate direct costs per category+variant (not just variant!)
     const categoryVariantCosts = new Map<string, Decimal>();
     const categoryVariantUnitsReceived = new Map<string, Decimal>();
+    let personalItemsCost = new Decimal(0); // Track personal items separately
 
     for (const [_key, attr] of Object.entries(costAttribution)) {
-      // Skip personal items - they don't affect CPU calculations
-      if (attr.is_personal) {
-        continue;
-      }
-
       // Use manual line total if provided, otherwise calculate from units × price
       const directCost = attr.manual_line_total
         ? new Decimal(attr.manual_line_total)
         : new Decimal(attr.units_purchased).times(new Decimal(attr.unit_price));
+
+      // If personal item, add to personal total but skip CPU calculations
+      if (attr.is_personal) {
+        personalItemsCost = personalItemsCost.plus(directCost);
+        continue;
+      }
 
       // Key by category_id + variant (not just variant!)
       // This ensures Bottle 1oz and Lid 1oz are tracked separately
@@ -1555,7 +1557,7 @@ export class CPUCalculatorService {
       );
     }
 
-    // Calculate total direct costs
+    // Calculate total direct costs (business items only, for CPU allocation)
     let totalDirectCosts = new Decimal(0);
     const categoryVariantCostsValuesArray = Array.from(categoryVariantCosts.values());
     for (const cost of categoryVariantCostsValuesArray) {
@@ -1570,8 +1572,8 @@ export class CPUCalculatorService {
       }
     }
 
-    // Total paid = direct costs + additional costs
-    const totalPaid = totalDirectCosts.plus(totalAdditionalCosts).toFixed(6);
+    // Total paid = business costs + personal costs + additional costs
+    const totalPaid = totalDirectCosts.plus(personalItemsCost).plus(totalAdditionalCosts).toFixed(6);
 
     // Allocate additional costs proportionally to each category+variant
     const calculatedCPUs: Record<string, string> = {};

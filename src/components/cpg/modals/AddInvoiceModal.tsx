@@ -620,13 +620,13 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
       };
 
       costAttribution[key] = {
-        category_id: item.category_id,
+        category_id: isPersonal ? '' : item.category_id, // Use empty string for personal items
         variant: item.variant,
         description: item.description || undefined,
-        units_purchased: normalizeDecimal(item.units_purchased),
-        unit_of_measurement: item.unit_of_measurement, // Save unit of measurement
+        units_purchased: normalizeDecimal(item.units_purchased || '1'), // Default to 1 for personal items
+        unit_of_measurement: item.unit_of_measurement || 'each', // Default unit for personal items
         unit_price: normalizeDecimal(item.unit_price),
-        units_received: normalizeDecimal(item.units_received || item.units_purchased),
+        units_received: normalizeDecimal(item.units_received || item.units_purchased || '1'),
         manual_line_total: item.manual_line_total || undefined,
         distribution_method: item.distribution_method || undefined,
         is_personal: isPersonal || undefined, // Mark personal items

@@ -103,6 +103,10 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
   }, [isOpen, invoiceId]);
 
   const getCategoryName = (categoryId: string): string => {
+    // Handle empty category_id (personal items)
+    if (!categoryId || categoryId === '') {
+      return 'Personal Item';
+    }
     const category = categories.find(c => c.id === categoryId);
     if (!category) {
       return 'Unknown Category (deleted)';
