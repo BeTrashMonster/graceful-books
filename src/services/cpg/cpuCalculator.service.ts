@@ -79,6 +79,7 @@ export interface CreateInvoiceParams {
       units_received?: string; // Optional - defaults to units_purchased
       manual_line_total?: string; // Optional override for rounding issues
       distribution_method?: 'equal' | 'weighted';
+      is_personal?: boolean; // True if personal item (not business expense)
     }
   >;
   additional_costs?: Record<string, string>; // e.g., { "Shipping": "50.00", "Screen Printing": "75.00" }
@@ -107,6 +108,7 @@ export interface UpdateInvoiceParams {
       units_received?: string;
       manual_line_total?: string; // Optional override for rounding issues
       distribution_method?: 'equal' | 'weighted';
+      is_personal?: boolean; // True if personal item (not business expense)
     }
   >;
   additional_costs?: Record<string, string>;
@@ -355,6 +357,7 @@ export class CPUCalculatorService {
           units_received: attr.units_received || attr.units_purchased,
           manual_line_total: attr.manual_line_total,
           distribution_method: attr.distribution_method,
+          is_personal: attr.is_personal,
         };
       }
 
@@ -847,6 +850,11 @@ export class CPUCalculatorService {
 
         // Find line items for this category/variant
         for (const [lineKey, attr] of Object.entries(costAttribution)) {
+          // Skip personal items - they're not business expenses
+          if (attr.is_personal) {
+            continue;
+          }
+
           // Skip S+H distribution lines - they're not raw materials themselves
           if (attr.distribution_method) {
             continue;
@@ -1497,6 +1505,7 @@ export class CPUCalculatorService {
         units_received: attr.units_received || attr.units_purchased,
         manual_line_total: attr.manual_line_total,
         distribution_method: attr.distribution_method,
+        is_personal: attr.is_personal,
       };
     }
     return normalized;
@@ -1518,6 +1527,11 @@ export class CPUCalculatorService {
     const categoryVariantUnitsReceived = new Map<string, Decimal>();
 
     for (const [_key, attr] of Object.entries(costAttribution)) {
+      // Skip personal items - they don't affect CPU calculations
+      if (attr.is_personal) {
+        continue;
+      }
+
       // Use manual line total if provided, otherwise calculate from units × price
       const directCost = attr.manual_line_total
         ? new Decimal(attr.manual_line_total)
@@ -1599,6 +1613,11 @@ export class CPUCalculatorService {
     // Calculate total direct costs for proportional allocation
     let totalDirectCosts = new Decimal(0);
     for (const attr of Object.values(costAttribution)) {
+      // Skip personal items - they don't affect CPU calculations
+      if (attr.is_personal) {
+        continue;
+      }
+
       // Use manual line total if provided, otherwise calculate from units × price
       const directCost = attr.manual_line_total
         ? new Decimal(attr.manual_line_total)
@@ -1616,6 +1635,11 @@ export class CPUCalculatorService {
 
     // Build breakdown for each attribution
     for (const [_key, attr] of Object.entries(costAttribution)) {
+      // Skip personal items - they don't affect CPU calculations
+      if (attr.is_personal) {
+        continue;
+      }
+
       // Use manual line total if provided, otherwise calculate from units × price
       const directCost = attr.manual_line_total
         ? new Decimal(attr.manual_line_total)

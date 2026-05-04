@@ -118,6 +118,7 @@ export interface CPGInvoice extends BaseEntity {
       units_received: string | null; // For reconciliation
       manual_line_total?: string; // Optional override for rounding discrepancies
       distribution_method?: 'equal' | 'weighted'; // For S+H categories: how to distribute costs
+      is_personal?: boolean; // True if this is a personal item (not business expense) - flows to Owner's Draw in bookkeeping module
     }
   >;
 

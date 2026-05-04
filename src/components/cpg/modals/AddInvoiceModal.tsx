@@ -46,6 +46,7 @@ interface CostAttributionItem {
   distribution_method?: 'equal' | 'weighted'; // For S+H categories only
   showAdvanced?: boolean; // Toggle for advanced fields
   lastChangedField?: 'units' | 'price' | 'total'; // Track which field user last changed for smart calculation
+  is_personal?: boolean; // True if this is a personal item (not business expense)
 }
 
 export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, onNavigateToRecipe, invoiceId, mode = 'new' }: AddInvoiceModalProps) {
@@ -546,34 +547,44 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
     let hasErrors = false;
 
     filledCostItems.forEach((item, index) => {
-      if (!item.category_id) {
+      // Skip category validation for personal items
+      const isPersonal = item.is_personal || item.category_id === '__personal__';
+
+      if (!item.category_id && !isPersonal) {
         setErrors(prev => ({ ...prev, [`item_${index}_category`]: 'Category required' }));
         hasErrors = true;
         return;
       }
 
-      const category = getCategory(item.category_id);
-      if (!category) return;
+      // For personal items, skip category-specific validation
+      if (isPersonal) {
+        // Personal items still need description and price, will be validated below
+      } else {
+        const category = getCategory(item.category_id);
+        if (!category) return;
 
-      // If category has variants, variant must be selected
-      if (category.variants && category.variants.length > 0 && !item.variant) {
-        setErrors(prev => ({ ...prev, [`item_${index}_variant`]: 'Variant required' }));
-        hasErrors = true;
-        return;
+        // If category has variants, variant must be selected
+        if (category.variants && category.variants.length > 0 && !item.variant) {
+          setErrors(prev => ({ ...prev, [`item_${index}_variant`]: 'Variant required' }));
+          hasErrors = true;
+          return;
+        }
+
+        // If category is a distribution category (S+H), distribution method must be selected
+        if (category.is_distribution_category && !item.distribution_method) {
+          setErrors(prev => ({ ...prev, [`item_${index}_distribution`]: 'Distribution method required' }));
+          hasErrors = true;
+          return;
+        }
       }
 
-      // If category is a distribution category (S+H), distribution method must be selected
-      if (category.is_distribution_category && !item.distribution_method) {
-        setErrors(prev => ({ ...prev, [`item_${index}_distribution`]: 'Distribution method required' }));
-        hasErrors = true;
-        return;
-      }
+      const category = isPersonal ? null : getCategory(item.category_id);
 
-      // For S+H categories, units is auto-set to 1, so only validate price (total cost)
-      if (category.is_distribution_category) {
+      // For personal items or S+H categories, units is auto-set to 1, so only validate price
+      if (isPersonal || category?.is_distribution_category) {
         const price = parseFloat(item.unit_price);
         if (!item.unit_price || item.unit_price.trim() === '' || isNaN(price) || price <= 0) {
-          setErrors(prev => ({ ...prev, [`item_${index}_price`]: 'Total cost required' }));
+          setErrors(prev => ({ ...prev, [`item_${index}_price`]: isPersonal ? 'Amount required' : 'Total cost required' }));
           hasErrors = true;
           return;
         }
@@ -593,9 +604,13 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         }
       }
 
-      const key = item.variant
-        ? `${category.name.replace(/[^a-zA-Z0-9]/g, '')}_${item.variant.replace(/[^a-zA-Z0-9]/g, '')}`
-        : category.name.replace(/[^a-zA-Z0-9]/g, '');
+      // Generate key for cost attribution
+      // For personal items, use a special key format
+      const key = isPersonal
+        ? `personal_${item.id}`
+        : item.variant
+          ? `${category!.name.replace(/[^a-zA-Z0-9]/g, '')}_${item.variant.replace(/[^a-zA-Z0-9]/g, '')}`
+          : category!.name.replace(/[^a-zA-Z0-9]/g, '');
 
       // Normalize decimal values (convert .55 to 0.55)
       const normalizeDecimal = (value: string): string => {
@@ -614,6 +629,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
         units_received: normalizeDecimal(item.units_received || item.units_purchased),
         manual_line_total: item.manual_line_total || undefined,
         distribution_method: item.distribution_method || undefined,
+        is_personal: isPersonal || undefined, // Mark personal items
       };
     });
 
@@ -966,15 +982,22 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                     <select
                       value={item.category_id}
                       onChange={(e) => {
-                        const selectedCategory = getCategory(e.target.value);
+                        const selectedValue = e.target.value;
+                        const isPersonal = selectedValue === '__personal__';
+                        const selectedCategory = isPersonal ? null : getCategory(selectedValue);
+
                         console.log('[AddInvoiceModal] Category selected:', {
-                          categoryId: e.target.value,
+                          categoryId: selectedValue,
+                          isPersonal,
                           selectedCategory,
                           isDistribution: selectedCategory?.is_distribution_category,
                           itemId: item.id
                         });
-                        updateCostItem(item.id, 'category_id', e.target.value);
+
+                        updateCostItem(item.id, 'category_id', selectedValue);
                         updateCostItem(item.id, 'variant', null); // Reset variant when category changes
+                        updateCostItem(item.id, 'is_personal', isPersonal); // Mark as personal if selected
+
                         // Set default distribution method and units if S+H category
                         if (selectedCategory?.is_distribution_category) {
                           console.log('[AddInvoiceModal] Setting distribution method to weighted');
@@ -998,6 +1021,12 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                       required
                     >
                       <option value="">Select...</option>
+                      <option value="__personal__" style={{ fontStyle: 'italic', color: '#6b7280' }}>
+                        👤 Personal Item
+                      </option>
+                      <option value="" disabled>
+                        ────────────
+                      </option>
                       {categories.map(cat => (
                         <option key={cat.id} value={cat.id}>
                           {cat.name}
@@ -1006,8 +1035,8 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                     </select>
                   </div>
 
-                  {/* Variant (if needed) */}
-                  {hasVariants && (
+                  {/* Variant (if needed) - hide for personal items */}
+                  {hasVariants && !item.is_personal && (
                     <div>
                       <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
                         Variant *
@@ -1043,8 +1072,8 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                     </div>
                   )}
 
-                  {/* Distribution Method (S+H categories only) */}
-                  {category?.is_distribution_category && (
+                  {/* Distribution Method (S+H categories only) - hide for personal items */}
+                  {category?.is_distribution_category && !item.is_personal && (
                     <div>
                       <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
                         Distribution *

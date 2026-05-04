@@ -243,12 +243,26 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
                   : unitsPurchased * parseFloat(item.unit_price);
 
                 return (
-                  <div key={item.key} className={styles.categoryRow}>
+                  <div key={item.key} className={styles.categoryRow} style={item.is_personal ? {
+                    backgroundColor: '#f9fafb',
+                    borderLeft: '3px solid #9ca3af'
+                  } : undefined}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
                         <div className={styles.categoryHeader}>
-                          {categoryName}
-                          {item.variant && (
+                          {item.is_personal && (
+                            <span style={{
+                              fontSize: '0.875rem',
+                              marginRight: '0.375rem',
+                              color: '#6b7280'
+                            }}>
+                              👤
+                            </span>
+                          )}
+                          <span style={item.is_personal ? { fontStyle: 'italic', color: '#6b7280' } : undefined}>
+                            {item.is_personal ? 'Personal Item' : categoryName}
+                          </span>
+                          {item.variant && !item.is_personal && (
                             <span style={{ fontWeight: 400, color: '#64748b' }}> - {item.variant}</span>
                           )}
                           {item.distribution_method && (
@@ -271,8 +285,19 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
                       </div>
                     </div>
 
-                    {/* For S+H lines, don't show unit breakdown - just a note */}
-                    {!item.distribution_method ? (
+                    {/* For personal items, show a simple note */}
+                    {item.is_personal ? (
+                      <div style={{
+                        marginTop: '0.75rem',
+                        paddingTop: '0.75rem',
+                        borderTop: '1px solid #e2e8f0',
+                        fontSize: '0.875rem',
+                        color: '#6b7280',
+                        fontStyle: 'italic'
+                      }}>
+                        {item.description || 'Personal expense - not included in cost calculations'}
+                      </div>
+                    ) : !item.distribution_method ? (
                       <div style={{
                         display: 'grid',
                         gridTemplateColumns: '1fr 1fr 1fr',
