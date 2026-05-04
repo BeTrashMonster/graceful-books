@@ -1662,14 +1662,14 @@ export function CPUDisplay({
                     </div>
 
                     {/* Main Metrics - CPU as Hero */}
-                    {!hasRecipe ? (
+                    {!hasRecipe && laborCount === 0 ? (
                       <div style={{
                         padding: '2rem 1rem',
                         textAlign: 'center',
                         color: '#64748b',
                       }}>
                         <span style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }}>⚠️</span>
-                        <div style={{ fontWeight: 500 }}>No recipe defined</div>
+                        <div style={{ fontWeight: 500 }}>No recipe or labor defined</div>
                       </div>
                     ) : product.cost !== null ? (
                       <>
@@ -1917,6 +1917,7 @@ export function CPUDisplay({
                   <tbody>
                     {sortedProducts.map((product, index) => {
                     const hasRecipe = product.breakdown.length > 0;
+                    const laborCount = product.laborBreakdown?.length || 0;
                     const productKey = product.productId || product.sku || product.productName;
 
                     // Use custom color if set, otherwise default (same as cards)
@@ -1963,7 +1964,7 @@ export function CPUDisplay({
                           {product.marginPercent !== null ? formatPercentage(product.marginPercent) : '—'}
                         </td>
                         <td style={{ padding: '1rem', textAlign: 'center' }}>
-                          {!hasRecipe ? (
+                          {!hasRecipe && laborCount === 0 ? (
                             <span style={{
                               padding: '0.25rem 0.75rem',
                               background: '#f3f4f6',
@@ -1972,7 +1973,7 @@ export function CPUDisplay({
                               color: '#64748b',
                               fontWeight: 500,
                             }}>
-                              No Recipe
+                              No Data
                             </span>
                           ) : product.profit !== null ? (
                             <span style={{
