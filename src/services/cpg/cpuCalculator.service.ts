@@ -1122,8 +1122,15 @@ export class CPUCalculatorService {
         .filter(recipe => recipe.active && recipe.deleted_at === null)
         .toArray();
 
-      if (recipeLines.length === 0) {
-        serviceLogger.debug('No recipe found for product', { productId });
+      // Calculate labor costs for this product (do this regardless of recipe)
+      const laborService = new LaborRoleService(this.db);
+      const laborResult = await laborService.calculateProductLaborCost(productId);
+      const laborCost = new Decimal(laborResult.totalLaborCostPerUnit);
+      const hasLaborCost = laborCost.greaterThan(0);
+
+      // If no recipe AND no labor, return empty result
+      if (recipeLines.length === 0 && !hasLaborCost) {
+        serviceLogger.debug('No recipe or labor found for product', { productId });
         return {
           cpu: null,
           materialCPU: null,
@@ -1140,7 +1147,7 @@ export class CPUCalculatorService {
       let isComplete = true;
       const unitMismatchWarnings: string[] = [];
 
-      // Process each component in the recipe
+      // Process each component in the recipe (if we have any)
       for (const recipeLine of recipeLines) {
         // Get category info
         const category = await this.db.cpgCategories.get(recipeLine.category_id);
@@ -1214,18 +1221,20 @@ export class CPUCalculatorService {
         });
       }
 
-      // Calculate labor costs for this product
-      const laborService = new LaborRoleService(this.db);
-      const laborResult = await laborService.calculateProductLaborCost(productId);
-      const laborCost = new Decimal(laborResult.totalLaborCostPerUnit);
-      const hasLaborCost = laborCost.greaterThan(0);
-
       // Calculate total CPU (materials + labor)
-      const materialCPU = isComplete ? totalCPU : null;
+      const materialCPU = isComplete && recipeLines.length > 0 ? totalCPU : null;
       let finalCPU: string | null = null;
+      let finalIsComplete = isComplete;
 
-      if (materialCPU !== null) {
-        finalCPU = totalCPU.plus(laborCost).toFixed(6);
+      // If we have either materials or labor, calculate total CPU
+      if (materialCPU !== null || hasLaborCost) {
+        const material = materialCPU !== null ? totalCPU : new Decimal(0);
+        finalCPU = material.plus(laborCost).toFixed(6);
+      }
+
+      // For labor-only products, mark as complete if we have labor data
+      if (recipeLines.length === 0 && hasLaborCost) {
+        finalIsComplete = true;
       }
 
       const result: FinishedProductCPUResult = {
@@ -1234,7 +1243,7 @@ export class CPUCalculatorService {
         laborCost: hasLaborCost ? laborCost.toFixed(6) : null,
         breakdown,
         laborBreakdown: hasLaborCost ? laborResult.breakdown : undefined,
-        isComplete,
+        isComplete: finalIsComplete,
         unitMismatchWarnings: unitMismatchWarnings.length > 0 ? unitMismatchWarnings : undefined,
       };
 
