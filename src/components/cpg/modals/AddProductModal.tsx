@@ -489,7 +489,7 @@ export function AddProductModal({
       isOpen={isOpen}
       onClose={handleClose}
       title={editingProduct ? 'Edit Product' : 'Add New Product'}
-      size="lg"
+      size="xl"
       closeOnBackdropClick={false}
       footer={
         <div className={styles.modalFooter}>
@@ -619,7 +619,7 @@ export function AddProductModal({
           {/* Grid container for two items per row */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))',
+            gridTemplateColumns: 'repeat(2, 1fr)',
             gap: '1rem',
             marginBottom: '1rem'
           }}>
