@@ -1192,12 +1192,23 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                     <div className={styles.inputGroup}>
                       <span className={styles.inputPrefix}>$</span>
                       <input
-                        type="number"
+                        type="text"
                         value={invoice.invoice_total || ''}
                         onChange={(e) => updateInvoice(invIndex, 'invoice_total', e.target.value)}
-                        placeholder="0.00"
-                        step="0.01"
-                        min="0"
+                        onBlur={(e) => {
+                          // Evaluate math expressions and format to 2 decimals
+                          const evaluated = evaluateMathExpression(e.target.value);
+                          if (evaluated !== e.target.value) {
+                            updateInvoice(invIndex, 'invoice_total', evaluated);
+                          } else if (e.target.value && !isNaN(parseFloat(e.target.value))) {
+                            // Format existing number to 2 decimals
+                            const formatted = parseFloat(e.target.value).toFixed(2);
+                            if (formatted !== e.target.value) {
+                              updateInvoice(invIndex, 'invoice_total', formatted);
+                            }
+                          }
+                        }}
+                        placeholder="150.00"
                         className={styles.input}
                       />
                     </div>
@@ -1337,13 +1348,38 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                   + Add Line Item
                 </button>
 
-                {getInvoiceErrors(invoice).map((error, i) => (
-                  <div key={i} className={styles.validationWarning}>
-                    ⚠️ {error}
-                  </div>
-                ))}
+                {invoice.items.length > 0 && invoice.invoice_total && (
+                  <div className={styles.invoiceBalanceSection}>
+                    {(() => {
+                      const invoiceTotal = parseFloat(invoice.invoice_total || '0');
+                      const remaining = invoiceTotal - lineItemsTotal;
+                      const isBalanced = Math.abs(remaining) <= 0.01;
 
-                {invoice.items.length > 0 && (
+                      return (
+                        <>
+                          {!isBalanced && (
+                            <div className={styles.remainingAmount}>
+                              <span className={styles.remainingLabel}>
+                                {remaining > 0 ? 'Still need:' : 'Over by:'}
+                              </span>
+                              <span className={styles.remainingValue}>
+                                ${Math.abs(remaining).toFixed(2)}
+                              </span>
+                            </div>
+                          )}
+                          <div className={styles.invoiceTotal}>
+                            <span className={styles.invoiceTotalLabel}>Line Items Sum:</span>
+                            <span className={styles.invoiceTotalAmount}>
+                              ${lineItemsTotal.toFixed(2)}
+                            </span>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                {invoice.items.length > 0 && !invoice.invoice_total && (
                   <div className={styles.invoiceTotal}>
                     <span className={styles.invoiceTotalLabel}>Line Items Sum:</span>
                     <span className={styles.invoiceTotalAmount}>
