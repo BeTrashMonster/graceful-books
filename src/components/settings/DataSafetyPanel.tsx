@@ -599,7 +599,7 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
               {backupStatus?.enabled ? (
                 <span className={styles.statusOn}>
                   <span className={styles.statusDot} aria-hidden="true" />
-                  Automatic Backups ON
+                  Backup Folder Configured
                 </span>
               ) : (
                 <span className={styles.statusOff}>
@@ -672,7 +672,7 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
               iconBefore="📁"
               aria-label="Change backup location"
             >
-              {backupStatus?.location ? 'Change Location' : 'Set Up Automatic Backups'}
+              {backupStatus?.location ? 'Change Folder' : 'Choose Backup Folder'}
             </Button>
 
             <Button
@@ -690,9 +690,9 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
           {!backupStatus?.enabled && (
             <div className={styles.infoBox}>
               <p className={styles.infoText}>
-                <strong>Want automatic backups?</strong> Set up a backup location to have your data
-                automatically saved to your computer. Your backups are encrypted and only you can
-                access them.
+                <strong>Want to save backups to a folder?</strong> Set up a backup location and use the
+                "Backup Now" button to save encrypted backups to your computer. Automatic scheduling
+                coming soon!
               </p>
             </div>
           )}
@@ -700,10 +700,13 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
           {backupStatus?.enabled && (
             <div className={styles.infoBox}>
               <p className={styles.infoText}>
-                Your data is automatically backed up to{' '}
-                <strong>{backupStatus.location}</strong> every day and whenever you make important
-                changes. Zero-knowledge encryption means we can never see your data - only you have
-                the key.
+                Your backup folder is configured at <strong>{backupStatus.location}</strong>. Click
+                "Backup Now" to save an encrypted backup. Zero-knowledge encryption means we can never
+                see your data - only you have the key.
+              </p>
+              <p className={styles.infoText} style={{ marginTop: '0.5rem', fontSize: '0.9em', opacity: 0.8 }}>
+                📅 <em>Automatic daily backups coming soon! For now, use "Backup Now" to manually save
+                your data.</em>
               </p>
             </div>
           )}

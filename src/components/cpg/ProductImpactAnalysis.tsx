@@ -178,6 +178,7 @@ function ProductImpactContent({
   const [productData, setProductData] = useState<Record<string, { price: string; cpu: string; laborCostPerUnit: string }>>({});
   const [loading, setLoading] = useState(true);
   const [dataVersion, setDataVersion] = useState(0);
+  const [ownerPayPeriod, setOwnerPayPeriod] = useState<'monthly' | 'annual'>('monthly');
 
   const hasOwnerData = owners.length > 0 && calculateBreakEven && calculateScenario;
 
@@ -309,7 +310,7 @@ function ProductImpactContent({
     lines.push(`,,Total Labor (owner pay roles excluded),,$${summaryLabor.toFixed(6)}`);
 
     if (hasOwnerData) {
-      lines.push(`,,Owner's Pay Needed,,$${getTotalOwnerPay().toFixed(2)}`);
+      lines.push(`,,Owner's Pay Needed (${ownerPayPeriod}),,$${getTotalOwnerPay().toFixed(2)}`);
       const gap = summaryRevenue.minus(summaryMaterials).minus(summaryLabor).minus(getTotalOwnerPay());
       lines.push(`,,${gap.greaterThanOrEqualTo(0) ? 'Available for Operations' : 'Amount to Bridge'},,$${gap.abs().toFixed(2)}`);
     } else {
@@ -405,12 +406,14 @@ function ProductImpactContent({
   const getTotalOwnerPay = () => {
     if (!hasOwnerData) return 0;
 
-    return owners.reduce((sum, owner) => {
+    const monthlyTotal = owners.reduce((sum, owner) => {
       if (scenario === 'breakeven') {
         return sum + calculateBreakEven!(owner.expenses).monthly;
       }
       return sum + calculateScenario!(owner, scenario as 'good' | 'better' | 'best');
     }, 0);
+
+    return ownerPayPeriod === 'annual' ? monthlyTotal * 12 : monthlyTotal;
   };
 
   // Calculate test results with detailed breakdown using Decimal for precision
@@ -520,7 +523,26 @@ function ProductImpactContent({
           {hasOwnerData ? (
             <>
               <div className={styles.resultRow}>
-                <span className={styles.resultLabel}>Owner's Pay Needed:</span>
+                <span className={styles.resultLabel}>
+                  Owner's Pay Needed ({ownerPayPeriod}):
+                  <button
+                    onClick={() => setOwnerPayPeriod(ownerPayPeriod === 'monthly' ? 'annual' : 'monthly')}
+                    style={{
+                      marginLeft: '0.5rem',
+                      padding: '2px 8px',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      border: '1px solid #D4AF37',
+                      background: 'white',
+                      borderRadius: '4px',
+                      color: '#D4AF37',
+                      fontWeight: 500,
+                    }}
+                    title={`Switch to ${ownerPayPeriod === 'monthly' ? 'annual' : 'monthly'} view`}
+                  >
+                    {ownerPayPeriod === 'monthly' ? '📅 Annual' : '📆 Monthly'}
+                  </button>
+                </span>
                 <span className={`${styles.resultValue} ${styles.resultNegative}`}>
                   -{formatCurrencyFn(totalOwnerPay)}
                 </span>
