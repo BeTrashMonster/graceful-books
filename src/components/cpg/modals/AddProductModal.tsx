@@ -106,6 +106,7 @@ export function AddProductModal({
   // Recipe state
   const [recipeItems, setRecipeItems] = useState<RecipeItem[]>([]);
   const [categories, setCategories] = useState<LocalCategory[]>([]);
+  const [invoiceData, setInvoiceData] = useState<Array<{ category_id: string; variant: string | null; unit: string }>>([]);
   const [newCategoryName, setNewCategoryName] = useState<Record<string, string>>({});
   const [showNewCategoryInput, setShowNewCategoryInput] = useState<Record<string, boolean>>({});
   const [showNewVariantInput, setShowNewVariantInput] = useState<Record<string, boolean>>({});
@@ -118,11 +119,12 @@ export function AddProductModal({
     }
   }, [errors]);
 
-  // Load existing categories when modal opens
+  // Load existing categories and invoices when modal opens
   useEffect(() => {
     if (!isOpen || !companyId) return;
 
-    const loadCategories = async () => {
+    const loadData = async () => {
+      // Load categories
       const existingCategories = await db.cpgCategories
         .where('company_id')
         .equals(companyId)
@@ -138,9 +140,30 @@ export function AddProductModal({
       }));
 
       setCategories(localCats);
+
+      // Load invoices for validation
+      const invoices = await db.cpgInvoices
+        .where('company_id')
+        .equals(companyId)
+        .and((inv) => inv.deleted_at === null)
+        .toArray();
+
+      // Extract unique category+variant+unit combinations from cost attributions
+      const invoiceItems: Array<{ category_id: string; variant: string | null; unit: string }> = [];
+      invoices.forEach(invoice => {
+        Object.values(invoice.cost_attribution || {}).forEach((attr: any) => {
+          invoiceItems.push({
+            category_id: attr.category_id,
+            variant: attr.variant || null,
+            unit: attr.unit_of_measurement || 'each'
+          });
+        });
+      });
+
+      setInvoiceData(invoiceItems);
     };
 
-    loadCategories();
+    loadData();
   }, [isOpen, companyId]);
 
   // Apply purple header styling when modal is open
@@ -266,6 +289,39 @@ export function AddProductModal({
         : cat
     );
     setCategories(updated);
+  };
+
+  // Validate recipe item against invoices
+  const getRecipeItemWarning = (item: RecipeItem): string | null => {
+    if (!item.category_id || !item.unit_of_measurement) return null;
+
+    const variant = item.variant || null;
+
+    // Find exact match (category + variant + unit)
+    const exactMatch = invoiceData.find(inv =>
+      inv.category_id === item.category_id &&
+      inv.variant === variant &&
+      inv.unit === item.unit_of_measurement
+    );
+
+    if (exactMatch) return null; // Perfect match, no warning
+
+    // Find category + variant match with different unit
+    const categoryVariantMatch = invoiceData.find(inv =>
+      inv.category_id === item.category_id &&
+      inv.variant === variant
+    );
+
+    if (categoryVariantMatch) {
+      // Same category+variant but different unit
+      return `Invoice uses ${categoryVariantMatch.unit}, not ${item.unit_of_measurement}`;
+    }
+
+    // No invoice found at all for this category+variant
+    const category = categories.find(c => c.id === item.category_id);
+    const categoryName = category?.name || 'this ingredient';
+    const variantText = variant ? ` (${variant})` : '';
+    return `No invoice found for ${categoryName}${variantText}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -560,22 +616,28 @@ export function AddProductModal({
             </p>
           </div>
 
-          {recipeItems.map((item, itemIndex) => {
-            const key = `item-${itemIndex}`;
-            const selectedCategory = categories.find(c => c.id === item.category_id);
+          {/* Grid container for two items per row */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))',
+            gap: '1rem',
+            marginBottom: '1rem'
+          }}>
+            {recipeItems.map((item, itemIndex) => {
+              const key = `item-${itemIndex}`;
+              const selectedCategory = categories.find(c => c.id === item.category_id);
+              const warning = getRecipeItemWarning(item);
 
-            return (
-              <div key={itemIndex} style={{
-                display: 'flex',
-                gap: '0.75rem',
-                alignItems: 'flex-start',
-                marginBottom: '1rem',
-                padding: '1rem',
-                background: '#E5F6DF',
-                borderRadius: '0.5rem',
-                position: 'relative'
-              }}>
-                <div style={{ flex: 1 }}>
+              return (
+                <div key={itemIndex} style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem',
+                  padding: '1rem',
+                  background: '#E5F6DF',
+                  borderRadius: '0.5rem',
+                  position: 'relative'
+                }}>
                   {/* Category and Variant Row */}
                   <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
                     <div style={{ flex: 1 }}>
@@ -1011,36 +1073,55 @@ export function AddProductModal({
                       </div>
                     </div>
                   )}
-                </div>
 
-                <button
-                  type="button"
-                  onClick={() => removeRecipeItem(itemIndex)}
-                  style={{
-                    position: 'absolute',
-                    top: '0.5rem',
-                    right: '0.5rem',
-                    width: '28px',
-                    height: '28px',
-                    backgroundColor: '#ef4444',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '50%',
-                    fontSize: '1rem',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 10
-                  }}
-                  aria-label="Remove ingredient"
-                >
-                  ✕
-                </button>
-              </div>
-            );
-          })}
+                  {/* Warning for missing invoice or unit mismatch */}
+                  {warning && (
+                    <div style={{
+                      marginTop: '0.75rem',
+                      padding: '0.5rem 0.75rem',
+                      backgroundColor: '#fef3c7',
+                      border: '1px solid #f59e0b',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.8125rem',
+                      color: '#92400e',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}>
+                      <span style={{ fontSize: '1rem' }}>⚠️</span>
+                      <span>{warning}</span>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => removeRecipeItem(itemIndex)}
+                    style={{
+                      position: 'absolute',
+                      top: '0.5rem',
+                      right: '0.5rem',
+                      width: '28px',
+                      height: '28px',
+                      backgroundColor: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '50%',
+                      fontSize: '1rem',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      zIndex: 10
+                    }}
+                    aria-label="Remove ingredient"
+                  >
+                    ✕
+                  </button>
+                </div>
+              );
+            })}
+          </div>
 
           <button
             type="button"
