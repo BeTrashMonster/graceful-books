@@ -2,7 +2,7 @@
   "name": "Light Load Test",
   "description": "100 concurrent users - suitable for PR validation",
   "env": {
-    "BASE_URL": "http://localhost:3000",
+    "BASE_URL": "${LOAD_TEST_URL:-http://localhost:3000}",
     "VUS_START": "10",
     "VUS_PEAK": "100",
     "CONFLICT_VUS": "20",

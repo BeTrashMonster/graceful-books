@@ -244,10 +244,27 @@ npm run build && npm run preview
 ### Custom Environment Variables
 
 ```bash
-BASE_URL=http://staging.example.com \
-VUS_PEAK=200 \
-npm run load:test:light
+# Test against a different environment
+LOAD_TEST_URL=https://staging.example.com npm run load:test:light
+
+# Test against production (used in CI/CD)
+LOAD_TEST_URL=https://app.audacious.money npm run load:test:light
+
+# Customize VU counts
+VUS_PEAK=200 npm run load:test:light
+
+# Combine multiple overrides
+LOAD_TEST_URL=https://staging.example.com VUS_PEAK=200 npm run load:test:light
 ```
+
+**Available Environment Variables:**
+- `LOAD_TEST_URL` - Base URL to test against (default: `http://localhost:3000`)
+- `VUS_START` - Starting number of virtual users
+- `VUS_PEAK` - Peak number of virtual users
+- `CONFLICT_VUS` - VUs for conflict testing
+- `LIGHT_USERS` - Number of light users in mixed workload
+- `ACTIVE_USERS` - Number of active users in mixed workload
+- `POWER_USERS` - Number of power users in mixed workload
 
 ### Custom Scenarios
 

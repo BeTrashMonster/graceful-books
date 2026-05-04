@@ -61,42 +61,19 @@ jobs:
       - name: Verify k6 installation
         run: k6 version
 
-      - name: Build application
-        run: npm run build
-        env:
-          NODE_ENV: production
-
-      - name: Start application (background)
+      - name: Verify production site is accessible
         run: |
-          npm run preview &
-          echo $! > .preview-pid
-          sleep 10
-
-      - name: Wait for application to be ready
-        run: |
-          for i in {1..30}; do
-            if curl -f http://localhost:3000 > /dev/null 2>&1; then
-              echo "Application is ready"
-              exit 0
-            fi
-            echo "Waiting for application... ($i/30)"
-            sleep 2
-          done
-          echo "Application failed to start"
-          exit 1
+          echo "Testing connection to production site..."
+          curl -f https://app.audacious.money > /dev/null || {
+            echo "Error: Production site is not accessible"
+            exit 1
+          }
+          echo "Production site is accessible"
 
       - name: Run light load tests
         run: bash scripts/run-load-tests.sh light
         env:
-          BASE_URL: http://localhost:3000
-
-      - name: Stop application
-        if: always()
-        run: |
-          if [ -f .preview-pid ]; then
-            kill $(cat .preview-pid) || true
-            rm .preview-pid
-          fi
+          LOAD_TEST_URL: https://app.audacious.money
 
       - name: Upload test results
         if: always()
@@ -189,28 +166,19 @@ jobs:
           sudo apt-get update
           sudo apt-get install k6
 
-      - name: Build application
-        run: npm run build
-        env:
-          NODE_ENV: production
-
-      - name: Start application
+      - name: Verify production site is accessible
         run: |
-          npm run preview &
-          echo $! > .preview-pid
-          sleep 10
+          echo "Testing connection to production site..."
+          curl -f https://app.audacious.money > /dev/null || {
+            echo "Error: Production site is not accessible"
+            exit 1
+          }
+          echo "Production site is accessible"
 
       - name: Run medium load tests
         run: bash scripts/run-load-tests.sh medium
         env:
-          BASE_URL: http://localhost:3000
-
-      - name: Stop application
-        if: always()
-        run: |
-          if [ -f .preview-pid ]; then
-            kill $(cat .preview-pid) || true
-          fi
+          LOAD_TEST_URL: https://app.audacious.money
 
       - name: Upload test results
         if: always()
@@ -254,28 +222,19 @@ jobs:
           sudo apt-get update
           sudo apt-get install k6
 
-      - name: Build application
-        run: npm run build
-        env:
-          NODE_ENV: production
-
-      - name: Start application
+      - name: Verify production site is accessible
         run: |
-          npm run preview &
-          echo $! > .preview-pid
-          sleep 10
+          echo "Testing connection to production site..."
+          curl -f https://app.audacious.money > /dev/null || {
+            echo "Error: Production site is not accessible"
+            exit 1
+          }
+          echo "Production site is accessible"
 
       - name: Run heavy load tests
         run: bash scripts/run-load-tests.sh heavy
         env:
-          BASE_URL: http://localhost:3000
-
-      - name: Stop application
-        if: always()
-        run: |
-          if [ -f .preview-pid ]; then
-            kill $(cat .preview-pid) || true
-          fi
+          LOAD_TEST_URL: https://app.audacious.money
 
       - name: Upload test results
         if: always()

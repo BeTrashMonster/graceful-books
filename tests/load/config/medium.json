@@ -2,7 +2,7 @@
   "name": "Medium Load Test",
   "description": "500 concurrent users - nightly testing",
   "env": {
-    "BASE_URL": "http://localhost:3000",
+    "BASE_URL": "${LOAD_TEST_URL:-http://localhost:3000}",
     "VUS_START": "50",
     "VUS_PEAK": "500",
     "CONFLICT_VUS": "100",

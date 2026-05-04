@@ -78,7 +78,22 @@ load_config() {
 
     # Extract environment variables from config
     # Note: This is a simple implementation. For production, consider using jq
-    export BASE_URL=$(grep -o '"BASE_URL": *"[^"]*"' "$config_file" | cut -d'"' -f4)
+    local base_url_raw=$(grep -o '"BASE_URL": *"[^"]*"' "$config_file" | cut -d'"' -f4)
+
+    # Handle environment variable substitution in BASE_URL
+    # Format: ${LOAD_TEST_URL:-http://localhost:3000}
+    if [[ "$base_url_raw" =~ \$\{([^:]+):-([^}]+)\} ]]; then
+        local env_var="${BASH_REMATCH[1]}"
+        local default_val="${BASH_REMATCH[2]}"
+        # Use indirect expansion, fall back to default if empty
+        export BASE_URL="${!env_var}"
+        if [ -z "$BASE_URL" ]; then
+            export BASE_URL="$default_val"
+        fi
+    else
+        export BASE_URL="$base_url_raw"
+    fi
+
     export VUS_START=$(grep -o '"VUS_START": *"[^"]*"' "$config_file" | cut -d'"' -f4)
     export VUS_PEAK=$(grep -o '"VUS_PEAK": *"[^"]*"' "$config_file" | cut -d'"' -f4)
     export CONFLICT_VUS=$(grep -o '"CONFLICT_VUS": *"[^"]*"' "$config_file" | cut -d'"' -f4)
