@@ -398,10 +398,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
-  border: 3px solid #D4AF37;
+  background: #f9fafb;
+  border: 2px solid #d1d5db;
   border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
 }
 
 .invoiceTotalLabel {
@@ -434,6 +433,7 @@
   margin-bottom: 0.75rem;
   padding: 0.875rem;
   background: var(--color-background, #E5F6DF);
+  border: none;
   border-radius: 0.5rem;
   flex-wrap: nowrap;
   overflow-x: auto;
@@ -568,6 +568,15 @@
   border-color: #4b006e; /* Signature dark purple */
   background: #ffffff;
   box-shadow: 0 0 0 3px rgba(75, 0, 110, 0.10); /* Light purple glow */
+}
+
+/* Prevent browser autofill from changing background color */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #E5F6DF inset !important;
+  box-shadow: 0 0 0 1000px #E5F6DF inset !important;
+  -webkit-text-fill-color: #111827 !important;
 }
 
 .textarea {

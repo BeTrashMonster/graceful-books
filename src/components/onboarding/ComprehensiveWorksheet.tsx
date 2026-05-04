@@ -412,6 +412,17 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
 
   const getInvoiceErrors = (invoice: Invoice) => {
     const errors: string[] = [];
+
+    // Check if invoice_total contains unevaluated math expressions
+    if (invoice.invoice_total && invoice.invoice_total.trim()) {
+      const hasOperators = /[+\-*/]/.test(invoice.invoice_total);
+      const isValidNumber = /^-?\d+\.?\d*$/.test(invoice.invoice_total.trim());
+
+      if (hasOperators || !isValidNumber) {
+        errors.push(`Invoice total must be a number (not "${invoice.invoice_total}"). Click out of the field to evaluate math.`);
+      }
+    }
+
     // Blocking errors - invoice must balance
     if (invoice.invoice_total && invoice.items.length > 0) {
       const lineItemsTotal = calculateInvoiceLineItemsTotal(invoice);
@@ -1196,16 +1207,15 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                         value={invoice.invoice_total || ''}
                         onChange={(e) => updateInvoice(invIndex, 'invoice_total', e.target.value)}
                         onBlur={(e) => {
-                          // Evaluate math expressions and format to 2 decimals
-                          const evaluated = evaluateMathExpression(e.target.value);
-                          if (evaluated !== e.target.value) {
+                          const value = e.target.value.trim();
+                          if (!value) return;
+
+                          // Always try to evaluate (handles both math and plain numbers)
+                          const evaluated = evaluateMathExpression(value);
+
+                          // Always update to ensure formatting
+                          if (evaluated !== value) {
                             updateInvoice(invIndex, 'invoice_total', evaluated);
-                          } else if (e.target.value && !isNaN(parseFloat(e.target.value))) {
-                            // Format existing number to 2 decimals
-                            const formatted = parseFloat(e.target.value).toFixed(2);
-                            if (formatted !== e.target.value) {
-                              updateInvoice(invIndex, 'invoice_total', formatted);
-                            }
                           }
                         }}
                         placeholder="150.00"

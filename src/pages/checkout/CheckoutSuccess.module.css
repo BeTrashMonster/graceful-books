@@ -34,13 +34,13 @@
 
 .logoContainer {
   margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
 }
 
 .logo {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #4b006e;
-  letter-spacing: -0.025em;
+  max-width: 200px;
+  height: auto;
 }
 
 .title {

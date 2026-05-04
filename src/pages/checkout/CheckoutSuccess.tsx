@@ -235,7 +235,7 @@ export default function CheckoutSuccess() {
       {step === 'success' && (
         <div className={styles.card}>
           <div className={styles.logoContainer}>
-            <span className={styles.logo}>Graceful Books</span>
+            <img src="/logo.png" alt="Audacious Money" className={styles.logo} />
           </div>
           <h1 className={styles.title}>Payment Successful!</h1>
           <p className={styles.description}>
