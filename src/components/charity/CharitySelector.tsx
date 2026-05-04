@@ -244,7 +244,7 @@ export function CharitySelector({
               <div
                 key={charity.id}
                 style={style}
-                onMouseEnter={() => setHoveredCharity(charity)}
+                onMouseEnter={() => !isComingSoon && setHoveredCharity(charity)}
                 onMouseLeave={() => setHoveredCharity(null)}
               >
                 <CharityCard
