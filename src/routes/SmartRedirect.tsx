@@ -1,7 +1,8 @@
 /**
  * Smart Redirect Component
  *
- * Redirects users to their appropriate default page based on their subscribed products
+ * Redirects users to their appropriate default page based on their subscribed products.
+ * Updated to fix 403 errors for CPG users.
  */
 
 import { Navigate } from 'react-router-dom';
