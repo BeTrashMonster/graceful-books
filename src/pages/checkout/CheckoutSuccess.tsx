@@ -234,7 +234,9 @@ export default function CheckoutSuccess() {
 
       {step === 'success' && (
         <div className={styles.card}>
-          <div className={styles.icon}>🎉</div>
+          <div className={styles.logoContainer}>
+            <span className={styles.logo}>Graceful Books</span>
+          </div>
           <h1 className={styles.title}>Payment Successful!</h1>
           <p className={styles.description}>
             Thank you for your purchase! Your subscription is now active.

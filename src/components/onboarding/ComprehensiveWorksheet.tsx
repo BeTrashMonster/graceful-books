@@ -162,7 +162,21 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   ]);
 
   const [invoices, setInvoices] = useState<Invoice[]>([
-    { id: generateTempId(), vendor_name: '', invoice_date: '', invoice_total: '', items: [], notes: '' }
+    {
+      id: generateTempId(),
+      vendor_name: '',
+      invoice_date: '',
+      invoice_total: '',
+      items: [{
+        category_id: '',
+        variant: '',
+        quantity: '',
+        unit_of_measurement: 'oz',
+        unit_cost: '',
+        line_total: ''
+      }],
+      notes: ''
+    }
   ]);
 
   // Track which invoices are expanded (accordion)
@@ -311,7 +325,14 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
       vendor_name: '',
       invoice_date: '',
       invoice_total: '',
-      items: [],
+      items: [{
+        category_id: '',
+        variant: '',
+        quantity: '',
+        unit_of_measurement: 'oz',
+        unit_cost: '',
+        line_total: ''
+      }],
       notes: ''
     }]);
     // Collapse all previous invoices, expand only the new one
@@ -763,7 +784,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                 <div className={styles.recipeSection}>
                   <h4 className={styles.recipeTitle}>What goes into this product?</h4>
                   <p className={styles.recipeHint}>
-                    Add items by category (ex: "Mushrooms") that make up your product. Use variants to specify different types or sizes (ex: "Oyster" vs "Button").
+                    Add items by category (ex: "Package") that make up your product. Use variants to specify different types or sizes (ex: "1 oz Small" vs "10 oz Large").
                   </p>
 
                   {product.recipeItems.map((item, itemIndex) => {
@@ -783,7 +804,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                     type="text"
                                     value={newCategoryName[key] || ''}
                                     onChange={(e) => setNewCategoryName({ ...newCategoryName, [key]: e.target.value })}
-                                    placeholder="ex: Mushrooms"
+                                    placeholder="ex: Package"
                                     className={styles.input}
                                     autoFocus
                                     onKeyDown={(e) => {
@@ -849,7 +870,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                       }
                                     }
                                   }}
-                                  placeholder="ex: Mushrooms"
+                                  placeholder="ex: Package"
                                   className={styles.input}
                                 />
                               )}
@@ -865,7 +886,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                       type="text"
                                       value={newVariantValue[key] || ''}
                                       onChange={(e) => setNewVariantValue({ ...newVariantValue, [key]: e.target.value })}
-                                      placeholder="ex: Oyster"
+                                      placeholder="ex: 1 oz Small"
                                       className={styles.input}
                                       autoFocus
                                       onKeyDown={(e) => {
@@ -936,7 +957,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                         addVariantToCategory(selectedCategory.id, value);
                                       }
                                     }}
-                                    placeholder="ex: Oyster"
+                                    placeholder="ex: 1 oz Small"
                                     className={styles.input}
                                   />
                                 )}

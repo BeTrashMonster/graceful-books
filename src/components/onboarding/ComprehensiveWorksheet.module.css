@@ -541,9 +541,9 @@
 .select:focus,
 .textarea:focus {
   outline: none;
-  border-color: #6b7280;
+  border-color: #4b006e; /* Signature dark purple */
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+  box-shadow: 0 0 0 3px rgba(75, 0, 110, 0.10); /* Light purple glow */
 }
 
 .textarea {

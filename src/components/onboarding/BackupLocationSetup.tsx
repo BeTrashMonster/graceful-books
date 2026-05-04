@@ -377,11 +377,7 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
     <Card className={clsx(styles.container, className)} variant="bordered">
       <CardBody>
         <div className={styles.content}>
-          <div className={styles.icon} aria-hidden="true">
-            🔐
-          </div>
-
-          <h2 className={styles.title}>
+          <h2 className={styles.headerPurple}>
             {isOnboarding ? "Let's Keep Your Data Safe" : 'Choose Backup Location'}
           </h2>
 
@@ -392,32 +388,20 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
 
           <div className={styles.features}>
             <div className={styles.feature}>
-              <span className={styles.featureIcon} aria-hidden="true">
-                🔒
-              </span>
               <span className={styles.featureText}>
                 Zero-knowledge encryption (we can never see your data)
               </span>
             </div>
             <div className={styles.feature}>
-              <span className={styles.featureIcon} aria-hidden="true">
-                ⚡
-              </span>
               <span className={styles.featureText}>Automatic and invisible</span>
             </div>
             <div className={styles.feature}>
-              <span className={styles.featureIcon} aria-hidden="true">
-                👀
-              </span>
               <span className={styles.featureText}>You're always in control</span>
             </div>
           </div>
 
           <div className={styles.tipBox}>
             <div className={styles.tipHeader}>
-              <span className={styles.tipIcon} aria-hidden="true">
-                💡
-              </span>
               <strong>Pro Tip:</strong>
             </div>
             <p className={styles.tipText}>
@@ -426,7 +410,7 @@ export const BackupLocationSetup: React.FC<BackupLocationSetupProps> = ({
               find (like your Documents folder).
             </p>
             <p className={styles.tipWarning}>
-              ⚠️ <strong>Avoid:</strong> Desktop, Downloads, or system folders - these can cause
+              <strong>Avoid:</strong> Desktop, Downloads, or system folders - these can cause
               permission errors.
             </p>
           </div>

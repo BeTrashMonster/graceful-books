@@ -32,6 +32,17 @@
   margin-bottom: 1rem;
 }
 
+.logoContainer {
+  margin-bottom: 1.5rem;
+}
+
+.logo {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4b006e;
+  letter-spacing: -0.025em;
+}
+
 .title {
   font-size: 1.5rem;
   font-weight: 600;
@@ -58,7 +69,7 @@
 }
 
 .primaryButton:hover:not(:disabled) {
-  background-color: var(--color-primary-dark, #2563eb);
+  background-color: #d4af37; /* Signature gold */
 }
 
 .primaryButton:disabled {
@@ -79,8 +90,8 @@
 }
 
 .secondaryButton:hover:not(:disabled) {
-  border-color: var(--color-primary, #3b82f6);
-  color: var(--color-primary, #3b82f6);
+  border-color: #d4af37; /* Signature gold */
+  color: #d4af37; /* Signature gold */
 }
 
 .secondaryButton:disabled {
