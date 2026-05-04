@@ -413,28 +413,32 @@ export function PromoDetailsForm({
       const data = formData.variants[variant];
       if (!data) return;
 
-      const retailPriceValue = parseFloat(data.retailPrice);
-      if (!data.retailPrice || data.retailPrice.trim() === '') {
+      const retailPriceStr = String(data.retailPrice || '').trim();
+      const retailPriceValue = parseFloat(retailPriceStr);
+      if (!retailPriceStr) {
         newErrors[`variant_${variant}_retailPrice`] = `${variant}: Retail price is required`;
       } else if (isNaN(retailPriceValue) || retailPriceValue <= 0) {
         newErrors[`variant_${variant}_retailPrice`] = `${variant}: Retail price must be greater than 0`;
       }
 
-      const unitsValue = parseFloat(data.unitsAvailable);
-      if (!data.unitsAvailable || data.unitsAvailable.trim() === '') {
+      const unitsStr = String(data.unitsAvailable || '').trim();
+      const unitsValue = parseFloat(unitsStr);
+      if (!unitsStr) {
         newErrors[`variant_${variant}_unitsAvailable`] = `${variant}: Units available is required`;
       } else if (isNaN(unitsValue) || unitsValue <= 0) {
         newErrors[`variant_${variant}_unitsAvailable`] = `${variant}: Units available must be greater than 0`;
       }
-      const baseCPUValue = parseFloat(data.baseCPU);
-      if (!data.baseCPU || data.baseCPU.trim() === '') {
+      const baseCPUStr = String(data.baseCPU || '').trim();
+      const baseCPUValue = parseFloat(baseCPUStr);
+      if (!baseCPUStr) {
         newErrors[`variant_${variant}_baseCPU`] = `${variant}: Base CPU is required (enter 0 if unknown)`;
       } else if (isNaN(baseCPUValue) || baseCPUValue < 0) {
         newErrors[`variant_${variant}_baseCPU`] = `${variant}: Base CPU must be a valid non-negative number`;
       }
       // Production CPU is optional, but if provided must be >= 0
-      if (data.productionCPU && data.productionCPU.trim() !== '') {
-        const prodCPUValue = parseFloat(data.productionCPU);
+      const prodCPUStr = String(data.productionCPU || '').trim();
+      if (prodCPUStr) {
+        const prodCPUValue = parseFloat(prodCPUStr);
         if (isNaN(prodCPUValue) || prodCPUValue < 0) {
           newErrors[`variant_${variant}_productionCPU`] = `${variant}: Production CPU must be a valid non-negative number`;
         }

@@ -599,30 +599,42 @@ export function validateNoXSS(data: unknown): {
 /**
  * Positive decimal string validation with max bounds
  * Used for quantities, prices, and other positive numeric values
+ * Accepts both strings and numbers, coerces to string
  */
 const positiveDecimalSchema = z
-  .string()
-  .regex(/^\d+(\.\d{1,6})?$/, 'Must be a positive number with up to 6 decimal places')
-  .refine((val) => parseFloat(val) > 0, {
-    message: 'Must be greater than 0',
-  })
-  .refine((val) => parseFloat(val) <= 1000000, {
-    message: 'Value exceeds maximum allowed (1,000,000)',
-  });
+  .union([z.string(), z.number()])
+  .transform((val) => String(val))
+  .pipe(
+    z
+      .string()
+      .regex(/^\d+(\.\d{1,6})?$/, 'Must be a positive number with up to 6 decimal places')
+      .refine((val) => parseFloat(val) > 0, {
+        message: 'Must be greater than 0',
+      })
+      .refine((val) => parseFloat(val) <= 1000000, {
+        message: 'Value exceeds maximum allowed (1,000,000)',
+      })
+  );
 
 /**
  * Non-negative decimal string validation
  * Used for values that can be zero (like discounts)
+ * Accepts both strings and numbers, coerces to string
  */
 const nonNegativeDecimalSchema = z
-  .string()
-  .regex(/^\d+(\.\d{1,6})?$/, 'Must be a non-negative number with up to 6 decimal places')
-  .refine((val) => parseFloat(val) >= 0, {
-    message: 'Cannot be negative',
-  })
-  .refine((val) => parseFloat(val) <= 1000000, {
-    message: 'Value exceeds maximum allowed (1,000,000)',
-  });
+  .union([z.string(), z.number()])
+  .transform((val) => String(val))
+  .pipe(
+    z
+      .string()
+      .regex(/^\d+(\.\d{1,6})?$/, 'Must be a non-negative number with up to 6 decimal places')
+      .refine((val) => parseFloat(val) >= 0, {
+        message: 'Cannot be negative',
+      })
+      .refine((val) => parseFloat(val) <= 1000000, {
+        message: 'Value exceeds maximum allowed (1,000,000)',
+      })
+  );
 
 /**
  * Percentage validation (0-100)

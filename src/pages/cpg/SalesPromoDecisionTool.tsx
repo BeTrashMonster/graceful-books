@@ -618,15 +618,33 @@ export default function SalesPromoDecisionTool() {
    * Handle approve participation decision (after confirmation)
    */
   const handleApproveConfirmed = async () => {
-    if (!analysisResult) return;
+    if (!analysisResult || !submittedFormData) return;
 
     setConfirmationDialog({ ...confirmationDialog, isOpen: false });
     setIsSaving(true);
     try {
       const service = new SalesPromoAnalyzerService(db);
+
+      // Convert demo hours entries from camelCase (form) to snake_case (DB)
+      const convertedDemoEntries = submittedFormData.demoHoursEntries?.map(entry => ({
+        id: entry.id,
+        role_id: entry.roleId,
+        role_name: entry.roleName,
+        hours: entry.hours,
+        hourly_rate: entry.hourlyRate,
+        cost_type: entry.costType,
+      })) || null;
+
       await service.updatePromo(
         analysisResult.promoId,
         {
+          promo_name: submittedFormData.promoName,
+          retailer_name: submittedFormData.retailerName,
+          promo_start_date: submittedFormData.promoStartDate ? dateStringToLocalTimestamp(submittedFormData.promoStartDate) : undefined,
+          promo_end_date: submittedFormData.promoEndDate ? dateStringToLocalTimestamp(submittedFormData.promoEndDate) : undefined,
+          store_sale_percentage: submittedFormData.storeSalePercentage,
+          producer_payback_percentage: submittedFormData.producerPaybackPercentage,
+          demo_hours_entries: convertedDemoEntries,
           status: 'approved',
           notes: notes || null,
         },
@@ -685,15 +703,33 @@ export default function SalesPromoDecisionTool() {
    * Handle decline participation decision (after confirmation)
    */
   const handleDeclineConfirmed = async () => {
-    if (!analysisResult) return;
+    if (!analysisResult || !submittedFormData) return;
 
     setConfirmationDialog({ ...confirmationDialog, isOpen: false });
     setIsSaving(true);
     try {
       const service = new SalesPromoAnalyzerService(db);
+
+      // Convert demo hours entries from camelCase (form) to snake_case (DB)
+      const convertedDemoEntries = submittedFormData.demoHoursEntries?.map(entry => ({
+        id: entry.id,
+        role_id: entry.roleId,
+        role_name: entry.roleName,
+        hours: entry.hours,
+        hourly_rate: entry.hourlyRate,
+        cost_type: entry.costType,
+      })) || null;
+
       await service.updatePromo(
         analysisResult.promoId,
         {
+          promo_name: submittedFormData.promoName,
+          retailer_name: submittedFormData.retailerName,
+          promo_start_date: submittedFormData.promoStartDate ? dateStringToLocalTimestamp(submittedFormData.promoStartDate) : undefined,
+          promo_end_date: submittedFormData.promoEndDate ? dateStringToLocalTimestamp(submittedFormData.promoEndDate) : undefined,
+          store_sale_percentage: submittedFormData.storeSalePercentage,
+          producer_payback_percentage: submittedFormData.producerPaybackPercentage,
+          demo_hours_entries: convertedDemoEntries,
           status: 'declined',
           notes: notes || null,
         },
@@ -736,14 +772,32 @@ export default function SalesPromoDecisionTool() {
    * Handle save for later decision
    */
   const handleSaveForLater = async () => {
-    if (!analysisResult) return;
+    if (!analysisResult || !submittedFormData) return;
 
     setIsSaving(true);
     try {
       const service = new SalesPromoAnalyzerService(db);
+
+      // Convert demo hours entries from camelCase (form) to snake_case (DB)
+      const convertedDemoEntries = submittedFormData.demoHoursEntries?.map(entry => ({
+        id: entry.id,
+        role_id: entry.roleId,
+        role_name: entry.roleName,
+        hours: entry.hours,
+        hourly_rate: entry.hourlyRate,
+        cost_type: entry.costType,
+      })) || null;
+
       await service.updatePromo(
         analysisResult.promoId,
         {
+          promo_name: submittedFormData.promoName,
+          retailer_name: submittedFormData.retailerName,
+          promo_start_date: submittedFormData.promoStartDate ? dateStringToLocalTimestamp(submittedFormData.promoStartDate) : undefined,
+          promo_end_date: submittedFormData.promoEndDate ? dateStringToLocalTimestamp(submittedFormData.promoEndDate) : undefined,
+          store_sale_percentage: submittedFormData.storeSalePercentage,
+          producer_payback_percentage: submittedFormData.producerPaybackPercentage,
+          demo_hours_entries: convertedDemoEntries,
           status: 'draft',
           notes: notes || null,
         },

@@ -6,14 +6,19 @@ import type { CPGSalesPromo } from '../../../db/schema/cpg.schema';
 import { MarkPromoCompleteModal } from '../../../components/cpg/modals/MarkPromoCompleteModal';
 import { promoExportService } from '../../../services/cpg/promoExport.service';
 import { useCPGSettingsContext } from '../../../contexts/CPGSettingsContext';
+import { PromoAnalyticsTab } from './PromoAnalyticsTab';
 import styles from './PromoTrackerTab.module.css';
 
 type PromoStatus = 'all' | 'draft' | 'approved' | 'declined' | 'active' | 'completed';
 type MarginQuality = 'all' | 'gutCheck' | 'good' | 'better' | 'best';
+type ViewMode = 'table' | 'analytics';
 
 export function PromoTrackerTab() {
   const navigate = useNavigate();
   const { companyId } = useAuth();
+
+  // View mode state
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
 
   // Get formatting functions from context (respects user decimal settings)
   const { formatCurrency: formatCurrencyFromContext } = useCPGSettingsContext();
@@ -335,8 +340,28 @@ export function PromoTrackerTab() {
 
   return (
     <div className={styles.container}>
-      {/* Filters */}
-      <div className={styles.filters}>
+      {/* View Mode Toggle */}
+      <div className={styles.viewModeToggle}>
+        <button
+          className={viewMode === 'table' ? styles.tabActive : styles.tab}
+          onClick={() => setViewMode('table')}
+        >
+          Table View
+        </button>
+        <button
+          className={viewMode === 'analytics' ? styles.tabActive : styles.tab}
+          onClick={() => setViewMode('analytics')}
+        >
+          Analytics
+        </button>
+      </div>
+
+      {viewMode === 'analytics' ? (
+        <PromoAnalyticsTab />
+      ) : (
+        <>
+          {/* Filters */}
+          <div className={styles.filters}>
         <div className={styles.filterGroup}>
           <label htmlFor="status-filter" className={styles.filterLabel}>
             Status
@@ -620,6 +645,8 @@ export function PromoTrackerTab() {
               : []
           }
         />
+      )}
+        </>
       )}
     </div>
   );
