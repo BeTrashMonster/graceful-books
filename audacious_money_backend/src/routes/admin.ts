@@ -1784,4 +1784,85 @@ admin.get('/charity-analytics', requireAdmin, async (c) => {
   }
 });
 
+/**
+ * POST /admin/stripe/update-product-id
+ *
+ * Update Stripe product and price IDs for a product (admin only)
+ */
+const updateStripeProductIdSchema = z.object({
+  productSlug: z.string().min(1, 'Product slug is required'),
+  stripePriceId: z.string().min(1, 'Stripe price ID is required'),
+});
+
+admin.post(
+  '/stripe/update-product-id',
+  requireAdmin,
+  validate(updateStripeProductIdSchema),
+  async (c) => {
+    const adminId = c.get('adminId');
+    const { productSlug, stripePriceId } = c.get('validatedData') as z.infer<
+      typeof updateStripeProductIdSchema
+    >;
+    const db = c.get('db');
+
+    try {
+      // Check if product exists
+      const productResult = await db.query(
+        'SELECT id, name, slug, stripe_price_id FROM products WHERE slug = $1',
+        [productSlug]
+      );
+
+      if (productResult.rowCount === 0) {
+        return notFound(c, ErrorCodes.NOT_FOUND, `Product with slug "${productSlug}" not found`);
+      }
+
+      const product = productResult.rows[0];
+      const oldStripePriceId = product.stripe_price_id;
+
+      // Update the Stripe price ID
+      const updateResult = await db.query(
+        `UPDATE products
+         SET stripe_price_id = $1, updated_at = NOW()
+         WHERE slug = $2
+         RETURNING id, name, slug, stripe_price_id`,
+        [stripePriceId, productSlug]
+      );
+
+      const updatedProduct = updateResult.rows[0];
+
+      // Log action
+      const ipAddress =
+        c.req.header('x-forwarded-for')?.split(',')[0].trim() ||
+        c.req.header('x-real-ip') ||
+        c.req.header('cf-connecting-ip') ||
+        '';
+
+      await db.query(
+        `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address, old_values, new_values)
+         VALUES ('product_stripe_id_updated', 'product', $1, $2, $3, $4, $5)`,
+        [
+          updatedProduct.id,
+          adminId,
+          ipAddress,
+          JSON.stringify({ stripePriceId: oldStripePriceId }),
+          JSON.stringify({ stripePriceId }),
+        ]
+      );
+
+      return success(c, {
+        message: 'Stripe product ID updated successfully',
+        product: {
+          id: updatedProduct.id,
+          name: updatedProduct.name,
+          slug: updatedProduct.slug,
+          stripePriceId: updatedProduct.stripe_price_id,
+        },
+      });
+    } catch (error) {
+      console.error('[Admin] Error updating Stripe product ID:', error);
+      return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to update Stripe product ID');
+    }
+  }
+);
+
 export default admin;
