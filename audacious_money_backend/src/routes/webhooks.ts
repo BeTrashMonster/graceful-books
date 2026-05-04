@@ -77,6 +77,18 @@ webhooks.post('/stripe', async (c) => {
         await handleCheckoutSessionCompleted(event.data.object);
         break;
 
+      case 'checkout.session.async_payment_succeeded':
+        await handleCheckoutSessionAsyncPaymentSucceeded(event.data.object);
+        break;
+
+      case 'checkout.session.async_payment_failed':
+        await handleCheckoutSessionAsyncPaymentFailed(event.data.object);
+        break;
+
+      case 'checkout.session.expired':
+        await handleCheckoutSessionExpired(event.data.object);
+        break;
+
       case 'customer.subscription.created':
         await handleSubscriptionCreated(event.data.object);
         break;
@@ -597,6 +609,97 @@ async function handleInvoicePaymentFailed(invoice: any) {
   } catch (error) {
     console.error('[Webhook] Error processing invoice payment failed:', error);
   }
+}
+
+async function handleCheckoutSessionAsyncPaymentSucceeded(session: any) {
+  console.log('[Webhook] Processing checkout.session.async_payment_succeeded');
+  console.log('[Webhook] Session ID:', session.id);
+  console.log('[Webhook] Customer:', session.customer);
+  console.log('[Webhook] Subscription:', session.subscription);
+
+  // Async payment methods (ACH, bank transfers, etc.) complete after checkout
+  // Treat this the same as checkout.session.completed
+  await handleCheckoutSessionCompleted(session);
+}
+
+async function handleCheckoutSessionAsyncPaymentFailed(session: any) {
+  console.log('[Webhook] Processing checkout.session.async_payment_failed');
+  console.log('[Webhook] Session ID:', session.id);
+
+  const db = getDatabase();
+
+  try {
+    const userId = session.metadata?.userId || session.client_reference_id;
+    const productId = session.metadata?.productId;
+
+    if (!userId || !productId) {
+      console.error('[Webhook] Missing userId or productId in session metadata');
+      return;
+    }
+
+    // Check if user_product record was created (might have been created optimistically)
+    const existingRecord = await db.query(
+      `SELECT id FROM user_products WHERE user_id = $1 AND product_id = $2`,
+      [userId, productId]
+    );
+
+    if (existingRecord.rows.length > 0) {
+      // Mark subscription as failed
+      await db.query(
+        `UPDATE user_products
+         SET status = 'payment_failed',
+             updated_at = NOW()
+         WHERE user_id = $1 AND product_id = $2`,
+        [userId, productId]
+      );
+      console.log('[Webhook] Marked subscription as payment_failed');
+    }
+
+    // Send payment failure notification (optional)
+    try {
+      const userResult = await db.query(
+        `SELECT email, first_name FROM users WHERE id = $1`,
+        [userId]
+      );
+
+      if (userResult.rows.length > 0) {
+        const user = userResult.rows[0];
+        const productResult = await db.query(
+          `SELECT name FROM products WHERE id = $1`,
+          [productId]
+        );
+
+        if (productResult.rows.length > 0) {
+          console.log(`[Webhook] Async payment failed for ${user.email}`);
+          // TODO: Send async payment failed email
+        }
+      }
+    } catch (emailError) {
+      console.warn('[Webhook] Failed to send async payment failure email (non-critical):', emailError instanceof Error ? emailError.message : emailError);
+    }
+
+    console.log('[Webhook] Async payment failure processed');
+  } catch (error) {
+    console.error('[Webhook] Error processing async payment failure:', error);
+  }
+}
+
+async function handleCheckoutSessionExpired(session: any) {
+  console.log('[Webhook] Processing checkout.session.expired');
+  console.log('[Webhook] Session ID:', session.id);
+
+  // Checkout session expired (customer didn't complete payment in time)
+  // Usually happens after 24 hours
+  // No action needed - just log it for analytics
+  const userId = session.metadata?.userId || session.client_reference_id;
+  const productId = session.metadata?.productId;
+
+  if (userId && productId) {
+    console.log(`[Webhook] Checkout expired for user ${userId}, product ${productId}`);
+    // Could track this for conversion analytics
+  }
+
+  console.log('[Webhook] Checkout session expiration logged');
 }
 
 export default webhooks;
