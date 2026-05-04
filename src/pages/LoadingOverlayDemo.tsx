@@ -87,7 +87,7 @@ export default function LoadingOverlayDemo() {
       {overlayType === 'pageloader' ? (
         <LoadingOverlay
           isVisible={showOverlay}
-          message="Importing your worksheet into the system..."
+          message="This is the 'calm before your clarity' moment"
           showLogo
         />
       ) : (
