@@ -152,6 +152,10 @@ export interface PromoDetailsFormProps {
    */
   onClear?: () => void;
   /**
+   * Callback when any form field changes (for tracking unsaved changes)
+   */
+  onFormChange?: () => void;
+  /**
    * Loading state
    */
   isLoading?: boolean;
@@ -193,6 +197,7 @@ export function PromoDetailsForm({
   latestSoldPriceToYous = {},
   onSubmit,
   onClear,
+  onFormChange,
   isLoading = false,
 }: PromoDetailsFormProps) {
   const [formData, setFormData] = useState<PromoFormData>(() => {
@@ -270,6 +275,7 @@ export function PromoDetailsForm({
   }, [companyId]);
 
   // Sync form state with initialData when it changes (for edit mode)
+  const isInitialMount = useRef(true);
   useEffect(() => {
     if (!initialData) return;
 
@@ -299,7 +305,24 @@ export function PromoDetailsForm({
 
     // Clear any validation errors when loading new data
     setErrors({});
+
+    // Reset the initial mount flag so we don't call onFormChange for this initialData update
+    isInitialMount.current = true;
   }, [initialData, availableVariants, latestCPUs, latestLaborCosts, latestSoldPriceToYous]);
+
+  // Track form changes and notify parent
+  useEffect(() => {
+    // Skip calling onFormChange on initial mount and when initialData changes
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    // Call onFormChange whenever formData changes (user edited something)
+    onFormChange?.();
+    // Note: onFormChange intentionally NOT in dependency array to avoid firing when callback reference changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData]);
 
   // Close product selector when clicking outside
   useEffect(() => {

@@ -299,6 +299,14 @@ export function PromoTrackerTab() {
     return (parseFloat(promo.actual_units_sold) / totalUnits) * 100;
   };
 
+  const calculateTotalDemoHours = (promo: CPGSalesPromo): number => {
+    if (!promo.demo_hours_entries || promo.demo_hours_entries.length === 0) return 0;
+    return promo.demo_hours_entries.reduce(
+      (sum, entry) => sum + parseFloat(entry.hours || '0'),
+      0
+    );
+  };
+
   const getSellThroughColor = (percentage: number): string => {
     if (percentage >= 90) return styles.sellThroughExcellent;
     if (percentage >= 70) return styles.sellThroughGood;
@@ -518,6 +526,7 @@ export function PromoTrackerTab() {
                 <th>Status</th>
                 <th>Start Date</th>
                 <th>End Date</th>
+                <th>Demo Hours</th>
                 <th>Projected Payback</th>
                 <th>Actual Payback</th>
                 <th>Variance</th>
@@ -527,12 +536,14 @@ export function PromoTrackerTab() {
               </tr>
             </thead>
             <tbody>
-              {filteredPromos.map((promo) => {
+              {filteredPromos.map((promo, index) => {
                 const isCompleted = promo.status === 'completed';
                 const sellThrough = isCompleted ? calculateSellThrough(promo) : 0;
+                const isLastTwoRows = index >= filteredPromos.length - 2;
                 const variance = isCompleted && promo.actual_payback
                   ? parseFloat(promo.total_promo_cost) - parseFloat(promo.actual_payback)
                   : 0;
+                const totalDemoHours = calculateTotalDemoHours(promo);
 
                 return (
                   <tr key={promo.id}>
@@ -547,6 +558,15 @@ export function PromoTrackerTab() {
                     </td>
                     <td>{promo.promo_start_date ? formatDate(promo.promo_start_date) : 'N/A'}</td>
                     <td>{promo.promo_end_date ? formatDate(promo.promo_end_date) : 'N/A'}</td>
+                    <td>
+                      {totalDemoHours > 0 ? (
+                        <span className={styles.demoHoursCell}>
+                          <span className={styles.demoStar}>★</span> {totalDemoHours.toFixed(1)} hrs
+                        </span>
+                      ) : (
+                        <span className={styles.noDemoCell}>—</span>
+                      )}
+                    </td>
                     <td>{formatCurrency(promo.total_promo_cost)}</td>
                     <td>
                       {isCompleted && promo.actual_payback
@@ -586,7 +606,7 @@ export function PromoTrackerTab() {
                           ⋮
                         </button>
                         {actionMenuOpen === promo.id && (
-                          <div className={styles.actionMenu}>
+                          <div className={isLastTwoRows ? styles.actionMenuAbove : styles.actionMenu}>
                             <button
                               className={styles.actionMenuItem}
                               onClick={() => handleEdit(promo.id)}

@@ -143,9 +143,10 @@ export default function SalesPromoDecisionTool() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<{ title: string; message: string; action?: string } | null>(null);
   const [initialFormData, setInitialFormData] = useState<Partial<PromoFormData> | undefined>(undefined);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [confirmationDialog, setConfirmationDialog] = useState<{
     isOpen: boolean;
-    type: 'approve' | 'decline' | null;
+    type: 'approve' | 'decline' | 'unsaved' | null;
     title: string;
     message: string;
     confirmLabel: string;
@@ -347,6 +348,7 @@ export default function SalesPromoDecisionTool() {
       setAnalysisResult(null);
       setSubmittedFormData(null);
       setNotes('');
+      setHasUnsavedChanges(false);
       return;
     }
 
@@ -357,6 +359,7 @@ export default function SalesPromoDecisionTool() {
     setSubmittedFormData(null);
     setInitialFormData(undefined);
     setNotes('');
+    setHasUnsavedChanges(false);
 
     const loadDraftPromo = async () => {
       try {
@@ -476,10 +479,18 @@ export default function SalesPromoDecisionTool() {
   }, [editPromoId, cpgSettings]);
 
   /**
+   * Handle form changes - track that there are unsaved edits
+   */
+  const handleFormChange = () => {
+    setHasUnsavedChanges(true);
+  };
+
+  /**
    * Handle form submission - analyze the promo
    */
   const handleAnalyzePromo = async (formData: PromoFormData) => {
     setIsAnalyzing(true);
+    setHasUnsavedChanges(false); // Clear unsaved changes flag since we're analyzing
 
     try {
       const service = new SalesPromoAnalyzerService(db);
@@ -575,6 +586,7 @@ export default function SalesPromoDecisionTool() {
 
       setAnalysisResult(result);
       setSubmittedFormData(formData);
+      setInitialFormData(formData); // Update baseline so form knows this is the "saved" state
 
       // Scroll to results section after a brief delay
       setTimeout(() => {
@@ -602,16 +614,40 @@ export default function SalesPromoDecisionTool() {
    * Show confirmation dialog for approve decision
    */
   const handleApprove = () => {
-    setConfirmationDialog({
-      isOpen: true,
-      type: 'approve',
-      title: editPromoId ? 'Update Promo Decision to Approve?' : 'Approve Promo Participation?',
-      message: editPromoId
-        ? 'You\'re about to update this promo\'s status to approved. This will replace the previous decision.'
-        : 'You\'re about to approve participation in this promo. Your decision will be saved and tracked in your promo history.',
-      confirmLabel: editPromoId ? 'Yes, Update to Approve' : 'Yes, Approve',
-      onConfirm: handleApproveConfirmed,
-    });
+    // Check if there are unsaved changes
+    if (hasUnsavedChanges) {
+      setConfirmationDialog({
+        isOpen: true,
+        type: 'unsaved',
+        title: 'Unsaved Changes Detected',
+        message: 'You\'ve made changes to the form but haven\'t clicked "Update Analysis" yet. These changes won\'t be saved to the promo. Do you want to go back and update the analysis first, or proceed without saving these changes?',
+        confirmLabel: 'Proceed Without Saving',
+        onConfirm: () => {
+          // Close unsaved warning and show approve confirmation
+          setConfirmationDialog({
+            isOpen: true,
+            type: 'approve',
+            title: editPromoId ? 'Update Promo Decision to Approve?' : 'Approve Promo Participation?',
+            message: editPromoId
+              ? 'You\'re about to update this promo\'s status to approved. This will replace the previous decision.'
+              : 'You\'re about to approve participation in this promo. Your decision will be saved and tracked in your promo history.',
+            confirmLabel: editPromoId ? 'Yes, Update to Approve' : 'Yes, Approve',
+            onConfirm: handleApproveConfirmed,
+          });
+        },
+      });
+    } else {
+      setConfirmationDialog({
+        isOpen: true,
+        type: 'approve',
+        title: editPromoId ? 'Update Promo Decision to Approve?' : 'Approve Promo Participation?',
+        message: editPromoId
+          ? 'You\'re about to update this promo\'s status to approved. This will replace the previous decision.'
+          : 'You\'re about to approve participation in this promo. Your decision will be saved and tracked in your promo history.',
+        confirmLabel: editPromoId ? 'Yes, Update to Approve' : 'Yes, Approve',
+        onConfirm: handleApproveConfirmed,
+      });
+    }
   };
 
   /**
@@ -624,6 +660,12 @@ export default function SalesPromoDecisionTool() {
     setIsSaving(true);
     try {
       const service = new SalesPromoAnalyzerService(db);
+
+      // Get current promo to check existing status
+      const currentPromo = await db.cpgSalesPromos.get(analysisResult.promoId);
+
+      // Preserve "completed" status if it's already completed, otherwise set to "approved"
+      const newStatus = currentPromo?.status === 'completed' ? 'completed' : 'approved';
 
       // Convert demo hours entries from camelCase (form) to snake_case (DB)
       const convertedDemoEntries = submittedFormData.demoHoursEntries?.map(entry => ({
@@ -645,7 +687,7 @@ export default function SalesPromoDecisionTool() {
           store_sale_percentage: submittedFormData.storeSalePercentage,
           producer_payback_percentage: submittedFormData.producerPaybackPercentage,
           demo_hours_entries: convertedDemoEntries,
-          status: 'approved',
+          status: newStatus,
           notes: notes || null,
         },
         deviceId
@@ -687,16 +729,40 @@ export default function SalesPromoDecisionTool() {
    * Show confirmation dialog for decline decision
    */
   const handleDecline = () => {
-    setConfirmationDialog({
-      isOpen: true,
-      type: 'decline',
-      title: editPromoId ? 'Update Promo Decision to Decline?' : 'Decline Promo Participation?',
-      message: editPromoId
-        ? 'You\'re about to update this promo\'s status to declined. This will replace the previous decision.'
-        : 'You\'re about to decline participation in this promo. Your decision will be saved and you can review it later if needed.',
-      confirmLabel: editPromoId ? 'Yes, Update to Decline' : 'Yes, Decline',
-      onConfirm: handleDeclineConfirmed,
-    });
+    // Check if there are unsaved changes
+    if (hasUnsavedChanges) {
+      setConfirmationDialog({
+        isOpen: true,
+        type: 'unsaved',
+        title: 'Unsaved Changes Detected',
+        message: 'You\'ve made changes to the form but haven\'t clicked "Update Analysis" yet. These changes won\'t be saved to the promo. Do you want to go back and update the analysis first, or proceed without saving these changes?',
+        confirmLabel: 'Proceed Without Saving',
+        onConfirm: () => {
+          // Close unsaved warning and show decline confirmation
+          setConfirmationDialog({
+            isOpen: true,
+            type: 'decline',
+            title: editPromoId ? 'Update Promo Decision to Decline?' : 'Decline Promo Participation?',
+            message: editPromoId
+              ? 'You\'re about to update this promo\'s status to declined. This will replace the previous decision.'
+              : 'You\'re about to decline participation in this promo. Your decision will be saved and you can review it later if needed.',
+            confirmLabel: editPromoId ? 'Yes, Update to Decline' : 'Yes, Decline',
+            onConfirm: handleDeclineConfirmed,
+          });
+        },
+      });
+    } else {
+      setConfirmationDialog({
+        isOpen: true,
+        type: 'decline',
+        title: editPromoId ? 'Update Promo Decision to Decline?' : 'Decline Promo Participation?',
+        message: editPromoId
+          ? 'You\'re about to update this promo\'s status to declined. This will replace the previous decision.'
+          : 'You\'re about to decline participation in this promo. Your decision will be saved and you can review it later if needed.',
+        confirmLabel: editPromoId ? 'Yes, Update to Decline' : 'Yes, Decline',
+        onConfirm: handleDeclineConfirmed,
+      });
+    }
   };
 
   /**
@@ -709,6 +775,12 @@ export default function SalesPromoDecisionTool() {
     setIsSaving(true);
     try {
       const service = new SalesPromoAnalyzerService(db);
+
+      // Get current promo to check existing status
+      const currentPromo = await db.cpgSalesPromos.get(analysisResult.promoId);
+
+      // Preserve "completed" status if it's already completed, otherwise set to "declined"
+      const newStatus = currentPromo?.status === 'completed' ? 'completed' : 'declined';
 
       // Convert demo hours entries from camelCase (form) to snake_case (DB)
       const convertedDemoEntries = submittedFormData.demoHoursEntries?.map(entry => ({
@@ -730,7 +802,7 @@ export default function SalesPromoDecisionTool() {
           store_sale_percentage: submittedFormData.storeSalePercentage,
           producer_payback_percentage: submittedFormData.producerPaybackPercentage,
           demo_hours_entries: convertedDemoEntries,
-          status: 'declined',
+          status: newStatus,
           notes: notes || null,
         },
         deviceId
@@ -774,9 +846,40 @@ export default function SalesPromoDecisionTool() {
   const handleSaveForLater = async () => {
     if (!analysisResult || !submittedFormData) return;
 
+    // Check if there are unsaved changes
+    if (hasUnsavedChanges) {
+      setConfirmationDialog({
+        isOpen: true,
+        type: 'unsaved',
+        title: 'Unsaved Changes Detected',
+        message: 'You\'ve made changes to the form but haven\'t clicked "Update Analysis" yet. These changes won\'t be saved to the promo. Do you want to go back and update the analysis first, or proceed without saving these changes?',
+        confirmLabel: 'Proceed Without Saving',
+        onConfirm: handleSaveForLaterConfirmed,
+      });
+      return;
+    }
+
+    handleSaveForLaterConfirmed();
+  };
+
+  /**
+   * Handle save for later decision (after unsaved changes check)
+   */
+  const handleSaveForLaterConfirmed = async () => {
+    if (!analysisResult || !submittedFormData) return;
+
+    setConfirmationDialog({ ...confirmationDialog, isOpen: false });
     setIsSaving(true);
     try {
       const service = new SalesPromoAnalyzerService(db);
+
+      // Get current promo to check existing status
+      const currentPromo = await db.cpgSalesPromos.get(analysisResult.promoId);
+
+      // Preserve existing status if it's completed or approved, otherwise set to draft
+      const newStatus = currentPromo?.status === 'completed' || currentPromo?.status === 'approved'
+        ? currentPromo.status
+        : 'draft';
 
       // Convert demo hours entries from camelCase (form) to snake_case (DB)
       const convertedDemoEntries = submittedFormData.demoHoursEntries?.map(entry => ({
@@ -798,7 +901,7 @@ export default function SalesPromoDecisionTool() {
           store_sale_percentage: submittedFormData.storeSalePercentage,
           producer_payback_percentage: submittedFormData.producerPaybackPercentage,
           demo_hours_entries: convertedDemoEntries,
-          status: 'draft',
+          status: newStatus,
           notes: notes || null,
         },
         deviceId
@@ -1133,7 +1236,9 @@ export default function SalesPromoDecisionTool() {
                     setSuccessMessage(null);
                     setErrorMessage(null);
                     setInitialFormData(undefined);
+                    setHasUnsavedChanges(false);
                   }}
+                  onFormChange={handleFormChange}
                   isLoading={isAnalyzing}
                   initialData={initialFormData}
                 />
@@ -1251,7 +1356,7 @@ export default function SalesPromoDecisionTool() {
                     size="md"
                     onClick={() => setConfirmationDialog({ ...confirmationDialog, isOpen: false })}
                   >
-                    Cancel
+                    {confirmationDialog.type === 'unsaved' ? 'Go Back and Update' : 'Cancel'}
                   </Button>
                   <Button
                     type="button"

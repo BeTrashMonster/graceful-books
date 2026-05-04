@@ -380,11 +380,11 @@ export function AddProductModal({
               companyId,
               productId,
               realCategoryId,
-              item.quantity,
               deviceId || 'default'
             ),
             id: nanoid(),
             variant: item.variant || null,
+            quantity: item.quantity, // Use actual quantity from form
             unit_of_measurement: item.unit_of_measurement || 'oz',
           };
         });
