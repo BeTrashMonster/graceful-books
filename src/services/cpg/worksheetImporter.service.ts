@@ -50,6 +50,7 @@ interface WorksheetRecipeItem {
   category_id: string;
   variant?: string;
   quantity: string;
+  unit: string; // unit_of_measurement
 }
 
 interface WorksheetRecipe {
@@ -270,6 +271,11 @@ export function validateWorksheetData(
           `Recipe at index ${idx}, item ${itemIdx} has invalid quantity: ${item.quantity}`
         );
       }
+      if (!item.unit || item.unit.trim() === '') {
+        errors.push(
+          `Recipe at index ${idx}, item ${itemIdx} has no unit of measurement`
+        );
+      }
     });
   });
 
@@ -442,6 +448,7 @@ export async function importWorksheetData(
           category_id: realCategoryId,
           variant: item.variant || null,
           quantity: item.quantity,
+          unit_of_measurement: item.unit, // FIX: Include unit from worksheet
           notes: null,
           active: true,
           created_at: now,
