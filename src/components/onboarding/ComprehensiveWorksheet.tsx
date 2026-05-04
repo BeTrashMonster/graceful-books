@@ -1724,8 +1724,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
       <LoadingOverlay
         isVisible={importing}
         message="Importing your worksheet into the system..."
-        variant="spinner"
-        size="lg"
+        showLogo
       />
     </div>
   );

@@ -10,6 +10,7 @@ import styles from './LoadingOverlayDemo.module.css';
 
 export default function LoadingOverlayDemo() {
   const [showOverlay, setShowOverlay] = useState(false);
+  const [overlayType, setOverlayType] = useState<'pageloader' | 'simple'>('pageloader');
 
   return (
     <div className={styles.container}>
@@ -22,23 +23,54 @@ export default function LoadingOverlayDemo() {
           clear feedback that the system is processing their data.
         </p>
 
+        <div className={styles.overlayTypeSelector}>
+          <h2 className={styles.subtitle}>Choose Style:</h2>
+          <div className={styles.buttonGroup}>
+            <button
+              className={overlayType === 'pageloader' ? styles.activeTypeButton : styles.typeButton}
+              onClick={() => setOverlayType('pageloader')}
+            >
+              PageLoader Style
+            </button>
+            <button
+              className={overlayType === 'simple' ? styles.activeTypeButton : styles.typeButton}
+              onClick={() => setOverlayType('simple')}
+            >
+              Simple Style
+            </button>
+          </div>
+        </div>
+
         <div className={styles.features}>
-          <h2 className={styles.subtitle}>Features:</h2>
-          <ul className={styles.featureList}>
-            <li>✨ Golden spinner animation (brand color #D4AF37)</li>
-            <li>🌑 Semi-transparent dark background with blur effect</li>
-            <li>📝 Clear, reassuring message</li>
-            <li>🔒 Blocks all interaction with page behind it</li>
-            <li>♿ Accessible with ARIA labels and screen reader support</li>
-            <li>⚡ Respects reduced motion preferences</li>
-          </ul>
+          <h2 className={styles.subtitle}>
+            {overlayType === 'pageloader' ? 'PageLoader Style Features:' : 'Simple Style Features:'}
+          </h2>
+          {overlayType === 'pageloader' ? (
+            <ul className={styles.featureList}>
+              <li>🎨 Purple gradient background (matching app loading page)</li>
+              <li>✨ Audacious Money logo with gentle pulse</li>
+              <li>⭕ Three concentric spinner rings in gold (#D4AF37)</li>
+              <li>📝 Calm, reassuring message</li>
+              <li>♿ Fully accessible with ARIA support</li>
+              <li>⚡ Respects reduced motion preferences</li>
+            </ul>
+          ) : (
+            <ul className={styles.featureList}>
+              <li>✨ Golden spinner animation (brand color #D4AF37)</li>
+              <li>🌑 Semi-transparent dark background with blur effect</li>
+              <li>📝 Clear, straightforward message</li>
+              <li>🔒 Blocks all interaction with page behind it</li>
+              <li>♿ Accessible with ARIA labels and screen reader support</li>
+              <li>⚡ Respects reduced motion preferences</li>
+            </ul>
+          )}
         </div>
 
         <button
           className={styles.showButton}
           onClick={() => setShowOverlay(true)}
         >
-          Show Loading Overlay
+          Show {overlayType === 'pageloader' ? 'PageLoader' : 'Simple'} Overlay
         </button>
 
         <div className={styles.mockWorksheet}>
@@ -52,12 +84,20 @@ export default function LoadingOverlayDemo() {
         </div>
       </div>
 
-      <LoadingOverlay
-        isVisible={showOverlay}
-        message="Importing your worksheet into the system..."
-        variant="spinner"
-        size="lg"
-      />
+      {overlayType === 'pageloader' ? (
+        <LoadingOverlay
+          isVisible={showOverlay}
+          message="Importing your worksheet into the system..."
+          showLogo
+        />
+      ) : (
+        <LoadingOverlay
+          isVisible={showOverlay}
+          message="Importing your worksheet into the system..."
+          variant="spinner"
+          size="lg"
+        />
+      )}
 
       {/* Click to close (demo only - real overlay doesn't close manually) */}
       {showOverlay && (

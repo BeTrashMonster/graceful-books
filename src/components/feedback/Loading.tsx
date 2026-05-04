@@ -107,6 +107,10 @@ export interface LoadingOverlayProps extends LoadingProps {
    * Whether the overlay is visible
    */
   isVisible: boolean
+  /**
+   * Whether to show the logo (PageLoader style)
+   */
+  showLogo?: boolean
 }
 
 /**
@@ -117,6 +121,7 @@ export interface LoadingOverlayProps extends LoadingProps {
  * <LoadingOverlay
  *   isVisible={isLoading}
  *   message="Processing your request..."
+ *   showLogo
  * />
  * ```
  */
@@ -126,9 +131,30 @@ export const LoadingOverlay = ({
   size = 'lg',
   variant = 'spinner',
   ariaLabel = 'Loading',
+  showLogo = false,
 }: LoadingOverlayProps) => {
   if (!isVisible) return null
 
+  // PageLoader style with logo and multiple rings
+  if (showLogo) {
+    return (
+      <div className={styles.pageLoaderOverlay}>
+        <div className={styles.pageLoaderContent}>
+          <div className={styles.pageLoaderLogo}>
+            <img src="/assets/audacious-logo.png" alt="Audacious Money" />
+          </div>
+          <div className={styles.pageLoaderSpinner}>
+            <div className={styles.pageLoaderRing}></div>
+            <div className={styles.pageLoaderRing}></div>
+            <div className={styles.pageLoaderRing}></div>
+          </div>
+          {message && <p className={styles.pageLoaderMessage}>{message}</p>}
+        </div>
+      </div>
+    )
+  }
+
+  // Standard overlay
   return (
     <div className={styles.overlay}>
       <Loading
