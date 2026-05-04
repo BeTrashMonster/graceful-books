@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from './ProtectedRoute'
 import { AdminRoute } from './AdminRoute'
+import { SmartRedirect } from './SmartRedirect'
 import { PageLoader } from '../components/loading/PageLoader'
 import { MainLayout } from '../components/layouts/MainLayout'
 import { CPGLayout } from '../components/layouts/CPGLayout'
@@ -146,8 +147,8 @@ export function AppRoutes() {
           <Route path="/admin/charities" element={<AdminCharities />} />
         </Route> */}
 
-        {/* Root redirect */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        {/* Root redirect - smart redirect based on user's products */}
+        <Route path="/" element={<SmartRedirect />} />
 
         {/* Error pages */}
         <Route path="/forbidden" element={<Forbidden />} />
