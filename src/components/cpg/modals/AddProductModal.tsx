@@ -845,6 +845,12 @@ export function AddProductModal({
                                 createCategory(itemIndex);
                               }
                             }}
+                            onBlur={(e) => {
+                              const value = e.target.value.trim();
+                              if (value) {
+                                createCategory(itemIndex);
+                              }
+                            }}
                           />
                           <button
                             type="button"
@@ -974,6 +980,15 @@ export function AddProductModal({
                                     setNewVariantValue({ ...newVariantValue, [key]: '' });
                                     setShowNewVariantInput({ ...showNewVariantInput, [key]: false });
                                   }
+                                }
+                              }}
+                              onBlur={(e) => {
+                                const variant = e.target.value.trim();
+                                if (variant) {
+                                  addVariantToCategory(selectedCategory.id, variant);
+                                  updateRecipeItem(itemIndex, 'variant', variant);
+                                  setNewVariantValue({ ...newVariantValue, [key]: '' });
+                                  setShowNewVariantInput({ ...showNewVariantInput, [key]: false });
                                 }
                               }}
                             />
