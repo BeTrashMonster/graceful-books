@@ -620,7 +620,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
       };
 
       costAttribution[key] = {
-        category_id: isPersonal ? '' : item.category_id, // Use empty string for personal items
+        category_id: isPersonal ? 'personal' : item.category_id, // Use 'personal' sentinel for personal items
         variant: item.variant,
         description: item.description || undefined,
         units_purchased: normalizeDecimal(item.units_purchased || '1'), // Default to 1 for personal items

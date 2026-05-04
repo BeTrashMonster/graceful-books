@@ -103,8 +103,8 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoiceId, onEdit }: Invo
   }, [isOpen, invoiceId]);
 
   const getCategoryName = (categoryId: string): string => {
-    // Handle empty category_id (personal items)
-    if (!categoryId || categoryId === '') {
+    // Handle personal items (special sentinel value)
+    if (!categoryId || categoryId === '' || categoryId === 'personal') {
       return 'Personal Item';
     }
     const category = categories.find(c => c.id === categoryId);

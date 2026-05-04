@@ -851,7 +851,7 @@ export class CPUCalculatorService {
         // Find line items for this category/variant
         for (const [lineKey, attr] of Object.entries(costAttribution)) {
           // Skip personal items - they're not business expenses
-          if (attr.is_personal) {
+          if (attr.is_personal || attr.category_id === 'personal') {
             continue;
           }
 
@@ -1534,7 +1534,7 @@ export class CPUCalculatorService {
         : new Decimal(attr.units_purchased).times(new Decimal(attr.unit_price));
 
       // If personal item, add to personal total but skip CPU calculations
-      if (attr.is_personal) {
+      if (attr.is_personal || attr.category_id === 'personal') {
         personalItemsCost = personalItemsCost.plus(directCost);
         continue;
       }
@@ -1616,7 +1616,7 @@ export class CPUCalculatorService {
     let totalDirectCosts = new Decimal(0);
     for (const attr of Object.values(costAttribution)) {
       // Skip personal items - they don't affect CPU calculations
-      if (attr.is_personal) {
+      if (attr.is_personal || attr.category_id === 'personal') {
         continue;
       }
 
@@ -1638,7 +1638,7 @@ export class CPUCalculatorService {
     // Build breakdown for each attribution
     for (const [_key, attr] of Object.entries(costAttribution)) {
       // Skip personal items - they don't affect CPU calculations
-      if (attr.is_personal) {
+      if (attr.is_personal || attr.category_id === 'personal') {
         continue;
       }
 
