@@ -261,6 +261,62 @@ export function AddProductModal({
     setErrors({});
   }, [editingProduct, isOpen]);
 
+  // Load existing recipe and labor data when editing
+  useEffect(() => {
+    if (!editingProduct || !companyId || !isOpen) {
+      // Clear recipe and labor when not editing
+      if (!editingProduct) {
+        setRecipeItems([]);
+        setLaborItems([]);
+      }
+      return;
+    }
+
+    const loadRecipeAndLabor = async () => {
+      // Load recipe items
+      const existingRecipes = await db.cpgRecipes
+        .where('finished_product_id')
+        .equals(editingProduct.id)
+        .and((r) => r.deleted_at === null)
+        .toArray();
+
+      // Convert to local RecipeItem format
+      // Note: We only store the final per-unit quantity, so we load in per_unit mode
+      // Users can switch to per_batch mode if they want to edit that way
+      const loadedRecipeItems: RecipeItem[] = existingRecipes.map(recipe => ({
+        category_id: recipe.category_id,
+        variant: recipe.variant || undefined,
+        entry_mode: 'per_unit',
+        quantity_per_batch: '',
+        batch_size: '',
+        quantity: recipe.quantity,
+        unit_of_measurement: recipe.unit_of_measurement || 'oz'
+      }));
+
+      setRecipeItems(loadedRecipeItems);
+
+      // Load labor items
+      const existingLabor = await db.cpgProductLabors
+        .where('finished_product_id')
+        .equals(editingProduct.id)
+        .and((l) => l.deleted_at === null)
+        .toArray();
+
+      // Convert to local LaborItem format
+      const loadedLaborItems: LaborItem[] = existingLabor.map(labor => ({
+        labor_role_id: labor.labor_role_id,
+        entry_mode: labor.entry_mode,
+        hours_per_batch: labor.hours_per_batch || '',
+        batch_size: labor.batch_size || '',
+        hours_per_unit: labor.hours_per_unit || ''
+      }));
+
+      setLaborItems(loadedLaborItems);
+    };
+
+    loadRecipeAndLabor();
+  }, [editingProduct, companyId, isOpen]);
+
   // Recipe item handlers
   const addRecipeItem = () => {
     setRecipeItems([...recipeItems, {
@@ -534,7 +590,20 @@ export function AddProductModal({
         await db.cpgFinishedProducts.add(productData as CPGFinishedProduct);
       }
 
-      // Step 3: Save recipe items (if any)
+      // Step 3: Handle recipe items
+      if (editingProduct) {
+        // When editing, delete all existing recipe items first (we'll replace them)
+        const existingRecipes = await db.cpgRecipes
+          .where('finished_product_id')
+          .equals(productId)
+          .toArray();
+
+        if (existingRecipes.length > 0) {
+          await db.cpgRecipes.bulkDelete(existingRecipes.map(r => r.id));
+        }
+      }
+
+      // Now save the current recipe items (if any)
       if (recipeItems.length > 0) {
         const validRecipeItems = recipeItems.filter(
           item => item.category_id && item.quantity.trim() && item.unit_of_measurement
@@ -553,7 +622,7 @@ export function AddProductModal({
             ),
             id: nanoid(),
             variant: item.variant || null,
-            quantity: item.quantity, // Use actual quantity from form
+            quantity: item.quantity, // Use actual quantity from form (already converted to per-unit if needed)
             unit_of_measurement: item.unit_of_measurement || 'oz',
           };
         });
@@ -563,8 +632,20 @@ export function AddProductModal({
         }
       }
 
-      // Step 4: Save new labor roles and labor assignments (if any)
+      // Step 4: Handle labor assignments
       const laborRoleIdMap: Record<string, string> = {}; // temp ID -> real ID
+
+      if (editingProduct) {
+        // When editing, delete all existing labor assignments first (we'll replace them)
+        const existingLabor = await db.cpgProductLabors
+          .where('finished_product_id')
+          .equals(productId)
+          .toArray();
+
+        if (existingLabor.length > 0) {
+          await db.cpgProductLabors.bulkDelete(existingLabor.map(l => l.id));
+        }
+      }
 
       if (laborItems.length > 0) {
         // First, save any new labor roles that were created inline
