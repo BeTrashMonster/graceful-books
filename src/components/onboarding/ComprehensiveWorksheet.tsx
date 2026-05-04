@@ -827,6 +827,12 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                         createCategory(prodIndex, itemIndex);
                                       }
                                     }}
+                                    onBlur={(e) => {
+                                      const value = e.target.value.trim();
+                                      if (value) {
+                                        createCategory(prodIndex, itemIndex);
+                                      }
+                                    }}
                                   />
                                   <button
                                     type="button"
@@ -913,6 +919,15 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                             setNewVariantValue({ ...newVariantValue, [key]: '' });
                                             setShowNewVariantInput({ ...showNewVariantInput, [key]: false });
                                           }
+                                        }
+                                      }}
+                                      onBlur={(e) => {
+                                        const variant = e.target.value.trim();
+                                        if (variant) {
+                                          addVariantToCategory(selectedCategory.id, variant);
+                                          updateRecipeItem(prodIndex, itemIndex, 'variant', variant);
+                                          setNewVariantValue({ ...newVariantValue, [key]: '' });
+                                          setShowNewVariantInput({ ...showNewVariantInput, [key]: false });
                                         }
                                       }}
                                     />
