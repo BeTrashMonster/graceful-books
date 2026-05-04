@@ -54,6 +54,7 @@ export async function createCheckoutSession({
       ...metadata,
     },
     subscription_data: {
+      trial_period_days: 7, // 7-day free trial for all new subscriptions
       metadata: {
         userId: userId, // Already a string
         ...metadata,
