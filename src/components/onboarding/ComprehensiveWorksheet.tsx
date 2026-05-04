@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import styles from './ComprehensiveWorksheet.module.css';
 import { processDateInput } from '../../utils/dateUtils';
+import { LoadingOverlay } from '../feedback/Loading';
 
 interface Category {
   id: string;
@@ -146,6 +147,7 @@ const evaluateMathExpression = (expression: string): string => {
 
 export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWorksheetProps) {
   const [currentStep, setCurrentStep] = useState<Step>('products');
+  const [importing, setImporting] = useState(false);
 
   // Track categories as they're created
   const [categories, setCategories] = useState<Category[]>([]);
@@ -698,6 +700,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
     };
 
     console.log('📤 Calling onComplete with data:', worksheetData);
+    setImporting(true);
     onComplete(worksheetData);
   };
 
@@ -1691,21 +1694,21 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                 const errors = getBlockingErrors();
                 console.log('🔘 Confirm + Save clicked!');
                 console.log('❌ Blocking errors:', errors);
-                console.log('🔒 Button disabled?', errors.length > 0);
-                if (errors.length === 0) {
+                console.log('🔒 Button disabled?', errors.length > 0 || importing);
+                if (errors.length === 0 && !importing) {
                   handleSubmit();
                 } else {
-                  console.log('⚠️ Button is disabled due to errors above');
+                  console.log('⚠️ Button is disabled due to errors above or already importing');
                 }
               }}
               className={styles.primaryButton}
-              disabled={getBlockingErrors().length > 0}
+              disabled={getBlockingErrors().length > 0 || importing}
               style={{
-                opacity: getBlockingErrors().length > 0 ? 0.5 : 1,
-                cursor: getBlockingErrors().length > 0 ? 'not-allowed' : 'pointer'
+                opacity: getBlockingErrors().length > 0 || importing ? 0.5 : 1,
+                cursor: getBlockingErrors().length > 0 || importing ? 'not-allowed' : 'pointer'
               }}
             >
-              ✓ Confirm + Save
+              {importing ? 'Importing...' : '✓ Confirm + Save'}
             </button>
           )}
         </div>
@@ -1717,6 +1720,13 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
           to add or edit this information.
         </p>
       </div>
+
+      <LoadingOverlay
+        isVisible={importing}
+        message="Importing your worksheet into the system..."
+        variant="spinner"
+        size="lg"
+      />
     </div>
   );
 }
