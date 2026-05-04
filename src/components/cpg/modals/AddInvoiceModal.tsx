@@ -936,7 +936,9 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
 
             // Determine grid layout based on category type
             let gridColumns = '1.5fr 0.6fr 0.6fr 0.6fr 0.7fr 1.2fr'; // Default: Category, Units, Unit, Price, Line Total, Description
-            if (isDistributionCategory && hasVariants) {
+            if (item.is_personal) {
+              gridColumns = '1.5fr 1fr 1.2fr'; // Category, Amount, Description
+            } else if (isDistributionCategory && hasVariants) {
               gridColumns = '1.5fr 1fr 1fr 1fr 1.2fr'; // Category, Variant, Distribution, Total Cost, Description
             } else if (isDistributionCategory) {
               gridColumns = '1.5fr 1fr 1fr 1.2fr'; // Category, Distribution, Total Cost, Description
@@ -1108,11 +1110,11 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                     </div>
                   )}
 
-                  {/* For S+H categories: just show Total Cost */}
-                  {isDistributionCategory ? (
+                  {/* For S+H categories and personal items: just show Total Cost/Amount */}
+                  {isDistributionCategory || item.is_personal ? (
                     <div>
                       <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.8125rem', color: '#374151' }}>
-                        Total Cost *
+                        {item.is_personal ? 'Amount *' : 'Total Cost *'}
                       </label>
                       <div style={{ position: 'relative' }}>
                         <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', fontSize: '0.9375rem', fontWeight: 500 }}>$</span>
@@ -1122,7 +1124,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                           value={item.unit_price}
                           onChange={(e) => {
                             updateCostItem(item.id, 'unit_price', e.target.value);
-                            updateCostItem(item.id, 'units_purchased', '1'); // Always 1 for S+H
+                            updateCostItem(item.id, 'units_purchased', '1'); // Always 1 for S+H and personal items
                           }}
                           onBlur={(e) => {
                             const { value } = processMathInput(e.target.value, true);
@@ -1409,7 +1411,7 @@ export function AddInvoiceModal({ isOpen, onClose, onSuccess, onNeedCategories, 
                 )}
 
                 {/* Advanced fields - Units Received */}
-                {!isDistributionCategory && (item.units_purchased || item.unit_price) && (
+                {!isDistributionCategory && !item.is_personal && (item.units_purchased || item.unit_price) && (
                   <div style={{ marginTop: '0.5rem' }}>
                     <button
                       type="button"
