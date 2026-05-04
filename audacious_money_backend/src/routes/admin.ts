@@ -287,7 +287,7 @@ admin.get('/users/:userId/products', requireAdmin, async (c) => {
  */
 const addProductSchema = z.object({
   productId: z.string().uuid('Invalid product ID'),
-  status: z.enum(['trial', 'active', 'cancelled', 'expired']).default('active'),
+  status: z.enum(['trial', 'active', 'paused', 'cancelled', 'expired']).default('active'),
 });
 
 admin.post('/users/:userId/products', requireAdmin, validate(addProductSchema), async (c) => {

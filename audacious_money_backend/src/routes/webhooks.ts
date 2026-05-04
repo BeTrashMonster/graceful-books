@@ -270,17 +270,27 @@ async function handleSubscriptionUpdated(subscription: any) {
   console.log('[Webhook] Processing customer.subscription.updated');
   console.log('[Webhook] Subscription ID:', subscription.id);
   console.log('[Webhook] Status:', subscription.status);
+  console.log('[Webhook] Pause collection:', subscription.pause_collection);
 
   const db = getDatabase();
 
   try {
     // Map Stripe status to our status
     let status = subscription.status;
-    if (status === 'trialing') status = 'trialing';
-    else if (status === 'active') status = 'active';
-    else if (status === 'past_due') status = 'past_due';
-    else if (status === 'canceled' || status === 'unpaid') status = 'cancelled';
-    else if (status === 'paused') status = 'paused';
+
+    // Check if subscription is paused (Stripe keeps status as 'active' but sets pause_collection)
+    if (subscription.pause_collection && subscription.pause_collection.behavior) {
+      status = 'paused';
+      console.log('[Webhook] Subscription is paused (pause_collection detected)');
+    } else if (status === 'trialing') {
+      status = 'trialing';
+    } else if (status === 'active') {
+      status = 'active';
+    } else if (status === 'past_due') {
+      status = 'past_due';
+    } else if (status === 'canceled' || status === 'unpaid') {
+      status = 'cancelled';
+    }
 
     await db.query(
       `UPDATE user_products
