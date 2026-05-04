@@ -63,6 +63,59 @@ app.use('/auth/*', rateLimiter({ max: 10, window: 300 }));
 app.use('*', rateLimiter({ max: 100, window: 60 }));
 
 // ==========================================
+// ONE-TIME STRIPE SETUP ENDPOINT (REMOVE AFTER USE)
+// ==========================================
+
+app.post('/setup/stripe-product-id', async (c) => {
+  const db = c.get('db');
+  const body = await c.req.json().catch(() => ({}));
+  const { secret, stripePriceId, productSlug } = body;
+
+  // Simple secret check (use JWT_SECRET as the secret)
+  if (secret !== process.env.JWT_SECRET) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+
+  try {
+    console.log('[SETUP] Updating Stripe price ID for product:', productSlug);
+
+    // Check product exists
+    const checkResult = await db.query(
+      'SELECT id, name, slug, stripe_price_id FROM products WHERE slug = $1',
+      [productSlug]
+    );
+
+    if (checkResult.rowCount === 0) {
+      return c.json({ error: `Product "${productSlug}" not found` }, 404);
+    }
+
+    const beforeState = checkResult.rows[0];
+    console.log('[SETUP] Before:', beforeState);
+
+    // Update the Stripe price ID
+    const updateResult = await db.query(
+      `UPDATE products
+       SET stripe_price_id = $1, updated_at = NOW()
+       WHERE slug = $2
+       RETURNING id, name, slug, stripe_price_id, updated_at`,
+      [stripePriceId, productSlug]
+    );
+
+    const afterState = updateResult.rows[0];
+    console.log('[SETUP] After:', afterState);
+
+    return c.json({
+      success: true,
+      message: 'Stripe price ID updated successfully',
+      product: afterState,
+    });
+  } catch (error) {
+    console.error('[SETUP] Error:', error);
+    return c.json({ error: 'Database error', details: error.message }, 500);
+  }
+});
+
+// ==========================================
 // Health Check Endpoint
 // ==========================================
 
