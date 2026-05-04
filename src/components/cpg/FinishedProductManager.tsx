@@ -914,7 +914,8 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                       const hasLaborCost = parseFloat(laborCost) > 0;
                       const hasMaterialCPU = materialCPU !== null && materialCPU !== undefined;
 
-                      if (!hasMaterialCPU) {
+                      // If neither materials nor labor, show N/A
+                      if (!hasMaterialCPU && !hasLaborCost) {
                         return (
                           <div className={styles.detailRow}>
                             <span className={styles.detailLabel}>CPU:</span>
@@ -923,18 +924,21 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                         );
                       }
 
-                      const totalCPU = parseFloat(materialCPU) + parseFloat(laborCost);
+                      const materialValue = hasMaterialCPU ? parseFloat(materialCPU) : 0;
+                      const laborValue = parseFloat(laborCost);
+                      const totalCPU = materialValue + laborValue;
 
-                      if (hasLaborCost) {
+                      // If both materials and labor
+                      if (hasMaterialCPU && hasLaborCost) {
                         return (
                           <>
                             <div className={styles.detailRow}>
                               <span className={styles.detailLabel}>Materials:</span>
-                              <span className={styles.detailValue}>{formatCurrency(parseFloat(materialCPU))}</span>
+                              <span className={styles.detailValue}>{formatCurrency(materialValue)}</span>
                             </div>
                             <div className={styles.detailRow}>
                               <span className={styles.detailLabel}>Labor:</span>
-                              <span className={styles.detailValue} style={{ color: '#D4AF37' }}>+{formatCurrency(parseFloat(laborCost))}</span>
+                              <span className={styles.detailValue} style={{ color: '#D4AF37' }}>+{formatCurrency(laborValue)}</span>
                             </div>
                             <div className={styles.detailRow} style={{
                               paddingTop: '0.5rem',
@@ -948,14 +952,25 @@ export function FinishedProductManager({ onOpenRecipeBuilder }: FinishedProductM
                             </div>
                           </>
                         );
-                      } else {
+                      }
+
+                      // If only labor (no materials/recipe)
+                      if (hasLaborCost && !hasMaterialCPU) {
                         return (
                           <div className={styles.detailRow}>
-                            <span className={styles.detailLabel}>CPU:</span>
-                            <span className={styles.detailValue}>{formatCurrency(parseFloat(materialCPU))}</span>
+                            <span className={styles.detailLabel}>CPU (Labor):</span>
+                            <span className={styles.detailValue} style={{ color: '#D4AF37' }}>{formatCurrency(laborValue)}</span>
                           </div>
                         );
                       }
+
+                      // If only materials (no labor)
+                      return (
+                        <div className={styles.detailRow}>
+                          <span className={styles.detailLabel}>CPU:</span>
+                          <span className={styles.detailValue}>{formatCurrency(materialValue)}</span>
+                        </div>
+                      );
                     })()}
                   </div>
 
