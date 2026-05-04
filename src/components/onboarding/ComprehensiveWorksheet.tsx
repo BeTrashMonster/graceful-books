@@ -633,7 +633,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
       }))
       .filter(r => r.items.length > 0);
 
-    // Extract valid invoices - category_id, variant, quantity, unit, unit_cost
+    // Extract valid invoices - category_id, variant, quantity, unit, unit_cost, line_total, invoice_total
     const validInvoices = invoices
       .filter(i => i.vendor_name.trim() && i.items.length > 0)
       .map(inv => ({
@@ -641,6 +641,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
         vendor_name: inv.vendor_name,
         invoice_date: inv.invoice_date,
         ...(inv.invoice_number && { invoice_number: inv.invoice_number }), // Only include if present
+        ...(inv.invoice_total && { invoice_total: inv.invoice_total }), // FIX: Include invoice total
         items: inv.items
           .filter(item => item.category_id && item.quantity.trim() && item.unit_cost.trim() && item.unit_of_measurement)
           .map(item => ({
@@ -648,7 +649,8 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
             ...(item.variant && { variant: item.variant }), // Only include if present
             quantity: item.quantity,
             unit: item.unit_of_measurement,
-            unit_cost: item.unit_cost
+            unit_cost: item.unit_cost,
+            line_total: item.line_total || (parseFloat(item.quantity || '0') * parseFloat(item.unit_cost || '0')).toFixed(2) // FIX: Include line total
           })),
         ...(inv.notes && { notes: inv.notes }) // Only include if present
       }))

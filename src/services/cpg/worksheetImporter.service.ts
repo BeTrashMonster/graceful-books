@@ -61,7 +61,9 @@ interface WorksheetInvoiceItem {
   category_id: string;
   variant?: string;
   quantity: string;
+  unit: string; // unit_of_measurement
   unit_cost: string;
+  line_total: string; // Calculated line total (to avoid rounding errors)
 }
 
 interface WorksheetInvoice {
@@ -69,6 +71,7 @@ interface WorksheetInvoice {
   vendor_name: string;
   invoice_date: string;
   invoice_number?: string;
+  invoice_total?: string; // Total invoice amount (user-entered for balance validation)
   items: WorksheetInvoiceItem[];
   notes?: string;
 }
@@ -291,9 +294,19 @@ export function validateWorksheetData(
           `Invoice at index ${idx}, item ${itemIdx} has invalid quantity: ${item.quantity}`
         );
       }
+      if (!item.unit || item.unit.trim() === '') {
+        errors.push(
+          `Invoice at index ${idx}, item ${itemIdx} has no unit of measurement`
+        );
+      }
       if (!item.unit_cost || isNaN(parseFloat(item.unit_cost))) {
         errors.push(
           `Invoice at index ${idx}, item ${itemIdx} has invalid unit cost: ${item.unit_cost}`
+        );
+      }
+      if (!item.line_total || isNaN(parseFloat(item.line_total))) {
+        errors.push(
+          `Invoice at index ${idx}, item ${itemIdx} has invalid line total: ${item.line_total}`
         );
       }
     });
@@ -453,6 +466,22 @@ export async function importWorksheetData(
       // Transform items array → cost_attribution object
       const cost_attribution: Record<string, any> = {};
 
+      // Validate invoice balance (if invoice_total provided)
+      if (inv.invoice_total) {
+        const invoiceTotal = parseFloat(inv.invoice_total);
+        const lineItemsTotal = inv.items.reduce((sum, item) => {
+          return sum + parseFloat(item.line_total);
+        }, 0);
+
+        const diff = Math.abs(invoiceTotal - lineItemsTotal);
+        if (diff > 0.01) {
+          result.errors.push(
+            `Invoice "${inv.vendor_name}" (${inv.invoice_date}): Line items ($${lineItemsTotal.toFixed(2)}) don't match invoice total ($${invoiceTotal.toFixed(2)}). Difference: $${diff.toFixed(2)}`
+          );
+          continue; // Skip this invoice
+        }
+      }
+
       for (const item of inv.items) {
         const realCategoryId = idMap.get(item.category_id);
         if (!realCategoryId) {
@@ -468,8 +497,10 @@ export async function importWorksheetData(
           category_id: realCategoryId,
           variant: item.variant || null,
           units_purchased: item.quantity, // RENAME: quantity → units_purchased
+          unit_of_measurement: item.unit, // FIX: Include unit from worksheet
           unit_price: item.unit_cost, // RENAME: unit_cost → unit_price
           units_received: item.quantity, // Default to units_purchased
+          manual_line_total: item.line_total, // FIX: Use exact line total from worksheet (preserves user's rounding decisions)
         };
       }
 
