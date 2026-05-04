@@ -9,12 +9,13 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { EventDecisionToolTab } from './tabs/EventDecisionToolTab';
 import { EventTrackerTab } from './tabs/EventTrackerTab';
+import { EventAnalyticsTab } from './tabs/EventAnalyticsTab';
 import { PinIcon } from '../../components/common/PinIcon';
 import { useTabPinning } from '../../hooks/useTabPinning';
 import { PAGE_IDS } from '../../db/schema/tabPreferences.schema';
 import styles from './EventsAnalysis.module.css';
 
-type ViewTab = 'decision-tool' | 'event-tracker';
+type ViewTab = 'decision-tool' | 'event-tracker' | 'event-analytics';
 
 export default function EventsAnalysis() {
   const [searchParams] = useSearchParams();
@@ -45,6 +46,8 @@ export default function EventsAnalysis() {
         setActiveTab('event-tracker');
       } else if (tabParam === 'decision-tool') {
         setActiveTab('decision-tool');
+      } else if (tabParam === 'event-analytics') {
+        setActiveTab('event-analytics');
       }
     } else if (editEventId) {
       setActiveTab('decision-tool');
@@ -57,7 +60,7 @@ export default function EventsAnalysis() {
   useEffect(() => {
     const loadPinnedState = async () => {
       const states: Record<string, boolean> = {};
-      const tabs: ViewTab[] = ['decision-tool', 'event-tracker'];
+      const tabs: ViewTab[] = ['decision-tool', 'event-tracker', 'event-analytics'];
 
       for (const tab of tabs) {
         states[tab] = await isTabPinned(tab);
@@ -82,6 +85,7 @@ export default function EventsAnalysis() {
         setPinnedTabs({
           'decision-tool': tabId === 'decision-tool',
           'event-tracker': tabId === 'event-tracker',
+          'event-analytics': tabId === 'event-analytics',
         });
       }
     } catch (error) {
@@ -123,6 +127,19 @@ export default function EventsAnalysis() {
             size={14}
           />
         </button>
+        <button
+          onClick={() => setActiveTab('event-analytics')}
+          className={activeTab === 'event-analytics' ? styles.tabActive : styles.tab}
+          role="tab"
+          aria-selected={activeTab === 'event-analytics'}
+        >
+          Event Analytics
+          <PinIcon
+            isPinned={pinnedTabs['event-analytics'] || false}
+            onClick={() => handlePinToggle('event-analytics')}
+            size={14}
+          />
+        </button>
       </div>
 
       {/* Tab Content */}
@@ -134,6 +151,7 @@ export default function EventsAnalysis() {
             urlEndDate={urlEndDate}
           />
         )}
+        {activeTab === 'event-analytics' && <EventAnalyticsTab />}
       </div>
     </div>
   );

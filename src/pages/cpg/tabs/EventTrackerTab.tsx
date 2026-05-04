@@ -365,6 +365,22 @@ export function EventTrackerTab({ urlStartDate, urlEndDate }: EventTrackerTabPro
     return parseFloat(event.actual_total_profit) - projectedProfit;
   };
 
+  const calculateTotalLabor = (event: CPGEvent): { actual: number; opportunity: number } => {
+    if (!event.labor_entries || event.labor_entries.length === 0) {
+      return { actual: 0, opportunity: 0 };
+    }
+
+    const actual = event.labor_entries
+      .filter(entry => entry.cost_type === 'actual')
+      .reduce((sum, entry) => sum + (parseFloat(entry.hours) * parseFloat(entry.hourly_rate)), 0);
+
+    const opportunity = event.labor_entries
+      .filter(entry => entry.cost_type === 'opportunity')
+      .reduce((sum, entry) => sum + (parseFloat(entry.hours) * parseFloat(entry.hourly_rate)), 0);
+
+    return { actual, opportunity };
+  };
+
   const getSellThroughColor = (percentage: number): string => {
     if (percentage >= 90) return styles.sellThroughExcellent;
     if (percentage >= 70) return styles.sellThroughGood;
@@ -574,11 +590,13 @@ export function EventTrackerTab({ urlStartDate, urlEndDate }: EventTrackerTabPro
               </tr>
             </thead>
             <tbody>
-              {filteredEvents.map((event) => {
+              {filteredEvents.map((event, index) => {
                 const isCompleted = event.status === 'completed';
                 const totalBrought = getTotalUnitsBrought(event);
                 const totalSold = getTotalUnitsSold(event);
                 const sellThrough = isCompleted ? calculateSellThrough(event) : 0;
+                const isLastTwoRows = index >= filteredEvents.length - 2;
+                const labor = calculateTotalLabor(event);
 
                 return (
                   <tr key={event.id}>
@@ -593,7 +611,11 @@ export function EventTrackerTab({ urlStartDate, urlEndDate }: EventTrackerTabPro
                     </td>
                     <td>{event.event_start_date ? formatDate(event.event_start_date) : 'N/A'}</td>
                     <td>{event.event_end_date ? formatDate(event.event_end_date) : 'N/A'}</td>
-                    <td>{formatCurrency(event.total_event_cost)}</td>
+                    <td>
+                      {formatCurrency(event.total_event_cost)}
+                      {labor.actual > 0 && <span className={styles.laborIcon}> $</span>}
+                      {labor.opportunity > 0 && labor.actual === 0 && <span className={styles.sweatIcon}> ⚡</span>}
+                    </td>
                     <td>{totalBrought}</td>
                     <td>{isCompleted ? totalSold : '—'}</td>
                     <td>
@@ -639,7 +661,7 @@ export function EventTrackerTab({ urlStartDate, urlEndDate }: EventTrackerTabPro
                           ⋮
                         </button>
                         {actionMenuOpen === event.id && (
-                          <div className={styles.actionMenu}>
+                          <div className={isLastTwoRows ? styles.actionMenuAbove : styles.actionMenu}>
                             <button
                               className={styles.actionMenuItem}
                               onClick={() => handleEdit(event.id)}
