@@ -119,10 +119,20 @@ export function CPGLayout() {
   }, []);
 
   const handleLogout = () => {
-    // Clear session storage
-    sessionStorage.removeItem('graceful_books_session');
-    // Redirect to login
-    navigate('/login');
+    try {
+      // Clear session storage
+      sessionStorage.removeItem('graceful_books_session');
+      // Clear any other session-related data
+      sessionStorage.clear();
+
+      // Use window.location instead of navigate to avoid React unmount race conditions
+      // This does a full page reload which is cleaner for logout
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Fallback: force navigation even if cleanup fails
+      window.location.href = '/login';
+    }
   };
 
   // Load categories for CategoryManager
