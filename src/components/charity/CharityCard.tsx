@@ -20,6 +20,10 @@ export interface CharityCardProps extends Omit<HTMLAttributes<HTMLDivElement>, '
    * Whether to show the full description
    */
   showFullDescription?: boolean;
+  /**
+   * Whether this charity is coming soon (not selectable)
+   */
+  comingSoon?: boolean;
 }
 
 /**
@@ -48,12 +52,14 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
       selected = false,
       onClick,
       showFullDescription = true,
+      comingSoon = false,
       className,
       ...props
     },
     ref
   ) => {
     const handleClick = () => {
+      if (comingSoon) return; // Don't allow selection if coming soon
       onClick?.(charity);
     };
 
@@ -118,18 +124,26 @@ export const CharityCard = forwardRef<HTMLDivElement, CharityCardProps>(
         className={clsx(
           styles.card,
           selected && styles.selected,
-          onClick && styles.clickable,
+          onClick && !comingSoon && styles.clickable,
           !showFullDescription && styles.compact,
+          comingSoon && styles.comingSoon,
           className
         )}
         style={cardStyle}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
-        role={onClick ? 'button' : undefined}
-        tabIndex={onClick ? 0 : undefined}
-        aria-pressed={onClick ? selected : undefined}
+        role={onClick && !comingSoon ? 'button' : undefined}
+        tabIndex={onClick && !comingSoon ? 0 : undefined}
+        aria-pressed={onClick && !comingSoon ? selected : undefined}
+        aria-disabled={comingSoon}
         {...props}
       >
+        {comingSoon && (
+          <div className={styles.comingSoonOverlay}>
+            <div className={styles.comingSoonText}>Coming Soon</div>
+          </div>
+        )}
+
         <div className={styles.titleRow}>
           <h3
             className={styles.name}

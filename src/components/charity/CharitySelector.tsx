@@ -236,6 +236,10 @@ export function CharitySelector({
               transform: `rotate(${angle}deg) translate(${radius}px) rotate(-${angle}deg)`
             };
 
+            // Mark NAYA and Feed Seven Generations as coming soon
+            const isComingSoon = charity.name.includes('NAYA') ||
+                                 charity.name.includes('Feed Seven');
+
             return (
               <div
                 key={charity.id}
@@ -248,6 +252,7 @@ export function CharitySelector({
                   selected={charity.id === selectedCharityId}
                   onClick={onSelect}
                   showFullDescription={false}
+                  comingSoon={isComingSoon}
                 />
               </div>
             );
