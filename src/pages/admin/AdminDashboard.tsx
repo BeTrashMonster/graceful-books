@@ -1015,17 +1015,34 @@ export default function AdminDashboard() {
                                 user.subscriptionStatus === 'trialing' ? '#fef3c7' :
                                 user.subscriptionStatus === 'active' ? '#dcfce7' :
                                 user.subscriptionStatus === 'past_due' ? '#fee2e2' :
-                                user.subscriptionStatus === 'cancelled' ? '#f3f4f6' :
+                                user.subscriptionStatus === 'paused' ? '#fef3c7' :
+                                user.subscriptionStatus === 'cancelled' || user.subscriptionStatus === 'canceled' ? '#f3f4f6' :
+                                user.subscriptionStatus === 'expired' ? '#fee2e2' :
+                                user.subscriptionStatus === 'payment_failed' ? '#fee2e2' :
+                                user.subscriptionStatus === 'incomplete' ? '#fef3c7' :
+                                user.subscriptionStatus === 'incomplete_expired' ? '#fee2e2' :
+                                user.subscriptionStatus === 'unpaid' ? '#fee2e2' :
                                 '#f3f4f6',
                               color:
                                 user.subscriptionStatus === 'trialing' ? '#f59e0b' :
                                 user.subscriptionStatus === 'active' ? '#16a34a' :
                                 user.subscriptionStatus === 'past_due' ? '#dc2626' :
-                                user.subscriptionStatus === 'cancelled' ? '#6b7280' :
+                                user.subscriptionStatus === 'paused' ? '#f59e0b' :
+                                user.subscriptionStatus === 'cancelled' || user.subscriptionStatus === 'canceled' ? '#6b7280' :
+                                user.subscriptionStatus === 'expired' ? '#dc2626' :
+                                user.subscriptionStatus === 'payment_failed' ? '#dc2626' :
+                                user.subscriptionStatus === 'incomplete' ? '#f59e0b' :
+                                user.subscriptionStatus === 'incomplete_expired' ? '#dc2626' :
+                                user.subscriptionStatus === 'unpaid' ? '#dc2626' :
                                 '#6b7280',
                             }}
                           >
-                            {user.subscriptionStatus === 'trialing' ? '🎁 TRIAL' : user.subscriptionStatus.toUpperCase()}
+                            {user.subscriptionStatus === 'trialing' ? '🎁 TRIAL' :
+                             user.subscriptionStatus === 'paused' ? '⏸️ PAUSED' :
+                             user.subscriptionStatus === 'past_due' ? '⚠️ PAST DUE' :
+                             user.subscriptionStatus === 'canceled' || user.subscriptionStatus === 'cancelled' ? 'CANCELLED' :
+                             user.subscriptionStatus === 'payment_failed' ? '❌ PAYMENT FAILED' :
+                             user.subscriptionStatus.toUpperCase().replace('_', ' ')}
                           </span>
                         ) : (
                           <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
@@ -1167,12 +1184,24 @@ export default function AdminDashboard() {
                                               product.status === 'trialing' ? '#f59e0b' :
                                               product.status === 'active' ? '#16a34a' :
                                               product.status === 'past_due' ? '#dc2626' :
+                                              product.status === 'paused' ? '#f59e0b' :
+                                              product.status === 'cancelled' || product.status === 'canceled' ? '#6b7280' :
+                                              product.status === 'expired' ? '#dc2626' :
+                                              product.status === 'payment_failed' ? '#dc2626' :
+                                              product.status === 'incomplete' ? '#f59e0b' :
+                                              product.status === 'incomplete_expired' ? '#dc2626' :
+                                              product.status === 'unpaid' ? '#dc2626' :
                                               '#6b7280',
                                           }}
                                         >
-                                          {product.status === 'trialing' ? '🎁 TRIAL' : product.status.toUpperCase()}
+                                          {product.status === 'trialing' ? '🎁 TRIAL' :
+                                           product.status === 'paused' ? '⏸️ PAUSED' :
+                                           product.status === 'past_due' ? '⚠️ PAST DUE' :
+                                           product.status === 'canceled' || product.status === 'cancelled' ? 'CANCELLED' :
+                                           product.status === 'payment_failed' ? '❌ PAYMENT FAILED' :
+                                           product.status.toUpperCase().replace('_', ' ')}
                                         </span>
-                                        {product.status === 'trialing' && product.currentPeriodEnd && (
+                                        {(product.status === 'trialing' || product.status === 'paused') && product.currentPeriodEnd && (
                                           <span style={{ color: '#f59e0b', fontWeight: 600 }}>
                                             {' '}(ends {new Date(product.currentPeriodEnd).toLocaleDateString()})
                                           </span>
