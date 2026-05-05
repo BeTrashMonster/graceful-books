@@ -320,12 +320,16 @@ auth.post('/login', validate(loginSchema), async (c) => {
       [user.id]
     );
 
+    console.log(`[Auth] Products query returned ${productsResult.rowCount} rows for user ${user.id}`);
+
     const products = productsResult.rows.map((row) => ({
       id: row.product_id,
       name: row.name,
       slug: row.slug,
       status: row.status,
     }));
+
+    console.log(`[Auth] Products for user ${user.id}:`, products);
 
     // Update last login timestamp
     await db.query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]);
