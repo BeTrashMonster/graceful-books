@@ -315,6 +315,8 @@ admin.get('/users/:userId/products', requireAdmin, async (c) => {
     // Get user's products
     const result = await db.query(
       `SELECT up.id, up.product_id, up.status, up.activated_at, up.expires_at,
+              up.stripe_subscription_id, up.stripe_customer_id,
+              up.current_period_start, up.current_period_end,
               p.name, p.slug, p.description, p.price_monthly
        FROM user_products up
        JOIN products p ON up.product_id = p.id
@@ -334,6 +336,10 @@ admin.get('/users/:userId/products', requireAdmin, async (c) => {
         status: row.status,
         activatedAt: row.activated_at,
         expiresAt: row.expires_at,
+        stripeSubscriptionId: row.stripe_subscription_id,
+        stripeCustomerId: row.stripe_customer_id,
+        currentPeriodStart: row.current_period_start,
+        currentPeriodEnd: row.current_period_end,
       })),
     });
   } catch (error) {

@@ -26,6 +26,10 @@ interface UserProduct {
   status: string;
   activatedAt: string;
   expiresAt: string | null;
+  stripeSubscriptionId: string | null;
+  stripeCustomerId: string | null;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
 }
 
 interface Product {
@@ -930,6 +934,9 @@ export default function AdminDashboard() {
                   <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Name</th>
                   <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Email</th>
                   <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>
+                    User ID
+                  </th>
+                  <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>
                     Company
                   </th>
                   <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>
@@ -937,6 +944,9 @@ export default function AdminDashboard() {
                   </th>
                   <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>
                     Status
+                  </th>
+                  <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>
+                    Last Login
                   </th>
                   <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>
                     Created
@@ -966,8 +976,39 @@ export default function AdminDashboard() {
                       </td>
                       <td style={{ padding: '0.75rem' }}>
                         {user.firstName} {user.lastName}
+                        {!user.emailVerified && (
+                          <span
+                            title="Email not verified"
+                            style={{
+                              marginLeft: '0.5rem',
+                              fontSize: '0.75rem',
+                              color: '#f59e0b',
+                            }}
+                          >
+                            ⚠️
+                          </span>
+                        )}
                       </td>
                       <td style={{ padding: '0.75rem' }}>{user.email}</td>
+                      <td
+                        style={{
+                          padding: '0.75rem',
+                          fontFamily: 'monospace',
+                          fontSize: '0.7rem',
+                          maxWidth: '120px',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          cursor: 'pointer',
+                        }}
+                        title={user.id}
+                        onClick={() => {
+                          navigator.clipboard.writeText(user.id);
+                          alert('User ID copied to clipboard!');
+                        }}
+                      >
+                        {user.id.substring(0, 8)}...
+                      </td>
                       <td style={{ padding: '0.75rem' }}>{user.companyName || '-'}</td>
                       <td style={{ padding: '0.75rem', fontFamily: 'monospace', fontSize: '0.75rem' }}>
                         {user.supportKey}
@@ -986,6 +1027,11 @@ export default function AdminDashboard() {
                         >
                           {user.accountStatus}
                         </span>
+                      </td>
+                      <td style={{ padding: '0.75rem', fontSize: '0.75rem', color: '#6b7280' }}>
+                        {user.lastLoginAt
+                          ? new Date(user.lastLoginAt).toLocaleDateString()
+                          : 'Never'}
                       </td>
                       <td style={{ padding: '0.75rem' }}>
                         {new Date(user.createdAt).toLocaleDateString()}
@@ -1009,7 +1055,7 @@ export default function AdminDashboard() {
                     </tr>
                     {expandedUserId === user.id && (
                       <tr key={`${user.id}-products`} style={{ backgroundColor: '#f9fafb' }}>
-                        <td colSpan={8} style={{ padding: '1rem' }}>
+                        <td colSpan={10} style={{ padding: '1rem' }}>
                           <div style={{ marginLeft: '2rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                               <h4 style={{ fontWeight: 600, fontSize: '0.875rem' }}>Products</h4>
@@ -1097,29 +1143,64 @@ export default function AdminDashboard() {
                                     style={{
                                       display: 'flex',
                                       justifyContent: 'space-between',
-                                      alignItems: 'center',
+                                      alignItems: 'flex-start',
                                       padding: '0.75rem',
                                       backgroundColor: 'white',
                                       borderRadius: '0.375rem',
                                       border: '1px solid #e5e7eb',
                                     }}
                                   >
-                                    <div>
-                                      <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                                    <div style={{ flex: 1 }}>
+                                      <div style={{ fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.25rem' }}>
                                         {product.name}
                                       </div>
-                                      <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                                      <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>
                                         Status: <span
                                           style={{
                                             fontWeight: 600,
-                                            color: product.status === 'active' ? '#16a34a' : '#6b7280',
+                                            color:
+                                              product.status === 'trialing' ? '#f59e0b' :
+                                              product.status === 'active' ? '#16a34a' :
+                                              product.status === 'past_due' ? '#dc2626' :
+                                              '#6b7280',
                                           }}
                                         >
-                                          {product.status}
+                                          {product.status === 'trialing' ? '🎁 TRIAL' : product.status.toUpperCase()}
                                         </span>
+                                        {product.status === 'trialing' && product.currentPeriodEnd && (
+                                          <span style={{ color: '#f59e0b', fontWeight: 600 }}>
+                                            {' '}(ends {new Date(product.currentPeriodEnd).toLocaleDateString()})
+                                          </span>
+                                        )}
                                         {' • '}
                                         Activated: {new Date(product.activatedAt).toLocaleDateString()}
                                       </div>
+                                      {product.stripeSubscriptionId && (
+                                        <div style={{ fontSize: '0.7rem', color: '#6b7280', fontFamily: 'monospace', marginTop: '0.5rem' }}>
+                                          <div
+                                            style={{ cursor: 'pointer', marginBottom: '0.25rem' }}
+                                            title="Click to copy Subscription ID"
+                                            onClick={() => {
+                                              navigator.clipboard.writeText(product.stripeSubscriptionId!);
+                                              alert('Subscription ID copied!');
+                                            }}
+                                          >
+                                            📋 Sub: {product.stripeSubscriptionId}
+                                          </div>
+                                          {product.stripeCustomerId && (
+                                            <div
+                                              style={{ cursor: 'pointer' }}
+                                              title="Click to copy Customer ID"
+                                              onClick={() => {
+                                                navigator.clipboard.writeText(product.stripeCustomerId!);
+                                                alert('Customer ID copied!');
+                                              }}
+                                            >
+                                              📋 Cust: {product.stripeCustomerId}
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
                                     </div>
                                     <button
                                       onClick={() => handleRemoveProduct(user.id, product.productId, product.name)}
@@ -1131,6 +1212,7 @@ export default function AdminDashboard() {
                                         borderRadius: '0.375rem',
                                         cursor: 'pointer',
                                         fontSize: '0.75rem',
+                                        marginLeft: '1rem',
                                       }}
                                     >
                                       Remove
