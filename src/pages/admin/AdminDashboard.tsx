@@ -976,18 +976,6 @@ export default function AdminDashboard() {
                       </td>
                       <td style={{ padding: '0.75rem' }}>
                         {user.firstName} {user.lastName}
-                        {!user.emailVerified && (
-                          <span
-                            title="Email not verified"
-                            style={{
-                              marginLeft: '0.5rem',
-                              fontSize: '0.75rem',
-                              color: '#f59e0b',
-                            }}
-                          >
-                            ⚠️
-                          </span>
-                        )}
                       </td>
                       <td style={{ padding: '0.75rem' }}>{user.email}</td>
                       <td

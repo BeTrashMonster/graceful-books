@@ -166,6 +166,25 @@ async function handleCheckoutSessionCompleted(session: any) {
     console.log('[Webhook] User ID:', userId);
     console.log('[Webhook] Product ID:', productId);
 
+    // Fetch subscription details from Stripe to get the actual status
+    let subscriptionStatus = 'active';
+    let currentPeriodStart = null;
+    let currentPeriodEnd = null;
+
+    if (session.subscription) {
+      try {
+        const { stripe } = await import('../services/stripe.service.js');
+        const subscription = await stripe.subscriptions.retrieve(session.subscription);
+        subscriptionStatus = subscription.status; // Will be 'trialing', 'active', etc.
+        currentPeriodStart = subscription.current_period_start;
+        currentPeriodEnd = subscription.current_period_end;
+        console.log('[Webhook] Fetched subscription status:', subscriptionStatus);
+      } catch (error) {
+        console.error('[Webhook] Failed to fetch subscription details:', error);
+        // Fall back to 'active' if we can't fetch
+      }
+    }
+
     // Check if user_product record already exists
     const existingRecord = await db.query(
       `SELECT id FROM user_products WHERE user_id = $1 AND product_id = $2`,
@@ -178,16 +197,17 @@ async function handleCheckoutSessionCompleted(session: any) {
         `UPDATE user_products
          SET stripe_subscription_id = $1,
              stripe_customer_id = $2,
-             status = 'active',
-             current_period_start = to_timestamp($3),
-             current_period_end = to_timestamp($4),
+             status = $3,
+             current_period_start = to_timestamp($4),
+             current_period_end = to_timestamp($5),
              updated_at = NOW()
-         WHERE user_id = $5 AND product_id = $6`,
+         WHERE user_id = $6 AND product_id = $7`,
         [
           session.subscription,
           session.customer,
-          session.subscription ? null : Date.now() / 1000, // Use subscription times if available
-          session.subscription ? null : Date.now() / 1000,
+          subscriptionStatus,
+          currentPeriodStart,
+          currentPeriodEnd,
           userId,
           productId,
         ]
@@ -203,8 +223,8 @@ async function handleCheckoutSessionCompleted(session: any) {
           status,
           current_period_start,
           current_period_end
-        ) VALUES ($1, $2, $3, $4, 'active', NOW(), NOW() + INTERVAL '30 days')`,
-        [userId, productId, session.subscription, session.customer]
+        ) VALUES ($1, $2, $3, $4, $5, to_timestamp($6), to_timestamp($7))`,
+        [userId, productId, session.subscription, session.customer, subscriptionStatus, currentPeriodStart, currentPeriodEnd]
       );
     }
 
@@ -249,6 +269,7 @@ async function handleSubscriptionCreated(subscription: any) {
   console.log('[Webhook] Processing customer.subscription.created');
   console.log('[Webhook] Subscription ID:', subscription.id);
   console.log('[Webhook] Customer:', subscription.customer);
+  console.log('[Webhook] Status:', subscription.status);
 
   const db = getDatabase();
 
@@ -262,17 +283,18 @@ async function handleSubscriptionCreated(subscription: any) {
 
     console.log('[Webhook] User ID from subscription metadata:', userId);
 
-    // Update subscription details if record exists
+    // Update subscription details if record exists, including status
     await db.query(
       `UPDATE user_products
-       SET current_period_start = to_timestamp($1),
-           current_period_end = to_timestamp($2),
+       SET status = $1,
+           current_period_start = to_timestamp($2),
+           current_period_end = to_timestamp($3),
            updated_at = NOW()
-       WHERE stripe_subscription_id = $3`,
-      [subscription.current_period_start, subscription.current_period_end, subscription.id]
+       WHERE stripe_subscription_id = $4`,
+      [subscription.status, subscription.current_period_start, subscription.current_period_end, subscription.id]
     );
 
-    console.log('[Webhook] Subscription created successfully');
+    console.log('[Webhook] Subscription created successfully with status:', subscription.status);
   } catch (error) {
     console.error('[Webhook] Error processing subscription created:', error);
   }
