@@ -16,6 +16,8 @@ interface User {
   emailVerified: boolean;
   createdAt: string;
   lastLoginAt: string | null;
+  subscriptionStatus: string | null;
+  productCount: number;
 }
 
 interface UserProduct {
@@ -1002,19 +1004,34 @@ export default function AdminDashboard() {
                         {user.supportKey}
                       </td>
                       <td style={{ padding: '0.75rem' }}>
-                        <span
-                          style={{
-                            padding: '0.25rem 0.5rem',
-                            borderRadius: '0.25rem',
-                            fontSize: '0.75rem',
-                            fontWeight: 600,
-                            backgroundColor:
-                              user.accountStatus === 'active' ? '#dcfce7' : '#fee2e2',
-                            color: user.accountStatus === 'active' ? '#16a34a' : '#dc2626',
-                          }}
-                        >
-                          {user.accountStatus}
-                        </span>
+                        {user.subscriptionStatus ? (
+                          <span
+                            style={{
+                              padding: '0.25rem 0.5rem',
+                              borderRadius: '0.25rem',
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              backgroundColor:
+                                user.subscriptionStatus === 'trialing' ? '#fef3c7' :
+                                user.subscriptionStatus === 'active' ? '#dcfce7' :
+                                user.subscriptionStatus === 'past_due' ? '#fee2e2' :
+                                user.subscriptionStatus === 'cancelled' ? '#f3f4f6' :
+                                '#f3f4f6',
+                              color:
+                                user.subscriptionStatus === 'trialing' ? '#f59e0b' :
+                                user.subscriptionStatus === 'active' ? '#16a34a' :
+                                user.subscriptionStatus === 'past_due' ? '#dc2626' :
+                                user.subscriptionStatus === 'cancelled' ? '#6b7280' :
+                                '#6b7280',
+                            }}
+                          >
+                            {user.subscriptionStatus === 'trialing' ? '🎁 TRIAL' : user.subscriptionStatus.toUpperCase()}
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                            No Products
+                          </span>
+                        )}
                       </td>
                       <td style={{ padding: '0.75rem', fontSize: '0.75rem', color: '#6b7280' }}>
                         {user.lastLoginAt

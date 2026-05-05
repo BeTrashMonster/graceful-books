@@ -105,10 +105,31 @@ admin.get('/users', requireAdmin, async (c) => {
 
   try {
     const result = await db.query(
-      `SELECT id, email, first_name, last_name, company_name, support_key,
-              account_status, email_verified, created_at, last_login_at
-       FROM users
-       ORDER BY created_at DESC`
+      `SELECT
+        u.id,
+        u.email,
+        u.first_name,
+        u.last_name,
+        u.company_name,
+        u.support_key,
+        u.account_status,
+        u.email_verified,
+        u.created_at,
+        u.last_login_at,
+        -- Subscription status: show 'trialing' if any product is trialing, else show first product status
+        (
+          SELECT CASE
+            WHEN COUNT(*) FILTER (WHERE status = 'trialing') > 0 THEN 'trialing'
+            WHEN COUNT(*) > 0 THEN MIN(status)
+            ELSE NULL
+          END
+          FROM user_products
+          WHERE user_id = u.id
+        ) as subscription_status,
+        -- Count of products
+        (SELECT COUNT(*) FROM user_products WHERE user_id = u.id) as product_count
+       FROM users u
+       ORDER BY u.created_at DESC`
     );
 
     return success(c, {
@@ -123,6 +144,8 @@ admin.get('/users', requireAdmin, async (c) => {
         emailVerified: row.email_verified,
         createdAt: row.created_at,
         lastLoginAt: row.last_login_at,
+        subscriptionStatus: row.subscription_status,
+        productCount: parseInt(row.product_count),
       })),
     });
   } catch (error) {
