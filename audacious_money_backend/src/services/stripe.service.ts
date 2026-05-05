@@ -135,6 +135,8 @@ export async function getPaymentMethods(customerId: string): Promise<Stripe.Paym
 
 /**
  * Get customer's default payment method
+ *
+ * Checks both customer default and active subscription payment methods
  */
 export async function getDefaultPaymentMethod(
   customerId: string
@@ -145,16 +147,56 @@ export async function getDefaultPaymentMethod(
     return null;
   }
 
+  // First, check if customer has a default payment method
   const defaultPaymentMethodId =
     typeof customer.invoice_settings.default_payment_method === 'string'
       ? customer.invoice_settings.default_payment_method
       : customer.invoice_settings.default_payment_method?.id;
 
-  if (!defaultPaymentMethodId) {
-    return null;
+  if (defaultPaymentMethodId) {
+    return await stripe.paymentMethods.retrieve(defaultPaymentMethodId);
   }
 
-  return await stripe.paymentMethods.retrieve(defaultPaymentMethodId);
+  // If no default payment method, check active subscriptions
+  // (Payment method might be on subscription from Checkout)
+  const subscriptions = await stripe.subscriptions.list({
+    customer: customerId,
+    status: 'active',
+    limit: 1,
+  });
+
+  if (subscriptions.data.length > 0) {
+    const subscription = subscriptions.data[0];
+    const subPaymentMethodId =
+      typeof subscription.default_payment_method === 'string'
+        ? subscription.default_payment_method
+        : subscription.default_payment_method?.id;
+
+    if (subPaymentMethodId) {
+      return await stripe.paymentMethods.retrieve(subPaymentMethodId);
+    }
+  }
+
+  // Also check trialing subscriptions
+  const trialSubscriptions = await stripe.subscriptions.list({
+    customer: customerId,
+    status: 'trialing',
+    limit: 1,
+  });
+
+  if (trialSubscriptions.data.length > 0) {
+    const subscription = trialSubscriptions.data[0];
+    const subPaymentMethodId =
+      typeof subscription.default_payment_method === 'string'
+        ? subscription.default_payment_method
+        : subscription.default_payment_method?.id;
+
+    if (subPaymentMethodId) {
+      return await stripe.paymentMethods.retrieve(subPaymentMethodId);
+    }
+  }
+
+  return null;
 }
 
 /**

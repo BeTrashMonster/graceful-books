@@ -295,7 +295,7 @@ export function PaymentMethodCard({ paymentMethod, onPaymentMethodUpdated }: Pay
                     )}
                   </div>
                 </div>
-                <Button variant="secondary" onClick={handleOpenUpdateModal} disabled={loading}>
+                <Button variant="outline" onClick={handleOpenUpdateModal} disabled={loading}>
                   {loading ? 'Loading...' : 'Update Payment Method'}
                 </Button>
               </div>
@@ -303,7 +303,7 @@ export function PaymentMethodCard({ paymentMethod, onPaymentMethodUpdated }: Pay
           ) : (
             <div className={styles.noPaymentMethod}>
               <p>No payment method on file.</p>
-              <Button variant="primary" onClick={handleOpenUpdateModal} disabled={loading}>
+              <Button variant="purple" onClick={handleOpenUpdateModal} disabled={loading}>
                 {loading ? 'Loading...' : 'Add Payment Method'}
               </Button>
             </div>
