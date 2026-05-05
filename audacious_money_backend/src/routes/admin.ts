@@ -21,6 +21,7 @@ import {
 } from '../utils/responses.js';
 import { hashPassword } from '../utils/password.js';
 import { z } from 'zod';
+import { stripe } from '../services/stripe.service.js';
 
 const admin = new Hono<HonoEnv>();
 
@@ -209,6 +210,46 @@ admin.delete('/users/:userId', requireAdmin, async (c) => {
 
     const user = userResult.rows[0];
 
+    // CRITICAL: Cancel all active Stripe subscriptions before deleting user
+    console.log(`[Admin] Checking for Stripe subscriptions for user ${userId}`);
+    const subscriptionsResult = await db.query(
+      `SELECT stripe_subscription_id
+       FROM user_products
+       WHERE user_id = $1
+       AND stripe_subscription_id IS NOT NULL`,
+      [userId]
+    );
+
+    const cancelledSubscriptions: string[] = [];
+    const failedCancellations: { subscriptionId: string; error: string }[] = [];
+
+    for (const row of subscriptionsResult.rows) {
+      const subscriptionId = row.stripe_subscription_id;
+      try {
+        console.log(`[Admin] Cancelling Stripe subscription: ${subscriptionId}`);
+        await stripe.subscriptions.cancel(subscriptionId);
+        cancelledSubscriptions.push(subscriptionId);
+        console.log(`[Admin] ✅ Successfully cancelled subscription: ${subscriptionId}`);
+      } catch (stripeError: any) {
+        console.error(`[Admin] ❌ Failed to cancel subscription ${subscriptionId}:`, stripeError);
+        failedCancellations.push({
+          subscriptionId,
+          error: stripeError.message || 'Unknown error',
+        });
+      }
+    }
+
+    // Log subscription cancellation results
+    if (cancelledSubscriptions.length > 0) {
+      console.log(`[Admin] Cancelled ${cancelledSubscriptions.length} subscription(s)`);
+    }
+    if (failedCancellations.length > 0) {
+      console.warn(
+        `[Admin] ⚠️ Failed to cancel ${failedCancellations.length} subscription(s):`,
+        failedCancellations
+      );
+    }
+
     // Delete user (cascade will handle related records)
     await db.query('DELETE FROM users WHERE id = $1', [userId]);
 
@@ -223,10 +264,31 @@ admin.delete('/users/:userId', requireAdmin, async (c) => {
     await db.query(
       `INSERT INTO admin_audit_log (action, resource_type, resource_id, admin_user_id, ip_address, old_values)
        VALUES ('user_deleted', 'user', $1, $2, $3, $4)`,
-      [userId, adminId, ipAddress, JSON.stringify({ email: user.email })]
+      [
+        userId,
+        adminId,
+        ipAddress,
+        JSON.stringify({
+          email: user.email,
+          cancelledSubscriptions,
+          failedCancellations,
+        }),
+      ]
     );
 
-    return success(c, { message: 'User deleted successfully' });
+    return success(c, {
+      message: 'User deleted successfully',
+      cancelledSubscriptions: cancelledSubscriptions.length,
+      failedCancellations: failedCancellations.length,
+      details:
+        failedCancellations.length > 0
+          ? {
+              warning:
+                'Some Stripe subscriptions could not be cancelled. They may need manual cancellation in Stripe Dashboard.',
+              failed: failedCancellations,
+            }
+          : undefined,
+    });
   } catch (error) {
     console.error('[Admin] Error deleting user:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to delete user');
