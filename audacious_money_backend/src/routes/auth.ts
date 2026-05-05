@@ -106,7 +106,7 @@ auth.post('/signup', validate(signupSchema), async (c) => {
       `
       INSERT INTO users (email, password_hash, first_name, last_name, company_name)
       VALUES ($1, $2, $3, $4, $5)
-      RETURNING id, email, first_name, last_name, company_name, support_key, email_verified, created_at
+      RETURNING id, email, first_name, last_name, company_name, support_key, email_verified, account_status, created_at
       `,
       [
         data.email,
@@ -120,7 +120,12 @@ auth.post('/signup', validate(signupSchema), async (c) => {
     console.log('[Auth] User inserted successfully. Rows returned:', result.rowCount);
 
     const user = result.rows[0];
-    console.log('[Auth] User data:', { id: user.id, email: user.email, supportKey: user.support_key });
+    console.log('[Auth] User data:', {
+      id: user.id,
+      email: user.email,
+      supportKey: user.support_key,
+      accountStatus: user.account_status
+    });
 
     // Track affiliate if provided
     if (data.affiliateCode) {
@@ -228,6 +233,7 @@ auth.post('/login', validate(loginSchema), async (c) => {
     }
 
     const user = result.rows[0];
+    console.log(`[Auth] Login attempt for user ${user.id} (${user.email}) - account_status: ${user.account_status}`);
 
     // Verify password using timing-safe comparison (do this before account status check)
     const isValidPassword = await timingSafeVerify(password, user.password_hash);
@@ -286,13 +292,17 @@ auth.post('/login', validate(loginSchema), async (c) => {
     }
 
     // Check if account is active (after potential reactivation)
+    console.log(`[Auth] Checking account_status for user ${user.id}: '${user.account_status}' (type: ${typeof user.account_status})`);
     if (user.account_status !== 'active') {
+      console.log(`[Auth] BLOCKED LOGIN - account_status is not 'active': '${user.account_status}'`);
       return forbidden(
         c,
         ErrorCodes.ACCOUNT_INACTIVE,
         'Your account is not active. Please contact support for assistance.'
       );
     }
+    console.log(`[Auth] Account status check passed for user ${user.id}`);
+
 
     // Clear any failed login attempts
     await clearFailedLogins(db, email);
