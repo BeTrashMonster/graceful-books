@@ -310,7 +310,19 @@ auth.post('/login', validate(loginSchema), async (c) => {
     // Generate JWT token
     const token = await generateUserToken(user.id, user.email);
 
-    // Get user's products
+    // First, check ALL products for this user (for debugging)
+    const allProductsResult = await db.query(
+      `SELECT up.product_id, up.status, p.name, p.slug
+       FROM user_products up
+       JOIN products p ON up.product_id = p.id
+       WHERE up.user_id = $1
+       ORDER BY up.activated_at DESC`,
+      [user.id]
+    );
+    console.log(`[Auth] DEBUG - ALL products for user ${user.id} (${allProductsResult.rowCount} total):`,
+      allProductsResult.rows.map(r => ({ name: r.name, slug: r.slug, status: r.status })));
+
+    // Get user's active/trial products
     const productsResult = await db.query(
       `SELECT up.product_id, up.status, p.name, p.slug
        FROM user_products up
@@ -320,7 +332,7 @@ auth.post('/login', validate(loginSchema), async (c) => {
       [user.id]
     );
 
-    console.log(`[Auth] Products query returned ${productsResult.rowCount} rows for user ${user.id}`);
+    console.log(`[Auth] Active/trial products query returned ${productsResult.rowCount} rows for user ${user.id}`);
 
     const products = productsResult.rows.map((row) => ({
       id: row.product_id,
