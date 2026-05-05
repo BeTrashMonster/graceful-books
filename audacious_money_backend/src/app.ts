@@ -37,8 +37,15 @@ app.use('*', securityHeadersMiddleware());
 // 2. Request ID (for tracing and logging)
 app.use('*', requestIdMiddleware);
 
-// 3. Logger (log all requests)
-app.use('*', logger());
+// 3. Logger (log all requests EXCEPT webhooks - webhooks need raw body for signature verification)
+app.use('*', async (c, next) => {
+  // Skip logger for webhook routes (they need raw body for signature verification)
+  if (c.req.path.startsWith('/webhooks')) {
+    await next();
+  } else {
+    return logger()(c, next);
+  }
+});
 
 // 4. CORS (allow only configured origins)
 app.use('*', corsMiddleware());
