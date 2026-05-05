@@ -271,7 +271,7 @@ users.delete('/me', async (c) => {
     const subscriptionsResult = await db.query(
       `SELECT stripe_subscription_id
        FROM user_products
-       WHERE user_id = $1 AND stripe_subscription_id IS NOT NULL AND status IN ('trial', 'active')`,
+       WHERE user_id = $1 AND stripe_subscription_id IS NOT NULL AND status IN ('trialing', 'active')`,
       [userId]
     );
 
@@ -295,7 +295,7 @@ users.delete('/me', async (c) => {
     await db.query(
       `UPDATE user_products
        SET status = 'cancelled', cancelled_at = NOW(), updated_at = NOW()
-       WHERE user_id = $1 AND status IN ('trial', 'active')`,
+       WHERE user_id = $1 AND status IN ('trialing', 'active')`,
       [userId]
     );
 
@@ -356,7 +356,7 @@ users.get('/me/subscription', async (c) => {
        FROM user_products up
        JOIN products p ON up.product_id = p.id
        JOIN users u ON up.user_id = u.id
-       WHERE up.user_id = $1 AND up.status IN ('trial', 'active', 'paused')
+       WHERE up.user_id = $1 AND up.status IN ('trialing', 'active', 'paused')
        ORDER BY up.activated_at DESC
        LIMIT 1`,
       [userId]
@@ -410,7 +410,7 @@ users.post('/me/subscription/pause', async (c) => {
        FROM user_products up
        JOIN users u ON up.user_id = u.id
        JOIN products p ON up.product_id = p.id
-       WHERE up.user_id = $1 AND up.status IN ('trial', 'active')
+       WHERE up.user_id = $1 AND up.status IN ('trialing', 'active')
        ORDER BY up.activated_at DESC
        LIMIT 1`,
       [userId]

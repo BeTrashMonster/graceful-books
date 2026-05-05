@@ -327,7 +327,7 @@ auth.post('/login', validate(loginSchema), async (c) => {
       `SELECT up.product_id, up.status, p.name, p.slug
        FROM user_products up
        JOIN products p ON up.product_id = p.id
-       WHERE up.user_id = $1 AND up.status IN ('trial', 'active')
+       WHERE up.user_id = $1 AND up.status IN ('trialing', 'active')
        ORDER BY up.activated_at DESC`,
       [user.id]
     );
