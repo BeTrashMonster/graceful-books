@@ -72,7 +72,8 @@
 }
 
 .trialInfo,
-.pausedInfo {
+.pausedInfo,
+.billingInfo {
   background: var(--color-background-secondary);
   padding: 1rem;
   border-radius: 8px;
@@ -80,14 +81,16 @@
 }
 
 .trialInfo p,
-.pausedInfo p {
+.pausedInfo p,
+.billingInfo p {
   margin: 0.5rem 0;
   font-size: 0.9rem;
   color: var(--color-text-secondary);
 }
 
 .trialInfo p:first-child,
-.pausedInfo p:first-child {
+.pausedInfo p:first-child,
+.billingInfo p:first-child {
   margin-top: 0;
   color: var(--color-text-primary);
 }

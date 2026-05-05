@@ -141,11 +141,21 @@ export function SubscriptionStatusCard({
           {subscription.status === 'trial' && subscription.trialEndsAt && (
             <div className={styles.trialInfo}>
               <p>
-                <strong>Trial ends:</strong>{' '}
+                <strong>Free trial ends:</strong>{' '}
                 {new Date(subscription.trialEndsAt).toLocaleDateString()}
               </p>
               <p className={styles.trialNote}>
                 You won't be charged until your trial ends. Cancel anytime.
+              </p>
+            </div>
+          )}
+
+          {/* Next Billing Date for Active Subscriptions */}
+          {subscription.status === 'active' && subscription.currentPeriodEnd && (
+            <div className={styles.billingInfo}>
+              <p>
+                <strong>Next billing date:</strong>{' '}
+                {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
               </p>
             </div>
           )}

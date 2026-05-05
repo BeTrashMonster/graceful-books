@@ -350,6 +350,7 @@ users.get('/me/subscription', async (c) => {
     const subscriptionResult = await db.query(
       `SELECT up.id, up.status, up.trial_ends_at, up.trial_converted, up.activated_at,
               up.paused_at, up.resumed_at, up.grace_period_ends_at, up.stripe_subscription_id,
+              up.current_period_end,
               p.id as product_id, p.name as product_name, p.slug as product_slug,
               p.price_monthly, u.is_beta
        FROM user_products up
@@ -381,6 +382,7 @@ users.get('/me/subscription', async (c) => {
         pausedAt: subscription.paused_at,
         resumedAt: subscription.resumed_at,
         gracePeriodEndsAt: subscription.grace_period_ends_at,
+        currentPeriodEnd: subscription.current_period_end,
         stripeSubscriptionId: subscription.stripe_subscription_id,
         isBeta: subscription.is_beta || false,
       },

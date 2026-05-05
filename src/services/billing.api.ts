@@ -19,6 +19,7 @@ export interface Subscription {
   pausedAt: string | null;
   resumedAt: string | null;
   gracePeriodEndsAt: string | null;
+  currentPeriodEnd: string | null;
   stripeSubscriptionId: string | null;
   isBeta: boolean;
 }
