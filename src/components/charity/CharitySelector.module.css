@@ -6,8 +6,9 @@
   padding: 1.5rem 1rem;
   border-radius: 1.5rem;
   position: relative;
-  overflow: visible;
-  min-height: 770px;
+  overflow: auto;
+  min-height: 850px;
+  max-height: 90vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,8 +26,8 @@
 /* THE CONSTELLATION - Perfect pentagon circle */
 .grid {
   position: relative;
-  width: 720px;
-  height: 720px;
+  width: 800px;
+  height: 800px;
   margin: 0 auto;
 }
 
