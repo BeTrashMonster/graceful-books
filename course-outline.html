@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Understanding Your True Costs - Course Outline</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #4b006e 0%, #1a0028 100%);
+      color: #1e293b;
+      line-height: 1.6;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 3px solid #D4AF37;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      color: #4b006e;
+      margin-bottom: 0.5rem;
+    }
+
+    .header .subtitle {
+      font-size: 1.25rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .header .duration {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.5rem 1.5rem;
+      background: #FFF8DC;
+      border: 2px solid #D4AF37;
+      border-radius: 50px;
+      font-weight: 600;
+      color: #4b006e;
+    }
+
+    .section {
+      margin-bottom: 2.5rem;
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 2rem;
+      padding: 2rem;
+      background: linear-gradient(135deg, #faf5ff 0%, #f9fafb 100%);
+      border-radius: 12px;
+      border-left: 5px solid #D4AF37;
+    }
+
+    .software-flow {
+      background: linear-gradient(135deg, #4b006e 0%, #6b21a8 100%);
+      padding: 1.5rem;
+      border-radius: 12px;
+      color: white;
+      box-shadow: 0 4px 12px rgba(75, 0, 110, 0.3);
+      height: fit-content;
+      position: sticky;
+      top: 2rem;
+    }
+
+    .software-flow-title {
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 1rem;
+      color: #D4AF37;
+      font-weight: 700;
+    }
+
+    .software-section {
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
+    }
+
+    .software-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .software-section-name {
+      font-weight: 600;
+      color: #D4AF37;
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .software-section-desc {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.4;
+    }
+
+    .section-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .section-number {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 50px;
+      font-weight: bold;
+      font-size: 1.5rem;
+      margin-right: 1rem;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.75rem;
+      color: #4b006e;
+      font-weight: 700;
+    }
+
+    .section-time {
+      font-size: 0.875rem;
+      color: #64748b;
+      font-weight: 600;
+      margin-left: auto;
+      padding: 0.25rem 0.75rem;
+      background: white;
+      border-radius: 20px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .section-intro {
+      font-size: 1.125rem;
+      color: #4b006e;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      border-left: 3px solid #D4AF37;
+    }
+
+    .topics {
+      list-style: none;
+      margin-left: 0;
+    }
+
+    .topics li {
+      padding: 0.75rem 0 0.75rem 2rem;
+      position: relative;
+      color: #334155;
+      font-size: 1rem;
+    }
+
+    .topics li:before {
+      content: "→";
+      position: absolute;
+      left: 0.5rem;
+      color: #D4AF37;
+      font-weight: bold;
+      font-size: 1.25rem;
+    }
+
+    .topics li strong {
+      color: #1e293b;
+      font-weight: 600;
+    }
+
+    .key-takeaway {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      background: linear-gradient(135deg, #FFF8DC 0%, #FFEFD5 100%);
+      border-radius: 8px;
+      border: 2px solid #D4AF37;
+    }
+
+    .key-takeaway-title {
+      font-weight: 700;
+      color: #4b006e;
+      margin-bottom: 0.75rem;
+      font-size: 1.125rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .key-takeaway-title:before {
+      content: "💡";
+      font-size: 1.5rem;
+    }
+
+    .key-takeaway p {
+      color: #1e293b;
+      font-weight: 500;
+      line-height: 1.7;
+    }
+
+    .insight-box {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+      border-radius: 8px;
+      border: 2px solid #3b82f6;
+    }
+
+    .insight-title {
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 0.75rem;
+      font-size: 1.125rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .insight-title:before {
+      content: "🔍";
+      font-size: 1.5rem;
+    }
+
+    .insight-box ul {
+      margin-left: 1.5rem;
+      color: #1e3a8a;
+    }
+
+    .insight-box li {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 2px solid #e2e8f0;
+      text-align: center;
+    }
+
+    .footer-title {
+      font-size: 1.5rem;
+      color: #4b006e;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .footer-content {
+      font-size: 1.125rem;
+      color: #64748b;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    .footer-content strong {
+      color: #D4AF37;
+      font-weight: 700;
+    }
+
+    @media (max-width: 1200px) {
+      .section {
+        grid-template-columns: 1fr;
+      }
+
+      .software-flow {
+        position: relative;
+        top: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Understanding Your True Costs</h1>
+      <p class="subtitle">A Practical Guide for Food & CPG Entrepreneurs</p>
+      <span class="duration">⏱ 60-90 Minutes</span>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="section">
+      <div class="software-flow">
+        <div class="software-flow-title">🖥️ In The Software</div>
+        <div class="software-section">
+          <div class="software-section-name">Dashboard Overview</div>
+          <div class="software-section-desc">Starting point - we'll look at the big picture before diving into details</div>
+        </div>
+      </div>
+
+      <div class="section-content">
+        <div class="section-header">
+          <span class="section-number">1</span>
+          <h2 class="section-title">The Complete Picture</h2>
+          <span class="section-time">10 min</span>
+        </div>
+
+        <p class="section-intro">
+          <strong>The Starting Point:</strong> Most entrepreneurs start with a simple calculation:
+          "I sell this for $20, materials cost $8, so I'm making $12." Let's explore what else might be part of that picture.
+        </p>
+
+        <ul class="topics">
+          <li><strong>The Iceberg Metaphor:</strong> Materials are the visible tip - but there's so much more below the surface</li>
+          <li><strong>A Common Story:</strong> Meet a maker who was surprised to discover additional costs they hadn't been tracking</li>
+          <li><strong>The Three Often-Overlooked Categories:</strong>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+              <li>The time invested in making each unit (production labor)</li>
+              <li>The full journey to the customer (all distribution touchpoints)</li>
+              <li>The shared business costs spread across all products (overhead allocation)</li>
+            </ul>
+          </li>
+        </ul>
+
+        <div class="key-takeaway">
+          <div class="key-takeaway-title">Why This Matters</div>
+          <p>
+            Having a complete view of costs helps you make informed decisions about pricing, which products to focus on,
+            and where to invest your energy. It's not about judgment - it's about clarity.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="section">
+      <div class="software-flow">
+        <div class="software-flow-title">🖥️ In The Software</div>
+        <div class="software-section">
+          <div class="software-section-name">📦 My Finished Products</div>
+          <div class="software-section-desc">Where you'll define your products and their components</div>
+        </div>
+        <div class="software-section">
+          <div class="software-section-name">🧾 Recipe Builder</div>
+          <div class="software-section-desc">Breaking down material costs ingredient by ingredient</div>
+        </div>
+        <div class="software-section">
+          <div class="software-section-name">👥 Labor Roles</div>
+          <div class="software-section-desc">Tracking production time and labor investment</div>
+        </div>
+      </div>
+
+      <div class="section-content">
+        <div class="section-header">
+          <span class="section-number">2</span>
+          <h2 class="section-title">Understanding Cost Per Unit</h2>
+          <span class="section-time">15 min</span>
+        </div>
+
+        <p class="section-intro">
+          <strong>The Foundation:</strong> Knowing what it truly costs to make one unit helps you understand
+          profitability and make better business decisions.
+        </p>
+
+        <ul class="topics">
+          <li><strong>Material Costs - The Starting Point:</strong>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+              <li>Ingredients, raw materials, packaging, labels</li>
+              <li>Considering yield and waste (not every recipe turns out perfectly every time)</li>
+              <li>Partial containers and samples (these are real costs too)</li>
+            </ul>
+          </li>
+          <li><strong>Labor Costs - Your Time Has Value:</strong>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+              <li>Production time: mixing, cooking, assembling, packaging, labeling</li>
+              <li>Why tracking this matters even when you're doing the work yourself</li>
+              <li>Thinking ahead: "If my business grows, what would this labor cost?"</li>
+            </ul>
+          </li>
+          <li><strong>Distribution Costs - The Journey to Your Customer:</strong>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+              <li>Direct delivery (shipping, fuel, vehicle costs, samples at events)</li>
+              <li>Marketing and visibility (demos, booth fees, promotional materials)</li>
+              <li>Working with partners (retail margins, distributor fees, marketplace commissions - these partners provide real value through shelf space, logistics, and customer access)</li>
+            </ul>
+          </li>
+          <li><strong>Understanding Different Sales Channels:</strong> Each avenue has its own unique cost structure
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+              <li><strong>E-commerce:</strong> Website platform fees, payment processing, shipping materials, return handling, customer service time</li>
+              <li><strong>Markets & Events:</strong> Booth fees, travel/lodging, setup time, sampling costs, display materials, time spent at event</li>
+              <li><strong>Distributors:</strong> Distributor margin (typically 20-30%), freight to distributor warehouse, promotional allowances, slotting fees</li>
+              <li><strong>Retailers:</strong> Retail margin (typically 40-50%), promotional support, merchandising materials, potential buybacks</li>
+              <li><strong>Bulk/Wholesale Direct:</strong> Lower per-unit price, larger production runs, shipping logistics, payment terms (net 30/60)</li>
+              <li><strong>Why this matters:</strong> The same product can have dramatically different profitability depending on the channel - understanding this helps you make strategic choices about where to focus</li>
+            </ul>
+          </li>
+        </ul>
+
+        <div class="key-takeaway">
+          <div class="key-takeaway-title">The Complete Formula</div>
+          <p>
+            <strong>True Cost Per Unit = Materials + Labor + Distribution</strong><br><br>
+            This isn't about making you feel bad about what you haven't tracked - it's about giving you
+            the full picture moving forward. Every entrepreneur starts somewhere, and awareness is the first step.
+          </p>
+        </div>
+
+        <div class="insight-box">
+          <div class="insight-title">Common Discoveries</div>
+          <ul>
+            <li>Many entrepreneurs find their labor is their largest cost component</li>
+            <li>Distribution costs often vary significantly by channel - and that's normal</li>
+            <li>Partners in your supply chain (retailers, distributors) add real value through access to customers and infrastructure</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="section">
+      <div class="software-flow">
+        <div class="software-flow-title">🖥️ In The Software</div>
+        <div class="software-section">
+          <div class="software-section-name">💰 Distribution Channels</div>
+          <div class="software-section-desc">Comparing how different sales channels affect your margins</div>
+        </div>
+        <div class="software-section">
+          <div class="software-section-name">📊 CPU Tracker</div>
+          <div class="software-section-desc">Seeing your cost per unit in real-time as you adjust variables</div>
+        </div>
+      </div>
+
+      <div class="section-content">
+        <div class="section-header">
+          <span class="section-number">3</span>
+          <h2 class="section-title">Pricing With Confidence</h2>
+          <span class="section-time">15 min</span>
+        </div>
+
+        <p class="section-intro">
+          <strong>Finding Your Number:</strong> Pricing is part math, part market reality, and part strategy.
+          Let's explore how to think about it.
+        </p>
+
+        <ul class="topics">
+          <li><strong>The Math Foundation:</strong> Cost + Desired Profit Margin gives you a starting point</li>
+          <li><strong>Market Conversation:</strong>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+              <li>Understanding what your target customers value and can invest</li>
+              <li>If the market price is lower than your cost + margin: you have choices to explore (reduce costs, find different customers, or pivot to different products)</li>
+            </ul>
+          </li>
+          <li><strong>Different Channels, Different Economics:</strong>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+              <li>E-commerce, markets/events, retailers, distributors, bulk/wholesale - each has unique costs and margins</li>
+              <li>Example: A product that's profitable on e-commerce might lose money through distribution (due to margin structure), and that's important information</li>
+              <li>Each channel has different costs and requires different pricing - this is normal business practice</li>
+              <li>Understanding which channels work best for your products and business model allows you to focus your energy where it makes the most sense</li>
+            </ul>
+          </li>
+          <li><strong>Strategic Choices:</strong> Sometimes saying "this isn't the right fit" to certain opportunities is a healthy business decision</li>
+        </ul>
+
+        <div class="key-takeaway">
+          <div class="key-takeaway-title">Your Pricing Strategy</div>
+          <p>
+            Sustainable pricing covers your costs and provides margin for reinvestment and growth.
+            Different prices for different channels isn't being inconsistent - it's recognizing that
+            each path to customers has different economics. You're building a business that can thrive
+            long-term, not just surviving day-to-day.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="section">
+      <div class="software-flow">
+        <div class="software-flow-title">🖥️ In The Software</div>
+        <div class="software-section">
+          <div class="software-section-name">📈 Promo Decision Tool</div>
+          <div class="software-section-desc">Evaluating whether promotional opportunities make financial sense</div>
+        </div>
+        <div class="software-section">
+          <div class="software-section-name">📊 Reports Dashboard</div>
+          <div class="software-section-desc">Monitoring trends and patterns over time</div>
+        </div>
+      </div>
+
+      <div class="section-content">
+        <div class="section-header">
+          <span class="section-number">4</span>
+          <h2 class="section-title">Reading Your Business Signals</h2>
+          <span class="section-time">15 min</span>
+        </div>
+
+        <p class="section-intro">
+          <strong>Pattern Recognition:</strong> Your numbers tell a story. Let's learn to listen to what they're saying.
+        </p>
+
+        <ul class="topics">
+          <li><strong>Patterns to Notice:</strong>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+              <li>Activity increasing but cash flow staying flat (or declining)</li>
+              <li>Some products feeling more rewarding than others to make/sell</li>
+              <li>Certain orders or channels feeling draining versus energizing</li>
+              <li>Inventory imbalances - always running out of one thing, never using another</li>
+            </ul>
+          </li>
+          <li><strong>Simple Tracking (Without Overwhelm):</strong>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+              <li>Which products/customers bring the best returns (not just highest revenue)</li>
+              <li>Where your time is actually flowing throughout the week</li>
+              <li>Which costs are changing month-to-month</li>
+            </ul>
+          </li>
+          <li><strong>The Monthly Check-In:</strong> Three key numbers to review each month to stay connected to your business health</li>
+        </ul>
+
+        <div class="insight-box">
+          <div class="insight-title">What Entrepreneurs Often Discover</div>
+          <ul>
+            <li>Sometimes the most popular product isn't the most profitable - and that's useful information</li>
+            <li>Time tracking can reveal surprising patterns about where energy is going</li>
+            <li>Small, consistent awareness beats intensive yearly analysis</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="section">
+      <div class="software-flow">
+        <div class="software-flow-title">🖥️ In The Software</div>
+        <div class="software-section">
+          <div class="software-section-name">🎯 Scenario Planning</div>
+          <div class="software-section-desc">Modeling "what-if" scenarios before committing resources</div>
+        </div>
+        <div class="software-section">
+          <div class="software-section-name">💡 Smart Alerts</div>
+          <div class="software-section-desc">Automated insights based on your data patterns</div>
+        </div>
+      </div>
+
+      <div class="section-content">
+        <div class="section-header">
+          <span class="section-number">5</span>
+          <h2 class="section-title">Making Informed Decisions</h2>
+          <span class="section-time">15 min</span>
+        </div>
+
+        <p class="section-intro">
+          <strong>From Uncertainty to Clarity:</strong> When you understand your costs, business decisions become clearer.
+        </p>
+
+        <ul class="topics">
+          <li><strong>Questions You Can Now Explore:</strong>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+              <li>"Should I buy in bulk?" → What's the real cost including storage, potential waste, and cash flow timing?</li>
+              <li>"Should I participate in this market/event?" → Does expected sales minus all costs create meaningful profit?</li>
+              <li>"Should I bring on help?" → What's the value of my time versus the investment in assistance?</li>
+              <li>"Should I develop this new product?" → Can I realistically sell enough at a sustainable price?</li>
+            </ul>
+          </li>
+          <li><strong>Evaluating Opportunities:</strong>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+              <li>Considering both financial return and strategic value</li>
+              <li>Sometimes learning opportunities are worth accepting lower margins - when it's intentional</li>
+            </ul>
+          </li>
+          <li><strong>Improving Margins Over Time:</strong>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+              <li>Where to look for efficiencies (without compromising what makes you special)</li>
+              <li>When price increases make sense (and how to communicate value)</li>
+              <li>Choosing work that aligns with your business goals</li>
+            </ul>
+          </li>
+        </ul>
+
+        <div class="key-takeaway">
+          <div class="key-takeaway-title">Empowered Decisions</div>
+          <p>
+            Understanding your costs isn't about limiting yourself - it's about making choices that align
+            with where you want your business to go. You can say yes to opportunities that serve your goals
+            and respectfully decline ones that don't. That's not being difficult - that's being intentional.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="section">
+      <div class="software-flow">
+        <div class="software-flow-title">🖥️ In The Software</div>
+        <div class="software-section">
+          <div class="software-section-name">✅ Getting Started Guide</div>
+          <div class="software-section-desc">Step-by-step walkthrough for your first product</div>
+        </div>
+        <div class="software-section">
+          <div class="software-section-name">🎯 Quick Wins Dashboard</div>
+          <div class="software-section-desc">Your personal progress and next steps</div>
+        </div>
+      </div>
+
+      <div class="section-content">
+        <div class="section-header">
+          <span class="section-number">6</span>
+          <h2 class="section-title">Your Next Steps (The 30-Day Journey)</h2>
+          <span class="section-time">10 min</span>
+        </div>
+
+        <p class="section-intro">
+          <strong>From Learning to Doing:</strong> Small, consistent steps create lasting change.
+        </p>
+
+        <ul class="topics">
+          <li><strong>Week 1:</strong> Choose ONE product to track completely. Follow it from raw materials to delivered product, noting time and touchpoints.</li>
+          <li><strong>Week 2:</strong> Calculate the complete cost per unit for that product. Materials + time investment + delivery costs.</li>
+          <li><strong>Week 3:</strong> Compare your current price to the complete cost. What story does the gap (or lack of gap) tell?</li>
+          <li><strong>Week 4:</strong> Make ONE informed decision based on what you learned. (Adjust a price, focus on a channel, optimize a process, etc.)</li>
+        </ul>
+
+        <div class="key-takeaway">
+          <div class="key-takeaway-title">The Transformation</div>
+          <p>
+            Thirty days of intentional awareness can shift how you see your entire business.
+            You'll move from wondering why things feel hard to understanding the specific dynamics at play.
+            This isn't about becoming perfect - it's about becoming more informed, more intentional,
+            and more connected to the business you're building.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <h3 class="footer-title">You're Building Something Important</h3>
+      <p class="footer-content">
+        You started your business because you had a vision - a product you believed in, customers you wanted to serve,
+        or simply the desire to build something of your own. Understanding your costs isn't about making you feel
+        behind or wrong. It's about giving you <strong>clarity and tools</strong> so you can keep building
+        sustainably. The numbers are just information. They help you see clearly so you can
+        make choices that align with your goals. <strong>You're doing important work.</strong>
+        Let's make sure it supports you as well as you support it.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
