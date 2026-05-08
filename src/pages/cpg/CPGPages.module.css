@@ -1,4 +1,6 @@
 .pageContainer {
   margin: 0 auto;
   padding: 2rem;
+  overflow-x: auto;
+  width: 100%;
 }
