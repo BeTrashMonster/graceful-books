@@ -535,3 +535,122 @@ export function getEmailSequenceDescription(): Array<{
     },
   ];
 }
+
+/**
+ * Send trial expiration email
+ *
+ * Sent when a workshop participant's trial period has ended.
+ * Content depends on the post_trial_action setting.
+ */
+export async function sendTrialExpirationEmail(
+  enrollment: any,
+  workshop: any
+): Promise<void> {
+  console.log('[WorkshopEmails] Sending trial expiration email for enrollment:', enrollment.id);
+
+  // Get user information
+  const db = await import('../../db/connection.js').then(m => m.getDbConnection());
+  const userResult = await db.query('SELECT * FROM users WHERE id = $1', [enrollment.user_id]);
+
+  if (userResult.rows.length === 0) {
+    throw new Error(`User ${enrollment.user_id} not found`);
+  }
+
+  const user = userResult.rows[0];
+  const firstName = user.first_name || user.email.split('@')[0];
+
+  // Determine email content based on post_trial_action
+  let subject: string;
+  let body: string;
+
+  if (workshop.post_trial_action === 'upgrade_prompt') {
+    subject = '[AM] Your free trial has ended';
+    body = `Hey ${firstName},
+
+Your free trial with Audacious Money has come to an end.
+
+But here's the thing — your journey doesn't have to stop here.
+
+**What you've accomplished:**
+✨ You completed the ${workshop.cohort_name}
+✨ You started understanding your business finances
+✨ You took the first brave steps toward financial confidence
+
+**What happens next is up to you.**
+
+You can upgrade to continue accessing:
+• All your financial data (safely encrypted and always yours)
+• Complete accounting tools and beautiful reports
+• Product cost calculator to understand your real numbers
+• $5/month automatically goes to ${user.selected_charity || 'your chosen charity'}
+
+**Ready to continue?**
+[Upgrade Now](${process.env.FRONTEND_URL}/workshops/upgrade)
+
+Take your time with this decision. We're here to support you.
+
+Questions? Just reply to this email — we're happy to chat.
+
+— Audacious Money Team`;
+  } else if (workshop.post_trial_action === 'freeze_access') {
+    subject = '[AM] Action required: Your trial has ended';
+    body = `Hey ${firstName},
+
+Your free trial with Audacious Money has ended.
+
+To continue accessing your financial data and all the tools you've been using, you'll need to upgrade to a paid subscription.
+
+**What you'll keep:**
+• All your data (it's yours, always)
+• Full platform access
+• Complete accounting features
+• Product cost calculator
+• $5/month to ${user.selected_charity || 'your chosen charity'}
+
+**Upgrade now to regain access:**
+[Continue Your Journey](${process.env.FRONTEND_URL}/workshops/upgrade)
+
+We're here if you have questions or need help deciding.
+
+— Audacious Money Team`;
+  } else {
+    // auto_convert
+    subject = '[AM] Welcome to your Audacious Money subscription!';
+    body = `Hey ${firstName},
+
+Your free trial has transitioned to a paid subscription — welcome aboard! 🎉
+
+**Nothing changes for you:**
+You keep all the access and features you've been using. Your subscription just continues seamlessly.
+
+**What you're supporting:**
+• Your own financial confidence and business growth
+• $5/month to ${user.selected_charity || 'your chosen charity'}
+• A platform built for entrepreneurs who want to understand their numbers
+
+You can manage your subscription anytime from your account settings.
+
+Questions? We're here to help — just reply to this email.
+
+Thank you for being part of Audacious Money!
+
+— Audacious Money Team`;
+  }
+
+  // Send email using Postmark
+  const emailService = await import('../email.service.js');
+
+  try {
+    await emailService.sendEmail({
+      to: user.email,
+      subject,
+      textBody: body,
+      htmlBody: body.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'),
+    });
+
+    console.log('[WorkshopEmails] Trial expiration email sent successfully to:', user.email);
+  } catch (error) {
+    console.error('[WorkshopEmails] Failed to send trial expiration email:', error);
+    throw error;
+  }
+}

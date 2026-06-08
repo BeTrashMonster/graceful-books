@@ -857,4 +857,258 @@ Building financial confidence, one step at a time.
   }
 });
 
+// =============================================================================
+// TRIAL MANAGEMENT & CONVERSION ENDPOINTS
+// =============================================================================
+
+/**
+ * GET /api/workshops/enrollments/:id/trial-status
+ *
+ * Get trial status for a specific enrollment (user or admin)
+ */
+workshops.get('/enrollments/:id/trial-status', requireAuth, async (c) => {
+  const enrollmentId = c.req.param('id');
+  const db = c.get('db');
+  const userId = c.get('userId');
+
+  try {
+    // Get enrollment with workshop info
+    const result = await db.query(
+      `SELECT we.*, w.cohort_name, w.post_trial_action
+       FROM workshop_enrollments we
+       JOIN workshops w ON we.workshop_id = w.id
+       WHERE we.id = $1`,
+      [enrollmentId]
+    );
+
+    if (result.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Enrollment not found');
+    }
+
+    const enrollment = result.rows[0];
+
+    // Check authorization: user must own the enrollment or be admin
+    const isOwner = enrollment.user_id === userId;
+    const adminUser = c.get('adminUser');
+
+    if (!isOwner && !adminUser) {
+      return unauthorized(c, ErrorCodes.UNAUTHORIZED, 'Not authorized to view this enrollment');
+    }
+
+    // Calculate trial status
+    const now = new Date();
+    const trialExpiresAt = enrollment.trial_expires_at ? new Date(enrollment.trial_expires_at) : null;
+    const isExpired = trialExpiresAt ? now > trialExpiresAt : false;
+    const daysRemaining = trialExpiresAt
+      ? Math.ceil((trialExpiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+      : null;
+
+    return success(c, {
+      trialStatus: {
+        enrollmentId: enrollment.id,
+        status: enrollment.status,
+        trialStartedAt: enrollment.trial_started_at,
+        trialExpiresAt: enrollment.trial_expires_at,
+        isExpired,
+        daysRemaining,
+        postTrialAction: enrollment.post_trial_action,
+        workshopName: enrollment.cohort_name,
+      },
+    });
+  } catch (error) {
+    console.error('[Workshops] Error getting trial status:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to get trial status');
+  }
+});
+
+/**
+ * POST /api/workshops/enrollments/:id/upgrade
+ *
+ * Process upgrade from trial to paid subscription
+ */
+workshops.post('/enrollments/:id/upgrade', requireAuth, async (c) => {
+  const enrollmentId = c.req.param('id');
+  const db = c.get('db');
+  const userId = c.get('userId');
+
+  try {
+    const body = await c.req.json();
+    const { paymentMethodId } = body;
+
+    if (!paymentMethodId) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Payment method ID is required');
+    }
+
+    // Get enrollment
+    const enrollmentResult = await db.query(
+      `SELECT we.*, w.cohort_name, w.post_trial_action
+       FROM workshop_enrollments we
+       JOIN workshops w ON we.workshop_id = w.id
+       WHERE we.id = $1`,
+      [enrollmentId]
+    );
+
+    if (enrollmentResult.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Enrollment not found');
+    }
+
+    const enrollment = enrollmentResult.rows[0];
+
+    // Check authorization
+    if (enrollment.user_id !== userId) {
+      return unauthorized(c, ErrorCodes.UNAUTHORIZED, 'Not authorized to upgrade this enrollment');
+    }
+
+    // Prevent duplicate conversions
+    if (enrollment.status === 'converted') {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Enrollment already converted to paid subscription');
+    }
+
+    // Get user info
+    const userResult = await db.query('SELECT * FROM users WHERE id = $1', [userId]);
+    const user = userResult.rows[0];
+
+    // TODO: Integrate with Stripe to create subscription
+    // This is a placeholder for Stripe subscription creation
+    // In production, you would:
+    // 1. Create/update Stripe customer
+    // 2. Attach payment method
+    // 3. Create subscription
+    // 4. Handle payment confirmation
+
+    console.log('[Workshops] Processing upgrade for enrollment:', enrollmentId);
+    console.log('[Workshops] Payment method:', paymentMethodId);
+    console.log('[Workshops] User:', user.email);
+
+    // Record conversion using conversion tracker
+    const { recordConversion } = await import('../services/workshops/conversionTracker.js');
+    const conversionMetrics = await recordConversion(enrollmentId, 'manual');
+
+    console.log('[Workshops] Conversion recorded:', conversionMetrics);
+
+    return success(c, {
+      message: 'Subscription upgrade successful',
+      conversion: conversionMetrics,
+    });
+  } catch (error) {
+    console.error('[Workshops] Error processing upgrade:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to process upgrade');
+  }
+});
+
+/**
+ * GET /api/admin/workshops/:id/conversions
+ *
+ * Get conversion data and metrics for a workshop (admin only)
+ */
+workshops.get('/admin/:id/conversions', requireAdmin, async (c) => {
+  const workshopId = c.req.param('id');
+
+  try {
+    // Import conversion tracker
+    const {
+      getWorkshopConversionReport,
+      getWorkshopConversionMetrics,
+      exportConversionData,
+    } = await import('../services/workshops/conversionTracker.js');
+
+    // Get conversion report
+    const report = await getWorkshopConversionReport(workshopId);
+
+    // Get detailed metrics
+    const metrics = await getWorkshopConversionMetrics(workshopId);
+
+    // Get export data
+    const exportData = await exportConversionData(workshopId);
+
+    return success(c, {
+      report,
+      metrics,
+      exportData,
+    });
+  } catch (error) {
+    console.error('[Workshops] Error getting conversion data:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to get conversion data');
+  }
+});
+
+/**
+ * GET /api/admin/workshops/conversions/stats
+ *
+ * Get overall conversion statistics across all workshops (admin only)
+ */
+workshops.get('/admin/conversions/stats', requireAdmin, async (c) => {
+  try {
+    const { getOverallConversionStatistics } = await import('../services/workshops/conversionTracker.js');
+    const stats = await getOverallConversionStatistics();
+
+    return success(c, { stats });
+  } catch (error) {
+    console.error('[Workshops] Error getting conversion statistics:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to get conversion statistics');
+  }
+});
+
+/**
+ * POST /api/admin/workshops/trials/check-expired
+ *
+ * Manually trigger trial expiration check (admin only)
+ * Useful for testing or if cron job fails
+ */
+workshops.post('/admin/trials/check-expired', requireAdmin, async (c) => {
+  try {
+    const { checkAndProcessExpiredTrials } = await import('../services/workshops/trialManager.js');
+    const summary = await checkAndProcessExpiredTrials();
+
+    return success(c, {
+      message: 'Trial expiration check completed',
+      summary,
+    });
+  } catch (error) {
+    console.error('[Workshops] Error checking expired trials:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to check expired trials');
+  }
+});
+
+/**
+ * GET /api/admin/workshops/trials/stats
+ *
+ * Get trial statistics (admin only)
+ */
+workshops.get('/admin/trials/stats', requireAdmin, async (c) => {
+  try {
+    const { getTrialStatistics } = await import('../services/workshops/trialManager.js');
+    const stats = await getTrialStatistics();
+
+    return success(c, { stats });
+  } catch (error) {
+    console.error('[Workshops] Error getting trial statistics:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to get trial statistics');
+  }
+});
+
+/**
+ * POST /api/admin/workshops/enrollments/:id/expire-trial
+ *
+ * Manually expire a trial (admin only)
+ * Useful for testing or manual intervention
+ */
+workshops.post('/admin/enrollments/:id/expire-trial', requireAdmin, async (c) => {
+  const enrollmentId = c.req.param('id');
+
+  try {
+    const { manuallyExpireTrial } = await import('../services/workshops/trialManager.js');
+    await manuallyExpireTrial(enrollmentId);
+
+    return success(c, {
+      message: 'Trial expired successfully',
+      enrollmentId,
+    });
+  } catch (error) {
+    console.error('[Workshops] Error expiring trial:', error);
+    const message = error instanceof Error ? error.message : 'Failed to expire trial';
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, message);
+  }
+});
+
 export default workshops;
