@@ -138,16 +138,16 @@ export default function RawMaterialsTab({
     let filtered = invoices.filter(inv => {
       // Date filter
       const invDate = new Date(inv.invoice_date);
-      const startDate = new Date(rawMaterialsDateRange.start);
-      const endDate = new Date(rawMaterialsDateRange.end);
-      // Set endDate to end of day (23:59:59.999) to include all invoices on that date
-      endDate.setHours(23, 59, 59, 999);
+      const startDate = new Date(rawMaterialsDateRange.start + 'T00:00:00.000Z'); // Midnight UTC
+      const endDate = new Date(rawMaterialsDateRange.end + 'T23:59:59.999Z'); // End of day UTC
+
       if (invDate < startDate || invDate > endDate) {
         console.log('📅 Invoice filtered out by date:', {
           invoiceDate: inv.invoice_date,
           invoiceDateFormatted: new Date(inv.invoice_date).toISOString(),
           startDate: startDate.toISOString(),
           endDate: endDate.toISOString(),
+          comparison: `${invDate < startDate ? 'before start' : ''} ${invDate > endDate ? 'after end' : ''}`,
         });
         return false;
       }

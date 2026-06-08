@@ -436,7 +436,7 @@ export default function CPUTracker() {
               onClick={() => setShowInvoiceForm(true)}
               iconBefore={<span aria-hidden="true">+</span>}
             >
-              New Invoice
+              Add Purchased Materials
             </Button>
           </div>
         </div>
@@ -503,7 +503,7 @@ export default function CPUTracker() {
                 onClick={() => handleTabChange('raw-materials')}
                 className={activeTab === 'raw-materials' ? styles.tabActive : styles.tab}
               >
-                Invoices
+                Material Purchased
                 <PinIcon
                   isPinned={pinnedTabs['raw-materials'] || false}
                   onClick={() => handlePinToggle('raw-materials')}
@@ -612,7 +612,7 @@ export default function CPUTracker() {
               onClick={() => setShowInvoiceForm(true)}
               iconBefore={<span aria-hidden="true">+</span>}
             >
-              Enter Your First Invoice
+              Enter Your First Material Purchase
             </Button>
           </div>
         )}
