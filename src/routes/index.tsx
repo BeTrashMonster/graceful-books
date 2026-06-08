@@ -43,6 +43,8 @@ const AdminCharities = lazy(() => import('../pages/admin/AdminCharities'))
 const AdminCharityDashboard = lazy(() => import('../pages/admin/AdminCharityDashboard'))
 const AdminLogin = lazy(() => import('../pages/admin/AdminLogin'))
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'))
+const WorkshopsPage = lazy(() => import('../pages/admin/WorkshopsPage'))
+const WorkshopEnrollmentsPage = lazy(() => import('../pages/admin/WorkshopEnrollmentsPage'))
 const DevTools = lazy(() => import('../pages/DevTools'))
 
 // CPG Module Pages
@@ -102,6 +104,8 @@ export function AppRoutes() {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/charities" element={<AdminCharityDashboard />} />
+        <Route path="/admin/workshops" element={<WorkshopsPage />} />
+        <Route path="/admin/workshops/:id/enrollments" element={<WorkshopEnrollmentsPage />} />
 
         {/* Developer tools - accessible without full layout */}
         <Route path="/dev-tools" element={<DevTools />} />

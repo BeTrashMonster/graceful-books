@@ -478,6 +478,21 @@ export default function AdminDashboard() {
           </div>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button
+              onClick={() => navigate('/admin/workshops')}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+              }}
+            >
+              🎓 Workshop Management
+            </button>
+            <button
               onClick={() => navigate('/admin/charities')}
               style={{
                 padding: '0.5rem 1rem',
