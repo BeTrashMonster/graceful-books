@@ -144,7 +144,7 @@ class SmartAutoBackupService {
    */
   private setupChangeTracking(): void {
     // Subscribe to database changes
-    // Dexie emits 'changes' event when data is modified
+    // Use Dexie's table hooks instead of global changes event
     const dbChangesHandler = () => {
       this.changesSinceBackup++;
       backupLogger.debug('Data change detected', {
@@ -162,10 +162,20 @@ class SmartAutoBackupService {
       }
     };
 
-    // Hook into Dexie's on.changes event
-    if (db.on) {
-      this.unsubscribeDbChanges = db.on('changes', dbChangesHandler);
-    }
+    // Hook into Dexie table hooks for change detection
+    // Track changes on critical tables
+    const tables = [db.transactions, db.accounts, db.invoices, db.cpgInvoices];
+
+    tables.forEach(table => {
+      if (table) {
+        // Hook into creating, updating, and deleting hooks
+        table.hook('creating', dbChangesHandler);
+        table.hook('updating', dbChangesHandler);
+        table.hook('deleting', dbChangesHandler);
+      }
+    });
+
+    backupLogger.info('Change tracking setup complete');
   }
 
   /**
