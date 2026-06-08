@@ -165,7 +165,7 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
     try {
       console.log('📖 Loading backup history from IndexedDB for companyId:', companyId)
       const db = await openDB('GracefulBooksBackupHistory', 2, {
-        upgrade(db, oldVersion) {
+        upgrade(db, oldVersion, newVersion, transaction) {
           console.log('🔧 Upgrading backup history database from version', oldVersion)
 
           // Create store if it doesn't exist (version 1)
@@ -176,9 +176,9 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
             console.log('✨ Backup history object store created')
           } else if (oldVersion < 2) {
             // Add companyId index for existing databases (version 2 upgrade)
-            const transaction = db.transaction.objectStore('backups')
-            if (!transaction.indexNames.contains('companyId')) {
-              transaction.createIndex('companyId', 'companyId', { unique: false })
+            const store = transaction.objectStore('backups')
+            if (!store.indexNames.contains('companyId')) {
+              store.createIndex('companyId', 'companyId', { unique: false })
               console.log('✨ Added companyId index to existing backup history')
             }
           }
@@ -218,7 +218,7 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
     try {
       console.log('💾 Attempting to save backup to history:', entry)
       const db = await openDB('GracefulBooksBackupHistory', 2, {
-        upgrade(db, oldVersion) {
+        upgrade(db, oldVersion, newVersion, transaction) {
           console.log('🔧 Creating backup history database...')
 
           // Create store if it doesn't exist (version 1)
@@ -229,9 +229,9 @@ export function DataSafetyPanel({ companyId, onSettingsChange }: DataSafetyPanel
             console.log('✨ Backup history object store created')
           } else if (oldVersion < 2) {
             // Add companyId index for existing databases (version 2 upgrade)
-            const transaction = db.transaction.objectStore('backups')
-            if (!transaction.indexNames.contains('companyId')) {
-              transaction.createIndex('companyId', 'companyId', { unique: false })
+            const store = transaction.objectStore('backups')
+            if (!store.indexNames.contains('companyId')) {
+              store.createIndex('companyId', 'companyId', { unique: false })
               console.log('✨ Added companyId index to existing backup history')
             }
           }
