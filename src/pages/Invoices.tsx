@@ -20,7 +20,9 @@ import {
 } from '../store/invoices';
 import { getCustomers } from '../store/contacts';
 import { useAuth } from '../contexts/AuthContext';
+import { db } from '../db/database';
 import type { Invoice, InvoiceLineItem } from '../db/schema/invoices.schema';
+import type { CPGInvoice } from '../db/schema/cpg.schema';
 import { generateInvoiceNumber, calculateInvoiceTotals } from '../db/schema/invoices.schema';
 import { nanoid } from 'nanoid';
 
@@ -31,6 +33,7 @@ export default function Invoices() {
   const companyId = authCompanyId || 'demo-company';
 
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [cpgInvoices, setCpgInvoices] = useState<CPGInvoice[]>([]);
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -56,6 +59,21 @@ export default function Invoices() {
 
   useEffect(() => {
     loadData();
+
+    // Listen for CPG invoice updates from CPU Tracker
+    const handleCPGUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent<{ type: string }>;
+      if (customEvent.detail.type === 'invoice') {
+        console.log('🔄 CPG invoice updated, reloading...');
+        loadData();
+      }
+    };
+
+    window.addEventListener('cpg-data-updated', handleCPGUpdate);
+
+    return () => {
+      window.removeEventListener('cpg-data-updated', handleCPGUpdate);
+    };
   }, []);
 
   const loadData = async () => {
@@ -74,6 +92,21 @@ export default function Invoices() {
       if (customersResult.success) {
         setCustomers(customersResult.data);
       }
+
+      // Also load CPG invoices (from CPU Tracker)
+      const cpgInvoicesList = await db.cpgInvoices
+        .where('company_id')
+        .equals(companyId)
+        .and(invoice => !invoice.deleted_at) // Exclude soft-deleted
+        .toArray();
+
+      setCpgInvoices(cpgInvoicesList);
+
+      console.log('📊 Loaded invoices:', {
+        regularInvoices: invoicesResult.success ? invoicesResult.data.length : 0,
+        cpgInvoices: cpgInvoicesList.length,
+        total: (invoicesResult.success ? invoicesResult.data.length : 0) + cpgInvoicesList.length
+      });
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
@@ -160,6 +193,32 @@ export default function Invoices() {
     label: c.name,
   }));
 
+  // Merge regular invoices and CPG invoices for display
+  // Convert CPG invoices to Invoice format for display
+  const allInvoices: Invoice[] = [
+    ...invoices,
+    ...cpgInvoices.map((cpgInv): Invoice => ({
+      id: cpgInv.id,
+      companyId: cpgInv.company_id,
+      customerId: cpgInv.vendor_name || 'Unknown Vendor', // CPG invoices use vendor_name instead of customerId
+      invoiceNumber: cpgInv.invoice_number || '',
+      invoiceDate: cpgInv.invoice_date,
+      dueDate: cpgInv.invoice_date + (30 * 24 * 60 * 60 * 1000), // Default to 30 days for CPG invoices
+      lineItems: [], // CPG invoices use cost_attribution instead of line items
+      subtotal: cpgInv.total_paid.toString(),
+      tax: '0.00',
+      total: cpgInv.total_paid.toString(),
+      status: 'paid' as const, // CPG invoices are always paid
+      notes: cpgInv.notes,
+      templateId: 'classic',
+      paidAt: cpgInv.invoice_date, // Mark as paid on invoice date
+      createdAt: cpgInv.created_at,
+      updatedAt: cpgInv.updated_at,
+      versionVector: cpgInv.version_vector,
+      deletedAt: cpgInv.deleted_at,
+    }))
+  ].sort((a, b) => b.invoiceDate - a.invoiceDate); // Sort by invoice date descending
+
   return (
     <div className="p-6">
         <div className="flex justify-between items-center mb-6">
@@ -175,11 +234,19 @@ export default function Invoices() {
         {loading ? (
           <div>Loading invoices...</div>
         ) : (
-          <InvoiceList
-            invoices={invoices}
-            onSelect={() => {}}
-            onDelete={handleDeleteInvoice}
-          />
+          <>
+            {allInvoices.length === 0 ? (
+              <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <p className="text-gray-500">No invoices yet. Create your first invoice to get started!</p>
+              </div>
+            ) : (
+              <InvoiceList
+                invoices={allInvoices}
+                onSelect={() => {}}
+                onDelete={handleDeleteInvoice}
+              />
+            )}
+          </>
         )}
 
         <Modal
