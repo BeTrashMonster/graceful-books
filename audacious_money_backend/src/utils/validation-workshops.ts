@@ -72,9 +72,11 @@ export const enrollmentStatusSchema = z.enum(
 export const emailTemplateSchema = z.object({
   subject: z.string().min(1, 'Email subject is required').max(200, 'Subject must be less than 200 characters'),
   preheader: z.string().max(150, 'Preheader must be less than 150 characters').optional(),
-  htmlBody: z.string().min(1, 'Email body is required'),
-  plainTextBody: z.string().optional(),
+  htmlBody: z.string().min(1, 'Email body is required').max(100000, 'Email body must be less than 100KB'),
+  plainTextBody: z.string().max(50000, 'Plain text body must be less than 50KB').optional(),
   fromName: z.string().max(100, 'From name must be less than 100 characters').optional(),
+  fromEmail: z.string().email('Must be a valid email address').optional(),
+  replyTo: z.string().email('Must be a valid email address').optional(),
 });
 
 /**
@@ -90,7 +92,17 @@ export const emailTemplatesSchema = z
     week4: emailTemplateSchema.optional(),
     wrapUp: emailTemplateSchema.optional(),
   })
-  .optional();
+  .optional()
+  .refine(
+    (data) => {
+      if (!data) return true;
+      const jsonSize = JSON.stringify(data).length;
+      return jsonSize < 500000; // 500KB total for all email templates
+    },
+    {
+      message: 'Total email templates size must be less than 500KB',
+    }
+  );
 
 /**
  * Email schedule override schema
@@ -124,7 +136,11 @@ export const emailScheduleOverrideSchema = z
  */
 export const workshopResourceSchema = z.object({
   title: z.string().min(1, 'Resource title is required').max(200, 'Title must be less than 200 characters'),
-  url: z.string().url('Must be a valid URL'),
+  url: z
+    .string()
+    .url('Must be a valid URL')
+    .regex(/^https?:\/\//, 'URL must use HTTP or HTTPS protocol')
+    .max(2048, 'URL must be less than 2048 characters'),
   type: z.enum(['recording', 'slides', 'worksheet', 'other']).optional(),
   description: z.string().max(500, 'Description must be less than 500 characters').optional(),
 });

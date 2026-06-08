@@ -8,6 +8,7 @@ import { Hono } from 'hono';
 import type { HonoEnv } from '../types/hono.js';
 import { validate } from '../utils/validation.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
+import { rateLimiter } from '../middleware/rateLimit.js';
 import {
   success,
   badRequest,
@@ -418,8 +419,9 @@ workshops.delete('/:id', requireAdmin, async (c) => {
  * GET /api/workshops/slug/:slug
  *
  * Get workshop by slug (public for signup page)
+ * Rate limited to 100 requests per hour per IP
  */
-workshops.get('/slug/:slug', async (c) => {
+workshops.get('/slug/:slug', rateLimiter({ max: 100, window: 3600 }), async (c) => {
   const slug = c.req.param('slug');
   const db = c.get('db');
 
@@ -475,8 +477,9 @@ workshops.get('/slug/:slug', async (c) => {
  * POST /api/workshops/:id/enroll
  *
  * Enroll in a workshop (authenticated users)
+ * Rate limited to 5 requests per hour to prevent duplicate enrollments
  */
-workshops.post('/:id/enroll', requireAuth, async (c) => {
+workshops.post('/:id/enroll', requireAuth, rateLimiter({ max: 5, window: 3600 }), async (c) => {
   const workshopId = c.req.param('id');
   const userId = c.get('userId');
   const db = c.get('db');
@@ -680,8 +683,9 @@ workshops.put('/enrollments/:id/start-trial', requireAdmin, async (c) => {
  * POST /api/workshops/:id/emails/preview
  *
  * Get rendered email preview with template tags replaced (admin only)
+ * Rate limited to 20 requests per hour for admin testing
  */
-workshops.post('/:id/emails/preview', requireAdmin, async (c) => {
+workshops.post('/:id/emails/preview', requireAdmin, rateLimiter({ max: 20, window: 3600 }), async (c) => {
   const workshopId = c.req.param('id');
   const db = c.get('db');
 
@@ -750,8 +754,9 @@ workshops.post('/:id/emails/preview', requireAdmin, async (c) => {
  * POST /api/workshops/:id/emails/test
  *
  * Send test email to specified address (admin only)
+ * Rate limited to 10 requests per hour to prevent email spam
  */
-workshops.post('/:id/emails/test', requireAdmin, async (c) => {
+workshops.post('/:id/emails/test', requireAdmin, rateLimiter({ max: 10, window: 3600 }), async (c) => {
   const workshopId = c.req.param('id');
   const db = c.get('db');
 
@@ -1054,8 +1059,9 @@ workshops.get('/admin/conversions/stats', requireAdmin, async (c) => {
  *
  * Manually trigger trial expiration check (admin only)
  * Useful for testing or if cron job fails
+ * Rate limited to 5 requests per minute due to expensive database operation
  */
-workshops.post('/admin/trials/check-expired', requireAdmin, async (c) => {
+workshops.post('/admin/trials/check-expired', requireAdmin, rateLimiter({ max: 5, window: 60 }), async (c) => {
   try {
     const { checkAndProcessExpiredTrials } = await import('../services/workshops/trialManager.js');
     const summary = await checkAndProcessExpiredTrials();
