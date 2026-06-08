@@ -127,6 +127,14 @@ export default function RawMaterialsTab({
 
   // Filter and sort invoices (Single source of truth)
   const filteredRawMaterialInvoices = useMemo(() => {
+    console.log('📊 RawMaterialsTab - Filtering invoices:', {
+      totalInvoices: invoices.length,
+      dateRange: rawMaterialsDateRange,
+      vendorFilter: rawMaterialsVendorFilter,
+      categoryFilter: rawMaterialsCategoryFilter,
+      variantFilter: rawMaterialsVariantFilter,
+    });
+
     let filtered = invoices.filter(inv => {
       // Date filter
       const invDate = new Date(inv.invoice_date);
@@ -134,10 +142,18 @@ export default function RawMaterialsTab({
       const endDate = new Date(rawMaterialsDateRange.end);
       // Set endDate to end of day (23:59:59.999) to include all invoices on that date
       endDate.setHours(23, 59, 59, 999);
-      if (invDate < startDate || invDate > endDate) return false;
+      if (invDate < startDate || invDate > endDate) {
+        console.log('📅 Invoice filtered out by date:', {
+          invoiceDate: inv.invoice_date,
+          invoiceDateFormatted: new Date(inv.invoice_date).toISOString(),
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+        });
+        return false;
+      }
 
-      // Vendor filter (exact match, case-insensitive)
-      if (rawMaterialsVendorFilter && inv.vendor_name.toLowerCase() !== rawMaterialsVendorFilter.toLowerCase()) {
+      // Vendor filter (exact match, case-insensitive) - handle null vendor names
+      if (rawMaterialsVendorFilter && inv.vendor_name && inv.vendor_name.toLowerCase() !== rawMaterialsVendorFilter.toLowerCase()) {
         return false;
       }
 
@@ -160,6 +176,16 @@ export default function RawMaterialsTab({
       }
 
       return true;
+    });
+
+    console.log('✅ RawMaterialsTab - After filtering:', {
+      filteredCount: filtered.length,
+      filteredInvoices: filtered.map(inv => ({
+        id: inv.id,
+        date: new Date(inv.invoice_date).toISOString(),
+        vendor: inv.vendor_name,
+        total: inv.total_paid,
+      })),
     });
 
     // Sort invoices
