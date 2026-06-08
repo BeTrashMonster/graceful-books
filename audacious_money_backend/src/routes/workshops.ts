@@ -1117,4 +1117,167 @@ workshops.post('/admin/enrollments/:id/expire-trial', requireAdmin, async (c) =>
   }
 });
 
+// =============================================================================
+// HEALTH CHECK ENDPOINT
+// =============================================================================
+
+/**
+ * GET /api/workshops/health
+ *
+ * Health check endpoint for workshop system
+ * Returns status of database, email service, Stripe, and system metrics
+ */
+workshops.get('/health', async (c) => {
+  const startTime = Date.now();
+  const checks: any = {};
+  let overallStatus: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
+
+  // Check 1: Database connectivity
+  try {
+    const dbStart = Date.now();
+    const db = c.get('db');
+    await db.query('SELECT 1 as health');
+    const dbDuration = Date.now() - dbStart;
+
+    checks.database = {
+      status: 'healthy',
+      responseTime_ms: dbDuration,
+      details: 'Database connection successful',
+    };
+  } catch (error: any) {
+    checks.database = {
+      status: 'unhealthy',
+      error: error.message,
+      details: 'Database connection failed',
+    };
+    overallStatus = 'unhealthy';
+  }
+
+  // Check 2: Workshop tables exist
+  try {
+    const db = c.get('db');
+    const tablesResult = await db.query(`
+      SELECT COUNT(*) as table_count
+      FROM information_schema.tables
+      WHERE table_name IN ('workshops', 'workshop_enrollments')
+    `);
+    const tableCount = parseInt(tablesResult.rows[0].table_count);
+
+    checks.workshopTables = {
+      status: tableCount === 2 ? 'healthy' : 'unhealthy',
+      details: `${tableCount}/2 workshop tables found`,
+    };
+
+    if (tableCount !== 2 && overallStatus === 'healthy') {
+      overallStatus = 'degraded';
+    }
+  } catch (error: any) {
+    checks.workshopTables = {
+      status: 'unhealthy',
+      error: error.message,
+      details: 'Failed to check workshop tables',
+    };
+    if (overallStatus === 'healthy') overallStatus = 'degraded';
+  }
+
+  // Check 3: Email service configuration
+  try {
+    const postmarkApiKey = process.env.POSTMARK_API_KEY;
+
+    if (postmarkApiKey && postmarkApiKey !== 'your-postmark-api-key-here') {
+      checks.emailService = {
+        status: 'healthy',
+        details: 'Postmark API key configured',
+      };
+    } else {
+      checks.emailService = {
+        status: 'degraded',
+        details: 'Postmark API key not configured',
+      };
+      if (overallStatus === 'healthy') overallStatus = 'degraded';
+    }
+  } catch (error: any) {
+    checks.emailService = {
+      status: 'degraded',
+      error: error.message,
+      details: 'Email service check failed',
+    };
+    if (overallStatus === 'healthy') overallStatus = 'degraded';
+  }
+
+  // Check 4: Stripe service configuration
+  try {
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+
+    if (stripeSecretKey && stripeSecretKey.startsWith('sk_')) {
+      checks.stripeService = {
+        status: 'healthy',
+        details: 'Stripe API key configured',
+      };
+    } else {
+      checks.stripeService = {
+        status: 'degraded',
+        details: 'Stripe API key not configured',
+      };
+      if (overallStatus === 'healthy') overallStatus = 'degraded';
+    }
+  } catch (error: any) {
+    checks.stripeService = {
+      status: 'degraded',
+      error: error.message,
+      details: 'Stripe service check failed',
+    };
+    if (overallStatus === 'healthy') overallStatus = 'degraded';
+  }
+
+  // Check 5: Feature flags status
+  checks.featureFlags = {
+    WORKSHOP_SYSTEM_ENABLED: process.env.WORKSHOP_SYSTEM_ENABLED === 'true',
+    WORKSHOP_EMAILS_ENABLED: process.env.WORKSHOP_EMAILS_ENABLED === 'true',
+    WORKSHOP_TRIALS_ENABLED: process.env.WORKSHOP_TRIALS_ENABLED === 'true',
+    WORKSHOP_SIGNUP_ENABLED: process.env.WORKSHOP_SIGNUP_ENABLED === 'true',
+  };
+
+  // Check 6: System metrics
+  try {
+    const db = c.get('db');
+    const metricsResult = await db.query(`
+      SELECT
+        COUNT(*) FILTER (WHERE status = 'active' AND trial_expires_at > NOW()) as active_trials,
+        COUNT(*) FILTER (WHERE status IN ('enrolled', 'active') AND trial_expires_at < NOW()) as stuck_trials,
+        COUNT(*) FILTER (WHERE enrolled_at >= NOW() - INTERVAL '24 hours') as recent_signups
+      FROM workshop_enrollments
+    `);
+
+    const { active_trials, stuck_trials, recent_signups } = metricsResult.rows[0];
+
+    checks.metrics = {
+      activeTrials: parseInt(active_trials || '0'),
+      stuckTrials: parseInt(stuck_trials || '0'),
+      recentSignups: parseInt(recent_signups || '0'),
+    };
+
+    // Alert if stuck trials detected
+    if (parseInt(stuck_trials || '0') > 5) {
+      checks.metrics.warning = `${stuck_trials} expired trials not processed`;
+      if (overallStatus === 'healthy') overallStatus = 'degraded';
+    }
+  } catch (error: any) {
+    checks.metrics = {
+      status: 'error',
+      error: error.message,
+    };
+  }
+
+  const totalDuration = Date.now() - startTime;
+
+  return c.json({
+    status: overallStatus,
+    timestamp: new Date().toISOString(),
+    version: '1.0.0',
+    responseTime_ms: totalDuration,
+    checks,
+  });
+});
+
 export default workshops;
