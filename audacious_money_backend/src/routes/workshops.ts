@@ -672,4 +672,189 @@ workshops.put('/enrollments/:id/start-trial', requireAdmin, async (c) => {
   }
 });
 
+// =============================================================================
+// EMAIL PREVIEW & TESTING ENDPOINTS
+// =============================================================================
+
+/**
+ * POST /api/workshops/:id/emails/preview
+ *
+ * Get rendered email preview with template tags replaced (admin only)
+ */
+workshops.post('/:id/emails/preview', requireAdmin, async (c) => {
+  const workshopId = c.req.param('id');
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const { emailType, tagValues } = body;
+
+    if (!emailType) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Email type is required');
+    }
+
+    // Get workshop with email templates
+    const workshopResult = await db.query(
+      'SELECT custom_email_templates, cohort_name FROM workshops WHERE id = $1',
+      [workshopId]
+    );
+
+    if (workshopResult.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Workshop not found');
+    }
+
+    const workshop = workshopResult.rows[0];
+    const templates = workshop.custom_email_templates || {};
+    const template = templates[emailType];
+
+    if (!template) {
+      return notFound(c, ErrorCodes.NOT_FOUND, `Template for ${emailType} not found`);
+    }
+
+    // Replace template tags with provided values
+    const replaceTagsInText = (text: string, tags: Record<string, string>): string => {
+      let result = text;
+      Object.entries(tags).forEach(([tag, value]) => {
+        const regex = new RegExp(tag.replace(/[{}]/g, '\\$&'), 'g');
+        result = result.replace(regex, value);
+      });
+      return result;
+    };
+
+    const renderedSubject = replaceTagsInText(template.subject, tagValues);
+    const renderedPreheader = template.preheader
+      ? replaceTagsInText(template.preheader, tagValues)
+      : '';
+    const renderedHtmlBody = replaceTagsInText(template.htmlBody, tagValues);
+
+    // Generate plain text from HTML if not provided
+    let renderedPlainText = template.plainTextBody
+      ? replaceTagsInText(template.plainTextBody, tagValues)
+      : renderedHtmlBody.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+
+    return success(c, {
+      preview: {
+        subject: renderedSubject,
+        preheader: renderedPreheader,
+        htmlBody: renderedHtmlBody,
+        plainTextBody: renderedPlainText,
+      },
+    });
+  } catch (error) {
+    console.error('[Workshops] Error generating email preview:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to generate email preview');
+  }
+});
+
+/**
+ * POST /api/workshops/:id/emails/test
+ *
+ * Send test email to specified address (admin only)
+ */
+workshops.post('/:id/emails/test', requireAdmin, async (c) => {
+  const workshopId = c.req.param('id');
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const { emailType, recipientEmail, tagValues } = body;
+
+    if (!emailType || !recipientEmail) {
+      return badRequest(
+        c,
+        ErrorCodes.INVALID_INPUT,
+        'Email type and recipient email are required'
+      );
+    }
+
+    // Simple email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(recipientEmail)) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Invalid email address');
+    }
+
+    // Get workshop with email templates
+    const workshopResult = await db.query(
+      'SELECT custom_email_templates, cohort_name FROM workshops WHERE id = $1',
+      [workshopId]
+    );
+
+    if (workshopResult.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Workshop not found');
+    }
+
+    const workshop = workshopResult.rows[0];
+    const templates = workshop.custom_email_templates || {};
+    const template = templates[emailType];
+
+    if (!template) {
+      return notFound(c, ErrorCodes.NOT_FOUND, `Template for ${emailType} not found`);
+    }
+
+    // Replace template tags with provided values
+    const replaceTagsInText = (text: string, tags: Record<string, string>): string => {
+      let result = text;
+      Object.entries(tags).forEach(([tag, value]) => {
+        const regex = new RegExp(tag.replace(/[{}]/g, '\\$&'), 'g');
+        result = result.replace(regex, value);
+      });
+      return result;
+    };
+
+    const renderedSubject = replaceTagsInText(template.subject, tagValues);
+    const renderedHtmlBody = replaceTagsInText(template.htmlBody, tagValues);
+    const renderedPlainText = template.plainTextBody
+      ? replaceTagsInText(template.plainTextBody, tagValues)
+      : renderedHtmlBody.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+
+    // Send email via Postmark
+    const postmark = await import('postmark');
+    const client = new postmark.ServerClient(process.env.POSTMARK_SERVER_TOKEN || '');
+
+    const fromEmail = process.env.POSTMARK_FROM_EMAIL || 'noreply@audacious.money';
+    const fromName = template.fromName || 'Audacious Money Workshops';
+
+    await client.sendEmail({
+      From: `${fromName} <${fromEmail}>`,
+      To: recipientEmail,
+      Subject: `[TEST] ${renderedSubject}`,
+      HtmlBody: `
+        <div style="background-color: #fef3c7; padding: 16px; border-left: 4px solid #f59e0b; margin-bottom: 24px;">
+          <p style="margin: 0; font-weight: bold; color: #92400e;">🧪 TEST EMAIL</p>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #92400e;">
+            This is a test email from the Workshop Email Preview system.
+            Real emails will not include this banner.
+          </p>
+        </div>
+        ${renderedHtmlBody}
+        <hr style="border: none; border-top: 2px solid #D4AF37; margin: 30px 0;">
+        <p style="font-size: 12px; color: #9ca3af;">
+          Audacious Money<br>
+          Building financial confidence, one step at a time.
+        </p>
+      `,
+      TextBody: `
+[TEST EMAIL - This banner will not appear in real emails]
+
+${renderedPlainText}
+
+---
+Audacious Money
+Building financial confidence, one step at a time.
+      `,
+      MessageStream: 'outbound',
+    });
+
+    console.log('[Workshops] Test email sent to:', recipientEmail, 'for workshop:', workshopId);
+
+    return success(c, {
+      message: 'Test email sent successfully',
+      recipientEmail,
+    });
+  } catch (error) {
+    console.error('[Workshops] Error sending test email:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to send test email');
+  }
+});
+
 export default workshops;
