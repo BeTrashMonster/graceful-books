@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audacious Money - Data Recovery Mockup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .demo-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding: 2rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .demo-header h1 {
+      color: #4b006e;
+      margin-bottom: 0.5rem;
+    }
+
+    .demo-header p {
+      color: #8c8c8c;
+    }
+
+    .demo-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    .demo-button {
+      padding: 0.75rem 1.5rem;
+      border: 2px solid #4b006e;
+      background: white;
+      color: #4b006e;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .demo-button:hover {
+      background: #4b006e;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .demo-button.active {
+      background: linear-gradient(135deg, #4b006e 0%, #3a0054 100%);
+      color: white;
+    }
+
+    /* Recovery Modal Styles */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(75, 0, 110, 0.95) 0%,
+        rgba(58, 0, 84, 0.97) 100%
+      );
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1300;
+      animation: fadeIn 0.3s ease;
+      padding: 2rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: #ffffff;
+      border-radius: 1rem;
+      max-width: 560px;
+      width: 100%;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                  0 0 0 1px rgba(212, 175, 55, 0.2);
+      animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #4b006e 0%, #3a0054 100%);
+      padding: 3rem 2rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #d4af37, transparent);
+    }
+
+    .iconWrapper {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #d4af37 0%, #e6c766 100%);
+      border-radius: 50%;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3),
+                  0 0 0 4px rgba(255, 255, 255, 0.1);
+    }
+
+    .icon {
+      width: 44px;
+      height: 44px;
+      color: #4b006e;
+    }
+
+    .title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0 0 0.75rem;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0;
+      line-height: 1.6;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    /* Content */
+    .content {
+      padding: 2rem;
+      min-height: 200px;
+    }
+
+    .backupList {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .backupItem {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border: 2px solid #f0f0f0;
+      border-radius: 0.75rem;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .backupItem::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #d4af37, transparent);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .backupItem:hover {
+      border-color: #d4af37;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .backupItem:hover::before {
+      opacity: 1;
+    }
+
+    .backupItem.selected {
+      border-color: #4b006e;
+      border-width: 3px;
+      background: linear-gradient(
+        135deg,
+        rgba(75, 0, 110, 0.05) 0%,
+        rgba(212, 175, 55, 0.05) 100%
+      );
+      box-shadow: 0 4px 16px rgba(75, 0, 110, 0.15);
+    }
+
+    .backupItem.selected::before {
+      background: linear-gradient(90deg, #4b006e, #d4af37, #4b006e);
+      opacity: 1;
+    }
+
+    .backupInfo {
+      flex: 1;
+      text-align: left;
+    }
+
+    .backupTime {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #262626;
+      margin-bottom: 0.25rem;
+    }
+
+    .backupItem.selected .backupTime {
+      color: #4b006e;
+    }
+
+    .backupSize {
+      font-size: 0.875rem;
+      color: #8c8c8c;
+    }
+
+    .checkmark {
+      width: 24px;
+      height: 24px;
+      color: #d4af37;
+      flex-shrink: 0;
+      display: none; /* Hidden - user found it strange */
+    }
+
+    .moreBackups {
+      text-align: center;
+      color: #8c8c8c;
+      font-size: 0.875rem;
+      margin-top: 1rem;
+      margin-bottom: 0;
+    }
+
+    /* Footer */
+    .footer {
+      display: flex;
+      gap: 1rem;
+      padding: 1.5rem 2rem 2rem;
+      background: #fafafa;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .primaryButton,
+    .secondaryButton {
+      flex: 1;
+      padding: 0.875rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      position: relative;
+      overflow: hidden;
+      font-family: inherit;
+    }
+
+    .primaryButton {
+      background: linear-gradient(135deg, #4b006e 0%, #3a0054 100%);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(75, 0, 110, 0.2);
+    }
+
+    .primaryButton::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #d4af37, transparent);
+    }
+
+    .primaryButton:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(75, 0, 110, 0.3),
+                  0 0 0 2px rgba(212, 175, 55, 0.2);
+    }
+
+    .primaryButton:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .primaryButton:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .secondaryButton {
+      background: #ffffff;
+      color: #595959;
+      border: 2px solid #d9d9d9;
+    }
+
+    .secondaryButton:hover:not(:disabled) {
+      border-color: #4b006e;
+      color: #4b006e;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(75, 0, 110, 0.1);
+    }
+
+    .buttonIcon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .buttonSpinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Backup Status Indicator */
+    .statusIndicator {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(75, 0, 110, 0.95) 0%, rgba(58, 0, 84, 0.95) 100%);
+      color: #ffffff;
+      border-top: 2px solid #d4af37;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+      font-size: 14px;
+      z-index: 1400;
+      animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 320px;
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(100%) translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0) translateY(0);
+      }
+    }
+
+    .statusIcon {
+      width: 24px;
+      height: 24px;
+      color: #d4af37;
+    }
+
+    .statusContent {
+      flex: 1;
+    }
+
+    .statusTitle {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .statusTime {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <!-- Demo Header -->
+  <div class="demo-header">
+    <h1>💜 Audacious Money - Data Recovery Mockup</h1>
+    <p>Interactive preview of the backup recovery experience</p>
+    <div class="demo-buttons">
+      <button class="demo-button active" onclick="showRecovery()">Recovery Modal</button>
+      <button class="demo-button" onclick="showBackupNotification()">Backup Notification</button>
+      <button class="demo-button" onclick="showRestoringState()">Restoring State</button>
+    </div>
+  </div>
+
+  <!-- Recovery Modal -->
+  <div id="recoveryModal" class="overlay">
+    <div class="modal">
+      <!-- Header -->
+      <div class="header">
+        <div class="iconWrapper">
+          <svg class="icon" viewBox="0 0 24 24" fill="none">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"/>
+          </svg>
+        </div>
+        <h2 class="title">Well, That's Not Ideal...</h2>
+        <p class="subtitle">
+          Looks like your browser data got cleared (happens to the best of us!). Good news: We've got your backups right here. Pick one below to get your books back.
+        </p>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <div class="backupList">
+          <button class="backupItem selected" onclick="selectBackup(this)">
+            <div class="backupInfo">
+              <div class="backupTime">Today at 2:30 PM</div>
+              <div class="backupSize">3.2 MB</div>
+            </div>
+            <div class="checkmark">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+              </svg>
+            </div>
+          </button>
+
+          <button class="backupItem" onclick="selectBackup(this)">
+            <div class="backupInfo">
+              <div class="backupTime">Today at 1:45 PM</div>
+              <div class="backupSize">3.1 MB</div>
+            </div>
+            <div class="checkmark hidden">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+              </svg>
+            </div>
+          </button>
+
+          <button class="backupItem" onclick="selectBackup(this)">
+            <div class="backupInfo">
+              <div class="backupTime">Today at 12:15 PM</div>
+              <div class="backupSize">3.0 MB</div>
+            </div>
+            <div class="checkmark hidden">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+              </svg>
+            </div>
+          </button>
+
+          <button class="backupItem" onclick="selectBackup(this)">
+            <div class="backupInfo">
+              <div class="backupTime">Yesterday at 4:00 PM</div>
+              <div class="backupSize">2.9 MB</div>
+            </div>
+            <div class="checkmark hidden">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+              </svg>
+            </div>
+          </button>
+
+          <button class="backupItem" onclick="selectBackup(this)">
+            <div class="backupInfo">
+              <div class="backupTime">Jun 6 at 3:30 PM</div>
+              <div class="backupSize">2.8 MB</div>
+            </div>
+            <div class="checkmark hidden">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+              </svg>
+            </div>
+          </button>
+        </div>
+
+        <p class="moreBackups">+ 42 more backups available</p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <button class="secondaryButton" onclick="alert('Starting fresh!')">
+          Start Fresh Instead
+        </button>
+        <button id="restoreButton" class="primaryButton" onclick="toggleRestore()">
+          <svg class="buttonIcon" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd"/>
+          </svg>
+          <span id="restoreText">Restore My Books</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Backup Status Notification (hidden by default) -->
+  <div id="statusIndicator" class="statusIndicator hidden">
+    <div class="statusIcon">
+      <svg viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+      </svg>
+    </div>
+    <div class="statusContent">
+      <div class="statusTitle">Data Backed Up</div>
+      <div class="statusTime" id="statusTime">2:30:45 PM</div>
+    </div>
+  </div>
+
+  <script>
+    let isRestoring = false;
+
+    function selectBackup(element) {
+      // Remove selected from all
+      document.querySelectorAll('.backupItem').forEach(item => {
+        item.classList.remove('selected');
+      });
+
+      // Add selected to clicked
+      element.classList.add('selected');
+    }
+
+    function toggleRestore() {
+      const button = document.getElementById('restoreButton');
+      const text = document.getElementById('restoreText');
+
+      if (!isRestoring) {
+        isRestoring = true;
+        button.disabled = true;
+        text.innerHTML = '';
+
+        const spinner = document.createElement('div');
+        spinner.className = 'buttonSpinner';
+        button.insertBefore(spinner, text);
+
+        const restoringText = document.createTextNode(' Restoring Your Data...');
+        text.appendChild(restoringText);
+
+        // Simulate restore completion
+        setTimeout(() => {
+          alert('✨ Restore complete! Your books are back.');
+          document.getElementById('recoveryModal').classList.add('hidden');
+          showBackupNotification();
+        }, 3000);
+      }
+    }
+
+    function showRecovery() {
+      isRestoring = false;
+      document.getElementById('recoveryModal').classList.remove('hidden');
+      document.getElementById('statusIndicator').classList.add('hidden');
+
+      // Reset button
+      const button = document.getElementById('restoreButton');
+      const text = document.getElementById('restoreText');
+      button.disabled = false;
+      const spinner = button.querySelector('.buttonSpinner');
+      if (spinner) spinner.remove();
+      text.innerHTML = 'Restore My Books';
+
+      const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      icon.setAttribute('class', 'buttonIcon');
+      icon.setAttribute('viewBox', '0 0 20 20');
+      icon.setAttribute('fill', 'currentColor');
+      icon.innerHTML = '<path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd"/>';
+      button.insertBefore(icon, text);
+
+      // Update demo buttons
+      document.querySelectorAll('.demo-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.demo-button')[0].classList.add('active');
+    }
+
+    function showBackupNotification() {
+      document.getElementById('recoveryModal').classList.add('hidden');
+      const indicator = document.getElementById('statusIndicator');
+      indicator.classList.remove('hidden');
+
+      // Update time
+      const now = new Date();
+      document.getElementById('statusTime').textContent = now.toLocaleTimeString();
+
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        indicator.classList.add('hidden');
+      }, 5000);
+
+      // Update demo buttons
+      document.querySelectorAll('.demo-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.demo-button')[1].classList.add('active');
+    }
+
+    function showRestoringState() {
+      showRecovery();
+      setTimeout(() => {
+        toggleRestore();
+      }, 500);
+
+      // Update demo buttons
+      document.querySelectorAll('.demo-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.demo-button')[2].classList.add('active');
+    }
+  </script>
+</body>
+</html>

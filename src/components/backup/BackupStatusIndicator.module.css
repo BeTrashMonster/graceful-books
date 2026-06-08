@@ -1,0 +1,109 @@
+/* ==========================================================================
+   Backup Status Indicator Styles
+   Brand: Royal Purple (#4b006e) + Gold (#d4af37)
+   Subtle, non-intrusive notification in bottom-right corner
+   ========================================================================== */
+
+.indicator {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  font-size: 14px;
+  z-index: var(--z-tooltip, 1400);
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 320px;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+}
+
+.success {
+  background: linear-gradient(135deg, rgba(75, 0, 110, 0.95) 0%, rgba(58, 0, 84, 0.95) 100%);
+  color: #ffffff;
+  border-top: 2px solid #d4af37;
+}
+
+.error {
+  background: linear-gradient(135deg, rgba(245, 34, 45, 0.95) 0%, rgba(207, 19, 34, 0.95) 100%);
+  color: #ffffff;
+  border-top: 2px solid #ffccc7;
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.success .icon {
+  color: #d4af37;
+}
+
+.error .icon {
+  color: #ffffff;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-weight: 600;
+  margin-bottom: 2px;
+  font-size: 14px;
+}
+
+.time {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.closeButton {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: currentColor;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton:hover {
+  opacity: 1;
+}
+
+.closeButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .indicator {
+    bottom: 16px;
+    right: 16px;
+    left: 16px;
+    max-width: none;
+  }
+}
