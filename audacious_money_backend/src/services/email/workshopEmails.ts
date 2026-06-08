@@ -470,11 +470,11 @@ export function validateTemplateTags(template: string): string[] {
 
   // Check if each found tag is valid
   const validTags = new Set(Object.keys(TEMPLATE_TAGS));
-  for (const tag of foundTags) {
+  foundTags.forEach((tag) => {
     if (!validTags.has(tag)) {
       invalidTags.push(tag);
     }
-  }
+  });
 
   return invalidTags;
 }
