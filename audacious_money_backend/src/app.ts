@@ -23,6 +23,7 @@ import userRoutes from './routes/users.js';
 import adminRoutes from './routes/admin.js';
 import contactRoutes from './routes/contact.js';
 import charityRoutes from './routes/charities.js';
+import workshopRoutes from './routes/workshops.js';
 
 // Create Hono app
 const app = new Hono();
@@ -175,6 +176,9 @@ app.route('/test', testEmailRoutes);
 
 // Admin routes
 app.route('/admin', adminRoutes);
+
+// Workshop routes
+app.route('/api/workshops', workshopRoutes);
 
 // ==========================================
 // Error Handling (Must be last)
