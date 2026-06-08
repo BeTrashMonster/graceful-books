@@ -248,3 +248,67 @@ export async function exportAnalyticsCSV(
   link.click();
   document.body.removeChild(link);
 }
+
+// =============================================================================
+// PUBLIC WORKSHOP ENDPOINTS (for signup flow)
+// =============================================================================
+
+/**
+ * Get workshop details by slug (public endpoint)
+ */
+export async function getWorkshopBySlug(slug: string): Promise<Workshop> {
+  return api.get<Workshop>(`/workshops/slug/${slug}`);
+}
+
+/**
+ * Enroll in a workshop (public endpoint)
+ */
+export async function enrollInWorkshop(
+  workshopId: string,
+  enrollmentData: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    companyName?: string;
+    charityId?: string;
+  }
+): Promise<{
+  success: boolean;
+  enrollment: WorkshopEnrollment;
+  user: {
+    id: string;
+    email: string;
+  };
+  token: string;
+}> {
+  return api.post(`/workshops/${workshopId}/enroll`, enrollmentData);
+}
+
+/**
+ * Get current user's workshop enrollment (requires auth)
+ */
+export async function getMyWorkshopEnrollment(): Promise<WorkshopEnrollment | null> {
+  return api.get<WorkshopEnrollment | null>('/workshops/my-enrollment');
+}
+
+/**
+ * Save worksheet progress for current user (requires auth)
+ */
+export async function saveWorksheetProgress(data: {
+  productId?: string;
+  ingredients?: Array<{ name: string; quantity: number; cost: number }>;
+  packaging?: Array<{ name: string; cost: number }>;
+  laborTime?: number;
+  distributionCost?: number;
+  totalCost?: number;
+}): Promise<{ success: boolean }> {
+  return api.put('/workshops/my-enrollment/worksheet', data);
+}
+
+/**
+ * Mark worksheet as completed (requires auth)
+ */
+export async function completeWorksheet(): Promise<{ success: boolean }> {
+  return api.post('/workshops/my-enrollment/worksheet/complete', {});
+}

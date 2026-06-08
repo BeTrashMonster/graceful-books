@@ -69,6 +69,12 @@ const LoaderTest = lazy(() => import('../pages/LoaderTest'))
 const ProductSetupTest = lazy(() => import('../pages/ProductSetupTest'))
 const LoadingOverlayDemo = lazy(() => import('../pages/LoadingOverlayDemo'))
 
+// Workshop Pages
+const WorkshopSignupPage = lazy(() => import('../pages/workshops/WorkshopSignupPage'))
+const WorkshopThankYouPage = lazy(() => import('../pages/workshops/WorkshopThankYouPage'))
+const WorkshopWorksheetPage = lazy(() => import('../pages/workshops/WorkshopWorksheetPage'))
+const WorkshopCountdownPage = lazy(() => import('../pages/workshops/WorkshopCountdownPage'))
+
 export function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
@@ -81,6 +87,16 @@ export function AppRoutes() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/checkout/success" element={<CheckoutSuccess />} />
         <Route path="/checkout/cancel" element={<CheckoutCancel />} />
+
+        {/* Workshop routes - Public signup flow */}
+        <Route path="/workshops/:slug" element={<WorkshopSignupPage />} />
+        <Route path="/workshops/:slug/thank-you" element={<WorkshopThankYouPage />} />
+
+        {/* Workshop routes - Protected (requires auth) */}
+        <Route element={<ProtectedRoute><div /></ProtectedRoute>}>
+          <Route path="/workshops/worksheet" element={<WorkshopWorksheetPage />} />
+          <Route path="/workshops/countdown" element={<WorkshopCountdownPage />} />
+        </Route>
 
         {/* Admin routes (no layout) */}
         <Route path="/admin/login" element={<AdminLogin />} />
