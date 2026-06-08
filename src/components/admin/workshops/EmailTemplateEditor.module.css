@@ -1,0 +1,454 @@
+/* Email Template Editor Styles */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Email Selector */
+.emailSelector {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--color-bg-secondary, #f9fafb);
+  border-radius: 8px;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+  white-space: nowrap;
+}
+
+.select {
+  flex: 1;
+  max-width: 400px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.9375rem;
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: 6px;
+  background: white;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary, #7C3AED);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* Editor Container */
+.editorContainer {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* Sidebar */
+.sidebar {
+  position: sticky;
+  top: 1rem;
+  background: white;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.sidebarTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.sidebarDescription {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #666);
+  margin: 0 0 1rem 0;
+}
+
+.tagList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tagButton {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  text-align: left;
+  background: white;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tagButton:hover {
+  background: rgba(124, 58, 237, 0.05);
+  border-color: var(--color-primary, #7C3AED);
+}
+
+.tagButton:focus-visible {
+  outline: 2px solid var(--color-primary, #7C3AED);
+  outline-offset: 2px;
+}
+
+.tagCode {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary, #7C3AED);
+  background: rgba(124, 58, 237, 0.1);
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+}
+
+.tagDescription {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #666);
+}
+
+/* Emoji Section */
+.emojiSection {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  position: relative;
+}
+
+.emojiButton {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+  background: white;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.emojiButton:hover {
+  background: rgba(124, 58, 237, 0.05);
+  border-color: var(--color-primary, #7C3AED);
+}
+
+.emojiPickerWrapper {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.5rem;
+  z-index: 100;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Editor Fields */
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.required {
+  color: var(--color-error, #dc2626);
+}
+
+.input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: 6px;
+  background: white;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary, #7C3AED);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.helperText {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #666);
+}
+
+/* Quill Editor */
+.quillWrapper {
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.quillWrapper:focus-within {
+  border-color: var(--color-primary, #7C3AED);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.quill {
+  background: white;
+}
+
+/* Override Quill styles */
+.quill :global(.ql-toolbar) {
+  border: none;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-bg-secondary, #f9fafb);
+}
+
+.quill :global(.ql-container) {
+  border: none;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  min-height: 300px;
+}
+
+.quill :global(.ql-editor) {
+  min-height: 300px;
+  padding: 1rem;
+}
+
+.quill :global(.ql-editor.ql-blank::before) {
+  color: #9ca3af;
+  font-style: normal;
+}
+
+/* Editor Actions */
+.editorActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.resetButton {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-error, #dc2626);
+  background: white;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.resetButton:hover {
+  background: #fef2f2;
+  border-color: var(--color-error, #dc2626);
+}
+
+/* Preview */
+.preview {
+  background: white;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.previewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.previewTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.previewToggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.previewButton {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #666);
+  background: white;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.previewButton:hover {
+  background: var(--color-bg-secondary, #f9fafb);
+}
+
+.previewButtonActive {
+  color: white;
+  background: var(--color-primary, #7C3AED);
+  border-color: var(--color-primary, #7C3AED);
+}
+
+.previewFrame {
+  max-width: 100%;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 2rem;
+  transition: max-width 0.3s;
+}
+
+.previewFrameMobile {
+  max-width: 375px;
+  margin: 0 auto;
+}
+
+.emailPreview {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.emailSubject {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.emailPreheader {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #666);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.emailBody {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.emailBody p {
+  margin: 0 0 1rem 0;
+}
+
+.emailBody p:last-child {
+  margin-bottom: 0;
+}
+
+.emailBody a {
+  color: var(--color-primary, #7C3AED);
+  text-decoration: underline;
+}
+
+.emailBody strong {
+  font-weight: 700;
+}
+
+.emailBody em {
+  font-style: italic;
+}
+
+.emailBody h1,
+.emailBody h2,
+.emailBody h3 {
+  margin: 1.5rem 0 0.75rem 0;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.emailBody h1 {
+  font-size: 1.5rem;
+}
+
+.emailBody h2 {
+  font-size: 1.25rem;
+}
+
+.emailBody h3 {
+  font-size: 1.125rem;
+}
+
+.emailBody ul,
+.emailBody ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.emailBody li {
+  margin: 0.5rem 0;
+}
+
+.previewNote {
+  margin: 1rem 0 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #666);
+  font-style: italic;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .editorContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: relative;
+    top: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .emailSelector {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .select {
+    max-width: 100%;
+  }
+
+  .previewHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .previewToggle {
+    width: 100%;
+  }
+
+  .previewButton {
+    flex: 1;
+  }
+
+  .previewFrame {
+    padding: 1rem;
+  }
+
+  .emailPreview {
+    padding: 1rem;
+  }
+
+  .emojiPickerWrapper {
+    left: auto;
+    right: 0;
+  }
+}
