@@ -583,22 +583,35 @@ users.get('/me/payment-methods', async (c) => {
   const db = c.get('db');
 
   try {
+    console.log(`[Users] Getting payment method for user: ${userId}`);
+
     // Get user's Stripe customer ID
     const userResult = await db.query(
       'SELECT stripe_customer_id FROM users WHERE id = $1',
       [userId]
     );
 
+    console.log(`[Users] User query result:`, {
+      found: userResult.rows.length > 0,
+      hasCustomerId: userResult.rows.length > 0 && !!userResult.rows[0].stripe_customer_id,
+      customerId: userResult.rows.length > 0 ? userResult.rows[0].stripe_customer_id : null,
+    });
+
     if (userResult.rows.length === 0 || !userResult.rows[0].stripe_customer_id) {
+      console.log('[Users] No Stripe customer ID found, returning null');
       return success(c, { paymentMethod: null });
     }
 
     const customerId = userResult.rows[0].stripe_customer_id;
 
     // Get default payment method from Stripe
+    console.log(`[Users] Fetching payment method from Stripe for customer: ${customerId}`);
     const paymentMethod = await getDefaultPaymentMethod(customerId);
 
+    console.log(`[Users] Stripe returned payment method:`, paymentMethod ? 'Found' : 'Not found');
+
     if (!paymentMethod) {
+      console.log('[Users] No payment method found in Stripe, returning null');
       return success(c, { paymentMethod: null });
     }
 
@@ -780,20 +793,32 @@ users.get('/me/invoices', async (c) => {
   const db = c.get('db');
 
   try {
+    console.log(`[Users] Getting invoices for user: ${userId}`);
+
     // Get user's Stripe customer ID
     const userResult = await db.query(
       'SELECT stripe_customer_id FROM users WHERE id = $1',
       [userId]
     );
 
+    console.log(`[Users] User query result:`, {
+      found: userResult.rows.length > 0,
+      hasCustomerId: userResult.rows.length > 0 && !!userResult.rows[0].stripe_customer_id,
+      customerId: userResult.rows.length > 0 ? userResult.rows[0].stripe_customer_id : null,
+    });
+
     if (userResult.rows.length === 0 || !userResult.rows[0].stripe_customer_id) {
+      console.log('[Users] No Stripe customer ID found, returning empty array');
       return success(c, { invoices: [] });
     }
 
     const customerId = userResult.rows[0].stripe_customer_id;
 
     // Get invoices from Stripe
+    console.log(`[Users] Fetching invoices from Stripe for customer: ${customerId}`);
     const invoices = await getInvoiceHistory(customerId, 12); // Last 12 invoices
+
+    console.log(`[Users] Stripe returned ${invoices.length} invoices`);
 
     const formattedInvoices = invoices.map((invoice) => ({
       id: invoice.id,
