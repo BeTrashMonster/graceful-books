@@ -237,21 +237,130 @@ async function handleCheckoutSessionCompleted(session: any) {
 
       if (userResult.rows.length > 0) {
         const user = userResult.rows[0];
-        const { sendProductWelcomeEmail } = await import('../services/email.service.js');
+        const workshopId = session.metadata?.workshopId;
 
-        // Get product details
-        const productResult = await db.query(
-          `SELECT name FROM products WHERE id = $1`,
-          [productId]
-        );
-
-        if (productResult.rows.length > 0) {
-          await sendProductWelcomeEmail(
-            user.email,
-            user.first_name,
-            productResult.rows[0].name
+        // Check if this is a workshop enrollment (detect workshop context)
+        if (workshopId) {
+          // Workshop-specific emails - schedule all 7 emails
+          const workshopResult = await db.query(
+            `SELECT cohort_name, workshop_start_datetime, workshop_end_datetime, workshop_type, location
+             FROM workshops WHERE id = $1`,
+            [workshopId]
           );
-          console.log('[Webhook] Welcome email sent to:', user.email);
+
+          if (workshopResult.rows.length > 0) {
+            const workshop = workshopResult.rows[0];
+            const {
+              sendWorkshopWelcomeEmail,
+              sendWorkshopReminderEmail,
+              sendWorkshopChallengeWeek1Email,
+              sendWorkshopChallengeWeek2Email,
+              sendWorkshopChallengeWeek3Email,
+              sendWorkshopChallengeWeek4Email,
+              sendWorkshopWrapUpEmail,
+            } = await import('../services/email.service.js');
+
+            const workshopStart = new Date(workshop.workshop_start_datetime);
+            const workshopEnd = new Date(workshop.workshop_end_datetime);
+            const location = workshop.workshop_type === 'in_person' ? workshop.location : 'Online';
+
+            // Email #1 - Send immediately (welcome)
+            await sendWorkshopWelcomeEmail(
+              user.email,
+              user.first_name,
+              workshop.cohort_name,
+              workshop.workshop_start_datetime,
+              location
+            );
+            console.log('[Webhook] Email #1 (Welcome) sent immediately to:', user.email);
+
+            // Email #2 - Schedule for 24h before workshop
+            const email2Time = new Date(workshopStart);
+            email2Time.setHours(email2Time.getHours() - 24);
+            await sendWorkshopReminderEmail(
+              user.email,
+              user.first_name,
+              workshop.workshop_start_datetime,
+              location,
+              email2Time.toISOString()
+            );
+            console.log('[Webhook] Email #2 (24h reminder) scheduled for:', email2Time.toISOString());
+
+            // Email #3 - Schedule for 1 week after workshop
+            const email3Time = new Date(workshopEnd);
+            email3Time.setDate(email3Time.getDate() + 7);
+            await sendWorkshopChallengeWeek1Email(
+              user.email,
+              user.first_name,
+              workshop.cohort_name,
+              email3Time.toISOString()
+            );
+            console.log('[Webhook] Email #3 (Week 1 Challenge) scheduled for:', email3Time.toISOString());
+
+            // Email #4 - Schedule for 2 weeks after workshop
+            const email4Time = new Date(workshopEnd);
+            email4Time.setDate(email4Time.getDate() + 14);
+            await sendWorkshopChallengeWeek2Email(
+              user.email,
+              user.first_name,
+              workshop.cohort_name,
+              email4Time.toISOString()
+            );
+            console.log('[Webhook] Email #4 (Week 2 Challenge) scheduled for:', email4Time.toISOString());
+
+            // Email #5 - Schedule for 3 weeks after workshop
+            const email5Time = new Date(workshopEnd);
+            email5Time.setDate(email5Time.getDate() + 21);
+            await sendWorkshopChallengeWeek3Email(
+              user.email,
+              user.first_name,
+              workshop.cohort_name,
+              email5Time.toISOString()
+            );
+            console.log('[Webhook] Email #5 (Week 3 Challenge) scheduled for:', email5Time.toISOString());
+
+            // Email #6 - Schedule for 4 weeks after workshop
+            const email6Time = new Date(workshopEnd);
+            email6Time.setDate(email6Time.getDate() + 28);
+            await sendWorkshopChallengeWeek4Email(
+              user.email,
+              user.first_name,
+              workshop.cohort_name,
+              email6Time.toISOString()
+            );
+            console.log('[Webhook] Email #6 (Week 4 Challenge) scheduled for:', email6Time.toISOString());
+
+            // Email #7 - Schedule for 30 days after workshop (wrap-up)
+            const email7Time = new Date(workshopEnd);
+            email7Time.setDate(email7Time.getDate() + 30);
+            await sendWorkshopWrapUpEmail(
+              user.email,
+              user.first_name,
+              workshop.cohort_name,
+              email7Time.toISOString()
+            );
+            console.log('[Webhook] Email #7 (30-day Wrap-up) scheduled for:', email7Time.toISOString());
+
+            console.log('[Webhook] All 7 workshop emails scheduled for:', user.email, 'workshop:', workshop.cohort_name);
+          }
+        } else {
+          // Regular product welcome email
+          const { sendProductWelcomeEmail } = await import('../services/email.service.js');
+
+          // Get product details
+          const productResult = await db.query(
+            `SELECT name FROM products WHERE id = $1`,
+            [productId]
+          );
+
+          if (productResult.rows.length > 0) {
+            await sendProductWelcomeEmail(
+              user.email,
+              user.first_name,
+              productResult.rows[0].name
+            );
+            console.log('[Webhook] Welcome email sent to:', user.email);
+          }
         }
       }
     } catch (emailError) {
@@ -342,6 +451,34 @@ async function handleSubscriptionUpdated(subscription: any) {
         subscription.id,
       ]
     );
+
+    // Workshop graduation: If trial converted to active, remove current_workshop_enrollment_id
+    if (status === 'active') {
+      // Get user from this subscription
+      const userResult = await db.query(
+        `SELECT user_id FROM user_products WHERE stripe_subscription_id = $1`,
+        [subscription.id]
+      );
+
+      if (userResult.rows.length > 0) {
+        const userId = userResult.rows[0].user_id;
+
+        // Check if user has a workshop enrollment
+        const checkWorkshop = await db.query(
+          `SELECT current_workshop_enrollment_id FROM users WHERE id = $1`,
+          [userId]
+        );
+
+        if (checkWorkshop.rows.length > 0 && checkWorkshop.rows[0].current_workshop_enrollment_id) {
+          // User graduated from workshop to paying customer - remove workshop link
+          await db.query(
+            `UPDATE users SET current_workshop_enrollment_id = NULL WHERE id = $1`,
+            [userId]
+          );
+          console.log('[Webhook] User graduated from workshop to paying customer:', userId);
+        }
+      }
+    }
 
     console.log('[Webhook] Subscription updated successfully');
   } catch (error) {
@@ -512,7 +649,7 @@ async function handleSubscriptionTrialWillEnd(subscription: any) {
   try {
     // Get user details for trial reminder email
     const result = await db.query(
-      `SELECT u.email, u.first_name, p.name as product_name
+      `SELECT u.id as user_id, u.email, u.first_name, p.name as product_name
        FROM user_products up
        JOIN users u ON u.id = up.user_id
        JOIN products p ON p.id = up.product_id
@@ -521,9 +658,36 @@ async function handleSubscriptionTrialWillEnd(subscription: any) {
     );
 
     if (result.rows.length > 0) {
-      const { email, first_name, product_name } = result.rows[0];
-      // TODO: Create sendTrialEndingEmail function in email.service.ts
-      console.log(`[Webhook] Trial ending soon for ${email} - ${product_name}`);
+      const { user_id, email, first_name, product_name } = result.rows[0];
+
+      // Check if this is a workshop enrollment (detect workshop context)
+      const workshopResult = await db.query(
+        `SELECT w.id, w.cohort_name, w.workshop_start_datetime, w.workshop_type, w.location
+         FROM workshop_enrollments we
+         JOIN workshops w ON w.id = we.workshop_id
+         WHERE we.user_id = $1`,
+        [user_id]
+      );
+
+      if (workshopResult.rows.length > 0) {
+        // Workshop-specific trial ending email
+        const workshop = workshopResult.rows[0];
+        const { sendWorkshopTrialEndingEmail } = await import('../services/email.service.js');
+
+        await sendWorkshopTrialEndingEmail(
+          email,
+          first_name,
+          workshop.cohort_name,
+          workshop.workshop_start_datetime,
+          workshop.workshop_type === 'in_person' ? workshop.location : 'Online'
+        );
+        console.log(`[Webhook] Workshop trial ending email sent to ${email} for workshop: ${workshop.cohort_name}`);
+      } else {
+        // Regular product trial ending email
+        const { sendTrialEndingSoonEmail } = await import('../services/email.service.js');
+        await sendTrialEndingSoonEmail(email, first_name, product_name);
+        console.log(`[Webhook] Trial ending soon for ${email} - ${product_name}`);
+      }
     }
 
     console.log('[Webhook] Trial will end notification processed');

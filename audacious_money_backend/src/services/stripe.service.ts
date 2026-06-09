@@ -27,6 +27,7 @@ export async function createCheckoutSession({
   successUrl,
   cancelUrl,
   metadata,
+  trialDays = 7, // Default 7-day trial, but can be customized (e.g., 30 days for workshops)
 }: {
   priceId: string;
   userId: string; // Changed from number to string (UUID)
@@ -34,6 +35,7 @@ export async function createCheckoutSession({
   successUrl: string;
   cancelUrl: string;
   metadata?: Record<string, string>;
+  trialDays?: number; // Allow dynamic trial length per product/workshop
 }): Promise<Stripe.Checkout.Session> {
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
@@ -54,7 +56,7 @@ export async function createCheckoutSession({
       ...metadata,
     },
     subscription_data: {
-      trial_period_days: 7, // 7-day free trial for all new subscriptions
+      trial_period_days: trialDays, // Dynamic trial length (default 7 days, workshops can set 30+)
       metadata: {
         userId: userId, // Already a string
         ...metadata,

@@ -48,18 +48,16 @@ function mapWorkshopRow(row: any) {
     location: row.location,
     primaryTimezone: row.primary_timezone,
     secondaryTimezone: row.secondary_timezone,
-    accessGrantDatetime: row.access_grant_datetime,
-    trialStartDatetime: row.trial_start_datetime,
+    stripePriceId: row.stripe_price_id,
     trialDurationDays: row.trial_duration_days,
+    accessGrantDatetime: row.access_grant_datetime,
     workshopStartDatetime: row.workshop_start_datetime,
     workshopEndDatetime: row.workshop_end_datetime,
     registrationDeadline: row.registration_deadline,
     maxEnrollment: row.max_enrollment,
     welcomeMessage: row.welcome_message,
     customEmailTemplates: row.custom_email_templates,
-    customEmailSchedule: row.custom_email_schedule,
     postWorkshopResources: row.post_workshop_resources,
-    postTrialAction: row.post_trial_action,
     sendReminder: row.send_reminder,
     reminderHoursBefore: row.reminder_hours_before,
     status: row.status,
@@ -78,14 +76,7 @@ function mapEnrollmentRow(row: any) {
     userId: row.user_id,
     workshopId: row.workshop_id,
     enrolledAt: row.enrolled_at,
-    firstLoginAt: row.first_login_at,
-    trialStartedAt: row.trial_started_at,
-    trialExpiresAt: row.trial_expires_at,
-    convertedToPaidAt: row.converted_to_paid_at,
     worksheetCompletedAt: row.worksheet_completed_at,
-    emailsSent: row.emails_sent || [],
-    lastActiveAt: row.last_active_at,
-    status: row.status,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -119,22 +110,22 @@ workshops.post('/', requireAdmin, validate(createWorkshopSchema), async (c) => {
         cohort_name, slug, description,
         workshop_type, location,
         primary_timezone, secondary_timezone,
-        access_grant_datetime, trial_start_datetime, trial_duration_days,
-        workshop_start_datetime, workshop_end_datetime,
+        stripe_price_id, trial_duration_days,
+        access_grant_datetime, workshop_start_datetime, workshop_end_datetime,
         registration_deadline, max_enrollment,
-        welcome_message, custom_email_templates, custom_email_schedule, post_workshop_resources,
-        post_trial_action, send_reminder, reminder_hours_before,
+        welcome_message, custom_email_templates, post_workshop_resources,
+        send_reminder, reminder_hours_before,
         status, created_by
       ) VALUES (
         $1, $2, $3,
         $4, $5,
         $6, $7,
-        $8, $9, $10,
-        $11, $12,
+        $8, $9,
+        $10, $11, $12,
         $13, $14,
-        $15, $16, $17, $18,
-        $19, $20, $21,
-        $22, $23
+        $15, $16, $17,
+        $18, $19,
+        $20, $21
       ) RETURNING *`,
       [
         data.cohortName,
@@ -144,18 +135,16 @@ workshops.post('/', requireAdmin, validate(createWorkshopSchema), async (c) => {
         data.location || null,
         data.primaryTimezone || 'America/Los_Angeles',
         data.secondaryTimezone || null,
-        data.accessGrantDatetime,
-        data.trialStartDatetime,
+        data.stripePriceId,
         data.trialDurationDays || 30,
+        data.accessGrantDatetime,
         data.workshopStartDatetime,
         data.workshopEndDatetime,
         data.registrationDeadline || null,
         data.maxEnrollment || null,
         data.welcomeMessage || null,
         data.customEmailTemplates ? JSON.stringify(data.customEmailTemplates) : null,
-        data.customEmailSchedule ? JSON.stringify(data.customEmailSchedule) : null,
         data.postWorkshopResources ? JSON.stringify(data.postWorkshopResources) : null,
-        data.postTrialAction || 'upgrade_prompt',
         data.sendReminder !== undefined ? data.sendReminder : true,
         data.reminderHoursBefore || 24,
         data.status || 'draft',
@@ -288,17 +277,17 @@ workshops.put('/:id', requireAdmin, validate(updateWorkshopSchema), async (c) =>
       updates.push(`secondary_timezone = $${paramCount++}`);
       values.push(data.secondaryTimezone);
     }
-    if (data.accessGrantDatetime !== undefined) {
-      updates.push(`access_grant_datetime = $${paramCount++}`);
-      values.push(data.accessGrantDatetime);
-    }
-    if (data.trialStartDatetime !== undefined) {
-      updates.push(`trial_start_datetime = $${paramCount++}`);
-      values.push(data.trialStartDatetime);
+    if (data.stripePriceId !== undefined) {
+      updates.push(`stripe_price_id = $${paramCount++}`);
+      values.push(data.stripePriceId);
     }
     if (data.trialDurationDays !== undefined) {
       updates.push(`trial_duration_days = $${paramCount++}`);
       values.push(data.trialDurationDays);
+    }
+    if (data.accessGrantDatetime !== undefined) {
+      updates.push(`access_grant_datetime = $${paramCount++}`);
+      values.push(data.accessGrantDatetime);
     }
     if (data.workshopStartDatetime !== undefined) {
       updates.push(`workshop_start_datetime = $${paramCount++}`);
@@ -324,17 +313,9 @@ workshops.put('/:id', requireAdmin, validate(updateWorkshopSchema), async (c) =>
       updates.push(`custom_email_templates = $${paramCount++}`);
       values.push(data.customEmailTemplates ? JSON.stringify(data.customEmailTemplates) : null);
     }
-    if (data.customEmailSchedule !== undefined) {
-      updates.push(`custom_email_schedule = $${paramCount++}`);
-      values.push(data.customEmailSchedule ? JSON.stringify(data.customEmailSchedule) : null);
-    }
     if (data.postWorkshopResources !== undefined) {
       updates.push(`post_workshop_resources = $${paramCount++}`);
       values.push(data.postWorkshopResources ? JSON.stringify(data.postWorkshopResources) : null);
-    }
-    if (data.postTrialAction !== undefined) {
-      updates.push(`post_trial_action = $${paramCount++}`);
-      values.push(data.postTrialAction);
     }
     if (data.sendReminder !== undefined) {
       updates.push(`send_reminder = $${paramCount++}`);
@@ -520,8 +501,8 @@ workshops.post('/:id/enroll', requireAuth, rateLimiter({ max: 5, window: 3600 })
     // Create enrollment
     const enrollmentResult = await db.query(
       `INSERT INTO workshop_enrollments (
-        user_id, workshop_id, status
-      ) VALUES ($1, $2, 'enrolled')
+        user_id, workshop_id
+      ) VALUES ($1, $2)
       RETURNING *`,
       [userId, workshopId]
     );
@@ -534,9 +515,37 @@ workshops.post('/:id/enroll', requireAuth, rateLimiter({ max: 5, window: 3600 })
       userId,
     ]);
 
-    console.log('[Workshops] User enrolled:', userId, 'in workshop:', workshopId);
+    // Get user details for Stripe checkout
+    const userResult = await db.query(
+      'SELECT id, email, first_name, last_name FROM users WHERE id = $1',
+      [userId]
+    );
+    const user = userResult.rows[0];
 
-    return success(c, { enrollment }, 201);
+    // Create Stripe checkout session with workshop's custom trial length
+    const { createCheckoutSession } = await import('../services/stripe.service.js');
+
+    const session = await createCheckoutSession({
+      priceId: workshop.stripePriceId || workshopRow.stripe_price_id,
+      userId: user.id,
+      userEmail: user.email,
+      successUrl: `${process.env.FRONTEND_URL}/workshops/${workshop.slug}/thank-you`,
+      cancelUrl: `${process.env.FRONTEND_URL}/workshops/${workshop.slug}`,
+      trialDays: workshop.trialDurationDays, // Use workshop's custom trial length (e.g., 30 days)
+      metadata: {
+        workshopId: workshop.id,
+        workshopSlug: workshop.slug,
+        enrollmentId: enrollment.id,
+      },
+    });
+
+    console.log('[Workshops] User enrolled:', userId, 'in workshop:', workshopId);
+    console.log('[Workshops] Stripe checkout session created:', session.id);
+
+    return success(c, {
+      enrollment,
+      checkoutUrl: session.url, // Return Stripe checkout URL for frontend redirect
+    }, 201);
   } catch (error) {
     console.error('[Workshops] Error enrolling user:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to enroll in workshop');
@@ -626,53 +635,11 @@ workshops.put('/enrollments/:id/grant-access', requireAdmin, async (c) => {
 /**
  * PUT /api/enrollments/:id/start-trial
  *
- * Start trial period for enrolled user (admin only)
+ * DEPRECATED: Stripe starts trials automatically when checkout completes
+ * Trial status is tracked in user_products table via Stripe webhooks
  */
 workshops.put('/enrollments/:id/start-trial', requireAdmin, async (c) => {
-  const enrollmentId = c.req.param('id');
-  const db = c.get('db');
-
-  try {
-    // Get enrollment and workshop details
-    const enrollmentResult = await db.query(
-      `SELECT we.*, w.trial_duration_days
-       FROM workshop_enrollments we
-       JOIN workshops w ON we.workshop_id = w.id
-       WHERE we.id = $1`,
-      [enrollmentId]
-    );
-
-    if (enrollmentResult.rowCount === 0) {
-      return notFound(c, ErrorCodes.NOT_FOUND, 'Enrollment not found');
-    }
-
-    const row = enrollmentResult.rows[0];
-
-    // Calculate trial expiration
-    const now = new Date();
-    const trialExpiresAt = new Date(now);
-    trialExpiresAt.setDate(trialExpiresAt.getDate() + row.trial_duration_days);
-
-    // Update enrollment with trial dates
-    const result = await db.query(
-      `UPDATE workshop_enrollments
-       SET trial_started_at = NOW(),
-           trial_expires_at = $1,
-           updated_at = NOW()
-       WHERE id = $2
-       RETURNING *`,
-      [trialExpiresAt, enrollmentId]
-    );
-
-    const enrollment = mapEnrollmentRow(result.rows[0]);
-
-    console.log('[Workshops] Started trial for enrollment:', enrollmentId);
-
-    return success(c, { enrollment });
-  } catch (error) {
-    console.error('[Workshops] Error starting trial:', error);
-    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to start trial');
-  }
+  return badRequest(c, ErrorCodes.INVALID_INPUT, 'Trials are started automatically by Stripe when checkout completes');
 });
 
 // =============================================================================
@@ -985,15 +952,13 @@ workshops.post('/enrollments/:id/upgrade', requireAuth, async (c) => {
     console.log('[Workshops] Payment method:', paymentMethodId);
     console.log('[Workshops] User:', user.email);
 
-    // Record conversion using conversion tracker
-    const { recordConversion } = await import('../services/workshops/conversionTracker.js');
-    const conversionMetrics = await recordConversion(enrollmentId, 'manual');
-
-    console.log('[Workshops] Conversion recorded:', conversionMetrics);
+    // TODO: Refactor to use Stripe Billing Portal instead of manual upgrade
+    // Conversion tracking should query user_products table directly
+    console.log('[Workshops] Upgrade initiated for enrollment:', enrollmentId);
 
     return success(c, {
       message: 'Subscription upgrade successful',
-      conversion: conversionMetrics,
+      enrollmentId,
     });
   } catch (error) {
     console.error('[Workshops] Error processing upgrade:', error);
@@ -1005,31 +970,35 @@ workshops.post('/enrollments/:id/upgrade', requireAuth, async (c) => {
  * GET /api/admin/workshops/:id/conversions
  *
  * Get conversion data and metrics for a workshop (admin only)
+ * TODO: Refactor to query user_products table and workshop_analytics view directly
  */
 workshops.get('/admin/:id/conversions', requireAdmin, async (c) => {
   const workshopId = c.req.param('id');
+  const db = c.get('db');
 
   try {
-    // Import conversion tracker
-    const {
-      getWorkshopConversionReport,
-      getWorkshopConversionMetrics,
-      exportConversionData,
-    } = await import('../services/workshops/conversionTracker.js');
+    // Query workshop_analytics view for conversion metrics
+    const result = await db.query(
+      `SELECT * FROM workshop_analytics WHERE id = $1`,
+      [workshopId]
+    );
 
-    // Get conversion report
-    const report = await getWorkshopConversionReport(workshopId);
+    if (result.rows.length === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Workshop not found');
+    }
 
-    // Get detailed metrics
-    const metrics = await getWorkshopConversionMetrics(workshopId);
-
-    // Get export data
-    const exportData = await exportConversionData(workshopId);
+    const analytics = result.rows[0];
 
     return success(c, {
-      report,
-      metrics,
-      exportData,
+      report: {
+        workshopId: analytics.id,
+        workshopName: analytics.cohort_name,
+        totalEnrolled: analytics.total_enrolled,
+        trialingCount: analytics.trialing_count,
+        activeCount: analytics.active_count,
+        convertedCount: analytics.converted_count,
+        conversionRate: analytics.conversion_rate_percent,
+      },
     });
   } catch (error) {
     console.error('[Workshops] Error getting conversion data:', error);
@@ -1041,13 +1010,34 @@ workshops.get('/admin/:id/conversions', requireAdmin, async (c) => {
  * GET /api/admin/workshops/conversions/stats
  *
  * Get overall conversion statistics across all workshops (admin only)
+ * TODO: Refactor to aggregate workshop_analytics view data
  */
 workshops.get('/admin/conversions/stats', requireAdmin, async (c) => {
-  try {
-    const { getOverallConversionStatistics } = await import('../services/workshops/conversionTracker.js');
-    const stats = await getOverallConversionStatistics();
+  const db = c.get('db');
 
-    return success(c, { stats });
+  try {
+    // Aggregate conversion stats from workshop_analytics view
+    const result = await db.query(`
+      SELECT
+        SUM(total_enrolled) as total_enrolled,
+        SUM(trialing_count) as total_trialing,
+        SUM(active_count) as total_active,
+        SUM(converted_count) as total_converted,
+        ROUND(AVG(conversion_rate_percent), 2) as average_conversion_rate
+      FROM workshop_analytics
+    `);
+
+    const stats = result.rows[0];
+
+    return success(c, {
+      stats: {
+        totalEnrolled: parseInt(stats.total_enrolled || '0'),
+        totalTrialing: parseInt(stats.total_trialing || '0'),
+        totalActive: parseInt(stats.total_active || '0'),
+        totalConverted: parseInt(stats.total_converted || '0'),
+        averageConversionRate: parseFloat(stats.average_conversion_rate || '0'),
+      },
+    });
   } catch (error) {
     console.error('[Workshops] Error getting conversion statistics:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to get conversion statistics');
@@ -1057,36 +1047,42 @@ workshops.get('/admin/conversions/stats', requireAdmin, async (c) => {
 /**
  * POST /api/admin/workshops/trials/check-expired
  *
- * Manually trigger trial expiration check (admin only)
- * Useful for testing or if cron job fails
- * Rate limited to 5 requests per minute due to expensive database operation
+ * DEPRECATED: Stripe handles trial expiration via webhooks
+ * This endpoint is no longer needed
  */
 workshops.post('/admin/trials/check-expired', requireAdmin, rateLimiter({ max: 5, window: 60 }), async (c) => {
-  try {
-    const { checkAndProcessExpiredTrials } = await import('../services/workshops/trialManager.js');
-    const summary = await checkAndProcessExpiredTrials();
-
-    return success(c, {
-      message: 'Trial expiration check completed',
-      summary,
-    });
-  } catch (error) {
-    console.error('[Workshops] Error checking expired trials:', error);
-    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to check expired trials');
-  }
+  return badRequest(c, ErrorCodes.INVALID_INPUT, 'Trial management is handled by Stripe webhooks');
 });
 
 /**
  * GET /api/admin/workshops/trials/stats
  *
  * Get trial statistics (admin only)
+ * Refactored to use user_products table (Stripe subscription data)
  */
 workshops.get('/admin/trials/stats', requireAdmin, async (c) => {
-  try {
-    const { getTrialStatistics } = await import('../services/workshops/trialManager.js');
-    const stats = await getTrialStatistics();
+  const db = c.get('db');
 
-    return success(c, { stats });
+  try {
+    // Query user_products for trial statistics
+    const result = await db.query(`
+      SELECT
+        COUNT(*) FILTER (WHERE status = 'trialing') as active_trials,
+        COUNT(*) FILTER (WHERE status = 'active') as converted_trials,
+        COUNT(*) FILTER (WHERE status = 'cancelled') as cancelled_trials
+      FROM user_products
+      WHERE stripe_subscription_id IS NOT NULL
+    `);
+
+    const stats = result.rows[0];
+
+    return success(c, {
+      stats: {
+        activeTrials: parseInt(stats.active_trials || '0'),
+        convertedTrials: parseInt(stats.converted_trials || '0'),
+        cancelledTrials: parseInt(stats.cancelled_trials || '0'),
+      },
+    });
   } catch (error) {
     console.error('[Workshops] Error getting trial statistics:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to get trial statistics');
@@ -1096,25 +1092,11 @@ workshops.get('/admin/trials/stats', requireAdmin, async (c) => {
 /**
  * POST /api/admin/workshops/enrollments/:id/expire-trial
  *
- * Manually expire a trial (admin only)
- * Useful for testing or manual intervention
+ * DEPRECATED: Stripe handles trial expiration automatically
+ * Use Stripe Dashboard to manage subscriptions instead
  */
 workshops.post('/admin/enrollments/:id/expire-trial', requireAdmin, async (c) => {
-  const enrollmentId = c.req.param('id');
-
-  try {
-    const { manuallyExpireTrial } = await import('../services/workshops/trialManager.js');
-    await manuallyExpireTrial(enrollmentId);
-
-    return success(c, {
-      message: 'Trial expired successfully',
-      enrollmentId,
-    });
-  } catch (error) {
-    console.error('[Workshops] Error expiring trial:', error);
-    const message = error instanceof Error ? error.message : 'Failed to expire trial';
-    return badRequest(c, ErrorCodes.INTERNAL_ERROR, message);
-  }
+  return badRequest(c, ErrorCodes.INVALID_INPUT, 'Trial expiration is managed by Stripe. Use Stripe Dashboard to cancel subscriptions.');
 });
 
 // =============================================================================
