@@ -228,6 +228,17 @@ async function handleCheckoutSessionCompleted(session: any) {
       );
     }
 
+    // CRITICAL: Also update stripe_customer_id in users table
+    // Payment method and invoice endpoints query this table
+    console.log('[Webhook] Updating stripe_customer_id in users table');
+    await db.query(
+      `UPDATE users
+       SET stripe_customer_id = $1,
+           updated_at = NOW()
+       WHERE id = $2 AND (stripe_customer_id IS NULL OR stripe_customer_id != $1)`,
+      [session.customer, userId]
+    );
+
     // Get user details for welcome email (optional - don't fail webhook if email fails)
     try {
       const userResult = await db.query(
