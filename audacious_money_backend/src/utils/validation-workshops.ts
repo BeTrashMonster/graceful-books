@@ -170,9 +170,14 @@ export const createWorkshopSchema = z
     primaryTimezone: timezoneSchema.default('America/Los_Angeles'),
     secondaryTimezone: timezoneSchema.optional(),
 
+    // Stripe Integration
+    stripePriceId: z
+      .string()
+      .min(1, 'Stripe Price ID is required')
+      .regex(/^price_[a-zA-Z0-9]+$/, 'Must be a valid Stripe price ID (starts with price_)'),
+
     // Access & Trial Settings
     accessGrantDatetime: z.string().datetime('Must be a valid ISO 8601 datetime'),
-    trialStartDatetime: z.string().datetime('Must be a valid ISO 8601 datetime'),
     trialDurationDays: z
       .number()
       .int('Trial duration must be a whole number')
@@ -190,12 +195,8 @@ export const createWorkshopSchema = z
 
     // Customization
     welcomeMessage: z.string().max(5000, 'Welcome message must be less than 5000 characters').optional(),
-    customEmailTemplates: emailTemplatesSchema,
-    customEmailSchedule: emailScheduleOverrideSchema,
+    customEmailTemplates: emailTemplatesSchema.optional(),
     postWorkshopResources: z.array(workshopResourceSchema).max(20, 'Maximum 20 resources allowed').optional(),
-
-    // Post-Trial Behavior
-    postTrialAction: postTrialActionSchema.default('upgrade_prompt'),
 
     // Reminder Settings
     sendReminder: z.boolean().default(true),
@@ -211,10 +212,6 @@ export const createWorkshopSchema = z
   .refine((data) => new Date(data.accessGrantDatetime) <= new Date(data.workshopStartDatetime), {
     message: 'Access should be granted before or at workshop start time',
     path: ['accessGrantDatetime'],
-  })
-  .refine((data) => new Date(data.trialStartDatetime) >= new Date(data.accessGrantDatetime), {
-    message: 'Trial cannot start before access is granted',
-    path: ['trialStartDatetime'],
   })
   .refine(
     (data) => {
@@ -241,8 +238,9 @@ export const updateWorkshopSchema = z
     primaryTimezone: timezoneSchema.optional(),
     secondaryTimezone: timezoneSchema.optional(),
 
+    stripePriceId: z.string().regex(/^price_[a-zA-Z0-9]+$/, 'Must be a valid Stripe price ID').optional(),
+
     accessGrantDatetime: z.string().datetime().optional(),
-    trialStartDatetime: z.string().datetime().optional(),
     trialDurationDays: z.number().int().min(1).max(365).optional(),
 
     workshopStartDatetime: z.string().datetime().optional(),
@@ -252,11 +250,8 @@ export const updateWorkshopSchema = z
     maxEnrollment: z.number().int().positive().optional().nullable(),
 
     welcomeMessage: z.string().max(5000).optional().nullable(),
-    customEmailTemplates: emailTemplatesSchema.nullable(),
-    customEmailSchedule: emailScheduleOverrideSchema.nullable(),
+    customEmailTemplates: emailTemplatesSchema.optional().nullable(),
     postWorkshopResources: z.array(workshopResourceSchema).max(20).optional().nullable(),
-
-    postTrialAction: postTrialActionSchema.optional(),
 
     sendReminder: z.boolean().optional(),
     reminderHoursBefore: z.number().int().positive().max(168).optional(),
