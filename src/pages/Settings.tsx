@@ -1,6 +1,7 @@
 import { Breadcrumbs } from '../components/navigation/Breadcrumbs'
 import { DataSafetyPanel } from '../components/settings/DataSafetyPanel'
 import { CharitySettingsPanel } from '../components/settings/CharitySettingsPanel'
+import { TimezoneSettingsPanel } from '../components/settings/TimezoneSettingsPanel'
 
 export default function Settings() {
   return (
@@ -12,6 +13,7 @@ export default function Settings() {
       </div>
 
       <div className="page-content">
+        <TimezoneSettingsPanel />
         <CharitySettingsPanel />
         <DataSafetyPanel />
         {/* Account management has been moved to the Billing page */}

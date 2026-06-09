@@ -1,0 +1,66 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.section h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.description {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.select {
+  padding: 0.625rem 0.875rem;
+  font-size: 0.9375rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  transition: border-color 0.2s;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-alpha-10);
+}
+
+.preview {
+  padding: 1rem;
+  background-color: var(--color-background-secondary);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.preview strong {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
