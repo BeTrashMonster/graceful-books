@@ -17,6 +17,7 @@ import {
   ErrorMessages,
 } from '../utils/responses.js';
 import {
+  stripe,
   createCheckoutSession,
   cancelAllUserSubscriptions,
   pauseSubscription,
@@ -368,6 +369,27 @@ users.get('/me/subscription', async (c) => {
 
     const subscription = subscriptionResult.rows[0];
 
+    // Get actual price from Stripe if subscription exists
+    let actualPrice = subscription.price_monthly; // Fallback to database value
+    if (subscription.stripe_subscription_id) {
+      try {
+        const stripeSubscription = await stripe.subscriptions.retrieve(
+          subscription.stripe_subscription_id
+        );
+
+        // Extract price from subscription items (in cents, convert to dollars)
+        if (stripeSubscription.items.data.length > 0) {
+          const priceInCents = stripeSubscription.items.data[0].price.unit_amount;
+          if (priceInCents) {
+            actualPrice = priceInCents / 100; // Convert cents to dollars
+          }
+        }
+      } catch (stripeError) {
+        console.error('[Users] Failed to fetch Stripe subscription price:', stripeError);
+        // Continue with database price as fallback
+      }
+    }
+
     return success(c, {
       subscription: {
         id: subscription.id,
@@ -375,7 +397,7 @@ users.get('/me/subscription', async (c) => {
         productId: subscription.product_id,
         productName: subscription.product_name,
         productSlug: subscription.product_slug,
-        priceMonthly: subscription.price_monthly,
+        priceMonthly: actualPrice,
         trialEndsAt: subscription.trial_ends_at,
         trialConverted: subscription.trial_converted,
         activatedAt: subscription.activated_at,
