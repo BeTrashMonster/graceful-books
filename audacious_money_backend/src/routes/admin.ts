@@ -1956,4 +1956,107 @@ admin.post(
   }
 );
 
+/**
+ * POST /admin/migrations/backfill-stripe-customer-ids
+ *
+ * One-time migration to backfill missing stripe_customer_id in users table.
+ * Copies stripe_customer_id from user_products to users for existing subscribers.
+ *
+ * This fixes the issue where payment methods and invoices weren't displaying
+ * because the endpoints query users.stripe_customer_id but webhooks only
+ * populated user_products.stripe_customer_id.
+ *
+ * Safe to run multiple times - will only update users that need it.
+ */
+admin.post('/migrations/backfill-stripe-customer-ids', requireAdmin, async (c) => {
+  const db = c.get('db');
+
+  try {
+    console.log('[Admin] Running stripe_customer_id backfill migration...');
+
+    // Find users where:
+    // - users.stripe_customer_id is NULL
+    // - user_products.stripe_customer_id is NOT NULL (they have a subscription)
+    // - Subscription is active
+    const result = await db.query(`
+      SELECT
+        u.id as user_id,
+        u.email,
+        u.first_name,
+        u.last_name,
+        up.stripe_customer_id,
+        up.stripe_subscription_id,
+        up.status
+      FROM users u
+      JOIN user_products up ON u.id = up.user_id
+      WHERE u.stripe_customer_id IS NULL
+        AND up.stripe_customer_id IS NOT NULL
+        AND up.status IN ('trialing', 'active', 'paused')
+      ORDER BY u.email
+    `);
+
+    if (result.rows.length === 0) {
+      console.log('[Admin] No users found needing backfill');
+      return success(c, {
+        message: 'Migration complete - no users needed backfill',
+        usersUpdated: 0,
+        details: 'All users already have stripe_customer_id properly set',
+      });
+    }
+
+    console.log(`[Admin] Found ${result.rows.length} user(s) needing backfill`);
+
+    const updates = [];
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const row of result.rows) {
+      try {
+        // Copy stripe_customer_id from user_products to users table
+        await db.query(
+          `UPDATE users
+           SET stripe_customer_id = $1,
+               updated_at = NOW()
+           WHERE id = $2`,
+          [row.stripe_customer_id, row.user_id]
+        );
+
+        updates.push({
+          email: row.email,
+          customerId: row.stripe_customer_id,
+          status: 'success',
+        });
+        successCount++;
+
+        console.log(`[Admin] ✅ Backfilled ${row.email}`);
+
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        updates.push({
+          email: row.email,
+          customerId: row.stripe_customer_id,
+          status: 'error',
+          error: errorMessage,
+        });
+        errorCount++;
+
+        console.error(`[Admin] ❌ Error updating ${row.email}:`, error);
+      }
+    }
+
+    console.log(`[Admin] Migration complete: ${successCount} success, ${errorCount} errors`);
+
+    return success(c, {
+      message: `Migration complete - updated ${successCount} user(s)`,
+      usersUpdated: successCount,
+      errors: errorCount,
+      details: updates,
+    });
+
+  } catch (error) {
+    console.error('[Admin] Migration error:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Migration failed');
+  }
+});
+
 export default admin;
