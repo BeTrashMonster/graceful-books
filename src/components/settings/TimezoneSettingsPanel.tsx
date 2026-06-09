@@ -10,7 +10,7 @@ import { Card, CardHeader, CardBody } from '../ui/Card';
 import { Button } from '../core/Button';
 import { Alert } from '../feedback/ErrorMessage';
 import { db } from '../../db/database';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 import styles from './TimezoneSettingsPanel.module.css';
 
 // Common US timezones
