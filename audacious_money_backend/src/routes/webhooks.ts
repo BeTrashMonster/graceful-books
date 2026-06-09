@@ -239,6 +239,46 @@ async function handleCheckoutSessionCompleted(session: any) {
       [session.customer, userId]
     );
 
+    // Set timezone from billing address (more accurate than browser detection)
+    // This ensures accurate timestamps for audit logs and date filters
+    try {
+      const { stripe } = await import('../services/stripe.service.js');
+      const { getTimezoneFromBillingAddress } = await import('../utils/timezone.js');
+
+      const customer = await stripe.customers.retrieve(session.customer);
+
+      if (!customer.deleted && customer.address) {
+        const timezone = getTimezoneFromBillingAddress({
+          postal_code: customer.address.postal_code,
+          country: customer.address.country,
+        });
+
+        if (timezone) {
+          console.log('[Webhook] Setting timezone from billing address:', timezone);
+
+          // Update user preferences with detected timezone
+          await db.query(
+            `UPDATE users
+             SET preferences = jsonb_set(
+               COALESCE(preferences, '{}'::jsonb),
+               '{timezone}',
+               $1::jsonb
+             ),
+             updated_at = NOW()
+             WHERE id = $2`,
+            [JSON.stringify(timezone), userId]
+          );
+
+          console.log('[Webhook] User timezone set to:', timezone);
+        } else {
+          console.log('[Webhook] Could not determine timezone from billing address');
+        }
+      }
+    } catch (timezoneError) {
+      console.error('[Webhook] Failed to set timezone (non-critical):', timezoneError);
+      // Don't fail the webhook if timezone setting fails
+    }
+
     // Get user details for welcome email (optional - don't fail webhook if email fails)
     try {
       const userResult = await db.query(
