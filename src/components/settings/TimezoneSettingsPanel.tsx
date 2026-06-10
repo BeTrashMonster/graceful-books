@@ -13,14 +13,58 @@ import { db } from '../../db/database';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from './TimezoneSettingsPanel.module.css';
 
-// Common US timezones
-const US_TIMEZONES = [
-  { value: 'America/New_York', label: 'Eastern Time (ET)', example: 'New York, Miami' },
-  { value: 'America/Chicago', label: 'Central Time (CT)', example: 'Chicago, Dallas' },
-  { value: 'America/Denver', label: 'Mountain Time (MT)', example: 'Denver, Phoenix' },
-  { value: 'America/Los_Angeles', label: 'Pacific Time (PT)', example: 'Los Angeles, Seattle' },
-  { value: 'America/Anchorage', label: 'Alaska Time (AKT)', example: 'Anchorage' },
-  { value: 'Pacific/Honolulu', label: 'Hawaii Time (HT)', example: 'Honolulu' },
+// All timezones grouped by region
+const TIMEZONES = [
+  // North America
+  { value: 'America/New_York', label: 'Eastern Time (ET)' },
+  { value: 'America/Chicago', label: 'Central Time (CT)' },
+  { value: 'America/Denver', label: 'Mountain Time (MT)' },
+  { value: 'America/Phoenix', label: 'Arizona (MT - No DST)' },
+  { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
+  { value: 'America/Anchorage', label: 'Alaska Time (AKT)' },
+  { value: 'Pacific/Honolulu', label: 'Hawaii Time (HT)' },
+  { value: 'America/Toronto', label: 'Toronto (ET)' },
+  { value: 'America/Vancouver', label: 'Vancouver (PT)' },
+  { value: 'America/Mexico_City', label: 'Mexico City (CT)' },
+
+  // Europe
+  { value: 'Europe/London', label: 'London (GMT/BST)' },
+  { value: 'Europe/Paris', label: 'Paris (CET/CEST)' },
+  { value: 'Europe/Berlin', label: 'Berlin (CET/CEST)' },
+  { value: 'Europe/Rome', label: 'Rome (CET/CEST)' },
+  { value: 'Europe/Madrid', label: 'Madrid (CET/CEST)' },
+  { value: 'Europe/Amsterdam', label: 'Amsterdam (CET/CEST)' },
+  { value: 'Europe/Brussels', label: 'Brussels (CET/CEST)' },
+  { value: 'Europe/Vienna', label: 'Vienna (CET/CEST)' },
+  { value: 'Europe/Athens', label: 'Athens (EET/EEST)' },
+  { value: 'Europe/Moscow', label: 'Moscow (MSK)' },
+
+  // Asia
+  { value: 'Asia/Dubai', label: 'Dubai (GST)' },
+  { value: 'Asia/Kolkata', label: 'India (IST)' },
+  { value: 'Asia/Shanghai', label: 'China (CST)' },
+  { value: 'Asia/Hong_Kong', label: 'Hong Kong (HKT)' },
+  { value: 'Asia/Singapore', label: 'Singapore (SGT)' },
+  { value: 'Asia/Tokyo', label: 'Tokyo (JST)' },
+  { value: 'Asia/Seoul', label: 'Seoul (KST)' },
+  { value: 'Asia/Bangkok', label: 'Bangkok (ICT)' },
+
+  // Australia & Pacific
+  { value: 'Australia/Sydney', label: 'Sydney (AEST/AEDT)' },
+  { value: 'Australia/Melbourne', label: 'Melbourne (AEST/AEDT)' },
+  { value: 'Australia/Brisbane', label: 'Brisbane (AEST)' },
+  { value: 'Australia/Perth', label: 'Perth (AWST)' },
+  { value: 'Pacific/Auckland', label: 'Auckland (NZST/NZDT)' },
+
+  // South America
+  { value: 'America/Sao_Paulo', label: 'São Paulo (BRT/BRST)' },
+  { value: 'America/Buenos_Aires', label: 'Buenos Aires (ART)' },
+  { value: 'America/Santiago', label: 'Santiago (CLT/CLST)' },
+
+  // Africa
+  { value: 'Africa/Johannesburg', label: 'Johannesburg (SAST)' },
+  { value: 'Africa/Cairo', label: 'Cairo (EET/EEST)' },
+  { value: 'Africa/Lagos', label: 'Lagos (WAT)' },
 ];
 
 export function TimezoneSettingsPanel() {
@@ -106,26 +150,6 @@ export function TimezoneSettingsPanel() {
 
   const hasChanges = selectedTimezone !== currentTimezone;
 
-  // Get current time in selected timezone for preview
-  const getCurrentTimePreview = () => {
-    if (!selectedTimezone) {
-      return 'Loading...';
-    }
-    try {
-      const now = new Date();
-      return now.toLocaleTimeString('en-US', {
-        timeZone: selectedTimezone,
-        hour: 'numeric',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true,
-      });
-    } catch (err) {
-      console.error('[TimezoneSettingsPanel] Error formatting time preview:', err);
-      return 'Invalid timezone';
-    }
-  };
-
   // Safety check: if no timezone is set yet, show loading state
   if (!selectedTimezone && !currentTimezone) {
     return (
@@ -143,41 +167,40 @@ export function TimezoneSettingsPanel() {
   }
 
   return (
-    <Card>
+    <Card style={{ marginBottom: '2rem' }}>
       <CardHeader>
         <h2>Regional Settings</h2>
       </CardHeader>
       <CardBody>
         <div className={styles.section}>
-          <h3>Timezone</h3>
-          <p className={styles.description}>
-            Your timezone is used for timestamps, audit logs, and date filters throughout the application.
-            It was automatically detected from your billing address, but you can change it here if needed.
-          </p>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="timezone-select" className={styles.label}>
-              Current Timezone
-            </label>
-            <select
-              id="timezone-select"
-              value={selectedTimezone}
-              onChange={(e) => setSelectedTimezone(e.target.value)}
-              className={styles.select}
-            >
-              {US_TIMEZONES.map((tz) => (
-                <option key={tz.value} value={tz.value}>
-                  {tz.label} - {tz.example}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {selectedTimezone && (
-            <div className={styles.preview}>
-              <strong>Current time in this timezone:</strong> {getCurrentTimePreview()}
+          <div className={styles.compactRow}>
+            <div className={styles.formGroup}>
+              <label htmlFor="timezone-select" className={styles.label}>
+                Current Timezone
+              </label>
+              <select
+                id="timezone-select"
+                value={selectedTimezone}
+                onChange={(e) => setSelectedTimezone(e.target.value)}
+                className={styles.select}
+              >
+                {TIMEZONES.map((tz) => (
+                  <option key={tz.value} value={tz.value}>
+                    {tz.label}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
+
+            <Button
+              variant="primary"
+              onClick={handleSave}
+              disabled={!hasChanges || saving}
+              className={styles.saveButton}
+            >
+              {saving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
 
           {error && (
             <Alert variant="error" style={{ marginTop: '1rem' }}>
@@ -190,25 +213,6 @@ export function TimezoneSettingsPanel() {
               Timezone updated successfully!
             </Alert>
           )}
-
-          <div className={styles.actions}>
-            <Button
-              variant="primary"
-              onClick={handleSave}
-              disabled={!hasChanges || saving}
-            >
-              {saving ? 'Saving...' : 'Save Changes'}
-            </Button>
-            {hasChanges && (
-              <Button
-                variant="secondary"
-                onClick={() => setSelectedTimezone(currentTimezone)}
-                disabled={saving}
-              >
-                Cancel
-              </Button>
-            )}
-          </div>
         </div>
       </CardBody>
     </Card>
