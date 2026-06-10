@@ -159,7 +159,24 @@ workshops.post('/', requireAdmin, validate(createWorkshopSchema), async (c) => {
     return success(c, { workshop }, 201);
   } catch (error) {
     console.error('[Workshops] Error creating workshop:', error);
-    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to create workshop');
+    console.error('[Workshops] Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      code: (error as any).code,
+      detail: (error as any).detail,
+      constraint: (error as any).constraint,
+      table: (error as any).table,
+      adminId,
+    });
+
+    // Return more helpful error message
+    let errorMessage = 'Failed to create workshop';
+    if ((error as any).constraint === 'workshops_created_by_fkey') {
+      errorMessage = 'Admin user not found in database. Please ensure admin_users table is properly set up.';
+    } else if ((error as any).code === '23505') {
+      errorMessage = 'A workshop with this slug already exists';
+    }
+
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, errorMessage);
   }
 });
 
