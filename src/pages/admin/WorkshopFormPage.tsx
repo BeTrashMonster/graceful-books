@@ -67,8 +67,21 @@ export default function WorkshopFormPage() {
   const loadWorkshop = async () => {
     setLoading(true);
     try {
+      // Get admin token from sessionStorage
+      const sessionData = sessionStorage.getItem('graceful_books_admin_session');
+      const token = sessionData ? JSON.parse(sessionData).token : null;
+
+      if (!token) {
+        setError('Admin session expired. Please log in again.');
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch(`/api/workshops/${id}`, {
         credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
       });
 
       if (!response.ok) {
@@ -115,11 +128,22 @@ export default function WorkshopFormPage() {
       const url = isEditing ? `/api/workshops/${id}` : '/api/workshops';
       const method = isEditing ? 'PUT' : 'POST';
 
+      // Get admin token from sessionStorage
+      const sessionData = sessionStorage.getItem('graceful_books_admin_session');
+      const token = sessionData ? JSON.parse(sessionData).token : null;
+
+      if (!token) {
+        setError('Admin session expired. Please log in again.');
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch(url, {
         method,
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           cohortName: formData.cohortName,
@@ -144,8 +168,15 @@ export default function WorkshopFormPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save workshop');
+        let errorMessage = 'Failed to save workshop';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (parseError) {
+          // Response wasn't JSON - use status text
+          errorMessage = `${response.status}: ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       // Success - navigate back to workshops list
