@@ -24,7 +24,11 @@ const US_TIMEZONES = [
 ];
 
 export function TimezoneSettingsPanel() {
+  console.log('[TimezoneSettingsPanel] Component rendering');
+
   const { userIdentifier } = useAuth();
+  console.log('[TimezoneSettingsPanel] userIdentifier:', userIdentifier);
+
   const [currentTimezone, setCurrentTimezone] = useState<string>('');
   const [selectedTimezone, setSelectedTimezone] = useState<string>('');
   const [saving, setSaving] = useState(false);
@@ -33,25 +37,43 @@ export function TimezoneSettingsPanel() {
 
   // Load current timezone
   useEffect(() => {
-    loadCurrentTimezone();
+    console.log('[TimezoneSettingsPanel] useEffect triggered, userIdentifier:', userIdentifier);
+    if (userIdentifier) {
+      loadCurrentTimezone();
+    } else {
+      console.warn('[TimezoneSettingsPanel] No userIdentifier available');
+      // Set browser timezone as fallback
+      const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      setCurrentTimezone(detected);
+      setSelectedTimezone(detected);
+    }
   }, [userIdentifier]);
 
   const loadCurrentTimezone = async () => {
+    console.log('[TimezoneSettingsPanel] loadCurrentTimezone called');
     try {
       const users = await db.users.where('email').equals(userIdentifier).toArray();
+      console.log('[TimezoneSettingsPanel] Users found:', users.length, users.length > 0 ? users[0] : null);
+
       if (users.length > 0 && users[0].preferences?.timezone) {
         const tz = users[0].preferences.timezone;
+        console.log('[TimezoneSettingsPanel] Using stored timezone:', tz);
         setCurrentTimezone(tz);
         setSelectedTimezone(tz);
       } else {
         // Default to browser-detected timezone if not set
         const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        console.log('[TimezoneSettingsPanel] Using browser-detected timezone:', detected);
         setCurrentTimezone(detected);
         setSelectedTimezone(detected);
       }
     } catch (err) {
       console.error('[TimezoneSettings] Error loading timezone:', err);
       setError('Failed to load timezone settings');
+      // Still set a default timezone so the component doesn't break
+      const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      setCurrentTimezone(detected);
+      setSelectedTimezone(detected);
     }
   };
 
@@ -95,6 +117,9 @@ export function TimezoneSettingsPanel() {
 
   // Get current time in selected timezone for preview
   const getCurrentTimePreview = () => {
+    if (!selectedTimezone) {
+      return 'Loading...';
+    }
     try {
       const now = new Date();
       return now.toLocaleTimeString('en-US', {
@@ -104,10 +129,30 @@ export function TimezoneSettingsPanel() {
         second: '2-digit',
         hour12: true,
       });
-    } catch {
+    } catch (err) {
+      console.error('[TimezoneSettingsPanel] Error formatting time preview:', err);
       return 'Invalid timezone';
     }
   };
+
+  // Safety check: if no timezone is set yet, show loading state
+  if (!selectedTimezone && !currentTimezone) {
+    console.log('[TimezoneSettingsPanel] No timezone set yet, showing loading state');
+    return (
+      <Card>
+        <CardHeader>
+          <h2>Regional Settings</h2>
+        </CardHeader>
+        <CardBody>
+          <div className={styles.section}>
+            <p>Loading timezone settings...</p>
+          </div>
+        </CardBody>
+      </Card>
+    );
+  }
+
+  console.log('[TimezoneSettingsPanel] Rendering full component');
 
   return (
     <Card>
