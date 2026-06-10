@@ -8,6 +8,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styles from './WorkshopFormPage.module.css';
 
+const API_URL = 'https://api.audacious.money';
+
 interface WorkshopFormData {
   cohortName: string;
   slug: string;
@@ -77,7 +79,7 @@ export default function WorkshopFormPage() {
         return;
       }
 
-      const response = await fetch(`/api/workshops/${id}`, {
+      const response = await fetch(`${API_URL}/api/workshops/${id}`, {
         credentials: 'include',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -125,7 +127,7 @@ export default function WorkshopFormPage() {
     setError(null);
 
     try {
-      const url = isEditing ? `/api/workshops/${id}` : '/api/workshops';
+      const url = isEditing ? `${API_URL}/api/workshops/${id}` : `${API_URL}/api/workshops`;
       const method = isEditing ? 'PUT' : 'POST';
 
       // Get admin token from sessionStorage
