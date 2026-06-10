@@ -6,12 +6,26 @@
  */
 
 import { useState, useEffect } from 'react';
+
+console.log('[TimezoneSettingsPanel MODULE] Module loading...');
+
 import { Card, CardHeader, CardBody } from '../ui/Card';
+console.log('[TimezoneSettingsPanel MODULE] Card components imported');
+
 import { Button } from '../core/Button';
+console.log('[TimezoneSettingsPanel MODULE] Button imported');
+
 import { Alert } from '../feedback/ErrorMessage';
+console.log('[TimezoneSettingsPanel MODULE] Alert imported');
+
 import { db } from '../../db/database';
+console.log('[TimezoneSettingsPanel MODULE] Database imported');
+
 import { useAuth } from '../../contexts/AuthContext';
+console.log('[TimezoneSettingsPanel MODULE] useAuth imported');
+
 import styles from './TimezoneSettingsPanel.module.css';
+console.log('[TimezoneSettingsPanel MODULE] Styles imported');
 
 // Common US timezones
 const US_TIMEZONES = [
@@ -22,6 +36,9 @@ const US_TIMEZONES = [
   { value: 'America/Anchorage', label: 'Alaska Time (AKT)', example: 'Anchorage' },
   { value: 'Pacific/Honolulu', label: 'Hawaii Time (HT)', example: 'Honolulu' },
 ];
+
+console.log('[TimezoneSettingsPanel MODULE] US_TIMEZONES defined');
+console.log('[TimezoneSettingsPanel MODULE] About to define component function');
 
 export function TimezoneSettingsPanel() {
   console.log('[TimezoneSettingsPanel] Component rendering');
