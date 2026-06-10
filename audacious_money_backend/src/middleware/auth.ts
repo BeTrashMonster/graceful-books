@@ -42,7 +42,12 @@ async function setPostgresSessionVariable(
   userId: string
 ): Promise<void> {
   try {
-    await db.query('SET app.user_id = $1', [userId]);
+    // SET command doesn't support parameterized queries
+    // Validate UUID format first to prevent SQL injection
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) {
+      throw new Error('Invalid userId format');
+    }
+    await db.query(`SET app.user_id = '${userId}'`);
   } catch (error) {
     console.error('[Auth] Failed to set PostgreSQL session variable:', error);
     // Don't throw - this is a defense-in-depth measure
