@@ -144,6 +144,12 @@ export default function WorkshopFormPage() {
       console.log('📍 URL:', url);
       console.log('🔧 Method:', method);
 
+      // Helper to convert datetime-local to ISO 8601
+      const toISO = (dateTimeLocal: string) => {
+        if (!dateTimeLocal) return undefined;
+        return new Date(dateTimeLocal).toISOString();
+      };
+
       const requestBody = {
         cohortName: formData.cohortName,
         slug: formData.slug,
@@ -151,15 +157,15 @@ export default function WorkshopFormPage() {
         workshopType: formData.workshopType,
         location: formData.location,
         primaryTimezone: formData.primaryTimezone,
-        secondaryTimezone: formData.secondaryTimezone || null,
+        secondaryTimezone: formData.secondaryTimezone || undefined,
         stripePriceId: formData.stripePriceId,
         trialDurationDays: formData.trialDurationDays,
-        accessGrantDatetime: formData.accessGrantDatetime,
-        workshopStartDatetime: formData.workshopStartDatetime,
-        workshopEndDatetime: formData.workshopEndDatetime,
-        registrationDeadline: formData.registrationDeadline || null,
-        maxEnrollment: formData.maxEnrollment ? parseInt(formData.maxEnrollment) : null,
-        welcomeMessage: formData.welcomeMessage || null,
+        accessGrantDatetime: toISO(formData.accessGrantDatetime),
+        workshopStartDatetime: toISO(formData.workshopStartDatetime),
+        workshopEndDatetime: toISO(formData.workshopEndDatetime),
+        registrationDeadline: formData.registrationDeadline ? toISO(formData.registrationDeadline) : undefined,
+        maxEnrollment: formData.maxEnrollment ? parseInt(formData.maxEnrollment) : undefined,
+        welcomeMessage: formData.welcomeMessage || undefined,
         sendReminder: formData.sendReminder,
         reminderHoursBefore: formData.reminderHoursBefore,
         status: formData.status,
@@ -330,8 +336,8 @@ export default function WorkshopFormPage() {
               onChange={handleChange}
             >
               <option value="draft">Draft (not visible)</option>
-              <option value="open">Open for Registration</option>
-              <option value="closed">Registration Closed</option>
+              <option value="open_registration">Open for Registration</option>
+              <option value="registration_closed">Registration Closed</option>
               <option value="in_progress">In Progress</option>
               <option value="completed">Completed</option>
               <option value="archived">Archived</option>
