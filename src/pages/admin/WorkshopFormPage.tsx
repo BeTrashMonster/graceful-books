@@ -144,6 +144,29 @@ export default function WorkshopFormPage() {
       console.log('📍 URL:', url);
       console.log('🔧 Method:', method);
 
+      const requestBody = {
+        cohortName: formData.cohortName,
+        slug: formData.slug,
+        description: formData.description,
+        workshopType: formData.workshopType,
+        location: formData.location,
+        primaryTimezone: formData.primaryTimezone,
+        secondaryTimezone: formData.secondaryTimezone || null,
+        stripePriceId: formData.stripePriceId,
+        trialDurationDays: formData.trialDurationDays,
+        accessGrantDatetime: formData.accessGrantDatetime,
+        workshopStartDatetime: formData.workshopStartDatetime,
+        workshopEndDatetime: formData.workshopEndDatetime,
+        registrationDeadline: formData.registrationDeadline || null,
+        maxEnrollment: formData.maxEnrollment ? parseInt(formData.maxEnrollment) : null,
+        welcomeMessage: formData.welcomeMessage || null,
+        sendReminder: formData.sendReminder,
+        reminderHoursBefore: formData.reminderHoursBefore,
+        status: formData.status,
+      };
+
+      console.log('📦 Request body:', requestBody);
+
       const response = await fetch(url, {
         method,
         credentials: 'include',
@@ -151,26 +174,7 @@ export default function WorkshopFormPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          cohortName: formData.cohortName,
-          slug: formData.slug,
-          description: formData.description,
-          workshopType: formData.workshopType,
-          location: formData.location,
-          primaryTimezone: formData.primaryTimezone,
-          secondaryTimezone: formData.secondaryTimezone || null,
-          stripePriceId: formData.stripePriceId,
-          trialDurationDays: formData.trialDurationDays,
-          accessGrantDatetime: formData.accessGrantDatetime,
-          workshopStartDatetime: formData.workshopStartDatetime,
-          workshopEndDatetime: formData.workshopEndDatetime,
-          registrationDeadline: formData.registrationDeadline || null,
-          maxEnrollment: formData.maxEnrollment ? parseInt(formData.maxEnrollment) : null,
-          welcomeMessage: formData.welcomeMessage || null,
-          sendReminder: formData.sendReminder,
-          reminderHoursBefore: formData.reminderHoursBefore,
-          status: formData.status,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       console.log('📡 Response status:', response.status, response.statusText);
@@ -187,6 +191,11 @@ export default function WorkshopFormPage() {
               errorMessage = errorData.error;
             } else if (errorData.error.message) {
               errorMessage = errorData.error.message;
+              // If there are validation details, show them
+              if (errorData.error.details) {
+                console.log('🔍 Validation details:', errorData.error.details);
+                errorMessage += '\n\nValidation errors:\n' + JSON.stringify(errorData.error.details, null, 2);
+              }
             } else {
               errorMessage = JSON.stringify(errorData.error);
             }
