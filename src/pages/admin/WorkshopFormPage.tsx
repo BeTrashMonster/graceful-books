@@ -140,6 +140,10 @@ export default function WorkshopFormPage() {
         return;
       }
 
+      console.log('🔐 Submitting workshop with token:', token.substring(0, 20) + '...');
+      console.log('📍 URL:', url);
+      console.log('🔧 Method:', method);
+
       const response = await fetch(url, {
         method,
         credentials: 'include',
@@ -169,13 +173,27 @@ export default function WorkshopFormPage() {
         }),
       });
 
+      console.log('📡 Response status:', response.status, response.statusText);
+
       if (!response.ok) {
         let errorMessage = 'Failed to save workshop';
         try {
           const errorData = await response.json();
-          errorMessage = errorData.error || errorMessage;
+          console.log('❌ Error response:', errorData);
+
+          // Handle different error formats
+          if (errorData.error) {
+            if (typeof errorData.error === 'string') {
+              errorMessage = errorData.error;
+            } else if (errorData.error.message) {
+              errorMessage = errorData.error.message;
+            } else {
+              errorMessage = JSON.stringify(errorData.error);
+            }
+          }
         } catch (parseError) {
           // Response wasn't JSON - use status text
+          console.error('Failed to parse error response:', parseError);
           errorMessage = `${response.status}: ${response.statusText}`;
         }
         throw new Error(errorMessage);
@@ -185,7 +203,16 @@ export default function WorkshopFormPage() {
       navigate('/admin/workshops');
     } catch (err) {
       console.error('Error saving workshop:', err);
-      setError(err instanceof Error ? err.message : 'Failed to save workshop');
+
+      // Better error handling
+      let errorMessage = 'Failed to save workshop';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === 'object' && err !== null) {
+        errorMessage = JSON.stringify(err, null, 2);
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
