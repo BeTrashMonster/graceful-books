@@ -11,57 +11,44 @@
  */
 
 /**
- * Get start of day in user's timezone
+ * Get start of day (00:00:00) in user's timezone, returned as UTC Date
  *
- * Example: If user is in PST and date is "2024-06-08",
- * returns "2024-06-08T00:00:00-07:00" (midnight PST)
- * NOT "2024-06-08T00:00:00Z" (midnight UTC)
+ * Example: User in PST selects "2024-06-08"
+ * - This represents "2024-06-08 00:00:00 PST"
+ * - Which is "2024-06-08 07:00:00 UTC" (PST is UTC-7 during DST)
+ * - Returns Date object with that UTC timestamp
+ *
+ * Used for filtering: records with timestamps >= this value fall on or after this date in user's timezone
  */
 export function getStartOfDay(dateString: string, timezone: string): Date {
-  // Parse the date string as YYYY-MM-DD
+  // Parse YYYY-MM-DD
   const [year, month, day] = dateString.split('-').map(Number);
 
-  // Create date at midnight in user's timezone
-  const dateTimeString = `${dateString}T00:00:00`;
+  // Create a date at noon UTC on the target date (avoids DST edge cases)
+  const noonUTC = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
 
-  // Use Intl API to create date in specific timezone
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-  });
+  // Get what time it is in the target timezone when it's noon UTC
+  const timeInTz = new Date(noonUTC.toLocaleString('en-US', { timeZone: timezone }));
 
-  // Get the components in the user's timezone
-  const parts = formatter.formatToParts(new Date(year, month - 1, day));
-  const tzYear = parts.find(p => p.type === 'year')!.value;
-  const tzMonth = parts.find(p => p.type === 'month')!.value;
-  const tzDay = parts.find(p => p.type === 'day')!.value;
+  // Get what time it is in UTC when it's noon UTC (should be noon)
+  const timeInUTC = new Date(noonUTC.toLocaleString('en-US', { timeZone: 'UTC' }));
 
-  // Create ISO string in user's timezone
-  // This represents midnight in their timezone, not UTC
-  const localMidnight = new Date(`${tzYear}-${tzMonth}-${tzDay}T00:00:00`);
+  // The difference tells us the offset
+  const offset = timeInUTC.getTime() - timeInTz.getTime();
 
-  // Adjust for timezone offset
-  const utcDate = new Date(localMidnight.toLocaleString('en-US', { timeZone: timezone }));
+  // Now create midnight in the target timezone
+  const midnightLocal = new Date(year, month - 1, day, 0, 0, 0);
 
-  return new Date(dateString + 'T00:00:00');
+  // Apply the offset to get the UTC time that represents midnight in their timezone
+  return new Date(midnightLocal.getTime() + offset);
 }
 
 /**
- * Get end of day in user's timezone
- *
- * Example: If user is in PST and date is "2024-06-08",
- * returns "2024-06-08T23:59:59.999-07:00" (end of day PST)
+ * Get end of day (23:59:59.999) in user's timezone, returned as UTC Date
  */
 export function getEndOfDay(dateString: string, timezone: string): Date {
   const startOfDay = getStartOfDay(dateString, timezone);
-
-  // Add 23:59:59.999 to get end of day
+  // Add 24 hours minus 1 millisecond
   return new Date(startOfDay.getTime() + (24 * 60 * 60 * 1000) - 1);
 }
 
@@ -111,10 +98,28 @@ export function getNowInTimezone(timezone: string): Date {
 }
 
 /**
- * Hook to get user's timezone from preferences
+ * Get date in user's timezone as YYYY-MM-DD string
+ *
+ * Converts a Date object to a date string in the user's timezone
  */
-export function getUserTimezone(): string {
-  // This will be populated by a hook that reads from database
-  // For now, return browser timezone as fallback
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+export function getDateInTimezone(date: Date, timezone: string): string {
+  const formatted = new Intl.DateTimeFormat('en-CA', { // en-CA gives us YYYY-MM-DD format
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(date);
+
+  return formatted; // Returns "YYYY-MM-DD"
+}
+
+/**
+ * Check if a timestamp falls on a specific date in user's timezone
+ *
+ * Example: User in PST, checking if timestamp falls on "2024-06-08"
+ */
+export function isDateInTimezone(timestamp: number | Date, dateString: string, timezone: string): boolean {
+  const date = typeof timestamp === 'number' ? new Date(timestamp) : timestamp;
+  const dateInTz = getDateInTimezone(date, timezone);
+  return dateInTz === dateString;
 }

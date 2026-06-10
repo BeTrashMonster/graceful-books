@@ -136,6 +136,11 @@ export function TimezoneSettingsPanel() {
       setCurrentTimezone(selectedTimezone);
       setSuccess(true);
 
+      // Notify other components that timezone has changed
+      window.dispatchEvent(new CustomEvent('timezone-updated', {
+        detail: { timezone: selectedTimezone }
+      }));
+
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(false), 3000);
 
