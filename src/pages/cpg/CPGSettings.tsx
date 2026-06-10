@@ -6,6 +6,7 @@ import { CPGSettingsService } from '../../services/cpg/cpgSettings.service';
 import { cpuCalculatorService } from '../../services/cpg/cpuCalculator.service';
 import { UserFeaturePreferencesService } from '../../services/userFeaturePreferences.service';
 import { DataSafetyPanel } from '../../components/settings/DataSafetyPanel';
+import { TimezoneSettingsPanel } from '../../components/settings/TimezoneSettingsPanel';
 import { CharitySelector } from '../../components/charity';
 import type { FeatureName } from '../../services/userFeaturePreferences.service';
 import type { CPGSettings } from '../../db/schema/cpg.schema';
@@ -594,6 +595,9 @@ export function CPGSettings() {
           {errorMessage}
         </div>
       )}
+
+      {/* Timezone Settings - Regional Preferences */}
+      <TimezoneSettingsPanel />
 
       {/* Data Safety Panel - Backup Configuration */}
       <DataSafetyPanel companyId={companyId || undefined} />
