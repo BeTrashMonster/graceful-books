@@ -6,26 +6,12 @@
  */
 
 import { useState, useEffect } from 'react';
-
-console.log('[TimezoneSettingsPanel MODULE] Module loading...');
-
 import { Card, CardHeader, CardBody } from '../ui/Card';
-console.log('[TimezoneSettingsPanel MODULE] Card components imported');
-
 import { Button } from '../core/Button';
-console.log('[TimezoneSettingsPanel MODULE] Button imported');
-
 import { Alert } from '../feedback/ErrorMessage';
-console.log('[TimezoneSettingsPanel MODULE] Alert imported');
-
 import { db } from '../../db/database';
-console.log('[TimezoneSettingsPanel MODULE] Database imported');
-
 import { useAuth } from '../../contexts/AuthContext';
-console.log('[TimezoneSettingsPanel MODULE] useAuth imported');
-
 import styles from './TimezoneSettingsPanel.module.css';
-console.log('[TimezoneSettingsPanel MODULE] Styles imported');
 
 // Common US timezones
 const US_TIMEZONES = [
@@ -37,14 +23,8 @@ const US_TIMEZONES = [
   { value: 'Pacific/Honolulu', label: 'Hawaii Time (HT)', example: 'Honolulu' },
 ];
 
-console.log('[TimezoneSettingsPanel MODULE] US_TIMEZONES defined');
-console.log('[TimezoneSettingsPanel MODULE] About to define component function');
-
 export function TimezoneSettingsPanel() {
-  console.log('[TimezoneSettingsPanel] Component rendering');
-
   const { userIdentifier } = useAuth();
-  console.log('[TimezoneSettingsPanel] userIdentifier:', userIdentifier);
 
   const [currentTimezone, setCurrentTimezone] = useState<string>('');
   const [selectedTimezone, setSelectedTimezone] = useState<string>('');
@@ -54,11 +34,9 @@ export function TimezoneSettingsPanel() {
 
   // Load current timezone
   useEffect(() => {
-    console.log('[TimezoneSettingsPanel] useEffect triggered, userIdentifier:', userIdentifier);
     if (userIdentifier) {
       loadCurrentTimezone();
     } else {
-      console.warn('[TimezoneSettingsPanel] No userIdentifier available');
       // Set browser timezone as fallback
       const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
       setCurrentTimezone(detected);
@@ -67,20 +45,16 @@ export function TimezoneSettingsPanel() {
   }, [userIdentifier]);
 
   const loadCurrentTimezone = async () => {
-    console.log('[TimezoneSettingsPanel] loadCurrentTimezone called');
     try {
       const users = await db.users.where('email').equals(userIdentifier).toArray();
-      console.log('[TimezoneSettingsPanel] Users found:', users.length, users.length > 0 ? users[0] : null);
 
       if (users.length > 0 && users[0].preferences?.timezone) {
         const tz = users[0].preferences.timezone;
-        console.log('[TimezoneSettingsPanel] Using stored timezone:', tz);
         setCurrentTimezone(tz);
         setSelectedTimezone(tz);
       } else {
         // Default to browser-detected timezone if not set
         const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        console.log('[TimezoneSettingsPanel] Using browser-detected timezone:', detected);
         setCurrentTimezone(detected);
         setSelectedTimezone(detected);
       }
@@ -154,7 +128,6 @@ export function TimezoneSettingsPanel() {
 
   // Safety check: if no timezone is set yet, show loading state
   if (!selectedTimezone && !currentTimezone) {
-    console.log('[TimezoneSettingsPanel] No timezone set yet, showing loading state');
     return (
       <Card>
         <CardHeader>
@@ -168,8 +141,6 @@ export function TimezoneSettingsPanel() {
       </Card>
     );
   }
-
-  console.log('[TimezoneSettingsPanel] Rendering full component');
 
   return (
     <Card>
