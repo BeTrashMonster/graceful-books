@@ -481,7 +481,7 @@ export default function WorkshopFormPage() {
               min="1"
               max="90"
             />
-            <small>Default: 30 days (workshop participants get longer trials)</small>
+            <small>Trial begins when workshop starts and runs for this many days. Participants go through enrollment → charity selection → worksheet → countdown → access grant → workshop (trial starts here) → trial period → conversion to paid.</small>
           </div>
         </section>
 

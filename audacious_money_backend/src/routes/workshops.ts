@@ -51,6 +51,7 @@ function mapWorkshopRow(row: any) {
     stripePriceId: row.stripe_price_id,
     trialDurationDays: row.trial_duration_days,
     accessGrantDatetime: row.access_grant_datetime,
+    trialStartDatetime: row.trial_start_datetime,
     workshopStartDatetime: row.workshop_start_datetime,
     workshopEndDatetime: row.workshop_end_datetime,
     registrationDeadline: row.registration_deadline,
@@ -111,7 +112,7 @@ workshops.post('/', requireAdmin, validate(createWorkshopSchema), async (c) => {
         workshop_type, location,
         primary_timezone, secondary_timezone,
         stripe_price_id, trial_duration_days,
-        access_grant_datetime, workshop_start_datetime, workshop_end_datetime,
+        access_grant_datetime, trial_start_datetime, workshop_start_datetime, workshop_end_datetime,
         registration_deadline, max_enrollment,
         welcome_message, custom_email_templates, post_workshop_resources,
         send_reminder, reminder_hours_before,
@@ -121,11 +122,11 @@ workshops.post('/', requireAdmin, validate(createWorkshopSchema), async (c) => {
         $4, $5,
         $6, $7,
         $8, $9,
-        $10, $11, $12,
-        $13, $14,
-        $15, $16, $17,
-        $18, $19,
-        $20, $21
+        $10, $11, $12, $13,
+        $14, $15,
+        $16, $17, $18,
+        $19, $20,
+        $21, $22
       ) RETURNING *`,
       [
         data.cohortName,
@@ -138,6 +139,7 @@ workshops.post('/', requireAdmin, validate(createWorkshopSchema), async (c) => {
         data.stripePriceId,
         data.trialDurationDays || 30,
         data.accessGrantDatetime,
+        data.workshopStartDatetime, // trial_start_datetime = workshop start (trial begins when workshop begins)
         data.workshopStartDatetime,
         data.workshopEndDatetime,
         data.registrationDeadline || null,
@@ -308,6 +310,9 @@ workshops.put('/:id', requireAdmin, validate(updateWorkshopSchema), async (c) =>
     }
     if (data.workshopStartDatetime !== undefined) {
       updates.push(`workshop_start_datetime = $${paramCount++}`);
+      values.push(data.workshopStartDatetime);
+      // Trial starts when workshop starts
+      updates.push(`trial_start_datetime = $${paramCount++}`);
       values.push(data.workshopStartDatetime);
     }
     if (data.workshopEndDatetime !== undefined) {
