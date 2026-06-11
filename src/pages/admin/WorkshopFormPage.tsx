@@ -91,27 +91,34 @@ export default function WorkshopFormPage() {
       }
 
       const data = await response.json();
+      const workshop = data.data.workshop; // Backend wraps in { data: { workshop: {...} } }
+
+      // Helper to convert ISO datetime to datetime-local format
+      const toDatetimeLocal = (isoString: string) => {
+        if (!isoString) return '';
+        return new Date(isoString).toISOString().slice(0, 16);
+      };
 
       // Convert API response to form data
       setFormData({
-        cohortName: data.workshop.cohortName || '',
-        slug: data.workshop.slug || '',
-        description: data.workshop.description || '',
-        workshopType: data.workshop.workshopType || 'in_person',
-        location: data.workshop.location || '',
-        primaryTimezone: data.workshop.primaryTimezone || 'America/Los_Angeles',
-        secondaryTimezone: data.workshop.secondaryTimezone || '',
-        stripePriceId: data.workshop.stripePriceId || '',
-        trialDurationDays: data.workshop.trialDurationDays || 30,
-        accessGrantDatetime: data.workshop.accessGrantDatetime || '',
-        workshopStartDatetime: data.workshop.workshopStartDatetime || '',
-        workshopEndDatetime: data.workshop.workshopEndDatetime || '',
-        registrationDeadline: data.workshop.registrationDeadline || '',
-        maxEnrollment: data.workshop.maxEnrollment?.toString() || '',
-        welcomeMessage: data.workshop.welcomeMessage || '',
-        sendReminder: data.workshop.sendReminder ?? true,
-        reminderHoursBefore: data.workshop.reminderHoursBefore || 24,
-        status: data.workshop.status || 'draft',
+        cohortName: workshop.cohortName || '',
+        slug: workshop.slug || '',
+        description: workshop.description || '',
+        workshopType: workshop.workshopType || 'in_person',
+        location: workshop.location || '',
+        primaryTimezone: workshop.primaryTimezone || 'America/Los_Angeles',
+        secondaryTimezone: workshop.secondaryTimezone || '',
+        stripePriceId: workshop.stripePriceId || '',
+        trialDurationDays: workshop.trialDurationDays || 30,
+        accessGrantDatetime: toDatetimeLocal(workshop.accessGrantDatetime),
+        workshopStartDatetime: toDatetimeLocal(workshop.workshopStartDatetime),
+        workshopEndDatetime: toDatetimeLocal(workshop.workshopEndDatetime),
+        registrationDeadline: toDatetimeLocal(workshop.registrationDeadline),
+        maxEnrollment: workshop.maxEnrollment?.toString() || '',
+        welcomeMessage: workshop.welcomeMessage || '',
+        sendReminder: workshop.sendReminder ?? true,
+        reminderHoursBefore: workshop.reminderHoursBefore || 24,
+        status: workshop.status || 'draft',
       });
     } catch (err) {
       console.error('Error loading workshop:', err);
