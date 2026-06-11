@@ -20,6 +20,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './WorkshopsPage.module.css';
 
+const API_URL = 'https://api.audacious.money';
+
 // Workshop analytics type (will be imported from API service when backend is integrated)
 interface WorkshopAnalytics {
   id: string;
@@ -62,12 +64,28 @@ export default function WorkshopsPage() {
     setError(null);
 
     try {
-      // TODO: Replace with actual API call
-      // const data = await getAdminWorkshops({ status: statusFilter === 'all' ? undefined : statusFilter });
-      // setWorkshops(data);
+      // Get admin token from sessionStorage
+      const sessionData = sessionStorage.getItem('graceful_books_admin_session');
+      const token = sessionData ? JSON.parse(sessionData).token : null;
 
-      // Mock data for now
-      setWorkshops([]);
+      if (!token) {
+        setError('Admin session expired. Please log in again.');
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/api/workshops`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to load workshops');
+      }
+
+      const data = await response.json();
+      setWorkshops(data.data.workshops || []);
     } catch (err) {
       console.error('Error loading workshops:', err);
       setError(err instanceof Error ? err.message : 'Failed to load workshops');
