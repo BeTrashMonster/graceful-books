@@ -242,6 +242,7 @@ export default function WorkshopsPage() {
                 <th scope="col">Enrolled</th>
                 <th scope="col">Converted</th>
                 <th scope="col">Conv. Rate</th>
+                <th scope="col">Signup URL</th>
                 <th scope="col" className={styles.actionsColumn}>
                   Actions
                 </th>
@@ -283,6 +284,21 @@ export default function WorkshopsPage() {
                     <span className={styles.conversionRate}>
                       {calculateConversionRate(workshop.convertedCount, workshop.totalEnrolled)}%
                     </span>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigator.clipboard.writeText(`https://audacious.money/workshops/${workshop.slug}`);
+                        alert('Signup URL copied to clipboard!');
+                      }}
+                      className={styles.copyUrlButton}
+                      aria-label={`Copy signup URL for ${workshop.cohortName}`}
+                      title={`https://audacious.money/workshops/${workshop.slug}`}
+                    >
+                      Copy URL
+                    </button>
                   </td>
                   <td className={styles.actionsColumn}>
                     <button

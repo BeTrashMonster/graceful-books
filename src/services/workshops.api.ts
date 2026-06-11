@@ -257,7 +257,7 @@ export async function exportAnalyticsCSV(
  * Get workshop details by slug (public endpoint)
  */
 export async function getWorkshopBySlug(slug: string): Promise<Workshop> {
-  return api.get<Workshop>(`/workshops/slug/${slug}`);
+  return api.get<Workshop>(`/api/workshops/slug/${slug}`);
 }
 
 /**
@@ -282,14 +282,14 @@ export async function enrollInWorkshop(
   };
   token: string;
 }> {
-  return api.post(`/workshops/${workshopId}/enroll`, enrollmentData);
+  return api.post(`/api/workshops/${workshopId}/enroll`, enrollmentData);
 }
 
 /**
  * Get current user's workshop enrollment (requires auth)
  */
 export async function getMyWorkshopEnrollment(): Promise<WorkshopEnrollment | null> {
-  return api.get<WorkshopEnrollment | null>('/workshops/my-enrollment');
+  return api.get<WorkshopEnrollment | null>('/api/workshops/my-enrollment');
 }
 
 /**
@@ -303,12 +303,12 @@ export async function saveWorksheetProgress(data: {
   distributionCost?: number;
   totalCost?: number;
 }): Promise<{ success: boolean }> {
-  return api.put('/workshops/my-enrollment/worksheet', data);
+  return api.put('/api/workshops/my-enrollment/worksheet', data);
 }
 
 /**
  * Mark worksheet as completed (requires auth)
  */
 export async function completeWorksheet(): Promise<{ success: boolean }> {
-  return api.post('/workshops/my-enrollment/worksheet/complete', {});
+  return api.post('/api/workshops/my-enrollment/worksheet/complete', {});
 }
