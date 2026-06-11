@@ -319,7 +319,37 @@ export default function WorkshopFormPage() {
               required
               placeholder="e.g., july-2026-costing"
             />
-            <small>Used in URL: /workshops/{formData.slug || 'your-slug'}</small>
+            {formData.slug && (
+              <div style={{ marginTop: '0.75rem', padding: '0.75rem', backgroundColor: '#f0fdf4', border: '1px solid #86efac', borderRadius: '0.375rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <strong style={{ fontSize: '0.875rem', color: '#16a34a' }}>Workshop Signup URL:</strong>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(`https://audacious.money/workshops/${formData.slug}`);
+                      alert('URL copied to clipboard!');
+                    }}
+                    style={{
+                      padding: '0.25rem 0.5rem',
+                      backgroundColor: '#16a34a',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Copy URL
+                  </button>
+                </div>
+                <code style={{ display: 'block', fontSize: '0.875rem', color: '#15803d', wordBreak: 'break-all' }}>
+                  https://audacious.money/workshops/{formData.slug}
+                </code>
+                <small style={{ display: 'block', marginTop: '0.5rem', color: '#166534' }}>
+                  Share this URL with potential participants to enroll in this workshop.
+                </small>
+              </div>
+            )}
           </div>
 
           <div className={styles.field}>

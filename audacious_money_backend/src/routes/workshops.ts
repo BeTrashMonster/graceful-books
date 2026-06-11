@@ -267,6 +267,17 @@ workshops.put('/:id', requireAdmin, validate(updateWorkshopSchema), async (c) =>
       return notFound(c, ErrorCodes.NOT_FOUND, 'Workshop not found');
     }
 
+    // If slug is being updated, check uniqueness
+    if (data.slug !== undefined) {
+      const slugCheck = await db.query(
+        'SELECT id FROM workshops WHERE slug = $1 AND id != $2',
+        [data.slug, workshopId]
+      );
+      if (slugCheck.rowCount > 0) {
+        return badRequest(c, ErrorCodes.ALREADY_EXISTS, 'A workshop with this slug already exists');
+      }
+    }
+
     // Build dynamic update query
     const updates: string[] = [];
     const values: any[] = [];
@@ -275,6 +286,10 @@ workshops.put('/:id', requireAdmin, validate(updateWorkshopSchema), async (c) =>
     if (data.cohortName !== undefined) {
       updates.push(`cohort_name = $${paramCount++}`);
       values.push(data.cohortName);
+    }
+    if (data.slug !== undefined) {
+      updates.push(`slug = $${paramCount++}`);
+      values.push(data.slug);
     }
     if (data.description !== undefined) {
       updates.push(`description = $${paramCount++}`);
