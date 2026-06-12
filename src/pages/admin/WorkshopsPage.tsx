@@ -290,12 +290,12 @@ export default function WorkshopsPage() {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigator.clipboard.writeText(`https://audacious.money/workshops/${workshop.slug}`);
+                        navigator.clipboard.writeText(`https://app.audacious.money/workshops/${workshop.slug}`);
                         alert('Signup URL copied to clipboard!');
                       }}
                       className={styles.copyUrlButton}
                       aria-label={`Copy signup URL for ${workshop.cohortName}`}
-                      title={`https://audacious.money/workshops/${workshop.slug}`}
+                      title={`https://app.audacious.money/workshops/${workshop.slug}`}
                     >
                       Copy URL
                     </button>
