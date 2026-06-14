@@ -128,22 +128,27 @@ export default function WorkshopSignupPage() {
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    if (!dateString) return '';
+    // Extract date parts directly without timezone conversion
+    // Format: 2026-07-15T11:00:00.000Z -> "July 15, 2026"
+    const datePart = dateString.split('T')[0]; // "2026-07-15"
+    const [year, month, day] = datePart.split('-');
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                        'July', 'August', 'September', 'October', 'November', 'December'];
+    return `${monthNames[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
   };
 
   const formatTime = (dateString: string, timezone?: string) => {
-    const date = new Date(dateString);
-    const timeStr = date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      timeZone: timezone || 'America/Los_Angeles',
-    });
-    return timeStr;
+    if (!dateString) return '';
+    // Extract time parts directly without timezone conversion
+    // Format: 2026-07-15T11:00:00.000Z -> "11:00 AM"
+    const timePart = dateString.split('T')[1]?.split('.')[0] || dateString.split('T')[1]?.split('Z')[0]; // "11:00:00"
+    if (!timePart) return '';
+    const [hours, minutes] = timePart.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour}:${minutes} ${ampm}`;
   };
 
   const getTimezoneAbbr = (timezone: string) => {

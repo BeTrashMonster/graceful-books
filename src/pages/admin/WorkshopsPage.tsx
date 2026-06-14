@@ -31,6 +31,7 @@ interface WorkshopAnalytics {
   status: 'draft' | 'open_registration' | 'registration_closed' | 'in_progress' | 'completed' | 'archived';
   workshopStartDatetime: Date;
   workshopEndDatetime: Date;
+  registrationDeadline?: Date | string;
   maxEnrollment?: number;
   totalEnrolled: number;
   activeCount: number;
@@ -153,6 +154,19 @@ export default function WorkshopsPage() {
     return Math.round((converted / total) * 100);
   };
 
+  // Get the effective status of a workshop, accounting for registration deadline
+  const getEffectiveStatus = (workshop: WorkshopAnalytics): string => {
+    // If status is open_registration, check if deadline has passed
+    if (workshop.status === 'open_registration' && workshop.registrationDeadline) {
+      const now = new Date();
+      const deadline = new Date(workshop.registrationDeadline);
+      if (now > deadline) {
+        return 'registration_closed';
+      }
+    }
+    return workshop.status;
+  };
+
   if (loading && workshops.length === 0) {
     return (
       <div className={styles.loading} role="status" aria-live="polite">
@@ -265,8 +279,8 @@ export default function WorkshopsPage() {
                     </div>
                   </td>
                   <td>
-                    <span className={`${styles.statusBadge} ${getStatusBadgeClass(workshop.status)}`}>
-                      {getStatusLabel(workshop.status)}
+                    <span className={`${styles.statusBadge} ${getStatusBadgeClass(getEffectiveStatus(workshop))}`}>
+                      {getStatusLabel(getEffectiveStatus(workshop))}
                     </span>
                   </td>
                   <td>{formatDate(workshop.workshopStartDatetime)}</td>

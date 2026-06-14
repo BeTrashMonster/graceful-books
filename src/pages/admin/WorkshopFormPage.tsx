@@ -95,10 +95,13 @@ export default function WorkshopFormPage() {
       const data = await response.json();
       const workshop = data.data.workshop; // Backend wraps in { data: { workshop: {...} } }
 
-      // Helper to convert ISO datetime to datetime-local format
+      // Helper to convert ISO datetime to datetime-local format WITHOUT timezone conversion
+      // We want to preserve the exact date/time values, not convert to browser timezone
       const toDatetimeLocal = (isoString: string) => {
         if (!isoString) return '';
-        return new Date(isoString).toISOString().slice(0, 16);
+        // Just extract the date and time parts without timezone conversion
+        // Format: YYYY-MM-DDTHH:mm
+        return isoString.slice(0, 16);
       };
 
       // Convert API response to form data
@@ -154,10 +157,14 @@ export default function WorkshopFormPage() {
       console.log('📍 URL:', url);
       console.log('🔧 Method:', method);
 
-      // Helper to convert datetime-local to ISO 8601
+      // Helper to convert datetime-local to ISO 8601 WITHOUT timezone conversion
+      // We preserve the exact date/time entered and append 'Z' for UTC
+      // The times entered are considered to be in the workshop's primaryTimezone
       const toISO = (dateTimeLocal: string) => {
         if (!dateTimeLocal) return undefined;
-        return new Date(dateTimeLocal).toISOString();
+        // Just append seconds and timezone marker without converting
+        // This preserves the exact date/time the user entered
+        return dateTimeLocal + ':00.000Z';
       };
 
       const requestBody = {
