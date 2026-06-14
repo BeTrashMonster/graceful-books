@@ -158,8 +158,17 @@ export default function WorkshopFormPage() {
       console.log('🔧 Method:', method);
 
       // Helper to convert datetime-local to ISO 8601 WITHOUT timezone conversion
-      // We preserve the exact date/time entered and append 'Z' for UTC
-      // The times entered are considered to be in the workshop's primaryTimezone
+      //
+      // IMPORTANT DISTINCTION:
+      // - Event datetimes (workshop start/end, registration deadline): Literal times in workshop timezone
+      //   Example: "11:00 AM PST" is stored as 11:00 and displayed as 11:00
+      //
+      // - Audit timestamps (created_at, updated_at, enrolled_at): Proper UTC timestamps
+      //   These are handled by the database automatically and track WHEN actions occurred
+      //   for security compliance and audit logging
+      //
+      // This function handles EVENT datetimes only. Audit timestamps are managed by
+      // the backend/database and always use proper UTC with timezone tracking.
       const toISO = (dateTimeLocal: string) => {
         if (!dateTimeLocal) return undefined;
         // Just append seconds and timezone marker without converting

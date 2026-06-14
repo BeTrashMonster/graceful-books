@@ -127,28 +127,65 @@ export default function WorkshopSignupPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return '';
-    // Extract date parts directly without timezone conversion
-    // Format: 2026-07-15T11:00:00.000Z -> "July 15, 2026"
-    const datePart = dateString.split('T')[0]; // "2026-07-15"
-    const [year, month, day] = datePart.split('-');
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                        'July', 'August', 'September', 'October', 'November', 'December'];
-    return `${monthNames[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'Date TBD';
+
+    try {
+      // Extract date parts directly without timezone conversion
+      // Format: 2026-07-15T11:00:00.000Z -> "July 15, 2026"
+      const datePart = dateString.includes('T') ? dateString.split('T')[0] : dateString.split(' ')[0];
+      if (!datePart) return 'Date TBD';
+
+      const parts = datePart.split('-');
+      if (parts.length !== 3) return 'Date TBD';
+
+      const [year, month, day] = parts;
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+      const monthIndex = parseInt(month) - 1;
+
+      if (monthIndex < 0 || monthIndex > 11) return 'Date TBD';
+
+      return `${monthNames[monthIndex]} ${parseInt(day)}, ${year}`;
+    } catch (err) {
+      console.error('Error formatting date:', err, dateString);
+      return 'Date TBD';
+    }
   };
 
-  const formatTime = (dateString: string, timezone?: string) => {
-    if (!dateString) return '';
-    // Extract time parts directly without timezone conversion
-    // Format: 2026-07-15T11:00:00.000Z -> "11:00 AM"
-    const timePart = dateString.split('T')[1]?.split('.')[0] || dateString.split('T')[1]?.split('Z')[0]; // "11:00:00"
-    if (!timePart) return '';
-    const [hours, minutes] = timePart.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-    return `${displayHour}:${minutes} ${ampm}`;
+  const formatTime = (dateString: string | undefined, timezone?: string) => {
+    if (!dateString) return 'Time TBD';
+
+    try {
+      // Extract time parts directly without timezone conversion
+      // Format: 2026-07-15T11:00:00.000Z -> "11:00 AM"
+      let timePart;
+
+      if (dateString.includes('T')) {
+        const afterT = dateString.split('T')[1];
+        timePart = afterT.split('.')[0] || afterT.split('Z')[0];
+      } else {
+        return 'Time TBD';
+      }
+
+      if (!timePart) return 'Time TBD';
+
+      const timeParts = timePart.split(':');
+      if (timeParts.length < 2) return 'Time TBD';
+
+      const [hours, minutes] = timeParts;
+      const hour = parseInt(hours);
+
+      if (isNaN(hour)) return 'Time TBD';
+
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+
+      return `${displayHour}:${minutes} ${ampm}`;
+    } catch (err) {
+      console.error('Error formatting time:', err, dateString);
+      return 'Time TBD';
+    }
   };
 
   const getTimezoneAbbr = (timezone: string) => {
@@ -166,17 +203,38 @@ export default function WorkshopSignupPage() {
   const isWorkshopOpen = () => {
     if (!workshop) return false;
 
-    if (workshop.status !== 'open_registration') return false;
+    console.log('Workshop status check:', {
+      status: workshop.status,
+      registrationDeadline: workshop.registrationDeadline,
+      enrollmentCount,
+      maxEnrollment: workshop.maxEnrollment,
+    });
 
-    if (workshop.registrationDeadline) {
-      const deadline = new Date(workshop.registrationDeadline);
-      if (new Date() > deadline) return false;
-    }
-
-    if (workshop.maxEnrollment && enrollmentCount >= workshop.maxEnrollment) {
+    // Check if status is open_registration (note: old data might still have 'open' status)
+    if (workshop.status !== 'open_registration' && workshop.status !== 'open') {
+      console.log('Status not open:', workshop.status);
       return false;
     }
 
+    // Check registration deadline if set
+    if (workshop.registrationDeadline) {
+      try {
+        const deadline = new Date(workshop.registrationDeadline);
+        const now = new Date();
+        console.log('Deadline check:', { deadline, now, isPast: now > deadline });
+        if (now > deadline) return false;
+      } catch (err) {
+        console.error('Error parsing deadline:', err);
+      }
+    }
+
+    // Check enrollment capacity
+    if (workshop.maxEnrollment && enrollmentCount >= workshop.maxEnrollment) {
+      console.log('Workshop full');
+      return false;
+    }
+
+    console.log('Workshop is open!');
     return true;
   };
 
