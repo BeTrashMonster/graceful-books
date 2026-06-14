@@ -42,6 +42,7 @@ function mapWorkshopRow(row: any) {
   return {
     id: row.id,
     cohortName: row.cohort_name,
+    workshopName: row.workshop_name,
     slug: row.slug,
     description: row.description,
     workshopType: row.workshop_type,
@@ -108,7 +109,7 @@ workshops.post('/', requireAdmin, validate(createWorkshopSchema), async (c) => {
     // Insert workshop
     const result = await db.query(
       `INSERT INTO workshops (
-        cohort_name, slug, description,
+        cohort_name, workshop_name, slug, description,
         workshop_type, location,
         primary_timezone, secondary_timezone,
         stripe_price_id, trial_duration_days,
@@ -118,18 +119,19 @@ workshops.post('/', requireAdmin, validate(createWorkshopSchema), async (c) => {
         send_reminder, reminder_hours_before,
         status, created_by
       ) VALUES (
-        $1, $2, $3,
-        $4, $5,
-        $6, $7,
-        $8, $9,
-        $10, $11, $12, $13,
-        $14, $15,
-        $16, $17, $18,
-        $19, $20,
-        $21, $22
+        $1, $2, $3, $4,
+        $5, $6,
+        $7, $8,
+        $9, $10,
+        $11, $12, $13, $14,
+        $15, $16,
+        $17, $18, $19,
+        $20, $21,
+        $22, $23
       ) RETURNING *`,
       [
         data.cohortName,
+        data.workshopName,
         data.slug,
         data.description || null,
         data.workshopType,
@@ -286,6 +288,10 @@ workshops.put('/:id', requireAdmin, validate(updateWorkshopSchema), async (c) =>
     if (data.cohortName !== undefined) {
       updates.push(`cohort_name = $${paramCount++}`);
       values.push(data.cohortName);
+    }
+    if (data.workshopName !== undefined) {
+      updates.push(`workshop_name = $${paramCount++}`);
+      values.push(data.workshopName);
     }
     if (data.slug !== undefined) {
       updates.push(`slug = $${paramCount++}`);
@@ -464,6 +470,7 @@ workshops.get('/slug/:slug', rateLimiter({ max: 100, window: 3600 }), async (c) 
       workshop: {
         id: workshop.id,
         cohortName: workshop.cohortName,
+        workshopName: workshop.workshopName,
         slug: workshop.slug,
         description: workshop.description,
         workshopType: workshop.workshopType,

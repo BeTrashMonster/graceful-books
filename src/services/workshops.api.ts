@@ -14,6 +14,7 @@ import { api } from './api';
 export interface Workshop {
   id: string;
   cohortName: string;
+  workshopName?: string;
   slug: string;
   description?: string;
   workshopType: 'in_person' | 'online';
@@ -21,21 +22,22 @@ export interface Workshop {
   primaryTimezone: string;
   secondaryTimezone?: string;
   accessGrantDatetime: string;
-  trialStartDatetime: string;
+  trialStartDatetime?: string;
   trialDurationDays: number;
   workshopStartDatetime: string;
   workshopEndDatetime: string;
   registrationDeadline?: string;
   maxEnrollment?: number;
+  stripePriceId?: string;
   welcomeMessage?: string;
   customEmailTemplates?: Record<string, any>;
   customEmailSchedule?: Record<string, any>;
   postWorkshopResources?: Array<{ title: string; url: string }>;
-  postTrialAction: 'upgrade_prompt' | 'auto_convert' | 'account_freeze';
+  postTrialAction?: 'upgrade_prompt' | 'auto_convert' | 'account_freeze';
   sendReminder: boolean;
   reminderHoursBefore: number;
   status: 'draft' | 'open_registration' | 'registration_closed' | 'in_progress' | 'completed' | 'archived';
-  createdBy: string;
+  createdBy?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -206,7 +206,7 @@ export default function WorkshopSignupPage() {
       <div className={styles.card}>
         {/* Workshop Header */}
         <div className={styles.workshopHeader}>
-          <h1 className={styles.workshopTitle}>{workshop.cohortName}</h1>
+          <h1 className={styles.workshopTitle}>{workshop.workshopName || workshop.cohortName}</h1>
           {workshop.description && (
             <p className={styles.workshopDescription}>{workshop.description}</p>
           )}

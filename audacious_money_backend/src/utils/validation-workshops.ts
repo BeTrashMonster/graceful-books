@@ -159,6 +159,11 @@ export const createWorkshopSchema = z
       .min(3, 'Cohort name must be at least 3 characters')
       .max(255, 'Cohort name must be less than 255 characters')
       .trim(),
+    workshopName: z
+      .string()
+      .min(3, 'Workshop name must be at least 3 characters')
+      .max(255, 'Workshop name must be less than 255 characters')
+      .trim(),
     slug: workshopSlugSchema,
     description: z.string().max(2000, 'Description must be less than 2000 characters').trim().optional(),
 
@@ -230,6 +235,8 @@ export const createWorkshopSchema = z
 export const updateWorkshopSchema = z
   .object({
     cohortName: z.string().min(3).max(255).trim().optional(),
+    workshopName: z.string().min(3).max(255).trim().optional(),
+    slug: workshopSlugSchema.optional(),
     description: z.string().max(2000).trim().optional(),
 
     workshopType: workshopTypeSchema.optional(),

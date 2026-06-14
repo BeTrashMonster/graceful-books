@@ -277,18 +277,19 @@
 .homeLink {
   display: inline-block;
   padding: 0.75rem 1.5rem;
-  background: #4b006e;
-  color: white;
+  background: linear-gradient(135deg, #D4AF37 0%, #C5A028 100%);
+  color: #4b006e;
   text-decoration: none;
   border-radius: 0.5rem;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
 }
 
 .homeLink:hover {
-  background: #5a0082;
+  background: linear-gradient(135deg, #E5C047 0%, #D4AF37 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(75, 0, 110, 0.3);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.5);
 }
 
 /* Responsive Design */

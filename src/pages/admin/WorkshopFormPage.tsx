@@ -12,6 +12,7 @@ const API_URL = 'https://api.audacious.money';
 
 interface WorkshopFormData {
   cohortName: string;
+  workshopName: string;
   slug: string;
   description: string;
   workshopType: 'in_person' | 'online';
@@ -28,7 +29,7 @@ interface WorkshopFormData {
   welcomeMessage: string;
   sendReminder: boolean;
   reminderHoursBefore: number;
-  status: 'draft' | 'open' | 'closed' | 'in_progress' | 'completed' | 'archived';
+  status: 'draft' | 'open_registration' | 'registration_closed' | 'in_progress' | 'completed' | 'archived';
 }
 
 export default function WorkshopFormPage() {
@@ -38,6 +39,7 @@ export default function WorkshopFormPage() {
 
   const [formData, setFormData] = useState<WorkshopFormData>({
     cohortName: '',
+    workshopName: '',
     slug: '',
     description: '',
     workshopType: 'in_person',
@@ -102,6 +104,7 @@ export default function WorkshopFormPage() {
       // Convert API response to form data
       setFormData({
         cohortName: workshop.cohortName || '',
+        workshopName: workshop.workshopName || workshop.cohortName || '',
         slug: workshop.slug || '',
         description: workshop.description || '',
         workshopType: workshop.workshopType || 'in_person',
@@ -159,6 +162,7 @@ export default function WorkshopFormPage() {
 
       const requestBody = {
         cohortName: formData.cohortName,
+        workshopName: formData.workshopName,
         slug: formData.slug,
         description: formData.description,
         workshopType: formData.workshopType,
@@ -292,8 +296,24 @@ export default function WorkshopFormPage() {
           <h2>Basic Information</h2>
 
           <div className={styles.field}>
+            <label htmlFor="workshopName">
+              Workshop Name <span className={styles.required}>*</span>
+            </label>
+            <input
+              type="text"
+              id="workshopName"
+              name="workshopName"
+              value={formData.workshopName}
+              onChange={handleChange}
+              required
+              placeholder="e.g., Understanding Your True Costs"
+            />
+            <small>This is the name participants will see on the signup page</small>
+          </div>
+
+          <div className={styles.field}>
             <label htmlFor="cohortName">
-              Cohort Name <span className={styles.required}>*</span>
+              Cohort Name (Admin Identifier) <span className={styles.required}>*</span>
             </label>
             <input
               type="text"
@@ -302,8 +322,9 @@ export default function WorkshopFormPage() {
               value={formData.cohortName}
               onChange={handleCohortNameChange}
               required
-              placeholder="e.g., Understanding Your True Costs - July 2026"
+              placeholder="e.g., July 2026 - True Costs Workshop"
             />
+            <small>Internal name for tracking this workshop cohort</small>
           </div>
 
           <div className={styles.field}>
@@ -365,14 +386,15 @@ export default function WorkshopFormPage() {
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="status">Status</label>
+            <label htmlFor="status">Status <span className={styles.required}>*</span></label>
             <select
               id="status"
               name="status"
               value={formData.status}
               onChange={handleChange}
+              required
             >
-              <option value="draft">Draft (not visible)</option>
+              <option value="draft">Draft (not visible to public)</option>
               <option value="open_registration">Open for Registration</option>
               <option value="registration_closed">Registration Closed</option>
               <option value="in_progress">In Progress</option>
