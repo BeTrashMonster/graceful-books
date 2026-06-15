@@ -154,16 +154,11 @@ export default function WorkshopsPage() {
     return Math.round((converted / total) * 100);
   };
 
-  // Get the effective status of a workshop, accounting for registration deadline
+  // REMOVED: Automatic status checking based on deadline
+  // The timezone-naive Date comparison was causing incorrect status display
+  // Admin should manually update workshop status as needed
+  // The workshop status is exactly what you set it to - no automatic conversions
   const getEffectiveStatus = (workshop: WorkshopAnalytics): string => {
-    // If status is open_registration, check if deadline has passed
-    if (workshop.status === 'open_registration' && workshop.registrationDeadline) {
-      const now = new Date();
-      const deadline = new Date(workshop.registrationDeadline);
-      if (now > deadline) {
-        return 'registration_closed';
-      }
-    }
     return workshop.status;
   };
 

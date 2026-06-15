@@ -216,17 +216,10 @@ export default function WorkshopSignupPage() {
       return false;
     }
 
-    // Check registration deadline if set
-    if (workshop.registrationDeadline) {
-      try {
-        const deadline = new Date(workshop.registrationDeadline);
-        const now = new Date();
-        console.log('Deadline check:', { deadline, now, isPast: now > deadline });
-        if (now > deadline) return false;
-      } catch (err) {
-        console.error('Error parsing deadline:', err);
-      }
-    }
+    // REMOVED: Automatic deadline checking
+    // The timezone-naive Date comparison was causing workshops to incorrectly show as closed
+    // The workshop status (set by admin) is the source of truth
+    // Admin manually updates status to 'registration_closed' when registration period ends
 
     // Check enrollment capacity
     if (workshop.maxEnrollment && enrollmentCount >= workshop.maxEnrollment) {
