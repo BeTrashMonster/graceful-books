@@ -18,6 +18,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { utcToZonedTime } from 'date-fns-tz';
 import styles from './WorkshopsPage.module.css';
 
 const API_URL = 'https://api.audacious.money';
@@ -32,6 +33,7 @@ interface WorkshopAnalytics {
   workshopStartDatetime: Date;
   workshopEndDatetime: Date;
   registrationDeadline?: Date | string;
+  primaryTimezone?: string;
   maxEnrollment?: number;
   totalEnrolled: number;
   activeCount: number;
@@ -154,11 +156,42 @@ export default function WorkshopsPage() {
     return Math.round((converted / total) * 100);
   };
 
-  // REMOVED: Automatic status checking based on deadline
-  // The timezone-naive Date comparison was causing incorrect status display
-  // Admin should manually update workshop status as needed
-  // The workshop status is exactly what you set it to - no automatic conversions
+  // Get the effective status of a workshop, accounting for registration deadline
+  // Uses timezone-aware comparison to check if deadline has passed in the workshop's timezone
   const getEffectiveStatus = (workshop: WorkshopAnalytics): string => {
+    // If status is open_registration, check if deadline has passed IN THE WORKSHOP'S TIMEZONE
+    if ((workshop.status === 'open_registration' || workshop.status === 'open') && workshop.registrationDeadline) {
+      try {
+        const timezone = workshop.primaryTimezone || 'America/Los_Angeles';
+
+        // Get current time in the workshop's timezone
+        const nowInWorkshopTz = utcToZonedTime(new Date(), timezone);
+
+        // Parse the deadline as a literal time in the workshop's timezone
+        // The stored value "2026-07-15T11:00:00.000Z" means "11:00 AM in workshop timezone"
+        const deadlineParts = workshop.registrationDeadline.toString().split('T');
+        const [datePart, timePart] = deadlineParts;
+        const [year, month, day] = datePart.split('-');
+        const [hours, minutes] = (timePart?.split(':') || ['0', '0']);
+
+        // Create a Date object representing the deadline time in the workshop's timezone
+        const deadlineDate = new Date(
+          parseInt(year),
+          parseInt(month) - 1,
+          parseInt(day),
+          parseInt(hours),
+          parseInt(minutes),
+          0
+        );
+
+        // Compare: both times are now in the workshop's timezone
+        if (nowInWorkshopTz > deadlineDate) {
+          return 'registration_closed';
+        }
+      } catch (err) {
+        console.error('Error checking deadline:', err);
+      }
+    }
     return workshop.status;
   };
 

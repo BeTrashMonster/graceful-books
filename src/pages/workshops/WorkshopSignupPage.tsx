@@ -1,5 +1,6 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { utcToZonedTime } from 'date-fns-tz';
 import { CharitySelector } from '../../components/charity';
 import type { Charity } from '../../types/database.types';
 import { getWorkshopBySlug, enrollInWorkshop, type Workshop } from '../../services/workshops.api';
@@ -216,10 +217,47 @@ export default function WorkshopSignupPage() {
       return false;
     }
 
-    // REMOVED: Automatic deadline checking
-    // The timezone-naive Date comparison was causing workshops to incorrectly show as closed
-    // The workshop status (set by admin) is the source of truth
-    // Admin manually updates status to 'registration_closed' when registration period ends
+    // Check registration deadline using TIMEZONE-AWARE comparison
+    // The deadline is stored as a literal time in the workshop's timezone
+    if (workshop.registrationDeadline) {
+      try {
+        const timezone = workshop.primaryTimezone || 'America/Los_Angeles';
+
+        // Get current time in the workshop's timezone
+        const nowInWorkshopTz = utcToZonedTime(new Date(), timezone);
+
+        // Parse the deadline as a literal time in the workshop's timezone
+        // The stored value "2026-07-15T11:00:00.000Z" means "11:00 AM in workshop timezone"
+        const deadlineParts = workshop.registrationDeadline.split('T');
+        const [datePart, timePart] = deadlineParts;
+        const [year, month, day] = datePart.split('-');
+        const [hours, minutes] = (timePart?.split(':') || ['0', '0']);
+
+        // Create a Date object representing the deadline time in the workshop's timezone
+        const deadlineDate = new Date(
+          parseInt(year),
+          parseInt(month) - 1,
+          parseInt(day),
+          parseInt(hours),
+          parseInt(minutes),
+          0
+        );
+
+        console.log('Timezone-aware deadline check:', {
+          timezone,
+          nowInWorkshopTz,
+          deadlineDate,
+          isPast: nowInWorkshopTz > deadlineDate
+        });
+
+        if (nowInWorkshopTz > deadlineDate) {
+          console.log('Registration deadline has passed in workshop timezone');
+          return false;
+        }
+      } catch (err) {
+        console.error('Error parsing deadline:', err);
+      }
+    }
 
     // Check enrollment capacity
     if (workshop.maxEnrollment && enrollmentCount >= workshop.maxEnrollment) {
