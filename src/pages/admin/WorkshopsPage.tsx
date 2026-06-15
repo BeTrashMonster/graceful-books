@@ -18,7 +18,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { utcToZonedTime } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
 import styles from './WorkshopsPage.module.css';
 
 const API_URL = 'https://api.audacious.money';
@@ -165,7 +165,7 @@ export default function WorkshopsPage() {
         const timezone = workshop.primaryTimezone || 'America/Los_Angeles';
 
         // Get current time in the workshop's timezone
-        const nowInWorkshopTz = utcToZonedTime(new Date(), timezone);
+        const nowInWorkshopTz = toZonedTime(new Date(), timezone);
 
         // Parse the deadline as a literal time in the workshop's timezone
         // The stored value "2026-07-15T11:00:00.000Z" means "11:00 AM in workshop timezone"

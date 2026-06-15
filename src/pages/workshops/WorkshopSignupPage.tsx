@@ -1,6 +1,6 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { utcToZonedTime } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
 import { CharitySelector } from '../../components/charity';
 import type { Charity } from '../../types/database.types';
 import { getWorkshopBySlug, enrollInWorkshop, type Workshop } from '../../services/workshops.api';
@@ -232,7 +232,7 @@ export default function WorkshopSignupPage() {
         const timezone = workshop.primaryTimezone || 'America/Los_Angeles';
 
         // Get current time in the workshop's timezone
-        const nowInWorkshopTz = utcToZonedTime(new Date(), timezone);
+        const nowInWorkshopTz = toZonedTime(new Date(), timezone);
 
         // Parse the deadline as a literal time in the workshop's timezone
         // The stored value "2026-07-15T11:00:00.000Z" means "11:00 AM in workshop timezone"
