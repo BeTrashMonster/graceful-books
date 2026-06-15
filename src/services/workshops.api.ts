@@ -99,14 +99,16 @@ export interface WorkshopAnalyticsData {
  * Get all workshops (admin only)
  */
 export async function getWorkshops(): Promise<Workshop[]> {
-  return api.get<Workshop[]>('/admin/workshops');
+  const response = await api.get<{ data: { workshops: Workshop[] } }>('/admin/workshops');
+  return response.data.workshops;
 }
 
 /**
  * Get a single workshop by ID
  */
 export async function getWorkshop(id: string): Promise<Workshop> {
-  return api.get<Workshop>(`/admin/workshops/${id}`);
+  const response = await api.get<{ data: { workshop: Workshop } }>(`/admin/workshops/${id}`);
+  return response.data.workshop;
 }
 
 /**
@@ -259,7 +261,8 @@ export async function exportAnalyticsCSV(
  * Get workshop details by slug (public endpoint)
  */
 export async function getWorkshopBySlug(slug: string): Promise<Workshop> {
-  return api.get<Workshop>(`/api/workshops/slug/${slug}`);
+  const response = await api.get<{ data: { workshop: Workshop } }>(`/api/workshops/slug/${slug}`);
+  return response.data.workshop;
 }
 
 /**

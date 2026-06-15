@@ -44,9 +44,17 @@ export default function WorkshopSignupPage() {
     setError(null);
     try {
       const workshopData = await getWorkshopBySlug(slug!);
+      console.log('📊 Workshop data received from API:', workshopData);
+      console.log('📅 Workshop dates:', {
+        start: workshopData.workshopStartDatetime,
+        end: workshopData.workshopEndDatetime,
+        registrationDeadline: workshopData.registrationDeadline,
+        status: workshopData.status,
+        timezone: workshopData.primaryTimezone
+      });
       setWorkshop(workshopData);
       // TODO: Get actual enrollment count from backend
-      setEnrollmentCount(0);
+      setEnrollmentCount(workshopData.enrollmentCount || 0);
     } catch (err: any) {
       console.error('Failed to load workshop:', err);
       setError(err.message || 'Workshop not found');
