@@ -4,6 +4,7 @@
  * Helper functions for determining workshop access, trial status, and enrollment eligibility
  */
 
+import { toZonedTime } from 'date-fns-tz';
 import type { Workshop, WorkshopEnrollment } from '../types/workshop.types.js';
 
 // =============================================================================
@@ -98,18 +99,52 @@ export function getTrialDaysRemaining(enrollment: WorkshopEnrollment): number | 
  * @returns true if accepting enrollments, false otherwise
  */
 export function isWorkshopAcceptingEnrollments(workshop: Workshop): boolean {
-  const now = new Date();
-
   // Check status
   if (workshop.status !== 'open_registration') {
     return false;
   }
 
-  // Check registration deadline
+  // Check registration deadline using TIMEZONE-AWARE comparison
+  // The deadline is stored as a literal time in the workshop's timezone
   if (workshop.registrationDeadline) {
-    const deadline = new Date(workshop.registrationDeadline);
-    if (now > deadline) {
-      return false;
+    try {
+      const timezone = workshop.primaryTimezone || 'America/Los_Angeles';
+
+      // Get current time in the workshop's timezone
+      const nowInWorkshopTz = toZonedTime(new Date(), timezone);
+
+      // Parse the deadline as a literal time in the workshop's timezone
+      // The stored value "2026-06-28T15:30:00.000Z" means "15:30 in workshop timezone"
+      const deadlineParts = workshop.registrationDeadline.split('T');
+      const [datePart, timePart] = deadlineParts;
+      const [year, month, day] = datePart.split('-');
+      const [hours, minutes] = (timePart?.split(':') || ['0', '0']);
+
+      // Create a Date object representing the deadline time in the workshop's timezone
+      const deadlineDate = new Date(
+        parseInt(year),
+        parseInt(month) - 1,
+        parseInt(day),
+        parseInt(hours),
+        parseInt(minutes),
+        0
+      );
+
+      console.log('[Workshop Access] Timezone-aware deadline check:', {
+        timezone,
+        nowInWorkshopTz,
+        deadlineDate,
+        isPast: nowInWorkshopTz > deadlineDate
+      });
+
+      if (nowInWorkshopTz > deadlineDate) {
+        console.log('[Workshop Access] Registration deadline has passed in workshop timezone');
+        return false;
+      }
+    } catch (err) {
+      console.error('[Workshop Access] Error parsing deadline:', err);
+      // If we can't parse the deadline, allow enrollment (fail open)
+      return true;
     }
   }
 
