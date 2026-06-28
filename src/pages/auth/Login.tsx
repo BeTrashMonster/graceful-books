@@ -56,6 +56,36 @@ export default function Login() {
       // Trigger auth context to reload
       window.dispatchEvent(new Event('graceful_books_login'));
 
+      // Check if user has workshop enrollment
+      const checkWorkshopEnrollment = async () => {
+        try {
+          const { getMyWorkshopEnrollment } = await import('../../services/workshops.api');
+          const enrollment = await getMyWorkshopEnrollment();
+
+          if (enrollment && !enrollment.accessGranted) {
+            // User has workshop enrollment but access not granted yet
+            if (!enrollment.worksheetCompletedAt) {
+              // Redirect to worksheet if not completed
+              navigate('/workshops/worksheet', { replace: true });
+              return true;
+            } else {
+              // Redirect to countdown page
+              navigate('/workshops/countdown', { replace: true });
+              return true;
+            }
+          }
+        } catch (err) {
+          // No workshop enrollment or error checking - continue with normal flow
+          console.log('No workshop enrollment found:', err);
+        }
+        return false;
+      };
+
+      const hasWorkshopRedirect = await checkWorkshopEnrollment();
+      if (hasWorkshopRedirect) {
+        return; // Already redirected to workshop flow
+      }
+
       // Determine redirect based on user's products
       const products = data.data.products || [];
       const hasBookkeeping = products.some((p: any) => p.slug === 'bookkeeping-suite');

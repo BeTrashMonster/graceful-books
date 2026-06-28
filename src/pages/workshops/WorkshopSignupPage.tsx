@@ -126,8 +126,8 @@ export default function WorkshopSignupPage() {
         })
       );
 
-      // Navigate to thank you page
-      navigate(`/workshops/${slug}/thank-you`);
+      // Navigate to worksheet page
+      navigate('/workshops/worksheet');
     } catch (err: any) {
       console.error('Enrollment error:', err);
       setError(

@@ -130,8 +130,8 @@ export default function WorkshopWorksheetPage() {
       // Mark as completed
       await completeWorksheet();
 
-      // Navigate to thank you page or dashboard
-      navigate('/dashboard');
+      // Navigate to countdown page
+      navigate('/workshops/countdown');
     } catch (err: any) {
       console.error('Failed to complete worksheet:', err);
       setError(err.message || 'Failed to complete worksheet');

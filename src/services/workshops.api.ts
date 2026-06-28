@@ -54,7 +54,7 @@ export interface WorkshopEnrollment {
   worksheetCompletedAt?: string;
   emailsSent?: Array<{ emailType: string; sentAt: string }>;
   lastActiveAt?: string;
-  status: 'enrolled' | 'active' | 'trial_active' | 'trial_expired' | 'converted' | 'cancelled';
+  status?: 'enrolled' | 'active' | 'trial_active' | 'trial_expired' | 'converted' | 'cancelled';
   accessGranted: boolean;
   accessGrantedAt?: string;
   user?: {
@@ -62,6 +62,7 @@ export interface WorkshopEnrollment {
     email: string;
     name?: string;
   };
+  workshop?: Workshop;
 }
 
 export interface WorkshopAnalyticsData {
@@ -296,7 +297,8 @@ export async function enrollInWorkshop(
  * Get current user's workshop enrollment (requires auth)
  */
 export async function getMyWorkshopEnrollment(): Promise<WorkshopEnrollment | null> {
-  return api.get<WorkshopEnrollment | null>('/api/workshops/my-enrollment');
+  const response = await api.get<{ data: { enrollment: WorkshopEnrollment | null } }>('/api/workshops/my-enrollment');
+  return response.data.enrollment;
 }
 
 /**

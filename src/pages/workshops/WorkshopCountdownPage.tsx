@@ -30,15 +30,19 @@ export default function WorkshopCountdownPage() {
 
   // Update countdown every second
   useEffect(() => {
-    if (!enrollment) return;
+    if (!enrollment || !enrollment.workshop) return;
 
     const updateCountdown = () => {
       const now = new Date().getTime();
-      // Use accessGrantedAt if available, otherwise use workshop's accessGrantDatetime
-      const targetTime = enrollment.accessGrantedAt
-        ? new Date(enrollment.accessGrantedAt).getTime()
-        : new Date().getTime(); // Fallback to now if not set
+      // Use workshop's accessGrantDatetime
+      const accessTime = enrollment.workshop.accessGrantDatetime || enrollment.accessGrantedAt;
+      if (!accessTime) {
+        // No access time set, redirect to dashboard
+        navigate('/dashboard');
+        return;
+      }
 
+      const targetTime = new Date(accessTime).getTime();
       const difference = targetTime - now;
 
       if (difference <= 0) {
@@ -136,10 +140,11 @@ export default function WorkshopCountdownPage() {
     );
   }
 
-  // Mock workshop data - in production, this would come from the enrollment's workshop object
-  const workshopName = 'Product Costing Workshop';
-  const workshopDate = enrollment.accessGrantedAt || new Date().toISOString();
-  const workshopLocation = 'Online via Zoom'; // Would come from workshop data
+  // Get workshop data from enrollment
+  const workshop = enrollment.workshop;
+  const workshopName = workshop?.workshopName || workshop?.cohortName || 'Product Costing Workshop';
+  const accessDate = workshop?.accessGrantDatetime || enrollment.accessGrantedAt || new Date().toISOString();
+  const workshopLocation = workshop?.location || 'Online';
 
   return (
     <div className={styles.container}>
@@ -152,7 +157,7 @@ export default function WorkshopCountdownPage() {
 
         {/* Countdown Timer */}
         <div className={styles.countdownSection}>
-          <h2 className={styles.countdownLabel}>Your workshop begins in:</h2>
+          <h2 className={styles.countdownLabel}>Your platform access unlocks in:</h2>
           <div className={styles.countdown}>
             <div className={styles.timeUnit}>
               <div className={styles.timeValue}>{padZero(timeRemaining.days)}</div>
@@ -183,7 +188,7 @@ export default function WorkshopCountdownPage() {
             <div className={styles.detailContent}>
               <h3 className={styles.detailLabel}>Workshop Date & Time</h3>
               <p className={styles.detailValue}>
-                {formatDate(workshopDate)} at {formatTime(workshopDate)}
+                {workshop?.workshopStartDatetime && formatDate(workshop.workshopStartDatetime)} at {workshop?.workshopStartDatetime && formatTime(workshop.workshopStartDatetime)}
               </p>
             </div>
           </div>
@@ -192,7 +197,24 @@ export default function WorkshopCountdownPage() {
             <div className={styles.detailIcon}>📍</div>
             <div className={styles.detailContent}>
               <h3 className={styles.detailLabel}>Location</h3>
-              <p className={styles.detailValue}>{workshopLocation}</p>
+              <p className={styles.detailValue}>
+                {workshop?.workshopType === 'online' ? (
+                  workshop?.location ? (
+                    <a
+                      href={workshop.location}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.link}
+                    >
+                      Join Online Meeting
+                    </a>
+                  ) : (
+                    'Online'
+                  )
+                ) : (
+                  workshopLocation
+                )}
+              </p>
             </div>
           </div>
 
@@ -201,7 +223,7 @@ export default function WorkshopCountdownPage() {
             <div className={styles.detailContent}>
               <h3 className={styles.detailLabel}>Platform Access</h3>
               <p className={styles.detailValue}>
-                Unlocks on {formatDate(workshopDate)} at {formatTime(workshopDate)}
+                Unlocks on {formatDate(accessDate)} at {formatTime(accessDate)}
               </p>
             </div>
           </div>
