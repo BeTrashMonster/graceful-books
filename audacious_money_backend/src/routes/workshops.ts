@@ -529,9 +529,13 @@ workshops.post('/:id/signup', rateLimiter({ max: 5, window: 3600 }), validate(wo
     const currentEnrollmentCount = parseInt(countResult.rows[0].count) || 0;
 
     // Check if workshop is accepting enrollments
-    const workshopEligibility = isWorkshopAcceptingEnrollments(workshop, currentEnrollmentCount);
-    if (!workshopEligibility.isAccepting) {
-      return badRequest(c, ErrorCodes.INVALID_INPUT, workshopEligibility.reason || 'Workshop not accepting enrollments');
+    if (!isWorkshopAcceptingEnrollments(workshop)) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'This workshop is not currently accepting enrollments');
+    }
+
+    // Check if workshop is full
+    if (workshop.maxEnrollment && currentEnrollmentCount >= workshop.maxEnrollment) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'This workshop has reached maximum capacity');
     }
 
     // Check if email already exists

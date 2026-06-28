@@ -9,7 +9,7 @@
 
 .card {
   width: 100%;
-  max-width: 680px;
+  max-width: 920px;
   background: white;
   padding: 2rem;
   border-radius: 0.75rem;
@@ -195,8 +195,8 @@
 /* Charity Section */
 .charitySection {
   margin-bottom: 1.5rem;
-  max-height: 650px;
-  overflow-y: auto;
+  max-height: 850px;
+  overflow-y: visible;
   padding-right: 0.5rem;
 }
 
