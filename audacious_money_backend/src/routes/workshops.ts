@@ -544,6 +544,18 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
     // Check if email already exists
     const emailCheck = await db.query('SELECT id FROM users WHERE email = $1', [data.email]);
     if (emailCheck.rowCount > 0) {
+      const existingUserId = emailCheck.rows[0].id;
+
+      // Check if this user is already enrolled in this workshop
+      const enrollmentCheck = await db.query(
+        'SELECT id FROM workshop_enrollments WHERE user_id = $1 AND workshop_id = $2',
+        [existingUserId, workshopId]
+      );
+
+      if (enrollmentCheck.rowCount > 0) {
+        return badRequest(c, ErrorCodes.ALREADY_EXISTS, 'You are already enrolled in this workshop. Please sign in to access your account.');
+      }
+
       return badRequest(c, ErrorCodes.ALREADY_EXISTS, 'An account with this email already exists. Please sign in instead.');
     }
 
