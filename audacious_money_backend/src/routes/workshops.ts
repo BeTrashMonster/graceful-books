@@ -5,12 +5,12 @@
  */
 
 import { Hono } from 'hono';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import type { HonoEnv } from '../types/hono.js';
 import { validate } from '../utils/validation.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import { rateLimiter } from '../middleware/rateLimit.js';
+import { hashPassword } from '../utils/password.js';
+import { generateUserToken } from '../utils/jwt.js';
 import {
   success,
   badRequest,
@@ -559,8 +559,8 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
       return badRequest(c, ErrorCodes.ALREADY_EXISTS, 'An account with this email already exists. Please sign in instead.');
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(data.password, 10);
+    // Hash password using Argon2id (same as regular signup)
+    const hashedPassword = await hashPassword(data.password);
 
     // Create user account
     const userResult = await db.query(
@@ -609,12 +609,8 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
       user.id,
     ]);
 
-    // Generate auth token
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '24h' }
-    );
+    // Generate auth token using same utility as regular login
+    const token = await generateUserToken(user.id, user.email);
 
     console.log('[Workshops] New user signup:', user.id, user.email, 'for workshop:', workshopId);
 

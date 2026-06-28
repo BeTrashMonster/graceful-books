@@ -79,13 +79,20 @@ export default function WorkshopThankYouPage() {
   };
 
   const formatTime = (dateString: string, timezone?: string) => {
-    const date = new Date(dateString);
-    const timeStr = date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      timeZone: timezone || 'America/Los_Angeles',
-    });
-    return timeStr;
+    // Parse the ISO string and interpret it in the workshop's timezone
+    // The stored value like "2026-06-28T16:00:00.000Z" means "4:00 PM" in workshop timezone
+    const parts = dateString.split('T');
+    const [datePart, timePart] = parts;
+    const [year, month, day] = datePart.split('-');
+    const [hours, minutes] = (timePart?.split(':') || ['0', '0']);
+
+    // Display the literal time from the string
+    const hour = parseInt(hours);
+    const minute = parseInt(minutes);
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+
+    return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
   };
 
   const getTimezoneAbbr = (timezone: string) => {
@@ -98,12 +105,21 @@ export default function WorkshopThankYouPage() {
     return tzMap[timezone] || timezone;
   };
 
-  const formatAccessDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-    });
+  const formatAccessDate = (dateString: string | undefined) => {
+    if (!dateString) return 'TBD';
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'TBD';
+
+      return date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    } catch (err) {
+      return 'TBD';
+    }
   };
 
   if (isLoading) {
@@ -233,8 +249,7 @@ export default function WorkshopThankYouPage() {
             <li className={styles.step}>
               <span className={styles.stepIcon}>✓</span>
               <span className={styles.stepText}>
-                Your {workshop.trialDurationDays}-day free trial starts on{' '}
-                {formatAccessDate(workshop.trialStartDatetime)}
+                Your {workshop.trialDurationDays}-day free trial starts when you first sign in
               </span>
             </li>
           </ul>

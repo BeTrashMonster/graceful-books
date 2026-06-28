@@ -292,7 +292,7 @@ export default function Login() {
  */
 function getUserFriendlyError(message: string): string {
   if (message.includes('Invalid email or password')) {
-    return "That email or password doesn't seem to match what we have on file. Please double-check and try again. No worries - take your time.";
+    return "That email or password doesn't seem to match what we have on file. Please double-check and try again.";
   }
 
   if (message.includes('not active')) {

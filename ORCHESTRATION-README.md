@@ -20,8 +20,8 @@ The orchestration system consists of three scripts that work together to automat
 **What it does:**
 - Finds next unclaimed roadmap item
 - Simulates all three stages (with delays to show progress)
-- Marks items as IN-PROGRESS → DONE in ROADMAP.md
-- Does NOT actually write code or make commits
+- Marks items as IN-PROGRESS → DONE in  roadmap working on in .md file
+ - Does NOT actually write code or make commits
 
 **Use case:** Testing the workflow, demonstrating the system, running from within Claude Code
 
