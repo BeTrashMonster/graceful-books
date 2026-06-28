@@ -505,9 +505,10 @@ workshops.get('/slug/:slug', rateLimiter({ max: 100, window: 3600 }), async (c) 
  * POST /api/workshops/:id/signup
  *
  * Public signup endpoint: Creates user account and enrolls in workshop
- * Rate limited to 5 requests per hour per IP to prevent spam signups
+ * Rate limited to 30 requests per hour per IP to prevent spam signups
+ * (Higher limit during testing phase - reduce to 5-10 after launch)
  */
-workshops.post('/:id/signup', rateLimiter({ max: 5, window: 3600 }), validate(workshopSignupSchema), async (c) => {
+workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(workshopSignupSchema), async (c) => {
   const workshopId = c.req.param('id');
   const data = c.get('validatedData') as any;
   const db = c.get('db');
