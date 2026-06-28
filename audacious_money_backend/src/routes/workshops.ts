@@ -608,7 +608,16 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
     }, 201);
   } catch (error) {
     console.error('[Workshops] Error in workshop signup:', error);
-    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to complete signup');
+    console.error('[Workshops] Error details:', {
+      name: error?.name,
+      message: error?.message,
+      stack: error?.stack,
+      code: error?.code,
+    });
+
+    // Return more specific error message to help debugging
+    const errorMessage = error?.message || 'Failed to complete signup';
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, `Signup failed: ${errorMessage}`);
   }
 });
 
