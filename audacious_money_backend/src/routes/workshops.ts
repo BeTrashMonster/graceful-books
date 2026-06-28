@@ -554,8 +554,8 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
     const userResult = await db.query(
       `INSERT INTO users (
         email, password_hash, first_name, last_name, company_name,
-        chosen_charity_id, account_status, phase
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        account_status, support_key
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING id, email, first_name, last_name`,
       [
         data.email,
@@ -563,13 +563,22 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
         data.firstName,
         data.lastName,
         data.companyName || null,
-        data.charityId || null,
         'active',
-        'stabilize'
+        `WS-${Date.now()}-${Math.random().toString(36).substring(2, 9)}` // Generate unique support key
       ]
     );
 
     const user = userResult.rows[0];
+
+    // Create charity selection if provided
+    if (data.charityId) {
+      await db.query(
+        `INSERT INTO user_charity_selections (
+          user_id, charity_id, selected_at, effective_from
+        ) VALUES ($1, $2, NOW(), NOW())`,
+        [user.id, data.charityId]
+      );
+    }
 
     // Create enrollment
     const enrollmentResult = await db.query(
