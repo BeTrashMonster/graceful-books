@@ -279,13 +279,15 @@ export async function enrollInWorkshop(
     charityId?: string;
   }
 ): Promise<{
-  success: boolean;
-  enrollment: WorkshopEnrollment;
-  user: {
-    id: string;
-    email: string;
+  data: {
+    success: boolean;
+    enrollment: WorkshopEnrollment;
+    user: {
+      id: string;
+      email: string;
+    };
+    token: string;
   };
-  token: string;
 }> {
   return api.post(`/api/workshops/${workshopId}/signup`, enrollmentData);
 }

@@ -115,14 +115,14 @@ export default function WorkshopSignupPage() {
         charityId: selectedCharity.id,
       });
 
-      // Store session data
+      // Store session data (response is wrapped in { data: { ... } })
       sessionStorage.setItem(
         'graceful_books_session',
         JSON.stringify({
-          token: response.token,
+          token: response.data.token,
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-          userEmail: response.user.email,
-          userId: response.user.id,
+          userEmail: response.data.user.email,
+          userId: response.data.user.id,
         })
       );
 
