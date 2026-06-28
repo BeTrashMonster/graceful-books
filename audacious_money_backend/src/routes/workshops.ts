@@ -5,6 +5,8 @@
  */
 
 import { Hono } from 'hono';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import type { HonoEnv } from '../types/hono.js';
 import { validate } from '../utils/validation.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
@@ -545,7 +547,6 @@ workshops.post('/:id/signup', rateLimiter({ max: 5, window: 3600 }), validate(wo
     }
 
     // Hash password
-    const bcrypt = await import('bcryptjs');
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     // Create user account
@@ -587,7 +588,6 @@ workshops.post('/:id/signup', rateLimiter({ max: 5, window: 3600 }), validate(wo
     ]);
 
     // Generate auth token
-    const jwt = await import('jsonwebtoken');
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       process.env.JWT_SECRET || 'your-secret-key',
