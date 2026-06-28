@@ -266,7 +266,7 @@ export async function getWorkshopBySlug(slug: string): Promise<Workshop> {
 }
 
 /**
- * Enroll in a workshop (public endpoint)
+ * Enroll in a workshop (public signup endpoint - creates account + enrolls)
  */
 export async function enrollInWorkshop(
   workshopId: string,
@@ -287,7 +287,7 @@ export async function enrollInWorkshop(
   };
   token: string;
 }> {
-  return api.post(`/api/workshops/${workshopId}/enroll`, enrollmentData);
+  return api.post(`/api/workshops/${workshopId}/signup`, enrollmentData);
 }
 
 /**

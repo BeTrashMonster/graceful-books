@@ -283,10 +283,45 @@ export const updateWorkshopSchema = z
 // =============================================================================
 
 /**
- * Enroll in workshop schema
+ * Enroll in workshop schema (for authenticated users)
  */
 export const enrollInWorkshopSchema = z.object({
   workshopSlug: workshopSlugSchema,
+});
+
+/**
+ * Public signup for workshop schema (creates user account + enrolls)
+ */
+export const workshopSignupSchema = z.object({
+  email: z
+    .string()
+    .email('Must be a valid email address')
+    .max(255, 'Email must be less than 255 characters')
+    .trim()
+    .toLowerCase(),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(255, 'Password must be less than 255 characters'),
+  firstName: z
+    .string()
+    .min(1, 'First name is required')
+    .max(255, 'First name must be less than 255 characters')
+    .trim(),
+  lastName: z
+    .string()
+    .min(1, 'Last name is required')
+    .max(255, 'Last name must be less than 255 characters')
+    .trim(),
+  companyName: z
+    .string()
+    .max(255, 'Company name must be less than 255 characters')
+    .trim()
+    .optional(),
+  charityId: z
+    .string()
+    .uuid('Invalid charity ID')
+    .optional(),
 });
 
 /**

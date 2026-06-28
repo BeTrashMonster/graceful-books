@@ -21,6 +21,7 @@ import {
   createWorkshopSchema,
   updateWorkshopSchema,
   enrollInWorkshopSchema,
+  workshopSignupSchema,
 } from '../utils/validation-workshops.js';
 import {
   canUserEnrollInWorkshop,
@@ -497,6 +498,114 @@ workshops.get('/slug/:slug', rateLimiter({ max: 100, window: 3600 }), async (c) 
 // =============================================================================
 // ENROLLMENT ENDPOINTS
 // =============================================================================
+
+/**
+ * POST /api/workshops/:id/signup
+ *
+ * Public signup endpoint: Creates user account and enrolls in workshop
+ * Rate limited to 5 requests per hour per IP to prevent spam signups
+ */
+workshops.post('/:id/signup', rateLimiter({ max: 5, window: 3600 }), validate(workshopSignupSchema), async (c) => {
+  const workshopId = c.req.param('id');
+  const data = c.get('validatedData') as any;
+  const db = c.get('db');
+
+  try {
+    // Get workshop details
+    const workshopResult = await db.query('SELECT * FROM workshops WHERE id = $1', [workshopId]);
+
+    if (workshopResult.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Workshop not found');
+    }
+
+    const workshopRow = workshopResult.rows[0];
+    const workshop = mapWorkshopRow(workshopRow);
+
+    // Get current enrollment count
+    const countResult = await db.query(
+      'SELECT COUNT(*) as count FROM workshop_enrollments WHERE workshop_id = $1',
+      [workshopId]
+    );
+    const currentEnrollmentCount = parseInt(countResult.rows[0].count) || 0;
+
+    // Check if workshop is accepting enrollments
+    const workshopEligibility = isWorkshopAcceptingEnrollments(workshop, currentEnrollmentCount);
+    if (!workshopEligibility.isAccepting) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, workshopEligibility.reason || 'Workshop not accepting enrollments');
+    }
+
+    // Check if email already exists
+    const emailCheck = await db.query('SELECT id FROM users WHERE email = $1', [data.email]);
+    if (emailCheck.rowCount > 0) {
+      return badRequest(c, ErrorCodes.ALREADY_EXISTS, 'An account with this email already exists. Please sign in instead.');
+    }
+
+    // Hash password
+    const bcrypt = await import('bcryptjs');
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    // Create user account
+    const userResult = await db.query(
+      `INSERT INTO users (
+        email, password_hash, first_name, last_name, company_name,
+        chosen_charity_id, account_status, phase
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING id, email, first_name, last_name`,
+      [
+        data.email,
+        hashedPassword,
+        data.firstName,
+        data.lastName,
+        data.companyName || null,
+        data.charityId || null,
+        'active',
+        'stabilize'
+      ]
+    );
+
+    const user = userResult.rows[0];
+
+    // Create enrollment
+    const enrollmentResult = await db.query(
+      `INSERT INTO workshop_enrollments (
+        user_id, workshop_id
+      ) VALUES ($1, $2)
+      RETURNING *`,
+      [user.id, workshopId]
+    );
+
+    const enrollment = mapEnrollmentRow(enrollmentResult.rows[0]);
+
+    // Update user's current workshop enrollment
+    await db.query('UPDATE users SET current_workshop_enrollment_id = $1 WHERE id = $2', [
+      enrollment.id,
+      user.id,
+    ]);
+
+    // Generate auth token
+    const jwt = await import('jsonwebtoken');
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
+
+    console.log('[Workshops] New user signup:', user.id, user.email, 'for workshop:', workshopId);
+
+    return success(c, {
+      success: true,
+      enrollment,
+      user: {
+        id: user.id,
+        email: user.email,
+      },
+      token,
+    }, 201);
+  } catch (error) {
+    console.error('[Workshops] Error in workshop signup:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to complete signup');
+  }
+});
 
 /**
  * POST /api/workshops/:id/enroll

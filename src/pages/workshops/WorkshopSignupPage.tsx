@@ -81,6 +81,8 @@ export default function WorkshopSignupPage() {
       return;
     }
 
+    // Clear error when moving to next step
+    setError(null);
     setStep('charity');
   };
 
@@ -518,7 +520,10 @@ export default function WorkshopSignupPage() {
                 <div className={styles.buttonRow}>
                   <button
                     type="button"
-                    onClick={() => setStep('credentials')}
+                    onClick={() => {
+                      setError(null);
+                      setStep('credentials');
+                    }}
                     className={styles.secondaryButton}
                   >
                     Back
