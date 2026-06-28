@@ -615,6 +615,39 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
       user.id,
     ]);
 
+    // Assign CPG product to user for workshop trial
+    const cpgProductResult = await db.query(
+      `SELECT id FROM products WHERE slug = $1`,
+      ['cpu-cpg-calculator']
+    );
+
+    if (cpgProductResult.rowCount > 0) {
+      const cpgProductId = cpgProductResult.rows[0].id;
+
+      // Calculate trial end date
+      const trialStartDate = new Date(workshop.trialStartDatetime || workshop.workshopStartDatetime);
+      const trialEndDate = new Date(trialStartDate);
+      trialEndDate.setDate(trialEndDate.getDate() + workshop.trialDurationDays);
+
+      // Assign product with trialing status
+      await db.query(
+        `INSERT INTO user_products (
+          user_id, product_id, status, activated_at, trial_ends_at
+        ) VALUES ($1, $2, $3, $4, $5)`,
+        [
+          user.id,
+          cpgProductId,
+          'trialing', // Set as trialing so they can access after countdown
+          workshop.accessGrantDatetime, // When they can first access
+          trialEndDate // When trial expires
+        ]
+      );
+
+      console.log('[Workshops] Assigned CPG product to user:', user.id, 'Trial ends:', trialEndDate);
+    } else {
+      console.error('[Workshops] CPG product not found!');
+    }
+
     // Generate auth token using same utility as regular login
     const token = await generateUserToken(user.id, user.email);
 
@@ -689,14 +722,37 @@ workshops.get('/my-enrollment', requireAuth, async (c) => {
     }
 
     const row = result.rows[0];
+
+    // Check if access should be granted (if current time >= accessGrantDatetime)
+    let accessGranted = row.access_granted || false;
+    let accessGrantedAt = row.access_granted_at;
+
+    if (!accessGranted && row.access_grant_datetime) {
+      const now = new Date();
+      const grantTime = new Date(row.access_grant_datetime);
+
+      if (now >= grantTime) {
+        // Time has arrived! Grant access
+        await db.query(
+          `UPDATE workshop_enrollments
+           SET access_granted = true, access_granted_at = NOW()
+           WHERE id = $1`,
+          [row.id]
+        );
+        accessGranted = true;
+        accessGrantedAt = new Date().toISOString();
+        console.log('[Workshops] Auto-granted access to enrollment:', row.id);
+      }
+    }
+
     const enrollment = {
       id: row.id,
       userId: row.user_id,
       workshopId: row.workshop_id,
       enrolledAt: row.enrolled_at,
       worksheetCompletedAt: row.worksheet_completed_at,
-      accessGranted: row.access_granted || false,
-      accessGrantedAt: row.access_granted_at,
+      accessGranted,
+      accessGrantedAt,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       workshop: {
