@@ -21,9 +21,9 @@ export interface Workshop {
   location?: string;
   primaryTimezone: string;
   secondaryTimezone?: string;
-  accessGrantDatetime: string;
+  accessGrantDatetime?: string;
   trialStartDatetime?: string;
-  trialDurationDays: number;
+  trialDurationDays?: number;
   workshopStartDatetime: string;
   workshopEndDatetime: string;
   registrationDeadline?: string;
@@ -34,12 +34,12 @@ export interface Workshop {
   customEmailSchedule?: Record<string, any>;
   postWorkshopResources?: Array<{ title: string; url: string }>;
   postTrialAction?: 'upgrade_prompt' | 'auto_convert' | 'account_freeze';
-  sendReminder: boolean;
-  reminderHoursBefore: number;
+  sendReminder?: boolean;
+  reminderHoursBefore?: number;
   status: 'draft' | 'open_registration' | 'registration_closed' | 'in_progress' | 'completed' | 'archived';
   createdBy?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface WorkshopEnrollment {

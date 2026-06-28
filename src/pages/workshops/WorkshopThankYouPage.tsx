@@ -106,18 +106,45 @@ export default function WorkshopThankYouPage() {
   };
 
   const formatAccessDate = (dateString: string | undefined) => {
-    if (!dateString) return 'TBD';
+    if (!dateString) {
+      console.log('[Thank You] accessGrantDatetime is undefined');
+      return 'TBD';
+    }
 
     try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return 'TBD';
+      // Parse the ISO string and interpret the literal date/time
+      const parts = dateString.split('T');
+      if (!parts[0]) {
+        console.log('[Thank You] Invalid date format:', dateString);
+        return 'TBD';
+      }
+
+      const [datePart, timePart] = parts;
+      const [year, month, day] = datePart.split('-');
+      const [hours, minutes] = (timePart?.split(':') || ['0', '0']);
+
+      // Create date object with literal values
+      const date = new Date(
+        parseInt(year),
+        parseInt(month) - 1,
+        parseInt(day),
+        parseInt(hours),
+        parseInt(minutes)
+      );
+
+      if (isNaN(date.getTime())) {
+        console.log('[Thank You] Invalid date after parsing:', dateString);
+        return 'TBD';
+      }
 
       return date.toLocaleDateString('en-US', {
+        weekday: 'long',
         month: 'long',
         day: 'numeric',
         year: 'numeric',
       });
     } catch (err) {
+      console.error('[Thank You] Error formatting access date:', err);
       return 'TBD';
     }
   };
@@ -236,12 +263,6 @@ export default function WorkshopThankYouPage() {
             <li className={styles.step}>
               <span className={styles.stepIcon}>✓</span>
               <span className={styles.stepText}>
-                We'll send a reminder {workshop.reminderHoursBefore} hours before the workshop
-              </span>
-            </li>
-            <li className={styles.step}>
-              <span className={styles.stepIcon}>✓</span>
-              <span className={styles.stepText}>
                 Your full platform access begins on{' '}
                 {formatAccessDate(workshop.accessGrantDatetime)}
               </span>
@@ -249,7 +270,7 @@ export default function WorkshopThankYouPage() {
             <li className={styles.step}>
               <span className={styles.stepIcon}>✓</span>
               <span className={styles.stepText}>
-                Your {workshop.trialDurationDays}-day free trial starts when you first sign in
+                Your {workshop.trialDurationDays}-day free trial starts when the workshop begins
               </span>
             </li>
           </ul>

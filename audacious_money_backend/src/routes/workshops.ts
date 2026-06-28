@@ -11,6 +11,7 @@ import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import { rateLimiter } from '../middleware/rateLimit.js';
 import { hashPassword } from '../utils/password.js';
 import { generateUserToken } from '../utils/jwt.js';
+import { sendWorkshopWelcomeEmail } from '../services/email.service.js';
 import {
   success,
   badRequest,
@@ -483,6 +484,11 @@ workshops.get('/slug/:slug', rateLimiter({ max: 100, window: 3600 }), async (c) 
         workshopStartDatetime: workshop.workshopStartDatetime,
         workshopEndDatetime: workshop.workshopEndDatetime,
         registrationDeadline: workshop.registrationDeadline,
+        accessGrantDatetime: workshop.accessGrantDatetime,
+        trialDurationDays: workshop.trialDurationDays,
+        trialStartDatetime: workshop.trialStartDatetime,
+        reminderHoursBefore: workshop.reminderHoursBefore,
+        welcomeMessage: workshop.welcomeMessage,
         status: workshop.status,
         enrollmentCount,
         isFull: workshop.maxEnrollment ? enrollmentCount >= workshop.maxEnrollment : false,
@@ -613,6 +619,25 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
     const token = await generateUserToken(user.id, user.email);
 
     console.log('[Workshops] New user signup:', user.id, user.email, 'for workshop:', workshopId);
+
+    // Send welcome email (async, don't block response)
+    const workshopDate = new Date(workshop.workshopStartDatetime).toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+    const workshopLocation = workshop.location || 'Online';
+
+    sendWorkshopWelcomeEmail(
+      user.email,
+      data.firstName,
+      workshop.workshopName || workshop.cohortName,
+      workshopDate,
+      workshopLocation
+    ).catch((error) => {
+      console.error('[Workshops] Error sending welcome email:', error);
+    });
 
     return success(c, {
       success: true,
