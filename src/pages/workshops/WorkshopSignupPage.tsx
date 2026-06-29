@@ -123,8 +123,12 @@ export default function WorkshopSignupPage() {
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
           userEmail: response.data.user.email,
           userId: response.data.user.id,
+          products: response.data.products || [], // Include products for ProtectedRoute access control
         })
       );
+
+      // Trigger auth context to reload
+      window.dispatchEvent(new Event('graceful_books_login'));
 
       // Navigate to worksheet page
       navigate('/workshops/worksheet');

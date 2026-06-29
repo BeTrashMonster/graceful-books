@@ -739,6 +739,26 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
 
     console.log('[Workshops] New user signup:', user.id, user.email, 'for workshop:', workshopId);
 
+    // Get user's products to include in session (same as login flow)
+    const productsResult = await db.query(
+      `SELECT p.id, p.name, p.slug, up.status, up.activated_at, up.trial_ends_at
+       FROM user_products up
+       JOIN products p ON up.product_id = p.id
+       WHERE up.user_id = $1 AND up.status IN ('active', 'trialing')`,
+      [user.id]
+    );
+
+    const products = productsResult.rows.map(row => ({
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      status: row.status,
+      activatedAt: row.activated_at,
+      trialEndsAt: row.trial_ends_at,
+    }));
+
+    console.log('[Workshops] User products for session:', products);
+
     // Send welcome email (async, don't block response)
     const workshopDate = new Date(workshop.workshopStartDatetime).toLocaleDateString('en-US', {
       weekday: 'long',
@@ -766,6 +786,7 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
         email: user.email,
       },
       token,
+      products, // Include products so session has access info
     }, 201);
   } catch (error) {
     console.error('[Workshops] Error in workshop signup:', error);

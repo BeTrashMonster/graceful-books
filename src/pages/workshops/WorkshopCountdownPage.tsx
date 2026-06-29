@@ -37,8 +37,8 @@ export default function WorkshopCountdownPage() {
       // Use workshop's accessGrantDatetime
       const accessTime = enrollment.workshop.accessGrantDatetime || enrollment.accessGrantedAt;
       if (!accessTime) {
-        // No access time set, redirect to dashboard
-        navigate('/dashboard');
+        // No access time set, redirect to CPG dashboard
+        navigate('/cpg');
         return;
       }
 
@@ -46,11 +46,11 @@ export default function WorkshopCountdownPage() {
       const difference = targetTime - now;
 
       if (difference <= 0) {
-        // Access time has arrived! Redirect to dashboard
+        // Access time has arrived! Redirect to CPG dashboard
         setTimeRemaining({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         // Give a moment for user to see the 0:00:00:00
         setTimeout(() => {
-          navigate('/dashboard');
+          navigate('/cpg');
         }, 1000);
         return;
       }
@@ -85,8 +85,8 @@ export default function WorkshopCountdownPage() {
 
       // Check if access has already been granted
       if (enrollmentData.accessGranted) {
-        // Redirect to dashboard immediately
-        navigate('/dashboard');
+        // Redirect to CPG dashboard immediately (workshop users have CPG product)
+        navigate('/cpg');
         return;
       }
 
