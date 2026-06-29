@@ -4,16 +4,18 @@
  * Natural flow: Add products with their recipes, create categories on-the-fly
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './ComprehensiveWorksheet.module.css';
 import { processDateInput } from '../../utils/dateUtils';
 import { LoadingOverlay } from '../feedback/Loading';
+import { areUnitsCompatible, type Unit } from '../../utils/unitConversion';
 
 interface Category {
   id: string;
   name: string;
   variants: string[];
   sort_order: number;
+  is_distribution_category?: boolean; // For Shipping & Handling
 }
 
 interface Product {
@@ -43,9 +45,11 @@ interface InvoiceItem {
   category_id: string;
   variant?: string;
   quantity: string;
-  unit_of_measurement?: string;
+  unit_of_measurement?: Unit;
   unit_cost: string;
   line_total?: string; // Auto-calculated or manual override
+  is_personal?: boolean; // True if this is a personal item (not business expense)
+  unitWarning?: string; // Unit mismatch warning message
 }
 
 interface Invoice {
@@ -149,8 +153,16 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   const [currentStep, setCurrentStep] = useState<Step>('products');
   const [importing, setImporting] = useState(false);
 
-  // Track categories as they're created
-  const [categories, setCategories] = useState<Category[]>([]);
+  // Track categories as they're created (include default Shipping & Handling)
+  const [categories, setCategories] = useState<Category[]>([
+    {
+      id: '__shipping__',
+      name: 'Shipping & Handling',
+      variants: [],
+      sort_order: 9999, // Show at end
+      is_distribution_category: true
+    }
+  ]);
 
   // Track products with embedded recipe UI
   const [products, setProducts] = useState<Array<Product & { recipeItems: RecipeItem[] }>>([
@@ -575,7 +587,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
     setInvoices(updated);
   };
 
-  const updateInvoiceItem = (invoiceId: string, itemIndex: number, field: keyof InvoiceItem, value: string) => {
+  const updateInvoiceItem = (invoiceId: string, itemIndex: number, field: keyof InvoiceItem, value: any) => {
     const updated = invoices.map(inv =>
       inv.id === invoiceId
         ? {
@@ -603,6 +615,37 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                 // If we have unit_cost, calculate quantity from total ÷ cost
                 else if (updatedItem.unit_cost && cost > 0) {
                   updatedItem.quantity = (total / cost).toFixed(2);
+                }
+              }
+
+              // Check for unit mismatches when category, variant, or unit changes
+              if (field === 'category_id' || field === 'variant' || field === 'unit_of_measurement') {
+                const categoryId = field === 'category_id' ? value : updatedItem.category_id;
+                const variant = field === 'variant' ? value : updatedItem.variant;
+                const invoiceUnit = field === 'unit_of_measurement' ? value : updatedItem.unit_of_measurement;
+
+                // Check if this category/variant exists in any recipes with incompatible units
+                const matchingRecipes = products.flatMap(product =>
+                  product.recipeItems
+                    .filter(recipeItem =>
+                      recipeItem.category_id === categoryId &&
+                      recipeItem.variant === variant &&
+                      recipeItem.unit_of_measurement &&
+                      invoiceUnit &&
+                      !areUnitsCompatible(invoiceUnit, recipeItem.unit_of_measurement as Unit)
+                    )
+                    .map(recipeItem => ({
+                      productName: product.name,
+                      recipeUnit: recipeItem.unit_of_measurement
+                    }))
+                );
+
+                if (matchingRecipes.length > 0) {
+                  const productNames = matchingRecipes.map(r => r.productName).join(', ');
+                  const recipeUnit = matchingRecipes[0].recipeUnit;
+                  updatedItem.unitWarning = `⚠️ Unit mismatch: Recipe for ${productNames} uses ${recipeUnit}, but invoice uses ${invoiceUnit}. These units cannot be automatically converted.`;
+                } else {
+                  updatedItem.unitWarning = undefined;
                 }
               }
 
@@ -1265,10 +1308,23 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                         <label className={styles.label}>Category</label>
                         <select
                           value={item.category_id}
-                          onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'category_id', e.target.value)}
+                          onChange={(e) => {
+                            const selectedValue = e.target.value;
+                            const isPersonal = selectedValue === '__personal__';
+                            updateInvoiceItem(invoice.id, itemIndex, 'category_id', selectedValue);
+                            updateInvoiceItem(invoice.id, itemIndex, 'is_personal', isPersonal);
+                            // Reset variant when category changes
+                            updateInvoiceItem(invoice.id, itemIndex, 'variant', '');
+                          }}
                           className={styles.select}
                         >
                           <option value="">Select...</option>
+                          <option value="__personal__" style={{ fontStyle: 'italic', color: '#6b7280' }}>
+                            👤 Personal Item
+                          </option>
+                          <option value="" disabled>
+                            ────────────
+                          </option>
                           {categories.map(cat => (
                             <option key={cat.id} value={cat.id}>{cat.name}</option>
                           ))}
@@ -1365,6 +1421,20 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                         ✕
                       </button>
                     </div>
+                    {item.unitWarning && (
+                      <div style={{
+                        marginTop: '0.5rem',
+                        padding: '0.75rem',
+                        backgroundColor: '#fef3c7',
+                        border: '1px solid #fbbf24',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem',
+                        color: '#92400e'
+                      }}>
+                        {item.unitWarning}
+                      </div>
+                    )}
+                  </div>
                   );
                 })}
 
