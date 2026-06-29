@@ -104,41 +104,14 @@ export function isWorkshopAcceptingEnrollments(workshop: Workshop): boolean {
     return false;
   }
 
-  // Check registration deadline using TIMEZONE-AWARE comparison
-  // The deadline is stored as a literal time in the workshop's timezone
+  // Check registration deadline - SIMPLE UTC comparison
+  // The deadline is stored as UTC ISO string, just compare directly
   if (workshop.registrationDeadline) {
     try {
-      const timezone = workshop.primaryTimezone || 'America/Los_Angeles';
+      const now = new Date();
+      const deadline = new Date(workshop.registrationDeadline);
 
-      // Get current time in the workshop's timezone
-      const nowInWorkshopTz = toZonedTime(new Date(), timezone);
-
-      // Parse the deadline as a literal time in the workshop's timezone
-      // The stored value "2026-06-28T15:30:00.000Z" means "15:30 in workshop timezone"
-      const deadlineParts = workshop.registrationDeadline.split('T');
-      const [datePart, timePart] = deadlineParts;
-      const [year, month, day] = datePart.split('-');
-      const [hours, minutes] = (timePart?.split(':') || ['0', '0']);
-
-      // Create a Date object representing the deadline time in the workshop's timezone
-      const deadlineDate = new Date(
-        parseInt(year),
-        parseInt(month) - 1,
-        parseInt(day),
-        parseInt(hours),
-        parseInt(minutes),
-        0
-      );
-
-      console.log('[Workshop Access] Timezone-aware deadline check:', {
-        timezone,
-        nowInWorkshopTz,
-        deadlineDate,
-        isPast: nowInWorkshopTz > deadlineDate
-      });
-
-      if (nowInWorkshopTz > deadlineDate) {
-        console.log('[Workshop Access] Registration deadline has passed in workshop timezone');
+      if (now > deadline) {
         return false;
       }
     } catch (err) {
