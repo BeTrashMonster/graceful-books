@@ -728,7 +728,9 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
             quantity: item.quantity,
             unit: item.unit_of_measurement,
             unit_cost: item.unit_cost,
-            line_total: item.line_total || (parseFloat(item.quantity || '0') * parseFloat(item.unit_cost || '0')).toFixed(2) // FIX: Include line total
+            line_total: item.line_total || (parseFloat(item.quantity || '0') * parseFloat(item.unit_cost || '0')).toFixed(2),
+            ...(item.is_personal && { is_personal: true }), // Include if personal item
+            ...(item.distribution_method && { distribution_method: item.distribution_method }) // Include if S+H category
           })),
         ...(inv.notes && { notes: inv.notes }) // Only include if present
       }))
@@ -1328,9 +1330,10 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                             category_id: selectedValue,
                                             is_personal: isPersonal,
                                             variant: '', // Reset variant when category changes
-                                            // Set defaults for S+H categories
+                                            // Set defaults for S+H categories and Personal Items
                                             distribution_method: isDistribution ? 'weighted' : undefined,
-                                            quantity: isDistribution || isPersonal ? '1' : item.quantity
+                                            quantity: isDistribution || isPersonal ? '1' : item.quantity,
+                                            unit_of_measurement: isDistribution || isPersonal ? 'each' : item.unit_of_measurement
                                           }
                                         : item
                                     )
@@ -1407,6 +1410,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                                 ...item,
                                                 unit_cost: value,
                                                 quantity: '1',
+                                                unit_of_measurement: 'each',
                                                 line_total: value // For Personal/S+H, line_total = unit_cost (since qty = 1)
                                               }
                                             : item
