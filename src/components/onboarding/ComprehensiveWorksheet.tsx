@@ -1302,7 +1302,8 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                   const selectedCategory = categories.find(c => c.id === item.category_id);
 
                   return (
-                    <div key={itemIndex} className={styles.invoiceItemRow}>
+                    <div key={itemIndex}>
+                      <div className={styles.invoiceItemRow}>
                       {/* Category and Variant grouped */}
                       <div className={styles.fieldMedium}>
                         <label className={styles.label}>Category</label>
@@ -1420,21 +1421,21 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                       >
                         ✕
                       </button>
-                    </div>
-                    {item.unitWarning && (
-                      <div style={{
-                        marginTop: '0.5rem',
-                        padding: '0.75rem',
-                        backgroundColor: '#fef3c7',
-                        border: '1px solid #fbbf24',
-                        borderRadius: '0.375rem',
-                        fontSize: '0.875rem',
-                        color: '#92400e'
-                      }}>
-                        {item.unitWarning}
                       </div>
-                    )}
-                  </div>
+                      {item.unitWarning && (
+                        <div style={{
+                          marginTop: '0.5rem',
+                          padding: '0.75rem',
+                          backgroundColor: '#fef3c7',
+                          border: '1px solid #fbbf24',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem',
+                          color: '#92400e'
+                        }}>
+                          {item.unitWarning}
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
 
