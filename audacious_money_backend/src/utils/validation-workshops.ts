@@ -182,7 +182,7 @@ export const createWorkshopSchema = z
       .regex(/^price_[a-zA-Z0-9]+$/, 'Must be a valid Stripe price ID (starts with price_)'),
 
     // Access & Trial Settings
-    accessGrantDatetime: z.string().datetime('Must be a valid ISO 8601 datetime'),
+    accessGrantDatetime: z.string().datetime({ offset: true, message: 'Must be a valid ISO 8601 datetime with timezone' }),
     trialDurationDays: z
       .number()
       .int('Trial duration must be a whole number')
@@ -191,11 +191,11 @@ export const createWorkshopSchema = z
       .default(30),
 
     // Workshop Event Timing
-    workshopStartDatetime: z.string().datetime('Must be a valid ISO 8601 datetime'),
-    workshopEndDatetime: z.string().datetime('Must be a valid ISO 8601 datetime'),
+    workshopStartDatetime: z.string().datetime({ offset: true, message: 'Must be a valid ISO 8601 datetime with timezone' }),
+    workshopEndDatetime: z.string().datetime({ offset: true, message: 'Must be a valid ISO 8601 datetime with timezone' }),
 
     // Registration Settings
-    registrationDeadline: z.string().datetime('Must be a valid ISO 8601 datetime').optional(),
+    registrationDeadline: z.string().datetime({ offset: true, message: 'Must be a valid ISO 8601 datetime with timezone' }).optional(),
     maxEnrollment: z.number().int().positive('Max enrollment must be positive').optional(),
 
     // Customization
@@ -247,13 +247,13 @@ export const updateWorkshopSchema = z
 
     stripePriceId: z.string().regex(/^price_[a-zA-Z0-9]+$/, 'Must be a valid Stripe price ID').optional(),
 
-    accessGrantDatetime: z.string().datetime().optional(),
+    accessGrantDatetime: z.string().datetime({ offset: true }).optional(),
     trialDurationDays: z.number().int().min(1).max(365).optional(),
 
-    workshopStartDatetime: z.string().datetime().optional(),
-    workshopEndDatetime: z.string().datetime().optional(),
+    workshopStartDatetime: z.string().datetime({ offset: true }).optional(),
+    workshopEndDatetime: z.string().datetime({ offset: true }).optional(),
 
-    registrationDeadline: z.string().datetime().optional().nullable(),
+    registrationDeadline: z.string().datetime({ offset: true }).optional().nullable(),
     maxEnrollment: z.number().int().positive().optional().nullable(),
 
     welcomeMessage: z.string().max(5000).optional().nullable(),
