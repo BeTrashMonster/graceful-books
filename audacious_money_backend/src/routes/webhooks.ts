@@ -325,17 +325,22 @@ async function handleCheckoutSessionCompleted(session: any) {
             );
             console.log('[Webhook] Email #1 (Welcome) sent immediately to:', user.email);
 
-            // Email #2 - Schedule for 24h before workshop
-            const email2Time = new Date(workshopStart);
-            email2Time.setHours(email2Time.getHours() - 24);
-            await sendWorkshopReminderEmail(
-              user.email,
-              user.first_name,
-              workshop.workshop_start_datetime,
-              location,
-              email2Time.toISOString()
-            );
-            console.log('[Webhook] Email #2 (24h reminder) scheduled for:', email2Time.toISOString());
+            // Email #2 - Schedule reminder based on workshop settings
+            if (workshop.send_reminder) {
+              const reminderHours = workshop.reminder_hours_before || 24; // Default to 24 if not set
+              const email2Time = new Date(workshopStart);
+              email2Time.setHours(email2Time.getHours() - reminderHours);
+              await sendWorkshopReminderEmail(
+                user.email,
+                user.first_name,
+                workshop.workshop_start_datetime,
+                location,
+                email2Time.toISOString()
+              );
+              console.log(`[Webhook] Email #2 (${reminderHours}h reminder) scheduled for:`, email2Time.toISOString());
+            } else {
+              console.log('[Webhook] Email #2 (reminder) skipped - send_reminder is false');
+            }
 
             // Email #3 - Schedule for 1 week after workshop
             const email3Time = new Date(workshopEnd);

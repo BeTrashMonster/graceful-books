@@ -1356,7 +1356,7 @@ export async function sendWorkshopWelcomeEmail(
 
         <p>Good on you for signing up and leaning into the part most entrepreneurs avoid: the numbers 😬</p>
 
-        <p>Here is what I want you to know before we begin — you are wildly capable. You don't have to become a different person to understand your business. You just need a little guidance and a place that feels safe enough to be honest.</p>
+        <p>Here is what I want you to know before we begin - you are wildly capable. You don't have to become a different person to understand your business. You just need a better tool and a little guidance.</p>
 
         <p>So let's get you ready.</p>
 
@@ -1377,7 +1377,9 @@ export async function sendWorkshopWelcomeEmail(
         </div>
 
         <h3 style="color: #4b006e;">Now, about your recipes.</h3>
-        <p>I know your formulations are sacred — they are the heart of everything you have built. So let me be completely clear: this software is <em>zero-knowledge</em>. Your recipes, your invoices, your numbers are encrypted in a way that even I cannot see them. Not me. Not anyone. I'm a true believer in sovereignty — your business is yours and your data belongs to you and only you.</p>
+        <p>I know your formulations are sacred — they are the heart of everything you have built. So let me be completely clear: this software is <em>zero-knowledge</em>. Your recipes, your invoices, your numbers are encrypted in a way that only you can see them.</p>
+
+        <p>Sovereignty over your data and your business is crucial to our next evolution.</p>
 
         <p>One more thing — and this one's just for fun:</p>
         <p>Before we get into the software, what do you <em>think</em> it costs you to make one unit of that product right now? Go with what you currently know to be true. <strong>Hit reply and send me your number.</strong></p>
@@ -1401,7 +1403,7 @@ Hey ${firstName},
 
 Good on you for signing up and leaning into the part most entrepreneurs avoid: the numbers 😬
 
-Here is what I want you to know before we begin — you are wildly capable. You don't have to become a different person to understand your business. You just need a little guidance and a place that feels safe enough to be honest.
+Here is what I want you to know before we begin - you are wildly capable. You don't have to become a different person to understand your business. You just need a better tool and a little guidance.
 
 Before class, there's about an hour of prework:
 
@@ -1414,7 +1416,9 @@ Before class, there's about an hour of prework:
 
 Log in: https://app.audacious.money/login
 
-Now, about your recipes: This software is zero-knowledge. Your recipes, your invoices, your numbers are encrypted in a way that even I cannot see them.
+Now, about your recipes: This software is zero-knowledge. Your recipes, your invoices, your numbers are encrypted in a way that only you can see them.
+
+Sovereignty over your data and your business is crucial to our next evolution.
 
 One more thing — what do you think it costs you to make one unit of that product right now? Hit reply and send me your number.
 
@@ -1435,7 +1439,7 @@ P.S. If anything feels stuck or unclear, just reply to this email.`,
 }
 
 /**
- * Send workshop reminder email (24 hours before workshop)
+ * Send workshop reminder email (configurable hours before workshop)
  */
 export async function sendWorkshopReminderEmail(
   to: string,
@@ -1450,11 +1454,11 @@ export async function sendWorkshopReminderEmail(
     Subject: '[AM] Ready for tomorrow?',
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #4b006e;">Tomorrow is the day. ✨</h1>
+        <h1 style="color: #4b006e;">It's almost time! ✨</h1>
 
         <p>Hey ${firstName},</p>
 
-        <p>In about 24 hours, we are getting together to connect you deeper with your business — and I cannot wait.</p>
+        <p>Soon we're getting together to connect you deeper with your business — and I cannot wait.</p>
 
         <h3 style="color: #4b006e;">A tiny checklist so you walk in ready:</h3>
 
@@ -1488,11 +1492,11 @@ export async function sendWorkshopReminderEmail(
         </p>
       </div>
     `,
-    TextBody: `Tomorrow is the day. ✨
+    TextBody: `It's almost time! ✨
 
 Hey ${firstName},
 
-In about 24 hours, we are getting together to connect you deeper with your business — and I cannot wait.
+Soon we're getting together to connect you deeper with your business — and I cannot wait.
 
 A tiny checklist so you walk in ready:
 
@@ -1607,14 +1611,14 @@ export async function sendWorkshopChallengeWeek1Email(
 
         <p><strong>This week: follow ONE product, start to finish.</strong></p>
 
-        <p>Take the product we worked with — and this time, watch it move through it's cycle to bring it to life. From raw materials all the way to your customer's hands. As you go, just notice:</p>
+        <p>Take the product we worked with — and this time, watch it move through its cycle to bring it to life. From raw materials all the way to your customer's hands. As you go, just notice:</p>
 
         <ul>
           <li>How much <strong>time</strong> it actually takes you (mixing, packaging, labeling — all of it)</li>
           <li>Every <strong>touchpoint</strong> it passes through on its way to a customer</li>
         </ul>
 
-        <p>You're not fixing anything yet. You're just paying attention. Awareness first. Always.</p>
+        <p>You're not changing anything yet. You're just paying attention. Awareness first. Always.</p>
 
         <p>Here's your question for the week:</p>
 
@@ -1641,12 +1645,12 @@ Now the real magic begins: 30 days of small, intentional steps. Not a big, overw
 
 This week: follow ONE product, start to finish.
 
-Take the product we worked with — and this time, watch it move through it's cycle to bring it to life. From raw materials all the way to your customer's hands. As you go, just notice:
+Take the product we worked with — and this time, watch it move through its cycle to bring it to life. From raw materials all the way to your customer's hands. As you go, just notice:
 
 - How much time it actually takes you (mixing, packaging, labeling — all of it)
 - Every touchpoint it passes through on its way to a customer
 
-You're not fixing anything yet. You're just paying attention. Awareness first. Always.
+You're not changing anything yet. You're just paying attention. Awareness first. Always.
 
 Here's your question for the week:
 
@@ -1691,7 +1695,7 @@ export async function sendWorkshopChallengeWeek2Email(
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <p>Hey ${firstName},</p>
 
-        <p>Last week you watched your product travel. This week, we put a number on it.</p>
+        <p>Last week you tracked your product through each touchpoint. This week, we put a number on it.</p>
 
         <p><strong>This week: update the complete cost per unit in the software</strong></p>
 
@@ -1722,7 +1726,7 @@ export async function sendWorkshopChallengeWeek2Email(
     `,
     TextBody: `Hey ${firstName},
 
-Last week you watched your product travel. This week, we put a number on it.
+Last week you tracked your product through each touchpoint. This week, we put a number on it.
 
 This week: update the complete cost per unit in the software
 
@@ -1946,7 +1950,7 @@ export async function sendWorkshopWrapUpEmail(
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <p>Hey ${firstName},</p>
 
-        <p>Thirty days ago you showed up - for your numbers, for your buisness, for yourself.</p>
+        <p>Thirty days ago you showed up - for your numbers, for your business, for yourself.</p>
 
         <p>And you did the work.</p>
 
@@ -1983,7 +1987,7 @@ export async function sendWorkshopWrapUpEmail(
     `,
     TextBody: `Hey ${firstName},
 
-Thirty days ago you showed up - for your numbers, for your buisness, for yourself.
+Thirty days ago you showed up - for your numbers, for your business, for yourself.
 
 And you did the work.
 
