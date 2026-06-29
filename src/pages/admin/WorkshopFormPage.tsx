@@ -6,6 +6,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toZonedTime, formatInTimeZone } from 'date-fns-tz';
 import styles from './WorkshopFormPage.module.css';
 
 const API_URL = 'https://api.audacious.money';
@@ -95,14 +96,16 @@ export default function WorkshopFormPage() {
       const data = await response.json();
       const workshop = data.data.workshop; // Backend wraps in { data: { workshop: {...} } }
 
-      // Helper to convert ISO datetime to datetime-local format WITHOUT timezone conversion
-      // We want to preserve the exact date/time values, not convert to browser timezone
-      const toDatetimeLocal = (isoString: string) => {
+      // Helper to convert timezone-aware ISO datetime to datetime-local format
+      // We extract the time in the workshop's timezone for display in the form
+      const toDatetimeLocal = (isoString: string, timezone: string) => {
         if (!isoString) return '';
-        // Just extract the date and time parts without timezone conversion
+        // Convert the ISO timestamp to the workshop's timezone and format for datetime-local
         // Format: YYYY-MM-DDTHH:mm
-        return isoString.slice(0, 16);
+        return formatInTimeZone(new Date(isoString), timezone, "yyyy-MM-dd'T'HH:mm");
       };
+
+      const workshopTimezone = workshop.primaryTimezone || 'America/Los_Angeles';
 
       // Convert API response to form data
       setFormData({
@@ -112,14 +115,14 @@ export default function WorkshopFormPage() {
         description: workshop.description || '',
         workshopType: workshop.workshopType || 'in_person',
         location: workshop.location || '',
-        primaryTimezone: workshop.primaryTimezone || 'America/Los_Angeles',
+        primaryTimezone: workshopTimezone,
         secondaryTimezone: workshop.secondaryTimezone || '',
         stripePriceId: workshop.stripePriceId || '',
         trialDurationDays: workshop.trialDurationDays || 30,
-        accessGrantDatetime: toDatetimeLocal(workshop.accessGrantDatetime),
-        workshopStartDatetime: toDatetimeLocal(workshop.workshopStartDatetime),
-        workshopEndDatetime: toDatetimeLocal(workshop.workshopEndDatetime),
-        registrationDeadline: toDatetimeLocal(workshop.registrationDeadline),
+        accessGrantDatetime: toDatetimeLocal(workshop.accessGrantDatetime, workshopTimezone),
+        workshopStartDatetime: toDatetimeLocal(workshop.workshopStartDatetime, workshopTimezone),
+        workshopEndDatetime: toDatetimeLocal(workshop.workshopEndDatetime, workshopTimezone),
+        registrationDeadline: toDatetimeLocal(workshop.registrationDeadline, workshopTimezone),
         maxEnrollment: workshop.maxEnrollment?.toString() || '',
         welcomeMessage: workshop.welcomeMessage || '',
         sendReminder: workshop.sendReminder ?? true,
@@ -169,11 +172,16 @@ export default function WorkshopFormPage() {
       //
       // This function handles EVENT datetimes only. Audit timestamps are managed by
       // the backend/database and always use proper UTC with timezone tracking.
-      const toISO = (dateTimeLocal: string) => {
+      const toISO = (dateTimeLocal: string, timezone: string) => {
         if (!dateTimeLocal) return undefined;
-        // Just append seconds and timezone marker without converting
-        // This preserves the exact date/time the user entered
-        return dateTimeLocal + ':00.000Z';
+        // datetime-local gives us a string like "2026-06-30T14:00"
+        // We interpret this as the EXACT time in the workshop's timezone
+        // Format with timezone offset (e.g., "2026-06-30T14:00:00-07:00" for PST)
+        return formatInTimeZone(
+          new Date(dateTimeLocal),
+          timezone,
+          "yyyy-MM-dd'T'HH:mm:ssXXX"
+        );
       };
 
       const requestBody = {
@@ -187,10 +195,10 @@ export default function WorkshopFormPage() {
         secondaryTimezone: formData.secondaryTimezone || undefined,
         stripePriceId: formData.stripePriceId,
         trialDurationDays: formData.trialDurationDays,
-        accessGrantDatetime: toISO(formData.accessGrantDatetime),
-        workshopStartDatetime: toISO(formData.workshopStartDatetime),
-        workshopEndDatetime: toISO(formData.workshopEndDatetime),
-        registrationDeadline: formData.registrationDeadline ? toISO(formData.registrationDeadline) : undefined,
+        accessGrantDatetime: toISO(formData.accessGrantDatetime, formData.primaryTimezone),
+        workshopStartDatetime: toISO(formData.workshopStartDatetime, formData.primaryTimezone),
+        workshopEndDatetime: toISO(formData.workshopEndDatetime, formData.primaryTimezone),
+        registrationDeadline: formData.registrationDeadline ? toISO(formData.registrationDeadline, formData.primaryTimezone) : undefined,
         maxEnrollment: formData.maxEnrollment ? parseInt(formData.maxEnrollment) : undefined,
         welcomeMessage: formData.welcomeMessage || undefined,
         sendReminder: formData.sendReminder,
