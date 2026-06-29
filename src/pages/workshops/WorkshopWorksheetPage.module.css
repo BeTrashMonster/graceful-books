@@ -6,7 +6,7 @@
 
 .wideContainer {
   min-height: 100vh;
-  background: linear-gradient(135deg, #4b006e 0%, #5a0082 100%);
+  background: linear-gradient(to bottom, #faf5ff 0%, #f5f3ff 50%, #ede9fe 100%);
   padding: 2rem 1rem;
 }
 
