@@ -302,20 +302,6 @@ export async function getMyWorkshopEnrollment(): Promise<WorkshopEnrollment | nu
 }
 
 /**
- * Save worksheet progress for current user (requires auth)
- */
-export async function saveWorksheetProgress(data: {
-  productId?: string;
-  ingredients?: Array<{ name: string; quantity: number; cost: number }>;
-  packaging?: Array<{ name: string; cost: number }>;
-  laborTime?: number;
-  distributionCost?: number;
-  totalCost?: number;
-}): Promise<{ success: boolean }> {
-  return api.put('/api/workshops/my-enrollment/worksheet', data);
-}
-
-/**
  * Mark worksheet as completed (requires auth)
  */
 export async function completeWorksheet(): Promise<{ success: boolean }> {

@@ -4,6 +4,12 @@
   padding: 2rem 1rem;
 }
 
+.wideContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #4b006e 0%, #5a0082 100%);
+  padding: 2rem 1rem;
+}
+
 .card {
   max-width: 800px;
   margin: 0 auto;
@@ -12,6 +18,17 @@
   border-radius: 0.75rem;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   border: 2px solid #D4AF37;
+}
+
+.error {
+  max-width: 800px;
+  margin: 0 auto 1rem;
+  padding: 1rem;
+  background: #fee2e2;
+  border: 1px solid #dc2626;
+  color: #991b1b;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
 }
 
 /* Header */
