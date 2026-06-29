@@ -1312,10 +1312,26 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                           onChange={(e) => {
                             const selectedValue = e.target.value;
                             const isPersonal = selectedValue === '__personal__';
-                            updateInvoiceItem(invoice.id, itemIndex, 'category_id', selectedValue);
-                            updateInvoiceItem(invoice.id, itemIndex, 'is_personal', isPersonal);
-                            // Reset variant when category changes
-                            updateInvoiceItem(invoice.id, itemIndex, 'variant', '');
+
+                            // Update all fields in a single state update
+                            const updated = invoices.map(inv =>
+                              inv.id === invoice.id
+                                ? {
+                                    ...inv,
+                                    items: inv.items.map((item, i) =>
+                                      i === itemIndex
+                                        ? {
+                                            ...item,
+                                            category_id: selectedValue,
+                                            is_personal: isPersonal,
+                                            variant: '' // Reset variant when category changes
+                                          }
+                                        : item
+                                    )
+                                  }
+                                : inv
+                            );
+                            setInvoices(updated);
                           }}
                           className={styles.select}
                         >
