@@ -1396,8 +1396,19 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                               type="text"
                               value={item.unit_cost}
                               onChange={(e) => {
-                                updateInvoiceItem(invoice.id, itemIndex, 'unit_cost', e.target.value);
-                                updateInvoiceItem(invoice.id, itemIndex, 'quantity', '1'); // Always 1 for S+H and personal items
+                                const updated = invoices.map(inv =>
+                                  inv.id === invoice.id
+                                    ? {
+                                        ...inv,
+                                        items: inv.items.map((item, i) =>
+                                          i === itemIndex
+                                            ? { ...item, unit_cost: e.target.value, quantity: '1' }
+                                            : item
+                                        )
+                                      }
+                                    : inv
+                                );
+                                setInvoices(updated);
                               }}
                               placeholder="0.00"
                               className={styles.input}
