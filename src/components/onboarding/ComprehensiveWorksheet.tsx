@@ -1396,13 +1396,19 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                               type="text"
                               value={item.unit_cost}
                               onChange={(e) => {
+                                const value = e.target.value;
                                 const updated = invoices.map(inv =>
                                   inv.id === invoice.id
                                     ? {
                                         ...inv,
                                         items: inv.items.map((item, i) =>
                                           i === itemIndex
-                                            ? { ...item, unit_cost: e.target.value, quantity: '1' }
+                                            ? {
+                                                ...item,
+                                                unit_cost: value,
+                                                quantity: '1',
+                                                line_total: value // For Personal/S+H, line_total = unit_cost (since qty = 1)
+                                              }
                                             : item
                                         )
                                       }
