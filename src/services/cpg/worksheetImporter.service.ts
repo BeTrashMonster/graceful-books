@@ -37,6 +37,7 @@ interface WorksheetCategory {
   name: string;
   variants: string[];
   sort_order: number;
+  is_distribution_category?: boolean; // For Shipping & Handling
 }
 
 interface WorksheetFinishedProduct {
@@ -380,6 +381,7 @@ export async function importWorksheetData(
         variants: cat.variants.length > 0 ? cat.variants : null,
         unit_of_measure: 'each', // Default - user can change later
         sort_order: cat.sort_order,
+        is_distribution_category: cat.is_distribution_category || false, // Mark S+H categories
         active: true,
         created_at: now,
         updated_at: now,

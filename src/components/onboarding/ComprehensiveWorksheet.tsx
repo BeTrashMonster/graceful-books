@@ -157,7 +157,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   // Track categories as they're created (include default Shipping & Handling)
   const [categories, setCategories] = useState<Category[]>([
     {
-      id: '__shipping__',
+      id: generateTempId(), // Use proper temp ID, not sentinel
       name: 'Shipping & Handling',
       variants: [],
       sort_order: 9999, // Show at end
