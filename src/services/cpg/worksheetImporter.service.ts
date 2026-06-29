@@ -292,11 +292,15 @@ export function validateWorksheetData(
     }
 
     inv.items?.forEach((item, itemIdx) => {
-      const category = json.categories?.find(c => c.id === item.category_id);
-      if (!category) {
-        errors.push(
-          `Invoice at index ${idx}, item ${itemIdx} references missing category: ${item.category_id}`
-        );
+      // Skip category validation for Personal Items (they don't have a category)
+      const isPersonal = item.is_personal || item.category_id === '__personal__';
+      if (!isPersonal) {
+        const category = json.categories?.find(c => c.id === item.category_id);
+        if (!category) {
+          errors.push(
+            `Invoice at index ${idx}, item ${itemIdx} references missing category: ${item.category_id}`
+          );
+        }
       }
       if (!item.quantity || isNaN(parseFloat(item.quantity))) {
         errors.push(
