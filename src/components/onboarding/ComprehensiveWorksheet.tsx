@@ -895,7 +895,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                     Cancel
                                   </button>
                                 </div>
-                              ) : categories.length > 0 ? (
+                              ) : categories.filter(c => !c.is_distribution_category).length > 0 ? (
                                 <select
                                   value={item.category_id}
                                   onChange={(e) => {
@@ -908,7 +908,7 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                   className={styles.select}
                                 >
                                   <option value="">Select...</option>
-                                  {categories.map(cat => (
+                                  {categories.filter(c => !c.is_distribution_category).map(cat => (
                                     <option key={cat.id} value={cat.id}>{cat.name}</option>
                                   ))}
                                   <option value="__new__">+ Add New Category</option>
