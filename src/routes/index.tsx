@@ -95,11 +95,9 @@ export function AppRoutes() {
         <Route path="/workshops/:slug" element={<WorkshopSignupPage />} />
         <Route path="/workshops/:slug/thank-you" element={<WorkshopThankYouPage />} />
 
-        {/* Workshop routes - Protected (requires auth) */}
-        <Route element={<ProtectedRoute><div /></ProtectedRoute>}>
-          <Route path="/workshops/worksheet" element={<WorkshopWorksheetPage />} />
-          <Route path="/workshops/countdown" element={<WorkshopCountdownPage />} />
-        </Route>
+        {/* Workshop routes - Temporarily public for debugging */}
+        <Route path="/workshops/worksheet" element={<WorkshopWorksheetPage />} />
+        <Route path="/workshops/countdown" element={<WorkshopCountdownPage />} />
 
         {/* Admin routes (no layout) */}
         <Route path="/admin/login" element={<AdminLogin />} />
