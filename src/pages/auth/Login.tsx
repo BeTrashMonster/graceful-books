@@ -56,35 +56,52 @@ export default function Login() {
       // Trigger auth context to reload
       window.dispatchEvent(new Event('graceful_books_login'));
 
-      // Check if user has workshop enrollment
+      // Check if user has workshop enrollment FIRST (before checking products)
       const checkWorkshopEnrollment = async () => {
         try {
+          console.log('[Login] Checking for workshop enrollment...');
           const { getMyWorkshopEnrollment } = await import('../../services/workshops.api');
           const enrollment = await getMyWorkshopEnrollment();
 
-          if (enrollment && !enrollment.accessGranted) {
-            // User has workshop enrollment but access not granted yet
-            if (!enrollment.worksheetCompletedAt) {
-              // Redirect to worksheet if not completed
-              navigate('/workshops/worksheet', { replace: true });
-              return true;
+          console.log('[Login] Workshop enrollment:', enrollment);
+
+          if (enrollment) {
+            console.log('[Login] Found enrollment. Access granted:', enrollment.accessGranted);
+            console.log('[Login] Worksheet completed:', enrollment.worksheetCompletedAt);
+
+            if (!enrollment.accessGranted) {
+              // User has workshop enrollment but access not granted yet
+              if (!enrollment.worksheetCompletedAt) {
+                // Redirect to worksheet if not completed
+                console.log('[Login] Redirecting to worksheet...');
+                navigate('/workshops/worksheet', { replace: true });
+                return true;
+              } else {
+                // Redirect to countdown page
+                console.log('[Login] Redirecting to countdown...');
+                navigate('/workshops/countdown', { replace: true });
+                return true;
+              }
             } else {
-              // Redirect to countdown page
-              navigate('/workshops/countdown', { replace: true });
-              return true;
+              console.log('[Login] Access already granted, proceeding to normal dashboard flow');
             }
+          } else {
+            console.log('[Login] No workshop enrollment found');
           }
         } catch (err) {
           // No workshop enrollment or error checking - continue with normal flow
-          console.log('No workshop enrollment found:', err);
+          console.error('[Login] Error checking workshop enrollment:', err);
         }
         return false;
       };
 
       const hasWorkshopRedirect = await checkWorkshopEnrollment();
       if (hasWorkshopRedirect) {
+        console.log('[Login] Workshop redirect handled, stopping here');
         return; // Already redirected to workshop flow
       }
+
+      console.log('[Login] No workshop redirect, proceeding to product-based redirect');
 
       // Determine redirect based on user's products
       const products = data.data.products || [];

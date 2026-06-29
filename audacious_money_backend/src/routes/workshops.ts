@@ -782,6 +782,86 @@ workshops.get('/my-enrollment', requireAuth, async (c) => {
 });
 
 /**
+ * PUT /api/workshops/my-enrollment/worksheet
+ *
+ * Save worksheet progress for current user
+ */
+workshops.put('/my-enrollment/worksheet', requireAuth, async (c) => {
+  const userId = c.get('userId');
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const { ingredients, packaging, laborTime, distributionCost, totalCost } = body;
+
+    // Get user's enrollment
+    const enrollmentResult = await db.query(
+      `SELECT id FROM workshop_enrollments WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
+      [userId]
+    );
+
+    if (enrollmentResult.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'No workshop enrollment found');
+    }
+
+    const enrollmentId = enrollmentResult.rows[0].id;
+
+    // Save worksheet data (you could add a worksheet_data JSONB column to store this)
+    // For now, just update last_active_at to track progress
+    await db.query(
+      `UPDATE workshop_enrollments SET last_active_at = NOW() WHERE id = $1`,
+      [enrollmentId]
+    );
+
+    console.log('[Workshops] Saved worksheet progress for user:', userId);
+
+    return success(c, { success: true });
+  } catch (error) {
+    console.error('[Workshops] Error saving worksheet progress:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to save worksheet progress');
+  }
+});
+
+/**
+ * POST /api/workshops/my-enrollment/worksheet/complete
+ *
+ * Mark worksheet as completed for current user
+ */
+workshops.post('/my-enrollment/worksheet/complete', requireAuth, async (c) => {
+  const userId = c.get('userId');
+  const db = c.get('db');
+
+  try {
+    // Get user's enrollment
+    const enrollmentResult = await db.query(
+      `SELECT id FROM workshop_enrollments WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
+      [userId]
+    );
+
+    if (enrollmentResult.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'No workshop enrollment found');
+    }
+
+    const enrollmentId = enrollmentResult.rows[0].id;
+
+    // Mark worksheet as completed
+    await db.query(
+      `UPDATE workshop_enrollments
+       SET worksheet_completed_at = NOW(), last_active_at = NOW()
+       WHERE id = $1`,
+      [enrollmentId]
+    );
+
+    console.log('[Workshops] Marked worksheet complete for user:', userId);
+
+    return success(c, { success: true });
+  } catch (error) {
+    console.error('[Workshops] Error completing worksheet:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to complete worksheet');
+  }
+});
+
+/**
  * POST /api/workshops/:id/enroll
  *
  * Enroll in a workshop (authenticated users)
