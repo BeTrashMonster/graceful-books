@@ -83,13 +83,8 @@ export default function WorkshopCountdownPage() {
         return;
       }
 
-      // Check if access has already been granted
-      if (enrollmentData.accessGranted) {
-        // Redirect to CPG dashboard immediately (workshop users have CPG product)
-        navigate('/cpg');
-        return;
-      }
-
+      // Don't redirect here - let the countdown timer handle it
+      // User should always see the countdown page
       setEnrollment(enrollmentData);
     } catch (err: any) {
       console.error('Failed to load enrollment:', err);
