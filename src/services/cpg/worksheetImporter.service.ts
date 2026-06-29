@@ -65,6 +65,8 @@ interface WorksheetInvoiceItem {
   unit: string; // unit_of_measurement
   unit_cost: string;
   line_total: string; // Calculated line total (to avoid rounding errors)
+  is_personal?: boolean; // True if personal item (not business expense)
+  distribution_method?: 'equal' | 'weighted'; // For S+H categories
 }
 
 interface WorksheetInvoice {
@@ -490,15 +492,23 @@ export async function importWorksheetData(
       }
 
       for (const item of inv.items) {
-        const realCategoryId = idMap.get(item.category_id);
-        if (!realCategoryId) {
-          result.errors.push(`Invoice item references unmapped category: ${item.category_id}`);
-          continue;
+        // Handle Personal Items specially (they don't have a real category)
+        const isPersonal = item.is_personal || item.category_id === '__personal__';
+        let realCategoryId: string;
+
+        if (isPersonal) {
+          realCategoryId = 'personal'; // Use sentinel value for personal items
+        } else {
+          realCategoryId = idMap.get(item.category_id) || '';
+          if (!realCategoryId) {
+            result.errors.push(`Invoice item references unmapped category: ${item.category_id}`);
+            continue;
+          }
         }
 
         // Generate key: categoryId_variant (or categoryId if no variant)
         const variantSuffix = item.variant ? `_${item.variant.replace(/\s/g, '')}` : '';
-        const key = `${realCategoryId}${variantSuffix}`;
+        const key = isPersonal ? `personal_${generateId()}` : `${realCategoryId}${variantSuffix}`;
 
         cost_attribution[key] = {
           category_id: realCategoryId,
@@ -508,6 +518,8 @@ export async function importWorksheetData(
           unit_price: item.unit_cost, // RENAME: unit_cost → unit_price
           units_received: item.quantity, // Default to units_purchased
           manual_line_total: item.line_total, // FIX: Use exact line total from worksheet (preserves user's rounding decisions)
+          ...(isPersonal && { is_personal: true }), // Mark as personal
+          ...(item.distribution_method && { distribution_method: item.distribution_method }), // Include distribution method for S+H
         };
       }
 
