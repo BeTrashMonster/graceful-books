@@ -220,6 +220,92 @@ workshops.get('/', requireAdmin, async (c) => {
 });
 
 /**
+ * GET /api/workshops/my-enrollment
+ *
+ * Get current user's workshop enrollment with full workshop details
+ * IMPORTANT: This route MUST come before /:id to avoid wildcard matching
+ */
+workshops.get('/my-enrollment', requireAuth, async (c) => {
+  const userId = c.get('userId');
+  const db = c.get('db');
+
+  try {
+    // Get user's current workshop enrollment
+    const result = await db.query(
+      `SELECT we.*, w.*
+       FROM workshop_enrollments we
+       JOIN workshops w ON we.workshop_id = w.id
+       WHERE we.user_id = $1
+       ORDER BY we.created_at DESC
+       LIMIT 1`,
+      [userId]
+    );
+
+    if (result.rowCount === 0) {
+      return success(c, { enrollment: null });
+    }
+
+    const row = result.rows[0];
+
+    // Check if access should be granted (if current time >= accessGrantDatetime)
+    let accessGranted = row.access_granted || false;
+    let accessGrantedAt = row.access_granted_at;
+
+    if (!accessGranted && row.access_grant_datetime) {
+      const now = new Date();
+      const grantTime = new Date(row.access_grant_datetime);
+
+      if (now >= grantTime) {
+        // Time has arrived! Grant access
+        await db.query(
+          `UPDATE workshop_enrollments
+           SET access_granted = true, access_granted_at = NOW()
+           WHERE id = $1`,
+          [row.id]
+        );
+        accessGranted = true;
+        accessGrantedAt = new Date().toISOString();
+        console.log('[Workshops] Auto-granted access to enrollment:', row.id);
+      }
+    }
+
+    const enrollment = {
+      id: row.id,
+      userId: row.user_id,
+      workshopId: row.workshop_id,
+      enrolledAt: row.enrolled_at,
+      worksheetCompletedAt: row.worksheet_completed_at,
+      accessGranted,
+      accessGrantedAt,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      workshop: {
+        id: row.workshop_id,
+        cohortName: row.cohort_name,
+        workshopName: row.workshop_name,
+        slug: row.slug,
+        description: row.description,
+        workshopType: row.workshop_type,
+        location: row.location,
+        primaryTimezone: row.primary_timezone,
+        secondaryTimezone: row.secondary_timezone,
+        workshopStartDatetime: row.workshop_start_datetime,
+        workshopEndDatetime: row.workshop_end_datetime,
+        accessGrantDatetime: row.access_grant_datetime,
+        trialDurationDays: row.trial_duration_days,
+        trialStartDatetime: row.trial_start_datetime,
+        welcomeMessage: row.welcome_message,
+      },
+    };
+
+    return success(c, { enrollment });
+  } catch (error) {
+    console.error('[Workshops] Error fetching my enrollment:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch enrollment');
+  }
+});
+
+/**
  * GET /api/workshops/:id
  *
  * Get a single workshop by ID (admin only)
@@ -693,91 +779,6 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
     // Return more specific error message to help debugging
     const errorMessage = error?.message || 'Failed to complete signup';
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, `Signup failed: ${errorMessage}`);
-  }
-});
-
-/**
- * GET /api/workshops/my-enrollment
- *
- * Get current user's workshop enrollment with full workshop details
- */
-workshops.get('/my-enrollment', requireAuth, async (c) => {
-  const userId = c.get('userId');
-  const db = c.get('db');
-
-  try {
-    // Get user's current workshop enrollment
-    const result = await db.query(
-      `SELECT we.*, w.*
-       FROM workshop_enrollments we
-       JOIN workshops w ON we.workshop_id = w.id
-       WHERE we.user_id = $1
-       ORDER BY we.created_at DESC
-       LIMIT 1`,
-      [userId]
-    );
-
-    if (result.rowCount === 0) {
-      return success(c, { enrollment: null });
-    }
-
-    const row = result.rows[0];
-
-    // Check if access should be granted (if current time >= accessGrantDatetime)
-    let accessGranted = row.access_granted || false;
-    let accessGrantedAt = row.access_granted_at;
-
-    if (!accessGranted && row.access_grant_datetime) {
-      const now = new Date();
-      const grantTime = new Date(row.access_grant_datetime);
-
-      if (now >= grantTime) {
-        // Time has arrived! Grant access
-        await db.query(
-          `UPDATE workshop_enrollments
-           SET access_granted = true, access_granted_at = NOW()
-           WHERE id = $1`,
-          [row.id]
-        );
-        accessGranted = true;
-        accessGrantedAt = new Date().toISOString();
-        console.log('[Workshops] Auto-granted access to enrollment:', row.id);
-      }
-    }
-
-    const enrollment = {
-      id: row.id,
-      userId: row.user_id,
-      workshopId: row.workshop_id,
-      enrolledAt: row.enrolled_at,
-      worksheetCompletedAt: row.worksheet_completed_at,
-      accessGranted,
-      accessGrantedAt,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      workshop: {
-        id: row.workshop_id,
-        cohortName: row.cohort_name,
-        workshopName: row.workshop_name,
-        slug: row.slug,
-        description: row.description,
-        workshopType: row.workshop_type,
-        location: row.location,
-        primaryTimezone: row.primary_timezone,
-        secondaryTimezone: row.secondary_timezone,
-        workshopStartDatetime: row.workshop_start_datetime,
-        workshopEndDatetime: row.workshop_end_datetime,
-        accessGrantDatetime: row.access_grant_datetime,
-        trialDurationDays: row.trial_duration_days,
-        trialStartDatetime: row.trial_start_datetime,
-        welcomeMessage: row.welcome_message,
-      },
-    };
-
-    return success(c, { enrollment });
-  } catch (error) {
-    console.error('[Workshops] Error fetching my enrollment:', error);
-    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch enrollment');
   }
 });
 
