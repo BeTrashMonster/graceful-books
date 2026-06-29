@@ -275,8 +275,8 @@ export default function WorkshopCountdownPage() {
             <div className={styles.faqItem}>
               <h4 className={styles.faqQuestion}>What should I bring?</h4>
               <p className={styles.faqAnswer}>
-                Just bring yourself and any questions about your product costs. We'll provide all
-                the materials you need.
+                Bring yourself, the device you used to complete your worksheet, and any questions
+                about your product costs. We'll provide everything else you need.
               </p>
             </div>
             <div className={styles.faqItem}>
@@ -290,8 +290,8 @@ export default function WorkshopCountdownPage() {
               <h4 className={styles.faqQuestion}>Need help?</h4>
               <p className={styles.faqAnswer}>
                 Contact us at{' '}
-                <a href="mailto:support@audacious.money" className={styles.link}>
-                  support@audacious.money
+                <a href="mailto:hello@audacious.money" className={styles.link}>
+                  hello@audacious.money
                 </a>
               </p>
             </div>
