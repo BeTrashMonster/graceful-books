@@ -204,6 +204,48 @@ workshops.get('/', requireAdmin, async (c) => {
        ORDER BY w.created_at DESC`
     );
 
+    // Auto-update workshop statuses based on registration deadline (timezone-aware)
+    const workshopsToClose: string[] = [];
+
+    for (const row of result.rows) {
+      if (row.status === 'open_registration' && row.registration_deadline) {
+        const workshop = mapWorkshopRow(row);
+        // Use the same timezone-aware check as isWorkshopAcceptingEnrollments
+        if (!isWorkshopAcceptingEnrollments(workshop)) {
+          workshopsToClose.push(row.id);
+        }
+      }
+    }
+
+    // Update workshops that should be closed
+    if (workshopsToClose.length > 0) {
+      await db.query(`
+        UPDATE workshops
+        SET status = 'registration_closed', updated_at = NOW()
+        WHERE id = ANY($1::uuid[])
+      `, [workshopsToClose]);
+
+      console.log('[Workshops] Auto-closed registration for workshops:', workshopsToClose);
+
+      // Re-fetch workshops to get updated status
+      const updatedResult = await db.query(
+        `SELECT w.*,
+          (SELECT COUNT(*) FROM workshop_enrollments WHERE workshop_id = w.id) as enrollment_count
+         FROM workshops w
+         ORDER BY w.created_at DESC`
+      );
+
+      const workshopsWithStats = updatedResult.rows.map((row) => {
+        const workshop = mapWorkshopRow(row);
+        return {
+          ...workshop,
+          enrollmentCount: parseInt(row.enrollment_count) || 0,
+        };
+      });
+
+      return success(c, { workshops: workshopsWithStats });
+    }
+
     const workshopsWithStats = result.rows.map((row) => {
       const workshop = mapWorkshopRow(row);
       return {
