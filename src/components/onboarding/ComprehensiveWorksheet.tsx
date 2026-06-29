@@ -49,6 +49,7 @@ interface InvoiceItem {
   unit_cost: string;
   line_total?: string; // Auto-calculated or manual override
   is_personal?: boolean; // True if this is a personal item (not business expense)
+  distribution_method?: 'equal' | 'weighted'; // For S+H categories only
   unitWarning?: string; // Unit mismatch warning message
 }
 
@@ -1312,6 +1313,8 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                           onChange={(e) => {
                             const selectedValue = e.target.value;
                             const isPersonal = selectedValue === '__personal__';
+                            const selectedCat = categories.find(c => c.id === selectedValue);
+                            const isDistribution = selectedCat?.is_distribution_category;
 
                             // Update all fields in a single state update
                             const updated = invoices.map(inv =>
@@ -1324,7 +1327,10 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                                             ...item,
                                             category_id: selectedValue,
                                             is_personal: isPersonal,
-                                            variant: '' // Reset variant when category changes
+                                            variant: '', // Reset variant when category changes
+                                            // Set defaults for S+H categories
+                                            distribution_method: isDistribution ? 'weighted' : undefined,
+                                            quantity: isDistribution || isPersonal ? '1' : item.quantity
                                           }
                                         : item
                                     )
@@ -1348,7 +1354,8 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                         </select>
                       </div>
 
-                      {selectedCategory && selectedCategory.variants.length > 0 && (
+                      {/* Variant (hide for personal items) */}
+                      {selectedCategory && selectedCategory.variants.length > 0 && !item.is_personal && (
                         <div className={styles.fieldMedium}>
                           <label className={styles.label}>Variant</label>
                           <select
@@ -1364,70 +1371,108 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
                         </div>
                       )}
 
-                      <div className={styles.fieldSmall}>
-                        <label className={styles.label}>Qty</label>
-                        <input
-                          type="number"
-                          value={item.quantity}
-                          onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'quantity', e.target.value)}
-                          placeholder="16"
-                          step="0.01"
-                          min="0"
-                          className={styles.input}
-                        />
-                      </div>
-
-                      <div className={styles.fieldSmall}>
-                        <label className={styles.label}>Unit</label>
-                        <select
-                          value={item.unit_of_measurement || ''}
-                          onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'unit_of_measurement', e.target.value)}
-                          className={styles.select}
-                        >
-                          {UNITS_OF_MEASUREMENT.map(unit => (
-                            <option key={unit} value={unit}>{unit}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className={styles.invoicePriceFields}>
-                        <div className={styles.fieldXSmall}>
-                          <label className={styles.label}>$/Unit</label>
-                          <div className={styles.inputGroup}>
-                            <span className={styles.inputPrefix}>$</span>
-                            <input
-                              type="number"
-                              value={item.unit_cost}
-                              onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'unit_cost', e.target.value)}
-                              placeholder="12.99"
-                              step="0.01"
-                              min="0"
-                              className={styles.input}
-                            />
-                          </div>
+                      {/* Distribution Method (S+H categories only) - hide for personal items */}
+                      {selectedCategory?.is_distribution_category && !item.is_personal && (
+                        <div className={styles.fieldMedium}>
+                          <label className={styles.label}>Distribution</label>
+                          <select
+                            value={item.distribution_method || 'weighted'}
+                            onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'distribution_method', e.target.value)}
+                            className={styles.select}
+                          >
+                            <option value="weighted">Weighted (by value)</option>
+                            <option value="equal">Equal Split</option>
+                          </select>
                         </div>
+                      )}
 
-                        <div className={styles.fieldXSmall}>
-                          <label className={styles.label}>Total</label>
+                      {/* For S+H categories and personal items: just show Total Cost/Amount */}
+                      {selectedCategory?.is_distribution_category || item.is_personal ? (
+                        <div className={styles.fieldMedium}>
+                          <label className={styles.label}>{item.is_personal ? 'Amount' : 'Total Cost'}</label>
                           <div className={styles.inputGroup}>
                             <span className={styles.inputPrefix}>$</span>
                             <input
                               type="text"
-                              value={item.line_total || ''}
-                              onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'line_total', e.target.value)}
-                              onBlur={(e) => {
-                                // Evaluate math expressions (150-15.99 = 134.01)
-                                const evaluated = evaluateMathExpression(e.target.value);
-                                if (evaluated !== e.target.value) {
-                                  updateInvoiceItem(invoice.id, itemIndex, 'line_total', evaluated);
-                                }
+                              value={item.unit_cost}
+                              onChange={(e) => {
+                                updateInvoiceItem(invoice.id, itemIndex, 'unit_cost', e.target.value);
+                                updateInvoiceItem(invoice.id, itemIndex, 'quantity', '1'); // Always 1 for S+H and personal items
                               }}
                               placeholder="0.00"
                               className={styles.input}
                             />
                           </div>
                         </div>
-                      </div>
+                      ) : (
+                        <>
+                          {/* For regular categories: show Qty, Unit, $/Unit, Total */}
+                          <div className={styles.fieldSmall}>
+                            <label className={styles.label}>Qty</label>
+                            <input
+                              type="number"
+                              value={item.quantity}
+                              onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'quantity', e.target.value)}
+                              placeholder="16"
+                              step="0.01"
+                              min="0"
+                              className={styles.input}
+                            />
+                          </div>
+
+                          <div className={styles.fieldSmall}>
+                            <label className={styles.label}>Unit</label>
+                            <select
+                              value={item.unit_of_measurement || ''}
+                              onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'unit_of_measurement', e.target.value)}
+                              className={styles.select}
+                            >
+                              {UNITS_OF_MEASUREMENT.map(unit => (
+                                <option key={unit} value={unit}>{unit}</option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div className={styles.invoicePriceFields}>
+                            <div className={styles.fieldXSmall}>
+                              <label className={styles.label}>$/Unit</label>
+                              <div className={styles.inputGroup}>
+                                <span className={styles.inputPrefix}>$</span>
+                                <input
+                                  type="number"
+                                  value={item.unit_cost}
+                                  onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'unit_cost', e.target.value)}
+                                  placeholder="12.99"
+                                  step="0.01"
+                                  min="0"
+                                  className={styles.input}
+                                />
+                              </div>
+                            </div>
+
+                            <div className={styles.fieldXSmall}>
+                              <label className={styles.label}>Total</label>
+                              <div className={styles.inputGroup}>
+                                <span className={styles.inputPrefix}>$</span>
+                                <input
+                                  type="text"
+                                  value={item.line_total || ''}
+                                  onChange={(e) => updateInvoiceItem(invoice.id, itemIndex, 'line_total', e.target.value)}
+                                  onBlur={(e) => {
+                                    // Evaluate math expressions (150-15.99 = 134.01)
+                                    const evaluated = evaluateMathExpression(e.target.value);
+                                    if (evaluated !== e.target.value) {
+                                      updateInvoiceItem(invoice.id, itemIndex, 'line_total', evaluated);
+                                    }
+                                  }}
+                                  placeholder="0.00"
+                                  className={styles.input}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      )}
 
                       <button
                         type="button"
