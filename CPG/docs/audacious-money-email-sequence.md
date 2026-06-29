@@ -27,9 +27,10 @@ So let's get you ready.
 3. **Fill out the worksheet.** We'll walk you through your product's information line by line. No accounting degree required, I promise.
 4. **Add your invoices.** Put them in so your costs reflect what you're actually paying now.
 
-→ **Have this complete by the beginning of the workshop.** 
+→ **Have this complete by the beginning of the workshop.**
 
-**[Log in to pick up where you left off →](https://app.audacious.money/login)**
+**[Click here to log in and pick up where you left off →](https://app.audacious.money/login)**
+https://app.audacious.money/login
 
 **Now, about your recipes.** I know your formulations are sacred — they are the heart of everything you have built. So let me be completely clear: this software is *zero-knowledge*. Your recipes, your invoices, your numbers are encrypted in a way that only you can see them.
 

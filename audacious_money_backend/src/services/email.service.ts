@@ -1373,7 +1373,8 @@ export async function sendWorkshopWelcomeEmail(
         <p><strong>→ Have this complete by the beginning of the workshop.</strong></p>
 
         <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #D4AF37;">
-          <p style="margin: 0;"><a href="https://app.audacious.money/login" style="color: #4b006e; text-decoration: none; font-weight: 600;">Log in to pick up where you left off →</a></p>
+          <p style="margin: 0;"><a href="https://app.audacious.money/login" style="color: #4b006e; text-decoration: none; font-weight: 600;">Click here to log in and pick up where you left off →</a></p>
+          <p style="margin: 10px 0 0 0; font-size: 14px; color: #666;">https://app.audacious.money/login</p>
         </div>
 
         <h3 style="color: #4b006e;">Now, about your recipes.</h3>
@@ -1414,7 +1415,8 @@ Before class, there's about an hour of prework:
 
 → Have this complete by the beginning of the workshop.
 
-Log in: https://app.audacious.money/login
+Click here to log in and pick up where you left off:
+https://app.audacious.money/login
 
 Now, about your recipes: This software is zero-knowledge. Your recipes, your invoices, your numbers are encrypted in a way that only you can see them.
 
