@@ -142,61 +142,40 @@ export default function WorkshopSignupPage() {
     }
   };
 
-  const formatDate = (dateString: string | undefined) => {
+  const formatDate = (dateString: string | undefined, timezone: string = 'America/Los_Angeles') => {
     if (!dateString) return 'Date TBD';
 
     try {
-      // Extract date parts directly without timezone conversion
-      // Format: 2026-07-15T11:00:00.000Z -> "July 15, 2026"
-      const datePart = dateString.includes('T') ? dateString.split('T')[0] : dateString.split(' ')[0];
-      if (!datePart) return 'Date TBD';
+      // Parse the timezone-aware datetime and format in the workshop's timezone
+      const date = new Date(dateString);
+      const zonedDate = toZonedTime(date, timezone);
 
-      const parts = datePart.split('-');
-      if (parts.length !== 3) return 'Date TBD';
-
-      const [year, month, day] = parts;
       const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                           'July', 'August', 'September', 'October', 'November', 'December'];
-      const monthIndex = parseInt(month) - 1;
 
-      if (monthIndex < 0 || monthIndex > 11) return 'Date TBD';
-
-      return `${monthNames[monthIndex]} ${parseInt(day)}, ${year}`;
+      return `${monthNames[zonedDate.getMonth()]} ${zonedDate.getDate()}, ${zonedDate.getFullYear()}`;
     } catch (err) {
       console.error('Error formatting date:', err, dateString);
       return 'Date TBD';
     }
   };
 
-  const formatTime = (dateString: string | undefined, timezone?: string) => {
+  const formatTime = (dateString: string | undefined, timezone: string = 'America/Los_Angeles') => {
     if (!dateString) return 'Time TBD';
 
     try {
-      // Extract time parts directly without timezone conversion
-      // Format: 2026-07-15T11:00:00.000Z -> "11:00 AM"
-      let timePart;
+      // Parse the timezone-aware datetime and format in the workshop's timezone
+      const date = new Date(dateString);
+      const zonedDate = toZonedTime(date, timezone);
 
-      if (dateString.includes('T')) {
-        const afterT = dateString.split('T')[1];
-        timePart = afterT.split('.')[0] || afterT.split('Z')[0];
-      } else {
-        return 'Time TBD';
-      }
-
-      if (!timePart) return 'Time TBD';
-
-      const timeParts = timePart.split(':');
-      if (timeParts.length < 2) return 'Time TBD';
-
-      const [hours, minutes] = timeParts;
-      const hour = parseInt(hours);
-
-      if (isNaN(hour)) return 'Time TBD';
+      const hour = zonedDate.getHours();
+      const minutes = zonedDate.getMinutes();
 
       const ampm = hour >= 12 ? 'PM' : 'AM';
       const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+      const displayMinutes = minutes.toString().padStart(2, '0');
 
-      return `${displayHour}:${minutes} ${ampm}`;
+      return `${displayHour}:${displayMinutes} ${ampm}`;
     } catch (err) {
       console.error('Error formatting time:', err, dateString);
       return 'Time TBD';
@@ -320,7 +299,7 @@ export default function WorkshopSignupPage() {
           )}
           <div className={styles.workshopMeta}>
             <div className={styles.metaItem}>
-              <strong>Date:</strong> {formatDate(workshop.workshopStartDatetime)}
+              <strong>Date:</strong> {formatDate(workshop.workshopStartDatetime, workshop.primaryTimezone)}
             </div>
             <div className={styles.metaItem}>
               <strong>Time:</strong>{' '}

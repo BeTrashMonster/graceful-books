@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { toZonedTime } from 'date-fns-tz';
 import { getMyWorkshopEnrollment, type WorkshopEnrollment } from '../../services/workshops.api';
 import { LoadingOverlay } from '../../components/feedback/Loading';
 import styles from './WorkshopCountdownPage.module.css';
@@ -94,21 +95,28 @@ export default function WorkshopCountdownPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string, timezone: string = 'America/Los_Angeles') => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    const zonedDate = toZonedTime(date, timezone);
+
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                        'July', 'August', 'September', 'October', 'November', 'December'];
+
+    return `${monthNames[zonedDate.getMonth()]} ${zonedDate.getDate()}, ${zonedDate.getFullYear()}`;
   };
 
-  const formatTime = (dateString: string) => {
+  const formatTime = (dateString: string, timezone: string = 'America/Los_Angeles') => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-    });
+    const zonedDate = toZonedTime(date, timezone);
+
+    const hour = zonedDate.getHours();
+    const minutes = zonedDate.getMinutes();
+
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    const displayMinutes = minutes.toString().padStart(2, '0');
+
+    return `${displayHour}:${displayMinutes} ${ampm}`;
   };
 
   const padZero = (num: number) => {
@@ -140,6 +148,7 @@ export default function WorkshopCountdownPage() {
   const workshopName = workshop?.workshopName || workshop?.cohortName || 'Product Costing Workshop';
   const accessDate = workshop?.accessGrantDatetime || enrollment.accessGrantedAt || new Date().toISOString();
   const workshopLocation = workshop?.location || 'Online';
+  const workshopTimezone = workshop?.primaryTimezone || 'America/Los_Angeles';
 
   return (
     <div className={styles.container}>
@@ -183,7 +192,7 @@ export default function WorkshopCountdownPage() {
             <div className={styles.detailContent}>
               <h3 className={styles.detailLabel}>Workshop Date & Time</h3>
               <p className={styles.detailValue}>
-                {workshop?.workshopStartDatetime && formatDate(workshop.workshopStartDatetime)} at {workshop?.workshopStartDatetime && formatTime(workshop.workshopStartDatetime)}
+                {workshop?.workshopStartDatetime && formatDate(workshop.workshopStartDatetime, workshopTimezone)} at {workshop?.workshopStartDatetime && formatTime(workshop.workshopStartDatetime, workshopTimezone)}
               </p>
             </div>
           </div>
@@ -218,7 +227,7 @@ export default function WorkshopCountdownPage() {
             <div className={styles.detailContent}>
               <h3 className={styles.detailLabel}>Platform Access</h3>
               <p className={styles.detailValue}>
-                Unlocks on {formatDate(accessDate)} at {formatTime(accessDate)}
+                Unlocks on {formatDate(accessDate, workshopTimezone)} at {formatTime(accessDate, workshopTimezone)}
               </p>
             </div>
           </div>
