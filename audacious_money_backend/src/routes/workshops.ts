@@ -40,6 +40,47 @@ const workshops = new Hono<HonoEnv>();
 // =============================================================================
 
 /**
+ * Auto-update workshop statuses based on registration deadline
+ * Checks all open workshops and closes them if deadline has passed
+ */
+async function updateExpiredWorkshops(db: any) {
+  try {
+    // Get all workshops with open_registration status and a deadline
+    const result = await db.query(
+      `SELECT * FROM workshops
+       WHERE status = 'open_registration'
+       AND registration_deadline IS NOT NULL`
+    );
+
+    const workshopsToClose: string[] = [];
+
+    for (const row of result.rows) {
+      const workshop = mapWorkshopRow(row);
+      // Use the timezone-aware check from workshopAccess.ts
+      if (!isWorkshopAcceptingEnrollments(workshop)) {
+        workshopsToClose.push(row.id);
+      }
+    }
+
+    // Update workshops that should be closed
+    if (workshopsToClose.length > 0) {
+      await db.query(`
+        UPDATE workshops
+        SET status = 'registration_closed', updated_at = NOW()
+        WHERE id = ANY($1::uuid[])
+      `, [workshopsToClose]);
+
+      console.log('[Workshops] Auto-closed registration for workshops:', workshopsToClose);
+    }
+
+    return workshopsToClose.length;
+  } catch (error) {
+    console.error('[Workshops] Error updating expired workshops:', error);
+    return 0;
+  }
+}
+
+/**
  * Convert database row to Workshop object (camelCase)
  */
 function mapWorkshopRow(row: any) {
@@ -197,54 +238,16 @@ workshops.get('/', requireAdmin, async (c) => {
   const db = c.get('db');
 
   try {
+    // Auto-update any workshops with expired deadlines
+    await updateExpiredWorkshops(db);
+
+    // Fetch all workshops with stats
     const result = await db.query(
       `SELECT w.*,
         (SELECT COUNT(*) FROM workshop_enrollments WHERE workshop_id = w.id) as enrollment_count
        FROM workshops w
        ORDER BY w.created_at DESC`
     );
-
-    // Auto-update workshop statuses based on registration deadline (timezone-aware)
-    const workshopsToClose: string[] = [];
-
-    for (const row of result.rows) {
-      if (row.status === 'open_registration' && row.registration_deadline) {
-        const workshop = mapWorkshopRow(row);
-        // Use the same timezone-aware check as isWorkshopAcceptingEnrollments
-        if (!isWorkshopAcceptingEnrollments(workshop)) {
-          workshopsToClose.push(row.id);
-        }
-      }
-    }
-
-    // Update workshops that should be closed
-    if (workshopsToClose.length > 0) {
-      await db.query(`
-        UPDATE workshops
-        SET status = 'registration_closed', updated_at = NOW()
-        WHERE id = ANY($1::uuid[])
-      `, [workshopsToClose]);
-
-      console.log('[Workshops] Auto-closed registration for workshops:', workshopsToClose);
-
-      // Re-fetch workshops to get updated status
-      const updatedResult = await db.query(
-        `SELECT w.*,
-          (SELECT COUNT(*) FROM workshop_enrollments WHERE workshop_id = w.id) as enrollment_count
-         FROM workshops w
-         ORDER BY w.created_at DESC`
-      );
-
-      const workshopsWithStats = updatedResult.rows.map((row) => {
-        const workshop = mapWorkshopRow(row);
-        return {
-          ...workshop,
-          enrollmentCount: parseInt(row.enrollment_count) || 0,
-        };
-      });
-
-      return success(c, { workshops: workshopsWithStats });
-    }
 
     const workshopsWithStats = result.rows.map((row) => {
       const workshop = mapWorkshopRow(row);
@@ -357,6 +360,9 @@ workshops.get('/:id', requireAdmin, async (c) => {
   const db = c.get('db');
 
   try {
+    // Auto-update any workshops with expired deadlines before fetching
+    await updateExpiredWorkshops(db);
+
     const result = await db.query(
       `SELECT w.*,
         (SELECT COUNT(*) FROM workshop_enrollments WHERE workshop_id = w.id) as enrollment_count
@@ -582,6 +588,9 @@ workshops.get('/slug/:slug', rateLimiter({ max: 100, window: 3600 }), async (c) 
   const db = c.get('db');
 
   try {
+    // Auto-update any workshops with expired deadlines before fetching
+    await updateExpiredWorkshops(db);
+
     const result = await db.query(
       `SELECT w.*,
         (SELECT COUNT(*) FROM workshop_enrollments WHERE workshop_id = w.id) as enrollment_count
