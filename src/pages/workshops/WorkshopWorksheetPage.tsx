@@ -16,6 +16,7 @@ interface PackagingItem {
 }
 
 export default function WorkshopWorksheetPage() {
+  console.log('[Worksheet] Component mounted');
   const navigate = useNavigate();
   const [enrollment, setEnrollment] = useState<WorkshopEnrollment | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,19 +53,30 @@ export default function WorkshopWorksheetPage() {
   }, [enrollment, productName, ingredients, packaging, laborTime, distributionCost]);
 
   const loadEnrollment = async () => {
+    console.log('[Worksheet] Loading enrollment...');
     setIsLoading(true);
     setError(null);
     try {
       const enrollmentData = await getMyWorkshopEnrollment();
+      console.log('[Worksheet] Enrollment data received:', enrollmentData);
+
       if (!enrollmentData) {
+        console.log('[Worksheet] No enrollment found');
         setError('No workshop enrollment found. Please sign up for a workshop first.');
         setIsLoading(false);
         return;
       }
+
+      console.log('[Worksheet] Setting enrollment state');
       setEnrollment(enrollmentData);
-      // TODO: Load saved worksheet data from backend if available
+      console.log('[Worksheet] Enrollment loaded successfully');
     } catch (err: any) {
-      console.error('Failed to load enrollment:', err);
+      console.error('[Worksheet] Error loading enrollment:', err);
+      console.error('[Worksheet] Error details:', {
+        message: err.message,
+        code: err.code,
+        status: err.status
+      });
       setError(err.message || 'Failed to load workshop enrollment');
     } finally {
       setIsLoading(false);
@@ -189,11 +201,15 @@ export default function WorkshopWorksheetPage() {
     );
   };
 
+  console.log('[Worksheet] Render - isLoading:', isLoading, 'error:', error, 'enrollment:', enrollment);
+
   if (isLoading) {
+    console.log('[Worksheet] Rendering loading overlay');
     return <LoadingOverlay message="Loading worksheet..." />;
   }
 
   if (error && !enrollment) {
+    console.log('[Worksheet] Rendering error state');
     return (
       <div className={styles.container}>
         <div className={styles.card}>
@@ -206,6 +222,7 @@ export default function WorkshopWorksheetPage() {
     );
   }
 
+  console.log('[Worksheet] Rendering main worksheet form');
   return (
     <div className={styles.container}>
       {isSaving && <LoadingOverlay message="Saving your work..." />}
