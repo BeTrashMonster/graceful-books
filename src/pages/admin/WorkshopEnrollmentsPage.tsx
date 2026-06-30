@@ -31,7 +31,7 @@ type SortField = 'name' | 'email' | 'enrolledAt' | 'status' | 'accessGrantedAt';
 type SortDirection = 'asc' | 'desc';
 
 export default function WorkshopEnrollmentsPage() {
-  const { workshopId } = useParams<{ workshopId: string }>();
+  const { id: workshopId } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const [workshop, setWorkshop] = useState<Workshop | null>(null);

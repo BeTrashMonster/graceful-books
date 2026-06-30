@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loading Overlay Mockup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Mock page content */
+    .mockPage {
+      padding: 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
+    .mockContent {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .mockContent h1 {
+      color: #333;
+      margin-bottom: 1rem;
+    }
+
+    .mockContent p {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .mockButton {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .mockButton:hover {
+      background: #5568d3;
+    }
+
+    /* Loading Overlay Styles */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .loadingContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 2rem;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 64px;
+      height: 64px;
+      position: relative;
+    }
+
+    .spinnerCircle {
+      width: 100%;
+      height: 100%;
+      border: 4px solid rgba(212, 175, 55, 0.2);
+      border-top-color: #D4AF37;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Message */
+    .message {
+      color: white;
+      font-size: 1.25rem;
+      font-weight: 600;
+      text-align: center;
+      max-width: 400px;
+      line-height: 1.5;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Screen reader only */
+    .srOnly {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+      .spinner,
+      .spinnerCircle {
+        animation: none;
+      }
+
+      .overlay {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Mock page content (what's behind the overlay) -->
+  <div class="mockPage">
+    <div class="mockContent">
+      <h1>CPG Worksheet - Step 3: Review</h1>
+      <p>This is the content behind the loading overlay. When you click "Show Loading Overlay", you'll see what the user sees when they click "Confirm + Save".</p>
+
+      <p>The overlay has:</p>
+      <ul style="margin-left: 2rem; margin-bottom: 1.5rem;">
+        <li>Semi-transparent dark background with blur</li>
+        <li>Golden spinner animation</li>
+        <li>Clear message: "Importing your worksheet into the system..."</li>
+        <li>Prevents any interaction with the page behind it</li>
+      </ul>
+
+      <button class="mockButton" onclick="toggleOverlay()">Show Loading Overlay</button>
+    </div>
+  </div>
+
+  <!-- Loading Overlay (hidden by default) -->
+  <div class="overlay" id="loadingOverlay" style="display: none;">
+    <div class="loadingContainer" role="status" aria-live="polite" aria-busy="true" aria-label="Loading">
+      <div class="spinner">
+        <div class="spinnerCircle"></div>
+      </div>
+
+      <p class="message">Importing your worksheet into the system...</p>
+
+      <span class="srOnly">Loading</span>
+    </div>
+  </div>
+
+  <script>
+    function toggleOverlay() {
+      const overlay = document.getElementById('loadingOverlay');
+      if (overlay.style.display === 'none') {
+        overlay.style.display = 'flex';
+      } else {
+        overlay.style.display = 'none';
+      }
+    }
+
+    // Close overlay when clicking it (for demo purposes)
+    document.getElementById('loadingOverlay').addEventListener('click', function() {
+      this.style.display = 'none';
+    });
+  </script>
+</body>
+</html>

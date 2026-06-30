@@ -1,0 +1,405 @@
+{
+  "version": "1.0.0",
+  "created_at": "2026-03-26T23:26:30.066Z",
+  "categories": [
+    {
+      "id": "temp-1774828326451-x4gs24347",
+      "name": "Bottles",
+      "variants": [
+        "1 oz",
+        "5 oz"
+      ],
+      "sort_order": 0
+    },
+    {
+      "id": "temp-1774828343859-womh2sgak",
+      "name": "Lids",
+      "variants": [
+        "1 oz",
+        "5 oz"
+      ],
+      "sort_order": 1
+    },
+    {
+      "id": "temp-1774828370548-squ4svaaq",
+      "name": "Bottle Branding",
+      "variants": [
+        "1oz",
+        "5 oz"
+      ],
+      "sort_order": 2
+    },
+    {
+      "id": "temp-1774828396585-jfe778i9a",
+      "name": "Boxes",
+      "variants": [
+        "1 oz",
+        "5 oz"
+      ],
+      "sort_order": 3
+    },
+    {
+      "id": "temp-1774828413859-wtmr7b1fm",
+      "name": "Sticker",
+      "variants": [
+        "1 oz",
+        "5 oz"
+      ],
+      "sort_order": 4
+    },
+    {
+      "id": "temp-1774828435233-uwnepi56p",
+      "name": "Box Branding",
+      "variants": [
+        "1 oz",
+        "5 oz"
+      ],
+      "sort_order": 5
+    },
+    {
+      "id": "temp-1774828446774-jzih974tg",
+      "name": "Oil",
+      "variants": [],
+      "sort_order": 6
+    },
+    {
+      "id": "temp-1774902406136-kji8s77vo",
+      "name": "Eucalyptus",
+      "variants": [],
+      "sort_order": 7
+    },
+    {
+      "id": "temp-1774902414137-xkvyob3vc",
+      "name": "Magnolia",
+      "variants": [],
+      "sort_order": 8
+    }
+  ],
+  "finished_products": [
+    {
+      "id": "temp-1774828508116-h13r1fe0x",
+      "name": "1 oz Magnolia",
+      "msrp": "50.00",
+      "sku": null
+    },
+    {
+      "id": "temp-1774828540736-hkfditbug",
+      "name": "5 oz Magnolia",
+      "msrp": "125.00",
+      "sku": null
+    },
+    {
+      "id": "temp-1774828645441-9mc1ebqje",
+      "name": "1 oz Eucalyptus",
+      "msrp": "50.00",
+      "sku": null
+    },
+    {
+      "id": "temp-1774828654095-9ymp4nt6o",
+      "name": "5 oz  oz Eucalyptus",
+      "msrp": "125.00",
+      "sku": null
+    }
+  ],
+  "recipes": [
+    {
+      "product_id": "temp-1774828508116-h13r1fe0x",
+      "items": [
+        {
+          "category_id": "temp-1774828326451-x4gs24347",
+          "variant": "1 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828343859-womh2sgak",
+          "variant": "1 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828370548-squ4svaaq",
+          "variant": "1oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828396585-jfe778i9a",
+          "variant": "1 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828413859-wtmr7b1fm",
+          "variant": "1 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828435233-uwnepi56p",
+          "variant": "1 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828446774-jzih974tg",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774902414137-xkvyob3vc",
+          "quantity": "1"
+        }
+      ]
+    },
+    {
+      "product_id": "temp-1774828540736-hkfditbug",
+      "items": [
+        {
+          "category_id": "temp-1774828326451-x4gs24347",
+          "variant": "5 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828343859-womh2sgak",
+          "variant": "5 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828370548-squ4svaaq",
+          "variant": "5 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828396585-jfe778i9a",
+          "variant": "5 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828413859-wtmr7b1fm",
+          "variant": "5 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828435233-uwnepi56p",
+          "variant": "5 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828446774-jzih974tg",
+          "quantity": "5"
+        },
+        {
+          "category_id": "temp-1774902414137-xkvyob3vc",
+          "quantity": "5"
+        }
+      ]
+    },
+    {
+      "product_id": "temp-1774828645441-9mc1ebqje",
+      "items": [
+        {
+          "category_id": "temp-1774828326451-x4gs24347",
+          "variant": "1 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828343859-womh2sgak",
+          "variant": "1 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828370548-squ4svaaq",
+          "variant": "1oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828396585-jfe778i9a",
+          "variant": "1 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828413859-wtmr7b1fm",
+          "variant": "1 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828435233-uwnepi56p",
+          "variant": "1 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828446774-jzih974tg",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774902406136-kji8s77vo",
+          "quantity": "1"
+        }
+      ]
+    },
+    {
+      "product_id": "temp-1774828654095-9ymp4nt6o",
+      "items": [
+        {
+          "category_id": "temp-1774828326451-x4gs24347",
+          "variant": "5 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828343859-womh2sgak",
+          "variant": "5 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828370548-squ4svaaq",
+          "variant": "5 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828396585-jfe778i9a",
+          "variant": "5 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828413859-wtmr7b1fm",
+          "variant": "5 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828435233-uwnepi56p",
+          "variant": "5 oz",
+          "quantity": "1"
+        },
+        {
+          "category_id": "temp-1774828446774-jzih974tg",
+          "quantity": "5"
+        },
+        {
+          "category_id": "temp-1774902406136-kji8s77vo",
+          "quantity": "5"
+        }
+      ]
+    }
+  ],
+  "invoices": [
+    {
+      "id": "temp-1774829576735-x7fhtcu4n",
+      "vendor_name": "Storage Store",
+      "invoice_date": "2026-01-15",
+      "items": [
+        {
+          "category_id": "temp-1774828326451-x4gs24347",
+          "variant": "1 oz",
+          "quantity": "1429",
+          "unit_cost": "0.62",
+          "manual_line_total": "892.08"
+        },
+        {
+          "category_id": "temp-1774828326451-x4gs24347",
+          "variant": "5 oz",
+          "quantity": "1511",
+          "unit_cost": "1.23",
+          "manual_line_total": "1851.15"
+        },
+        {
+          "category_id": "temp-1774828343859-womh2sgak",
+          "variant": "1 oz",
+          "quantity": "1429",
+          "unit_cost": "0.70"
+        },
+        {
+          "category_id": "temp-1774828343859-womh2sgak",
+          "variant": "5 oz",
+          "quantity": "1511",
+          "unit_cost": "1.08"
+        },
+        {
+          "category_id": "temp-1774828370548-squ4svaaq",
+          "variant": "1oz",
+          "quantity": "1429",
+          "unit_cost": "2.33",
+          "manual_line_total": "3336.24"
+        },
+        {
+          "category_id": "temp-1774828370548-squ4svaaq",
+          "variant": "5 oz",
+          "quantity": "1511",
+          "unit_cost": "2.30",
+          "manual_line_total": "3480.37"
+        }
+      ]
+    },
+    {
+      "id": "temp-1774829785288-bsev245kb",
+      "vendor_name": "Bulk Box",
+      "invoice_date": "2026-01-20",
+      "items": [
+        {
+          "category_id": "temp-1774828396585-jfe778i9a",
+          "variant": "1 oz",
+          "quantity": "1000",
+          "unit_cost": "1.60",
+          "manual_line_total": "1595.62"
+        },
+        {
+          "category_id": "temp-1774828396585-jfe778i9a",
+          "variant": "5 oz",
+          "quantity": "1000",
+          "unit_cost": "1.76",
+          "manual_line_total": "1760.60"
+        },
+        {
+          "category_id": "temp-1774828413859-wtmr7b1fm",
+          "variant": "1 oz",
+          "quantity": "600",
+          "unit_cost": "0.42",
+          "manual_line_total": "250.01"
+        },
+        {
+          "category_id": "temp-1774828413859-wtmr7b1fm",
+          "variant": "5 oz",
+          "quantity": "600",
+          "unit_cost": "0.43",
+          "manual_line_total": "256.00"
+        },
+        {
+          "category_id": "temp-1774828435233-uwnepi56p",
+          "variant": "1 oz",
+          "quantity": "1000",
+          "unit_cost": "0.77"
+        },
+        {
+          "category_id": "temp-1774828435233-uwnepi56p",
+          "variant": "5 oz",
+          "quantity": "1000",
+          "unit_cost": "0.77"
+        }
+      ]
+    },
+    {
+      "id": "temp-1774829830367-vkzegs68m",
+      "vendor_name": "Bulk Apothicary",
+      "invoice_date": "2026-01-30",
+      "items": [
+        {
+          "category_id": "temp-1774828446774-jzih974tg",
+          "quantity": "4232.88",
+          "unit_cost": "2.58",
+          "manual_line_total": "10917.28"
+        }
+      ]
+    },
+    {
+      "id": "temp-1774902700247-6f9vq0m88",
+      "vendor_name": "Flowers",
+      "invoice_date": "2026-01-22",
+      "items": [
+        {
+          "category_id": "temp-1774902414137-xkvyob3vc",
+          "quantity": "375",
+          "unit_cost": "0.85"
+        },
+        {
+          "category_id": "temp-1774902406136-kji8s77vo",
+          "quantity": "225",
+          "unit_cost": "0.81",
+          "manual_line_total": "181.25"
+        }
+      ]
+    }
+  ]
+}

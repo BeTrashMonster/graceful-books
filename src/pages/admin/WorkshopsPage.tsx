@@ -35,13 +35,14 @@ interface WorkshopAnalytics {
   registrationDeadline?: Date | string;
   primaryTimezone?: string;
   maxEnrollment?: number;
-  totalEnrolled: number;
-  activeCount: number;
-  convertedCount: number;
-  withdrawnCount: number;
-  trialExpiredCount: number;
-  worksheetCompletedCount: number;
-  firstLoginCount: number;
+  enrollmentCount: number;
+  totalEnrolled?: number;
+  activeCount?: number;
+  convertedCount?: number;
+  withdrawnCount?: number;
+  trialExpiredCount?: number;
+  worksheetCompletedCount?: number;
+  firstLoginCount?: number;
   spotsRemaining?: number;
   isFull: boolean;
   currentPhase: 'before_access' | 'access_granted' | 'in_progress' | 'completed';
@@ -103,6 +104,40 @@ export default function WorkshopsPage() {
 
   const handleEditWorkshop = (workshopId: string) => {
     navigate(`/admin/workshops/${workshopId}`);
+  };
+
+  const handleDeleteWorkshop = async (workshopId: string, cohortName: string) => {
+    if (!confirm(`Are you sure you want to delete "${cohortName}"? This will also delete all enrollments and cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      // Get admin token
+      const sessionData = sessionStorage.getItem('graceful_books_admin_session');
+      const token = sessionData ? JSON.parse(sessionData).token : null;
+
+      if (!token) {
+        alert('Admin session expired. Please log in again.');
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/api/workshops/${workshopId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete workshop');
+      }
+
+      alert(`Workshop "${cohortName}" has been deleted.`);
+      loadWorkshops(); // Reload the list
+    } catch (err) {
+      console.error('Error deleting workshop:', err);
+      alert('Failed to delete workshop. Please try again.');
+    }
   };
 
   const getStatusBadgeClass = (status: string) => {
@@ -313,7 +348,7 @@ export default function WorkshopsPage() {
                   </td>
                   <td>{formatDate(workshop.workshopStartDatetime)}</td>
                   <td>
-                    {workshop.totalEnrolled}
+                    {workshop.enrollmentCount}
                     {workshop.maxEnrollment ? ` / ${workshop.maxEnrollment}` : ''}
                     {workshop.isFull && (
                       <span className={styles.fullBadge} aria-label="Workshop is full">
@@ -321,10 +356,10 @@ export default function WorkshopsPage() {
                       </span>
                     )}
                   </td>
-                  <td>{workshop.convertedCount}</td>
+                  <td>{workshop.convertedCount || 0}</td>
                   <td>
                     <span className={styles.conversionRate}>
-                      {calculateConversionRate(workshop.convertedCount, workshop.totalEnrolled)}%
+                      {calculateConversionRate(workshop.convertedCount || 0, workshop.enrollmentCount)}%
                     </span>
                   </td>
                   <td>
@@ -353,6 +388,28 @@ export default function WorkshopsPage() {
                       aria-label={`Edit ${workshop.cohortName}`}
                     >
                       Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/admin/workshops/${workshop.id}/enrollments`);
+                      }}
+                      className={styles.actionButton}
+                      aria-label={`View enrollments for ${workshop.cohortName}`}
+                    >
+                      Enrollments ({workshop.enrollmentCount})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteWorkshop(workshop.id, workshop.cohortName);
+                      }}
+                      className={styles.deleteButton}
+                      aria-label={`Delete ${workshop.cohortName}`}
+                    >
+                      Delete
                     </button>
                   </td>
                 </tr>
