@@ -100,7 +100,7 @@ export interface WorkshopAnalyticsData {
  * Get all workshops (admin only)
  */
 export async function getWorkshops(): Promise<Workshop[]> {
-  const response = await api.get<{ data: { workshops: Workshop[] } }>('/admin/workshops');
+  const response = await api.get<{ data: { workshops: Workshop[] } }>('/api/workshops');
   return response.data.workshops;
 }
 
@@ -108,7 +108,7 @@ export async function getWorkshops(): Promise<Workshop[]> {
  * Get a single workshop by ID
  */
 export async function getWorkshop(id: string): Promise<Workshop> {
-  const response = await api.get<{ data: { workshop: Workshop } }>(`/admin/workshops/${id}`);
+  const response = await api.get<{ data: { workshop: Workshop } }>(`/api/workshops/${id}`);
   return response.data.workshop;
 }
 
@@ -127,7 +127,7 @@ export async function getWorkshopEnrollments(
   if (filters?.search) params.append('search', filters.search);
 
   const queryString = params.toString();
-  const url = `/admin/workshops/${workshopId}/enrollments${queryString ? `?${queryString}` : ''}`;
+  const url = `/api/workshops/${workshopId}/enrollments${queryString ? `?${queryString}` : ''}`;
 
   return api.get<WorkshopEnrollment[]>(url);
 }
@@ -147,7 +147,7 @@ export async function getWorkshopAnalytics(
   if (dateRange?.endDate) params.append('endDate', dateRange.endDate);
 
   const queryString = params.toString();
-  const url = `/admin/workshops/${workshopId}/analytics${queryString ? `?${queryString}` : ''}`;
+  const url = `/api/workshops/${workshopId}/analytics${queryString ? `?${queryString}` : ''}`;
 
   return api.get<WorkshopAnalyticsData>(url);
 }
@@ -156,14 +156,14 @@ export async function getWorkshopAnalytics(
  * Grant access to a workshop enrollment
  */
 export async function grantEnrollmentAccess(enrollmentId: string): Promise<WorkshopEnrollment> {
-  return api.put<WorkshopEnrollment>(`/admin/enrollments/${enrollmentId}/grant-access`, {});
+  return api.put<WorkshopEnrollment>(`/api/enrollments/${enrollmentId}/grant-access`, {});
 }
 
 /**
  * Start trial for a workshop enrollment
  */
 export async function startEnrollmentTrial(enrollmentId: string): Promise<WorkshopEnrollment> {
-  return api.put<WorkshopEnrollment>(`/admin/enrollments/${enrollmentId}/start-trial`, {});
+  return api.put<WorkshopEnrollment>(`/api/enrollments/${enrollmentId}/start-trial`, {});
 }
 
 /**
