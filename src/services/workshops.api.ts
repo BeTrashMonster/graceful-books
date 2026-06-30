@@ -129,7 +129,8 @@ export async function getWorkshopEnrollments(
   const queryString = params.toString();
   const url = `/api/workshops/${workshopId}/enrollments${queryString ? `?${queryString}` : ''}`;
 
-  return api.get<WorkshopEnrollment[]>(url);
+  const response = await api.get<{ data: { enrollments: WorkshopEnrollment[] } }>(url);
+  return response.data.enrollments;
 }
 
 /**
@@ -156,14 +157,16 @@ export async function getWorkshopAnalytics(
  * Grant access to a workshop enrollment
  */
 export async function grantEnrollmentAccess(enrollmentId: string): Promise<WorkshopEnrollment> {
-  return api.put<WorkshopEnrollment>(`/api/enrollments/${enrollmentId}/grant-access`, {});
+  const response = await api.put<{ data: { enrollment: WorkshopEnrollment } }>(`/api/enrollments/${enrollmentId}/grant-access`, {});
+  return response.data.enrollment;
 }
 
 /**
  * Start trial for a workshop enrollment
  */
 export async function startEnrollmentTrial(enrollmentId: string): Promise<WorkshopEnrollment> {
-  return api.put<WorkshopEnrollment>(`/api/enrollments/${enrollmentId}/start-trial`, {});
+  const response = await api.put<{ data: { enrollment: WorkshopEnrollment } }>(`/api/enrollments/${enrollmentId}/start-trial`, {});
+  return response.data.enrollment;
 }
 
 /**
