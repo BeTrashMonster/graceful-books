@@ -406,8 +406,8 @@ export default function WorkshopEnrollmentsPage() {
                     {new Date(enrollment.enrolledAt).toLocaleDateString()}
                   </td>
                   <td>
-                    <span className={`${styles.statusBadge} ${getStatusBadgeClass(enrollment.status)}`}>
-                      {enrollment.status.replace('_', ' ')}
+                    <span className={`${styles.statusBadge} ${getStatusBadgeClass(enrollment.status || 'enrolled')}`}>
+                      {enrollment.status?.replace('_', ' ') || 'enrolled'}
                     </span>
                   </td>
                   <td className={styles.date}>
@@ -564,7 +564,7 @@ function EnrollmentDetailModal({ enrollment, onClose, onUpdate }: EnrollmentDeta
             <h3>Progress</h3>
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Status:</span>
-              <span>{enrollment.status.replace('_', ' ')}</span>
+              <span>{enrollment.status?.replace('_', ' ') || 'enrolled'}</span>
             </div>
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Worksheet Completed:</span>
