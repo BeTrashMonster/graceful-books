@@ -241,11 +241,12 @@ workshops.get('/', requireAdmin, async (c) => {
     // Auto-update any workshops with expired deadlines
     await updateExpiredWorkshops(db);
 
-    // Fetch all workshops with stats
+    // Fetch all workshops with stats (exclude archived by default)
     const result = await db.query(
       `SELECT w.*,
         (SELECT COUNT(*) FROM workshop_enrollments WHERE workshop_id = w.id) as enrollment_count
        FROM workshops w
+       WHERE w.status != 'archived'
        ORDER BY w.created_at DESC`
     );
 
@@ -549,7 +550,7 @@ workshops.delete('/:id', requireAdmin, async (c) => {
 
   try {
     // Check if workshop exists
-    const checkResult = await db.query('SELECT id, status FROM workshops WHERE id = $1', [
+    const checkResult = await db.query('SELECT id, cohort_name FROM workshops WHERE id = $1', [
       workshopId,
     ]);
 
@@ -557,20 +558,17 @@ workshops.delete('/:id', requireAdmin, async (c) => {
       return notFound(c, ErrorCodes.NOT_FOUND, 'Workshop not found');
     }
 
-    // Soft delete by archiving
-    const result = await db.query(
-      `UPDATE workshops
-       SET status = 'archived', updated_at = NOW()
-       WHERE id = $1
-       RETURNING *`,
-      [workshopId]
-    );
+    const cohortName = checkResult.rows[0].cohort_name;
 
-    const workshop = mapWorkshopRow(result.rows[0]);
+    // Delete all enrollments first (cascade delete)
+    await db.query('DELETE FROM workshop_enrollments WHERE workshop_id = $1', [workshopId]);
 
-    console.log('[Workshops] Archived workshop:', workshop.id, workshop.cohortName);
+    // Delete the workshop
+    await db.query('DELETE FROM workshops WHERE id = $1', [workshopId]);
 
-    return success(c, { workshop });
+    console.log('[Workshops] Deleted workshop:', workshopId, cohortName);
+
+    return success(c, { message: 'Workshop deleted successfully', workshopId, cohortName });
   } catch (error) {
     console.error('[Workshops] Error deleting workshop:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to delete workshop');
@@ -1013,10 +1011,15 @@ workshops.get('/:id/enrollments', requireAdmin, async (c) => {
 
     const enrollments = result.rows.map((row) => {
       const enrollment = mapEnrollmentRow(row);
+      const firstName = row.first_name || '';
+      const lastName = row.last_name || '';
+      const fullName = `${firstName} ${lastName}`.trim() || 'N/A';
+
       return {
         ...enrollment,
         user: {
           email: row.email,
+          name: fullName,
           firstName: row.first_name,
           lastName: row.last_name,
           companyName: row.company_name,
