@@ -1,7 +1,9 @@
 /**
- * Stripe Webhook Handler
+ * Webhook Handlers
  *
- * Receives and processes Stripe webhook events for payment and subscription updates
+ * Receives and processes webhook events from external services:
+ * - Stripe: Payment and subscription updates
+ * - Postmark: Email tracking events (opens, clicks, bounces, etc.)
  */
 
 import { Hono } from 'hono';
@@ -321,7 +323,9 @@ async function handleCheckoutSessionCompleted(session: any) {
               user.first_name,
               workshop.cohort_name,
               workshop.workshop_start_datetime,
-              location
+              location,
+              userId,
+              workshopId
             );
             console.log('[Webhook] Email #1 (Welcome) sent immediately to:', user.email);
 
@@ -335,6 +339,8 @@ async function handleCheckoutSessionCompleted(session: any) {
                 user.first_name,
                 workshop.workshop_start_datetime,
                 location,
+                userId,
+                workshopId,
                 email2Time.toISOString()
               );
               console.log(`[Webhook] Email #2 (${reminderHours}h reminder) scheduled for:`, email2Time.toISOString());
@@ -349,6 +355,8 @@ async function handleCheckoutSessionCompleted(session: any) {
               user.email,
               user.first_name,
               workshop.cohort_name,
+              userId,
+              workshopId,
               email3Time.toISOString()
             );
             console.log('[Webhook] Email #3 (Week 1 Challenge) scheduled for:', email3Time.toISOString());
@@ -360,6 +368,8 @@ async function handleCheckoutSessionCompleted(session: any) {
               user.email,
               user.first_name,
               workshop.cohort_name,
+              userId,
+              workshopId,
               email4Time.toISOString()
             );
             console.log('[Webhook] Email #4 (Week 2 Challenge) scheduled for:', email4Time.toISOString());
@@ -371,6 +381,8 @@ async function handleCheckoutSessionCompleted(session: any) {
               user.email,
               user.first_name,
               workshop.cohort_name,
+              userId,
+              workshopId,
               email5Time.toISOString()
             );
             console.log('[Webhook] Email #5 (Week 3 Challenge) scheduled for:', email5Time.toISOString());
@@ -382,6 +394,8 @@ async function handleCheckoutSessionCompleted(session: any) {
               user.email,
               user.first_name,
               workshop.cohort_name,
+              userId,
+              workshopId,
               email6Time.toISOString()
             );
             console.log('[Webhook] Email #6 (Week 4 Challenge) scheduled for:', email6Time.toISOString());
@@ -393,6 +407,8 @@ async function handleCheckoutSessionCompleted(session: any) {
               user.email,
               user.first_name,
               workshop.cohort_name,
+              userId,
+              workshopId,
               email7Time.toISOString()
             );
             console.log('[Webhook] Email #7 (30-day Wrap-up) scheduled for:', email7Time.toISOString());
@@ -943,5 +959,107 @@ async function handleCheckoutSessionExpired(session: any) {
 
   console.log('[Webhook] Checkout session expiration logged');
 }
+
+/**
+ * Postmark webhook endpoint
+ *
+ * Receives email tracking events from Postmark (opens, clicks, bounces, etc.)
+ * SECURITY: This endpoint must be accessible without authentication
+ * Payload structure verification happens inside the handler
+ */
+webhooks.post('/postmark', async (c) => {
+  try {
+    const payload = await c.req.json();
+    const db = getDatabase();
+
+    // Basic payload validation
+    if (!payload || !payload.RecordType || !payload.MessageID) {
+      console.error('[Postmark Webhook] Invalid payload structure');
+      return c.json({ error: 'Invalid webhook payload' }, 400);
+    }
+
+    const {
+      RecordType,
+      MessageID,
+      Recipient,
+      Subject,
+      Tag,
+      Metadata,
+      ReceivedAt,
+      // Event-specific fields
+      OriginalLink,  // For clicks
+      BounceID,      // For bounces
+      Type,          // Bounce type
+      Description,   // Error description
+    } = payload;
+
+    console.log(`[Postmark Webhook] Received ${RecordType} event for ${MessageID}`);
+
+    // Parse Tag to extract email category and type
+    const tagParts = (Tag || '').split('|');
+    const emailCategory = tagParts[0] || 'system';
+    const emailType = tagParts[1] || 'unknown';
+
+    // Extract user and workshop IDs from Metadata
+    const userId = Metadata?.userId || null;
+    const workshopId = Metadata?.workshopId || null;
+
+    // Map Postmark RecordType to our event_type
+    const eventTypeMap: Record<string, string> = {
+      'Delivery': 'delivered',
+      'Open': 'opened',
+      'Click': 'clicked',
+      'Bounce': 'bounced',
+      'SpamComplaint': 'spam_complaint',
+      'SubscriptionChange': 'subscription_change',
+    };
+
+    const eventType = eventTypeMap[RecordType];
+    if (!eventType) {
+      console.warn('[Postmark Webhook] Unknown RecordType:', RecordType);
+      return c.json({ received: true }, 200);
+    }
+
+    // Build event metadata based on event type
+    const eventMetadata: Record<string, any> = {};
+    if (RecordType === 'Click') {
+      eventMetadata.clickedUrl = OriginalLink;
+    } else if (RecordType === 'Bounce') {
+      eventMetadata.bounceId = BounceID;
+      eventMetadata.bounceType = Type;
+      eventMetadata.description = Description;
+    }
+
+    // Store event in database
+    await db.query(
+      `INSERT INTO email_tracking_events (
+        message_id, recipient_email, subject, event_type,
+        email_category, email_type, user_id, workshop_id,
+        event_timestamp, event_metadata, postmark_payload
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      ON CONFLICT (message_id, event_type, event_timestamp) DO NOTHING`,
+      [
+        MessageID,
+        Recipient,
+        Subject,
+        eventType,
+        emailCategory,
+        emailType,
+        userId,
+        workshopId,
+        ReceivedAt || new Date().toISOString(),
+        JSON.stringify(eventMetadata),
+        JSON.stringify(payload)
+      ]
+    );
+
+    console.log(`[Postmark Webhook] Recorded ${eventType} event for ${MessageID}`);
+
+    return c.json({ received: true }, 200);
+  } catch (error) {
+    console.error('[Postmark Webhook] Error processing webhook:', error);
+    return c.json({ error: 'Internal server error' }, 500);
+  }
+});
 
 export default webhooks;

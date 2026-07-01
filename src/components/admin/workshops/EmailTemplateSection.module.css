@@ -1,0 +1,296 @@
+/* Email Template Section Styles */
+
+.emailTemplateContainer {
+  margin-top: 2rem;
+}
+
+/* ============================================================================
+   TAB NAVIGATION
+   ============================================================================ */
+
+.emailTemplateTabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--color-border, #e5e7eb);
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border, #e5e7eb) transparent;
+}
+
+.emailTemplateTabs::-webkit-scrollbar {
+  height: 6px;
+}
+
+.emailTemplateTabs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.emailTemplateTabs::-webkit-scrollbar-thumb {
+  background: var(--color-border, #e5e7eb);
+  border-radius: 3px;
+}
+
+.emailTab {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #666);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  min-height: 44px; /* WCAG touch target */
+}
+
+.emailTab:hover {
+  color: var(--color-text-primary, #1a1a1a);
+  background: var(--color-bg-hover, #f9fafb);
+}
+
+.emailTab:focus-visible {
+  outline: 2px solid var(--color-primary, #7C3AED);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.emailTabActive {
+  color: var(--color-primary, #7C3AED);
+  border-bottom-color: var(--color-primary, #7C3AED);
+  font-weight: 600;
+}
+
+/* ============================================================================
+   RADIO TOGGLE (Use Default vs Customize)
+   ============================================================================ */
+
+.templateChoice {
+  margin-bottom: 2rem;
+  padding: 0;
+  border: none;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--color-bg-secondary, #f9fafb);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+}
+
+.radioLabel {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: white;
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 44px; /* WCAG touch target */
+  align-items: flex-start;
+}
+
+.radioLabel:hover {
+  border-color: var(--color-primary, #7C3AED);
+  background: var(--color-primary-light, #f3e8ff);
+}
+
+.radioLabel:focus-within {
+  outline: 2px solid var(--color-primary, #7C3AED);
+  outline-offset: 2px;
+}
+
+.radioLabelActive {
+  border-color: var(--color-primary, #7C3AED);
+  background: var(--color-primary-light, #f3e8ff);
+}
+
+.radio {
+  margin-top: 0.125rem;
+  cursor: pointer;
+  accent-color: var(--color-primary, #7C3AED);
+  min-width: 18px;
+  min-height: 18px;
+  flex-shrink: 0;
+}
+
+.radioContent {
+  flex: 1;
+}
+
+.radioTitle {
+  display: block;
+  font-size: 1rem;
+  color: var(--color-text-primary, #1a1a1a);
+  margin-bottom: 0.25rem;
+}
+
+.optionDescription {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #666);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* ============================================================================
+   EDITOR + PREVIEW LAYOUT
+   ============================================================================ */
+
+.editorPreviewLayout {
+  display: grid;
+  grid-template-columns: 1fr 500px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.editorColumn {
+  min-width: 0; /* Prevents grid overflow */
+}
+
+.previewColumn {
+  position: sticky;
+  top: 2rem;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+}
+
+/* Scrollbar styling for preview column */
+.previewColumn::-webkit-scrollbar {
+  width: 8px;
+}
+
+.previewColumn::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary, #f9fafb);
+  border-radius: 4px;
+}
+
+.previewColumn::-webkit-scrollbar-thumb {
+  background: var(--color-border, #e5e7eb);
+  border-radius: 4px;
+}
+
+.previewColumn::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary, #666);
+}
+
+.defaultPreview {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+@media (max-width: 1280px) {
+  .editorPreviewLayout {
+    grid-template-columns: 1fr 400px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .editorPreviewLayout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .previewColumn {
+    position: relative;
+    top: 0;
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .emailTemplateTabs {
+    flex-wrap: wrap;
+    border-bottom: none;
+    gap: 0.5rem;
+  }
+
+  .emailTab {
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 6px;
+    margin-bottom: 0;
+    flex: 1 1 calc(33.333% - 0.5rem); /* 3 tabs per row */
+    min-width: 90px;
+    text-align: center;
+    padding: 0.625rem 0.5rem;
+  }
+
+  .emailTabActive {
+    border-color: var(--color-primary, #7C3AED);
+    background: var(--color-primary-light, #f3e8ff);
+  }
+
+  .radioGroup {
+    padding: 1rem;
+  }
+
+  .radioLabel {
+    padding: 0.75rem;
+  }
+
+  .defaultPreview {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .emailTab {
+    flex: 1 1 calc(50% - 0.5rem); /* 2 tabs per row on very small screens */
+    font-size: 0.8125rem;
+  }
+}
+
+/* ============================================================================
+   HIGH CONTRAST MODE SUPPORT
+   ============================================================================ */
+
+@media (prefers-contrast: high) {
+  .emailTab {
+    border: 1px solid transparent;
+  }
+
+  .emailTabActive {
+    border-color: currentColor;
+  }
+
+  .radioLabel {
+    border-width: 2px;
+  }
+
+  .radioLabelActive {
+    border-width: 3px;
+  }
+}
+
+/* ============================================================================
+   REDUCED MOTION SUPPORT
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .emailTab,
+  .radioLabel {
+    transition: none;
+  }
+}

@@ -8,6 +8,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toZonedTime, formatInTimeZone } from 'date-fns-tz';
 import styles from './WorkshopFormPage.module.css';
+import {
+  EmailType,
+  EmailTemplate,
+  EmailTemplates,
+  DEFAULT_EMAIL_TEMPLATES,
+} from '../../utils/emailTemplates';
+import EmailTemplateSection from '../../components/admin/workshops/EmailTemplateSection';
 
 const API_URL = 'https://api.audacious.money';
 
@@ -31,6 +38,9 @@ interface WorkshopFormData {
   sendReminder: boolean;
   reminderHoursBefore: number;
   status: 'draft' | 'open_registration' | 'registration_closed' | 'in_progress' | 'completed' | 'archived';
+  // Email template customization
+  customizedEmails: EmailType[];
+  emailTemplateContent: EmailTemplates;
 }
 
 export default function WorkshopFormPage() {
@@ -58,8 +68,11 @@ export default function WorkshopFormPage() {
     sendReminder: true,
     reminderHoursBefore: 24,
     status: 'draft',
+    customizedEmails: [],
+    emailTemplateContent: {},
   });
 
+  const [selectedEmailType, setSelectedEmailType] = useState<EmailType>('welcome');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -107,6 +120,16 @@ export default function WorkshopFormPage() {
 
       const workshopTimezone = workshop.primaryTimezone || 'America/Los_Angeles';
 
+      // Determine which emails are customized based on customEmailTemplates from API
+      const customTemplates = workshop.customEmailTemplates || {};
+      const customizedEmailTypes: EmailType[] = [];
+
+      (['welcome', 'reminder', 'week1', 'week2', 'week3', 'week4', 'wrapUp'] as EmailType[]).forEach(emailType => {
+        if (customTemplates[emailType]) {
+          customizedEmailTypes.push(emailType);
+        }
+      });
+
       // Convert API response to form data
       setFormData({
         cohortName: workshop.cohortName || '',
@@ -128,6 +151,8 @@ export default function WorkshopFormPage() {
         sendReminder: workshop.sendReminder ?? true,
         reminderHoursBefore: workshop.reminderHoursBefore || 24,
         status: workshop.status || 'draft',
+        customizedEmails: customizedEmailTypes,
+        emailTemplateContent: customTemplates,
       });
     } catch (err) {
       console.error('Error loading workshop:', err);
@@ -184,6 +209,15 @@ export default function WorkshopFormPage() {
         );
       };
 
+      // Build customEmailTemplates object for API (only include customized emails)
+      const customEmailTemplates: EmailTemplates = {};
+      formData.customizedEmails.forEach(emailType => {
+        const template = formData.emailTemplateContent[emailType];
+        if (template) {
+          customEmailTemplates[emailType] = template;
+        }
+      });
+
       const requestBody = {
         cohortName: formData.cohortName,
         workshopName: formData.workshopName,
@@ -204,6 +238,9 @@ export default function WorkshopFormPage() {
         sendReminder: formData.sendReminder,
         reminderHoursBefore: formData.reminderHoursBefore,
         status: formData.status,
+        customEmailTemplates: Object.keys(customEmailTemplates).length > 0
+          ? customEmailTemplates
+          : undefined,
       };
 
       console.log('📦 Request body:', requestBody);
@@ -290,6 +327,43 @@ export default function WorkshopFormPage() {
       .replace(/^-+|-+$/g, '');
 
     setFormData(prev => ({ ...prev, cohortName, slug }));
+  };
+
+  // Email template customization handlers
+  const toggleEmailCustomization = (emailType: EmailType) => {
+    const isCustomized = formData.customizedEmails.includes(emailType);
+
+    if (isCustomized) {
+      // Switch to "Use Default" - remove from customized list
+      setFormData(prev => ({
+        ...prev,
+        customizedEmails: prev.customizedEmails.filter(e => e !== emailType),
+        emailTemplateContent: {
+          ...prev.emailTemplateContent,
+          [emailType]: undefined,
+        },
+      }));
+    } else {
+      // Switch to "Customize" - add to list and load default template as starting point
+      setFormData(prev => ({
+        ...prev,
+        customizedEmails: [...prev.customizedEmails, emailType],
+        emailTemplateContent: {
+          ...prev.emailTemplateContent,
+          [emailType]: { ...DEFAULT_EMAIL_TEMPLATES[emailType] },
+        },
+      }));
+    }
+  };
+
+  const updateEmailTemplate = (emailType: EmailType, template: EmailTemplate) => {
+    setFormData(prev => ({
+      ...prev,
+      emailTemplateContent: {
+        ...prev.emailTemplateContent,
+        [emailType]: template,
+      },
+    }));
   };
 
   if (loading && isEditing) {
@@ -610,6 +684,25 @@ export default function WorkshopFormPage() {
               placeholder="Optional custom message shown to participants"
             />
           </div>
+        </section>
+
+        {/* Email Templates Section */}
+        <section className={styles.section}>
+          <h2>Email Templates</h2>
+          <p className={styles.description}>
+            Customize the automated emails sent to workshop participants, or use the default templates.
+          </p>
+
+          <EmailTemplateSection
+            workshopId={id}
+            workshopName={formData.workshopName || formData.cohortName}
+            selectedEmailType={selectedEmailType}
+            onSelectEmailType={setSelectedEmailType}
+            customizedEmails={formData.customizedEmails}
+            emailTemplateContent={formData.emailTemplateContent}
+            onToggleCustomization={toggleEmailCustomization}
+            onUpdateTemplate={updateEmailTemplate}
+          />
         </section>
 
         <section className={styles.section}>

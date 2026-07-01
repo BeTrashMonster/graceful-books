@@ -92,6 +92,33 @@ export interface WorkshopAnalyticsData {
   };
 }
 
+export interface EmailTrackingEvent {
+  message_id: string;
+  recipient_email: string;
+  subject: string;
+  email_type: string;
+  event_type: 'sent' | 'delivered' | 'opened' | 'clicked' | 'bounced' | 'spam_complaint';
+  event_timestamp: string;
+  event_metadata?: {
+    clickedUrl?: string;
+    bounceType?: string;
+    description?: string;
+  };
+}
+
+export interface EmailTrackingSummary {
+  email_type: string;
+  sent_count: number;
+  open_count: number;
+  click_count: number;
+  bounce_count: number;
+}
+
+export interface EmailTrackingData {
+  events: EmailTrackingEvent[];
+  summary: EmailTrackingSummary[];
+}
+
 // =============================================================================
 // API FUNCTIONS
 // =============================================================================
@@ -255,6 +282,18 @@ export async function exportAnalyticsCSV(
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+/**
+ * Get email tracking data for a workshop enrollment
+ */
+export async function getEnrollmentEmailTracking(
+  workshopId: string,
+  userId: string
+): Promise<EmailTrackingData> {
+  const url = `/api/workshops/${workshopId}/enrollments/${userId}/email-tracking`;
+  const response = await api.get<{ data: EmailTrackingData }>(url);
+  return response.data;
 }
 
 // =============================================================================

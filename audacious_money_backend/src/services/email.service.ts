@@ -6,6 +6,7 @@
  */
 
 import * as postmark from 'postmark';
+import { query } from '../db/connection.js';
 
 // Initialize Postmark client
 const client = new postmark.ServerClient(
@@ -14,6 +15,68 @@ const client = new postmark.ServerClient(
 
 const FROM_EMAIL = process.env.POSTMARK_FROM_EMAIL || 'noreply@audacious.money';
 const FROM_NAME = process.env.POSTMARK_FROM_NAME || 'Audacious Money';
+
+// =============================================================================
+// EMAIL TRACKING HELPERS
+// =============================================================================
+
+/**
+ * Generate tracking tag for email categorization
+ * Format: category|type|user:UUID|workshop:UUID
+ */
+function generateEmailTag(
+  category: string,
+  type: string,
+  userId?: string,
+  workshopId?: string
+): string {
+  const parts = [category, type];
+  if (userId) parts.push(`user:${userId}`);
+  if (workshopId) parts.push(`workshop:${workshopId}`);
+  return parts.join('|');
+}
+
+/**
+ * Log sent email to database for tracking
+ * Stores initial 'sent' event in email_tracking_events table
+ */
+async function logEmailSent(
+  messageId: string,
+  recipient: string,
+  subject: string,
+  category: 'workshop' | 'billing' | 'notification' | 'marketing' | 'system',
+  type: string,
+  userId?: string,
+  workshopId?: string,
+  sendAt?: string
+): Promise<void> {
+  try {
+    const eventTimestamp = sendAt || new Date().toISOString();
+
+    await query(
+      `INSERT INTO email_tracking_events (
+        message_id, recipient_email, subject, event_type,
+        email_category, email_type, user_id, workshop_id,
+        event_timestamp, event_metadata
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [
+        messageId,
+        recipient,
+        subject,
+        'sent',
+        category,
+        type,
+        userId || null,
+        workshopId || null,
+        eventTimestamp,
+        sendAt ? JSON.stringify({ scheduled: true, sendAt }) : JSON.stringify({})
+      ]
+    );
+  } catch (error) {
+    console.error('[Email Service] Failed to log sent email:', error);
+    // Don't throw - email sending should succeed even if logging fails
+  }
+}
 
 /**
  * Send welcome email to new user
@@ -1342,12 +1405,16 @@ export async function sendWorkshopWelcomeEmail(
   workshopName: string,
   workshopDate: string,
   workshopLocation: string,
+  userId: string,
+  workshopId: string,
   sendAt?: string // Optional: ISO 8601 format for scheduled delivery
 ): Promise<void> {
+  const subject = '[AM] IN! Here\'s your first steps';
+
   const emailOptions: any = {
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
-    Subject: '[AM] IN! Here\'s your first steps',
+    Subject: subject,
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #4b006e;">Welcome — I am so glad you're here!</h1>
@@ -1429,7 +1496,18 @@ Audrey
 Audacious Money
 
 P.S. If anything feels stuck or unclear, just reply to this email.`,
-    MessageStream: 'outbound'
+    MessageStream: 'outbound',
+
+    // Enable email tracking
+    TrackOpens: true,
+    TrackLinks: 'HtmlAndText',
+    Tag: generateEmailTag('workshop', 'welcome', userId, workshopId),
+    Metadata: {
+      category: 'workshop',
+      type: 'welcome',
+      userId: userId,
+      workshopId: workshopId,
+    },
   };
 
   // Add scheduled delivery time if provided
@@ -1437,7 +1515,19 @@ P.S. If anything feels stuck or unclear, just reply to this email.`,
     emailOptions.SendAt = sendAt;
   }
 
-  await client.sendEmail(emailOptions);
+  const result = await client.sendEmail(emailOptions);
+
+  // Log sent email to database
+  await logEmailSent(
+    result.MessageID,
+    to,
+    subject,
+    'workshop',
+    'welcome',
+    userId,
+    workshopId,
+    sendAt
+  );
 }
 
 /**
@@ -1448,12 +1538,16 @@ export async function sendWorkshopReminderEmail(
   firstName: string,
   workshopDate: string,
   workshopLocation: string,
+  userId: string,
+  workshopId: string,
   sendAt?: string // Optional: ISO 8601 format for scheduled delivery
 ): Promise<void> {
+  const subject = '[AM] Ready for tomorrow?';
+
   const emailOptions: any = {
     From: `${FROM_NAME} <${FROM_EMAIL}>`,
     To: to,
-    Subject: '[AM] Ready for tomorrow?',
+    Subject: subject,
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #4b006e;">It's almost time! ✨</h1>
@@ -1515,7 +1609,18 @@ See you in the morning,
 Audrey
 
 P.S. Didn't get to that initial cost number question yet? Hit reply and send it now.`,
-    MessageStream: 'outbound'
+    MessageStream: 'outbound',
+
+    // Enable email tracking
+    TrackOpens: true,
+    TrackLinks: 'HtmlAndText',
+    Tag: generateEmailTag('workshop', 'reminder', userId, workshopId),
+    Metadata: {
+      category: 'workshop',
+      type: 'reminder',
+      userId: userId,
+      workshopId: workshopId,
+    },
   };
 
   // Add scheduled delivery time if provided
@@ -1523,7 +1628,19 @@ P.S. Didn't get to that initial cost number question yet? Hit reply and send it 
     emailOptions.SendAt = sendAt;
   }
 
-  await client.sendEmail(emailOptions);
+  const result = await client.sendEmail(emailOptions);
+
+  // Log sent email to database
+  await logEmailSent(
+    result.MessageID,
+    to,
+    subject,
+    'workshop',
+    'reminder',
+    userId,
+    workshopId,
+    sendAt
+  );
 }
 
 /**
@@ -1597,12 +1714,16 @@ export async function sendWorkshopChallengeWeek1Email(
   to: string,
   firstName: string,
   workshopName: string,
+  userId: string,
+  workshopId: string,
   sendAt?: string // Optional: ISO 8601 format for scheduled delivery
 ): Promise<void> {
+  const subject = '[AM] Following the Trail';
+
   const emailOptions: any = {
     From: `Audrey <${FROM_EMAIL}>`,
     To: to,
-    Subject: '[AM] Following the Trail',
+    Subject: subject,
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <p>HEYO!</p>
@@ -1668,7 +1789,18 @@ P.S. Presence, not performance. There is no wrong number here — there's just w
 ---
 Audacious Money
 Building financial confidence, one step at a time.`,
-    MessageStream: 'outbound'
+    MessageStream: 'outbound',
+
+    // Enable email tracking
+    TrackOpens: true,
+    TrackLinks: 'HtmlAndText',
+    Tag: generateEmailTag('workshop', 'week1', userId, workshopId),
+    Metadata: {
+      category: 'workshop',
+      type: 'week1',
+      userId: userId,
+      workshopId: workshopId,
+    },
   };
 
   // Add scheduled delivery time if provided
@@ -1676,7 +1808,19 @@ Building financial confidence, one step at a time.`,
     emailOptions.SendAt = sendAt;
   }
 
-  await client.sendEmail(emailOptions);
+  const result = await client.sendEmail(emailOptions);
+
+  // Log sent email to database
+  await logEmailSent(
+    result.MessageID,
+    to,
+    subject,
+    'workshop',
+    'week1',
+    userId,
+    workshopId,
+    sendAt
+  );
 }
 
 /**
@@ -1687,12 +1831,16 @@ export async function sendWorkshopChallengeWeek2Email(
   to: string,
   firstName: string,
   workshopName: string,
+  userId: string,
+  workshopId: string,
   sendAt?: string // Optional: ISO 8601 format for scheduled delivery
 ): Promise<void> {
+  const subject = '[AM] Seeing the Whole Picture';
+
   const emailOptions: any = {
     From: `Audrey <${FROM_EMAIL}>`,
     To: to,
-    Subject: '[AM] Seeing the Whole Picture',
+    Subject: subject,
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <p>Hey ${firstName},</p>
@@ -1752,7 +1900,18 @@ Audrey
 ---
 Audacious Money
 Building financial confidence, one step at a time.`,
-    MessageStream: 'outbound'
+    MessageStream: 'outbound',
+
+    // Enable email tracking
+    TrackOpens: true,
+    TrackLinks: 'HtmlAndText',
+    Tag: generateEmailTag('workshop', 'week2', userId, workshopId),
+    Metadata: {
+      category: 'workshop',
+      type: 'week2',
+      userId: userId,
+      workshopId: workshopId,
+    },
   };
 
   // Add scheduled delivery time if provided
@@ -1760,7 +1919,19 @@ Building financial confidence, one step at a time.`,
     emailOptions.SendAt = sendAt;
   }
 
-  await client.sendEmail(emailOptions);
+  const result = await client.sendEmail(emailOptions);
+
+  // Log sent email to database
+  await logEmailSent(
+    result.MessageID,
+    to,
+    subject,
+    'workshop',
+    'week2',
+    userId,
+    workshopId,
+    sendAt
+  );
 }
 
 /**
@@ -1771,12 +1942,16 @@ export async function sendWorkshopChallengeWeek3Email(
   to: string,
   firstName: string,
   workshopName: string,
+  userId: string,
+  workshopId: string,
   sendAt?: string // Optional: ISO 8601 format for scheduled delivery
 ): Promise<void> {
+  const subject = '[AM] Now We\'re Talking';
+
   const emailOptions: any = {
     From: `Audrey <${FROM_EMAIL}>`,
     To: to,
-    Subject: '[AM] Now We\'re Talking',
+    Subject: subject,
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <p>Hey ${firstName},</p>
@@ -1834,7 +2009,18 @@ Audrey
 ---
 Audacious Money
 Building financial confidence, one step at a time.`,
-    MessageStream: 'outbound'
+    MessageStream: 'outbound',
+
+    // Enable email tracking
+    TrackOpens: true,
+    TrackLinks: 'HtmlAndText',
+    Tag: generateEmailTag('workshop', 'week3', userId, workshopId),
+    Metadata: {
+      category: 'workshop',
+      type: 'week3',
+      userId: userId,
+      workshopId: workshopId,
+    },
   };
 
   // Add scheduled delivery time if provided
@@ -1842,7 +2028,19 @@ Building financial confidence, one step at a time.`,
     emailOptions.SendAt = sendAt;
   }
 
-  await client.sendEmail(emailOptions);
+  const result = await client.sendEmail(emailOptions);
+
+  // Log sent email to database
+  await logEmailSent(
+    result.MessageID,
+    to,
+    subject,
+    'workshop',
+    'week3',
+    userId,
+    workshopId,
+    sendAt
+  );
 }
 
 /**
@@ -1853,12 +2051,16 @@ export async function sendWorkshopChallengeWeek4Email(
   to: string,
   firstName: string,
   workshopName: string,
+  userId: string,
+  workshopId: string,
   sendAt?: string // Optional: ISO 8601 format for scheduled delivery
 ): Promise<void> {
+  const subject = '[AM] Making My Move';
+
   const emailOptions: any = {
     From: `Audrey <${FROM_EMAIL}>`,
     To: to,
-    Subject: '[AM] Making My Move',
+    Subject: subject,
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <p>Hi ${firstName},</p>
@@ -1923,7 +2125,18 @@ Audrey
 ---
 Audacious Money
 Building financial confidence, one step at a time.`,
-    MessageStream: 'outbound'
+    MessageStream: 'outbound',
+
+    // Enable email tracking
+    TrackOpens: true,
+    TrackLinks: 'HtmlAndText',
+    Tag: generateEmailTag('workshop', 'week4', userId, workshopId),
+    Metadata: {
+      category: 'workshop',
+      type: 'week4',
+      userId: userId,
+      workshopId: workshopId,
+    },
   };
 
   // Add scheduled delivery time if provided
@@ -1931,7 +2144,19 @@ Building financial confidence, one step at a time.`,
     emailOptions.SendAt = sendAt;
   }
 
-  await client.sendEmail(emailOptions);
+  const result = await client.sendEmail(emailOptions);
+
+  // Log sent email to database
+  await logEmailSent(
+    result.MessageID,
+    to,
+    subject,
+    'workshop',
+    'week4',
+    userId,
+    workshopId,
+    sendAt
+  );
 }
 
 /**
@@ -1942,12 +2167,16 @@ export async function sendWorkshopWrapUpEmail(
   to: string,
   firstName: string,
   workshopName: string,
+  userId: string,
+  workshopId: string,
   sendAt?: string // Optional: ISO 8601 format for scheduled delivery
 ): Promise<void> {
+  const subject = '[AM] Different Now';
+
   const emailOptions: any = {
     From: `Audrey <${FROM_EMAIL}>`,
     To: to,
-    Subject: '[AM] Different Now',
+    Subject: subject,
     HtmlBody: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <p>Hey ${firstName},</p>
@@ -2021,7 +2250,18 @@ P.S. This was never about becoming perfect with your numbers. It was about becom
 ---
 Audacious Money
 Building financial confidence, one step at a time.`,
-    MessageStream: 'outbound'
+    MessageStream: 'outbound',
+
+    // Enable email tracking
+    TrackOpens: true,
+    TrackLinks: 'HtmlAndText',
+    Tag: generateEmailTag('workshop', 'wrapUp', userId, workshopId),
+    Metadata: {
+      category: 'workshop',
+      type: 'wrapUp',
+      userId: userId,
+      workshopId: workshopId,
+    },
   };
 
   // Add scheduled delivery time if provided
@@ -2029,7 +2269,19 @@ Building financial confidence, one step at a time.`,
     emailOptions.SendAt = sendAt;
   }
 
-  await client.sendEmail(emailOptions);
+  const result = await client.sendEmail(emailOptions);
+
+  // Log sent email to database
+  await logEmailSent(
+    result.MessageID,
+    to,
+    subject,
+    'workshop',
+    'wrapUp',
+    userId,
+    workshopId,
+    sendAt
+  );
 }
 
 /**

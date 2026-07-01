@@ -822,7 +822,9 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
       data.firstName,
       workshop.workshopName || workshop.cohortName,
       workshopDate,
-      workshopLocation
+      workshopLocation,
+      user.id,
+      workshopId
     ).catch((error) => {
       console.error('[Workshops] Error sending welcome email:', error);
     });
@@ -1702,6 +1704,66 @@ workshops.get('/health', async (c) => {
     responseTime_ms: totalDuration,
     checks,
   });
+});
+
+/**
+ * Get email tracking data for a workshop enrollment
+ *
+ * GET /api/workshops/:workshopId/enrollments/:userId/email-tracking
+ *
+ * Returns:
+ * - events: All email tracking events for this user+workshop
+ * - summary: Aggregated metrics by email type (sent_count, open_count, click_count, bounce_count)
+ *
+ * Admin only
+ */
+workshops.get('/:workshopId/enrollments/:userId/email-tracking', requireAdmin, async (c) => {
+  try {
+    const { workshopId, userId } = c.req.param();
+    const db = c.get('db');
+
+    // Fetch all email events for this user+workshop
+    const eventsResult = await db.query(
+      `SELECT
+        message_id,
+        recipient_email,
+        subject,
+        email_type,
+        event_type,
+        event_timestamp,
+        event_metadata
+      FROM email_tracking_events
+      WHERE user_id = $1
+        AND workshop_id = $2
+        AND email_category = 'workshop'
+      ORDER BY event_timestamp ASC`,
+      [userId, workshopId]
+    );
+
+    // Fetch summary metrics
+    const summaryResult = await db.query(
+      `SELECT
+        email_type,
+        COUNT(DISTINCT message_id) as sent_count,
+        COUNT(CASE WHEN event_type = 'opened' THEN 1 END) as open_count,
+        COUNT(CASE WHEN event_type = 'clicked' THEN 1 END) as click_count,
+        COUNT(CASE WHEN event_type = 'bounced' THEN 1 END) as bounce_count
+      FROM email_tracking_events
+      WHERE user_id = $1
+        AND workshop_id = $2
+        AND email_category = 'workshop'
+      GROUP BY email_type`,
+      [userId, workshopId]
+    );
+
+    return success(c, {
+      events: eventsResult.rows,
+      summary: summaryResult.rows
+    });
+  } catch (error) {
+    console.error('[Workshops API] Error fetching email tracking:', error);
+    return c.json({ error: { message: 'Failed to fetch email tracking data' } }, 500);
+  }
 });
 
 export default workshops;

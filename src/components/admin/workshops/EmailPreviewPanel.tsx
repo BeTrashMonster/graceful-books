@@ -24,44 +24,22 @@
 import { useState, useMemo } from 'react';
 import DOMPurify from 'dompurify';
 import styles from './EmailPreviewPanel.module.css';
-
-// Types matching backend EmailTemplate structure
-interface EmailTemplate {
-  subject: string;
-  preheader?: string;
-  htmlBody: string;
-  plainTextBody?: string;
-  fromName?: string;
-}
-
-interface EmailTemplates {
-  welcome?: EmailTemplate;
-  reminder?: EmailTemplate;
-  week1?: EmailTemplate;
-  week2?: EmailTemplate;
-  week3?: EmailTemplate;
-  week4?: EmailTemplate;
-  wrapUp?: EmailTemplate;
-}
+import {
+  EmailType,
+  EmailTemplate,
+  EmailTemplates,
+  DEFAULT_EMAIL_TEMPLATES,
+} from '../../../utils/emailTemplates';
 
 interface EmailPreviewPanelProps {
   workshopId: string;
   templates: EmailTemplates;
   workshopName?: string;
+  selectedEmailType: EmailType; // NEW: Controlled by parent (tabs)
+  readOnly?: boolean; // NEW: Disable test email sending for default previews
 }
 
-type EmailType = 'welcome' | 'reminder' | 'week1' | 'week2' | 'week3' | 'week4' | 'wrapUp';
 type PreviewMode = 'desktop' | 'mobile' | 'html' | 'plaintext';
-
-const emailTypeLabels: Record<EmailType, string> = {
-  welcome: 'Welcome Email',
-  reminder: 'Pre-Workshop Reminder',
-  week1: 'Week 1 Email',
-  week2: 'Week 2 Email',
-  week3: 'Week 3 Email',
-  week4: 'Week 4 Email',
-  wrapUp: 'Wrap-Up Email',
-};
 
 // Email client compatibility status
 const emailClients = [
@@ -89,8 +67,9 @@ export function EmailPreviewPanel({
   workshopId,
   templates,
   workshopName,
+  selectedEmailType,
+  readOnly = false,
 }: EmailPreviewPanelProps) {
-  const [selectedEmail, setSelectedEmail] = useState<EmailType>('welcome');
   const [previewMode, setPreviewMode] = useState<PreviewMode>('desktop');
   const [tagValues, setTagValues] = useState<Record<string, string>>(defaultTagValues);
   const [testEmail, setTestEmail] = useState('');
@@ -100,8 +79,8 @@ export function EmailPreviewPanel({
     message: string;
   }>({ type: null, message: '' });
 
-  // Get current template
-  const currentTemplate = templates[selectedEmail];
+  // Get current template (use default if not customized)
+  const currentTemplate = templates[selectedEmailType] || DEFAULT_EMAIL_TEMPLATES[selectedEmailType];
 
   // Replace template tags with test data
   const renderWithTags = (text: string): string => {
@@ -185,7 +164,7 @@ export function EmailPreviewPanel({
             'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify({
-            emailType: selectedEmail,
+            emailType: selectedEmailType,
             recipientEmail: testEmail,
             tagValues,
           }),
@@ -232,27 +211,7 @@ export function EmailPreviewPanel({
 
   return (
     <div className={styles.container}>
-      {/* Email Selector */}
       <div className={styles.header}>
-        <div className={styles.emailSelector}>
-          <label htmlFor="email-type" className={styles.label}>
-            Email Template:
-          </label>
-          <select
-            id="email-type"
-            value={selectedEmail}
-            onChange={(e) => setSelectedEmail(e.target.value as EmailType)}
-            className={styles.select}
-            aria-label="Select email template to preview"
-          >
-            {Object.entries(emailTypeLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
-
         {/* Preview Mode Toggle */}
         <div className={styles.previewModeToggle}>
           <button
@@ -330,49 +289,52 @@ export function EmailPreviewPanel({
             </div>
           </div>
 
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Send Test Email</h3>
-            <p className={styles.sectionDescription}>
-              Send a test email to verify how it looks in your inbox.
-            </p>
+          {/* Test Email Section (only shown when not read-only) */}
+          {!readOnly && (
+            <div className={styles.section}>
+              <h3 className={styles.sectionTitle}>Send Test Email</h3>
+              <p className={styles.sectionDescription}>
+                Send a test email to verify how it looks in your inbox.
+              </p>
 
-            <div className={styles.testEmailForm}>
-              <label htmlFor="test-email" className={styles.visuallyHidden}>
-                Recipient email address
-              </label>
-              <input
-                id="test-email"
-                type="email"
-                value={testEmail}
-                onChange={(e) => setTestEmail(e.target.value)}
-                className={styles.input}
-                placeholder="your.email@example.com"
-                aria-label="Test email recipient address"
-              />
-              <button
-                type="button"
-                onClick={sendTestEmail}
-                disabled={isLoading}
-                className={styles.sendButton}
-                aria-label="Send test email"
-              >
-                {isLoading ? 'Sending...' : '📧 Send Test Email'}
-              </button>
-
-              {testStatus.type && (
-                <div
-                  className={`${styles.testStatus} ${
-                    testStatus.type === 'success'
-                      ? styles.testStatusSuccess
-                      : styles.testStatusError
-                  }`}
-                  role="alert"
+              <div className={styles.testEmailForm}>
+                <label htmlFor="test-email" className={styles.visuallyHidden}>
+                  Recipient email address
+                </label>
+                <input
+                  id="test-email"
+                  type="email"
+                  value={testEmail}
+                  onChange={(e) => setTestEmail(e.target.value)}
+                  className={styles.input}
+                  placeholder="your.email@example.com"
+                  aria-label="Test email recipient address"
+                />
+                <button
+                  type="button"
+                  onClick={sendTestEmail}
+                  disabled={isLoading}
+                  className={styles.sendButton}
+                  aria-label="Send test email"
                 >
-                  {testStatus.message}
-                </div>
-              )}
+                  {isLoading ? 'Sending...' : '📧 Send Test Email'}
+                </button>
+
+                {testStatus.type && (
+                  <div
+                    className={`${styles.testStatus} ${
+                      testStatus.type === 'success'
+                        ? styles.testStatusSuccess
+                        : styles.testStatusError
+                    }`}
+                    role="alert"
+                  >
+                    {testStatus.message}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Email Client Compatibility */}
           <div className={styles.section}>

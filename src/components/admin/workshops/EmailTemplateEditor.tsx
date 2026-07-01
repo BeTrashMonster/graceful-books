@@ -23,99 +23,26 @@ import ReactQuill from 'react-quill';
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 import 'quill/dist/quill.snow.css';
 import styles from './EmailTemplateEditor.module.css';
-
-// Types (will be imported from API service when backend is integrated)
-interface EmailTemplate {
-  subject: string;
-  preheader?: string;
-  htmlBody: string;
-  plainTextBody?: string;
-  fromName?: string;
-}
-
-interface EmailTemplates {
-  welcome?: EmailTemplate;
-  reminder?: EmailTemplate;
-  week1?: EmailTemplate;
-  week2?: EmailTemplate;
-  week3?: EmailTemplate;
-  week4?: EmailTemplate;
-  wrapUp?: EmailTemplate;
-}
+import {
+  EmailType,
+  EmailTemplate,
+  EmailTemplates,
+  DEFAULT_EMAIL_TEMPLATES,
+  TEMPLATE_TAGS,
+} from '../../../utils/emailTemplates';
 
 interface EmailTemplateEditorProps {
   templates: EmailTemplates;
+  selectedEmailType: EmailType; // NEW: Controlled by parent (tabs)
   onChange: (templates: EmailTemplates) => void;
 }
 
-type EmailType = 'welcome' | 'reminder' | 'week1' | 'week2' | 'week3' | 'week4' | 'wrapUp';
-
-const emailTypeLabels: Record<EmailType, string> = {
-  welcome: 'Welcome Email',
-  reminder: 'Pre-Workshop Reminder',
-  week1: 'Week 1 Email',
-  week2: 'Week 2 Email',
-  week3: 'Week 3 Email',
-  week4: 'Week 4 Email',
-  wrapUp: 'Wrap-Up Email',
-};
-
-const defaultTemplates: Record<EmailType, EmailTemplate> = {
-  welcome: {
-    subject: 'Welcome to {{workshopName}}!',
-    preheader: "We're excited to have you join us",
-    htmlBody: '<p>Hi {{firstName}},</p><p>Welcome to {{workshopName}}! We\'re so glad you\'re here.</p><p>Your workshop begins on {{workshopDate}} at {{workshopTime}}.</p><p>See you soon!</p>',
-  },
-  reminder: {
-    subject: 'Workshop starts tomorrow!',
-    preheader: "Don't forget about {{workshopName}}",
-    htmlBody: '<p>Hi {{firstName}},</p><p>Just a friendly reminder that {{workshopName}} starts tomorrow at {{workshopTime}}.</p><p>Location: {{workshopLocation}}</p><p>See you there!</p>',
-  },
-  week1: {
-    subject: 'Week 1: Getting Started',
-    preheader: 'Your first week journey begins',
-    htmlBody: '<p>Hi {{firstName}},</p><p>Welcome to Week 1 of your journey!</p><p>This week, focus on getting familiar with the platform.</p>',
-  },
-  week2: {
-    subject: 'Week 2: Building Momentum',
-    preheader: "You're making great progress",
-    htmlBody: '<p>Hi {{firstName}},</p><p>Week 2 is all about building momentum!</p><p>Keep up the great work.</p>',
-  },
-  week3: {
-    subject: 'Week 3: Going Deeper',
-    preheader: 'Time to dive into advanced features',
-    htmlBody: '<p>Hi {{firstName}},</p><p>This week, we\'re diving deeper into the platform.</p><p>Explore the advanced features!</p>',
-  },
-  week4: {
-    subject: 'Week 4: Mastering the Basics',
-    preheader: "You've come so far",
-    htmlBody: '<p>Hi {{firstName}},</p><p>Week 4 - you\'re becoming a pro!</p><p>Let\'s master these fundamentals.</p>',
-  },
-  wrapUp: {
-    subject: "You've completed the journey!",
-    preheader: 'Congratulations on your achievement',
-    htmlBody: '<p>Hi {{firstName}},</p><p>Congratulations on completing {{workshopName}}!</p><p>We hope you found it valuable.</p><p>Keep up the great work!</p>',
-  },
-};
-
-const templateTags = [
-  { tag: '{{firstName}}', description: "Recipient's first name" },
-  { tag: '{{fullName}}', description: "Recipient's full name" },
-  { tag: '{{workshopName}}', description: 'Workshop cohort name' },
-  { tag: '{{workshopDate}}', description: 'Workshop start date' },
-  { tag: '{{workshopTime}}', description: 'Workshop start time' },
-  { tag: '{{workshopLocation}}', description: 'Workshop location/URL' },
-  { tag: '{{trialEndDate}}', description: 'Trial expiration date' },
-  { tag: '{{trialDaysRemaining}}', description: 'Days until trial expires' },
-];
-
-export function EmailTemplateEditor({ templates, onChange }: EmailTemplateEditorProps) {
-  const [selectedEmail, setSelectedEmail] = useState<EmailType>('welcome');
+export function EmailTemplateEditor({ templates, selectedEmailType, onChange }: EmailTemplateEditorProps) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
   const quillRef = useRef<ReactQuill>(null);
 
-  const currentTemplate = templates[selectedEmail] || defaultTemplates[selectedEmail];
+  const currentTemplate = templates[selectedEmailType] || DEFAULT_EMAIL_TEMPLATES[selectedEmailType];
 
   const modules = useMemo(
     () => ({
@@ -158,7 +85,7 @@ export function EmailTemplateEditor({ templates, onChange }: EmailTemplateEditor
   const updateTemplate = (field: keyof EmailTemplate, value: string) => {
     const updated = {
       ...templates,
-      [selectedEmail]: {
+      [selectedEmailType]: {
         ...currentTemplate,
         [field]: value,
       },
@@ -192,33 +119,13 @@ export function EmailTemplateEditor({ templates, onChange }: EmailTemplateEditor
   const resetToDefault = () => {
     if (confirm('Reset this email to the default template? Your changes will be lost.')) {
       const updated = { ...templates };
-      delete updated[selectedEmail];
+      delete updated[selectedEmailType];
       onChange(updated);
     }
   };
 
   return (
     <div className={styles.container}>
-      {/* Email Selector */}
-      <div className={styles.emailSelector}>
-        <label htmlFor="email-type" className={styles.label}>
-          Select Email Template:
-        </label>
-        <select
-          id="email-type"
-          value={selectedEmail}
-          onChange={(e) => setSelectedEmail(e.target.value as EmailType)}
-          className={styles.select}
-          aria-label="Select email template to edit"
-        >
-          {Object.entries(emailTypeLabels).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
-      </div>
-
       <div className={styles.editorContainer}>
         {/* Template Tags Sidebar */}
         <aside className={styles.sidebar}>
@@ -227,7 +134,7 @@ export function EmailTemplateEditor({ templates, onChange }: EmailTemplateEditor
             Click to insert dynamic content into your email.
           </p>
           <div className={styles.tagList}>
-            {templateTags.map(({ tag, description }) => (
+            {TEMPLATE_TAGS.map(({ tag, description}) => (
               <button
                 key={tag}
                 type="button"

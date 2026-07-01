@@ -22,8 +22,10 @@ import {
   grantEnrollmentAccess,
   startEnrollmentTrial,
   exportEnrollmentsCSV,
+  getEnrollmentEmailTracking,
   type Workshop,
   type WorkshopEnrollment,
+  type EmailTrackingData,
 } from '../../services/workshops.api';
 import styles from './WorkshopEnrollmentsPage.module.css';
 
@@ -478,6 +480,32 @@ interface EnrollmentDetailModalProps {
 }
 
 function EnrollmentDetailModal({ enrollment, onClose, onUpdate }: EnrollmentDetailModalProps) {
+  const [emailTracking, setEmailTracking] = useState<EmailTrackingData | null>(null);
+  const [loadingEmailTracking, setLoadingEmailTracking] = useState(false);
+
+  useEffect(() => {
+    if (enrollment) {
+      loadEmailTracking();
+    }
+  }, [enrollment]);
+
+  const loadEmailTracking = async () => {
+    if (!enrollment) return;
+
+    setLoadingEmailTracking(true);
+    try {
+      const data = await getEnrollmentEmailTracking(
+        enrollment.workshopId,
+        enrollment.userId
+      );
+      setEmailTracking(data);
+    } catch (error) {
+      console.error('Failed to load email tracking:', error);
+    } finally {
+      setLoadingEmailTracking(false);
+    }
+  };
+
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div
@@ -583,6 +611,110 @@ function EnrollmentDetailModal({ enrollment, onClose, onUpdate }: EnrollmentDeta
               </span>
             </div>
           </div>
+
+          {/* Email Engagement Metrics */}
+          {emailTracking && emailTracking.summary.length > 0 && (
+            <div className={styles.detailSection}>
+              <h3>Email Engagement</h3>
+              <div className={styles.metricsGrid}>
+                {emailTracking.summary.map((metric) => {
+                  const openRate = metric.sent_count > 0
+                    ? Math.round((metric.open_count / metric.sent_count) * 100)
+                    : 0;
+                  const clickRate = metric.open_count > 0
+                    ? Math.round((metric.click_count / metric.open_count) * 100)
+                    : 0;
+
+                  return (
+                    <div key={metric.email_type} className={styles.metricCard}>
+                      <div className={styles.metricHeader}>
+                        <span className={styles.emailTypeBadge}>{metric.email_type}</span>
+                      </div>
+                      <div className={styles.metricStats}>
+                        <div className={styles.stat}>
+                          <span className={styles.statValue}>{metric.sent_count}</span>
+                          <span className={styles.statLabel}>Sent</span>
+                        </div>
+                        <div className={styles.stat}>
+                          <span className={styles.statValue}>{openRate}%</span>
+                          <span className={styles.statLabel}>Open Rate</span>
+                        </div>
+                        <div className={styles.stat}>
+                          <span className={styles.statValue}>{clickRate}%</span>
+                          <span className={styles.statLabel}>Click Rate</span>
+                        </div>
+                        {metric.bounce_count > 0 && (
+                          <div className={styles.stat}>
+                            <span className={styles.statValue} style={{ color: '#dc2626' }}>
+                              {metric.bounce_count}
+                            </span>
+                            <span className={styles.statLabel}>Bounced</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Email Activity Timeline */}
+          {emailTracking && emailTracking.events.length > 0 && (
+            <div className={styles.detailSection}>
+              <h3>Email Activity Timeline</h3>
+              <div className={styles.timeline}>
+                {emailTracking.events.map((event, index) => {
+                  const isFirstOfMessage = index === 0 ||
+                    event.message_id !== emailTracking.events[index - 1].message_id;
+
+                  return (
+                    <div key={`${event.message_id}-${event.event_type}-${index}`}
+                         className={styles.timelineItem}>
+                      <div className={styles.timelineDot}
+                           data-event-type={event.event_type} />
+                      <div className={styles.timelineContent}>
+                        {isFirstOfMessage && (
+                          <div className={styles.emailSubject}>
+                            <strong>{event.subject}</strong>
+                            <span className={styles.emailType}>{event.email_type}</span>
+                          </div>
+                        )}
+                        <div className={styles.eventDetails}>
+                          <span className={styles.eventType}>
+                            {event.event_type === 'sent' && '📧 Sent'}
+                            {event.event_type === 'delivered' && '✅ Delivered'}
+                            {event.event_type === 'opened' && '👁️ Opened'}
+                            {event.event_type === 'clicked' && '🔗 Clicked'}
+                            {event.event_type === 'bounced' && '⚠️ Bounced'}
+                          </span>
+                          <span className={styles.eventTimestamp}>
+                            {new Date(event.event_timestamp).toLocaleString()}
+                          </span>
+                        </div>
+                        {event.event_metadata?.clickedUrl && (
+                          <div className={styles.eventMeta}>
+                            Link: <code>{event.event_metadata.clickedUrl}</code>
+                          </div>
+                        )}
+                        {event.event_metadata?.description && (
+                          <div className={styles.eventMeta}>
+                            Reason: {event.event_metadata.description}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {loadingEmailTracking && (
+            <div className={styles.detailSection}>
+              <p>Loading email tracking data...</p>
+            </div>
+          )}
 
           {enrollment.emailsSent && enrollment.emailsSent.length > 0 && (
             <div className={styles.detailSection}>
