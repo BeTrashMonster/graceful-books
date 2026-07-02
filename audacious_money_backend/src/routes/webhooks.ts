@@ -294,9 +294,9 @@ async function handleCheckoutSessionCompleted(session: any) {
 
         // Check if this is a workshop enrollment (detect workshop context)
         if (workshopId) {
-          // Workshop-specific emails - schedule all 7 emails
+          // Workshop-specific emails - schedule based on email schedule configuration
           const workshopResult = await db.query(
-            `SELECT cohort_name, workshop_start_datetime, workshop_end_datetime, workshop_type, location
+            `SELECT cohort_name, workshop_start_datetime, workshop_end_datetime, workshop_type, location, custom_email_schedule
              FROM workshops WHERE id = $1`,
             [workshopId]
           );
@@ -317,23 +317,41 @@ async function handleCheckoutSessionCompleted(session: any) {
             const workshopEnd = new Date(workshop.workshop_end_datetime);
             const location = workshop.workshop_type === 'in_person' ? workshop.location : 'Online';
 
-            // Email #1 - Send immediately (welcome)
-            await sendWorkshopWelcomeEmail(
-              user.email,
-              user.first_name,
-              workshop.cohort_name,
-              workshop.workshop_start_datetime,
-              location,
-              userId,
-              workshopId
-            );
-            console.log('[Webhook] Email #1 (Welcome) sent immediately to:', user.email);
+            // Parse email schedule (use defaults if not set)
+            const emailSchedule = workshop.custom_email_schedule || {
+              welcome: { enabled: true, when: 'immediate' },
+              reminder: { enabled: true, when: { hours_before: 24 } },
+              week1: { enabled: true, when: { days_after_workshop: 7 } },
+              week2: { enabled: true, when: { days_after_workshop: 14 } },
+              week3: { enabled: true, when: { days_after_workshop: 21 } },
+              week4: { enabled: true, when: { days_after_workshop: 28 } },
+              wrapUp: { enabled: true, when: { days_after_workshop: 30 } },
+            };
 
-            // Email #2 - Schedule reminder based on workshop settings
-            if (workshop.send_reminder) {
-              const reminderHours = workshop.reminder_hours_before || 24; // Default to 24 if not set
+            // Email #1 - Welcome (send immediately if enabled)
+            if (emailSchedule.welcome?.enabled) {
+              await sendWorkshopWelcomeEmail(
+                user.email,
+                user.first_name,
+                workshop.cohort_name,
+                workshop.workshop_start_datetime,
+                location,
+                userId,
+                workshopId
+              );
+              console.log('[Webhook] Email #1 (Welcome) sent immediately to:', user.email);
+            } else {
+              console.log('[Webhook] Email #1 (Welcome) skipped - disabled in schedule');
+            }
+
+            // Email #2 - Reminder (schedule based on email schedule configuration)
+            if (emailSchedule.reminder?.enabled) {
+              const reminderConfig = emailSchedule.reminder.when;
+              const hoursBefore = typeof reminderConfig === 'object' && 'hours_before' in reminderConfig
+                ? reminderConfig.hours_before
+                : 24;
               const email2Time = new Date(workshopStart);
-              email2Time.setHours(email2Time.getHours() - reminderHours);
+              email2Time.setHours(email2Time.getHours() - hoursBefore);
               await sendWorkshopReminderEmail(
                 user.email,
                 user.first_name,
@@ -343,77 +361,117 @@ async function handleCheckoutSessionCompleted(session: any) {
                 workshopId,
                 email2Time.toISOString()
               );
-              console.log(`[Webhook] Email #2 (${reminderHours}h reminder) scheduled for:`, email2Time.toISOString());
+              console.log(`[Webhook] Email #2 (${hoursBefore}h reminder) scheduled for:`, email2Time.toISOString());
             } else {
-              console.log('[Webhook] Email #2 (reminder) skipped - send_reminder is false');
+              console.log('[Webhook] Email #2 (reminder) skipped - disabled in schedule');
             }
 
-            // Email #3 - Schedule for 1 week after workshop
-            const email3Time = new Date(workshopEnd);
-            email3Time.setDate(email3Time.getDate() + 7);
-            await sendWorkshopChallengeWeek1Email(
-              user.email,
-              user.first_name,
-              workshop.cohort_name,
-              userId,
-              workshopId,
-              email3Time.toISOString()
-            );
-            console.log('[Webhook] Email #3 (Week 1 Challenge) scheduled for:', email3Time.toISOString());
+            // Email #3 - Week 1 Challenge (schedule if enabled)
+            if (emailSchedule.week1?.enabled) {
+              const week1Config = emailSchedule.week1.when;
+              const daysAfter = typeof week1Config === 'object' && 'days_after_workshop' in week1Config
+                ? week1Config.days_after_workshop
+                : 7;
+              const email3Time = new Date(workshopEnd);
+              email3Time.setDate(email3Time.getDate() + daysAfter);
+              await sendWorkshopChallengeWeek1Email(
+                user.email,
+                user.first_name,
+                workshop.cohort_name,
+                userId,
+                workshopId,
+                email3Time.toISOString()
+              );
+              console.log(`[Webhook] Email #3 (Week 1 Challenge) scheduled for ${daysAfter} days after:`, email3Time.toISOString());
+            } else {
+              console.log('[Webhook] Email #3 (Week 1 Challenge) skipped - disabled in schedule');
+            }
 
-            // Email #4 - Schedule for 2 weeks after workshop
-            const email4Time = new Date(workshopEnd);
-            email4Time.setDate(email4Time.getDate() + 14);
-            await sendWorkshopChallengeWeek2Email(
-              user.email,
-              user.first_name,
-              workshop.cohort_name,
-              userId,
-              workshopId,
-              email4Time.toISOString()
-            );
-            console.log('[Webhook] Email #4 (Week 2 Challenge) scheduled for:', email4Time.toISOString());
+            // Email #4 - Week 2 Challenge (schedule if enabled)
+            if (emailSchedule.week2?.enabled) {
+              const week2Config = emailSchedule.week2.when;
+              const daysAfter = typeof week2Config === 'object' && 'days_after_workshop' in week2Config
+                ? week2Config.days_after_workshop
+                : 14;
+              const email4Time = new Date(workshopEnd);
+              email4Time.setDate(email4Time.getDate() + daysAfter);
+              await sendWorkshopChallengeWeek2Email(
+                user.email,
+                user.first_name,
+                workshop.cohort_name,
+                userId,
+                workshopId,
+                email4Time.toISOString()
+              );
+              console.log(`[Webhook] Email #4 (Week 2 Challenge) scheduled for ${daysAfter} days after:`, email4Time.toISOString());
+            } else {
+              console.log('[Webhook] Email #4 (Week 2 Challenge) skipped - disabled in schedule');
+            }
 
-            // Email #5 - Schedule for 3 weeks after workshop
-            const email5Time = new Date(workshopEnd);
-            email5Time.setDate(email5Time.getDate() + 21);
-            await sendWorkshopChallengeWeek3Email(
-              user.email,
-              user.first_name,
-              workshop.cohort_name,
-              userId,
-              workshopId,
-              email5Time.toISOString()
-            );
-            console.log('[Webhook] Email #5 (Week 3 Challenge) scheduled for:', email5Time.toISOString());
+            // Email #5 - Week 3 Challenge (schedule if enabled)
+            if (emailSchedule.week3?.enabled) {
+              const week3Config = emailSchedule.week3.when;
+              const daysAfter = typeof week3Config === 'object' && 'days_after_workshop' in week3Config
+                ? week3Config.days_after_workshop
+                : 21;
+              const email5Time = new Date(workshopEnd);
+              email5Time.setDate(email5Time.getDate() + daysAfter);
+              await sendWorkshopChallengeWeek3Email(
+                user.email,
+                user.first_name,
+                workshop.cohort_name,
+                userId,
+                workshopId,
+                email5Time.toISOString()
+              );
+              console.log(`[Webhook] Email #5 (Week 3 Challenge) scheduled for ${daysAfter} days after:`, email5Time.toISOString());
+            } else {
+              console.log('[Webhook] Email #5 (Week 3 Challenge) skipped - disabled in schedule');
+            }
 
-            // Email #6 - Schedule for 4 weeks after workshop
-            const email6Time = new Date(workshopEnd);
-            email6Time.setDate(email6Time.getDate() + 28);
-            await sendWorkshopChallengeWeek4Email(
-              user.email,
-              user.first_name,
-              workshop.cohort_name,
-              userId,
-              workshopId,
-              email6Time.toISOString()
-            );
-            console.log('[Webhook] Email #6 (Week 4 Challenge) scheduled for:', email6Time.toISOString());
+            // Email #6 - Week 4 Challenge (schedule if enabled)
+            if (emailSchedule.week4?.enabled) {
+              const week4Config = emailSchedule.week4.when;
+              const daysAfter = typeof week4Config === 'object' && 'days_after_workshop' in week4Config
+                ? week4Config.days_after_workshop
+                : 28;
+              const email6Time = new Date(workshopEnd);
+              email6Time.setDate(email6Time.getDate() + daysAfter);
+              await sendWorkshopChallengeWeek4Email(
+                user.email,
+                user.first_name,
+                workshop.cohort_name,
+                userId,
+                workshopId,
+                email6Time.toISOString()
+              );
+              console.log(`[Webhook] Email #6 (Week 4 Challenge) scheduled for ${daysAfter} days after:`, email6Time.toISOString());
+            } else {
+              console.log('[Webhook] Email #6 (Week 4 Challenge) skipped - disabled in schedule');
+            }
 
-            // Email #7 - Schedule for 30 days after workshop (wrap-up)
-            const email7Time = new Date(workshopEnd);
-            email7Time.setDate(email7Time.getDate() + 30);
-            await sendWorkshopWrapUpEmail(
-              user.email,
-              user.first_name,
-              workshop.cohort_name,
-              userId,
-              workshopId,
-              email7Time.toISOString()
-            );
-            console.log('[Webhook] Email #7 (30-day Wrap-up) scheduled for:', email7Time.toISOString());
+            // Email #7 - Wrap-Up (schedule if enabled)
+            if (emailSchedule.wrapUp?.enabled) {
+              const wrapUpConfig = emailSchedule.wrapUp.when;
+              const daysAfter = typeof wrapUpConfig === 'object' && 'days_after_workshop' in wrapUpConfig
+                ? wrapUpConfig.days_after_workshop
+                : 30;
+              const email7Time = new Date(workshopEnd);
+              email7Time.setDate(email7Time.getDate() + daysAfter);
+              await sendWorkshopWrapUpEmail(
+                user.email,
+                user.first_name,
+                workshop.cohort_name,
+                userId,
+                workshopId,
+                email7Time.toISOString()
+              );
+              console.log(`[Webhook] Email #7 (Wrap-Up) scheduled for ${daysAfter} days after:`, email7Time.toISOString());
+            } else {
+              console.log('[Webhook] Email #7 (Wrap-Up) skipped - disabled in schedule');
+            }
 
-            console.log('[Webhook] All 7 workshop emails scheduled for:', user.email, 'workshop:', workshop.cohort_name);
+            console.log('[Webhook] Workshop email sequence configured for:', user.email, 'workshop:', workshop.cohort_name);
           }
         } else {
           // Regular product welcome email

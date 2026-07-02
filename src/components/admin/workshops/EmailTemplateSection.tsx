@@ -23,6 +23,21 @@ import {
 } from '../../../utils/emailTemplates';
 import styles from './EmailTemplateSection.module.css';
 
+export interface EmailScheduleConfig {
+  enabled: boolean;
+  when: 'immediate' | { hours_before: number } | { days_after_workshop: number };
+}
+
+export interface EmailSchedule {
+  welcome: EmailScheduleConfig;
+  reminder: EmailScheduleConfig;
+  week1: EmailScheduleConfig;
+  week2: EmailScheduleConfig;
+  week3: EmailScheduleConfig;
+  week4: EmailScheduleConfig;
+  wrapUp: EmailScheduleConfig;
+}
+
 interface EmailTemplateSectionProps {
   workshopId?: string;
   workshopName: string;
@@ -30,8 +45,10 @@ interface EmailTemplateSectionProps {
   onSelectEmailType: (type: EmailType) => void;
   customizedEmails: EmailType[];
   emailTemplateContent: EmailTemplates;
+  emailSchedule: EmailSchedule;
   onToggleCustomization: (emailType: EmailType) => void;
   onUpdateTemplate: (emailType: EmailType, template: EmailTemplate) => void;
+  onUpdateSchedule: (emailType: EmailType, config: EmailScheduleConfig) => void;
 }
 
 const emailTypesForTabs = [
@@ -46,12 +63,39 @@ const emailTypesForTabs = [
 
 export default function EmailTemplateSection(props: EmailTemplateSectionProps) {
   const isCustomized = props.customizedEmails.includes(props.selectedEmailType);
+  const currentSchedule = props.emailSchedule[props.selectedEmailType];
 
   const handleRadioChange = (customize: boolean) => {
     // Only toggle if changing state
     if (customize !== isCustomized) {
       props.onToggleCustomization(props.selectedEmailType);
     }
+  };
+
+  const handleToggleEnabled = (enabled: boolean) => {
+    props.onUpdateSchedule(props.selectedEmailType, {
+      ...currentSchedule,
+      enabled,
+    });
+  };
+
+  const handleUpdateTiming = (when: EmailScheduleConfig['when']) => {
+    props.onUpdateSchedule(props.selectedEmailType, {
+      ...currentSchedule,
+      when,
+    });
+  };
+
+  // Get timing description for UI
+  const getTimingDescription = (emailType: EmailType, when: EmailScheduleConfig['when']): string => {
+    if (when === 'immediate') return 'Sent immediately on enrollment';
+    if (typeof when === 'object' && 'hours_before' in when) {
+      return `Sent ${when.hours_before} hours before workshop`;
+    }
+    if (typeof when === 'object' && 'days_after_workshop' in when) {
+      return `Sent ${when.days_after_workshop} days after workshop`;
+    }
+    return 'Custom timing';
   };
 
   return (
@@ -81,6 +125,67 @@ export default function EmailTemplateSection(props: EmailTemplateSectionProps) {
         id={`email-panel-${props.selectedEmailType}`}
         aria-labelledby={`email-tab-${props.selectedEmailType}`}
       >
+        {/* Email Schedule Configuration */}
+        <div className={styles.scheduleSection}>
+          <div className={styles.scheduleHeader}>
+            <label className={styles.enabledToggle}>
+              <input
+                type="checkbox"
+                checked={currentSchedule.enabled}
+                onChange={(e) => handleToggleEnabled(e.target.checked)}
+                className={styles.checkbox}
+              />
+              <span className={styles.enabledLabel}>
+                <strong>Send this email</strong>
+                <span className={styles.enabledDescription}>
+                  {currentSchedule.enabled ? 'Email will be sent automatically' : 'Email is disabled'}
+                </span>
+              </span>
+            </label>
+          </div>
+
+          {currentSchedule.enabled && (
+            <div className={styles.timingControls}>
+              <label className={styles.timingLabel}>When to send:</label>
+
+              {props.selectedEmailType === 'welcome' && (
+                <div className={styles.timingInfo}>
+                  <span className={styles.timingBadge}>📧 Immediate</span>
+                  <span className={styles.timingDescription}>Sent immediately when user enrolls</span>
+                </div>
+              )}
+
+              {props.selectedEmailType === 'reminder' && (
+                <div className={styles.timingInput}>
+                  <input
+                    type="number"
+                    min="1"
+                    max="168"
+                    value={typeof currentSchedule.when === 'object' && 'hours_before' in currentSchedule.when ? currentSchedule.when.hours_before : 24}
+                    onChange={(e) => handleUpdateTiming({ hours_before: parseInt(e.target.value) || 24 })}
+                    className={styles.numberInput}
+                  />
+                  <span className={styles.timingUnit}>hours before workshop starts</span>
+                </div>
+              )}
+
+              {['week1', 'week2', 'week3', 'week4', 'wrapUp'].includes(props.selectedEmailType) && (
+                <div className={styles.timingInput}>
+                  <input
+                    type="number"
+                    min="1"
+                    max="90"
+                    value={typeof currentSchedule.when === 'object' && 'days_after_workshop' in currentSchedule.when ? currentSchedule.when.days_after_workshop : 7}
+                    onChange={(e) => handleUpdateTiming({ days_after_workshop: parseInt(e.target.value) || 7 })}
+                    className={styles.numberInput}
+                  />
+                  <span className={styles.timingUnit}>days after workshop ends</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Radio button toggle for "Use Default" vs "Customize" */}
         <fieldset className={styles.templateChoice}>
           <legend className={styles.visuallyHidden}>

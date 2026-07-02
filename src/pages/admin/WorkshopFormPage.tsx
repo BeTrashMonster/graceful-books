@@ -14,7 +14,7 @@ import {
   EmailTemplates,
   DEFAULT_EMAIL_TEMPLATES,
 } from '../../utils/emailTemplates';
-import EmailTemplateSection from '../../components/admin/workshops/EmailTemplateSection';
+import EmailTemplateSection, { EmailSchedule, EmailScheduleConfig } from '../../components/admin/workshops/EmailTemplateSection';
 
 const API_URL = 'https://api.audacious.money';
 
@@ -41,6 +41,7 @@ interface WorkshopFormData {
   // Email template customization
   customizedEmails: EmailType[];
   emailTemplateContent: EmailTemplates;
+  emailSchedule: EmailSchedule;
 }
 
 export default function WorkshopFormPage() {
@@ -70,6 +71,15 @@ export default function WorkshopFormPage() {
     status: 'draft',
     customizedEmails: [],
     emailTemplateContent: {},
+    emailSchedule: {
+      welcome: { enabled: true, when: 'immediate' },
+      reminder: { enabled: true, when: { hours_before: 24 } },
+      week1: { enabled: true, when: { days_after_workshop: 7 } },
+      week2: { enabled: true, when: { days_after_workshop: 14 } },
+      week3: { enabled: true, when: { days_after_workshop: 21 } },
+      week4: { enabled: true, when: { days_after_workshop: 28 } },
+      wrapUp: { enabled: true, when: { days_after_workshop: 30 } },
+    },
   });
 
   const [selectedEmailType, setSelectedEmailType] = useState<EmailType>('welcome');
@@ -130,6 +140,17 @@ export default function WorkshopFormPage() {
         }
       });
 
+      // Parse email schedule or use defaults
+      const emailSchedule: EmailSchedule = workshop.customEmailSchedule || {
+        welcome: { enabled: true, when: 'immediate' },
+        reminder: { enabled: true, when: { hours_before: 24 } },
+        week1: { enabled: true, when: { days_after_workshop: 7 } },
+        week2: { enabled: true, when: { days_after_workshop: 14 } },
+        week3: { enabled: true, when: { days_after_workshop: 21 } },
+        week4: { enabled: true, when: { days_after_workshop: 28 } },
+        wrapUp: { enabled: true, when: { days_after_workshop: 30 } },
+      };
+
       // Convert API response to form data
       setFormData({
         cohortName: workshop.cohortName || '',
@@ -153,6 +174,7 @@ export default function WorkshopFormPage() {
         status: workshop.status || 'draft',
         customizedEmails: customizedEmailTypes,
         emailTemplateContent: customTemplates,
+        emailSchedule,
       });
     } catch (err) {
       console.error('Error loading workshop:', err);
@@ -241,6 +263,7 @@ export default function WorkshopFormPage() {
         customEmailTemplates: Object.keys(customEmailTemplates).length > 0
           ? customEmailTemplates
           : undefined,
+        customEmailSchedule: formData.emailSchedule,
       };
 
       console.log('📦 Request body:', requestBody);
@@ -362,6 +385,16 @@ export default function WorkshopFormPage() {
       emailTemplateContent: {
         ...prev.emailTemplateContent,
         [emailType]: template,
+      },
+    }));
+  };
+
+  const updateEmailSchedule = (emailType: EmailType, config: EmailScheduleConfig) => {
+    setFormData(prev => ({
+      ...prev,
+      emailSchedule: {
+        ...prev.emailSchedule,
+        [emailType]: config,
       },
     }));
   };
@@ -700,8 +733,10 @@ export default function WorkshopFormPage() {
             onSelectEmailType={setSelectedEmailType}
             customizedEmails={formData.customizedEmails}
             emailTemplateContent={formData.emailTemplateContent}
+            emailSchedule={formData.emailSchedule}
             onToggleCustomization={toggleEmailCustomization}
             onUpdateTemplate={updateEmailTemplate}
+            onUpdateSchedule={updateEmailSchedule}
           />
         </section>
 
