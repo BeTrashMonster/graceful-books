@@ -39,7 +39,6 @@ interface EmailTemplateEditorProps {
 
 export function EmailTemplateEditor({ templates, selectedEmailType, onChange }: EmailTemplateEditorProps) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
   const quillRef = useRef<ReactQuill>(null);
 
   const currentTemplate = templates[selectedEmailType] || DEFAULT_EMAIL_TEMPLATES[selectedEmailType];
@@ -238,56 +237,6 @@ export function EmailTemplateEditor({ templates, selectedEmailType, onChange }: 
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Preview */}
-      <div className={styles.preview}>
-        <div className={styles.previewHeader}>
-          <h3 className={styles.previewTitle}>Preview</h3>
-          <div className={styles.previewToggle}>
-            <button
-              type="button"
-              onClick={() => setPreviewMode('desktop')}
-              className={`${styles.previewButton} ${
-                previewMode === 'desktop' ? styles.previewButtonActive : ''
-              }`}
-              aria-pressed={previewMode === 'desktop'}
-            >
-              💻 Desktop
-            </button>
-            <button
-              type="button"
-              onClick={() => setPreviewMode('mobile')}
-              className={`${styles.previewButton} ${
-                previewMode === 'mobile' ? styles.previewButtonActive : ''
-              }`}
-              aria-pressed={previewMode === 'mobile'}
-            >
-              📱 Mobile
-            </button>
-          </div>
-        </div>
-
-        <div
-          className={`${styles.previewFrame} ${
-            previewMode === 'mobile' ? styles.previewFrameMobile : ''
-          }`}
-        >
-          <div className={styles.emailPreview}>
-            <div className={styles.emailSubject}>{currentTemplate.subject}</div>
-            {currentTemplate.preheader && (
-              <div className={styles.emailPreheader}>{currentTemplate.preheader}</div>
-            )}
-            <div
-              className={styles.emailBody}
-              dangerouslySetInnerHTML={{ __html: currentTemplate.htmlBody }}
-            />
-          </div>
-        </div>
-
-        <p className={styles.previewNote}>
-          Template tags will be replaced with actual data when emails are sent.
-        </p>
       </div>
     </div>
   );
