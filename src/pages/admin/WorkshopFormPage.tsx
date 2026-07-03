@@ -719,13 +719,16 @@ export default function WorkshopFormPage() {
           </div>
         </section>
 
-        {/* Email Templates Section */}
-        <section className={styles.section}>
-          <h2>Email Templates</h2>
-          <p className={styles.description}>
-            Customize the automated emails sent to workshop participants, or use the default templates.
-          </p>
+        {/* Email Templates Section - Full Width */}
+      </form>
 
+      <div className={styles.emailTemplatesSection}>
+        <h2>Email Templates</h2>
+        <p className={styles.emailTemplatesDescription}>
+          Customize the automated emails sent to workshop participants, or use the default templates.
+        </p>
+
+        <div className={styles.emailTemplatesSectionInner}>
           <EmailTemplateSection
             workshopId={id}
             workshopName={formData.workshopName || formData.cohortName}
@@ -738,7 +741,10 @@ export default function WorkshopFormPage() {
             onUpdateTemplate={updateEmailTemplate}
             onUpdateSchedule={updateEmailSchedule}
           />
-        </section>
+        </div>
+      </div>
+
+      <form className={styles.form} onSubmit={handleSubmit}>
 
         <section className={styles.section}>
           <h2>Timezone Display</h2>

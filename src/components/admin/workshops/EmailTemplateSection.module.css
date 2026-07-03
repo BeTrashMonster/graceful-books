@@ -269,13 +269,14 @@
 
 .editorPreviewLayout {
   display: grid;
-  grid-template-columns: minmax(600px, 1.2fr) minmax(400px, 0.8fr);
-  gap: 2rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
   align-items: start;
 }
 
 .editorColumn {
   min-width: 0; /* Prevents grid overflow */
+  max-width: 800px;
 }
 
 .previewColumn {
@@ -283,7 +284,7 @@
   top: 2rem;
   max-height: calc(100vh - 4rem);
   overflow-y: auto;
-  min-width: 400px;
+  max-width: 700px;
 }
 
 /* Scrollbar styling for preview column */
@@ -314,23 +315,21 @@
    RESPONSIVE DESIGN
    ============================================================================ */
 
-@media (max-width: 1400px) {
-  .editorPreviewLayout {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .editorPreviewLayout {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 2rem;
+  }
+
+  .editorColumn {
+    max-width: none;
   }
 
   .previewColumn {
     position: relative;
     top: 0;
     max-height: none;
-    min-width: 0;
+    max-width: none;
   }
 }
 

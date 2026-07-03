@@ -67,6 +67,47 @@
   border-bottom: none;
 }
 
+/* Full-width section for email templates */
+.emailTemplatesSection {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;
+  max-width: none;
+  padding: 3rem 2rem;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.emailTemplatesSection h2 {
+  max-width: 1600px;
+  margin: 0 auto 0.5rem auto;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  padding: 0 1rem;
+}
+
+.emailTemplatesDescription {
+  max-width: 1600px;
+  margin: 0 auto 2rem auto;
+  color: #6b7280;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  padding: 0 1rem;
+}
+
+.emailTemplatesSectionInner {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
 .section h2 {
   font-size: 1.25rem;
   font-weight: 600;
