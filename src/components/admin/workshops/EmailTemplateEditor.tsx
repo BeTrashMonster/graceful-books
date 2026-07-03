@@ -64,6 +64,14 @@ export function EmailTemplateEditor({ templates, selectedEmailType, onChange }: 
     []
   );
 
+  const handleTemplateTagSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const tag = e.target.value;
+    if (tag) {
+      insertTag(tag);
+      e.target.value = ''; // Reset dropdown
+    }
+  };
+
   const formats = [
     'header',
     'bold',
@@ -127,45 +135,6 @@ export function EmailTemplateEditor({ templates, selectedEmailType, onChange }: 
   return (
     <div className={styles.container}>
       <div className={styles.editorContainer}>
-        {/* Template Tags Sidebar */}
-        <aside className={styles.sidebar}>
-          <h3 className={styles.sidebarTitle}>Template Tags</h3>
-          <p className={styles.sidebarDescription}>
-            Click to insert dynamic content into your email.
-          </p>
-          <div className={styles.tagList}>
-            {TEMPLATE_TAGS.map(({ tag, description}) => (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => insertTag(tag)}
-                className={styles.tagButton}
-                aria-label={`Insert ${description}`}
-              >
-                <code className={styles.tagCode}>{tag}</code>
-                <span className={styles.tagDescription}>{description}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className={styles.emojiSection}>
-            <button
-              type="button"
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className={styles.emojiButton}
-              aria-expanded={showEmojiPicker}
-              aria-label="Toggle emoji picker"
-            >
-              😊 Add Emoji
-            </button>
-            {showEmojiPicker && (
-              <div className={styles.emojiPickerWrapper}>
-                <EmojiPicker onEmojiClick={insertEmoji} width={280} height={400} />
-              </div>
-            )}
-          </div>
-        </aside>
-
         {/* Editor */}
         <div className={styles.editor}>
           <div className={styles.field}>
@@ -216,6 +185,46 @@ export function EmailTemplateEditor({ templates, selectedEmailType, onChange }: 
                 placeholder="Write your email content here..."
                 className={styles.quill}
               />
+
+              {/* Custom toolbar controls */}
+              <div className={styles.customToolbar}>
+                <div className={styles.toolbarGroup}>
+                  <label htmlFor="template-tags-select" className={styles.toolbarLabel}>
+                    Insert Template Tag:
+                  </label>
+                  <select
+                    id="template-tags-select"
+                    onChange={handleTemplateTagSelect}
+                    className={styles.templateTagSelect}
+                    defaultValue=""
+                  >
+                    <option value="" disabled>
+                      Select a tag...
+                    </option>
+                    {TEMPLATE_TAGS.map(({ tag, description }) => (
+                      <option key={tag} value={tag}>
+                        {tag} - {description}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.toolbarGroup}>
+                  <button
+                    type="button"
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    className={styles.emojiButton}
+                    aria-label="Add emoji"
+                  >
+                    😊 Add Emoji
+                  </button>
+                  {showEmojiPicker && (
+                    <div className={styles.emojiPickerWrapper}>
+                      <EmojiPicker onEmojiClick={insertEmoji} />
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
