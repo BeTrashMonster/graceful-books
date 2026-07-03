@@ -71,6 +71,30 @@ export function EmailTemplateEditor({ templates, selectedEmailType, onChange }: 
     }
   };
 
+  const insertCalloutBox = () => {
+    const quill = quillRef.current?.getEditor();
+    if (quill) {
+      const range = quill.getSelection();
+      if (range) {
+        const calloutHTML = `<div style="padding: 1rem; background-color: #f3e8ff; border-left: 4px solid #7C3AED; margin: 1rem 0; border-radius: 4px;"><p style="margin: 0; color: #4b006e; font-weight: 600;">Click here to get started →</p></div>`;
+        quill.clipboard.dangerouslyPasteHTML(range.index, calloutHTML);
+        quill.setSelection(range.index + calloutHTML.length, 0);
+      }
+    }
+  };
+
+  const insertButton = () => {
+    const quill = quillRef.current?.getEditor();
+    if (quill) {
+      const range = quill.getSelection();
+      if (range) {
+        const buttonHTML = `<div style="text-align: center; margin: 1.5rem 0;"><a href="#" style="display: inline-block; padding: 0.75rem 2rem; background-color: #7C3AED; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">Click Here</a></div>`;
+        quill.clipboard.dangerouslyPasteHTML(range.index, buttonHTML);
+        quill.setSelection(range.index + buttonHTML.length, 0);
+      }
+    }
+  };
+
   const formats = [
     'header',
     'bold',
@@ -189,7 +213,7 @@ export function EmailTemplateEditor({ templates, selectedEmailType, onChange }: 
               <div className={styles.customToolbar}>
                 <div className={styles.toolbarGroup}>
                   <label htmlFor="template-tags-select" className={styles.toolbarLabel}>
-                    Insert Template Tag:
+                    Insert:
                   </label>
                   <select
                     id="template-tags-select"
@@ -198,7 +222,7 @@ export function EmailTemplateEditor({ templates, selectedEmailType, onChange }: 
                     defaultValue=""
                   >
                     <option value="" disabled>
-                      Select a tag...
+                      Template Tag...
                     </option>
                     {TEMPLATE_TAGS.map(({ tag, description }) => (
                       <option key={tag} value={tag}>
@@ -211,11 +235,30 @@ export function EmailTemplateEditor({ templates, selectedEmailType, onChange }: 
                 <div className={styles.toolbarGroup}>
                   <button
                     type="button"
+                    onClick={insertCalloutBox}
+                    className={styles.specialButton}
+                    title="Insert a colored callout box"
+                  >
+                    📦 Callout Box
+                  </button>
+                  <button
+                    type="button"
+                    onClick={insertButton}
+                    className={styles.specialButton}
+                    title="Insert a styled button link"
+                  >
+                    🔘 Button Link
+                  </button>
+                </div>
+
+                <div className={styles.toolbarGroup}>
+                  <button
+                    type="button"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                     className={styles.emojiButton}
                     aria-label="Add emoji"
                   >
-                    😊 Add Emoji
+                    😊 Emoji
                   </button>
                   {showEmojiPicker && (
                     <div className={styles.emojiPickerWrapper}>

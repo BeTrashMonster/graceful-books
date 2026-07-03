@@ -199,6 +199,34 @@
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
+.specialButton {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  background: var(--color-primary, #7C3AED);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.specialButton:hover {
+  background: #6b2fd6;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(124, 58, 237, 0.3);
+}
+
+.specialButton:active {
+  transform: translateY(0);
+}
+
+.specialButton:focus-visible {
+  outline: 2px solid var(--color-primary, #7C3AED);
+  outline-offset: 2px;
+}
+
 .emojiButton {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
@@ -422,16 +450,24 @@
   }
 
   .toolbarGroup {
-    flex-direction: column;
-    align-items: stretch;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .toolbarLabel {
+    width: 100%;
   }
 
   .templateTagSelect {
-    min-width: 100%;
+    flex: 1;
+    min-width: 200px;
   }
 
+  .specialButton,
   .emojiButton {
-    width: 100%;
+    flex: 1;
+    min-width: 120px;
   }
 
   .previewHeader {
