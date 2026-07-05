@@ -6,6 +6,7 @@ import { SmartRedirect } from './SmartRedirect'
 import { PageLoader } from '../components/loading/PageLoader'
 import { MainLayout } from '../components/layouts/MainLayout'
 import { CPGLayout } from '../components/layouts/CPGLayout'
+import { AccountLayout } from '../components/layouts/AccountLayout'
 
 // Lazy load page components
 // Note: These components appear "unused" to ESLint but are consumed by React Router.
@@ -137,9 +138,11 @@ export function AppRoutes() {
           <Route path="/reports/profit-loss" element={<ProfitLoss />} />
           <Route path="/reports/balance-sheet" element={<BalanceSheet />} />
           <Route path="/reports/cash-flow" element={<CashFlow />} />
-          <Route path="/billing" element={<Billing />} />
-          <Route path="/settings" element={<Settings />} />
         </Route>
+
+        {/* Redirect old bookkeeping routes to shared account pages */}
+        <Route path="/billing" element={<Navigate to="/account/billing" replace />} />
+        <Route path="/settings" element={<Navigate to="/account/settings" replace />} />
 
         {/* CPG Module - Protected routes with CPG-specific layout - CPG Tool only */}
         <Route element={<ProtectedRoute requireProduct="cpu-cpg-calculator"><CPGLayout /></ProtectedRoute>}>
@@ -153,14 +156,28 @@ export function AppRoutes() {
           <Route path="/cpg/financial-entry" element={<FinancialStatementEntry />} />
           <Route path="/cpg/strategy-planning" element={<ScenarioPlanning />} />
           <Route path="/cpg/labor-roles" element={<LaborRoles />} />
-          <Route path="/cpg/company-profile" element={<CompanyProfile />} />
-          <Route path="/cpg/billing" element={<Billing />} />
-          <Route path="/cpg/settings" element={<CPGSettings />} />
           <Route path="/cpg/reports/profit-loss" element={<CPGProfitLoss />} />
           <Route path="/cpg/reports/distribution-cost" element={<DistributionCostReport />} />
           <Route path="/cpg/reports/gross-margin" element={<GrossMarginReport />} />
           <Route path="/cpg/reports/trade-spend" element={<TradeSpendReport />} />
         </Route>
+
+        {/* Shared Account Pages - Accessible to any authenticated user */}
+        {/* These are shared between CPG and Bookkeeping - single source of truth */}
+        <Route element={<ProtectedRoute><AccountLayout /></ProtectedRoute>}>
+          <Route path="/account/company-profile" element={<CompanyProfile />} />
+          <Route path="/account/billing" element={<Billing />} />
+          <Route path="/account/settings" element={<Settings />} />
+        </Route>
+
+        {/* Legacy redirects for old routes */}
+        <Route path="/cpg/company-profile" element={<Navigate to="/account/company-profile" replace />} />
+        <Route path="/cpg/billing" element={<Navigate to="/account/billing" replace />} />
+        <Route path="/cpg/settings" element={<Navigate to="/account/settings" replace />} />
+        <Route path="/company-profile" element={<Navigate to="/account/company-profile" replace />} />
+
+        {/* /account alone redirects to company profile */}
+        <Route path="/account" element={<Navigate to="/account/company-profile" replace />} />
 
         {/* Customer portal - public with token auth */}
         <Route path="/portal/:token" element={<CustomerPortal />} />

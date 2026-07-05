@@ -1,0 +1,370 @@
+/**
+ * Dashboard Styles - Audacious Design System
+ *
+ * Consistent branding with CPG tool
+ */
+
+.container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: calc(100vh - 4rem);
+}
+
+/* Header */
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  padding-left: 1rem;
+  color: #1a1a1a;
+  background: linear-gradient(90deg, rgba(232, 212, 160, 0.08) 0%, rgba(255, 255, 255, 0) 100%);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #666;
+  padding-left: 1rem;
+  margin: 0;
+}
+
+/* Main Layout - Graph + Sidebar */
+.mainLayout {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  align-items: flex-start;
+}
+
+/* Graph Container - Style 1 (Primary) */
+.graphContainer {
+  flex: 1;
+  background-color: #ffffff;
+  border-left: 4px solid #D4AF37;
+  border-right: 4px solid #D4AF37;
+  border-bottom: 4px solid #D4AF37;
+  border-radius: 8px;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  display: flex;
+  flex-direction: column;
+  min-height: 600px;
+  overflow: hidden;
+}
+
+.graphContainer::before {
+  content: 'Your Financial Ecosystem';
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 1.25rem 2rem;
+  color: #ffffff;
+  background: #4b006e;
+}
+
+.graphContent {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+/* Quick Actions Panel - Sidebar */
+.actionsPanel {
+  width: 280px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border-left: 4px solid #D4AF37;
+  border-right: 4px solid #D4AF37;
+  border-bottom: 4px solid #D4AF37;
+  border-radius: 8px;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  overflow: visible;
+}
+
+.actionsPanel::before {
+  content: 'Quick Actions';
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  color: #ffffff;
+  background: #4b006e;
+}
+
+.actionsPanelContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+/* Action Button */
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: #E5F6DF;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.actionButton:hover {
+  border-color: #D4AF37;
+  background: linear-gradient(135deg, rgba(232, 212, 160, 0.3) 0%, rgba(212, 175, 55, 0.2) 100%);
+  transform: translateY(-1px);
+}
+
+.actionButton.primary {
+  background: linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%);
+  color: #2d1b00;
+  border: 1px solid #B8860B;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.actionButton.primary:hover {
+  background: linear-gradient(135deg, #F4E5C3 0%, #E8D4A0 50%, #C9A961 100%);
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.actionIcon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* Metrics Section - Style 1 (Primary) */
+.metricsSection {
+  background-color: #ffffff;
+  border-left: 4px solid #D4AF37;
+  border-right: 4px solid #D4AF37;
+  border-bottom: 4px solid #D4AF37;
+  border-radius: 8px;
+  padding: 0;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  overflow: hidden;
+}
+
+.metricsSection::before {
+  content: 'Financial Overview';
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 1.25rem 2rem;
+  color: #ffffff;
+  background: #4b006e;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem 2rem 2rem 2rem;
+}
+
+/* Widget Section - Style 3 (Secondary) */
+.widgetSection {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 0;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  overflow: hidden;
+}
+
+.widgetSection::before {
+  content: attr(data-title);
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 1rem 1.5rem;
+  color: #4b006e;
+  background: linear-gradient(135deg, rgba(75, 0, 110, 0.05) 0%, rgba(75, 0, 110, 0.08) 100%);
+  border-bottom: 2px solid #D4AF37;
+}
+
+.widgetContent {
+  padding: 1.5rem;
+}
+
+/* Two Column Layout */
+.twoColumnLayout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Legend Section */
+.legend {
+  background-color: #ffffff;
+  border-left: 4px solid #D4AF37;
+  border-right: 4px solid #D4AF37;
+  border-bottom: 4px solid #D4AF37;
+  border-radius: 8px;
+  padding: 0;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
+  overflow: hidden;
+}
+
+.legend h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 1.25rem 2rem;
+  color: #ffffff;
+  background: #4b006e;
+}
+
+.legendGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem 2rem 2rem 2rem;
+}
+
+.legendItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.legendItem strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #1a1a1a;
+}
+
+.legendItem p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.legendIconBookkeeping {
+  font-size: 1.5rem;
+  color: #4b006e;
+  line-height: 1;
+}
+
+.legendIconCPG {
+  font-size: 1.5rem;
+  color: #509724;
+  line-height: 1;
+}
+
+.legendIconFuture {
+  font-size: 1.5rem;
+  color: #9ca3af;
+  line-height: 1;
+}
+
+.legendIconConnection {
+  font-size: 1.5rem;
+  color: #f3e8ff;
+  line-height: 1;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1.5rem;
+}
+
+.loadingIcon {
+  font-size: 5rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.loading p {
+  font-size: 1.25rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .mainLayout {
+    flex-direction: column-reverse;
+  }
+
+  .actionsPanel {
+    width: 100%;
+  }
+
+  .actionsPanelContent {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .actionButton {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .graphContainer {
+    min-height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .actionsPanelContent {
+    flex-direction: column;
+  }
+
+  .actionButton {
+    min-width: unset;
+  }
+
+  .legendGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .twoColumnLayout {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,207 @@
+/**
+ * AccountLayout styles - Minimal layout for account pages
+ */
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.header {
+  background-color: #4b006e;
+  border-bottom: 2px solid #D4AF37;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 0.5rem;
+  color: #E8D4A0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.backButton:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: #D4AF37;
+  color: #D4AF37;
+}
+
+.backIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  text-decoration: none;
+  gap: 0;
+}
+
+.logoAudacious {
+  font-family: 'Tangerine', cursive;
+  font-size: 2.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 0.6;
+}
+
+.logoAudaciousRest {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+}
+
+.logoMoney {
+  font-family: 'Tangerine', cursive;
+  font-size: 2.75rem;
+  font-weight: 700;
+  color: #D4AF37;
+  line-height: 0.6;
+  margin-left: 0.25rem;
+}
+
+.logoMoneyRest {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #D4AF37;
+  letter-spacing: 0.01em;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+}
+
+.supportButton {
+  padding: 0.5rem 1rem;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 0.5rem;
+  color: #E8D4A0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.supportButton:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: #D4AF37;
+  color: #D4AF37;
+}
+
+.main {
+  flex: 1;
+  padding: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  background: #ffffff;
+  border-bottom: 2px solid #e5e7eb;
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tab {
+  padding: 1rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #64748b;
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  color: #4b006e;
+  background: rgba(75, 0, 110, 0.05);
+}
+
+.tabActive {
+  color: #4b006e;
+  border-bottom-color: #D4AF37;
+  font-weight: 600;
+}
+
+.content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .header {
+    padding: 0 1rem;
+  }
+
+  .backButton span {
+    display: none;
+  }
+
+  .backButton {
+    padding: 0.5rem;
+  }
+
+  .logoAudacious,
+  .logoMoney {
+    font-size: 2rem;
+  }
+
+  .logoAudaciousRest,
+  .logoMoneyRest {
+    font-size: 1.125rem;
+  }
+
+  .tabs {
+    padding: 0 1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tab {
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+}

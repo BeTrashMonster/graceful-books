@@ -2,14 +2,20 @@ import { useState, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
-import { Footer } from './Footer'
 import { RouteErrorBoundary } from '../error/RouteErrorBoundary'
 import { ReadOnlyBanner } from '../subscription/ReadOnlyBanner'
 import './MainLayout.css'
 
+const SIDEBAR_COLLAPSED_KEY = 'audacious_sidebar_collapsed'
+
 export function MainLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    // Load collapsed state from localStorage
+    const saved = localStorage.getItem(SIDEBAR_COLLAPSED_KEY)
+    return saved === 'true'
+  })
 
   useEffect(() => {
     const checkMobile = () => {
@@ -26,8 +32,19 @@ export function MainLayout() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen)
+  // Save collapsed state to localStorage
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(isCollapsed))
+  }, [isCollapsed])
+
+  const handleMenuClick = () => {
+    if (isMobile) {
+      // On mobile, toggle sidebar open/close
+      setIsSidebarOpen(!isSidebarOpen)
+    } else {
+      // On desktop, toggle sidebar collapse
+      setIsCollapsed(!isCollapsed)
+    }
   }
 
   const closeSidebar = () => {
@@ -37,11 +54,16 @@ export function MainLayout() {
   }
 
   return (
-    <div className="main-layout">
-      <Header onMenuClick={toggleSidebar} />
+    <div className={`main-layout ${isCollapsed && !isMobile ? 'main-layout--collapsed' : ''}`}>
+      <Header onMenuClick={handleMenuClick} isSidebarCollapsed={isCollapsed && !isMobile} />
 
       <div className="main-layout__container">
-        <Sidebar isOpen={isSidebarOpen} isMobile={isMobile} onClose={closeSidebar} />
+        <Sidebar
+          isOpen={isSidebarOpen}
+          isMobile={isMobile}
+          isCollapsed={isCollapsed && !isMobile}
+          onClose={closeSidebar}
+        />
 
         {/* Overlay for mobile */}
         {isMobile && isSidebarOpen && (
@@ -55,8 +77,6 @@ export function MainLayout() {
           </RouteErrorBoundary>
         </main>
       </div>
-
-      <Footer />
     </div>
   )
 }

@@ -6,13 +6,20 @@
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  background-color: var(--color-surface, #ffffff);
-  border-right: 1px solid var(--color-border, #e5e7eb);
+  background-color: #4b006e;
+  border-right: none;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   z-index: 20;
-  transition: transform 0.3s ease;
+  transition: width 0.3s ease, min-width 0.3s ease, max-width 0.3s ease, transform 0.3s ease;
+}
+
+/* Collapsed sidebar */
+.sidebar--collapsed {
+  width: 64px;
+  min-width: 64px;
+  max-width: 64px;
 }
 
 /* Mobile sidebar - slide in from left */
@@ -54,7 +61,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  color: var(--color-text-secondary, #6b7280);
+  color: #cbd5e1;
   text-decoration: none;
   transition: all 0.2s;
   border-left: 3px solid transparent;
@@ -62,27 +69,35 @@
   min-width: 0;
 }
 
+/* Collapsed link - center icon */
+.sidebar--collapsed .sidebar__link {
+  justify-content: center;
+  padding: 0.75rem;
+}
+
 .sidebar__link:hover {
-  background-color: var(--color-hover, #f3f4f6);
-  color: var(--color-text-primary, #111827);
+  background-color: rgba(212, 175, 55, 0.2);
+  color: #D4AF37;
 }
 
 .sidebar__link:focus-visible {
-  outline: 2px solid var(--color-primary, #3b82f6);
+  outline: 2px solid #D4AF37;
   outline-offset: -2px;
 }
 
 .sidebar__link--active {
-  background-color: var(--color-primary-light, #dbeafe);
-  color: var(--color-primary, #3b82f6);
-  border-left-color: var(--color-primary, #3b82f6);
-  font-weight: 500;
+  background: linear-gradient(135deg, #E8D4A0 0%, #D4AF37 50%, #B8860B 100%);
+  color: #4b006e;
+  border-left-color: transparent;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .sidebar__icon {
   width: 24px;
   height: 24px;
   flex-shrink: 0;
+  color: #cbd5e1;
 }
 
 .sidebar__icon svg {
@@ -90,20 +105,28 @@
   height: 100%;
 }
 
+.sidebar__link--active .sidebar__icon {
+  color: #4b006e;
+}
+
 .sidebar__text {
   flex: 1;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
 }
 
+.sidebar__link--active .sidebar__text {
+  color: #4b006e;
+}
+
 .sidebar__submenu {
   list-style: none;
   padding: 0;
   margin: 0;
-  background-color: var(--color-background, #f9fafb);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .sidebar__subitem {
@@ -113,7 +136,7 @@
 .sidebar__sublink {
   display: block;
   padding: 0.625rem 1rem 0.625rem 3.25rem;
-  color: var(--color-text-secondary, #6b7280);
+  color: #cbd5e1;
   text-decoration: none;
   font-size: 0.875rem;
   transition: all 0.2s;
@@ -121,52 +144,150 @@
 }
 
 .sidebar__sublink:hover {
-  background-color: var(--color-hover, #e5e7eb);
-  color: var(--color-text-primary, #111827);
+  background-color: rgba(212, 175, 55, 0.15);
+  color: #D4AF37;
 }
 
 .sidebar__sublink:focus-visible {
-  outline: 2px solid var(--color-primary, #3b82f6);
+  outline: 2px solid #D4AF37;
   outline-offset: -2px;
 }
 
 .sidebar__sublink--active {
-  background-color: var(--color-primary-light, #dbeafe);
-  color: var(--color-primary, #3b82f6);
-  border-left-color: var(--color-primary, #3b82f6);
-  font-weight: 500;
+  background-color: rgba(212, 175, 55, 0.3);
+  color: #E8D4A0;
+  border-left-color: #D4AF37;
+  font-weight: 600;
 }
 
+/* Footer / Account Section */
 .sidebar__footer {
   padding: 1rem;
-  border-top: 1px solid var(--color-border, #e5e7eb);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
 }
 
-.sidebar__phase {
-  padding: 0.75rem;
-  background-color: var(--color-background, #f9fafb);
+.sidebar--collapsed .sidebar__footer {
+  padding: 0.5rem;
+}
+
+.sidebar__account-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #E8D4A0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
   border-radius: 0.5rem;
 }
 
-.sidebar__phase-label {
-  margin: 0;
-  font-size: 0.75rem;
-  color: var(--color-text-secondary, #6b7280);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.sidebar--collapsed .sidebar__account-button {
+  justify-content: center;
+  padding: 0.75rem;
 }
 
-.sidebar__phase-value {
-  margin: 0.25rem 0 0;
+.sidebar__account-button:hover {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: #D4AF37;
+}
+
+.sidebar__company-name {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar__account-icon {
+  font-size: 1.25rem;
+}
+
+.sidebar__account-arrow {
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+  color: #D4AF37;
+}
+
+/* Account Dropdown */
+.sidebar__account-dropdown {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.95);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  animation: slideUpFade 0.2s ease-out;
+  z-index: 1000;
+}
+
+.sidebar__account-dropdown--collapsed {
+  left: 0.5rem;
+  right: auto;
+  width: 200px;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sidebar__dropdown-item {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: transparent;
+  color: #cbd5e1;
+  border: none;
+  text-align: left;
   font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-text-primary, #111827);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: block;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar__dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.sidebar__dropdown-item:hover {
+  background: rgba(212, 175, 55, 0.15);
+  color: #E8D4A0;
+}
+
+.sidebar__dropdown-item--logout {
+  color: #f87171;
+}
+
+.sidebar__dropdown-item--logout:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
 }
 
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   .sidebar {
     transition: none;
+  }
+
+  .sidebar__account-dropdown {
+    animation: none;
   }
 }
 

@@ -4,27 +4,32 @@
 
 .metricCard {
   background: var(--color-surface, #ffffff);
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: var(--radius-md, 8px);
-  padding: var(--spacing-4, 1rem);
+  border: 2px solid #D4AF37;
+  border-radius: 8px;
+  padding: 1rem;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.15);
 }
 
 .metricCard:hover {
-  box-shadow: var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.25);
+  transform: translateY(-1px);
 }
 
 /* Variants */
 .metricCard.success {
-  border-left: 4px solid var(--color-success, #10b981);
+  border-left: 4px solid #10b981;
+  border-left-width: 4px;
 }
 
 .metricCard.warning {
-  border-left: 4px solid var(--color-warning, #f59e0b);
+  border-left: 4px solid #f59e0b;
+  border-left-width: 4px;
 }
 
 .metricCard.danger {
-  border-left: 4px solid var(--color-danger, #ef4444);
+  border-left: 4px solid #ef4444;
+  border-left-width: 4px;
 }
 
 /* Header */
@@ -45,9 +50,9 @@
 }
 
 .title {
-  font-size: var(--text-sm, 0.875rem);
+  font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-text-secondary, #6b7280);
+  color: #4b006e;
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.025em;
@@ -106,13 +111,13 @@
   display: inline-block;
   background: linear-gradient(
     90deg,
-    var(--color-border, #e5e7eb) 25%,
-    var(--color-surface-secondary, #f9fafb) 50%,
-    var(--color-border, #e5e7eb) 75%
+    #f3e8ff 25%,
+    #faf5ff 50%,
+    #f3e8ff 75%
   );
   background-size: 200% 100%;
   animation: skeleton-loading 1.5s ease-in-out infinite;
-  border-radius: var(--radius-sm, 4px);
+  border-radius: 4px;
 }
 
 @keyframes skeleton-loading {

@@ -2,12 +2,22 @@
    Graceful Books - Global Styles
    ========================================================================== */
 
+/* Local Fonts */
+@import './fonts.css';
+
 /* CSS Custom Properties (Design Tokens) */
 :root {
   /* Colors - Calming, reassuring palette for Steadiness profile */
   --color-primary: #4b006e;
   --color-primary-hover: #3a0054;
   --color-primary-light: #f3e8ff;
+
+  /* Gold Accent Colors (Audacious Design System) */
+  --color-accent: #D4AF37;
+  --color-accent-light: #E8D4A0;
+  --color-accent-dark: #B8860B;
+  --color-accent-shadow: rgba(184, 134, 11, 0.15);
+  --color-accent-shadow-strong: rgba(184, 134, 11, 0.4);
 
   --color-secondary: #7b68ee;
   --color-secondary-hover: #6352d4;
@@ -122,9 +132,9 @@ body {
   background-color: var(--color-bg-base);
 }
 
-/* Focus styles for accessibility */
+/* Focus styles for accessibility (Gold accent) */
 :focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
@@ -303,7 +313,7 @@ a:hover {
 }
 
 /* ==========================================================================
-   Scrollbar Styling
+   Scrollbar Styling (Audacious Gold)
    ========================================================================== */
 
 ::-webkit-scrollbar {
@@ -312,14 +322,15 @@ a:hover {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg-secondary);
+  background: #f8fafc;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: var(--border-radius-sm);
+  background: linear-gradient(180deg, #D4AF37 0%, #C5A028 50%, #B8941F 100%);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
+  background: linear-gradient(180deg, #E5C158 0%, #D4AF37 50%, #C5A028 100%);
 }

@@ -14,6 +14,7 @@ import type { DistributorFormData } from '../cpg/DistributorProfileForm';
 import { CategoryManager } from '../cpg/CategoryManager';
 import { DistributorManager } from '../cpg/DistributorManager';
 import { Modal } from '../modals/Modal';
+import { SupportModal } from '../modals/SupportModal';
 import { LeafIcon } from '../common/LeafIcon';
 import { ReadOnlyBanner } from '../subscription/ReadOnlyBanner';
 import { useAuth } from '../../contexts/AuthContext';
@@ -23,6 +24,8 @@ import { UserFeaturePreferencesService } from '../../services/userFeaturePrefere
 import type { FeatureName } from '../../services/userFeaturePreferences.service';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './CPGLayout.module.css';
+
+const ACCOUNT_ORIGIN_KEY = 'audacious_account_origin';
 
 type ModalType = 'add-invoice' | 'add-product' | 'add-distributor' | 'add-category' | 'manage-categories' | 'manage-distributors' | null;
 
@@ -133,6 +136,13 @@ export function CPGLayout() {
       // Fallback: force navigation even if cleanup fails
       window.location.href = '/login';
     }
+  };
+
+  // Store current path as origin before navigating to account pages
+  const handleAccountNavigation = (path: string) => {
+    sessionStorage.setItem(ACCOUNT_ORIGIN_KEY, location.pathname);
+    setShowAccountMenu(false);
+    navigate(path);
   };
 
   // Load categories for CategoryManager
@@ -412,27 +422,24 @@ export function CPGLayout() {
           </button>
           {showAccountMenu && (
             <div className={styles.accountMenuDropup}>
-              <Link
-                to="/cpg/company-profile"
+              <button
+                onClick={() => handleAccountNavigation('/account/company-profile')}
                 className={styles.menuItem}
-                onClick={() => setShowAccountMenu(false)}
               >
                 Company Profile
-              </Link>
-              <Link
-                to="/cpg/billing"
+              </button>
+              <button
+                onClick={() => handleAccountNavigation('/account/billing')}
                 className={styles.menuItem}
-                onClick={() => setShowAccountMenu(false)}
               >
                 Billing
-              </Link>
-              <Link
-                to="/cpg/settings"
+              </button>
+              <button
+                onClick={() => handleAccountNavigation('/account/settings')}
                 className={styles.menuItem}
-                onClick={() => setShowAccountMenu(false)}
               >
                 Settings
-              </Link>
+              </button>
               <button
                 onClick={() => {
                   setShowAccountMenu(false);
@@ -521,102 +528,11 @@ export function CPGLayout() {
           onClose={closeModal}
         />
 
-        {/* Support Modal */}
-        <Modal
+        {/* Support Modal - Shared component */}
+        <SupportModal
           isOpen={showSupportModal}
           onClose={() => setShowSupportModal(false)}
-          title="We're Here to Help"
-          closeOnBackdropClick={false}
-          size="md"
-          headerStyle={{
-            background: 'linear-gradient(135deg, #4b006e 0%, #6b1a9e 100%)',
-            color: '#E8D4A0',
-            padding: '1rem 1.5rem',
-            borderRadius: '0.5rem 0.5rem 0 0',
-            fontSize: '2rem'
-          }}
-        >
-          <div style={{
-            padding: '0.75rem 1.5rem 1.5rem 1.5rem',
-            textAlign: 'center',
-            color: '#334155'
-          }}>
-            <div style={{
-              fontSize: '3rem',
-              marginBottom: '1rem'
-            }}>
-              👋
-            </div>
-            <h3 style={{
-              fontSize: '1.25rem',
-              fontWeight: 600,
-              color: '#4b006e',
-              marginBottom: '1rem',
-              marginTop: '0'
-            }}>
-              Real Humans, Real Support
-            </h3>
-            <p style={{
-              fontSize: '1rem',
-              lineHeight: '1.6',
-              marginBottom: '1.5rem',
-              color: '#475569'
-            }}>
-              We hear you, and we're here to support you. Our team reviews every message personally.
-            </p>
-
-            <div style={{
-              background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-              border: '2px solid #D4AF37',
-              borderRadius: '0.75rem',
-              padding: '1.5rem',
-              marginBottom: '1.5rem'
-            }}>
-              <p style={{
-                fontSize: '0.875rem',
-                color: '#64748b',
-                marginBottom: '0.75rem',
-                fontWeight: 500
-              }}>
-                Send us an email at:
-              </p>
-              <a
-                href="mailto:hello@audacious.money"
-                style={{
-                  fontSize: '1.125rem',
-                  fontWeight: 600,
-                  color: '#4b006e',
-                  textDecoration: 'none',
-                  display: 'inline-block',
-                  padding: '0.5rem 1rem',
-                  background: '#E8D4A0',
-                  borderRadius: '0.5rem',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#D4AF37';
-                  e.currentTarget.style.color = '#2d1b00';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#E8D4A0';
-                  e.currentTarget.style.color = '#4b006e';
-                }}
-              >
-                hello@audacious.money
-              </a>
-            </div>
-
-            <p style={{
-              fontSize: '0.875rem',
-              color: '#64748b',
-              lineHeight: '1.5'
-            }}>
-              We typically respond within <strong style={{ color: '#4b006e' }}>24-48 hours</strong>.
-              <br />
-              Thank you for your patience!
-            </p>
-          </div>
-        </Modal>
+        />
       </main>
     </div>
   );

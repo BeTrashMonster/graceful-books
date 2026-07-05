@@ -27,6 +27,11 @@
   .main-layout__content {
     margin-left: 260px;
   }
+
+  /* Collapsed sidebar - less margin */
+  .main-layout--collapsed .main-layout__content {
+    margin-left: 64px;
+  }
 }
 
 /* Mobile: Full width, sidebar overlays */

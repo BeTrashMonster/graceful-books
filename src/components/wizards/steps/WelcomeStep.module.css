@@ -11,7 +11,7 @@
 .hero {
   text-align: center;
   padding: 2rem 0;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: linear-gradient(135deg, #f5f0f8 0%, #ebe0f0 100%);
   border-radius: 12px;
   margin-bottom: 1rem;
 }
@@ -41,7 +41,7 @@
   padding: 1.5rem;
   background-color: #f9fafb;
   border-radius: 8px;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #4b006e;
 }
 
 .sectionTitle {
@@ -78,7 +78,7 @@
   content: '→';
   position: absolute;
   left: 0;
-  color: #3b82f6;
+  color: #4b006e;
   font-weight: 600;
 }
 

@@ -22,13 +22,13 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
+  color: #2d1b00;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 3rem;
-  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
   animation: celebrationPulse 2s ease-in-out infinite;
 }
 
@@ -56,7 +56,7 @@
 
 .summary {
   padding: 1.5rem 2rem;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: linear-gradient(135deg, #f5f0f8 0%, #ebe0f0 100%);
   border-radius: 12px;
   max-width: 600px;
   width: 100%;
@@ -64,7 +64,7 @@
 
 .summaryText {
   font-size: 1.125rem;
-  color: #0f172a;
+  color: #4b006e;
   line-height: 1.6;
 }
 
@@ -109,8 +109,8 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background-color: #10b981;
-  color: white;
+  background-color: #D4AF37;
+  color: #2d1b00;
   display: flex;
   align-items: center;
   justify-content: center;

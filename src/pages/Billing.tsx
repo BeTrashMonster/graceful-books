@@ -121,9 +121,9 @@ export default function Billing() {
         </p>
       </div>
 
-      <div className="page-content">
+      <div className="page-content" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         {error && (
-          <Alert variant="error" style={{ marginBottom: '1.5rem' }}>
+          <Alert variant="error">
             {error}
           </Alert>
         )}

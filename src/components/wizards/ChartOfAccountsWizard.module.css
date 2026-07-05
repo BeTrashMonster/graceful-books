@@ -20,7 +20,7 @@
 
 .progressFill {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(90deg, #4b006e 0%, #D4AF37 100%);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
@@ -58,7 +58,7 @@
 }
 
 .stepIndicator.completed::after {
-  background-color: #10b981;
+  background-color: #D4AF37;
 }
 
 .stepNumber {
@@ -76,14 +76,14 @@
 }
 
 .stepIndicator.active .stepNumber {
-  background-color: #3b82f6;
+  background-color: #4b006e;
   color: white;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 0 4px rgba(75, 0, 110, 0.2);
 }
 
 .stepIndicator.completed .stepNumber {
-  background-color: #10b981;
-  color: white;
+  background-color: #D4AF37;
+  color: #2d1b00;
 }
 
 .stepLabel {

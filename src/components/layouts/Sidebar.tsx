@@ -1,9 +1,12 @@
-import { NavLink } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
+import { SupportModal } from '../modals/SupportModal'
 import './Sidebar.css'
 
 interface SidebarProps {
   isOpen: boolean
   isMobile: boolean
+  isCollapsed: boolean
   onClose: () => void
 }
 
@@ -172,40 +175,74 @@ const navigationItems: NavItem[] = [
       },
     ],
   },
-  {
-    name: 'Billing',
-    path: '/billing',
-    icon: (
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: 'Settings',
-    path: '/settings',
-    icon: (
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-        />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
-  },
 ]
 
-export function Sidebar({ isOpen, isMobile, onClose }: SidebarProps) {
+const ACCOUNT_ORIGIN_KEY = 'audacious_account_origin';
+
+export function Sidebar({ isOpen, isMobile, isCollapsed, onClose }: SidebarProps) {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [showAccountMenu, setShowAccountMenu] = useState(false)
+  const [showSupportModal, setShowSupportModal] = useState(false)
+  const [companyName, setCompanyName] = useState('My Company')
+
+  // Store current path as origin before navigating to account pages
+  const handleAccountNavigation = (path: string) => {
+    sessionStorage.setItem(ACCOUNT_ORIGIN_KEY, location.pathname);
+    setShowAccountMenu(false);
+    onClose();
+    navigate(path);
+  };
+
+  // Load company name from session
+  useEffect(() => {
+    const loadCompanyName = () => {
+      const session = sessionStorage.getItem('graceful_books_session')
+      if (session) {
+        try {
+          const sessionData = JSON.parse(session)
+          if (sessionData.user?.companyName) {
+            setCompanyName(sessionData.user.companyName)
+          }
+        } catch (error) {
+          console.error('Failed to parse session:', error)
+        }
+      }
+    }
+
+    loadCompanyName()
+
+    // Listen for company name updates
+    const handleCompanyNameUpdate = (event: CustomEvent) => {
+      if (event.detail?.companyName) {
+        setCompanyName(event.detail.companyName)
+      }
+    }
+
+    window.addEventListener('company-name-updated', handleCompanyNameUpdate as EventListener)
+    return () => window.removeEventListener('company-name-updated', handleCompanyNameUpdate as EventListener)
+  }, [])
+
+  const handleLogout = () => {
+    try {
+      sessionStorage.removeItem('graceful_books_session')
+      sessionStorage.clear()
+      window.location.href = '/login'
+    } catch (error) {
+      console.error('Error during logout:', error)
+      window.location.href = '/login'
+    }
+  }
+
+  const sidebarClasses = [
+    'sidebar',
+    isOpen ? 'sidebar--open' : '',
+    isMobile ? 'sidebar--mobile' : '',
+    isCollapsed && !isMobile ? 'sidebar--collapsed' : '',
+  ].filter(Boolean).join(' ')
+
   return (
-    <aside className={`sidebar ${isOpen ? 'sidebar--open' : ''} ${isMobile ? 'sidebar--mobile' : ''}`}>
+    <aside className={sidebarClasses}>
       <nav className="sidebar__nav" aria-label="Main navigation">
         <ul className="sidebar__list">
           {navigationItems.map((item) => (
@@ -214,12 +251,13 @@ export function Sidebar({ isOpen, isMobile, onClose }: SidebarProps) {
                 to={item.path}
                 className={({ isActive }) => `sidebar__link ${isActive ? 'sidebar__link--active' : ''}`}
                 onClick={item.children ? undefined : onClose}
+                title={isCollapsed ? item.name : undefined}
               >
                 {item.icon && <span className="sidebar__icon">{item.icon}</span>}
-                <span className="sidebar__text">{item.name}</span>
+                {!isCollapsed && <span className="sidebar__text">{item.name}</span>}
               </NavLink>
 
-              {item.children && (
+              {item.children && !isCollapsed && (
                 <ul className="sidebar__submenu">
                   {item.children.map((child) => (
                     <li key={child.path} className="sidebar__subitem">
@@ -241,13 +279,69 @@ export function Sidebar({ isOpen, isMobile, onClose }: SidebarProps) {
         </ul>
       </nav>
 
-      {/* Phase indicator placeholder */}
+      {/* Account Menu (like CPG) */}
       <div className="sidebar__footer">
-        <div className="sidebar__phase">
-          <p className="sidebar__phase-label">Current Phase</p>
-          <p className="sidebar__phase-value">Foundation</p>
-        </div>
+        <button
+          className="sidebar__account-button"
+          onClick={() => setShowAccountMenu(!showAccountMenu)}
+          title={isCollapsed ? companyName : undefined}
+        >
+          {isCollapsed ? (
+            <span className="sidebar__account-icon">👤</span>
+          ) : (
+            <>
+              <span className="sidebar__company-name">{companyName}</span>
+              <span className="sidebar__account-arrow">{showAccountMenu ? '▲' : '▼'}</span>
+            </>
+          )}
+        </button>
+
+        {showAccountMenu && (
+          <div className={`sidebar__account-dropdown ${isCollapsed ? 'sidebar__account-dropdown--collapsed' : ''}`}>
+            <button
+              className="sidebar__dropdown-item"
+              onClick={() => handleAccountNavigation('/account/company-profile')}
+            >
+              Company Profile
+            </button>
+            <button
+              className="sidebar__dropdown-item"
+              onClick={() => handleAccountNavigation('/account/billing')}
+            >
+              Billing
+            </button>
+            <button
+              className="sidebar__dropdown-item"
+              onClick={() => handleAccountNavigation('/account/settings')}
+            >
+              Settings
+            </button>
+            <button
+              className="sidebar__dropdown-item"
+              onClick={() => {
+                setShowAccountMenu(false)
+                setShowSupportModal(true)
+              }}
+            >
+              Support
+            </button>
+            <button
+              className="sidebar__dropdown-item sidebar__dropdown-item--logout"
+              onClick={() => {
+                setShowAccountMenu(false)
+                handleLogout()
+              }}
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </div>
+
+      <SupportModal
+        isOpen={showSupportModal}
+        onClose={() => setShowSupportModal(false)}
+      />
     </aside>
   )
 }

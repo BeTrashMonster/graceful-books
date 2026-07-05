@@ -49,21 +49,21 @@
 
 .templateCard:hover,
 .templateCard.hovered {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  border-color: #4b006e;
+  box-shadow: 0 4px 12px rgba(75, 0, 110, 0.15);
   transform: translateY(-2px);
 }
 
 .templateCard.selected {
-  border-color: #3b82f6;
-  background-color: #eff6ff;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  border-color: #4b006e;
+  background-color: #f5f0f8;
+  box-shadow: 0 0 0 3px rgba(75, 0, 110, 0.2);
 }
 
 .templateCard:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  border-color: #4b006e;
+  box-shadow: 0 0 0 3px rgba(75, 0, 110, 0.3);
 }
 
 .templateHeader {
@@ -85,8 +85,8 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background-color: #3b82f6;
-  color: white;
+  background-color: #D4AF37;
+  color: #2d1b00;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -150,7 +150,7 @@
   padding: 1rem;
   background-color: white;
   border-radius: 8px;
-  border-left: 3px solid #3b82f6;
+  border-left: 3px solid #4b006e;
 }
 
 .accountItem strong {

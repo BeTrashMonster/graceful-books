@@ -1,0 +1,13 @@
+/**
+ * Bundled Fonts - via @fontsource packages
+ *
+ * License: SIL Open Font License 1.1
+ * See: /fonts/Tangerine-OFL-LICENSE.txt
+ */
+
+/* Tangerine - Swoopy script for logo letters */
+@import '@fontsource/tangerine/700.css';
+
+/* Cormorant Garamond - Elegant serif italic for logo text */
+@import '@fontsource/cormorant-garamond/500.css';
+@import '@fontsource/cormorant-garamond/500-italic.css';
