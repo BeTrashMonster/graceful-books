@@ -44,19 +44,43 @@ export const TemplateSelectionStep: FC<TemplateSelectionStepProps> = ({
     }
   }
 
+  // Separate the "general" template to display differently
+  const industryTemplates = templates.filter(t => t.id !== 'general')
+  const basicTemplate = templates.find(t => t.id === 'general')
+
   return (
     <div className={styles.templateStep}>
       <div className={styles.intro}>
         <p className={styles.introText}>
-          Choose the option that best describes your business. We'll suggest accounts that work well for businesses like yours.
-        </p>
-        <p className={styles.reassurance}>
-          <em>Don't stress about picking the "perfect" one - you can customize everything in the next step.</em>
+          Pick a starting point that fits your business – you can customize everything in the next step.
         </p>
       </div>
 
+      {basicTemplate && (
+        <button
+          type="button"
+          className={`${styles.basicButton} ${
+            selectedForPreview === basicTemplate.id ? styles.selected : ''
+          }`}
+          onClick={() => handleTemplateClick(basicTemplate.id)}
+          aria-pressed={selectedForPreview === basicTemplate.id}
+        >
+          <span className={styles.basicButtonText}>
+            {basicTemplate.friendlyName}
+          </span>
+          <span className={styles.basicButtonDesc}>
+            {basicTemplate.description}
+          </span>
+          {selectedForPreview === basicTemplate.id && (
+            <span className={styles.selectedBadge} aria-label="Selected">
+              ✓
+            </span>
+          )}
+        </button>
+      )}
+
       <div className={styles.templateGrid}>
-        {templates.map((template) => (
+        {industryTemplates.map((template) => (
           <button
             key={template.id}
             type="button"

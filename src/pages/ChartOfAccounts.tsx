@@ -15,6 +15,7 @@
 
 import { type FC, useState, useEffect } from 'react'
 import { useAccounts } from '../hooks/useAccounts'
+import { useAuth } from '../contexts/AuthContext'
 import { AccountList } from '../components/accounts/AccountList'
 import { AccountForm, type AccountFormData } from '../components/accounts/AccountForm'
 import { ChartOfAccountsWizard } from '../components/wizards'
@@ -40,7 +41,12 @@ type ModalState =
 /**
  * Chart of Accounts Page
  */
-export const ChartOfAccounts: FC<ChartOfAccountsProps> = ({ companyId }) => {
+export const ChartOfAccounts: FC<ChartOfAccountsProps> = ({ companyId: propsCompanyId }) => {
+  const { companyId: authCompanyId } = useAuth()
+
+  // Use auth context companyId if available, otherwise fall back to props
+  const companyId = authCompanyId || propsCompanyId
+
   const {
     accounts,
     isLoading,
@@ -167,7 +173,6 @@ export const ChartOfAccounts: FC<ChartOfAccountsProps> = ({ companyId }) => {
           </h2>
           <p style={{ fontSize: '1.125rem', color: '#6b7280', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
             We'll guide you through creating the accounts you need to track your business finances.
-            It's easier than you think - we promise!
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
             <Button variant="primary" size="lg" onClick={handleStartWizard}>

@@ -5,16 +5,16 @@
 .wizard {
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1.5rem;
 }
 
 /* Progress Bar */
 .progressBar {
   width: 100%;
-  height: 8px;
+  height: 4px;
   background-color: #e5e7eb;
-  border-radius: 4px;
-  margin-bottom: 2rem;
+  border-radius: 2px;
+  margin-bottom: 1rem;
   overflow: hidden;
 }
 
@@ -29,8 +29,8 @@
 .stepIndicators {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 3rem;
-  gap: 1rem;
+  margin-bottom: 1.5rem;
+  gap: 0.5rem;
 }
 
 .stepIndicator {
@@ -62,14 +62,14 @@
 }
 
 .stepNumber {
-  width: 40px;
-  height: 40px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.75rem;
   background-color: #e5e7eb;
   color: #6b7280;
   transition: all 0.2s ease;
@@ -87,7 +87,7 @@
 }
 
 .stepLabel {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #6b7280;
   text-align: center;
 }
@@ -99,7 +99,7 @@
 
 /* Step Content */
 .stepContent {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .stepTitle {
@@ -118,13 +118,13 @@
 }
 
 .stepBody {
-  min-height: 400px;
+  min-height: 200px;
 }
 
 /* Cancel Section */
 .cancelSection {
-  margin-top: 2rem;
-  padding-top: 2rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
   border-top: 1px solid #e5e7eb;
   display: flex;
   justify-content: center;

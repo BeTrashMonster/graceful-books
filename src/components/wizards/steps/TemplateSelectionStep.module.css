@@ -5,20 +5,20 @@
 .templateStep {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
 }
 
 .intro {
   text-align: center;
   max-width: 700px;
-  margin: 0 auto 2rem;
+  margin: 0 auto;
 }
 
 .introText {
-  font-size: 1.125rem;
+  font-size: 1rem;
   color: #4b5563;
-  line-height: 1.6;
-  margin-bottom: 0.75rem;
+  line-height: 1.5;
+  margin: 0;
 }
 
 .reassurance {
@@ -29,18 +29,23 @@
 
 .templateGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 500px) {
+  .templateGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .templateCard {
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
+  padding: 1rem;
   background-color: white;
   border: 2px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
@@ -70,11 +75,11 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .templateName {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #1f2937;
   margin: 0;
@@ -82,23 +87,23 @@
 }
 
 .selectedBadge {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background-color: #D4AF37;
   color: #2d1b00;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   flex-shrink: 0;
 }
 
 .templateDescription {
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   color: #6b7280;
-  line-height: 1.5;
-  margin-bottom: 1rem;
+  line-height: 1.4;
+  margin: 0;
   flex-grow: 1;
 }
 
@@ -172,21 +177,70 @@
   font-size: 0.95rem;
 }
 
+/* Basic/General template button - prominent recommended option */
+.basicButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  background-color: #f5f0f8;
+  border: 2px solid #4b006e;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.basicButton:hover {
+  background-color: #ebe0f0;
+  box-shadow: 0 2px 8px rgba(75, 0, 110, 0.15);
+}
+
+.basicButton.selected {
+  background-color: #ebe0f0;
+  box-shadow: 0 0 0 3px rgba(75, 0, 110, 0.3);
+}
+
+.basicButtonText {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4b006e;
+}
+
+.basicButtonDesc {
+  font-size: 0.875rem;
+  color: #6b7280;
+  flex: 1;
+}
+
+.basicButton .selectedBadge {
+  background-color: #4b006e;
+  color: white;
+}
+
 .actions {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
+  .basicButton {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
   .templateGrid {
     grid-template-columns: 1fr;
   }
 
   .preview {
-    padding: 1.5rem;
+    padding: 1rem;
   }
 
   .actions {

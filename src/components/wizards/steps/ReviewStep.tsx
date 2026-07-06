@@ -62,8 +62,6 @@ export const ReviewStep: FC<ReviewStepProps> = ({
     return grouped
   }, [customizations, template])
 
-  const totalAccounts = customizations.filter((c) => c.isIncluded).length + customAccounts.length
-
   const typeOrder: AccountType[] = [
     'asset',
     'liability',
@@ -108,9 +106,6 @@ export const ReviewStep: FC<ReviewStepProps> = ({
       <div className={styles.intro}>
         <p className={styles.introText}>
           Here's what we're about to create. Take a moment to make sure everything looks good.
-        </p>
-        <p className={styles.totalAccounts}>
-          We'll create <strong>{totalAccounts} accounts</strong> for you
         </p>
       </div>
 

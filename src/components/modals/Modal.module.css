@@ -88,16 +88,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem;
+  padding: 0.75rem 1.25rem;
   border-bottom: 1px solid #e5e7eb;
 }
 
 .modalTitle {
   margin: 0;
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #1f2937;
-  line-height: 1.5;
+  line-height: 1.2;
 }
 
 /* Close button */
@@ -105,10 +105,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0.5rem;
-  font-size: 1.5rem;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0.25rem;
+  font-size: 1.25rem;
   color: #6b7280;
   background: none;
   border: none;
@@ -208,7 +208,10 @@
     max-width: 100%;
   }
 
-  .modalHeader,
+  .modalHeader {
+    padding: 0.5rem 1rem;
+  }
+
   .modalBody,
   .modalFooter {
     padding: 1rem;

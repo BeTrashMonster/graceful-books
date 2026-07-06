@@ -69,17 +69,17 @@ const WIZARD_STEPS = [
   {
     id: 'welcome',
     title: 'Welcome',
-    description: 'Let\'s set up your Chart of Accounts together!',
+    description: '',
   },
   {
     id: 'template',
     title: 'Choose Template',
-    description: 'Pick a starting point that fits your business',
+    description: '',
   },
   {
     id: 'customize',
-    title: 'Customize Accounts',
-    description: 'Adjust the accounts to match your needs',
+    title: 'Customize',
+    description: '',
   },
   {
     id: 'review',
@@ -500,10 +500,14 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
 
       {/* Step Content */}
       <div className={styles.stepContent} role="tabpanel">
-        <h2 id="wizard-title" className={styles.stepTitle}>
-          {currentStep.title}
-        </h2>
-        <p className={styles.stepDescription}>{currentStep.description}</p>
+        {currentStep.description && (
+          <>
+            <h2 id="wizard-title" className={styles.stepTitle}>
+              {currentStep.title}
+            </h2>
+            <p className={styles.stepDescription}>{currentStep.description}</p>
+          </>
+        )}
 
         <div className={styles.stepBody}>
           {renderStep()}
@@ -526,9 +530,10 @@ export const ChartOfAccountsWizard: FC<ChartOfAccountsWizardProps> = ({
       <Modal
         isOpen
         onClose={handleCancel}
-        title="Set up your Chart of Accounts"
+        title="Chart of Accounts"
         size="lg"
         closeOnBackdropClick={false}
+        headerStyle={{ backgroundColor: '#4b006e', color: 'white' }}
       >
         {content}
       </Modal>

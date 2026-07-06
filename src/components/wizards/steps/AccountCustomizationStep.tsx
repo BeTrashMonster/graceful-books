@@ -119,11 +119,21 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
     { id: crypto.randomUUID(), name: '' }
   ])
   const [includeCash, setIncludeCash] = useState(false)
-  const [cashName, setCashName] = useState('')
+  const [cashAccounts, setCashAccounts] = useState<BankAccountEntry[]>([
+    { id: crypto.randomUUID(), name: 'Cash on Hand' }
+  ])
 
   // Part 2: Other Assets
   const [includeEquipment, setIncludeEquipment] = useState(false)
   const [equipmentItems, setEquipmentItems] = useState<EquipmentEntry[]>([
+    { id: crypto.randomUUID(), name: '', value: '', date: '' }
+  ])
+  const [includeVehicles, setIncludeVehicles] = useState(false)
+  const [vehicleItems, setVehicleItems] = useState<EquipmentEntry[]>([
+    { id: crypto.randomUUID(), name: '', value: '', date: '' }
+  ])
+  const [includeProperty, setIncludeProperty] = useState(false)
+  const [propertyItems, setPropertyItems] = useState<EquipmentEntry[]>([
     { id: crypto.randomUUID(), name: '', value: '', date: '' }
   ])
   const [includeInventory, setIncludeInventory] = useState(false)
@@ -162,10 +172,17 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
     repairsMaintenance: false,
     software: false,
     suppliesMaterials: false,
+    taxesPaid: false,
     travel: false,
     utilities: false,
   })
   const [customExpenses, setCustomExpenses] = useState<ExpenseEntry[]>([
+    { id: crypto.randomUUID(), name: '' }
+  ])
+
+  // Part 6: Cost of Goods Sold
+  const [includeCogs, setIncludeCogs] = useState(false)
+  const [cogsItems, setCogsItems] = useState<IncomeEntry[]>([
     { id: crypto.randomUUID(), name: '' }
   ])
 
@@ -176,9 +193,13 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         setCurrentPart(savedFormData.currentPart || 1)
         if (savedFormData.bankAccounts) setBankAccounts(savedFormData.bankAccounts)
         if (savedFormData.includeCash !== undefined) setIncludeCash(savedFormData.includeCash)
-        if (savedFormData.cashName) setCashName(savedFormData.cashName)
+        if (savedFormData.cashAccounts) setCashAccounts(savedFormData.cashAccounts)
         if (savedFormData.includeEquipment !== undefined) setIncludeEquipment(savedFormData.includeEquipment)
         if (savedFormData.equipmentItems) setEquipmentItems(savedFormData.equipmentItems)
+        if (savedFormData.includeVehicles !== undefined) setIncludeVehicles(savedFormData.includeVehicles)
+        if (savedFormData.vehicleItems) setVehicleItems(savedFormData.vehicleItems)
+        if (savedFormData.includeProperty !== undefined) setIncludeProperty(savedFormData.includeProperty)
+        if (savedFormData.propertyItems) setPropertyItems(savedFormData.propertyItems)
         if (savedFormData.includeInventory !== undefined) setIncludeInventory(savedFormData.includeInventory)
         if (savedFormData.inventoryName) setInventoryName(savedFormData.inventoryName)
         if (savedFormData.creditCards) setCreditCards(savedFormData.creditCards)
@@ -186,6 +207,8 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         if (savedFormData.incomeSources) setIncomeSources(savedFormData.incomeSources)
         if (savedFormData.commonExpenses) setCommonExpenses({...commonExpenses, ...savedFormData.commonExpenses})
         if (savedFormData.customExpenses) setCustomExpenses(savedFormData.customExpenses)
+        if (savedFormData.includeCogs !== undefined) setIncludeCogs(savedFormData.includeCogs)
+        if (savedFormData.cogsItems) setCogsItems(savedFormData.cogsItems)
       }
       setInitialized(true)
     }
@@ -199,19 +222,25 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         currentPart,
         bankAccounts,
         includeCash,
-        cashName,
+        cashAccounts,
         includeEquipment,
         equipmentItems,
+        includeVehicles,
+        vehicleItems,
+        includeProperty,
+        propertyItems,
         includeInventory,
         inventoryName,
         creditCards,
         loans,
         incomeSources,
+        includeCogs,
+        cogsItems,
         commonExpenses,
         customExpenses,
       }
 
-      // During parts 1-6, save form data with empty customizations
+      // During parts 1-7, save form data with empty customizations
       // Customizations will be generated when user clicks "Continue to review" from part 6
       console.log('=== useEffect saving form data, part', currentPart)
       onUpdate([], formData)
@@ -221,14 +250,20 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
     currentPart,
     bankAccounts,
     includeCash,
-    cashName,
+    cashAccounts,
     includeEquipment,
     equipmentItems,
+    includeVehicles,
+    vehicleItems,
+    includeProperty,
+    propertyItems,
     includeInventory,
     inventoryName,
     creditCards,
     loans,
     incomeSources,
+    includeCogs,
+    cogsItems,
     commonExpenses,
     customExpenses,
     onUpdate,
@@ -267,7 +302,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       setEquipmentErrors(new Set())
     }
 
-    if (currentPart < 6) {
+    if (currentPart < 7) {
       setCurrentPart(currentPart + 1)
     } else {
       // Generate customizations and call onNext
@@ -295,6 +330,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
     const equipmentAccounts: Omit<AccountCustomization, 'accountNumber'>[] = []
     const liabilityAccounts: Omit<AccountCustomization, 'accountNumber'>[] = []
     const incomeAccounts: Omit<AccountCustomization, 'accountNumber'>[] = []
+    const cogsAccounts: Omit<AccountCustomization, 'accountNumber'>[] = []
     const expenseAccounts: Omit<AccountCustomization, 'accountNumber'>[] = []
 
     console.log('Step 1: Arrays initialized')
@@ -312,13 +348,17 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       }
     })
 
-    // Cash
-    if (includeCash && cashName.trim()) {
-      bankAccounts_sorted.push({
-        templateAccountName: 'Cash on Hand',
-        name: cashName.trim(),
-        isIncluded: true,
-        type: 'asset',
+    // Cash accounts
+    if (includeCash) {
+      cashAccounts.forEach((account) => {
+        if (account.name.trim()) {
+          bankAccounts_sorted.push({
+            templateAccountName: 'Cash on Hand',
+            name: account.name.trim(),
+            isIncluded: true,
+            type: 'asset',
+          })
+        }
       })
     }
 
@@ -328,6 +368,34 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         if (item.name.trim()) {
           equipmentAccounts.push({
             templateAccountName: 'Equipment',
+            name: item.name.trim(),
+            isIncluded: true,
+            type: 'asset',
+          })
+        }
+      })
+    }
+
+    // Vehicles
+    if (includeVehicles) {
+      vehicleItems.forEach((item) => {
+        if (item.name.trim()) {
+          equipmentAccounts.push({
+            templateAccountName: 'Vehicle',
+            name: item.name.trim(),
+            isIncluded: true,
+            type: 'asset',
+          })
+        }
+      })
+    }
+
+    // Property
+    if (includeProperty) {
+      propertyItems.forEach((item) => {
+        if (item.name.trim()) {
+          equipmentAccounts.push({
+            templateAccountName: 'Property',
             name: item.name.trim(),
             isIncluded: true,
             type: 'asset',
@@ -381,6 +449,20 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         })
       }
     })
+
+    // COST OF GOODS SOLD
+    if (includeCogs) {
+      cogsItems.forEach((item) => {
+        if (item.name.trim()) {
+          cogsAccounts.push({
+            templateAccountName: 'Cost of Goods Sold',
+            name: item.name.trim(),
+            isIncluded: true,
+            type: 'cost-of-goods-sold',
+          })
+        }
+      })
+    }
 
     // EXPENSES
     // Common expenses
@@ -504,6 +586,14 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         type: 'expense',
       })
     }
+    if (commonExpenses.taxesPaid) {
+      expenseAccounts.push({
+        templateAccountName: 'Expense',
+        name: 'Taxes Paid',
+        isIncluded: true,
+        type: 'expense',
+      })
+    }
     if (commonExpenses.travel) {
       expenseAccounts.push({
         templateAccountName: 'Expense',
@@ -538,6 +628,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
     equipmentAccounts.sort((a, b) => a.name.localeCompare(b.name))
     liabilityAccounts.sort((a, b) => a.name.localeCompare(b.name))
     incomeAccounts.sort((a, b) => a.name.localeCompare(b.name))
+    cogsAccounts.sort((a, b) => a.name.localeCompare(b.name))
     expenseAccounts.sort((a, b) => a.name.localeCompare(b.name))
 
     // Step 3: Assign account numbers in specific order
@@ -604,6 +695,13 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       accountNumber += 100
     })
 
+    // COST OF GOODS SOLD (alphabetically)
+    accountNumber = 5000
+    cogsAccounts.forEach(account => {
+      customizationsList.push({ ...account, accountNumber: String(accountNumber) })
+      accountNumber += 100
+    })
+
     // EXPENSES (alphabetically - includes both common checkboxes and custom entries)
     accountNumber = 6000
     expenseAccounts.forEach(account => {
@@ -620,14 +718,20 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       currentPart,
       bankAccounts,
       includeCash,
-      cashName,
+      cashAccounts,
       includeEquipment,
       equipmentItems,
+      includeVehicles,
+      vehicleItems,
+      includeProperty,
+      propertyItems,
       includeInventory,
       inventoryName,
       creditCards,
       loans,
       incomeSources,
+      includeCogs,
+      cogsItems,
       commonExpenses,
       customExpenses,
     }
@@ -649,9 +753,9 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   const renderPart1 = () => (
     <>
       <div className={styles.partHeader}>
-        <h3 className={styles.partTitle}>Part 1: Your Bank Accounts</h3>
+        <h3 className={styles.partTitle}>Part 1 of 7: Your Bank Accounts</h3>
         <p className={styles.partDescription}>
-          List your business checking and savings accounts. Use the exact name so you recognize them!
+          List your business checking and savings accounts.
         </p>
       </div>
 
@@ -692,20 +796,70 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         </Button>
       </div>
 
-      <div className={styles.optionalSection}>
-        <Checkbox
-          label="I handle physical cash"
-          checked={includeCash}
-          onChange={() => setIncludeCash(!includeCash)}
-        />
-        {includeCash && (
-          <div className={styles.indentedInput}>
-            <Input
-              value={cashName}
-              onChange={(e) => setCashName(e.target.value)}
-              placeholder="e.g., Cash on Hand"
-              fullWidth
-            />
+      <div className={styles.cashSection}>
+        <div className={styles.cashCheckboxRow}>
+          <Checkbox
+            label="I handle physical cash"
+            checked={includeCash}
+            onChange={() => {
+              if (!includeCash) {
+                // Add first cash account with prefilled name
+                setCashAccounts([{ id: crypto.randomUUID(), name: 'Cash on Hand' }])
+              }
+              setIncludeCash(!includeCash)
+            }}
+          />
+          {includeCash && (
+            <div className={styles.cashInputInline}>
+              <Input
+                value={cashAccounts[0]?.name || ''}
+                onChange={(e) => {
+                  const updated = [...cashAccounts]
+                  if (updated[0]) {
+                    updated[0] = { ...updated[0], name: e.target.value }
+                  }
+                  setCashAccounts(updated)
+                }}
+                placeholder="Cash on Hand"
+              />
+            </div>
+          )}
+        </div>
+        {includeCash && cashAccounts.length > 0 && (
+          <div className={styles.additionalCashAccounts}>
+            {cashAccounts.slice(1).map((account, index) => (
+              <div key={account.id} className={styles.inputRow}>
+                <Input
+                  value={account.name}
+                  onChange={(e) => {
+                    const updated = [...cashAccounts]
+                    updated[index + 1] = { ...account, name: e.target.value }
+                    setCashAccounts(updated)
+                  }}
+                  placeholder="e.g., Back Office Safe"
+                  fullWidth
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCashAccounts(cashAccounts.filter((_, i) => i !== index + 1))
+                  }}
+                  className={styles.removeButton}
+                  aria-label="Remove"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setCashAccounts([...cashAccounts, { id: crypto.randomUUID(), name: '' }])
+              }}
+            >
+              + Add another cash account
+            </Button>
           </div>
         )}
       </div>
@@ -715,19 +869,20 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   const renderPart2 = () => (
     <>
       <div className={styles.partHeader}>
-        <h3 className={styles.partTitle}>Part 2: Other Assets</h3>
+        <h3 className={styles.partTitle}>Part 2 of 7: Other Assets</h3>
         <p className={styles.partDescription}>
-          Do you need to track equipment, inventory, or money owed to you?
+          What other assets does your business have?
         </p>
       </div>
 
-      <div className={styles.requiredSection}>
-        <p className={styles.requiredLabel}>
-          <strong>✓ Money owed to me (Accounts Receivable)</strong>
-        </p>
-        <p className={styles.requiredHelper}>
-          Track invoices you've sent that haven't been paid yet. This is required for proper bookkeeping.
-        </p>
+      <div className={styles.optionalSection}>
+        <Checkbox
+          label="Money owed to me (Accounts Receivable)"
+          checked={true}
+          onChange={() => {}}
+          disabled
+          helperText="Track invoices you've sent that haven't been paid yet. This is included automatically."
+        />
       </div>
 
       <div className={styles.optionalSection}>
@@ -740,53 +895,50 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         {includeEquipment && (
           <div className={styles.indentedInput}>
             <p className={styles.equipmentInstructions}>
-              Enter each piece of equipment with its <strong>value when purchased</strong> and the <strong>date you bought it</strong>. This helps track depreciation properly.
+              Enter each piece of equipment with its purchase date, name, and value.
             </p>
             {equipmentItems.map((item, index) => {
               const hasError = equipmentErrors.has(item.id)
               const hasAnyData = item.name.trim() || item.value.trim() || item.date.trim()
 
               return (
-              <div key={item.id} className={styles.balanceRow}>
-                <div className={styles.balanceInputs}>
-                  <Input
-                    value={item.name}
-                    onChange={(e) => {
-                      const updated = [...equipmentItems]
-                      updated[index] = { ...item, name: e.target.value }
-                      setEquipmentItems(updated)
-                      setEquipmentErrors(new Set()) // Clear errors on change
-                    }}
-                    placeholder="Professional Camera"
-                    fullWidth
-                    hasError={!!(hasError && hasAnyData && !item.name.trim())}
-                  />
-                  <Input
-                    value={item.value}
-                    onChange={(e) => {
-                      const updated = [...equipmentItems]
-                      updated[index] = { ...item, value: e.target.value }
-                      setEquipmentItems(updated)
-                      setEquipmentErrors(new Set())
-                    }}
-                    placeholder="$3,500.00"
-                    type="text"
-                    hasError={!!(hasError && hasAnyData && !item.value.trim())}
-                  />
-                  <Input
-                    value={item.date}
-                    onChange={(e) => {
-                      const parsed = parseSmartDate(e.target.value)
-                      const updated = [...equipmentItems]
-                      updated[index] = { ...item, date: parsed }
-                      setEquipmentItems(updated)
-                      setEquipmentErrors(new Set())
-                    }}
-                    placeholder="MM/DD/YY or MM/DD/YYYY"
-                    type="text"
-                    hasError={!!(hasError && hasAnyData && !item.date.trim())}
-                  />
-                </div>
+              <div key={item.id} className={styles.equipmentRow}>
+                <Input
+                  value={item.date}
+                  onChange={(e) => {
+                    const parsed = parseSmartDate(e.target.value)
+                    const updated = [...equipmentItems]
+                    updated[index] = { ...item, date: parsed }
+                    setEquipmentItems(updated)
+                    setEquipmentErrors(new Set())
+                  }}
+                  placeholder="MM/DD/YY"
+                  type="text"
+                  hasError={!!(hasError && hasAnyData && !item.date.trim())}
+                />
+                <Input
+                  value={item.name}
+                  onChange={(e) => {
+                    const updated = [...equipmentItems]
+                    updated[index] = { ...item, name: e.target.value }
+                    setEquipmentItems(updated)
+                    setEquipmentErrors(new Set())
+                  }}
+                  placeholder="Professional Camera"
+                  hasError={!!(hasError && hasAnyData && !item.name.trim())}
+                />
+                <Input
+                  value={item.value}
+                  onChange={(e) => {
+                    const updated = [...equipmentItems]
+                    updated[index] = { ...item, value: e.target.value }
+                    setEquipmentItems(updated)
+                    setEquipmentErrors(new Set())
+                  }}
+                  placeholder="$3,500.00"
+                  type="text"
+                  hasError={!!(hasError && hasAnyData && !item.value.trim())}
+                />
                 {equipmentItems.length > 1 && (
                   <button
                     type="button"
@@ -817,22 +969,160 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
 
       <div className={styles.optionalSection}>
         <Checkbox
+          label="Vehicles"
+          checked={includeVehicles}
+          onChange={() => setIncludeVehicles(!includeVehicles)}
+          helperText="Cars, trucks, vans used for business"
+        />
+        {includeVehicles && (
+          <div className={styles.indentedInput}>
+            {vehicleItems.map((item, index) => (
+              <div key={item.id} className={styles.equipmentRow}>
+                <Input
+                  value={item.date}
+                  onChange={(e) => {
+                    const parsed = parseSmartDate(e.target.value)
+                    const updated = [...vehicleItems]
+                    updated[index] = { ...item, date: parsed }
+                    setVehicleItems(updated)
+                  }}
+                  placeholder="MM/DD/YY"
+                  type="text"
+                />
+                <Input
+                  value={item.name}
+                  onChange={(e) => {
+                    const updated = [...vehicleItems]
+                    updated[index] = { ...item, name: e.target.value }
+                    setVehicleItems(updated)
+                  }}
+                  placeholder="2020 Ford Transit"
+                />
+                <Input
+                  value={item.value}
+                  onChange={(e) => {
+                    const updated = [...vehicleItems]
+                    updated[index] = { ...item, value: e.target.value }
+                    setVehicleItems(updated)
+                  }}
+                  placeholder="$25,000.00"
+                  type="text"
+                />
+                {vehicleItems.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVehicleItems(vehicleItems.filter((_, i) => i !== index))
+                    }}
+                    className={styles.removeButton}
+                    aria-label="Remove"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setVehicleItems([...vehicleItems, { id: crypto.randomUUID(), name: '', value: '', date: '' }])
+              }}
+            >
+              + Add more vehicles
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.optionalSection}>
+        <Checkbox
+          label="Property"
+          checked={includeProperty}
+          onChange={() => setIncludeProperty(!includeProperty)}
+          helperText="Buildings, land, or other real estate"
+        />
+        {includeProperty && (
+          <div className={styles.indentedInput}>
+            {propertyItems.map((item, index) => (
+              <div key={item.id} className={styles.equipmentRow}>
+                <Input
+                  value={item.date}
+                  onChange={(e) => {
+                    const parsed = parseSmartDate(e.target.value)
+                    const updated = [...propertyItems]
+                    updated[index] = { ...item, date: parsed }
+                    setPropertyItems(updated)
+                  }}
+                  placeholder="MM/DD/YY"
+                  type="text"
+                />
+                <Input
+                  value={item.name}
+                  onChange={(e) => {
+                    const updated = [...propertyItems]
+                    updated[index] = { ...item, name: e.target.value }
+                    setPropertyItems(updated)
+                  }}
+                  placeholder="Office Building"
+                />
+                <Input
+                  value={item.value}
+                  onChange={(e) => {
+                    const updated = [...propertyItems]
+                    updated[index] = { ...item, value: e.target.value }
+                    setPropertyItems(updated)
+                  }}
+                  placeholder="$150,000.00"
+                  type="text"
+                />
+                {propertyItems.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPropertyItems(propertyItems.filter((_, i) => i !== index))
+                    }}
+                    className={styles.removeButton}
+                    aria-label="Remove"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setPropertyItems([...propertyItems, { id: crypto.randomUUID(), name: '', value: '', date: '' }])
+              }}
+            >
+              + Add more property
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.optionalSection}>
+        <Checkbox
           label="Inventory"
           checked={includeInventory}
           onChange={() => setIncludeInventory(!includeInventory)}
         />
-        <p className={styles.inventoryNote}>
-          <strong>Note:</strong> Whether to track inventory on your books depends on many factors (cash vs. accrual basis, business size, inventory value, etc.). Consider consulting with a bookkeeper or accountant familiar with your situation before enabling this.
-        </p>
         {includeInventory && (
-          <div className={styles.indentedInput}>
-            <Input
-              value={inventoryName}
-              onChange={(e) => setInventoryName(e.target.value)}
-              placeholder="Product Inventory"
-              fullWidth
-            />
-          </div>
+          <>
+            <p className={styles.inventoryNote}>
+              <strong>Note:</strong> Whether to track inventory on your books depends on many factors. Consider consulting with a bookkeeper or accountant familiar with your situation.
+            </p>
+            <div className={styles.indentedInput}>
+              <Input
+                value={inventoryName}
+                onChange={(e) => setInventoryName(e.target.value)}
+                placeholder="Product Inventory"
+                fullWidth
+              />
+            </div>
+          </>
         )}
       </div>
     </>
@@ -841,27 +1131,24 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   const renderPart3 = () => (
     <>
       <div className={styles.partHeader}>
-        <h3 className={styles.partTitle}>Part 3: Liabilities</h3>
+        <h3 className={styles.partTitle}>Part 3 of 7: Bills & Credit Cards</h3>
         <p className={styles.partDescription}>
-          Track what your business owes - bills to vendors, credit cards, and loans.
+          Track what your business owes to vendors and credit card companies.
         </p>
       </div>
 
-      <div className={styles.requiredSection}>
-        <p className={styles.requiredLabel}>
-          <strong>✓ Bills I owe (Accounts Payable)</strong>
-        </p>
-        <p className={styles.requiredHelper}>
-          Track invoices from vendors that you haven't paid yet. This is required for proper bookkeeping.
-        </p>
+      <div className={styles.optionalSection}>
+        <Checkbox
+          label="Bills I owe (Accounts Payable)"
+          checked={true}
+          onChange={() => {}}
+          disabled
+          helperText="Track invoices from vendors that you haven't paid yet. This is included automatically."
+        />
       </div>
-
-      <h4 className={styles.sectionSubtitle}>Credit Cards</h4>
-      <p className={styles.partNote}>
-        List your business credit cards. You'll set up balances and transactions later when you reconcile.
-      </p>
 
       <div className={styles.inputSection}>
+        <p className={styles.inputSectionLabel}>Credit Cards</p>
         {creditCards.map((card, index) => (
           <div key={card.id} className={styles.inputRow}>
             <Input
@@ -898,9 +1185,6 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         </Button>
       </div>
 
-      <div className={styles.helpNote}>
-        <p>💡 No business credit cards? You can skip this - just leave the fields empty!</p>
-      </div>
     </>
   )
 
@@ -911,7 +1195,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
     return (
     <>
       <div className={styles.partHeader}>
-        <h3 className={styles.partTitle}>Part 4: Loans</h3>
+        <h3 className={styles.partTitle}>Part 4 of 7: Loans</h3>
         <p className={styles.partDescription}>
           Enter the loan balance from when you want to start tracking. For example, if you want to enter transactions from the beginning of {currentYear}, use the loan balance on 12/31/{lastYear}.
         </p>
@@ -919,40 +1203,37 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
 
       <div className={styles.inputSection}>
         {loans.map((loan, index) => (
-          <div key={loan.id} className={styles.balanceRow}>
-            <div className={styles.balanceInputs}>
-              <Input
-                value={loan.name}
-                onChange={(e) => {
-                  const updated = [...loans]
-                  updated[index] = { ...loan, name: e.target.value }
-                  setLoans(updated)
-                }}
-                placeholder="e.g., SBA Loan"
-                fullWidth
-              />
-              <Input
-                value={loan.balance}
-                onChange={(e) => {
-                  const updated = [...loans]
-                  updated[index] = { ...loan, balance: e.target.value }
-                  setLoans(updated)
-                }}
-                placeholder="$0.00"
-                type="text"
-              />
-              <Input
-                value={loan.date}
-                onChange={(e) => {
-                  const parsed = parseSmartDate(e.target.value)
-                  const updated = [...loans]
-                  updated[index] = { ...loan, date: parsed }
-                  setLoans(updated)
-                }}
-                placeholder="MM/DD/YY or MM/DD/YYYY"
-                type="text"
-              />
-            </div>
+          <div key={loan.id} className={styles.equipmentRow}>
+            <Input
+              value={loan.date}
+              onChange={(e) => {
+                const parsed = parseSmartDate(e.target.value)
+                const updated = [...loans]
+                updated[index] = { ...loan, date: parsed }
+                setLoans(updated)
+              }}
+              placeholder="MM/DD/YY"
+              type="text"
+            />
+            <Input
+              value={loan.name}
+              onChange={(e) => {
+                const updated = [...loans]
+                updated[index] = { ...loan, name: e.target.value }
+                setLoans(updated)
+              }}
+              placeholder="SBA Loan"
+            />
+            <Input
+              value={loan.balance}
+              onChange={(e) => {
+                const updated = [...loans]
+                updated[index] = { ...loan, balance: e.target.value }
+                setLoans(updated)
+              }}
+              placeholder="$0.00"
+              type="text"
+            />
             {loans.length > 1 && (
               <button
                 type="button"
@@ -978,7 +1259,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       </div>
 
       <div className={styles.helpNote}>
-        <p>💡 No loans? Perfect! Leave the fields empty and continue.</p>
+        <p>💡 No loans? Leave the fields empty and continue.</p>
       </div>
     </>
   )
@@ -987,7 +1268,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
   const renderPart5 = () => (
     <>
       <div className={styles.partHeader}>
-        <h3 className={styles.partTitle}>Part 5: Income</h3>
+        <h3 className={styles.partTitle}>Part 5 of 7: Income</h3>
         <p className={styles.partDescription}>
           List your revenue streams.
         </p>
@@ -1039,7 +1320,73 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
     </>
   )
 
-  const renderPart6 = () => {
+  const renderPart6 = () => (
+    <>
+      <div className={styles.partHeader}>
+        <h3 className={styles.partTitle}>Part 6 of 7: Cost of Goods Sold</h3>
+        <p className={styles.partDescription}>
+          Track the direct costs of producing your products or services.
+        </p>
+      </div>
+
+      <div className={styles.optionalSection}>
+        <Checkbox
+          label="I have costs directly tied to what I sell"
+          checked={includeCogs}
+          onChange={() => setIncludeCogs(!includeCogs)}
+          helperText="Materials, supplies, labor, or other costs that go directly into your products or services"
+        />
+        {includeCogs && (
+          <div className={styles.indentedInput}>
+            <p className={styles.inputSectionHelper}>
+              List your cost of goods sold categories.
+            </p>
+            {cogsItems.map((item, index) => (
+              <div key={item.id} className={styles.inputRow}>
+                <Input
+                  value={item.name}
+                  onChange={(e) => {
+                    const updated = [...cogsItems]
+                    updated[index] = { ...item, name: e.target.value }
+                    setCogsItems(updated)
+                  }}
+                  placeholder="e.g., COGS - Materials, COGS - Packaging"
+                  fullWidth
+                />
+                {cogsItems.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCogsItems(cogsItems.filter((_, i) => i !== index))
+                    }}
+                    className={styles.removeButton}
+                    aria-label="Remove"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setCogsItems([...cogsItems, { id: crypto.randomUUID(), name: '' }])
+              }}
+            >
+              + Add another cost category
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.helpNote}>
+        <p>💡 Not sure what counts as COGS? These are costs that only happen when you make a sale - like ingredients for a baker, fabric for a seamstress, or parts for a repair shop.</p>
+      </div>
+    </>
+  )
+
+  const renderPart7 = () => {
     // Create sorted expense options for proper column display
     const expenseOptions = [
       { key: 'bankFees', label: 'Bank Fees' },
@@ -1057,6 +1404,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
       { key: 'repairsMaintenance', label: 'Repairs + Maintenance' },
       { key: 'software', label: 'Software + Subscriptions' },
       { key: 'suppliesMaterials', label: 'Supplies + Materials' },
+      { key: 'taxesPaid', label: 'Taxes Paid' },
       { key: 'travel', label: 'Travel' },
       { key: 'utilities', label: 'Utilities' },
     ]
@@ -1067,7 +1415,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
     return (
     <>
       <div className={styles.partHeader}>
-        <h3 className={styles.partTitle}>Part 6: Expenses</h3>
+        <h3 className={styles.partTitle}>Part 7 of 7: Expenses</h3>
         <p className={styles.partDescription}>
           Check what applies to your business, and add any custom categories below.
         </p>
@@ -1146,6 +1494,8 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
         return renderPart5()
       case 6:
         return renderPart6()
+      case 7:
+        return renderPart7()
       default:
         return null
     }
@@ -1162,20 +1512,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
 
   return (
     <div className={styles.customizationStep}>
-      <div className={styles.intro}>
-        <div className={styles.partProgress}>
-          Part {currentPart} of 6
-        </div>
-      </div>
-
       {renderCurrentPart()}
-
-      <div className={styles.infoBox}>
-        <h4 className={styles.infoTitle}>Need something else?</h4>
-        <p className={styles.infoText}>
-          No problem! After this wizard, you can add more accounts anytime from your Chart of Accounts page.
-        </p>
-      </div>
 
       <div className={styles.actions}>
         <Button variant="outline" onClick={handlePartBack}>
@@ -1186,7 +1523,7 @@ export const AccountCustomizationStep: FC<AccountCustomizationStepProps> = ({
           onClick={handlePartNext}
           disabled={!canProceed()}
         >
-          {currentPart === 6 ? 'Continue to review' : 'Next'}
+          {currentPart === 7 ? 'Continue to review' : 'Next'}
         </Button>
       </div>
     </div>

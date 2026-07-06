@@ -5,7 +5,7 @@
 .welcomeStep {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
 }
 
 .hero {
@@ -34,11 +34,11 @@
 .content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .section {
-  padding: 1.5rem;
+  padding: 1rem 1.25rem;
   background-color: #f9fafb;
   border-radius: 8px;
   border-left: 4px solid #4b006e;
@@ -83,7 +83,7 @@
 }
 
 .reassurance {
-  padding: 1.5rem;
+  padding: 1rem 1.25rem;
   background-color: #fef3c7;
   border-radius: 8px;
   border: 1px solid #fbbf24;
@@ -97,7 +97,7 @@
 }
 
 .actions {
-  margin-top: 2rem;
+  margin-top: 1rem;
   display: flex;
   justify-content: center;
 }
