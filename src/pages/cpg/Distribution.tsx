@@ -65,11 +65,13 @@ export default function Distribution() {
   const [pinnedTabs, setPinnedTabs] = useState<Record<string, boolean>>({});
 
   // Update active tab when pinned default loads
+  // Priority: URL parameter (initialTab) > pinned default (defaultTab)
+  // This ensures clicking "Edit" from history navigates to the correct tab
   useEffect(() => {
-    if (!isPinningLoading && defaultTab) {
-      setViewMode(defaultTab as ViewMode);
-    } else if (!isPinningLoading && initialTab) {
+    if (!isPinningLoading && initialTab) {
       setViewMode(initialTab);
+    } else if (!isPinningLoading && defaultTab) {
+      setViewMode(defaultTab as ViewMode);
     }
   }, [defaultTab, isPinningLoading, initialTab]);
 
