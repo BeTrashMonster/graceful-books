@@ -114,6 +114,7 @@ export default function Distribution() {
   const [draftToConvert, setDraftToConvert] = useState<CPGDistributionCalculation | null>(null);
   const [loadedDraftId, setLoadedDraftId] = useState<string | null>(null);
   const [editingCalculationId, setEditingCalculationId] = useState<string | null>(null);
+  const [lastSavedCalculationId, setLastSavedCalculationId] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successModalMessage, setSuccessModalMessage] = useState('');
   const [showUnsavedWarningModal, setShowUnsavedWarningModal] = useState(false);
@@ -616,6 +617,17 @@ export default function Distribution() {
     }, 0);
   };
 
+  const handleRestoreLastInvoice = async () => {
+    if (!lastSavedCalculationId) return;
+
+    try {
+      await loadCalculationFromUrl(lastSavedCalculationId);
+    } catch (err) {
+      console.error('Error restoring last invoice:', err);
+      setError('Unable to restore the last invoice. It may have been deleted.');
+    }
+  };
+
   const handleDateBlur = (value: string, setter: (value: string) => void) => {
     if (!value) return;
 
@@ -1031,6 +1043,11 @@ export default function Distribution() {
       setShowSaveScenarioModal(false);
       setHasUnsavedResults(false); // Mark as saved
 
+      // Store the saved calculation ID for "Restore Last Invoice" functionality
+      if (saved?.id) {
+        setLastSavedCalculationId(saved.id);
+      }
+
       // Show success modal with appropriate message
       const wasEditing = !!editingCalculationId;
       if (wasEditing) {
@@ -1048,6 +1065,25 @@ export default function Distribution() {
       setDraftToConvert(null);
       setLoadedDraftId(null);
       setEditingCalculationId(null); // Clear edit mode
+
+      // Clear form state after successful save so user starts fresh
+      setCalculationResults(null);
+      setLastCalculationParams(null);
+      setLoadedScenarioParams(null);
+      setFormModifiedSinceCalculation(false);
+
+      // Reset form fields
+      setScenarioName('');
+      setInvoiceNumber('');
+      setInvoiceTotalAmount('');
+      setInvoiceDueDate('');
+      setPaymentStatus('unpaid');
+      setAmountPaid('');
+      setPaymentDate('');
+      setPaymentMethod('');
+      setPaymentAccountId('');
+      setCheckNumber('');
+      setSaveMode(null);
 
       setShowSuccessModal(true);
     } catch (err) {
@@ -1210,13 +1246,13 @@ export default function Distribution() {
                     >
                       Edit Distributor Profile
                     </Button>
-                    {(calculationResults || hasUnsavedResults) && (
+                    {lastSavedCalculationId && !calculationResults && !loadedScenarioParams && (
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={handleClearData}
+                        onClick={handleRestoreLastInvoice}
                       >
-                        Clear Data
+                        Restore Last Invoice
                       </Button>
                     )}
                   </div>

@@ -72,9 +72,6 @@ export function DistributionCalculatorForm({
 }: DistributionCalculatorFormProps) {
   const { companyId } = useAuth();
 
-  // ===== FORM STATE KEY (per distributor) =====
-  const formStateKey = `distribution-calc-${distributor.id}`;
-
   // ===== SHIPMENT CONFIGURATION =====
   const [numPallets, setNumPallets] = useState('1');
   const [defaultUnitsPerPallet, setDefaultUnitsPerPallet] = useState('100');
@@ -262,52 +259,20 @@ export function DistributionCalculatorForm({
       return;
     }
 
-    // Otherwise, load from localStorage
-    try {
-      const saved = localStorage.getItem(formStateKey);
-      if (saved) {
-        const savedState = JSON.parse(saved);
-        // Load saved data for this distributor
-        setNumPallets(savedState.numPallets || '1');
-        setDefaultUnitsPerPallet(savedState.defaultUnitsPerPallet || '100');
-        setPallets(savedState.pallets || [
-          {
-            id: generateId(),
-            products: [createEmptyProduct()],
-            isExpanded: true,
-            maxUnits: 100,
-          },
-        ]);
-        setSelectedZone(savedState.selectedZone || '');
-      } else {
-        // New distributor - reset to blank slate
-        setNumPallets('1');
-        setDefaultUnitsPerPallet('100');
-        setPallets([
-          {
-            id: generateId(),
-            products: [createEmptyProduct()],
-            isExpanded: true,
-            maxUnits: 100,
-          },
-        ]);
-        setSelectedZone('');
-      }
-    } catch (error) {
-      console.error('Error loading saved form state:', error);
-      // On error, reset to blank slate
-      setNumPallets('1');
-      setDefaultUnitsPerPallet('100');
-      setPallets([
-        {
-          id: generateId(),
-          products: [createEmptyProduct()],
-          isExpanded: true,
-        },
-      ]);
-      setSelectedZone('');
-    }
-  }, [distributor.id, formStateKey, initialValues]);
+    // Always start with a fresh form (no localStorage persistence)
+    // Users can use "Restore Last Invoice" to reload previous data if needed
+    setNumPallets('1');
+    setDefaultUnitsPerPallet('100');
+    setPallets([
+      {
+        id: generateId(),
+        products: [createEmptyProduct()],
+        isExpanded: true,
+        maxUnits: 100,
+      },
+    ]);
+    setSelectedZone('');
+  }, [distributor.id, initialValues]);
 
   // ===== UPDATE NUMBER OF PALLETS =====
   useEffect(() => {
@@ -353,20 +318,8 @@ export function DistributionCalculatorForm({
     setFeeSelections(initialSelections);
   }, [distributor, initialValues]);
 
-  // ===== SAVE FORM STATE TO LOCALSTORAGE =====
-  useEffect(() => {
-    const stateToSave = {
-      numPallets,
-      defaultUnitsPerPallet,
-      pallets,
-      selectedZone,
-    };
-    try {
-      localStorage.setItem(formStateKey, JSON.stringify(stateToSave));
-    } catch (error) {
-      console.error('Error saving form state:', error);
-    }
-  }, [numPallets, defaultUnitsPerPallet, pallets, selectedZone, formStateKey]);
+  // NOTE: Removed localStorage auto-save - form now always starts fresh
+  // Users can use "Restore Last Invoice" button to reload previous data if needed
 
   // ===== NOTIFY PARENT OF FORM CHANGES =====
   const [isInitialLoad, setIsInitialLoad] = useState(true);
