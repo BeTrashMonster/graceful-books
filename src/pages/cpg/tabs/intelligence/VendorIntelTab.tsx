@@ -1827,7 +1827,9 @@ export default function VendorIntelTab({
             background: 'white',
             border: '1px solid #e5e7eb',
             borderRadius: '8px',
-            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            maxHeight: 'calc(100vh - 280px)',
           }}>
           <div style={{
             padding: '1rem',
@@ -1856,7 +1858,7 @@ export default function VendorIntelTab({
               {showArchivedVendors ? 'Active' : 'Archived'}
             </button>
           </div>
-          <div style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto', padding: '0.75rem' }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '0.75rem' }}>
             {showArchivedVendors ? (
               <ArchivedVendorsList
                 companyId={companyId}
@@ -2440,7 +2442,9 @@ export default function VendorIntelTab({
             background: 'white',
             border: '1px solid #e5e7eb',
             borderRadius: '8px',
-            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            maxHeight: 'calc(100vh - 280px)',
           }}>
             <div style={{
               padding: '1rem',
@@ -2470,7 +2474,7 @@ export default function VendorIntelTab({
                 Edit
               </button>
             </div>
-            <div style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
+            <div style={{ flex: 1, overflowY: 'auto' }}>
               {componentOverviews.map((comp) => {
                 const isSelected = selectedComponent?.categoryId === comp.categoryId;
                 return (
