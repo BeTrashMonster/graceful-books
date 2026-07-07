@@ -519,12 +519,14 @@ export function DistributionCalculatorForm({
 
     const updatedProducts = pallet.products.map(p => {
       if (p.id === productId) {
+        // When selecting a new product, use that product's data directly
+        // Don't fall back to stale values from previous selection or localStorage
         return {
           ...p,
           productName: product.productName,
-          pricePerUnit: product.latestPrice || p.pricePerUnit || '',
-          baseCPU: product.latestCPU || p.baseCPU || '',
-          productionCPU: product.latestLaborCost || p.productionCPU || '',
+          pricePerUnit: product.latestPrice || '',
+          baseCPU: product.latestCPU || '',
+          productionCPU: product.latestLaborCost || '',
           // Auto-fill quantity with default units per pallet if it's the first product
           quantity: pallet.products.length === 1 && !p.quantity ? defaultUnitsPerPallet : p.quantity,
         };
