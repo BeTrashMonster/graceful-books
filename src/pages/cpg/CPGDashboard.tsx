@@ -35,6 +35,7 @@ export default function CPGDashboard() {
   const [showProductDropdown, setShowProductDropdown] = useState(false);
   const [showOnlyConnected, setShowOnlyConnected] = useState(false);
   const [showInactiveNodes, setShowInactiveNodes] = useState(true); // Show inactive by default
+  const [maxCategories, setMaxCategories] = useState(10); // Max category nodes to show (excludes S+H)
 
   // User feature preferences
   const [userFeaturePrefs, setUserFeaturePrefs] = useState<Record<FeatureName, boolean>>({
@@ -222,7 +223,7 @@ export default function CPGDashboard() {
         loadWebData();
       }
     }
-  }, [companyId, dateRange, selectedProductIds, customStartDate, customEndDate, userFeaturePrefs]);
+  }, [companyId, dateRange, selectedProductIds, customStartDate, customEndDate, userFeaturePrefs, maxCategories]);
 
   const loadProducts = async () => {
     if (!companyId) return;
@@ -282,7 +283,8 @@ export default function CPGDashboard() {
         companyId,
         startDate,
         endDate,
-        selectedProductIds.size > 0 ? Array.from(selectedProductIds) : undefined
+        selectedProductIds.size > 0 ? Array.from(selectedProductIds) : undefined,
+        maxCategories
       );
 
       console.log('📊 Web data loaded:', {
@@ -378,12 +380,29 @@ export default function CPGDashboard() {
     return { startDate, endDate };
   };
 
-  const handleNodeClick = (nodeId: string, nodeType: string) => {
-    console.log('🖱️ Dashboard node clicked:', { nodeId, nodeType });
+  const handleNodeClick = (nodeId: string, nodeType: string, groupedCategoryIds?: string[]) => {
+    console.log('🖱️ Dashboard node clicked:', { nodeId, nodeType, groupedCategoryIds });
 
     if (nodeType === 'category') {
-      // Build URL params for CPU Tracker > Cost Intelligence > Vendor Intel
       const { startDate, endDate } = getDateRange();
+
+      // Special handling for "Other Materials" - show all grouped categories
+      if (nodeId === '_other' && groupedCategoryIds && groupedCategoryIds.length > 0) {
+        // Navigate to CPU Tracker with all grouped category IDs
+        const params = new URLSearchParams({
+          tab: 'comparison',
+          intelligenceTab: 'vendors',
+          categoryIds: groupedCategoryIds.join(','),
+          startDate: startDate.toString(),
+          endDate: endDate.toString(),
+        });
+        const url = `/cpg/cpu-tracker?${params.toString()}`;
+        console.log('🚀 Navigating to Other Materials categories:', url);
+        navigate(url);
+        return;
+      }
+
+      // Build URL params for CPU Tracker > Cost Intelligence > Vendor Intel
       const params = new URLSearchParams({
         tab: 'comparison',
         intelligenceTab: 'vendors',
@@ -626,6 +645,26 @@ export default function CPGDashboard() {
               )}
             </div>
           )}
+        </div>
+
+        {/* Category Count Slider */}
+        <div className={styles.filterGroup}>
+          <label htmlFor="category-count" className={styles.filterLabel}>
+            Category Nodes: {maxCategories === 0 ? 'All' : maxCategories}
+          </label>
+          <input
+            id="category-count"
+            type="range"
+            min="0"
+            max="25"
+            value={maxCategories}
+            onChange={(e) => setMaxCategories(parseInt(e.target.value))}
+            className={styles.slider}
+          />
+          <div className={styles.sliderLabels}>
+            <span>All</span>
+            <span>25</span>
+          </div>
         </div>
 
         {/* Show Only Connected Checkbox */}

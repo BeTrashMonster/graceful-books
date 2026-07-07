@@ -14,7 +14,7 @@ import styles from './FinancialWebGraph.module.css';
 interface FinancialWebGraphProps {
   nodes: GraphNode[];
   connections: GraphConnection[];
-  onNodeClick: (nodeId: string, nodeType: string) => void;
+  onNodeClick: (nodeId: string, nodeType: string, groupedCategoryIds?: string[]) => void;
   onConnectionClick?: (sourceId: string, targetId: string, productIds: string[]) => void;
   onActivateFeature?: (featureName: FeatureName) => void;
   userFeaturePrefs?: Record<FeatureName, boolean>;
@@ -159,7 +159,9 @@ export function FinancialWebGraph({
       .attr('data-type', d => d.type)
       .on('click', (event, d) => {
         event.stopPropagation();
-        onNodeClick(d.id, d.type);
+        // Pass grouped category IDs for "Other Materials" node
+        const groupedIds = d.groupedCategories?.map(c => c.id);
+        onNodeClick(d.id, d.type, groupedIds);
       })
       .on('mouseover', function(event, d) {
         // Cancel any pending hide timer
@@ -198,7 +200,19 @@ export function FinancialWebGraph({
         // Show tooltip with detailed breakdown for events and promos
         let tooltipContent: string;
         if (d.type === 'category') {
-          tooltipContent = `${d.name}\n$${parseFloat(d.totalSpent).toLocaleString()} spent\n${d.invoiceCount} invoices`;
+          // Special handling for "Other Materials" node
+          if (d.id === '_other' && d.groupedCategories && d.groupedCategories.length > 0) {
+            const breakdown = d.groupedCategories
+              .sort((a, b) => parseFloat(b.totalSpent) - parseFloat(a.totalSpent))
+              .slice(0, 8) // Show top 8 categories
+              .map(cat => `  • ${cat.name}: $${parseFloat(cat.totalSpent).toLocaleString()}`)
+              .join('\n');
+            const moreCount = d.groupedCategories.length > 8 ? d.groupedCategories.length - 8 : 0;
+            const moreText = moreCount > 0 ? `\n  ...and ${moreCount} more` : '';
+            tooltipContent = `${d.name} (${d.groupedCategories.length} categories)\n$${parseFloat(d.totalSpent).toLocaleString()} total\n\nIncludes:\n${breakdown}${moreText}\n\nClick to view all`;
+          } else {
+            tooltipContent = `${d.name}\n$${parseFloat(d.totalSpent).toLocaleString()} spent\n${d.invoiceCount} invoices`;
+          }
         } else if (d.type === 'events' && d.details) {
           const eventCosts = parseFloat(d.details.eventCosts || '0');
           const travelingCosts = parseFloat(d.details.travelingCosts || '0');

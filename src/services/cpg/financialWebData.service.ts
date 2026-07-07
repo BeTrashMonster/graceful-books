@@ -19,6 +19,13 @@ export interface CategoryNode {
   invoiceCount: number;
   type: 'category';
   isActive: boolean; // Always true for categories
+  // For "Other Materials" node, contains breakdown of grouped categories
+  groupedCategories?: Array<{
+    id: string;
+    name: string;
+    totalSpent: string;
+    invoiceCount: number;
+  }>;
 }
 
 export interface OperationalNode {
@@ -79,12 +86,14 @@ export class FinancialWebDataService {
 
   /**
    * Get financial web data for the force-directed graph
+   * @param maxCategories - Maximum number of category nodes to show (default 10, excludes S+H)
    */
   async getFinancialWebData(
     companyId: string,
     startDate: number,
     endDate: number,
-    selectedProductIds?: string[]
+    selectedProductIds?: string[],
+    maxCategories: number = 10
   ): Promise<FinancialWebData> {
     // Get all active categories
     const categories = await this.db.cpgCategories
@@ -122,17 +131,19 @@ export class FinancialWebDataService {
     // Calculate category spending
     const categorySpending = this.calculateCategorySpending(categories, invoices);
 
-    // Get top 9 categories (or all if < 11)
-    const topCategories = this.getTopCategories(categorySpending, categories);
+    // Get top N categories (excludes S+H, creates "Other Materials" for remainder)
+    const topCategories = this.getTopCategories(categorySpending, categories, maxCategories);
 
     // Build category nodes
-    const categoryNodes: CategoryNode[] = topCategories.map(({ category, total, count }) => ({
+    const categoryNodes: CategoryNode[] = topCategories.map(({ category, total, count, groupedCategories }) => ({
       id: category.id,
       name: category.name,
       totalSpent: total.toFixed(6),
       invoiceCount: count,
       type: 'category',
       isActive: true,
+      // Include grouped categories for "Other Materials" tooltip
+      ...(groupedCategories && { groupedCategories }),
     }));
 
     // Get distribution, promo, and events totals
@@ -244,14 +255,28 @@ export class FinancialWebDataService {
   }
 
   /**
-   * Get top 9 categories by spending (or all if < 11)
-   * Creates "Other" category for remainder if needed
+   * Get top N categories by spending
+   * - Excludes S+H categories from the count (they get their own node always)
+   * - Creates "Other Materials" for categories beyond maxCategories
+   * - Tracks which categories are grouped for hover tooltip display
    */
   private getTopCategories(
     spending: Map<string, { total: Decimal; count: number }>,
-    categories: CPGCategory[]
-  ): Array<{ category: CPGCategory; total: Decimal; count: number }> {
-    const categoriesWithSpending = categories
+    categories: CPGCategory[],
+    maxCategories: number = 10
+  ): Array<{ category: CPGCategory; total: Decimal; count: number; groupedCategories?: Array<{ id: string; name: string; totalSpent: string; invoiceCount: number }> }> {
+    // Separate S+H categories from regular categories
+    const shCategories = categories.filter(cat => cat.is_distribution_category);
+    const regularCategories = categories.filter(cat => !cat.is_distribution_category);
+
+    // Build spending data for both groups
+    const shWithSpending = shCategories.map(cat => ({
+      category: cat,
+      total: spending.get(cat.id)?.total || new Decimal(0),
+      count: spending.get(cat.id)?.count || 0,
+    }));
+
+    const regularWithSpending = regularCategories
       .map(cat => ({
         category: cat,
         total: spending.get(cat.id)?.total || new Decimal(0),
@@ -259,47 +284,76 @@ export class FinancialWebDataService {
       }))
       .sort((a, b) => b.total.comparedTo(a.total)); // Descending by total
 
-    // If 10 or fewer categories, return all
-    if (categoriesWithSpending.length <= 10) {
-      return categoriesWithSpending;
+    // S+H always gets its own node(s)
+    const result: Array<{ category: CPGCategory; total: Decimal; count: number; groupedCategories?: Array<{ id: string; name: string; totalSpent: string; invoiceCount: number }> }> = [];
+
+    // Add all S+H categories first (they don't count toward maxCategories)
+    shWithSpending.forEach(item => {
+      if (item.total.greaterThan(0)) {
+        result.push(item);
+      }
+    });
+
+    // If maxCategories is 0 or negative, show all regular categories
+    if (maxCategories <= 0) {
+      result.push(...regularWithSpending);
+      return result;
     }
 
-    // Take top 9
-    const top9 = categoriesWithSpending.slice(0, 9);
+    // If regular categories fit within limit, return all
+    if (regularWithSpending.length <= maxCategories) {
+      result.push(...regularWithSpending);
+      return result;
+    }
 
-    // Sum the rest into "Other"
-    const others = categoriesWithSpending.slice(9);
+    // Take top (maxCategories - 1) to leave room for "Other Materials"
+    const topN = regularWithSpending.slice(0, maxCategories - 1);
+    result.push(...topN);
+
+    // Sum the rest into "Other Materials"
+    const others = regularWithSpending.slice(maxCategories - 1);
     const otherTotal = others.reduce(
       (sum, item) => sum.plus(item.total),
       new Decimal(0)
     );
     const otherCount = others.reduce((sum, item) => sum + item.count, 0);
 
-    // Create synthetic "Other" category
-    const otherCategory: CPGCategory = {
-      id: '_other',
-      company_id: categories[0]?.company_id || '',
-      name: 'Other Materials',
-      description: 'Accumulated smaller categories',
-      variants: null,
-      unit_of_measure: 'various',
-      sort_order: 999,
-      is_distribution_category: false,
-      active: true,
-      created_at: Date.now(),
-      updated_at: Date.now(),
-      deleted_at: null,
-      version_vector: {},
-    };
+    // Only create "Other Materials" if there's actually something in it
+    if (others.length > 0 && otherTotal.greaterThan(0)) {
+      // Create synthetic "Other" category with grouped categories info
+      const otherCategory: CPGCategory = {
+        id: '_other',
+        company_id: categories[0]?.company_id || '',
+        name: 'Other Materials',
+        description: 'Accumulated smaller categories',
+        variants: null,
+        unit_of_measure: 'various',
+        sort_order: 999,
+        is_distribution_category: false,
+        active: true,
+        created_at: Date.now(),
+        updated_at: Date.now(),
+        deleted_at: null,
+        version_vector: {},
+      };
 
-    return [
-      ...top9,
-      {
+      // Track which categories are grouped for tooltip display
+      const groupedCategories = others.map(item => ({
+        id: item.category.id,
+        name: item.category.name,
+        totalSpent: item.total.toFixed(2),
+        invoiceCount: item.count,
+      }));
+
+      result.push({
         category: otherCategory,
         total: otherTotal,
         count: otherCount,
-      },
-    ];
+        groupedCategories,
+      });
+    }
+
+    return result;
   }
 
   /**
