@@ -2,13 +2,18 @@
  * Comprehensive Product Worksheet
  *
  * Natural flow: Add products with their recipes, create categories on-the-fly
+ * Includes autosave to localStorage to prevent data loss
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import styles from './ComprehensiveWorksheet.module.css';
 import { processDateInput } from '../../utils/dateUtils';
 import { LoadingOverlay } from '../feedback/Loading';
 import { areUnitsCompatible, type Unit } from '../../utils/unitConversion';
+
+// Autosave configuration
+const AUTOSAVE_KEY = 'worksheet-autosave';
+const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds
 
 interface Category {
   id: string;
@@ -204,6 +209,132 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
   // For adding new variant inline
   const [showNewVariantInput, setShowNewVariantInput] = useState<Record<string, boolean>>({});
   const [newVariantValue, setNewVariantValue] = useState<Record<string, string>>({});
+
+  // Autosave state
+  const [showRestoreModal, setShowRestoreModal] = useState(false);
+  const [savedDataTimestamp, setSavedDataTimestamp] = useState<string | null>(null);
+  const hasInitializedRef = useRef(false);
+  const isRestoringRef = useRef(false);
+
+  // Check for saved data on mount
+  useEffect(() => {
+    if (hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
+
+    try {
+      const saved = localStorage.getItem(AUTOSAVE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.timestamp && parsed.categories && parsed.products && parsed.invoices) {
+          const savedDate = new Date(parsed.timestamp);
+          const formattedDate = savedDate.toLocaleString();
+          setSavedDataTimestamp(formattedDate);
+          setShowRestoreModal(true);
+        }
+      }
+    } catch (e) {
+      console.error('Error checking for autosaved data:', e);
+      localStorage.removeItem(AUTOSAVE_KEY);
+    }
+  }, []);
+
+  // Autosave every 30 seconds
+  useEffect(() => {
+    // Don't autosave if we're in the process of restoring or importing
+    if (isRestoringRef.current || importing) return;
+
+    const saveData = () => {
+      // Only save if there's meaningful data
+      const hasProducts = products.some(p => p.name.trim());
+      const hasInvoices = invoices.some(i => i.vendor_name.trim());
+
+      if (!hasProducts && !hasInvoices) return;
+
+      try {
+        const dataToSave = {
+          timestamp: new Date().toISOString(),
+          currentStep,
+          categories,
+          products,
+          invoices,
+          expandedInvoices: Array.from(expandedInvoices)
+        };
+        localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(dataToSave));
+        console.log('📁 Worksheet autosaved at', new Date().toLocaleTimeString());
+      } catch (e) {
+        console.error('Error autosaving worksheet:', e);
+      }
+    };
+
+    // Save immediately when data changes (debounced by interval)
+    const intervalId = setInterval(saveData, AUTOSAVE_INTERVAL_MS);
+
+    // Also save on visibility change (user switching tabs)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        saveData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [currentStep, categories, products, invoices, expandedInvoices, importing]);
+
+  // Warn before leaving with unsaved data
+  useEffect(() => {
+    const hasUnsavedData = products.some(p => p.name.trim()) || invoices.some(i => i.vendor_name.trim());
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedData && !importing) {
+        e.preventDefault();
+        e.returnValue = ''; // Required for Chrome
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [products, invoices, importing]);
+
+  // Restore saved data
+  const handleRestoreData = useCallback(() => {
+    try {
+      isRestoringRef.current = true;
+      const saved = localStorage.getItem(AUTOSAVE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+
+        // Restore all state
+        if (parsed.currentStep) setCurrentStep(parsed.currentStep);
+        if (parsed.categories) setCategories(parsed.categories);
+        if (parsed.products) setProducts(parsed.products);
+        if (parsed.invoices) setInvoices(parsed.invoices);
+        if (parsed.expandedInvoices) setExpandedInvoices(new Set(parsed.expandedInvoices));
+
+        console.log('📂 Worksheet data restored');
+      }
+    } catch (e) {
+      console.error('Error restoring worksheet data:', e);
+    } finally {
+      isRestoringRef.current = false;
+      setShowRestoreModal(false);
+    }
+  }, []);
+
+  // Discard saved data and start fresh
+  const handleDiscardSavedData = useCallback(() => {
+    localStorage.removeItem(AUTOSAVE_KEY);
+    setShowRestoreModal(false);
+    console.log('🗑️ Saved worksheet data discarded');
+  }, []);
+
+  // Clear autosave data (called after successful submit)
+  const clearAutosaveData = useCallback(() => {
+    localStorage.removeItem(AUTOSAVE_KEY);
+    console.log('🧹 Autosave data cleared after successful save');
+  }, []);
 
   const steps: Step[] = ['products', 'invoices', 'review'];
   const currentStepIndex = steps.indexOf(currentStep);
@@ -746,12 +877,83 @@ export function ComprehensiveWorksheet({ onComplete, onSkip }: ComprehensiveWork
     };
 
     console.log('📤 Calling onComplete with data:', worksheetData);
+
+    // Clear autosave data before submitting (data is about to be saved to DB)
+    clearAutosaveData();
+
     setImporting(true);
     onComplete(worksheetData);
   };
 
   return (
     <div className={styles.container}>
+      {/* Restore saved data modal */}
+      {showRestoreModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '2rem',
+            maxWidth: '480px',
+            width: '90%',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
+          }}>
+            <h2 style={{ margin: '0 0 1rem', color: '#1f2937', fontSize: '1.25rem' }}>
+              Resume Your Work?
+            </h2>
+            <p style={{ margin: '0 0 0.5rem', color: '#4b5563', lineHeight: 1.6 }}>
+              We found unsaved work from a previous session.
+            </p>
+            <p style={{ margin: '0 0 1.5rem', color: '#6b7280', fontSize: '0.875rem' }}>
+              Last saved: {savedDataTimestamp}
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button
+                onClick={handleDiscardSavedData}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '8px',
+                  backgroundColor: 'white',
+                  color: '#374151',
+                  fontSize: '0.9375rem',
+                  fontWeight: 500,
+                  cursor: 'pointer'
+                }}
+              >
+                Start Fresh
+              </button>
+              <button
+                onClick={handleRestoreData}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  border: 'none',
+                  borderRadius: '8px',
+                  backgroundColor: '#4b006e',
+                  color: 'white',
+                  fontSize: '0.9375rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                Resume Work
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Progress bar */}
       <div className={styles.progressContainer}>
         <div className={styles.progressBar}>
