@@ -1,0 +1,154 @@
+/**
+ * AdminCalendarPage Styles
+ *
+ * Main page layout for the Admin Calendar feature.
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--color-background, #f9fafb);
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-4, 16px) var(--spacing-6, 24px);
+  background: var(--color-surface, #ffffff);
+  border-bottom: 1px solid var(--color-border-light, #e5e7eb);
+}
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1, 4px);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-2xl, 1.5rem);
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-tertiary, #6b7280);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3, 12px);
+}
+
+.viewToggle {
+  padding: var(--spacing-2, 8px) var(--spacing-4, 16px);
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--color-text-secondary, #374151);
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.viewToggle:hover {
+  background: var(--color-surface-hover, #f3f4f6);
+  border-color: var(--color-border-hover, #d1d5db);
+}
+
+.viewToggle[aria-pressed="true"] {
+  background: var(--color-primary-lighter, #f3f0ff);
+  border-color: var(--color-primary, #8b5cf6);
+  color: var(--color-primary, #8b5cf6);
+}
+
+/* Error Banner */
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  padding: var(--spacing-3, 12px) var(--spacing-6, 24px);
+  background: var(--color-danger-light, #fee2e2);
+  color: var(--color-danger, #ef4444);
+  font-size: var(--text-sm, 0.875rem);
+}
+
+.errorIcon {
+  font-size: 16px;
+}
+
+/* Main Content */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.calendarSection {
+  flex: 1;
+  padding: var(--spacing-4, 16px);
+  overflow-x: auto;
+  overflow-y: auto;
+  min-height: 0;
+  min-width: 0;
+}
+
+.dayDetailSection {
+  height: 280px;
+  flex-shrink: 0;
+  background: var(--color-surface, #ffffff);
+  border-bottom: 1px solid var(--color-border-light, #e5e7eb);
+  overflow: hidden;
+}
+
+/* Large screens - side by side layout */
+@media (min-width: 1400px) {
+  .main {
+    flex-direction: row;
+  }
+
+  .dayDetailSection {
+    width: 350px;
+    height: auto;
+    border-bottom: none;
+    border-right: 1px solid var(--color-border-light, #e5e7eb);
+  }
+
+  .calendarSection {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-3, 12px);
+    padding: var(--spacing-4, 16px);
+  }
+
+  .headerActions {
+    width: 100%;
+  }
+
+  .viewToggle {
+    flex: 1;
+  }
+
+  .calendarSection {
+    padding: var(--spacing-2, 8px);
+  }
+
+  .dayDetailSection {
+    height: 220px;
+  }
+}

@@ -1,331 +1,188 @@
 /**
  * Checklist Page
  *
- * Per CHECK-001 and CHECK-002: Main page for personalized checklist
- * with interactive UI, progress tracking, and streak display.
+ * Main page for the Admin Calendar - calendar-centric task and SOP management.
+ * This replaces the previous checklist implementation with the new calendar view.
  *
- * This page integrates with C3 (Checklist Generation) for data.
+ * @see Roadmaps/ROADMAP_CHECKLIST_CALENDAR.md
  */
 
-import { useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Breadcrumbs } from '../components/navigation/Breadcrumbs'
-import { ChecklistView } from '../components/checklist/ChecklistView'
-import type { ChecklistProfile } from '../types/checklist.types'
+import { useState, useCallback, useEffect } from 'react';
+import { Breadcrumbs } from '../components/navigation/Breadcrumbs';
+import {
+  AdminCalendarPage,
+  SetupWizard,
+  ChecklistManager,
+  createChecklist,
+  createTask,
+  getChecklists,
+} from '../features/checklistCalendar';
+import type { WizardChecklist } from '../features/checklistCalendar';
 
 /**
- * Main Checklist page component
+ * Main Checklist page component - now using Admin Calendar
  */
 export default function Checklist() {
-  const navigate = useNavigate()
+  const [showWizard, setShowWizard] = useState(false);
+  const [showManager, setShowManager] = useState(false);
+  const [hasChecklists, setHasChecklists] = useState<boolean | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  // TODO: Replace with actual data from C3 (Checklist Generation)
-  // This is mock data for demonstration
-  const [isLoading] = useState(false)
-  const [profile] = useState<ChecklistProfile | null>(getMockChecklistProfile())
+  // Check if user has any checklists
+  useEffect(() => {
+    async function checkChecklists() {
+      const result = await getChecklists('demo-company');
+      if (result.success) {
+        const hasAny = result.data.length > 0;
+        setHasChecklists(hasAny);
+        // Auto-show wizard if no checklists exist
+        if (!hasAny) {
+          setShowWizard(true);
+        }
+      } else {
+        setHasChecklists(false);
+        setShowWizard(true);
+      }
+    }
+    checkChecklists();
+  }, []);
 
-  // Handle item completion
-  const handleCompleteItem = useCallback((itemId: string) => {
-    // TODO: Implement actual completion logic with database
-    console.log('Completing item:', itemId)
-  }, [])
+  // Handle wizard completion - create checklists and tasks
+  const handleWizardComplete = useCallback(async (wizardChecklists: WizardChecklist[]) => {
+    const companyId = 'demo-company';
+    const userId = 'demo-user';
 
-  // Handle item uncompletion
-  const handleUncompleteItem = useCallback((itemId: string) => {
-    // TODO: Implement actual uncompletion logic
-    console.log('Uncompleting item:', itemId)
-  }, [])
+    for (const wc of wizardChecklists) {
+      // Create the checklist
+      const checklistResult = await createChecklist({
+        companyId,
+        name: wc.name,
+        description: wc.description,
+        color: wc.color,
+        recurrenceType: wc.recurrence,
+        excludeWeekends: wc.excludeWeekends,
+        isTemplate: false,
+      });
 
-  // Handle snooze
-  const handleSnoozeItem = useCallback((itemId: string, until: Date, reason?: string) => {
-    // TODO: Implement actual snooze logic
-    console.log('Snoozing item:', itemId, 'until:', until, 'reason:', reason)
-  }, [])
+      if (checklistResult.success) {
+        // Create tasks for this checklist
+        for (const wt of wc.tasks) {
+          await createTask({
+            checklistId: checklistResult.data.id,
+            companyId,
+            userId,
+            title: wt.title,
+            description: wt.description,
+            priority: wt.priority,
+          });
+        }
+      }
+    }
 
-  // Handle mark not applicable
-  const handleMarkNotApplicable = useCallback((itemId: string, reason: string) => {
-    // TODO: Implement actual not applicable logic
-    console.log('Marking not applicable:', itemId, 'reason:', reason)
-  }, [])
+    setShowWizard(false);
+    setHasChecklists(true);
+    // Refresh the calendar to show the new checklists
+    setRefreshKey((k) => k + 1);
+  }, []);
 
-  // Handle delete custom item
-  const handleDeleteCustomItem = useCallback((itemId: string) => {
-    // TODO: Implement actual delete logic
-    console.log('Deleting custom item:', itemId)
-  }, [])
+  // Handle wizard close
+  const handleWizardClose = useCallback(() => {
+    setShowWizard(false);
+  }, []);
 
-  // Handle feature link click
-  const handleFeatureLinkClick = useCallback(
-    (link: string) => {
-      navigate(link)
-    },
-    [navigate],
-  )
+  // Handle manager close with refresh
+  // IMPORTANT: All hooks must be called before any conditional returns
+  const handleManagerClose = useCallback(() => {
+    setShowManager(false);
+    setRefreshKey((k) => k + 1);
+  }, []);
+
+  // Loading state - must come AFTER all hooks
+  if (hasChecklists === null) {
+    return (
+      <div className="page">
+        <Breadcrumbs />
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '400px',
+          color: 'var(--color-text-tertiary)'
+        }}>
+          Loading...
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="page">
-      <Breadcrumbs />
-
-      <ChecklistView
-        profile={profile}
-        isLoading={isLoading}
-        onCompleteItem={handleCompleteItem}
-        onUncompleteItem={handleUncompleteItem}
-        onSnoozeItem={handleSnoozeItem}
-        onMarkNotApplicable={handleMarkNotApplicable}
-        onDeleteCustomItem={handleDeleteCustomItem}
-        onFeatureLinkClick={handleFeatureLinkClick}
-        enableAnimations={true}
+    <div className="page" style={{ padding: 0 }}>
+      {/* Setup Wizard */}
+      <SetupWizard
+        isOpen={showWizard}
+        onClose={handleWizardClose}
+        onComplete={handleWizardComplete}
       />
+
+      {/* Checklist Manager */}
+      <ChecklistManager
+        isOpen={showManager}
+        onClose={handleManagerClose}
+        onRefresh={() => setRefreshKey((k) => k + 1)}
+      />
+
+      {/* Admin Calendar */}
+      <AdminCalendarPage
+        key={refreshKey}
+        userId="demo-user"
+        userName="Demo User"
+      />
+
+      {/* Quick actions */}
+      {hasChecklists && !showWizard && !showManager && (
+        <div style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          display: 'flex',
+          gap: '12px',
+        }}>
+          <button
+            type="button"
+            onClick={() => setShowManager(true)}
+            style={{
+              padding: '12px 20px',
+              fontSize: '14px',
+              fontWeight: 500,
+              color: 'var(--color-primary, #8b5cf6)',
+              background: 'white',
+              border: '1px solid var(--color-primary, #8b5cf6)',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            Manage Checklists
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowWizard(true)}
+            style={{
+              padding: '12px 20px',
+              fontSize: '14px',
+              fontWeight: 500,
+              color: 'white',
+              background: 'var(--color-primary, #8b5cf6)',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
+            }}
+          >
+            + Add Checklists
+          </button>
+        </div>
+      )}
     </div>
-  )
-}
-
-// =============================================================================
-// Mock Data (TODO: Remove when C3 is implemented)
-// =============================================================================
-
-function getMockChecklistProfile(): ChecklistProfile {
-  const now = new Date()
-
-  return {
-    id: 'checklist-1',
-    userId: 'user-1',
-    companyId: 'company-1',
-    assessmentProfileId: 'assessment-1',
-    phase: 'stabilize',
-    businessType: 'service',
-    literacyLevel: 'developing',
-    categories: [
-      {
-        id: 'cat-1',
-        name: 'Foundation Building',
-        description: 'One-time setup tasks to get your financial foundation in place',
-        type: 'foundation',
-        order: 1,
-        totalItems: 5,
-        completedItems: 2,
-        percentComplete: 40,
-        items: [
-          {
-            id: 'item-1',
-            categoryId: 'cat-1',
-            title: 'Open dedicated business bank account',
-            description:
-              'Separate your business finances from personal to simplify tracking and tax time',
-            explanationLevel: 'detailed',
-            status: 'completed',
-            completedAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000),
-            snoozedUntil: null,
-            snoozedReason: null,
-            notApplicableReason: null,
-            featureLink: null,
-            helpArticle: null,
-            isCustom: false,
-            isReordered: false,
-            customOrder: null,
-            recurrence: 'once',
-            priority: 'high',
-            lastDueDate: null,
-            nextDueDate: null,
-            createdAt: now,
-            updatedAt: now,
-          },
-          {
-            id: 'item-2',
-            categoryId: 'cat-1',
-            title: 'Gather last 3 months of bank statements',
-            description: 'Collect your recent financial history to establish a baseline',
-            explanationLevel: 'detailed',
-            status: 'completed',
-            completedAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000),
-            snoozedUntil: null,
-            snoozedReason: null,
-            notApplicableReason: null,
-            featureLink: null,
-            helpArticle: null,
-            isCustom: false,
-            isReordered: false,
-            customOrder: null,
-            recurrence: 'once',
-            priority: 'high',
-            lastDueDate: null,
-            nextDueDate: null,
-            createdAt: now,
-            updatedAt: now,
-          },
-          {
-            id: 'item-3',
-            categoryId: 'cat-1',
-            title: 'Set up chart of accounts (guided)',
-            description: 'Create categories for tracking income and expenses',
-            explanationLevel: 'detailed',
-            status: 'active',
-            completedAt: null,
-            snoozedUntil: null,
-            snoozedReason: null,
-            notApplicableReason: null,
-            featureLink: '/chart-of-accounts',
-            helpArticle: null,
-            isCustom: false,
-            isReordered: false,
-            customOrder: null,
-            recurrence: 'once',
-            priority: 'high',
-            lastDueDate: null,
-            nextDueDate: null,
-            createdAt: now,
-            updatedAt: now,
-          },
-          {
-            id: 'item-4',
-            categoryId: 'cat-1',
-            title: 'Enter opening balances',
-            description: 'Record your starting financial position',
-            explanationLevel: 'detailed',
-            status: 'active',
-            completedAt: null,
-            snoozedUntil: null,
-            snoozedReason: null,
-            notApplicableReason: null,
-            featureLink: '/chart-of-accounts',
-            helpArticle: null,
-            isCustom: false,
-            isReordered: false,
-            customOrder: null,
-            recurrence: 'once',
-            priority: 'high',
-            lastDueDate: null,
-            nextDueDate: null,
-            createdAt: now,
-            updatedAt: now,
-          },
-          {
-            id: 'item-5',
-            categoryId: 'cat-1',
-            title: 'Categorize 50 transactions',
-            description: 'Practice categorizing to learn your expense patterns',
-            explanationLevel: 'detailed',
-            status: 'active',
-            completedAt: null,
-            snoozedUntil: null,
-            snoozedReason: null,
-            notApplicableReason: null,
-            featureLink: '/transactions',
-            helpArticle: null,
-            isCustom: false,
-            isReordered: false,
-            customOrder: null,
-            recurrence: 'once',
-            priority: 'medium',
-            lastDueDate: null,
-            nextDueDate: null,
-            createdAt: now,
-            updatedAt: now,
-          },
-        ],
-      },
-      {
-        id: 'cat-2',
-        name: 'Weekly Maintenance',
-        description: 'Tasks to complete every week to keep your books up-to-date',
-        type: 'weekly',
-        order: 2,
-        totalItems: 3,
-        completedItems: 1,
-        percentComplete: 33,
-        items: [
-          {
-            id: 'item-6',
-            categoryId: 'cat-2',
-            title: 'Categorize new transactions',
-            description:
-              "Review and categorize this week's income and expenses (15-30 min)",
-            explanationLevel: 'brief',
-            status: 'active',
-            completedAt: null,
-            snoozedUntil: null,
-            snoozedReason: null,
-            notApplicableReason: null,
-            featureLink: '/transactions',
-            helpArticle: null,
-            isCustom: false,
-            isReordered: false,
-            customOrder: null,
-            recurrence: 'weekly',
-            priority: 'high',
-            lastDueDate: null,
-            nextDueDate: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000),
-            createdAt: now,
-            updatedAt: now,
-          },
-          {
-            id: 'item-7',
-            categoryId: 'cat-2',
-            title: 'File receipts',
-            description: 'Upload or scan receipts for your expenses this week',
-            explanationLevel: 'brief',
-            status: 'snoozed',
-            completedAt: null,
-            snoozedUntil: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
-            snoozedReason: 'Waiting for receipts to arrive',
-            notApplicableReason: null,
-            featureLink: null,
-            helpArticle: null,
-            isCustom: false,
-            isReordered: false,
-            customOrder: null,
-            recurrence: 'weekly',
-            priority: 'medium',
-            lastDueDate: null,
-            nextDueDate: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000),
-            createdAt: now,
-            updatedAt: now,
-          },
-          {
-            id: 'item-8',
-            categoryId: 'cat-2',
-            title: 'Review cash position',
-            description: 'Check your bank balance and upcoming obligations',
-            explanationLevel: 'brief',
-            status: 'active',
-            completedAt: null,
-            snoozedUntil: null,
-            snoozedReason: null,
-            notApplicableReason: null,
-            featureLink: '/dashboard',
-            helpArticle: null,
-            isCustom: false,
-            isReordered: false,
-            customOrder: null,
-            recurrence: 'weekly',
-            priority: 'medium',
-            lastDueDate: null,
-            nextDueDate: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000),
-            createdAt: now,
-            updatedAt: now,
-          },
-        ],
-      },
-    ],
-    streaks: {
-      weekly: {
-        current: 3,
-        longest: 5,
-        lastCompleted: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
-        isActiveThisWeek: true,
-      },
-      monthly: {
-        current: 1,
-        longest: 1,
-        lastCompleted: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000),
-        isActiveThisMonth: true,
-      },
-      encouragement: "3 weeks in a row! You're building real momentum.",
-    },
-    milestones: [],
-    createdAt: now,
-    updatedAt: now,
-    generatedAt: now,
-  }
+  );
 }

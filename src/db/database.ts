@@ -243,6 +243,22 @@ import { tabPreferencesSchema } from './schema/tabPreferences.schema';
 import type { TabPreference } from './schema/tabPreferences.schema';
 import { backupAuditLogsSchema } from './schema/backupAudit.schema';
 import type { BackupAuditEvent } from './schema/backupAudit.schema';
+import {
+  adminChecklistsSchema,
+  adminTasksSchema,
+  adminTaskCompletionsSchema,
+  adminTaskCommentsSchema,
+  userChecklistPreferencesSchema,
+  checklistWizardProgressSchema,
+} from './schema/checklistCalendar.schema';
+import type {
+  AdminChecklist,
+  AdminTask,
+  AdminTaskCompletion,
+  AdminTaskComment,
+  UserChecklistPreferences,
+  ChecklistWizardProgress,
+} from './schema/checklistCalendar.schema';
 
 /**
  * TreasureChest Database Class
@@ -335,6 +351,14 @@ export class TreasureChestDB extends Dexie {
   userFeaturePreferences!: Table<UserFeaturePreference, string>;
   tabPreferences!: Table<TabPreference, string>;
   backupAuditLogs!: Table<BackupAuditEvent, string>;
+
+  // Checklist Calendar tables (v27)
+  adminChecklists!: Table<AdminChecklist, string>;
+  adminTasks!: Table<AdminTask, string>;
+  adminTaskCompletions!: Table<AdminTaskCompletion, string>;
+  adminTaskComments!: Table<AdminTaskComment, string>;
+  userChecklistPreferences!: Table<UserChecklistPreferences, string>;
+  checklistWizardProgress!: Table<ChecklistWizardProgress, string>;
 
   constructor() {
     super('TreasureChest');
@@ -1884,6 +1908,98 @@ export class TreasureChestDB extends Dexie {
         dbLogger.info('Version 28 migration complete - all tables properly initialized');
       });
 
+    // Version 29: Add Checklist Calendar tables
+    this.version(29).stores({
+      accounts: accountsSchema,
+      transactions: transactionsSchema,
+      transactionLineItems: transactionLineItemsSchema,
+      contacts: contactsSchema,
+      products: productsSchema,
+      users: usersSchema,
+      companies: companiesSchema,
+      companyUsers: companyUsersSchema,
+      auditLogs: auditLogsSchema,
+      sessions: sessionsSchema,
+      devices: devicesSchema,
+      receipts: receiptsSchema,
+      categories: categoriesSchema,
+      emailPreferences: emailPreferencesSchema,
+      emailDelivery: emailDeliverySchema,
+      invoices: invoicesSchema,
+      invoiceTemplateCustomizations: invoiceTemplateCustomizationsSchema,
+      recurringTransactions: recurringTransactionsSchema,
+      generatedTransactions: generatedTransactionsSchema,
+      categorizationModels: categorizationModelsSchema,
+      trainingData: trainingDataSchema,
+      suggestionHistory: suggestionHistorySchema,
+      categorizationRules: categorizationRulesSchema,
+      inventoryItems: inventoryItemsSchema,
+      inventoryLayers: inventoryLayersSchema,
+      inventoryTransactions: inventoryTransactionsSchema,
+      stockTakes: stockTakesSchema,
+      stockTakeItems: stockTakeItemsSchema,
+      valuationMethodChanges: valuationMethodChangesSchema,
+      portalTokens: portalTokensSchema,
+      payments: paymentsSchema,
+      approvalRules: approvalRulesSchema,
+      approvalRequests: approvalRequestsSchema,
+      approvalActions: approvalActionsSchema,
+      approvalDelegations: approvalDelegationsSchema,
+      approvalHistory: approvalHistorySchema,
+      reportSchedules: reportScheduleSchema,
+      scheduledReportDeliveries: scheduledReportDeliverySchema,
+      recentActivity: recentActivitySchema,
+      conflict_history: conflictHistorySchema,
+      conflict_notifications: conflictNotificationsSchema,
+      comments: commentsSchema,
+      mentions: mentionsSchema,
+      emailQueue: emailQueueSchema,
+      emailLogs: emailLogsSchema,
+      emailNotificationPreferences: emailNotificationPreferencesSchema,
+      subscriptions: subscriptionsSchema,
+      advisorClients: advisorClientsSchema,
+      advisorTeamMembers: advisorTeamMembersSchema,
+      paymentMethods: paymentMethodsSchema,
+      billingInvoices: billingInvoicesSchema,
+      stripeWebhookEvents: stripeWebhookEventsSchema,
+      charityDistributions: charityDistributionsSchema,
+      charities: charitiesSchema,
+      financialGoals: financialGoalsSchema,
+      goalProgressSnapshots: goalProgressSnapshotsSchema,
+      taxDocuments: taxDocumentsSchema,
+      taxCategoryStatus: taxCategoryStatusSchema,
+      taxPrepSessions: taxPrepSessionsSchema,
+      taxAdvisorAccess: taxAdvisorAccessSchema,
+      taxPackages: taxPackagesSchema,
+      currencies: currenciesSchema,
+      exchangeRates: exchangeRatesSchema,
+      cpgCategories: cpgCategoriesSchema,
+      cpgInvoices: cpgInvoicesSchema,
+      cpgVendors: cpgVendorsSchema,
+      cpgDistributors: cpgDistributorsSchema,
+      cpgDistributionCalculations: cpgDistributionCalculationsSchema,
+      cpgSalesPromos: cpgSalesPromosSchema,
+      cpgEvents: cpgEventsSchema,
+      cpgFinishedProducts: cpgFinishedProductsSchema,
+      cpgRecipes: cpgRecipesSchema,
+      cpgProductLinks: cpgProductLinksSchema,
+      cpgSettings: cpgSettingsSchema,
+      cpgLaborRoles: cpgLaborRolesSchema,
+      cpgProductLabors: cpgProductLaborsSchema,
+      standaloneFinancials: standaloneFinancialsSchema,
+      skuCountTrackers: skuCountTrackersSchema,
+      userFeaturePreferences: userFeaturePreferencesSchema,
+      tabPreferences: tabPreferencesSchema,
+      backupAuditLogs: backupAuditLogsSchema,
+      // NEW: Checklist Calendar tables
+      adminChecklists: adminChecklistsSchema,
+      adminTasks: adminTasksSchema,
+      adminTaskCompletions: adminTaskCompletionsSchema,
+      adminTaskComments: adminTaskCommentsSchema,
+      userChecklistPreferences: userChecklistPreferencesSchema,
+      checklistWizardProgress: checklistWizardProgressSchema,
+    });
+
     // Add hooks for automatic audit logging
     this.setupAuditHooks();
 
@@ -1969,6 +2085,13 @@ export class TreasureChestDB extends Dexie {
     this.cpgProductLabors.hook('updating', updateTimestamp);
     this.standaloneFinancials.hook('updating', updateTimestamp);
     this.skuCountTrackers.hook('updating', updateTimestamp);
+    // Checklist Calendar tables
+    this.adminChecklists.hook('updating', updateTimestamp);
+    this.adminTasks.hook('updating', updateTimestamp);
+    this.adminTaskCompletions.hook('updating', updateTimestamp);
+    this.adminTaskComments.hook('updating', updateTimestamp);
+    this.userChecklistPreferences.hook('updating', updateTimestamp);
+    this.checklistWizardProgress.hook('updating', updateTimestamp);
   }
 
   /**

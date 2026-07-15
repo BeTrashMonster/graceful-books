@@ -1,0 +1,312 @@
+/**
+ * DayDetailPanel Component Styles
+ */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-surface, #ffffff);
+  border-left: 1px solid var(--color-border-light, #e5e7eb);
+  overflow: hidden;
+}
+
+.panel.empty {
+  justify-content: center;
+  align-items: center;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-6, 24px);
+}
+
+.emptyIcon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: var(--spacing-3, 12px);
+  opacity: 0.5;
+}
+
+.emptyText {
+  margin: 0;
+  color: var(--color-text-tertiary, #9ca3af);
+  font-size: var(--text-sm, 0.875rem);
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  padding: var(--spacing-4, 16px);
+  border-bottom: 1px solid var(--color-border-light, #e5e7eb);
+  background: var(--color-surface-muted, #f9fafb);
+}
+
+.dateTitle {
+  margin: 0;
+  font-size: var(--text-lg, 1.125rem);
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.todayBadge {
+  padding: 2px 8px;
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 600;
+  color: white;
+  background: var(--color-primary, #4b006e);
+  border-radius: var(--radius-full, 9999px);
+}
+
+/* Summary */
+.summary {
+  display: flex;
+  gap: var(--spacing-4, 16px);
+  padding: var(--spacing-3, 12px) var(--spacing-4, 16px);
+  border-bottom: 1px solid var(--color-border-light, #e5e7eb);
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.summaryNumber {
+  font-size: var(--text-xl, 1.25rem);
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+}
+
+.summaryNumber.complete {
+  color: var(--color-success, #10b981);
+}
+
+.summaryLabel {
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* Progress Bar */
+.progressBar {
+  height: 4px;
+  background: var(--color-surface-muted, #f3f4f6);
+  margin: 0 var(--spacing-4, 16px) var(--spacing-3, 12px);
+  border-radius: var(--radius-full, 9999px);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--color-primary, #4b006e);
+  border-radius: var(--radius-full, 9999px);
+  transition: width 0.3s ease;
+}
+
+/* Tasks Container */
+.tasksContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-3, 12px) var(--spacing-4, 16px);
+}
+
+.noTasks {
+  text-align: center;
+  padding: var(--spacing-6, 24px);
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* Checklist Group */
+.checklistGroup {
+  margin-bottom: var(--spacing-4, 16px);
+}
+
+.checklistGroup:last-child {
+  margin-bottom: 0;
+}
+
+.checklistHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  margin-bottom: var(--spacing-2, 8px);
+  padding-bottom: var(--spacing-2, 8px);
+  border-bottom: 1px solid var(--color-border-light, #e5e7eb);
+}
+
+.checklistDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.checklistName {
+  flex: 1;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.checklistCount {
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* Task List */
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1, 4px);
+}
+
+.taskGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.taskItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-2, 8px);
+  padding: var(--spacing-2, 8px);
+  background: var(--color-surface-muted, #f9fafb);
+  border-radius: var(--radius-md, 8px);
+  transition: background-color 0.15s ease;
+}
+
+.taskItem:hover {
+  background: var(--color-surface-hover, #f3f4f6);
+}
+
+.taskItem.completed {
+  opacity: 0.6;
+}
+
+.taskItem.completed .taskTitle {
+  text-decoration: line-through;
+}
+
+.taskCheckbox {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--color-primary, #4b006e);
+  cursor: pointer;
+}
+
+.taskContent {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  cursor: pointer;
+}
+
+.taskContent:focus {
+  outline: none;
+}
+
+.taskContent:focus-visible {
+  outline: 2px solid var(--color-primary, #4b006e);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 4px);
+}
+
+.taskTitle {
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-primary, #111827);
+  word-break: break-word;
+}
+
+.priorityBadge {
+  padding: 2px 6px;
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 500;
+  border-radius: var(--radius-sm, 4px);
+  text-transform: capitalize;
+}
+
+.priorityBadge.high {
+  background: var(--color-danger-light, #fee2e2);
+  color: var(--color-danger, #ef4444);
+}
+
+.priorityBadge.medium {
+  background: var(--color-warning-light, #ffedd5);
+  color: var(--color-warning, #f97316);
+}
+
+.priorityBadge.low {
+  background: var(--color-primary-lighter, #f3e8ff);
+  color: var(--color-primary, #4b006e);
+}
+
+/* Subtask count badge */
+.subTaskCount {
+  margin-left: var(--spacing-1, 4px);
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-text-tertiary, #9ca3af);
+  font-weight: 400;
+}
+
+/* Subtask List */
+.subTaskList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-left: 26px;
+  margin-top: 2px;
+  padding-left: var(--spacing-3, 12px);
+  border-left: 2px solid var(--color-border-light, #e5e7eb);
+}
+
+.subTaskItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  padding: var(--spacing-1, 4px) var(--spacing-2, 8px);
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--radius-sm, 4px);
+  transition: background-color 0.15s ease;
+}
+
+.subTaskItem:hover {
+  background: var(--color-surface-muted, #f9fafb);
+}
+
+.subTaskItem.completed {
+  opacity: 0.6;
+}
+
+.subTaskItem.completed .subTaskTitle {
+  text-decoration: line-through;
+}
+
+.subTaskCheckbox {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  accent-color: var(--color-primary, #4b006e);
+  cursor: pointer;
+}
+
+.subTaskTitle {
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-text-secondary, #6b7280);
+  word-break: break-word;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .panel {
+    border-left: none;
+    border-top: 1px solid var(--color-border-light, #e5e7eb);
+  }
+}

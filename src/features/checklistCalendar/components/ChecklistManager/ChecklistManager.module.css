@@ -1,0 +1,652 @@
+/**
+ * ChecklistManager Component Styles
+ */
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-4, 16px);
+}
+
+/* Manager container */
+.manager {
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--radius-xl, 16px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 720px;
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-4, 16px) var(--spacing-6, 24px);
+  border-bottom: 1px solid var(--color-border-light, #f3f4f6);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-xl, 1.25rem);
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm, 4px);
+  background: transparent;
+  color: var(--color-text-tertiary, #9ca3af);
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.closeButton:hover {
+  background: var(--color-surface-hover, #f3f4f6);
+  color: var(--color-text-primary, #111827);
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-3, 12px) var(--spacing-6, 24px);
+  border-bottom: 1px solid var(--color-border-light, #f3f4f6);
+  background: var(--color-surface-muted, #f9fafb);
+}
+
+.addButton {
+  padding: var(--spacing-2, 8px) var(--spacing-4, 16px);
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: white;
+  background: var(--color-primary, #8b5cf6);
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.addButton:hover {
+  background: var(--color-primary-hover, #7c3aed);
+}
+
+.archiveToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-secondary, #6b7280);
+  cursor: pointer;
+}
+
+.archiveToggle input {
+  accent-color: var(--color-primary, #8b5cf6);
+}
+
+/* Error */
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-3, 12px) var(--spacing-6, 24px);
+  background: var(--color-danger-light, #fee2e2);
+  color: var(--color-danger, #ef4444);
+  font-size: var(--text-sm, 0.875rem);
+}
+
+.error button {
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Content */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-4, 16px) var(--spacing-6, 24px);
+}
+
+.loading,
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* Checklist list */
+.checklistList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3, 12px);
+}
+
+.checklistCard {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-left: 3px solid var(--checklist-color, #8b5cf6);
+  border-radius: var(--radius-md, 8px);
+  overflow: hidden;
+}
+
+.checklistCard.archived {
+  opacity: 0.6;
+}
+
+/* Checklist header */
+.checklistHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  padding: var(--spacing-3, 12px);
+}
+
+.expandButton {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary, #9ca3af);
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.checklistInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.checklistName {
+  display: block;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.checklistMeta {
+  display: block;
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-text-tertiary, #9ca3af);
+  text-transform: capitalize;
+}
+
+.checklistActions {
+  display: flex;
+  gap: var(--spacing-1, 4px);
+}
+
+.iconButton {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm, 4px);
+  background: transparent;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.iconButton:hover {
+  background: var(--color-surface-hover, #f3f4f6);
+}
+
+.iconButton.danger:hover {
+  background: var(--color-danger-light, #fee2e2);
+}
+
+/* Tasks list */
+.tasksList {
+  padding: 0 var(--spacing-3, 12px) var(--spacing-3, 12px);
+  padding-left: calc(var(--spacing-3, 12px) + 24px + var(--spacing-2, 8px));
+  border-top: 1px solid var(--color-border-light, #f3f4f6);
+}
+
+.taskItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  padding: var(--spacing-2, 8px);
+  margin-top: var(--spacing-1, 4px);
+  background: var(--color-surface-muted, #f9fafb);
+  border-radius: var(--radius-sm, 4px);
+}
+
+.taskTitle {
+  flex: 1;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-primary, #111827);
+}
+
+.priorityBadge {
+  padding: 2px 6px;
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 500;
+  border-radius: var(--radius-sm, 4px);
+  text-transform: capitalize;
+}
+
+.priorityBadge.high {
+  background: var(--color-danger-light, #fee2e2);
+  color: var(--color-danger, #ef4444);
+}
+
+.priorityBadge.medium {
+  background: var(--color-warning-light, #ffedd5);
+  color: var(--color-warning, #f97316);
+}
+
+.priorityBadge.low {
+  background: var(--color-primary-lighter, #f3f0ff);
+  color: var(--color-primary, #8b5cf6);
+}
+
+.taskActions {
+  display: flex;
+  gap: var(--spacing-1, 4px);
+}
+
+.smallButton {
+  padding: var(--spacing-1, 4px) var(--spacing-2, 8px);
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-text-secondary, #6b7280);
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.smallButton:hover {
+  background: var(--color-surface-hover, #f3f4f6);
+}
+
+.smallButton.danger:hover {
+  background: var(--color-danger-light, #fee2e2);
+  border-color: var(--color-danger, #ef4444);
+  color: var(--color-danger, #ef4444);
+}
+
+.addTaskButton {
+  width: 100%;
+  padding: var(--spacing-2, 8px);
+  margin-top: var(--spacing-2, 8px);
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-primary, #8b5cf6);
+  background: transparent;
+  border: 1px dashed var(--color-border, #e5e7eb);
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.addTaskButton:hover {
+  border-color: var(--color-primary, #8b5cf6);
+  background: var(--color-primary-lighter, #f3f0ff);
+}
+
+/* Forms */
+.form {
+  padding: var(--spacing-3, 12px);
+}
+
+.formGroup {
+  margin-bottom: var(--spacing-3, 12px);
+}
+
+.formRow {
+  display: flex;
+  gap: var(--spacing-3, 12px);
+}
+
+.formRow .formGroup {
+  flex: 1;
+}
+
+.label {
+  display: block;
+  margin-bottom: var(--spacing-1, 4px);
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  padding: var(--spacing-2, 8px) var(--spacing-3, 12px);
+  font-size: var(--text-sm, 0.875rem);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-md, 8px);
+  font-family: inherit;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  outline: 2px solid var(--color-primary, #8b5cf6);
+  outline-offset: 2px;
+}
+
+.textarea {
+  resize: vertical;
+}
+
+.colorPicker {
+  display: flex;
+  gap: var(--spacing-2, 8px);
+}
+
+.colorOption {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.colorOption:hover {
+  transform: scale(1.1);
+}
+
+.colorOption.selected {
+  border-color: var(--color-text-primary, #111827);
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-2, 8px);
+  margin-top: var(--spacing-3, 12px);
+}
+
+.weekendCheckbox {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-secondary, #6b7280);
+  cursor: pointer;
+}
+
+.weekendCheckbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary, #8b5cf6);
+  cursor: pointer;
+}
+
+.weekendCheckbox span {
+  user-select: none;
+}
+
+.cancelButton {
+  padding: var(--spacing-2, 8px) var(--spacing-3, 12px);
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-secondary, #6b7280);
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cancelButton:hover {
+  background: var(--color-surface-hover, #f3f4f6);
+}
+
+.saveButton {
+  padding: var(--spacing-2, 8px) var(--spacing-3, 12px);
+  font-size: var(--text-sm, 0.875rem);
+  color: white;
+  background: var(--color-primary, #8b5cf6);
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: var(--color-primary-hover, #7c3aed);
+}
+
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Task form */
+.taskForm {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  padding: var(--spacing-2, 8px);
+  margin-top: var(--spacing-1, 4px);
+  background: var(--color-surface-muted, #f9fafb);
+  border-radius: var(--radius-sm, 4px);
+}
+
+.taskInput {
+  flex: 1;
+  padding: var(--spacing-1, 4px) var(--spacing-2, 8px);
+  font-size: var(--text-sm, 0.875rem);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-sm, 4px);
+}
+
+.taskInput:focus {
+  outline: 2px solid var(--color-primary, #8b5cf6);
+  outline-offset: 1px;
+}
+
+.taskPrioritySelect {
+  padding: var(--spacing-1, 4px);
+  font-size: var(--text-xs, 0.75rem);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-sm, 4px);
+}
+
+.taskFormActions {
+  display: flex;
+  gap: var(--spacing-1, 4px);
+}
+
+.taskCancelButton,
+.taskSaveButton {
+  padding: var(--spacing-1, 4px) var(--spacing-2, 8px);
+  font-size: var(--text-xs, 0.75rem);
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+}
+
+.taskCancelButton {
+  color: var(--color-text-secondary, #6b7280);
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+.taskSaveButton {
+  color: white;
+  background: var(--color-primary, #8b5cf6);
+  border: none;
+}
+
+.taskSaveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Confirmation Modal */
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.confirmModal {
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--radius-lg, 12px);
+  padding: var(--spacing-6, 24px);
+  width: 100%;
+  max-width: 400px;
+  margin: var(--spacing-4, 16px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.confirmTitle {
+  margin: 0 0 var(--spacing-3, 12px);
+  font-size: var(--text-lg, 1.125rem);
+  font-weight: 600;
+  color: var(--color-danger, #ef4444);
+}
+
+.confirmMessage {
+  margin: 0 0 var(--spacing-5, 20px);
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-secondary, #6b7280);
+  line-height: 1.6;
+}
+
+.confirmMessage strong {
+  color: var(--color-text-primary, #111827);
+}
+
+.confirmActions {
+  display: flex;
+  gap: var(--spacing-3, 12px);
+  justify-content: flex-end;
+}
+
+.deleteButton {
+  padding: var(--spacing-2, 8px) var(--spacing-4, 16px);
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: white;
+  background: var(--color-danger, #ef4444);
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.deleteButton:hover {
+  background: var(--color-danger-dark, #dc2626);
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--spacing-4, 16px) var(--spacing-6, 24px);
+  border-top: 1px solid var(--color-border-light, #f3f4f6);
+}
+
+.doneButton {
+  padding: var(--spacing-2, 8px) var(--spacing-5, 20px);
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: white;
+  background: var(--color-primary, #8b5cf6);
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.doneButton:hover {
+  background: var(--color-primary-hover, #7c3aed);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .manager {
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    gap: var(--spacing-2, 8px);
+  }
+
+  .addButton {
+    width: 100%;
+  }
+
+  .formRow {
+    flex-direction: column;
+  }
+
+  .taskForm {
+    flex-wrap: wrap;
+  }
+
+  .taskInput {
+    flex: 1 1 100%;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .addButton,
+  .cancelButton,
+  .saveButton,
+  .doneButton,
+  .iconButton,
+  .smallButton,
+  .addTaskButton,
+  .closeButton,
+  .colorOption {
+    transition: none;
+  }
+}

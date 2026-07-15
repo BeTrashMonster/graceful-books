@@ -1,0 +1,253 @@
+/**
+ * CalendarDay Component Styles
+ *
+ * Individual day cell in the calendar grid.
+ */
+
+.dayCell {
+  position: relative;
+  min-height: 100px;
+  min-width: 0;
+  padding: var(--spacing-1, 4px);
+  border-right: 1px solid var(--color-border, #e5e7eb);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-surface, #ffffff);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  overflow: hidden;
+}
+
+.dayCell:hover {
+  background: var(--color-surface-hover, #f9fafb);
+}
+
+.dayCell:focus-visible {
+  outline: 2px solid var(--color-focus, #8b5cf6);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+/* Last column - no right border */
+.dayCell:nth-child(7n) {
+  border-right: none;
+}
+
+/* Other month styling */
+.otherMonth {
+  background: var(--color-surface-muted, #f3f4f6);
+}
+
+.otherMonth .dateNumber {
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* Today styling */
+.today {
+  background: var(--color-primary-lighter, #f3f0ff);
+}
+
+.today:hover {
+  background: var(--color-primary-light, #ede9fe);
+}
+
+/* Selected styling */
+.selected {
+  background: var(--color-primary-light, #ede9fe);
+  box-shadow: inset 0 0 0 2px var(--color-primary, #8b5cf6);
+}
+
+/* Focused styling (keyboard navigation) */
+.focused {
+  outline: 2px solid var(--color-primary, #8b5cf6);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+/* Date number */
+.dateHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-1, 4px);
+}
+
+.dateNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 var(--spacing-1, 4px);
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--color-text-primary, #111827);
+  border-radius: 50%;
+}
+
+.today .dateNumber {
+  background: var(--color-primary, #8b5cf6);
+  color: white;
+  font-weight: 600;
+}
+
+/* Priority indicators */
+.priorityIndicators {
+  display: flex;
+  gap: 2px;
+}
+
+.priorityDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.priorityDot.high {
+  background: var(--color-danger, #ef4444);
+}
+
+.priorityDot.medium {
+  background: var(--color-warning, #f97316);
+}
+
+/* Tasks container */
+.tasksContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 68px;
+  overflow-y: auto;
+}
+
+/* Individual task preview */
+.taskPreview {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1, 4px);
+  padding: 2px 4px;
+  font-size: 11px;
+  line-height: 1.3;
+  background: var(--color-surface-elevated, #f9fafb);
+  border-radius: var(--radius-sm, 4px);
+  border-left: 2px solid var(--checklist-color, #3b82f6);
+  transition: background-color 0.15s ease;
+}
+
+.taskPreview:hover {
+  background: var(--color-surface-hover, #e5e7eb);
+}
+
+.taskPreview.completed {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+.taskCheckbox {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.taskTitle {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-primary, #111827);
+}
+
+/* More tasks indicator */
+.moreTasksIndicator {
+  font-size: 10px;
+  color: var(--color-text-tertiary, #9ca3af);
+  text-align: center;
+  padding: 2px;
+}
+
+/* Empty day */
+.emptyDay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 60px;
+  color: var(--color-text-tertiary, #d1d5db);
+  font-size: 10px;
+}
+
+/* Completion badge */
+.completionBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 4px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--color-success-dark, #059669);
+  background: var(--color-success-light, #d1fae5);
+  border-radius: var(--radius-full, 9999px);
+}
+
+.completionBadge.incomplete {
+  color: var(--color-text-tertiary, #6b7280);
+  background: var(--color-surface-muted, #f3f4f6);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dayCell {
+    min-height: 60px;
+    padding: 2px;
+  }
+
+  .dateNumber {
+    min-width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .tasksContainer {
+    max-height: 40px;
+  }
+
+  .taskPreview {
+    font-size: 10px;
+    padding: 1px 2px;
+  }
+
+  .taskCheckbox {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .dayCell {
+    min-height: 48px;
+  }
+
+  .dateNumber {
+    min-width: 20px;
+    height: 20px;
+    font-size: 11px;
+  }
+
+  .taskPreview {
+    display: none;
+  }
+
+  .moreTasksIndicator {
+    font-size: 9px;
+  }
+
+  .completionBadge {
+    display: none;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .dayCell,
+  .taskPreview {
+    transition: none;
+  }
+}
