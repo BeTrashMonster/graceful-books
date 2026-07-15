@@ -622,6 +622,14 @@ export default function WorkshopFormPage() {
               onChange={handleChange}
             />
             <small>Optional - closes registration at this time</small>
+            {formData.registrationDeadline && formData.workshopStartDatetime &&
+             new Date(formData.registrationDeadline) > new Date(formData.workshopStartDatetime) && (
+              <div className={styles.lateRegistrationWarning}>
+                <strong>Replay Mode:</strong> Registration deadline is after workshop start.
+                Late registrants will skip the countdown and go directly to:
+                signup → charity selection → worksheet → workshop access.
+              </div>
+            )}
           </div>
 
           <div className={styles.field}>

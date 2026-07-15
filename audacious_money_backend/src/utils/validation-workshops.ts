@@ -218,16 +218,9 @@ export const createWorkshopSchema = z
     message: 'Access should be granted before or at workshop start time',
     path: ['accessGrantDatetime'],
   })
-  .refine(
-    (data) => {
-      if (!data.registrationDeadline) return true;
-      return new Date(data.registrationDeadline) <= new Date(data.workshopStartDatetime);
-    },
-    {
-      message: 'Registration deadline must be before workshop start',
-      path: ['registrationDeadline'],
-    }
-  );
+  // Note: Registration deadline CAN be after workshop start to support replay viewers
+  // who register after the live workshop. The frontend shows a warning for this case.
+  // Late registrants skip the countdown and go directly to the workshop content.
 
 /**
  * Update workshop schema (all fields optional except validations)
