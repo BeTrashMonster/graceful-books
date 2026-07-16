@@ -901,16 +901,22 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
             : 7;
           const week1Time = new Date(workshopEnd);
           week1Time.setDate(week1Time.getDate() + daysAfter);
-          await sendWorkshopChallengeWeek1Email(
-            user.email,
-            data.firstName,
-            workshopName,
-            user.id,
-            workshopId,
-            week1Time.toISOString(),
-            customEmailTemplates.week1 // custom template
-          );
-          console.log(`[Workshops] ✅ Week 1 Challenge scheduled for ${daysAfter} days after:`, week1Time.toISOString());
+
+          // Only schedule if the time is in the future
+          if (week1Time > new Date()) {
+            await sendWorkshopChallengeWeek1Email(
+              user.email,
+              data.firstName,
+              workshopName,
+              user.id,
+              workshopId,
+              week1Time.toISOString(),
+              customEmailTemplates.week1 // custom template
+            );
+            console.log(`[Workshops] ✅ Week 1 Challenge scheduled for ${daysAfter} days after:`, week1Time.toISOString());
+          } else {
+            console.log('[Workshops] Week 1 Challenge skipped - scheduled time already passed');
+          }
         }
 
         // Email #4 - Week 2 Challenge (schedule if enabled)
@@ -921,16 +927,22 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
             : 14;
           const week2Time = new Date(workshopEnd);
           week2Time.setDate(week2Time.getDate() + daysAfter);
-          await sendWorkshopChallengeWeek2Email(
-            user.email,
-            data.firstName,
-            workshopName,
-            user.id,
-            workshopId,
-            week2Time.toISOString(),
-            customEmailTemplates.week2 // custom template
-          );
-          console.log(`[Workshops] ✅ Week 2 Challenge scheduled for ${daysAfter} days after:`, week2Time.toISOString());
+
+          // Only schedule if the time is in the future
+          if (week2Time > new Date()) {
+            await sendWorkshopChallengeWeek2Email(
+              user.email,
+              data.firstName,
+              workshopName,
+              user.id,
+              workshopId,
+              week2Time.toISOString(),
+              customEmailTemplates.week2 // custom template
+            );
+            console.log(`[Workshops] ✅ Week 2 Challenge scheduled for ${daysAfter} days after:`, week2Time.toISOString());
+          } else {
+            console.log('[Workshops] Week 2 Challenge skipped - scheduled time already passed');
+          }
         }
 
         // Email #5 - Week 3 Challenge (schedule if enabled)
@@ -941,16 +953,22 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
             : 21;
           const week3Time = new Date(workshopEnd);
           week3Time.setDate(week3Time.getDate() + daysAfter);
-          await sendWorkshopChallengeWeek3Email(
-            user.email,
-            data.firstName,
-            workshopName,
-            user.id,
-            workshopId,
-            week3Time.toISOString(),
-            customEmailTemplates.week3 // custom template
-          );
-          console.log(`[Workshops] ✅ Week 3 Challenge scheduled for ${daysAfter} days after:`, week3Time.toISOString());
+
+          // Only schedule if the time is in the future
+          if (week3Time > new Date()) {
+            await sendWorkshopChallengeWeek3Email(
+              user.email,
+              data.firstName,
+              workshopName,
+              user.id,
+              workshopId,
+              week3Time.toISOString(),
+              customEmailTemplates.week3 // custom template
+            );
+            console.log(`[Workshops] ✅ Week 3 Challenge scheduled for ${daysAfter} days after:`, week3Time.toISOString());
+          } else {
+            console.log('[Workshops] Week 3 Challenge skipped - scheduled time already passed');
+          }
         }
 
         // Email #6 - Week 4 Challenge (schedule if enabled)
@@ -961,16 +979,22 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
             : 28;
           const week4Time = new Date(workshopEnd);
           week4Time.setDate(week4Time.getDate() + daysAfter);
-          await sendWorkshopChallengeWeek4Email(
-            user.email,
-            data.firstName,
-            workshopName,
-            user.id,
-            workshopId,
-            week4Time.toISOString(),
-            customEmailTemplates.week4 // custom template
-          );
-          console.log(`[Workshops] ✅ Week 4 Challenge scheduled for ${daysAfter} days after:`, week4Time.toISOString());
+
+          // Only schedule if the time is in the future
+          if (week4Time > new Date()) {
+            await sendWorkshopChallengeWeek4Email(
+              user.email,
+              data.firstName,
+              workshopName,
+              user.id,
+              workshopId,
+              week4Time.toISOString(),
+              customEmailTemplates.week4 // custom template
+            );
+            console.log(`[Workshops] ✅ Week 4 Challenge scheduled for ${daysAfter} days after:`, week4Time.toISOString());
+          } else {
+            console.log('[Workshops] Week 4 Challenge skipped - scheduled time already passed');
+          }
         }
 
         // Email #7 - Wrap-Up (schedule if enabled)
@@ -981,16 +1005,22 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
             : 30;
           const wrapUpTime = new Date(workshopEnd);
           wrapUpTime.setDate(wrapUpTime.getDate() + daysAfter);
-          await sendWorkshopWrapUpEmail(
-            user.email,
-            data.firstName,
-            workshopName,
-            user.id,
-            workshopId,
-            wrapUpTime.toISOString(),
-            customEmailTemplates.wrapUp // custom template
-          );
-          console.log(`[Workshops] ✅ Wrap-Up email scheduled for ${daysAfter} days after:`, wrapUpTime.toISOString());
+
+          // Only schedule if the time is in the future
+          if (wrapUpTime > new Date()) {
+            await sendWorkshopWrapUpEmail(
+              user.email,
+              data.firstName,
+              workshopName,
+              user.id,
+              workshopId,
+              wrapUpTime.toISOString(),
+              customEmailTemplates.wrapUp // custom template
+            );
+            console.log(`[Workshops] ✅ Wrap-Up email scheduled for ${daysAfter} days after:`, wrapUpTime.toISOString());
+          } else {
+            console.log('[Workshops] Wrap-Up email skipped - scheduled time already passed');
+          }
         }
 
         console.log('[Workshops] ✅ All workshop emails scheduled for:', user.email);
