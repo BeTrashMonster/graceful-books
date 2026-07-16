@@ -756,25 +756,12 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
       );
     }
 
-    // Calculate if access should be granted now
-    const now = new Date();
-    const accessGrantTime = workshop.accessGrantDatetime ? new Date(workshop.accessGrantDatetime) : null;
-    const shouldGrantAccess = accessGrantTime ? now >= accessGrantTime : false;
-
-    // Create enrollment - use only columns that definitely exist
-    // (access_granted and access_granted_at were added in earlier migration)
+    // Create enrollment - use only columns from original schema (migration 016)
     const enrollmentResult = await db.query(
-      `INSERT INTO workshop_enrollments (
-        user_id, workshop_id,
-        access_granted, access_granted_at
-      ) VALUES ($1, $2, $3, $4)
-      RETURNING *`,
-      [
-        user.id,
-        workshopId,
-        shouldGrantAccess,
-        shouldGrantAccess ? now : null,
-      ]
+      `INSERT INTO workshop_enrollments (user_id, workshop_id)
+       VALUES ($1, $2)
+       RETURNING *`,
+      [user.id, workshopId]
     );
 
     const enrollment = mapEnrollmentRow(enrollmentResult.rows[0]);
