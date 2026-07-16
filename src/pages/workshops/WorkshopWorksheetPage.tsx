@@ -102,6 +102,14 @@ export default function WorkshopWorksheetPage() {
         return;
       }
 
+      // Store import results so they can be shown on the countdown page
+      sessionStorage.setItem('worksheet_import_results', JSON.stringify({
+        counts: result.counts,
+        importedAt: new Date().toISOString(),
+        companyId: companyId,
+      }));
+      console.log('[Worksheet] Stored import results in sessionStorage');
+
       // Mark worksheet as completed in workshop enrollment
       console.log('[Worksheet] Marking worksheet as completed...');
       await completeWorksheet();

@@ -208,8 +208,9 @@ export default function CPGDashboard() {
   }, [rawWebData, showOnlyConnected, showInactiveNodes, userFeaturePrefs]);
 
   useEffect(() => {
-    console.log('🔄 Dashboard: useEffect triggered with userFeaturePrefs:', userFeaturePrefs);
+    console.log('🔄 Dashboard: useEffect triggered', { companyId, userFeaturePrefs });
     if (companyId) {
+      console.log('🔑 Dashboard: Loading data for companyId:', companyId);
       loadProducts();
 
       // Only reload if we have valid date range for custom mode
@@ -222,13 +223,19 @@ export default function CPGDashboard() {
         console.log('📊 Dashboard: Loading web data (standard date range)');
         loadWebData();
       }
+    } else {
+      console.warn('⚠️ Dashboard: No companyId available, cannot load data');
     }
   }, [companyId, dateRange, selectedProductIds, customStartDate, customEndDate, userFeaturePrefs, maxCategories]);
 
   const loadProducts = async () => {
-    if (!companyId) return;
+    if (!companyId) {
+      console.warn('⚠️ Dashboard: loadProducts called without companyId');
+      return;
+    }
 
     try {
+      console.log('🔍 Dashboard: Querying products for companyId:', companyId);
       const prods = await db.cpgFinishedProducts
         .where('company_id')
         .equals(companyId)
@@ -238,9 +245,10 @@ export default function CPGDashboard() {
       // Sort products alphabetically by name
       const sortedProds = prods.sort((a, b) => a.name.localeCompare(b.name));
 
+      console.log('📦 Dashboard: Found', sortedProds.length, 'products for companyId:', companyId);
       setProducts(sortedProds);
     } catch (err) {
-      console.error('Failed to load products:', err);
+      console.error('❌ Dashboard: Failed to load products:', err);
     }
   };
 
@@ -484,20 +492,49 @@ export default function CPGDashboard() {
     );
   }
 
-  // Empty state - no data yet
+  // Empty state - no invoice spending to visualize
   if (webData.nodes.length === 0) {
+    // Check if products exist (from worksheet or manual entry)
+    const hasProducts = products.length > 0;
+
     return (
       <div className={styles.container}>
         <div className={styles.emptyState}>
           <div className={styles.seedIcon}>🌱</div>
           <h2>Plant Your First Seed!</h2>
-          <p>Add your first invoice to see where your money flows</p>
-          <button
-            onClick={() => navigate('/cpg/cpu-tracker')}
-            className={styles.getStartedButton}
-          >
-            Add Invoice
-          </button>
+          {hasProducts ? (
+            <>
+              <p>
+                Great news! You have {products.length} product{products.length === 1 ? '' : 's'} set up.
+                Add your first invoice to see where your money flows.
+              </p>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <button
+                  onClick={() => navigate('/cpg/cpu-tracker')}
+                  className={styles.getStartedButton}
+                >
+                  Add Invoice
+                </button>
+                <button
+                  onClick={() => navigate('/cpg/products')}
+                  className={styles.getStartedButton}
+                  style={{ backgroundColor: 'transparent', border: '2px solid #B8860B', color: '#B8860B' }}
+                >
+                  View Products
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p>Add your first invoice to see where your money flows</p>
+              <button
+                onClick={() => navigate('/cpg/cpu-tracker')}
+                className={styles.getStartedButton}
+              >
+                Add Invoice
+              </button>
+            </>
+          )}
         </div>
       </div>
     );

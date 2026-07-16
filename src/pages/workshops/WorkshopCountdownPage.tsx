@@ -12,6 +12,17 @@ interface TimeRemaining {
   seconds: number;
 }
 
+interface ImportResults {
+  counts: {
+    categories: number;
+    products: number;
+    recipes: number;
+    invoices: number;
+  };
+  importedAt: string;
+  companyId: string;
+}
+
 export default function WorkshopCountdownPage() {
   const navigate = useNavigate();
   const [enrollment, setEnrollment] = useState<WorkshopEnrollment | null>(null);
@@ -23,10 +34,21 @@ export default function WorkshopCountdownPage() {
     minutes: 0,
     seconds: 0,
   });
+  const [importResults, setImportResults] = useState<ImportResults | null>(null);
 
-  // Load enrollment on mount
+  // Load enrollment and import results on mount
   useEffect(() => {
     loadEnrollment();
+
+    // Load import results from sessionStorage
+    try {
+      const storedResults = sessionStorage.getItem('worksheet_import_results');
+      if (storedResults) {
+        setImportResults(JSON.parse(storedResults));
+      }
+    } catch (err) {
+      console.error('Failed to load import results:', err);
+    }
   }, []);
 
   // Update countdown every second
@@ -232,6 +254,45 @@ export default function WorkshopCountdownPage() {
             </div>
           </div>
         </div>
+
+        {/* Worksheet Import Summary */}
+        {importResults && (importResults.counts.products > 0 || importResults.counts.categories > 0 || importResults.counts.invoices > 0) && (
+          <div className={styles.detailsSection} style={{ marginTop: '24px', background: '#f0f9f0', borderRadius: '12px', padding: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <span style={{ fontSize: '24px' }}>✅</span>
+              <h3 style={{ margin: 0, color: '#2e7d32', fontSize: '18px' }}>Your worksheet data has been saved!</h3>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+              {importResults.counts.products > 0 && (
+                <div style={{ background: 'white', padding: '12px 16px', borderRadius: '8px', flex: '1 1 120px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#B8860B' }}>{importResults.counts.products}</div>
+                  <div style={{ fontSize: '14px', color: '#666' }}>Product{importResults.counts.products !== 1 ? 's' : ''}</div>
+                </div>
+              )}
+              {importResults.counts.categories > 0 && (
+                <div style={{ background: 'white', padding: '12px 16px', borderRadius: '8px', flex: '1 1 120px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#B8860B' }}>{importResults.counts.categories}</div>
+                  <div style={{ fontSize: '14px', color: '#666' }}>Categor{importResults.counts.categories !== 1 ? 'ies' : 'y'}</div>
+                </div>
+              )}
+              {importResults.counts.recipes > 0 && (
+                <div style={{ background: 'white', padding: '12px 16px', borderRadius: '8px', flex: '1 1 120px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#B8860B' }}>{importResults.counts.recipes}</div>
+                  <div style={{ fontSize: '14px', color: '#666' }}>Recipe{importResults.counts.recipes !== 1 ? 's' : ''}</div>
+                </div>
+              )}
+              {importResults.counts.invoices > 0 && (
+                <div style={{ background: 'white', padding: '12px 16px', borderRadius: '8px', flex: '1 1 120px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#B8860B' }}>{importResults.counts.invoices}</div>
+                  <div style={{ fontSize: '14px', color: '#666' }}>Invoice{importResults.counts.invoices !== 1 ? 's' : ''}</div>
+                </div>
+              )}
+            </div>
+            <p style={{ marginTop: '16px', fontSize: '14px', color: '#555', marginBottom: 0 }}>
+              Your data will be ready and waiting when your platform access unlocks!
+            </p>
+          </div>
+        )}
 
         {/* Welcome Message */}
         <div className={styles.welcomeSection}>

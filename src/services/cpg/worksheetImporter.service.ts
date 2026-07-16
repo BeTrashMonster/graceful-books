@@ -289,6 +289,12 @@ export function validateWorksheetData(
     }
     if (!inv.invoice_date) {
       errors.push(`Invoice at index ${idx} has no date`);
+    } else {
+      // Validate that the date string can be parsed to a valid timestamp
+      const parsedDate = new Date(inv.invoice_date).getTime();
+      if (isNaN(parsedDate)) {
+        errors.push(`Invoice at index ${idx} has invalid date format: ${inv.invoice_date}`);
+      }
     }
 
     inv.items?.forEach((item, itemIdx) => {
@@ -345,6 +351,18 @@ export async function importWorksheetData(
   companyId: string,
   deviceId: string
 ): Promise<ImportResult> {
+  // Log import start with key details
+  logger.info('Starting worksheet import', {
+    companyId,
+    deviceId,
+    dataReceived: {
+      categories: json.categories?.length ?? 0,
+      products: json.finished_products?.length ?? 0,
+      recipes: json.recipes?.length ?? 0,
+      invoices: json.invoices?.length ?? 0,
+    },
+  });
+
   const result: ImportResult = {
     success: false,
     errors: [],
@@ -355,6 +373,13 @@ export async function importWorksheetData(
       invoices: 0,
     },
   };
+
+  // Validate companyId is present
+  if (!companyId || companyId.trim() === '') {
+    logger.error('Import failed: No companyId provided');
+    result.errors.push('No company ID provided. Please refresh the page and try again.');
+    return result;
+  }
 
   // Validate first
   const validationErrors = validateWorksheetData(json, companyId);
