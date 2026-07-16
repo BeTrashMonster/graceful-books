@@ -756,38 +756,24 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
       );
     }
 
-    // Calculate enrollment initial values
+    // Calculate if access should be granted now
     const now = new Date();
     const accessGrantTime = workshop.accessGrantDatetime ? new Date(workshop.accessGrantDatetime) : null;
     const shouldGrantAccess = accessGrantTime ? now >= accessGrantTime : false;
 
-    // Calculate trial dates
-    const trialStartDate = workshop.trialStartDatetime
-      ? new Date(workshop.trialStartDatetime)
-      : workshop.workshopStartDatetime
-        ? new Date(workshop.workshopStartDatetime)
-        : now;
-    const trialEndDate = new Date(trialStartDate);
-    trialEndDate.setDate(trialEndDate.getDate() + (workshop.trialDurationDays || 30));
-
-    // Create enrollment with proper initial values
+    // Create enrollment - use only columns that definitely exist
+    // (access_granted and access_granted_at were added in earlier migration)
     const enrollmentResult = await db.query(
       `INSERT INTO workshop_enrollments (
-        user_id, workshop_id, status,
-        access_granted, access_granted_at,
-        trial_started_at, trial_expires_at,
-        first_login_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        user_id, workshop_id,
+        access_granted, access_granted_at
+      ) VALUES ($1, $2, $3, $4)
       RETURNING *`,
       [
         user.id,
         workshopId,
-        shouldGrantAccess ? 'active' : 'enrolled',
         shouldGrantAccess,
         shouldGrantAccess ? now : null,
-        trialStartDate,
-        trialEndDate,
-        now, // They just signed up and are logging in
       ]
     );
 
