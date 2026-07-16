@@ -839,6 +839,10 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
       wrapUp: { enabled: true, when: { days_after_workshop: 30 } },
     };
 
+    // Get custom email templates from workshop config
+    const customEmailTemplates = workshopRow.custom_email_templates || {};
+    console.log('[Workshops] Custom email templates configured:', Object.keys(customEmailTemplates).length > 0 ? Object.keys(customEmailTemplates) : 'none (using defaults)');
+
     // Schedule emails asynchronously
     (async () => {
       try {
@@ -852,7 +856,9 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
             workshopDateFormatted,
             workshopLocation,
             user.id,
-            workshopId
+            workshopId,
+            undefined, // sendAt - immediate
+            customEmailTemplates.welcome // custom template
           );
           console.log('[Workshops] ✅ Welcome email sent successfully to:', user.email);
         } else {
@@ -877,7 +883,8 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
               workshopLocation,
               user.id,
               workshopId,
-              reminderTime.toISOString()
+              reminderTime.toISOString(),
+              customEmailTemplates.reminder // custom template
             );
             console.log(`[Workshops] ✅ Reminder email scheduled for ${hoursBefore}h before:`, reminderTime.toISOString());
           } else {
@@ -899,7 +906,8 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
             workshopName,
             user.id,
             workshopId,
-            week1Time.toISOString()
+            week1Time.toISOString(),
+            customEmailTemplates.week1 // custom template
           );
           console.log(`[Workshops] ✅ Week 1 Challenge scheduled for ${daysAfter} days after:`, week1Time.toISOString());
         }
@@ -918,7 +926,8 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
             workshopName,
             user.id,
             workshopId,
-            week2Time.toISOString()
+            week2Time.toISOString(),
+            customEmailTemplates.week2 // custom template
           );
           console.log(`[Workshops] ✅ Week 2 Challenge scheduled for ${daysAfter} days after:`, week2Time.toISOString());
         }
@@ -937,7 +946,8 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
             workshopName,
             user.id,
             workshopId,
-            week3Time.toISOString()
+            week3Time.toISOString(),
+            customEmailTemplates.week3 // custom template
           );
           console.log(`[Workshops] ✅ Week 3 Challenge scheduled for ${daysAfter} days after:`, week3Time.toISOString());
         }
@@ -956,7 +966,8 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
             workshopName,
             user.id,
             workshopId,
-            week4Time.toISOString()
+            week4Time.toISOString(),
+            customEmailTemplates.week4 // custom template
           );
           console.log(`[Workshops] ✅ Week 4 Challenge scheduled for ${daysAfter} days after:`, week4Time.toISOString());
         }
@@ -975,7 +986,8 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
             workshopName,
             user.id,
             workshopId,
-            wrapUpTime.toISOString()
+            wrapUpTime.toISOString(),
+            customEmailTemplates.wrapUp // custom template
           );
           console.log(`[Workshops] ✅ Wrap-Up email scheduled for ${daysAfter} days after:`, wrapUpTime.toISOString());
         }

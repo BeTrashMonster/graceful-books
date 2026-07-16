@@ -17,6 +17,78 @@ const FROM_EMAIL = process.env.POSTMARK_FROM_EMAIL || 'noreply@audacious.money';
 const FROM_NAME = process.env.POSTMARK_FROM_NAME || 'Audacious Money';
 
 // =============================================================================
+// CUSTOM EMAIL TEMPLATE TYPES
+// =============================================================================
+
+/**
+ * Custom email template structure (matches admin-configured templates)
+ */
+export interface CustomEmailTemplate {
+  subject: string;
+  preheader?: string;
+  htmlBody: string;
+  plainTextBody?: string;
+  fromName?: string;
+}
+
+export interface CustomEmailTemplates {
+  welcome?: CustomEmailTemplate;
+  reminder?: CustomEmailTemplate;
+  week1?: CustomEmailTemplate;
+  week2?: CustomEmailTemplate;
+  week3?: CustomEmailTemplate;
+  week4?: CustomEmailTemplate;
+  wrapUp?: CustomEmailTemplate;
+}
+
+/**
+ * Replace template tags with actual values
+ * Supports: {{firstName}}, {{fullName}}, {{workshopName}}, {{workshopDate}}, {{workshopTime}}, {{workshopLocation}}
+ */
+function replaceTemplateTags(
+  template: string,
+  values: {
+    firstName?: string;
+    fullName?: string;
+    workshopName?: string;
+    workshopDate?: string;
+    workshopTime?: string;
+    workshopLocation?: string;
+    trialEndDate?: string;
+    trialDaysRemaining?: string;
+  }
+): string {
+  let result = template;
+
+  if (values.firstName) {
+    result = result.replace(/\{\{firstName\}\}/g, values.firstName);
+  }
+  if (values.fullName) {
+    result = result.replace(/\{\{fullName\}\}/g, values.fullName);
+  }
+  if (values.workshopName) {
+    result = result.replace(/\{\{workshopName\}\}/g, values.workshopName);
+  }
+  if (values.workshopDate) {
+    result = result.replace(/\{\{workshopDate\}\}/g, values.workshopDate);
+  }
+  if (values.workshopTime) {
+    result = result.replace(/\{\{workshopTime\}\}/g, values.workshopTime);
+  }
+  if (values.workshopLocation) {
+    result = result.replace(/\{\{workshopLocation\}\}/g, values.workshopLocation);
+  }
+  if (values.trialEndDate) {
+    result = result.replace(/\{\{trialEndDate\}\}/g, values.trialEndDate);
+  }
+  if (values.trialDaysRemaining) {
+    result = result.replace(/\{\{trialDaysRemaining\}\}/g, values.trialDaysRemaining);
+  }
+
+  return result;
+}
+
+// =============================================================================
 // EMAIL TRACKING HELPERS
 // =============================================================================
 
@@ -1398,6 +1470,7 @@ Reply directly to this email to respond to ${name}.`,
 
 /**
  * Send workshop welcome email (sent on enrollment)
+ * Accepts optional customTemplate to use admin-configured email content
  */
 export async function sendWorkshopWelcomeEmail(
   to: string,
@@ -1407,15 +1480,26 @@ export async function sendWorkshopWelcomeEmail(
   workshopLocation: string,
   userId: string,
   workshopId: string,
-  sendAt?: string // Optional: ISO 8601 format for scheduled delivery
+  sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
+  customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
 ): Promise<void> {
-  const subject = '[AM] IN! Here\'s your first steps';
+  // Template replacement values
+  const templateValues = {
+    firstName,
+    workshopName,
+    workshopDate,
+    workshopLocation,
+  };
 
-  const emailOptions: any = {
-    From: `${FROM_NAME} <${FROM_EMAIL}>`,
-    To: to,
-    Subject: subject,
-    HtmlBody: `
+  // Use custom template if provided, otherwise use default
+  const subject = customTemplate?.subject
+    ? replaceTemplateTags(customTemplate.subject, templateValues)
+    : '[AM] IN! Here\'s your first steps';
+
+  const fromName = customTemplate?.fromName || FROM_NAME;
+
+  // Default HTML body (used if no custom template provided)
+  const defaultHtmlBody = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #4b006e;">Welcome — I am so glad you're here!</h1>
 
@@ -1464,8 +1548,10 @@ export async function sendWorkshopWelcomeEmail(
           Building financial confidence, one step at a time.
         </p>
       </div>
-    `,
-    TextBody: `Welcome — I am so glad you're here!
+    `;
+
+  // Default plain text body
+  const defaultTextBody = `Welcome — I am so glad you're here!
 
 Hey ${firstName},
 
@@ -1495,7 +1581,23 @@ See you ${workshopDate},
 Audrey
 Audacious Money
 
-P.S. If anything feels stuck or unclear, just reply to this email.`,
+P.S. If anything feels stuck or unclear, just reply to this email.`;
+
+  // Use custom template body if provided, otherwise use default
+  const htmlBody = customTemplate?.htmlBody
+    ? replaceTemplateTags(customTemplate.htmlBody, templateValues)
+    : defaultHtmlBody;
+
+  const textBody = customTemplate?.plainTextBody
+    ? replaceTemplateTags(customTemplate.plainTextBody, templateValues)
+    : defaultTextBody;
+
+  const emailOptions: any = {
+    From: `${fromName} <${FROM_EMAIL}>`,
+    To: to,
+    Subject: subject,
+    HtmlBody: htmlBody,
+    TextBody: textBody,
     MessageStream: 'outbound',
 
     // Enable email tracking
@@ -1532,6 +1634,7 @@ P.S. If anything feels stuck or unclear, just reply to this email.`,
 
 /**
  * Send workshop reminder email (configurable hours before workshop)
+ * Accepts optional customTemplate to use admin-configured email content
  */
 export async function sendWorkshopReminderEmail(
   to: string,
@@ -1540,15 +1643,25 @@ export async function sendWorkshopReminderEmail(
   workshopLocation: string,
   userId: string,
   workshopId: string,
-  sendAt?: string // Optional: ISO 8601 format for scheduled delivery
+  sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
+  customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
 ): Promise<void> {
-  const subject = '[AM] Ready for tomorrow?';
+  // Template replacement values
+  const templateValues = {
+    firstName,
+    workshopDate,
+    workshopLocation,
+  };
 
-  const emailOptions: any = {
-    From: `${FROM_NAME} <${FROM_EMAIL}>`,
-    To: to,
-    Subject: subject,
-    HtmlBody: `
+  // Use custom template if provided, otherwise use default
+  const subject = customTemplate?.subject
+    ? replaceTemplateTags(customTemplate.subject, templateValues)
+    : '[AM] Ready for tomorrow?';
+
+  const fromName = customTemplate?.fromName || FROM_NAME;
+
+  // Default HTML body
+  const defaultHtmlBody = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #4b006e;">It's almost time! ✨</h1>
 
@@ -1587,8 +1700,10 @@ export async function sendWorkshopReminderEmail(
           Building financial confidence, one step at a time.
         </p>
       </div>
-    `,
-    TextBody: `It's almost time! ✨
+    `;
+
+  // Default plain text body
+  const defaultTextBody = `It's almost time! ✨
 
 Hey ${firstName},
 
@@ -1608,7 +1723,23 @@ Can't wait to get a little curious (and maybe a little uncomfortable — that's 
 See you in the morning,
 Audrey
 
-P.S. Didn't get to that initial cost number question yet? Hit reply and send it now.`,
+P.S. Didn't get to that initial cost number question yet? Hit reply and send it now.`;
+
+  // Use custom template body if provided, otherwise use default
+  const htmlBody = customTemplate?.htmlBody
+    ? replaceTemplateTags(customTemplate.htmlBody, templateValues)
+    : defaultHtmlBody;
+
+  const textBody = customTemplate?.plainTextBody
+    ? replaceTemplateTags(customTemplate.plainTextBody, templateValues)
+    : defaultTextBody;
+
+  const emailOptions: any = {
+    From: `${fromName} <${FROM_EMAIL}>`,
+    To: to,
+    Subject: subject,
+    HtmlBody: htmlBody,
+    TextBody: textBody,
     MessageStream: 'outbound',
 
     // Enable email tracking
@@ -1709,6 +1840,7 @@ No pressure. We're here to support whatever decision works for you.
 /**
  * Send Challenge Week 1 email (post-workshop)
  * EMAIL #3 from sequence - sent 1 week after workshop
+ * Accepts optional customTemplate to use admin-configured email content
  */
 export async function sendWorkshopChallengeWeek1Email(
   to: string,
@@ -1716,15 +1848,24 @@ export async function sendWorkshopChallengeWeek1Email(
   workshopName: string,
   userId: string,
   workshopId: string,
-  sendAt?: string // Optional: ISO 8601 format for scheduled delivery
+  sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
+  customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
 ): Promise<void> {
-  const subject = '[AM] Following the Trail';
+  // Template replacement values
+  const templateValues = {
+    firstName,
+    workshopName,
+  };
 
-  const emailOptions: any = {
-    From: `Audrey <${FROM_EMAIL}>`,
-    To: to,
-    Subject: subject,
-    HtmlBody: `
+  // Use custom template if provided, otherwise use default
+  const subject = customTemplate?.subject
+    ? replaceTemplateTags(customTemplate.subject, templateValues)
+    : '[AM] Following the Trail';
+
+  const fromName = customTemplate?.fromName || 'Audrey';
+
+  // Default HTML body
+  const defaultHtmlBody = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <p>HEYO!</p>
 
@@ -1759,8 +1900,10 @@ export async function sendWorkshopChallengeWeek1Email(
           Building financial confidence, one step at a time.
         </p>
       </div>
-    `,
-    TextBody: `HEYO!
+    `;
+
+  // Default plain text body
+  const defaultTextBody = `HEYO!
 
 Am I just nerdy or was that a great workshop - thank you for joining us! 🌸
 
@@ -1788,7 +1931,23 @@ P.S. Presence, not performance. There is no wrong number here — there's just w
 
 ---
 Audacious Money
-Building financial confidence, one step at a time.`,
+Building financial confidence, one step at a time.`;
+
+  // Use custom template body if provided, otherwise use default
+  const htmlBody = customTemplate?.htmlBody
+    ? replaceTemplateTags(customTemplate.htmlBody, templateValues)
+    : defaultHtmlBody;
+
+  const textBody = customTemplate?.plainTextBody
+    ? replaceTemplateTags(customTemplate.plainTextBody, templateValues)
+    : defaultTextBody;
+
+  const emailOptions: any = {
+    From: `${fromName} <${FROM_EMAIL}>`,
+    To: to,
+    Subject: subject,
+    HtmlBody: htmlBody,
+    TextBody: textBody,
     MessageStream: 'outbound',
 
     // Enable email tracking
@@ -1826,6 +1985,7 @@ Building financial confidence, one step at a time.`,
 /**
  * Send Challenge Week 2 email (post-workshop)
  * EMAIL #4 from sequence - sent 2 weeks after workshop
+ * Accepts optional customTemplate to use admin-configured email content
  */
 export async function sendWorkshopChallengeWeek2Email(
   to: string,
@@ -1833,15 +1993,24 @@ export async function sendWorkshopChallengeWeek2Email(
   workshopName: string,
   userId: string,
   workshopId: string,
-  sendAt?: string // Optional: ISO 8601 format for scheduled delivery
+  sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
+  customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
 ): Promise<void> {
-  const subject = '[AM] Seeing the Whole Picture';
+  // Template replacement values
+  const templateValues = {
+    firstName,
+    workshopName,
+  };
 
-  const emailOptions: any = {
-    From: `Audrey <${FROM_EMAIL}>`,
-    To: to,
-    Subject: subject,
-    HtmlBody: `
+  // Use custom template if provided, otherwise use default
+  const subject = customTemplate?.subject
+    ? replaceTemplateTags(customTemplate.subject, templateValues)
+    : '[AM] Seeing the Whole Picture';
+
+  const fromName = customTemplate?.fromName || 'Audrey';
+
+  // Default HTML body
+  const defaultHtmlBody = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <p>Hey ${firstName},</p>
 
@@ -1873,8 +2042,10 @@ export async function sendWorkshopChallengeWeek2Email(
           Building financial confidence, one step at a time.
         </p>
       </div>
-    `,
-    TextBody: `Hey ${firstName},
+    `;
+
+  // Default plain text body
+  const defaultTextBody = `Hey ${firstName},
 
 Last week you tracked your product through each touchpoint. This week, we put a number on it.
 
@@ -1899,7 +2070,23 @@ Audrey
 
 ---
 Audacious Money
-Building financial confidence, one step at a time.`,
+Building financial confidence, one step at a time.`;
+
+  // Use custom template body if provided, otherwise use default
+  const htmlBody = customTemplate?.htmlBody
+    ? replaceTemplateTags(customTemplate.htmlBody, templateValues)
+    : defaultHtmlBody;
+
+  const textBody = customTemplate?.plainTextBody
+    ? replaceTemplateTags(customTemplate.plainTextBody, templateValues)
+    : defaultTextBody;
+
+  const emailOptions: any = {
+    From: `${fromName} <${FROM_EMAIL}>`,
+    To: to,
+    Subject: subject,
+    HtmlBody: htmlBody,
+    TextBody: textBody,
     MessageStream: 'outbound',
 
     // Enable email tracking
@@ -1937,6 +2124,7 @@ Building financial confidence, one step at a time.`,
 /**
  * Send Challenge Week 3 email (post-workshop)
  * EMAIL #5 from sequence - sent 3 weeks after workshop
+ * Accepts optional customTemplate to use admin-configured email content
  */
 export async function sendWorkshopChallengeWeek3Email(
   to: string,
@@ -1944,15 +2132,24 @@ export async function sendWorkshopChallengeWeek3Email(
   workshopName: string,
   userId: string,
   workshopId: string,
-  sendAt?: string // Optional: ISO 8601 format for scheduled delivery
+  sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
+  customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
 ): Promise<void> {
-  const subject = '[AM] Now We\'re Talking';
+  // Template replacement values
+  const templateValues = {
+    firstName,
+    workshopName,
+  };
 
-  const emailOptions: any = {
-    From: `Audrey <${FROM_EMAIL}>`,
-    To: to,
-    Subject: subject,
-    HtmlBody: `
+  // Use custom template if provided, otherwise use default
+  const subject = customTemplate?.subject
+    ? replaceTemplateTags(customTemplate.subject, templateValues)
+    : '[AM] Now We\'re Talking';
+
+  const fromName = customTemplate?.fromName || 'Audrey';
+
+  // Default HTML body
+  const defaultHtmlBody = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <p>Hey ${firstName},</p>
 
@@ -1982,8 +2179,10 @@ export async function sendWorkshopChallengeWeek3Email(
           Building financial confidence, one step at a time.
         </p>
       </div>
-    `,
-    TextBody: `Hey ${firstName},
+    `;
+
+  // Default plain text body
+  const defaultTextBody = `Hey ${firstName},
 
 You know your number now and going at this with your eyes wide open.
 
@@ -2008,7 +2207,23 @@ Audrey
 
 ---
 Audacious Money
-Building financial confidence, one step at a time.`,
+Building financial confidence, one step at a time.`;
+
+  // Use custom template body if provided, otherwise use default
+  const htmlBody = customTemplate?.htmlBody
+    ? replaceTemplateTags(customTemplate.htmlBody, templateValues)
+    : defaultHtmlBody;
+
+  const textBody = customTemplate?.plainTextBody
+    ? replaceTemplateTags(customTemplate.plainTextBody, templateValues)
+    : defaultTextBody;
+
+  const emailOptions: any = {
+    From: `${fromName} <${FROM_EMAIL}>`,
+    To: to,
+    Subject: subject,
+    HtmlBody: htmlBody,
+    TextBody: textBody,
     MessageStream: 'outbound',
 
     // Enable email tracking
@@ -2046,6 +2261,7 @@ Building financial confidence, one step at a time.`,
 /**
  * Send Challenge Week 4 email (post-workshop)
  * EMAIL #6 from sequence - sent 4 weeks after workshop
+ * Accepts optional customTemplate to use admin-configured email content
  */
 export async function sendWorkshopChallengeWeek4Email(
   to: string,
@@ -2053,15 +2269,24 @@ export async function sendWorkshopChallengeWeek4Email(
   workshopName: string,
   userId: string,
   workshopId: string,
-  sendAt?: string // Optional: ISO 8601 format for scheduled delivery
+  sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
+  customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
 ): Promise<void> {
-  const subject = '[AM] Making My Move';
+  // Template replacement values
+  const templateValues = {
+    firstName,
+    workshopName,
+  };
 
-  const emailOptions: any = {
-    From: `Audrey <${FROM_EMAIL}>`,
-    To: to,
-    Subject: subject,
-    HtmlBody: `
+  // Use custom template if provided, otherwise use default
+  const subject = customTemplate?.subject
+    ? replaceTemplateTags(customTemplate.subject, templateValues)
+    : '[AM] Making My Move';
+
+  const fromName = customTemplate?.fromName || 'Audrey';
+
+  // Default HTML body
+  const defaultHtmlBody = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <p>Hi ${firstName},</p>
 
@@ -2096,8 +2321,10 @@ export async function sendWorkshopChallengeWeek4Email(
           Building financial confidence, one step at a time.
         </p>
       </div>
-    `,
-    TextBody: `Hi ${firstName},
+    `;
+
+  // Default plain text body
+  const defaultTextBody = `Hi ${firstName},
 
 You've watched. You've calculated. You've listened. Now we move.
 
@@ -2124,7 +2351,23 @@ Audrey
 
 ---
 Audacious Money
-Building financial confidence, one step at a time.`,
+Building financial confidence, one step at a time.`;
+
+  // Use custom template body if provided, otherwise use default
+  const htmlBody = customTemplate?.htmlBody
+    ? replaceTemplateTags(customTemplate.htmlBody, templateValues)
+    : defaultHtmlBody;
+
+  const textBody = customTemplate?.plainTextBody
+    ? replaceTemplateTags(customTemplate.plainTextBody, templateValues)
+    : defaultTextBody;
+
+  const emailOptions: any = {
+    From: `${fromName} <${FROM_EMAIL}>`,
+    To: to,
+    Subject: subject,
+    HtmlBody: htmlBody,
+    TextBody: textBody,
     MessageStream: 'outbound',
 
     // Enable email tracking
@@ -2162,6 +2405,7 @@ Building financial confidence, one step at a time.`,
 /**
  * Send 30-day wrap-up email (post-workshop)
  * EMAIL #7 from sequence - sent 30 days after workshop
+ * Accepts optional customTemplate to use admin-configured email content
  */
 export async function sendWorkshopWrapUpEmail(
   to: string,
@@ -2169,15 +2413,24 @@ export async function sendWorkshopWrapUpEmail(
   workshopName: string,
   userId: string,
   workshopId: string,
-  sendAt?: string // Optional: ISO 8601 format for scheduled delivery
+  sendAt?: string, // Optional: ISO 8601 format for scheduled delivery
+  customTemplate?: CustomEmailTemplate // Optional: admin-configured custom template
 ): Promise<void> {
-  const subject = '[AM] Different Now';
+  // Template replacement values
+  const templateValues = {
+    firstName,
+    workshopName,
+  };
 
-  const emailOptions: any = {
-    From: `Audrey <${FROM_EMAIL}>`,
-    To: to,
-    Subject: subject,
-    HtmlBody: `
+  // Use custom template if provided, otherwise use default
+  const subject = customTemplate?.subject
+    ? replaceTemplateTags(customTemplate.subject, templateValues)
+    : '[AM] Different Now';
+
+  const fromName = customTemplate?.fromName || 'Audrey';
+
+  // Default HTML body
+  const defaultHtmlBody = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <p>Hey ${firstName},</p>
 
@@ -2215,8 +2468,10 @@ export async function sendWorkshopWrapUpEmail(
           Building financial confidence, one step at a time.
         </p>
       </div>
-    `,
-    TextBody: `Hey ${firstName},
+    `;
+
+  // Default plain text body
+  const defaultTextBody = `Hey ${firstName},
 
 Thirty days ago you showed up - for your numbers, for your business, for yourself.
 
@@ -2249,7 +2504,23 @@ P.S. This was never about becoming perfect with your numbers. It was about becom
 
 ---
 Audacious Money
-Building financial confidence, one step at a time.`,
+Building financial confidence, one step at a time.`;
+
+  // Use custom template body if provided, otherwise use default
+  const htmlBody = customTemplate?.htmlBody
+    ? replaceTemplateTags(customTemplate.htmlBody, templateValues)
+    : defaultHtmlBody;
+
+  const textBody = customTemplate?.plainTextBody
+    ? replaceTemplateTags(customTemplate.plainTextBody, templateValues)
+    : defaultTextBody;
+
+  const emailOptions: any = {
+    From: `${fromName} <${FROM_EMAIL}>`,
+    To: to,
+    Subject: subject,
+    HtmlBody: htmlBody,
+    TextBody: textBody,
     MessageStream: 'outbound',
 
     // Enable email tracking
