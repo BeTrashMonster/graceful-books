@@ -133,6 +133,20 @@ function mapEnrollmentRow(row: any) {
     workshopId: row.workshop_id,
     enrolledAt: row.enrolled_at,
     worksheetCompletedAt: row.worksheet_completed_at,
+    // Access tracking
+    accessGranted: row.access_granted || false,
+    accessGrantedAt: row.access_granted_at,
+    // Login/activity tracking
+    firstLoginAt: row.first_login_at,
+    lastActiveAt: row.last_active_at,
+    // Trial tracking
+    trialStartedAt: row.trial_started_at,
+    trialExpiresAt: row.trial_expires_at,
+    convertedToPaidAt: row.converted_to_paid_at,
+    // Status and emails
+    status: row.status || 'enrolled',
+    emailsSent: row.emails_sent || [],
+    // Metadata
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -742,13 +756,39 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
       );
     }
 
-    // Create enrollment
+    // Calculate enrollment initial values
+    const now = new Date();
+    const accessGrantTime = workshop.accessGrantDatetime ? new Date(workshop.accessGrantDatetime) : null;
+    const shouldGrantAccess = accessGrantTime ? now >= accessGrantTime : false;
+
+    // Calculate trial dates
+    const trialStartDate = workshop.trialStartDatetime
+      ? new Date(workshop.trialStartDatetime)
+      : workshop.workshopStartDatetime
+        ? new Date(workshop.workshopStartDatetime)
+        : now;
+    const trialEndDate = new Date(trialStartDate);
+    trialEndDate.setDate(trialEndDate.getDate() + (workshop.trialDurationDays || 30));
+
+    // Create enrollment with proper initial values
     const enrollmentResult = await db.query(
       `INSERT INTO workshop_enrollments (
-        user_id, workshop_id
-      ) VALUES ($1, $2)
+        user_id, workshop_id, status,
+        access_granted, access_granted_at,
+        trial_started_at, trial_expires_at,
+        first_login_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *`,
-      [user.id, workshopId]
+      [
+        user.id,
+        workshopId,
+        shouldGrantAccess ? 'active' : 'enrolled',
+        shouldGrantAccess,
+        shouldGrantAccess ? now : null,
+        trialStartDate,
+        trialEndDate,
+        now, // They just signed up and are logging in
+      ]
     );
 
     const enrollment = mapEnrollmentRow(enrollmentResult.rows[0]);
