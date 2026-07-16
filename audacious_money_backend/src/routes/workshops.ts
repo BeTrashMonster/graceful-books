@@ -11,16 +11,7 @@ import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import { rateLimiter } from '../middleware/rateLimit.js';
 import { hashPassword } from '../utils/password.js';
 import { generateUserToken } from '../utils/jwt.js';
-import {
-  sendWorkshopWelcomeEmail,
-  sendWorkshopReminderEmail,
-  sendWorkshopChallengeWeek1Email,
-  sendWorkshopChallengeWeek2Email,
-  sendWorkshopChallengeWeek3Email,
-  sendWorkshopChallengeWeek4Email,
-  sendWorkshopWrapUpEmail,
-  sendCustomWorkshopEmail,
-} from '../services/email.service.js';
+import { sendCustomWorkshopEmail } from '../services/email.service.js';
 import {
   success,
   badRequest,
@@ -113,6 +104,7 @@ function mapWorkshopRow(row: any) {
     maxEnrollment: row.max_enrollment,
     welcomeMessage: row.welcome_message,
     customEmailTemplates: row.custom_email_templates,
+    customEmailSchedule: row.custom_email_schedule,
     postWorkshopResources: row.post_workshop_resources,
     sendReminder: row.send_reminder,
     reminderHoursBefore: row.reminder_hours_before,
@@ -830,224 +822,45 @@ workshops.post('/:id/signup', rateLimiter({ max: 30, window: 3600 }), validate(w
 
     console.log('[Workshops] User products for session:', products);
 
-    // Schedule all workshop emails (async, don't block response)
-    const workshopStart = new Date(workshop.workshopStartDatetime);
-    const workshopEnd = new Date(workshop.workshopEndDatetime || workshop.workshopStartDatetime);
-    const workshopLocation = workshop.location || 'Online';
-    const workshopName = workshop.workshopName || workshop.cohortName;
-    const workshopDateFormatted = workshopStart.toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    // Schedule all workshop emails using the new database-backed system
+    try {
+      const { scheduleWorkshopEmails } = await import('../services/emailScheduler.service.js');
 
-    // Parse email schedule from workshop config (use defaults if not set)
-    const emailSchedule = workshopRow.custom_email_schedule || {
-      welcome: { enabled: true, when: 'immediate' },
-      reminder: { enabled: true, when: { hours_before: 24 } },
-      week1: { enabled: true, when: { days_after_workshop: 7 } },
-      week2: { enabled: true, when: { days_after_workshop: 14 } },
-      week3: { enabled: true, when: { days_after_workshop: 21 } },
-      week4: { enabled: true, when: { days_after_workshop: 28 } },
-      wrapUp: { enabled: true, when: { days_after_workshop: 30 } },
-    };
-
-    // Get custom email templates from workshop config
-    const customEmailTemplates = workshopRow.custom_email_templates || {};
-    console.log('[Workshops] Custom email templates configured:', Object.keys(customEmailTemplates).length > 0 ? Object.keys(customEmailTemplates) : 'none (using defaults)');
-
-    // Schedule emails asynchronously
-    (async () => {
-      try {
-        // Email #1 - Welcome (send immediately if enabled)
-        if (emailSchedule.welcome?.enabled !== false) {
-          console.log('[Workshops] Sending welcome email to:', user.email);
-          await sendWorkshopWelcomeEmail(
-            user.email,
-            data.firstName,
-            workshopName,
-            workshopDateFormatted,
-            workshopLocation,
-            user.id,
-            workshopId,
-            undefined, // sendAt - immediate
-            customEmailTemplates.welcome // custom template
-          );
-          console.log('[Workshops] ✅ Welcome email sent successfully to:', user.email);
-        } else {
-          console.log('[Workshops] Welcome email skipped - disabled in schedule');
+      const scheduleResult = await scheduleWorkshopEmails(
+        db,
+        {
+          id: enrollment.id,
+          workshopId: workshop.id,
+          userId: user.id,
+        },
+        {
+          id: workshop.id,
+          cohortName: workshop.cohortName,
+          workshopName: workshop.workshopName,
+          workshopStartDatetime: workshop.workshopStartDatetime,
+          workshopEndDatetime: workshop.workshopEndDatetime || workshop.workshopStartDatetime,
+          location: workshop.location,
+          customEmailSchedule: workshopRow.custom_email_schedule,
+          customEmailTemplates: workshopRow.custom_email_templates,
+        },
+        {
+          id: user.id,
+          email: user.email,
+          firstName: data.firstName,
         }
+      );
 
-        // Email #2 - Reminder (schedule based on email schedule configuration)
-        if (emailSchedule.reminder?.enabled !== false) {
-          const reminderConfig = emailSchedule.reminder?.when;
-          const hoursBefore = typeof reminderConfig === 'object' && 'hours_before' in reminderConfig
-            ? reminderConfig.hours_before
-            : 24;
-          const reminderTime = new Date(workshopStart);
-          reminderTime.setHours(reminderTime.getHours() - hoursBefore);
-
-          // Only schedule if the reminder time is in the future
-          if (reminderTime > new Date()) {
-            await sendWorkshopReminderEmail(
-              user.email,
-              data.firstName,
-              workshop.workshopStartDatetime,
-              workshopLocation,
-              user.id,
-              workshopId,
-              reminderTime.toISOString(),
-              customEmailTemplates.reminder // custom template
-            );
-            console.log(`[Workshops] ✅ Reminder email scheduled for ${hoursBefore}h before:`, reminderTime.toISOString());
-          } else {
-            console.log('[Workshops] Reminder email skipped - time already passed');
-          }
-        }
-
-        // Email #3 - Week 1 Challenge (schedule if enabled)
-        if (emailSchedule.week1?.enabled !== false) {
-          const week1Config = emailSchedule.week1?.when;
-          const daysAfter = typeof week1Config === 'object' && 'days_after_workshop' in week1Config
-            ? week1Config.days_after_workshop
-            : 7;
-          const week1Time = new Date(workshopEnd);
-          week1Time.setDate(week1Time.getDate() + daysAfter);
-
-          // Only schedule if the time is in the future
-          if (week1Time > new Date()) {
-            await sendWorkshopChallengeWeek1Email(
-              user.email,
-              data.firstName,
-              workshopName,
-              user.id,
-              workshopId,
-              week1Time.toISOString(),
-              customEmailTemplates.week1 // custom template
-            );
-            console.log(`[Workshops] ✅ Week 1 Challenge scheduled for ${daysAfter} days after:`, week1Time.toISOString());
-          } else {
-            console.log('[Workshops] Week 1 Challenge skipped - scheduled time already passed');
-          }
-        }
-
-        // Email #4 - Week 2 Challenge (schedule if enabled)
-        if (emailSchedule.week2?.enabled !== false) {
-          const week2Config = emailSchedule.week2?.when;
-          const daysAfter = typeof week2Config === 'object' && 'days_after_workshop' in week2Config
-            ? week2Config.days_after_workshop
-            : 14;
-          const week2Time = new Date(workshopEnd);
-          week2Time.setDate(week2Time.getDate() + daysAfter);
-
-          // Only schedule if the time is in the future
-          if (week2Time > new Date()) {
-            await sendWorkshopChallengeWeek2Email(
-              user.email,
-              data.firstName,
-              workshopName,
-              user.id,
-              workshopId,
-              week2Time.toISOString(),
-              customEmailTemplates.week2 // custom template
-            );
-            console.log(`[Workshops] ✅ Week 2 Challenge scheduled for ${daysAfter} days after:`, week2Time.toISOString());
-          } else {
-            console.log('[Workshops] Week 2 Challenge skipped - scheduled time already passed');
-          }
-        }
-
-        // Email #5 - Week 3 Challenge (schedule if enabled)
-        if (emailSchedule.week3?.enabled !== false) {
-          const week3Config = emailSchedule.week3?.when;
-          const daysAfter = typeof week3Config === 'object' && 'days_after_workshop' in week3Config
-            ? week3Config.days_after_workshop
-            : 21;
-          const week3Time = new Date(workshopEnd);
-          week3Time.setDate(week3Time.getDate() + daysAfter);
-
-          // Only schedule if the time is in the future
-          if (week3Time > new Date()) {
-            await sendWorkshopChallengeWeek3Email(
-              user.email,
-              data.firstName,
-              workshopName,
-              user.id,
-              workshopId,
-              week3Time.toISOString(),
-              customEmailTemplates.week3 // custom template
-            );
-            console.log(`[Workshops] ✅ Week 3 Challenge scheduled for ${daysAfter} days after:`, week3Time.toISOString());
-          } else {
-            console.log('[Workshops] Week 3 Challenge skipped - scheduled time already passed');
-          }
-        }
-
-        // Email #6 - Week 4 Challenge (schedule if enabled)
-        if (emailSchedule.week4?.enabled !== false) {
-          const week4Config = emailSchedule.week4?.when;
-          const daysAfter = typeof week4Config === 'object' && 'days_after_workshop' in week4Config
-            ? week4Config.days_after_workshop
-            : 28;
-          const week4Time = new Date(workshopEnd);
-          week4Time.setDate(week4Time.getDate() + daysAfter);
-
-          // Only schedule if the time is in the future
-          if (week4Time > new Date()) {
-            await sendWorkshopChallengeWeek4Email(
-              user.email,
-              data.firstName,
-              workshopName,
-              user.id,
-              workshopId,
-              week4Time.toISOString(),
-              customEmailTemplates.week4 // custom template
-            );
-            console.log(`[Workshops] ✅ Week 4 Challenge scheduled for ${daysAfter} days after:`, week4Time.toISOString());
-          } else {
-            console.log('[Workshops] Week 4 Challenge skipped - scheduled time already passed');
-          }
-        }
-
-        // Email #7 - Wrap-Up (schedule if enabled)
-        if (emailSchedule.wrapUp?.enabled !== false) {
-          const wrapUpConfig = emailSchedule.wrapUp?.when;
-          const daysAfter = typeof wrapUpConfig === 'object' && 'days_after_workshop' in wrapUpConfig
-            ? wrapUpConfig.days_after_workshop
-            : 30;
-          const wrapUpTime = new Date(workshopEnd);
-          wrapUpTime.setDate(wrapUpTime.getDate() + daysAfter);
-
-          // Only schedule if the time is in the future
-          if (wrapUpTime > new Date()) {
-            await sendWorkshopWrapUpEmail(
-              user.email,
-              data.firstName,
-              workshopName,
-              user.id,
-              workshopId,
-              wrapUpTime.toISOString(),
-              customEmailTemplates.wrapUp // custom template
-            );
-            console.log(`[Workshops] ✅ Wrap-Up email scheduled for ${daysAfter} days after:`, wrapUpTime.toISOString());
-          } else {
-            console.log('[Workshops] Wrap-Up email skipped - scheduled time already passed');
-          }
-        }
-
-        console.log('[Workshops] ✅ All workshop emails scheduled for:', user.email);
-      } catch (emailError) {
-        // Log the full error for debugging
-        console.error('[Workshops] ❌ Error scheduling workshop emails:', emailError);
-        console.error('[Workshops] Email error details:', {
-          name: emailError?.name,
-          message: emailError?.message,
-          stack: emailError?.stack,
-        });
-        // Don't fail the signup - emails are not critical for enrollment success
-      }
-    })();
+      console.log(`[Workshops] ✅ Scheduled ${scheduleResult.scheduled} emails for ${user.email}`);
+    } catch (emailError: any) {
+      // Log the error but don't fail the signup
+      console.error('[Workshops] ❌ Error scheduling workshop emails:', emailError);
+      console.error('[Workshops] Email error details:', {
+        name: emailError?.name,
+        message: emailError?.message,
+        stack: emailError?.stack,
+      });
+      // Don't fail the signup - emails are not critical for enrollment success
+    }
 
     return success(c, {
       success: true,
@@ -2109,6 +1922,187 @@ workshops.post('/:id/send-email', requireAdmin, async (c) => {
   } catch (error: any) {
     console.error('[Workshops] Error sending admin emails:', error);
     return badRequest(c, ErrorCodes.INTERNAL_ERROR, error.message || 'Failed to send emails');
+  }
+});
+
+// =============================================================================
+// SCHEDULED EMAILS ADMIN ENDPOINTS
+// =============================================================================
+
+/**
+ * GET /api/workshops/:id/scheduled-emails
+ *
+ * Get all scheduled emails for a workshop (admin only)
+ */
+workshops.get('/:id/scheduled-emails', requireAdmin, async (c) => {
+  const workshopId = c.req.param('id');
+  const status = c.req.query('status');
+  const db = c.get('db');
+
+  try {
+    const { getScheduledEmailsForWorkshop } = await import('../services/emailScheduler.service.js');
+    const emails = await getScheduledEmailsForWorkshop(
+      db,
+      workshopId,
+      status ? { status: status as any } : undefined
+    );
+
+    return success(c, { scheduledEmails: emails });
+  } catch (error: any) {
+    console.error('[Workshops] Error fetching scheduled emails:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch scheduled emails');
+  }
+});
+
+/**
+ * GET /api/enrollments/:id/scheduled-emails
+ *
+ * Get all scheduled emails for an enrollment (admin only)
+ */
+workshops.get('/enrollments/:id/scheduled-emails', requireAdmin, async (c) => {
+  const enrollmentId = c.req.param('id');
+  const db = c.get('db');
+
+  try {
+    const { getScheduledEmailsForEnrollment } = await import('../services/emailScheduler.service.js');
+    const emails = await getScheduledEmailsForEnrollment(db, enrollmentId);
+
+    return success(c, { scheduledEmails: emails });
+  } catch (error: any) {
+    console.error('[Workshops] Error fetching scheduled emails:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to fetch scheduled emails');
+  }
+});
+
+/**
+ * PUT /api/scheduled-emails/:id/cancel
+ *
+ * Cancel a scheduled email (admin only)
+ */
+workshops.put('/scheduled-emails/:id/cancel', requireAdmin, async (c) => {
+  const emailId = c.req.param('id');
+  const adminId = c.get('adminId');
+  const db = c.get('db');
+
+  try {
+    const { cancelScheduledEmail } = await import('../services/emailScheduler.service.js');
+    const email = await cancelScheduledEmail(db, emailId, adminId);
+
+    if (!email) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Scheduled email not found or already sent/cancelled');
+    }
+
+    return success(c, { scheduledEmail: email });
+  } catch (error: any) {
+    console.error('[Workshops] Error cancelling scheduled email:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to cancel scheduled email');
+  }
+});
+
+/**
+ * PUT /api/enrollments/:id/scheduled-emails/cancel-all
+ *
+ * Cancel all pending emails for an enrollment (admin only)
+ */
+workshops.put('/enrollments/:id/scheduled-emails/cancel-all', requireAdmin, async (c) => {
+  const enrollmentId = c.req.param('id');
+  const adminId = c.get('adminId');
+  const db = c.get('db');
+
+  try {
+    const { cancelAllPendingEmails } = await import('../services/emailScheduler.service.js');
+    const count = await cancelAllPendingEmails(db, enrollmentId, adminId);
+
+    return success(c, { cancelled: count });
+  } catch (error: any) {
+    console.error('[Workshops] Error cancelling scheduled emails:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to cancel scheduled emails');
+  }
+});
+
+/**
+ * POST /api/scheduled-emails/:id/retry
+ *
+ * Retry a failed email (admin only)
+ */
+workshops.post('/scheduled-emails/:id/retry', requireAdmin, async (c) => {
+  const emailId = c.req.param('id');
+  const db = c.get('db');
+
+  try {
+    const { retryFailedEmail } = await import('../services/emailScheduler.service.js');
+    const email = await retryFailedEmail(db, emailId);
+
+    if (!email) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Failed email not found');
+    }
+
+    return success(c, { scheduledEmail: email });
+  } catch (error: any) {
+    console.error('[Workshops] Error retrying scheduled email:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to retry scheduled email');
+  }
+});
+
+/**
+ * POST /api/enrollments/:id/schedule-emails
+ *
+ * Manually schedule emails for an existing enrollment (admin only)
+ * Useful for enrollments that were created before the new system
+ */
+workshops.post('/enrollments/:id/schedule-emails', requireAdmin, async (c) => {
+  const enrollmentId = c.req.param('id');
+  const db = c.get('db');
+
+  try {
+    // Get enrollment with user and workshop data
+    const result = await db.query(
+      `SELECT we.*, w.*, u.email, u.first_name
+       FROM workshop_enrollments we
+       JOIN workshops w ON we.workshop_id = w.id
+       JOIN users u ON we.user_id = u.id
+       WHERE we.id = $1`,
+      [enrollmentId]
+    );
+
+    if (result.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Enrollment not found');
+    }
+
+    const row = result.rows[0];
+
+    const { scheduleWorkshopEmails } = await import('../services/emailScheduler.service.js');
+    const scheduleResult = await scheduleWorkshopEmails(
+      db,
+      {
+        id: enrollmentId,
+        workshopId: row.workshop_id,
+        userId: row.user_id,
+      },
+      {
+        id: row.workshop_id,
+        cohortName: row.cohort_name,
+        workshopName: row.workshop_name,
+        workshopStartDatetime: row.workshop_start_datetime,
+        workshopEndDatetime: row.workshop_end_datetime,
+        location: row.location,
+        customEmailSchedule: row.custom_email_schedule,
+        customEmailTemplates: row.custom_email_templates,
+      },
+      {
+        id: row.user_id,
+        email: row.email,
+        firstName: row.first_name || 'there',
+      }
+    );
+
+    return success(c, {
+      scheduled: scheduleResult.scheduled,
+      skipped: scheduleResult.skipped,
+    });
+  } catch (error: any) {
+    console.error('[Workshops] Error scheduling emails:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, 'Failed to schedule emails');
   }
 });
 

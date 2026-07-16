@@ -24,6 +24,7 @@ import adminRoutes from './routes/admin.js';
 import contactRoutes from './routes/contact.js';
 import charityRoutes from './routes/charities.js';
 import workshopRoutes from './routes/workshops.js';
+import cronRoutes from './routes/cron.js';
 
 // Create Hono app
 const app = new Hono();
@@ -63,6 +64,9 @@ app.use('*', async (c, next) => {
 
 // Webhook routes (must be before rate limiting)
 app.route('/webhooks', webhookRoutes);
+
+// Cron routes (must be before rate limiting, uses its own auth)
+app.route('/api/cron', cronRoutes);
 
 // Auth endpoints: 10 requests per 5 minutes (prevents brute force, allows testing)
 app.use('/auth/*', rateLimiter({ max: 10, window: 300 }));
