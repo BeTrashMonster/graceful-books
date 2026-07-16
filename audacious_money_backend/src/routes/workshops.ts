@@ -19,6 +19,7 @@ import {
   sendWorkshopChallengeWeek3Email,
   sendWorkshopChallengeWeek4Email,
   sendWorkshopWrapUpEmail,
+  sendCustomWorkshopEmail,
 } from '../services/email.service.js';
 import {
   success,
@@ -1939,6 +1940,132 @@ workshops.get('/:workshopId/enrollments/:userId/email-tracking', requireAdmin, a
   } catch (error) {
     console.error('[Workshops API] Error fetching email tracking:', error);
     return c.json({ error: { message: 'Failed to fetch email tracking data' } }, 500);
+  }
+});
+
+// =============================================================================
+// ADMIN EMAIL SENDING
+// =============================================================================
+
+/**
+ * POST /api/workshops/:id/send-email
+ *
+ * Send emails to selected workshop attendees (admin only)
+ * Can resend predefined email types (using custom templates if configured)
+ * or send completely custom one-off emails
+ */
+workshops.post('/:id/send-email', requireAdmin, async (c) => {
+  const workshopId = c.req.param('id');
+  const db = c.get('db');
+
+  try {
+    const body = await c.req.json();
+    const {
+      enrollmentIds, // Array of enrollment IDs to send to
+      emailType, // 'welcome' | 'reminder' | 'week1' | 'week2' | 'week3' | 'week4' | 'wrapUp' | 'custom'
+      customContent, // For custom emails: { subject, htmlBody, plainTextBody?, fromName? }
+    } = body;
+
+    // Validate required fields
+    if (!enrollmentIds || !Array.isArray(enrollmentIds) || enrollmentIds.length === 0) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Please select at least one attendee');
+    }
+
+    if (!emailType) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Please select an email type');
+    }
+
+    const validEmailTypes = ['welcome', 'reminder', 'week1', 'week2', 'week3', 'week4', 'wrapUp', 'custom'];
+    if (!validEmailTypes.includes(emailType)) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Invalid email type');
+    }
+
+    if (emailType === 'custom' && (!customContent?.subject || !customContent?.htmlBody)) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'Custom emails require subject and body');
+    }
+
+    // Get workshop details
+    const workshopResult = await db.query('SELECT * FROM workshops WHERE id = $1', [workshopId]);
+    if (workshopResult.rowCount === 0) {
+      return notFound(c, ErrorCodes.NOT_FOUND, 'Workshop not found');
+    }
+    const workshopRow = workshopResult.rows[0];
+    const workshopName = workshopRow.workshop_name || workshopRow.cohort_name;
+    const workshopLocation = workshopRow.location || 'Online';
+    const workshopStart = new Date(workshopRow.workshop_start_datetime);
+    const workshopDateFormatted = workshopStart.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+
+    // Get custom email templates from workshop config
+    const customEmailTemplates = workshopRow.custom_email_templates || {};
+
+    // Get selected enrollments with user info
+    const enrollmentsResult = await db.query(
+      `SELECT we.*, u.id as user_id, u.email, u.first_name, u.last_name
+       FROM workshop_enrollments we
+       JOIN users u ON we.user_id = u.id
+       WHERE we.id = ANY($1) AND we.workshop_id = $2`,
+      [enrollmentIds, workshopId]
+    );
+
+    if (enrollmentsResult.rowCount === 0) {
+      return badRequest(c, ErrorCodes.INVALID_INPUT, 'No valid enrollments found');
+    }
+
+    // Send emails to each selected attendee
+    const results: { email: string; success: boolean; error?: string }[] = [];
+
+    for (const row of enrollmentsResult.rows) {
+      const firstName = row.first_name || 'there';
+      const userEmail = row.email;
+      const userId = row.user_id;
+
+      // Get the appropriate custom template for this email type (if not custom)
+      const customTemplate = emailType !== 'custom' ? customEmailTemplates[emailType] : undefined;
+
+      const result = await sendCustomWorkshopEmail(
+        userEmail,
+        firstName,
+        workshopName,
+        workshopDateFormatted,
+        workshopLocation,
+        userId,
+        workshopId,
+        emailType,
+        emailType === 'custom' ? customContent : undefined,
+        customTemplate
+      );
+
+      results.push({
+        email: userEmail,
+        success: result.success,
+        error: result.error,
+      });
+
+      console.log(`[Workshops] Email ${emailType} sent to ${userEmail}: ${result.success ? '✅' : '❌ ' + result.error}`);
+    }
+
+    const successCount = results.filter(r => r.success).length;
+    const failCount = results.filter(r => !r.success).length;
+
+    console.log(`[Workshops] Admin email send complete: ${successCount} sent, ${failCount} failed`);
+
+    return success(c, {
+      message: `Sent ${successCount} email(s)${failCount > 0 ? `, ${failCount} failed` : ''}`,
+      results,
+      summary: {
+        total: results.length,
+        success: successCount,
+        failed: failCount,
+      },
+    });
+  } catch (error: any) {
+    console.error('[Workshops] Error sending admin emails:', error);
+    return badRequest(c, ErrorCodes.INTERNAL_ERROR, error.message || 'Failed to send emails');
   }
 });
 

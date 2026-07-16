@@ -2556,6 +2556,114 @@ Building financial confidence, one step at a time.`;
 }
 
 /**
+ * Send a custom workshop email (admin-triggered)
+ * Can resend a predefined email type with custom templates, or send a completely custom email
+ */
+export async function sendCustomWorkshopEmail(
+  to: string,
+  firstName: string,
+  workshopName: string,
+  workshopDate: string,
+  workshopLocation: string,
+  userId: string,
+  workshopId: string,
+  emailType: 'welcome' | 'reminder' | 'week1' | 'week2' | 'week3' | 'week4' | 'wrapUp' | 'custom',
+  customContent?: {
+    subject: string;
+    htmlBody: string;
+    plainTextBody?: string;
+    fromName?: string;
+  },
+  customTemplate?: CustomEmailTemplate // For resending predefined types with custom templates
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  try {
+    // Template replacement values for both predefined and custom emails
+    const templateValues = {
+      firstName,
+      workshopName,
+      workshopDate,
+      workshopLocation,
+    };
+
+    // If it's a predefined email type (not 'custom'), delegate to the appropriate function
+    if (emailType !== 'custom') {
+      switch (emailType) {
+        case 'welcome':
+          await sendWorkshopWelcomeEmail(to, firstName, workshopName, workshopDate, workshopLocation, userId, workshopId, undefined, customTemplate);
+          break;
+        case 'reminder':
+          await sendWorkshopReminderEmail(to, firstName, workshopDate, workshopLocation, userId, workshopId, undefined, customTemplate);
+          break;
+        case 'week1':
+          await sendWorkshopChallengeWeek1Email(to, firstName, workshopName, userId, workshopId, undefined, customTemplate);
+          break;
+        case 'week2':
+          await sendWorkshopChallengeWeek2Email(to, firstName, workshopName, userId, workshopId, undefined, customTemplate);
+          break;
+        case 'week3':
+          await sendWorkshopChallengeWeek3Email(to, firstName, workshopName, userId, workshopId, undefined, customTemplate);
+          break;
+        case 'week4':
+          await sendWorkshopChallengeWeek4Email(to, firstName, workshopName, userId, workshopId, undefined, customTemplate);
+          break;
+        case 'wrapUp':
+          await sendWorkshopWrapUpEmail(to, firstName, workshopName, userId, workshopId, undefined, customTemplate);
+          break;
+      }
+      return { success: true };
+    }
+
+    // Custom email - requires customContent
+    if (!customContent) {
+      return { success: false, error: 'Custom email requires subject and body' };
+    }
+
+    const fromName = customContent.fromName || FROM_NAME;
+    const subject = replaceTemplateTags(customContent.subject, templateValues);
+    const htmlBody = replaceTemplateTags(customContent.htmlBody, templateValues);
+    const textBody = customContent.plainTextBody
+      ? replaceTemplateTags(customContent.plainTextBody, templateValues)
+      : htmlBody.replace(/<[^>]*>/g, ''); // Strip HTML for plain text
+
+    const emailOptions: any = {
+      From: `${fromName} <${FROM_EMAIL}>`,
+      To: to,
+      Subject: subject,
+      HtmlBody: htmlBody,
+      TextBody: textBody,
+      MessageStream: 'outbound',
+      TrackOpens: true,
+      TrackLinks: 'HtmlAndText',
+      Tag: generateEmailTag('workshop', 'custom', userId, workshopId),
+      Metadata: {
+        category: 'workshop',
+        type: 'custom',
+        userId: userId,
+        workshopId: workshopId,
+      },
+    };
+
+    const result = await client.sendEmail(emailOptions);
+
+    // Log sent email to database
+    await logEmailSent(
+      result.MessageID,
+      to,
+      subject,
+      'workshop',
+      'custom',
+      userId,
+      workshopId
+    );
+
+    return { success: true, messageId: result.MessageID };
+  } catch (error: any) {
+    console.error('[Email Service] Error sending custom workshop email:', error);
+    return { success: false, error: error.message || 'Failed to send email' };
+  }
+}
+
+/**
  * Send product welcome email for regular (non-workshop) product subscriptions (sent after Stripe checkout completes)
  */
 export async function sendProductWelcomeEmail(

@@ -349,3 +349,52 @@ export async function getMyWorkshopEnrollment(): Promise<WorkshopEnrollment | nu
 export async function completeWorksheet(): Promise<{ success: boolean }> {
   return api.post('/api/workshops/my-enrollment/worksheet/complete', {});
 }
+
+// =============================================================================
+// ADMIN EMAIL SENDING
+// =============================================================================
+
+export type EmailType = 'welcome' | 'reminder' | 'week1' | 'week2' | 'week3' | 'week4' | 'wrapUp' | 'custom';
+
+export interface SendEmailRequest {
+  enrollmentIds: string[];
+  emailType: EmailType;
+  customContent?: {
+    subject: string;
+    htmlBody: string;
+    plainTextBody?: string;
+    fromName?: string;
+  };
+}
+
+export interface SendEmailResult {
+  email: string;
+  success: boolean;
+  error?: string;
+}
+
+export interface SendEmailResponse {
+  message: string;
+  results: SendEmailResult[];
+  summary: {
+    total: number;
+    success: number;
+    failed: number;
+  };
+}
+
+/**
+ * Send emails to selected workshop enrollees (admin only)
+ * Can send predefined email types (using custom templates if configured)
+ * or completely custom one-off emails
+ */
+export async function sendWorkshopEmails(
+  workshopId: string,
+  request: SendEmailRequest
+): Promise<SendEmailResponse> {
+  const response = await api.post<{ data: SendEmailResponse }>(
+    `/api/workshops/${workshopId}/send-email`,
+    request
+  );
+  return response.data;
+}

@@ -23,9 +23,12 @@ import {
   startEnrollmentTrial,
   exportEnrollmentsCSV,
   getEnrollmentEmailTracking,
+  sendWorkshopEmails,
   type Workshop,
   type WorkshopEnrollment,
   type EmailTrackingData,
+  type EmailType,
+  type SendEmailResponse,
 } from '../../services/workshops.api';
 import styles from './WorkshopEnrollmentsPage.module.css';
 
@@ -53,6 +56,9 @@ export default function WorkshopEnrollmentsPage() {
 
   // Detail view
   const [selectedEnrollment, setSelectedEnrollment] = useState<WorkshopEnrollment | null>(null);
+
+  // Email modal
+  const [showEmailModal, setShowEmailModal] = useState(false);
 
   useEffect(() => {
     if (workshopId) {
@@ -211,6 +217,18 @@ export default function WorkshopEnrollmentsPage() {
     exportEnrollmentsCSV(workshopId, filteredEnrollments);
   };
 
+  const handleSendEmail = () => {
+    if (selectedEnrollments.size === 0) return;
+    setShowEmailModal(true);
+  };
+
+  const handleEmailSent = (response: SendEmailResponse) => {
+    setShowEmailModal(false);
+    setSelectedEnrollments(new Set());
+    alert(`Email sent successfully to ${response.summary.success} of ${response.summary.total} recipients.`);
+    loadData();
+  };
+
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case 'enrolled':
@@ -346,6 +364,13 @@ export default function WorkshopEnrollmentsPage() {
           </button>
           <button
             type="button"
+            onClick={handleSendEmail}
+            className={styles.bulkActionButton}
+          >
+            Send Email
+          </button>
+          <button
+            type="button"
             onClick={() => setSelectedEnrollments(new Set())}
             className={styles.bulkActionClear}
           >
@@ -469,6 +494,18 @@ export default function WorkshopEnrollmentsPage() {
           onUpdate={loadData}
         />
       )}
+
+      {/* Send Email Modal */}
+      {showEmailModal && workshopId && (
+        <SendEmailModal
+          workshopId={workshopId}
+          workshopName={workshop?.cohortName || 'Workshop'}
+          enrollmentIds={Array.from(selectedEnrollments)}
+          enrollments={enrollments.filter(e => selectedEnrollments.has(e.id))}
+          onClose={() => setShowEmailModal(false)}
+          onSuccess={handleEmailSent}
+        />
+      )}
     </div>
   );
 }
@@ -478,6 +515,241 @@ interface EnrollmentDetailModalProps {
   onClose: () => void;
   onUpdate: () => void;
 }
+
+// =============================================================================
+// SEND EMAIL MODAL
+// =============================================================================
+
+interface SendEmailModalProps {
+  workshopId: string;
+  workshopName: string;
+  enrollmentIds: string[];
+  enrollments: WorkshopEnrollment[];
+  onClose: () => void;
+  onSuccess: (response: SendEmailResponse) => void;
+}
+
+function SendEmailModal({
+  workshopId,
+  workshopName,
+  enrollmentIds,
+  enrollments,
+  onClose,
+  onSuccess,
+}: SendEmailModalProps) {
+  const [emailType, setEmailType] = useState<EmailType>('welcome');
+  const [isCustom, setIsCustom] = useState(false);
+  const [customSubject, setCustomSubject] = useState('');
+  const [customBody, setCustomBody] = useState('');
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const predefinedEmailTypes: { value: EmailType; label: string; description: string }[] = [
+    { value: 'welcome', label: 'Welcome Email', description: 'Initial welcome message sent at signup' },
+    { value: 'reminder', label: 'Reminder Email', description: 'Workshop reminder before start date' },
+    { value: 'week1', label: 'Week 1 Email', description: 'First week follow-up' },
+    { value: 'week2', label: 'Week 2 Email', description: 'Second week follow-up' },
+    { value: 'week3', label: 'Week 3 Email', description: 'Third week follow-up' },
+    { value: 'week4', label: 'Week 4 Email', description: 'Fourth week follow-up' },
+    { value: 'wrapUp', label: 'Wrap-Up Email', description: 'Workshop completion summary' },
+  ];
+
+  const handleSend = async () => {
+    if (isCustom && (!customSubject.trim() || !customBody.trim())) {
+      setError('Please enter both a subject and message for custom emails.');
+      return;
+    }
+
+    setSending(true);
+    setError(null);
+
+    try {
+      const response = await sendWorkshopEmails(workshopId, {
+        enrollmentIds,
+        emailType: isCustom ? 'custom' : emailType,
+        customContent: isCustom
+          ? {
+              subject: customSubject,
+              htmlBody: customBody.replace(/\n/g, '<br>'),
+              plainTextBody: customBody,
+            }
+          : undefined,
+      });
+
+      if (response.summary.failed > 0) {
+        setError(`${response.summary.failed} email(s) failed to send.`);
+      }
+
+      onSuccess(response);
+    } catch (err) {
+      console.error('Error sending emails:', err);
+      setError(err instanceof Error ? err.message : 'Failed to send emails');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div
+        className={styles.modalContent}
+        onClick={e => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="send-email-title"
+        style={{ maxWidth: '600px' }}
+      >
+        <div className={styles.modalHeader}>
+          <h2 id="send-email-title">Send Email to {enrollmentIds.length} Attendee(s)</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className={styles.closeButton}
+            aria-label="Close send email modal"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className={styles.modalBody}>
+          {/* Recipients Preview */}
+          <div className={styles.detailSection}>
+            <h3>Recipients</h3>
+            <div style={{ maxHeight: '100px', overflowY: 'auto', fontSize: '14px', color: '#666' }}>
+              {enrollments.map(e => (
+                <div key={e.id}>{e.user?.name || e.user?.email}</div>
+              ))}
+            </div>
+          </div>
+
+          {/* Email Type Selection */}
+          <div className={styles.detailSection}>
+            <h3>Email Type</h3>
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <input
+                  type="radio"
+                  name="emailMode"
+                  checked={!isCustom}
+                  onChange={() => setIsCustom(false)}
+                />
+                <span>Send predefined email</span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginTop: '8px' }}>
+                <input
+                  type="radio"
+                  name="emailMode"
+                  checked={isCustom}
+                  onChange={() => setIsCustom(true)}
+                />
+                <span>Compose custom email</span>
+              </label>
+            </div>
+
+            {!isCustom && (
+              <div style={{ marginTop: '16px' }}>
+                <label htmlFor="email-type-select" style={{ display: 'block', fontWeight: '500', marginBottom: '8px' }}>
+                  Select email to send:
+                </label>
+                <select
+                  id="email-type-select"
+                  value={emailType}
+                  onChange={e => setEmailType(e.target.value as EmailType)}
+                  className={styles.filterSelect}
+                  style={{ width: '100%' }}
+                >
+                  {predefinedEmailTypes.map(type => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+                <p style={{ fontSize: '13px', color: '#666', marginTop: '8px' }}>
+                  {predefinedEmailTypes.find(t => t.value === emailType)?.description}
+                </p>
+                <p style={{ fontSize: '13px', color: '#888', marginTop: '4px' }}>
+                  Note: If custom templates are configured for this workshop, they will be used.
+                </p>
+              </div>
+            )}
+
+            {isCustom && (
+              <div style={{ marginTop: '16px' }}>
+                <div style={{ marginBottom: '16px' }}>
+                  <label htmlFor="custom-subject" style={{ display: 'block', fontWeight: '500', marginBottom: '8px' }}>
+                    Subject:
+                  </label>
+                  <input
+                    type="text"
+                    id="custom-subject"
+                    value={customSubject}
+                    onChange={e => setCustomSubject(e.target.value)}
+                    placeholder={`[${workshopName}] Your custom subject`}
+                    className={styles.searchInput}
+                    style={{ width: '100%' }}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="custom-body" style={{ display: 'block', fontWeight: '500', marginBottom: '8px' }}>
+                    Message:
+                  </label>
+                  <textarea
+                    id="custom-body"
+                    value={customBody}
+                    onChange={e => setCustomBody(e.target.value)}
+                    placeholder="Enter your message here...&#10;&#10;Available template tags:&#10;{{firstName}} - Recipient's first name&#10;{{workshopName}} - Workshop name&#10;{{workshopDate}} - Workshop date&#10;{{workshopLocation}} - Workshop location"
+                    rows={8}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '1px solid #ddd',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      fontFamily: 'inherit',
+                      resize: 'vertical',
+                    }}
+                  />
+                  <p style={{ fontSize: '12px', color: '#888', marginTop: '8px' }}>
+                    You can use template tags like {'{{firstName}}'}, {'{{workshopName}}'}, etc.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {error && (
+            <div style={{ background: '#fef2f2', color: '#dc2626', padding: '12px', borderRadius: '6px', marginTop: '16px' }}>
+              {error}
+            </div>
+          )}
+        </div>
+
+        <div style={{ padding: '16px 24px', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+          <button
+            type="button"
+            onClick={onClose}
+            className={styles.bulkActionClear}
+            disabled={sending}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSend}
+            className={styles.bulkActionButton}
+            disabled={sending}
+          >
+            {sending ? 'Sending...' : `Send to ${enrollmentIds.length} Recipient(s)`}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// ENROLLMENT DETAIL MODAL
+// =============================================================================
 
 function EnrollmentDetailModal({ enrollment, onClose, onUpdate }: EnrollmentDetailModalProps) {
   const [emailTracking, setEmailTracking] = useState<EmailTrackingData | null>(null);
